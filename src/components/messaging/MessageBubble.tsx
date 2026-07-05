@@ -32,6 +32,8 @@ interface MessageBubbleProps {
   pinSelected?: boolean
   onPinSelectionToggle?: (message: MessageRow) => void
   reactionsDisabled?: boolean
+  onOpenPoll?: (poll: MessagePoll) => void
+  onOpenSignup?: (signup: MessageChecklist) => void
 }
 
 export default function MessageBubble({
@@ -51,6 +53,8 @@ export default function MessageBubble({
   pinSelected = false,
   onPinSelectionToggle,
   reactionsDisabled = false,
+  onOpenPoll,
+  onOpenSignup,
 }: MessageBubbleProps) {
   const footerMeta = messageFooterMeta(message, viewer)
   const isDeleted = Boolean(message.deleted_at)
@@ -271,6 +275,7 @@ export default function MessageBubble({
             fetcher={fetcher}
             viewerMemberId={viewer.memberId}
             viewerUserId={viewer.userId}
+            onOpenInPanel={(poll) => onOpenPoll?.({ ...poll, message_id: message.id })}
             onPollUpdated={(poll) => setPollState({
               ...poll,
               options: poll.options ?? (poll as MessagePoll & { options_json?: unknown[] }).options_json ?? [],
@@ -285,6 +290,7 @@ export default function MessageBubble({
             threadId={threadId}
             role={role}
             fetcher={fetcher}
+            onOpenInPanel={(checklist) => onOpenSignup?.({ ...checklist, message_id: message.id })}
             onChecklistUpdated={setChecklistState}
           />
         )}

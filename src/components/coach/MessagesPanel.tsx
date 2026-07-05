@@ -20,12 +20,6 @@ import MessagingContextBanner from '../messaging/MessagingContextBanner'
 import EventCalendarItemBanner from '../messaging/EventCalendarItemBanner'
 import MessagingInfoCard from '../messaging/MessagingInfoCard'
 import CriticalMessageToggle from '../messaging/CriticalMessageToggle'
-import MessageComposerCollaboration, {
-  EMPTY_COLLABORATION_DRAFT,
-  collaborationDraftIsValid,
-  type CollaborationDraft,
-} from '../messaging/MessageComposerCollaboration'
-import { attachMessageCollaboration } from '../messaging/attachMessageCollaboration'
 import { getMessageViewer } from '../messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from '../messaging/messageAttachmentUpload'
 import { markThreadRead } from '../messaging/messagingApi'
@@ -34,6 +28,8 @@ import MessagingThreadDetailShell from '../messaging/MessagingThreadDetailShell'
 import MessagingMaximizeToggle from '../messaging/MessagingMaximizeToggle'
 import MessagePinSelectionBar from '../messaging/MessagePinSelectionBar'
 import { useThreadPinGroups } from '../messaging/useThreadPinGroups'
+import ThreadCollaborationPanel from '../messaging/ThreadCollaborationPanel'
+import { useThreadCollaboration } from '../messaging/useThreadCollaboration'
 import { useMessagingEventsInbox } from '../messaging/useMessagingEventsInbox'
 import {
   countThreadsByInboxTab,
@@ -107,7 +103,6 @@ export default function MessagesPanel({
     is_critical: false,
     requires_ack: false,
   })
-  const [collaborationDraft, setCollaborationDraft] = useState<CollaborationDraft>(EMPTY_COLLABORATION_DRAFT)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const autoOpenedRef = useRef(false)
   const viewer = useMemo(() => getMessageViewer('coach'), [])
@@ -190,6 +185,15 @@ export default function MessagesPanel({
       setLoading(false)
     }
   }, [])
+  const collaboration = useThreadCollaboration({
+    role: 'coach',
+    threadId: selectedId,
+    fetcher: coachFetch,
+    onMessageCreated: (message) => setMessages((prev) => (
+      prev.some((row) => row.id === message.id) ? prev : [...prev, message]
+    )),
+    onChanged: () => void loadThreads(),
+  })
 
   useEffect(() => {
     void loadThreads()
@@ -314,17 +318,6 @@ export default function MessagesPanel({
       setReplyTarget(null)
       setPendingAttachment(null)
       setCriticalFlags({ is_critical: false, requires_ack: false })
-      if (
-        collaborationDraft.mode !== 'off'
-        && collaborationDraftIsValid(collaborationDraft)
-      ) {
-        await attachMessageCollaboration('coach', selectedId, msg.id, collaborationDraft, coachFetch)
-        const data = await coachFetch<{ thread: MessageThread; messages: MessageRow[] }>(
-          `/api/coach/messages/${selectedId}`,
-        )
-        setMessages(data.messages)
-        setCollaborationDraft(EMPTY_COLLABORATION_DRAFT)
-      }
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send message')
@@ -641,6 +634,16 @@ export default function MessagesPanel({
                         importantFilterActive={pins.importantFilterActive}
                         onImportantFilterChange={pins.toggleImportantFilter}
                         pinControlsDisabled={pins.pinSelectionActive}
+                        polls={collaboration.polls}
+                        signups={collaboration.signups}
+                        activePollId={collaboration.activePollId}
+                        activeSignupId={collaboration.activeSignupId}
+                        onOpenPoll={collaboration.openPoll}
+                        onOpenSignup={collaboration.openSignup}
+                        onCreatePoll={() => collaboration.setPanelMode('create-poll')}
+                        onRespondPoll={() => collaboration.setPanelMode('pick-poll')}
+                        onCreateSignup={() => collaboration.setPanelMode('create-signup')}
+                        onSignupNow={() => collaboration.setPanelMode('pick-signup')}
                       />
                     )}
                   </div>
@@ -651,11 +654,6 @@ export default function MessagesPanel({
                 <>
                   <div className="px-4 pt-2 shrink-0">
                     <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
-                    <MessageComposerCollaboration
-                      value={collaborationDraft}
-                      onChange={setCollaborationDraft}
-                      disabled={sending}
-                    />
                   </div>
                   <MessageReplyComposer
                     reply={reply}
@@ -697,6 +695,26 @@ export default function MessagesPanel({
                       />
                       <EventCalendarItemBanner item={eventsInbox.activeCalendarItem} />
                       <MessagingInfoCard infoJson={threadInfoJson} />
+                      <ThreadCollaborationPanel
+                        mode={collaboration.panelMode}
+                        polls={collaboration.polls}
+                        signups={collaboration.signups}
+                        activePoll={collaboration.activePoll}
+                        activeSignup={collaboration.activeSignup}
+                        role="coach"
+                        threadId={selectedId}
+                        fetcher={coachFetch}
+                        loading={collaboration.loading}
+                        error={collaboration.error}
+                        onDismiss={() => collaboration.setPanelMode(null)}
+                        onCreatePoll={collaboration.createPoll}
+                        onCreateSignup={collaboration.createSignup}
+                        onPickPoll={collaboration.openPoll}
+                        onPickSignup={collaboration.openSignup}
+                        onRefresh={collaboration.refresh}
+                        onClosePoll={collaboration.setPollClosed}
+                        onCloseSignup={collaboration.setSignupClosed}
+                      />
                     </>
                   )}
                   {pins.pinSelection && (
@@ -733,6 +751,8 @@ export default function MessagesPanel({
                         prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
                       )
                     }}
+                    onOpenPoll={collaboration.openPoll}
+                    onOpenSignup={collaboration.openSignup}
                   />
                 </>
               )}

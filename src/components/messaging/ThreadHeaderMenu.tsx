@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Lock, MoreHorizontal, Pencil, Paperclip, Star, UserPlus, Archive, ArchiveRestore, CircleHelp } from 'lucide-react'
+import { Lock, MoreHorizontal, Pencil, Paperclip, Star, UserPlus, Archive, ArchiveRestore, CircleHelp, Vote, ListChecks } from 'lucide-react'
 import RecipientPicker from './RecipientPicker'
-import type { EnrollmentGroup, RecipientOption } from './types'
+import type { EnrollmentGroup, MessageChecklist, MessagePoll, RecipientOption } from './types'
 import { mergeRecipientOptions } from './types'
 import MessageThreadPinControls from './MessageThreadPinControls'
 import type { PinFilterMode } from './types'
 import { MESSAGE_ATTACHMENT_ACCEPT } from './messageAttachmentUpload'
+import ThreadCollaborationChips from './ThreadCollaborationChips'
 
 interface ThreadHeaderMenuProps {
   subject: string | null
@@ -35,6 +36,16 @@ interface ThreadHeaderMenuProps {
   importantFilterActive?: boolean
   onImportantFilterChange?: () => void
   pinControlsDisabled?: boolean
+  polls?: MessagePoll[]
+  signups?: MessageChecklist[]
+  activePollId?: number | null
+  activeSignupId?: number | null
+  onOpenPoll?: (poll: MessagePoll) => void
+  onOpenSignup?: (signup: MessageChecklist) => void
+  onCreatePoll?: () => void
+  onRespondPoll?: () => void
+  onCreateSignup?: () => void
+  onSignupNow?: () => void
 }
 
 export default function ThreadHeaderMenu({
@@ -65,6 +76,16 @@ export default function ThreadHeaderMenu({
   importantFilterActive = false,
   onImportantFilterChange,
   pinControlsDisabled = false,
+  polls = [],
+  signups = [],
+  activePollId = null,
+  activeSignupId = null,
+  onOpenPoll,
+  onOpenSignup,
+  onCreatePoll,
+  onRespondPoll,
+  onCreateSignup,
+  onSignupNow,
 }: ThreadHeaderMenuProps) {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -79,6 +100,7 @@ export default function ThreadHeaderMenu({
   const canHideInbox = Boolean(onHideFromInbox) && canHideFromInbox
   const canRestoreThread = Boolean(onRestoreThread) && isGloballyArchived
   const canPickAttachment = Boolean(onAttachmentPick) && canAttach && !isGloballyArchived
+  const canCollaborate = Boolean(onCreatePoll || onRespondPoll || onCreateSignup || onSignupNow)
   const existingKeys = useMemo(() => new Set(existingParticipantKeys), [existingParticipantKeys])
   const availableOptions = useMemo(
     () => recipientOptions.filter((o) => !existingKeys.has(o.key)),
@@ -170,7 +192,7 @@ export default function ThreadHeaderMenu({
     attachmentInputRef.current?.click()
   }
 
-  if (!canEdit && !canLock && !canAddRecipients && !canHideInbox && !canRestoreThread && !onToggleFavorite && !canPickAttachment && !onOpenFaq && !onPinFilterChange && !onImportantFilterChange) return null
+  if (!canEdit && !canLock && !canAddRecipients && !canHideInbox && !canRestoreThread && !onToggleFavorite && !canPickAttachment && !onOpenFaq && !onPinFilterChange && !onImportantFilterChange && !canCollaborate && polls.length === 0 && signups.length === 0) return null
 
   return (
     <div ref={rootRef} className="relative shrink-0 flex items-center gap-0.5">
@@ -185,6 +207,16 @@ export default function ThreadHeaderMenu({
             if (file && onAttachmentPick) onAttachmentPick(file)
             e.target.value = ''
           }}
+        />
+      )}
+      {(polls.length > 0 || signups.length > 0) && onOpenPoll && onOpenSignup && (
+        <ThreadCollaborationChips
+          polls={polls}
+          signups={signups}
+          activePollId={activePollId}
+          activeSignupId={activeSignupId}
+          onPollClick={onOpenPoll}
+          onSignupClick={onOpenSignup}
         />
       )}
       {(onPinFilterChange || onImportantFilterChange) && (
@@ -221,6 +253,47 @@ export default function ThreadHeaderMenu({
 
       {open && (
         <div className="absolute right-0 top-full mt-1 z-30 w-56 bg-white border border-gray-200 rounded-lg shadow-lg py-1">
+          {canCollaborate && (
+            <>
+              {onCreatePoll && (
+                <button
+                  type="button"
+                  onClick={() => { onCreatePoll(); setOpen(false) }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
+                >
+                  <Vote className="w-4 h-4" /> + Poll
+                </button>
+              )}
+              {onRespondPoll && (
+                <button
+                  type="button"
+                  onClick={() => { onRespondPoll(); setOpen(false) }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
+                >
+                  <Vote className="w-4 h-4" /> Respond to Poll
+                </button>
+              )}
+              {onCreateSignup && (
+                <button
+                  type="button"
+                  onClick={() => { onCreateSignup(); setOpen(false) }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
+                >
+                  <ListChecks className="w-4 h-4" /> + Signup list
+                </button>
+              )}
+              {onSignupNow && (
+                <button
+                  type="button"
+                  onClick={() => { onSignupNow(); setOpen(false) }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
+                >
+                  <ListChecks className="w-4 h-4" /> Signup now
+                </button>
+              )}
+              <div className="my-1 border-t border-gray-100" />
+            </>
+          )}
           {canEdit && !subjectLocked && (
             <button
               type="button"

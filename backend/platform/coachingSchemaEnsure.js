@@ -438,9 +438,11 @@ async function applyCoachingMessagePlatformSchema(pool) {
       question      TEXT NOT NULL,
       options_json  JSONB NOT NULL DEFAULT '[]',
       closes_at     TIMESTAMPTZ,
+      is_closed     BOOLEAN NOT NULL DEFAULT FALSE,
       created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
     )
   `)
+  await pool.query(`ALTER TABLE coaching.message_poll ADD COLUMN IF NOT EXISTS is_closed BOOLEAN NOT NULL DEFAULT FALSE`)
   await pool.query(`
     CREATE TABLE IF NOT EXISTS coaching.message_poll_vote (
       id            BIGSERIAL PRIMARY KEY,
@@ -456,9 +458,52 @@ async function applyCoachingMessagePlatformSchema(pool) {
     CREATE TABLE IF NOT EXISTS coaching.message_checklist (
       id            BIGSERIAL PRIMARY KEY,
       message_id    BIGINT NOT NULL UNIQUE REFERENCES coaching.message(id) ON DELETE CASCADE,
+      title         TEXT NOT NULL DEFAULT 'Signup list',
+      sheet_type    TEXT NOT NULL DEFAULT 'items',
       items_json    JSONB NOT NULL DEFAULT '[]',
+      config_json   JSONB NOT NULL DEFAULT '{}',
+      closes_at     TIMESTAMPTZ,
+      is_closed     BOOLEAN NOT NULL DEFAULT FALSE,
       created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
     )
+  `)
+  await pool.query(`ALTER TABLE coaching.message_checklist ADD COLUMN IF NOT EXISTS title TEXT NOT NULL DEFAULT 'Signup list'`)
+  await pool.query(`ALTER TABLE coaching.message_checklist ADD COLUMN IF NOT EXISTS sheet_type TEXT NOT NULL DEFAULT 'items'`)
+  await pool.query(`ALTER TABLE coaching.message_checklist ADD COLUMN IF NOT EXISTS config_json JSONB NOT NULL DEFAULT '{}'`)
+  await pool.query(`ALTER TABLE coaching.message_checklist ADD COLUMN IF NOT EXISTS closes_at TIMESTAMPTZ`)
+  await pool.query(`ALTER TABLE coaching.message_checklist ADD COLUMN IF NOT EXISTS is_closed BOOLEAN NOT NULL DEFAULT FALSE`)
+  await pool.query(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'message_checklist_sheet_type_check'
+          AND conrelid = 'coaching.message_checklist'::regclass
+      ) THEN
+        ALTER TABLE coaching.message_checklist
+          ADD CONSTRAINT message_checklist_sheet_type_check
+          CHECK (sheet_type IN ('rsvp', 'items', 'support'));
+      END IF;
+    END $$
+  `)
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS coaching.message_signup_response (
+      id            BIGSERIAL PRIMARY KEY,
+      checklist_id  BIGINT NOT NULL REFERENCES coaching.message_checklist(id) ON DELETE CASCADE,
+      user_id       BIGINT REFERENCES public.app_user(id) ON DELETE CASCADE,
+      member_id     BIGINT REFERENCES public.member(id) ON DELETE CASCADE,
+      response_json JSONB NOT NULL DEFAULT '{}',
+      responded_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+      CHECK (user_id IS NOT NULL OR member_id IS NOT NULL)
+    )
+  `)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_message_signup_response_user
+      ON coaching.message_signup_response(checklist_id, user_id) WHERE user_id IS NOT NULL
+  `)
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_message_signup_response_member
+      ON coaching.message_signup_response(checklist_id, member_id) WHERE member_id IS NOT NULL
   `)
   await pool.query(`
     CREATE TABLE IF NOT EXISTS coaching.thread_faq (

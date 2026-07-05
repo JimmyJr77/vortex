@@ -25,9 +25,15 @@ import {
   voteMessagePoll,
   loadMessagePoll,
   createMessagePoll,
+  listThreadPolls,
+  setMessagePollClosed,
   createMessageChecklist,
   loadMessageChecklist,
+  listThreadSignupSheets,
+  setMessageChecklistClosed,
+  upsertSignupResponse,
   claimChecklistItem,
+  createCollaborationMessage,
   listThreadFaq,
   createThreadFaq,
   updateThreadFaq,
@@ -67,6 +73,7 @@ import { broadcastMessageEvent } from './messageRealtime.js'
 import {
   memberIsThreadParticipant,
   coachCanAccessThreadWithParticipants,
+  loadEnrichedMessageById,
 } from './messageThreads.js'
 
 let emitMessageCreatedImpl = (payload) => {
@@ -384,6 +391,126 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
     app.get(`/api/${portal}/preferences/notifications`, auth, notificationPrefsHandler(portal, 'GET'))
     app.patch(`/api/${portal}/preferences/notifications`, auth, notificationPrefsHandler(portal, 'PATCH'))
 
+    app.get(`/api/${portal}/messages/:threadId/polls`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        ok(res, await listThreadPolls(pool, threadId, ctx.viewer))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.post(`/api/${portal}/messages/:threadId/polls`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const question = String(req.body?.question || '').trim()
+        const options = Array.isArray(req.body?.options)
+          ? req.body.options.map((option) => String(option || '').trim()).filter(Boolean)
+          : []
+        if (!question || options.length < 2) {
+          return bad(res, 'question and at least two options are required.')
+        }
+        const created = await createCollaborationMessage(pool, threadId, ctx.viewer, portal, `Poll: ${question}`)
+        const poll = await createMessagePoll(pool, created.id, {
+          question,
+          options,
+          closesAt: req.body?.closes_at ?? req.body?.closesAt ?? null,
+        })
+        const message = await loadEnrichedMessageById(pool, created.id)
+        emitMessageCreated({
+          facilityId: ctx.facilityId,
+          threadId,
+          userId: ctx.viewer.userId ?? undefined,
+          memberId: ctx.viewer.memberId ?? undefined,
+          data: message,
+        })
+        ok(res, { message, poll: await loadMessagePoll(pool, created.id) ?? poll })
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.patch(`/api/${portal}/messages/:threadId/polls/:pollId`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const pollId = num(req.params.pollId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const updated = await setMessagePollClosed(pool, pollId, req.body?.is_closed ?? req.body?.isClosed, threadId)
+        if (!updated) return bad(res, 'Poll not found.', 404)
+        ok(res, updated)
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.get(`/api/${portal}/messages/:threadId/signup-sheets`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        ok(res, await listThreadSignupSheets(pool, threadId, ctx.viewer))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.post(`/api/${portal}/messages/:threadId/signup-sheets`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const title = String(req.body?.title || '').trim()
+        const sheetType = String(req.body?.sheet_type ?? req.body?.sheetType ?? 'items')
+        const items = Array.isArray(req.body?.items) ? req.body.items : []
+        if (!title) return bad(res, 'title is required.')
+        if (!['rsvp', 'items', 'support'].includes(sheetType)) return bad(res, 'Invalid signup list type.')
+        if (sheetType !== 'rsvp' && items.length === 0) return bad(res, 'items are required.')
+        const created = await createCollaborationMessage(pool, threadId, ctx.viewer, portal, `Signup list: ${title}`)
+        const signup = await createMessageChecklist(pool, created.id, items, {
+          title,
+          sheetType,
+          config: req.body?.config || {},
+          closesAt: req.body?.closes_at ?? req.body?.closesAt ?? null,
+        })
+        const message = await loadEnrichedMessageById(pool, created.id)
+        emitMessageCreated({
+          facilityId: ctx.facilityId,
+          threadId,
+          userId: ctx.viewer.userId ?? undefined,
+          memberId: ctx.viewer.memberId ?? undefined,
+          data: message,
+        })
+        ok(res, { message, signup })
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.patch(`/api/${portal}/messages/:threadId/signup-sheets/:signupId`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const signupId = num(req.params.signupId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        const updated = await setMessageChecklistClosed(pool, signupId, req.body?.is_closed ?? req.body?.isClosed, threadId)
+        if (!updated) return bad(res, 'Signup list not found.', 404)
+        ok(res, updated)
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
     app.post(`/api/${portal}/messages/:threadId/messages/:messageId/ack`, auth, async (req, res) => {
       try {
         await ensureSchema()
@@ -535,7 +662,6 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
     app.post(`/api/${portal}/messages/:threadId/messages/:messageId/poll`, auth, async (req, res) => {
       try {
         await ensureSchema()
-        if (portal === 'member') return bad(res, 'Members cannot create polls.', 403)
         const threadId = num(req.params.threadId)
         const messageId = num(req.params.messageId)
         const ctx = await assertThreadAccess(req, res, threadId, portal)
@@ -558,14 +684,32 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
     app.post(`/api/${portal}/messages/:threadId/messages/:messageId/checklist`, auth, async (req, res) => {
       try {
         await ensureSchema()
-        if (portal === 'member') return bad(res, 'Members cannot create checklists.', 403)
         const threadId = num(req.params.threadId)
         const messageId = num(req.params.messageId)
         const ctx = await assertThreadAccess(req, res, threadId, portal)
         if (!ctx) return
         const items = Array.isArray(req.body?.items) ? req.body.items : []
         if (items.length === 0) return bad(res, 'items are required.')
-        ok(res, await createMessageChecklist(pool, messageId, items))
+        ok(res, await createMessageChecklist(pool, messageId, items, {
+          title: req.body?.title || 'Signup list',
+          sheetType: req.body?.sheet_type ?? req.body?.sheetType ?? 'items',
+          config: req.body?.config || {},
+          closesAt: req.body?.closes_at ?? req.body?.closesAt ?? null,
+        }))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
+    app.post(`/api/${portal}/messages/:threadId/messages/:messageId/signup/respond`, auth, async (req, res) => {
+      try {
+        await ensureSchema()
+        const threadId = num(req.params.threadId)
+        const messageId = num(req.params.messageId)
+        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        await upsertSignupResponse(pool, messageId, req.body?.response || {}, ctx.viewer)
+        ok(res, await loadMessageChecklist(pool, messageId))
       } catch (error) {
         bad(res, error.message, 500)
       }

@@ -26,7 +26,7 @@ export default function CriticalMessageToggle({ value, onChange, disabled = fals
     const confirmed = text === CONFIRM_WORD
     onChange({
       is_critical: confirmed,
-      requires_ack: confirmed ? value.requires_ack : false,
+      requires_ack: false,
     })
   }
 
@@ -70,18 +70,6 @@ export default function CriticalMessageToggle({ value, onChange, disabled = fals
           </label>
           {confirmText.length > 0 && confirmText !== CONFIRM_WORD && (
             <p className="text-xs text-red-600">Enter exactly &ldquo;{CONFIRM_WORD}&rdquo; in lowercase.</p>
-          )}
-          {value.is_critical && (
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={value.requires_ack}
-                disabled={disabled}
-                onChange={(e) => onChange({ ...value, requires_ack: e.target.checked })}
-                className="rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
-              />
-              <span className="text-xs font-medium text-gray-700">Require acknowledgment</span>
-            </label>
           )}
         </div>
       )}

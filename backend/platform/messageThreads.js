@@ -874,6 +874,7 @@ const MESSAGE_ENRICH_SELECT = `
         'question', p.question,
         'options', p.options_json,
         'closes_at', p.closes_at,
+        'is_closed', p.is_closed,
         'votes', COALESCE(
           (SELECT json_agg(json_build_object(
             'option_index', v.option_index,
@@ -889,7 +890,25 @@ const MESSAGE_ENRICH_SELECT = `
       WHERE p.message_id = msg.id
     ) AS poll,
     (
-      SELECT json_build_object('id', c.id, 'items', c.items_json)
+      SELECT json_build_object(
+        'id', c.id,
+        'title', c.title,
+        'sheet_type', c.sheet_type,
+        'items', c.items_json,
+        'config', c.config_json,
+        'closes_at', c.closes_at,
+        'is_closed', c.is_closed,
+        'responses', COALESCE(
+          (SELECT json_agg(json_build_object(
+            'user_id', sr.user_id,
+            'member_id', sr.member_id,
+            'response', sr.response_json,
+            'responded_at', sr.responded_at
+          ) ORDER BY sr.responded_at)
+          FROM coaching.message_signup_response sr WHERE sr.checklist_id = c.id),
+          '[]'::json
+        )
+      )
       FROM coaching.message_checklist c
       WHERE c.message_id = msg.id
     ) AS checklist

@@ -1,4 +1,4 @@
-import type { MessagingRole } from './types'
+import type { MessageChecklist, MessagePoll, MessageRow, MessagingRole, SignupSheetType } from './types'
 
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
 
@@ -158,4 +158,124 @@ export async function fetchCalendarInboxRows(
 ): Promise<CalendarInboxRow[]> {
   const rows = await fetcher(`/api/${role}/messages/calendar-inbox-rows`) as CalendarInboxRow[]
   return Array.isArray(rows) ? rows : []
+}
+
+export async function fetchThreadPolls(
+  role: MessagingRole,
+  threadId: number,
+  fetcher: Fetcher,
+): Promise<MessagePoll[]> {
+  const rows = await fetcher(`/api/${role}/messages/${threadId}/polls`) as MessagePoll[]
+  return Array.isArray(rows) ? rows : []
+}
+
+export async function createThreadPoll(
+  role: MessagingRole,
+  threadId: number,
+  fetcher: Fetcher,
+  payload: { question: string; options: string[]; closes_at?: string | null },
+): Promise<{ message?: MessageRow; poll?: MessagePoll }> {
+  return await fetcher(`/api/${role}/messages/${threadId}/polls`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }) as { message?: MessageRow; poll?: MessagePoll }
+}
+
+export async function closeThreadPoll(
+  role: MessagingRole,
+  threadId: number,
+  pollId: number,
+  fetcher: Fetcher,
+  isClosed: boolean,
+): Promise<MessagePoll> {
+  return await fetcher(`/api/${role}/messages/${threadId}/polls/${pollId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ is_closed: isClosed }),
+  }) as MessagePoll
+}
+
+export async function fetchThreadSignupSheets(
+  role: MessagingRole,
+  threadId: number,
+  fetcher: Fetcher,
+): Promise<MessageChecklist[]> {
+  const rows = await fetcher(`/api/${role}/messages/${threadId}/signup-sheets`) as MessageChecklist[]
+  return Array.isArray(rows) ? rows : []
+}
+
+export async function createThreadSignupSheet(
+  role: MessagingRole,
+  threadId: number,
+  fetcher: Fetcher,
+  payload: {
+    title: string
+    sheet_type: SignupSheetType
+    items?: { text: string }[]
+    config?: Record<string, unknown>
+    closes_at?: string | null
+  },
+): Promise<{ message?: MessageRow; signup?: MessageChecklist }> {
+  return await fetcher(`/api/${role}/messages/${threadId}/signup-sheets`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }) as { message?: MessageRow; signup?: MessageChecklist }
+}
+
+export async function closeThreadSignupSheet(
+  role: MessagingRole,
+  threadId: number,
+  signupId: number,
+  fetcher: Fetcher,
+  isClosed: boolean,
+): Promise<MessageChecklist> {
+  return await fetcher(`/api/${role}/messages/${threadId}/signup-sheets/${signupId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ is_closed: isClosed }),
+  }) as MessageChecklist
+}
+
+export async function respondToSignupSheet(
+  role: MessagingRole,
+  threadId: number,
+  messageId: number,
+  fetcher: Fetcher,
+  response: Record<string, unknown>,
+): Promise<MessageChecklist> {
+  return await fetcher(`/api/${role}/messages/${threadId}/messages/${messageId}/signup/respond`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ response }),
+  }) as MessageChecklist
+}
+
+export async function claimSignupItem(
+  role: MessagingRole,
+  threadId: number,
+  messageId: number,
+  fetcher: Fetcher,
+  itemIndex: number,
+): Promise<MessageChecklist> {
+  return await fetcher(`/api/${role}/messages/${threadId}/messages/${messageId}/checklist/claim`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ item_index: itemIndex }),
+  }) as MessageChecklist
+}
+
+export async function voteThreadPoll(
+  role: MessagingRole,
+  threadId: number,
+  messageId: number,
+  fetcher: Fetcher,
+  optionIndex: number,
+): Promise<MessagePoll> {
+  return await fetcher(`/api/${role}/messages/${threadId}/messages/${messageId}/poll/vote`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ option_index: optionIndex }),
+  }) as MessagePoll
 }

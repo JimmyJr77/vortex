@@ -810,7 +810,17 @@ export async function createMessagePoll(pool, messageId, { question, options, cl
      RETURNING *`,
     [messageId, question, JSON.stringify(options || []), closesAt ?? null],
   )
-  return r.rows[0]
+  return normalizePollRow(r.rows[0])
+}
+
+function normalizePollRow(row) {
+  if (!row) return null
+  return {
+    ...row,
+    options: row.options ?? row.options_json ?? [],
+    votes: row.votes ?? [],
+    vote_count: Number(row.vote_count ?? row.votes?.length ?? 0),
+  }
 }
 
 export async function voteMessagePoll(pool, pollId, optionIndex, viewer) {
@@ -860,31 +870,210 @@ export async function loadMessagePoll(pool, messageId) {
   )
   const row = r.rows[0]
   if (!row) return null
-  return {
-    ...row,
-    options: row.options_json,
-    votes: row.votes ?? [],
-  }
+  return normalizePollRow(row)
+}
+
+export async function listThreadPolls(pool, threadId, viewer) {
+  const params = [threadId]
+  const myVoteWhere = viewer?.userId != null
+    ? 'v.user_id = $2'
+    : viewer?.memberId != null
+      ? 'v.member_id = $2'
+      : 'FALSE'
+  if (viewer?.userId != null) params.push(viewer.userId)
+  if (viewer?.memberId != null) params.push(viewer.memberId)
+  const r = await pool.query(
+    `SELECT p.*,
+       COUNT(v_all.id)::int AS vote_count,
+       COALESCE(
+         json_agg(json_build_object(
+           'option_index', v_all.option_index,
+           'user_id', v_all.user_id,
+           'member_id', v_all.member_id,
+           'voted_at', v_all.voted_at
+         ) ORDER BY v_all.voted_at) FILTER (WHERE v_all.id IS NOT NULL),
+         '[]'::json
+       ) AS votes,
+       (
+         SELECT json_build_object(
+           'option_index', v.option_index,
+           'user_id', v.user_id,
+           'member_id', v.member_id,
+           'voted_at', v.voted_at
+         )
+         FROM coaching.message_poll_vote v
+         WHERE v.poll_id = p.id AND ${myVoteWhere}
+         ORDER BY v.voted_at DESC
+         LIMIT 1
+       ) AS my_vote
+     FROM coaching.message_poll p
+     JOIN coaching.message m ON m.id = p.message_id
+     LEFT JOIN coaching.message_poll_vote v_all ON v_all.poll_id = p.id
+     WHERE m.thread_id = $1 AND m.deleted_at IS NULL
+     GROUP BY p.id
+     ORDER BY p.created_at DESC, p.id DESC`,
+    params,
+  )
+  return r.rows.map(normalizePollRow)
+}
+
+export async function setMessagePollClosed(pool, pollId, isClosed, threadId = null) {
+  const r = await pool.query(
+    `UPDATE coaching.message_poll p
+     SET is_closed = $2
+     FROM coaching.message m
+     WHERE p.id = $1
+       AND m.id = p.message_id
+       AND ($3::bigint IS NULL OR m.thread_id = $3)
+     RETURNING p.*`,
+    [pollId, Boolean(isClosed), threadId],
+  )
+  return normalizePollRow(r.rows[0])
 }
 
 // --- Checklists ---
 
-export async function createMessageChecklist(pool, messageId, items) {
+function normalizeSheetType(value) {
+  const type = String(value || 'items')
+  return ['rsvp', 'items', 'support'].includes(type) ? type : 'items'
+}
+
+function normalizeChecklistRow(row) {
+  if (!row) return null
+  return {
+    ...row,
+    title: row.title || 'Signup list',
+    sheet_type: normalizeSheetType(row.sheet_type),
+    items: row.items ?? row.items_json ?? [],
+    config: row.config ?? row.config_json ?? {},
+    responses: row.responses ?? [],
+    response_count: Number(row.response_count ?? row.responses?.length ?? 0),
+  }
+}
+
+export async function createMessageChecklist(pool, messageId, items, meta = {}) {
   const r = await pool.query(
-    `INSERT INTO coaching.message_checklist (message_id, items_json)
-     VALUES ($1, $2::jsonb)
+    `INSERT INTO coaching.message_checklist (
+       message_id, title, sheet_type, items_json, config_json, closes_at
+     )
+     VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6)
      RETURNING *`,
-    [messageId, JSON.stringify(items || [])],
+    [
+      messageId,
+      String(meta.title || 'Signup list').trim() || 'Signup list',
+      normalizeSheetType(meta.sheetType ?? meta.sheet_type),
+      JSON.stringify(items || []),
+      JSON.stringify(meta.config || meta.config_json || {}),
+      meta.closesAt ?? meta.closes_at ?? null,
+    ],
   )
-  return r.rows[0]
+  return normalizeChecklistRow(r.rows[0])
 }
 
 export async function loadMessageChecklist(pool, messageId) {
   const r = await pool.query(
-    `SELECT * FROM coaching.message_checklist WHERE message_id = $1`,
+    `SELECT c.*,
+       COALESCE(
+         (SELECT json_agg(json_build_object(
+           'user_id', sr.user_id,
+           'member_id', sr.member_id,
+           'response', sr.response_json,
+           'responded_at', sr.responded_at
+         ) ORDER BY sr.responded_at)
+         FROM coaching.message_signup_response sr WHERE sr.checklist_id = c.id),
+         '[]'::json
+       ) AS responses
+     FROM coaching.message_checklist c
+     WHERE c.message_id = $1`,
     [messageId],
   )
-  return r.rows[0] ?? null
+  return normalizeChecklistRow(r.rows[0])
+}
+
+export async function listThreadSignupSheets(pool, threadId, viewer) {
+  const params = [threadId]
+  const myResponseWhere = viewer?.userId != null
+    ? 'sr.user_id = $2'
+    : viewer?.memberId != null
+      ? 'sr.member_id = $2'
+      : 'FALSE'
+  if (viewer?.userId != null) params.push(viewer.userId)
+  if (viewer?.memberId != null) params.push(viewer.memberId)
+  const r = await pool.query(
+    `SELECT c.*,
+       COUNT(sr_all.id)::int AS response_count,
+       COALESCE(
+         json_agg(json_build_object(
+           'user_id', sr_all.user_id,
+           'member_id', sr_all.member_id,
+           'response', sr_all.response_json,
+           'responded_at', sr_all.responded_at
+         ) ORDER BY sr_all.responded_at) FILTER (WHERE sr_all.id IS NOT NULL),
+         '[]'::json
+       ) AS responses,
+       (
+         SELECT json_build_object(
+           'user_id', sr.user_id,
+           'member_id', sr.member_id,
+           'response', sr.response_json,
+           'responded_at', sr.responded_at
+         )
+         FROM coaching.message_signup_response sr
+         WHERE sr.checklist_id = c.id AND ${myResponseWhere}
+         ORDER BY sr.responded_at DESC
+         LIMIT 1
+       ) AS my_response
+     FROM coaching.message_checklist c
+     JOIN coaching.message m ON m.id = c.message_id
+     LEFT JOIN coaching.message_signup_response sr_all ON sr_all.checklist_id = c.id
+     WHERE m.thread_id = $1 AND m.deleted_at IS NULL
+     GROUP BY c.id
+     ORDER BY c.created_at DESC, c.id DESC`,
+    params,
+  )
+  return r.rows.map(normalizeChecklistRow)
+}
+
+export async function setMessageChecklistClosed(pool, checklistId, isClosed, threadId = null) {
+  const r = await pool.query(
+    `UPDATE coaching.message_checklist c
+     SET is_closed = $2
+     FROM coaching.message m
+     WHERE c.id = $1
+       AND m.id = c.message_id
+       AND ($3::bigint IS NULL OR m.thread_id = $3)
+     RETURNING c.*`,
+    [checklistId, Boolean(isClosed), threadId],
+  )
+  return normalizeChecklistRow(r.rows[0])
+}
+
+export async function upsertSignupResponse(pool, messageId, response, viewer) {
+  const checklist = await loadMessageChecklist(pool, messageId)
+  if (!checklist) throw new Error('Signup list not found.')
+  if (viewer?.userId != null) {
+    const r = await pool.query(
+      `INSERT INTO coaching.message_signup_response (checklist_id, user_id, response_json, responded_at)
+       VALUES ($1, $2, $3::jsonb, now())
+       ON CONFLICT (checklist_id, user_id) WHERE user_id IS NOT NULL
+       DO UPDATE SET response_json = EXCLUDED.response_json, responded_at = now()
+       RETURNING *`,
+      [checklist.id, viewer.userId, JSON.stringify(response || {})],
+    )
+    return r.rows[0]
+  }
+  if (viewer?.memberId != null) {
+    const r = await pool.query(
+      `INSERT INTO coaching.message_signup_response (checklist_id, member_id, response_json, responded_at)
+       VALUES ($1, $2, $3::jsonb, now())
+       ON CONFLICT (checklist_id, member_id) WHERE member_id IS NOT NULL
+       DO UPDATE SET response_json = EXCLUDED.response_json, responded_at = now()
+       RETURNING *`,
+      [checklist.id, viewer.memberId, JSON.stringify(response || {})],
+    )
+    return r.rows[0]
+  }
+  return null
 }
 
 export async function claimChecklistItem(pool, messageId, itemIndex, viewer) {
@@ -906,6 +1095,28 @@ export async function claimChecklistItem(pool, messageId, itemIndex, viewer) {
     [messageId, JSON.stringify(items)],
   )
   return loadMessageChecklist(pool, messageId)
+}
+
+export async function createCollaborationMessage(pool, threadId, viewer, portal, body) {
+  const inserted = await pool.query(
+    `INSERT INTO coaching.message (
+       thread_id, sender_user_id, sender_member_id, body, sender_portal
+     )
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING id`,
+    [
+      threadId,
+      viewer?.userId ?? null,
+      viewer?.memberId ?? null,
+      String(body || '').trim(),
+      portal,
+    ],
+  )
+  await pool.query(
+    `UPDATE coaching.message_thread SET last_message_at = now() WHERE id = $1`,
+    [threadId],
+  )
+  return inserted.rows[0]
 }
 
 // --- FAQ ---

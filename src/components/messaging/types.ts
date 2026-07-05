@@ -111,16 +111,45 @@ export interface MessagePollVote {
 
 export interface MessagePoll {
   id?: number
+  message_id?: number
   question: string
   options: unknown[]
   closes_at?: string | null
+  is_closed?: boolean
   votes?: MessagePollVote[]
+  vote_count?: number
+  my_vote?: MessagePollVote | null
+}
+
+export type SignupSheetType = 'rsvp' | 'items' | 'support'
+
+export interface SignupResponse {
+  user_id?: number | null
+  member_id?: number | null
+  response?: {
+    status?: 'yes' | 'no' | 'maybe'
+    guest_count?: number
+    notes?: string
+  } | Record<string, unknown>
+  responded_at?: string
 }
 
 export interface MessageChecklist {
   id?: number
+  message_id?: number
+  title?: string | null
+  sheet_type?: SignupSheetType | string
   items: unknown[]
+  config?: Record<string, unknown> | null
+  closes_at?: string | null
+  is_closed?: boolean
+  responses?: SignupResponse[]
+  response_count?: number
+  my_response?: SignupResponse | null
 }
+
+export type ThreadPollSummary = MessagePoll
+export type ThreadSignupSummary = MessageChecklist
 
 export interface RecipientOption {
   key: string

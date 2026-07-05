@@ -11,6 +11,7 @@ interface MessagePollBlockProps {
   viewerMemberId?: number | null
   viewerUserId?: number | null
   onPollUpdated?: (poll: MessagePoll) => void
+  onOpenInPanel?: (poll: MessagePoll) => void
 }
 
 export function MessagePollBlock({
@@ -22,6 +23,7 @@ export function MessagePollBlock({
   viewerMemberId,
   viewerUserId,
   onPollUpdated,
+  onOpenInPanel,
 }: MessagePollBlockProps) {
   const options = Array.isArray(poll.options) ? poll.options : []
   const votes = Array.isArray(poll.votes) ? poll.votes : []
@@ -53,7 +55,14 @@ export function MessagePollBlock({
 
   return (
     <div className="mt-2 rounded-lg border border-gray-200 bg-white/80 p-3 space-y-2">
-      <div className="text-sm font-semibold text-gray-900">{poll.question}</div>
+      <div className="flex items-start justify-between gap-2">
+        <div className="text-sm font-semibold text-gray-900">{poll.question}</div>
+        {onOpenInPanel && (
+          <button type="button" onClick={() => onOpenInPanel(poll)} className="shrink-0 text-xs font-semibold text-blue-700 hover:underline">
+            Open in panel
+          </button>
+        )}
+      </div>
       <div className="space-y-1.5">
         {options.map((option, index) => {
           const count = voteCounts[index] ?? 0
@@ -92,6 +101,7 @@ interface MessageChecklistBlockProps {
   role: MessagingRole
   fetcher: Fetcher
   onChecklistUpdated?: (checklist: MessageChecklist) => void
+  onOpenInPanel?: (checklist: MessageChecklist) => void
 }
 
 export function MessageChecklistBlock({
@@ -101,6 +111,7 @@ export function MessageChecklistBlock({
   role,
   fetcher,
   onChecklistUpdated,
+  onOpenInPanel,
 }: MessageChecklistBlockProps) {
   const items = Array.isArray(checklist.items) ? checklist.items : []
 
@@ -123,7 +134,17 @@ export function MessageChecklistBlock({
 
   return (
     <div className="mt-2 rounded-lg border border-gray-200 bg-white/80 p-3 space-y-2">
-      <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Tasks</div>
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Signup list</div>
+          {checklist.title && <div className="text-sm font-semibold text-gray-900">{checklist.title}</div>}
+        </div>
+        {onOpenInPanel && (
+          <button type="button" onClick={() => onOpenInPanel(checklist)} className="shrink-0 text-xs font-semibold text-emerald-700 hover:underline">
+            Open in panel
+          </button>
+        )}
+      </div>
       <ul className="space-y-1.5">
         {items.map((item, index) => {
           const row = item && typeof item === 'object' ? item as Record<string, unknown> : { text: String(item) }

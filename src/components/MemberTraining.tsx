@@ -25,6 +25,8 @@ import MessagingThreadDetailShell from './messaging/MessagingThreadDetailShell'
 import MessagingMaximizeToggle from './messaging/MessagingMaximizeToggle'
 import MessagePinSelectionBar from './messaging/MessagePinSelectionBar'
 import { useThreadPinGroups } from './messaging/useThreadPinGroups'
+import ThreadCollaborationPanel from './messaging/ThreadCollaborationPanel'
+import { useThreadCollaboration } from './messaging/useThreadCollaboration'
 import { useMessagingEventsInbox } from './messaging/useMessagingEventsInbox'
 import {
   countThreadsByInboxTab,
@@ -929,6 +931,15 @@ export function MemberMessagesTab({
       setLoading(false)
     }
   }, [])
+  const collaboration = useThreadCollaboration({
+    role: 'member',
+    threadId: selectedId,
+    fetcher: coachFetch,
+    onMessageCreated: (message) => setMessages((prev) => (
+      prev.some((row) => row.id === message.id) ? prev : [...prev, message]
+    )),
+    onChanged: () => void loadThreads(),
+  })
 
   useEffect(() => {
     void loadThreads()
@@ -1278,6 +1289,16 @@ export function MemberMessagesTab({
                     importantFilterActive={pins.importantFilterActive}
                     onImportantFilterChange={pins.toggleImportantFilter}
                     pinControlsDisabled={pins.pinSelectionActive}
+                    polls={collaboration.polls}
+                    signups={collaboration.signups}
+                    activePollId={collaboration.activePollId}
+                    activeSignupId={collaboration.activeSignupId}
+                    onOpenPoll={collaboration.openPoll}
+                    onOpenSignup={collaboration.openSignup}
+                    onCreatePoll={() => collaboration.setPanelMode('create-poll')}
+                    onRespondPoll={() => collaboration.setPanelMode('pick-poll')}
+                    onCreateSignup={() => collaboration.setPanelMode('create-signup')}
+                    onSignupNow={() => collaboration.setPanelMode('pick-signup')}
                     onOpenFaq={() => setFaqPanelOpen(true)}
                   />
                   )}
@@ -1322,6 +1343,26 @@ export function MemberMessagesTab({
                   />
                   <EventCalendarItemBanner item={eventsInbox.activeCalendarItem} />
                   <MessagingInfoCard infoJson={threadInfoJson} />
+                  <ThreadCollaborationPanel
+                    mode={collaboration.panelMode}
+                    polls={collaboration.polls}
+                    signups={collaboration.signups}
+                    activePoll={collaboration.activePoll}
+                    activeSignup={collaboration.activeSignup}
+                    role="member"
+                    threadId={selectedId}
+                    fetcher={coachFetch}
+                    loading={collaboration.loading}
+                    error={collaboration.error}
+                    onDismiss={() => collaboration.setPanelMode(null)}
+                    onCreatePoll={collaboration.createPoll}
+                    onCreateSignup={collaboration.createSignup}
+                    onPickPoll={collaboration.openPoll}
+                    onPickSignup={collaboration.openSignup}
+                    onRefresh={collaboration.refresh}
+                    onClosePoll={collaboration.setPollClosed}
+                    onCloseSignup={collaboration.setSignupClosed}
+                  />
                 </>
               )}
               {pins.pinSelection && (
@@ -1358,6 +1399,8 @@ export function MemberMessagesTab({
                     prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
                   )
                 }}
+                onOpenPoll={collaboration.openPoll}
+                onOpenSignup={collaboration.openSignup}
                 className="p-4 space-y-2"
               />
               </>

@@ -11,12 +11,6 @@ import MessagingContextBanner from '../messaging/MessagingContextBanner'
 import EventCalendarItemBanner from '../messaging/EventCalendarItemBanner'
 import MessagingInfoCard from '../messaging/MessagingInfoCard'
 import CriticalMessageToggle from '../messaging/CriticalMessageToggle'
-import MessageComposerCollaboration, {
-  EMPTY_COLLABORATION_DRAFT,
-  collaborationDraftIsValid,
-  type CollaborationDraft,
-} from '../messaging/MessageComposerCollaboration'
-import { attachMessageCollaboration } from '../messaging/attachMessageCollaboration'
 import RecipientPicker, { recipientsToPayload } from '../messaging/RecipientPicker'
 import ThreadHeaderMenu from '../messaging/ThreadHeaderMenu'
 import { getMessageViewer } from '../messaging/messageBubbleStyle'
@@ -27,6 +21,8 @@ import MessagingThreadDetailShell from '../messaging/MessagingThreadDetailShell'
 import MessagingMaximizeToggle from '../messaging/MessagingMaximizeToggle'
 import MessagePinSelectionBar from '../messaging/MessagePinSelectionBar'
 import { useThreadPinGroups } from '../messaging/useThreadPinGroups'
+import ThreadCollaborationPanel from '../messaging/ThreadCollaborationPanel'
+import { useThreadCollaboration } from '../messaging/useThreadCollaboration'
 import { useMessagingEventsInbox } from '../messaging/useMessagingEventsInbox'
 import MessagingMessageThread from '../messaging/MessagingMessageThread'
 import { buildReplyQuote, stripReplyQuote } from '../messaging/messageFormatting'
@@ -116,7 +112,6 @@ export default function AdminMessagesPanel({
     is_critical: false,
     requires_ack: false,
   })
-  const [collaborationDraft, setCollaborationDraft] = useState<CollaborationDraft>(EMPTY_COLLABORATION_DRAFT)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const autoOpenedRef = useRef(false)
 
@@ -194,6 +189,15 @@ export default function AdminMessagesPanel({
       setLoading(false)
     }
   }, [tab, isFlatView, listSort, listSortDir])
+  const collaboration = useThreadCollaboration({
+    role: 'admin',
+    threadId: selectedId,
+    fetcher: adminFetch,
+    onMessageCreated: (message) => setMessages((prev) => (
+      prev.some((row) => row.id === message.id) ? prev : [...prev, message]
+    )),
+    onChanged: () => void loadThreads(),
+  })
 
   useEffect(() => {
     autoOpenedRef.current = false
@@ -302,6 +306,18 @@ export default function AdminMessagesPanel({
         pinControlsDisabled: pins.pinSelectionActive,
       }
     : {}
+  const collaborationHeaderProps = {
+    polls: collaboration.polls,
+    signups: collaboration.signups,
+    activePollId: collaboration.activePollId,
+    activeSignupId: collaboration.activeSignupId,
+    onOpenPoll: collaboration.openPoll,
+    onOpenSignup: collaboration.openSignup,
+    onCreatePoll: () => collaboration.setPanelMode('create-poll'),
+    onRespondPoll: () => collaboration.setPanelMode('pick-poll'),
+    onCreateSignup: () => collaboration.setPanelMode('create-signup'),
+    onSignupNow: () => collaboration.setPanelMode('pick-signup'),
+  }
 
   const sendReply = async (mentions: MessageMentionPayload[] = []) => {
     if (!selectedId || (!reply.trim() && !pendingAttachment) || !canReply) return
@@ -341,17 +357,6 @@ export default function AdminMessagesPanel({
       setReplyTarget(null)
       setPendingAttachment(null)
       setCriticalFlags({ is_critical: false, requires_ack: false })
-      if (
-        collaborationDraft.mode !== 'off'
-        && collaborationDraftIsValid(collaborationDraft)
-      ) {
-        await attachMessageCollaboration('admin', selectedId, msg.id, collaborationDraft, adminFetch)
-        const data = await adminFetch<{ thread: MessageThread; messages: MessageRow[] }>(
-          `/api/admin/messages/${selectedId}`,
-        )
-        setMessages(data.messages)
-        setCollaborationDraft(EMPTY_COLLABORATION_DRAFT)
-      }
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send message')
@@ -660,6 +665,7 @@ export default function AdminMessagesPanel({
                         favoriteLoading={favoriteLoading}
                         onOpenFaq={() => setFaqPanelOpen(true)}
                         {...pinHeaderProps}
+                        {...collaborationHeaderProps}
                       />
                     ) : (
                       <ThreadHeaderMenu
@@ -684,6 +690,7 @@ export default function AdminMessagesPanel({
                         onAttachmentPick={setPendingAttachment}
                         onOpenFaq={() => setFaqPanelOpen(true)}
                         {...pinHeaderProps}
+                        {...collaborationHeaderProps}
                       />
                     )}
                   </div>
@@ -694,11 +701,6 @@ export default function AdminMessagesPanel({
                   <>
                     <div className="px-4 pt-2 shrink-0">
                       <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
-                      <MessageComposerCollaboration
-                        value={collaborationDraft}
-                        onChange={setCollaborationDraft}
-                        disabled={sending}
-                      />
                     </div>
                     <MessageReplyComposer
                       reply={reply}
@@ -740,6 +742,26 @@ export default function AdminMessagesPanel({
                       />
                       <EventCalendarItemBanner item={eventsInbox.activeCalendarItem} />
                       <MessagingInfoCard infoJson={threadInfoJson} />
+                      <ThreadCollaborationPanel
+                        mode={collaboration.panelMode}
+                        polls={collaboration.polls}
+                        signups={collaboration.signups}
+                        activePoll={collaboration.activePoll}
+                        activeSignup={collaboration.activeSignup}
+                        role="admin"
+                        threadId={selectedId}
+                        fetcher={adminFetch}
+                        loading={collaboration.loading}
+                        error={collaboration.error}
+                        onDismiss={() => collaboration.setPanelMode(null)}
+                        onCreatePoll={collaboration.createPoll}
+                        onCreateSignup={collaboration.createSignup}
+                        onPickPoll={collaboration.openPoll}
+                        onPickSignup={collaboration.openSignup}
+                        onRefresh={collaboration.refresh}
+                        onClosePoll={collaboration.setPollClosed}
+                        onCloseSignup={collaboration.setSignupClosed}
+                      />
                     </>
                   )}
                   {pins.pinSelection && tab === 'active-all' && (
@@ -777,6 +799,8 @@ export default function AdminMessagesPanel({
                           prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
                         )
                       }}
+                      onOpenPoll={collaboration.openPoll}
+                      onOpenSignup={collaboration.openSignup}
                     />
                   ) : (
                     <div>
@@ -829,6 +853,7 @@ export default function AdminMessagesPanel({
                       onAttachmentPick={setPendingAttachment}
                       onOpenFaq={() => setFaqPanelOpen(true)}
                       {...pinHeaderProps}
+                      {...collaborationHeaderProps}
                     />
                   )}
                 </div>
@@ -838,11 +863,6 @@ export default function AdminMessagesPanel({
                 <>
                   <div className="px-4 pt-2 shrink-0">
                     <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
-                    <MessageComposerCollaboration
-                      value={collaborationDraft}
-                      onChange={setCollaborationDraft}
-                      disabled={sending}
-                    />
                   </div>
                   <MessageReplyComposer
                     reply={reply}
@@ -884,6 +904,26 @@ export default function AdminMessagesPanel({
                       />
                       <EventCalendarItemBanner item={eventsInbox.activeCalendarItem} />
                       <MessagingInfoCard infoJson={threadInfoJson} />
+                      <ThreadCollaborationPanel
+                        mode={collaboration.panelMode}
+                        polls={collaboration.polls}
+                        signups={collaboration.signups}
+                        activePoll={collaboration.activePoll}
+                        activeSignup={collaboration.activeSignup}
+                        role="admin"
+                        threadId={selectedId}
+                        fetcher={adminFetch}
+                        loading={collaboration.loading}
+                        error={collaboration.error}
+                        onDismiss={() => collaboration.setPanelMode(null)}
+                        onCreatePoll={collaboration.createPoll}
+                        onCreateSignup={collaboration.createSignup}
+                        onPickPoll={collaboration.openPoll}
+                        onPickSignup={collaboration.openSignup}
+                        onRefresh={collaboration.refresh}
+                        onClosePoll={collaboration.setPollClosed}
+                        onCloseSignup={collaboration.setSignupClosed}
+                      />
                     </>
                   )}
                   {pins.pinSelection && (
@@ -920,6 +960,8 @@ export default function AdminMessagesPanel({
                         prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
                       )
                     }}
+                    onOpenPoll={collaboration.openPoll}
+                    onOpenSignup={collaboration.openSignup}
                   />
                 </>
               )}
