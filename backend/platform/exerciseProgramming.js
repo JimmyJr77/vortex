@@ -53,14 +53,30 @@ async function loadSingleProfile(pool, table, exerciseIds, multiple = false) {
 }
 
 export async function loadExerciseProgrammingBundle(pool, exerciseIds) {
-  const [phaseProfiles, dosageProfiles, scalingProfiles, safetyProfiles, regimenRules] = await Promise.all([
-    loadPhaseProfiles(pool, exerciseIds),
-    loadSingleProfile(pool, 'exercise_dosage_profile', exerciseIds, true),
-    loadSingleProfile(pool, 'exercise_scaling_profile', exerciseIds, true),
-    loadSingleProfile(pool, 'exercise_safety_profile', exerciseIds, false),
-    loadSingleProfile(pool, 'exercise_regimen_rule', exerciseIds, false),
-  ])
-  return { phaseProfiles, dosageProfiles, scalingProfiles, safetyProfiles, regimenRules }
+  const empty = {
+    phaseProfiles: new Map(),
+    dosageProfiles: new Map(),
+    scalingProfiles: new Map(),
+    safetyProfiles: new Map(),
+    regimenRules: new Map(),
+  }
+  if (exerciseIds.length === 0) return empty
+  try {
+    const [phaseProfiles, dosageProfiles, scalingProfiles, safetyProfiles, regimenRules] = await Promise.all([
+      loadPhaseProfiles(pool, exerciseIds),
+      loadSingleProfile(pool, 'exercise_dosage_profile', exerciseIds, true),
+      loadSingleProfile(pool, 'exercise_scaling_profile', exerciseIds, true),
+      loadSingleProfile(pool, 'exercise_safety_profile', exerciseIds, false),
+      loadSingleProfile(pool, 'exercise_regimen_rule', exerciseIds, false),
+    ])
+    return { phaseProfiles, dosageProfiles, scalingProfiles, safetyProfiles, regimenRules }
+  } catch (err) {
+    if (/does not exist|undefined column/i.test(String(err.message))) {
+      console.warn('[exerciseProgramming] programming tables/columns missing:', err.message)
+      return empty
+    }
+    throw err
+  }
 }
 
 export function attachProgrammingToExercise(row, bundle, education = null) {

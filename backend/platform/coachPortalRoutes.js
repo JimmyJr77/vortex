@@ -84,6 +84,7 @@ import {
 import { validateWorkoutDraft } from './workoutValidation.js'
 import { validateTrainingBlockDraft } from './trainingBlockValidation.js'
 import { validateRegimenDraft } from './regimenValidation.js'
+import { getCoachingSchemaStatus } from './ensureCoachingWhyLayerSchema.js'
 import { runPhaseAwarePrescription, getSessionPhaseTemplates } from './phaseAwarePrescription.js'
 
 function ok(res, data) {
@@ -204,7 +205,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   // ==========================================================
   app.get('/api/coach/taxonomy', ...can('library.view'), async (_req, res) => {
     try {
-      const [tenets, methodologies, physiology, patterns, equipment, sports, intents, bodyRegions, sessionPhases, phaseOrderSlots] = await Promise.all([
+      const [tenets, methodologies, physiology, patterns, equipment, sports, intents, bodyRegions] = await Promise.all([
         pool.query(`SELECT id, key, name, description, detail, sort_order FROM coaching.tenet ORDER BY sort_order`),
         pool.query(`SELECT id, key, name, description, sort_order FROM coaching.methodology ORDER BY sort_order`),
         pool.query(`SELECT id, key, name, systems, purpose, outcomes, is_optional, sort_order FROM coaching.physiological_emphasis ORDER BY sort_order`),
@@ -213,9 +214,19 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         pool.query(`SELECT id, key, name, sort_order FROM coaching.sport ORDER BY sort_order`),
         pool.query(`SELECT id, key, name, sort_order FROM coaching.exercise_intent ORDER BY sort_order`),
         pool.query(`SELECT id, key, name, sort_order FROM coaching.body_region ORDER BY sort_order`),
-        pool.query(`SELECT id, key, name, description, order_index, freshness_required, can_be_daily, default_min_percent, default_max_percent, fatigue_sensitivity FROM coaching.session_phase ORDER BY order_index`),
-        pool.query(`SELECT pos.id, pos.key, pos.name, pos.description, pos.phase_id, pos.order_index, pos.freshness_sensitivity, sp.key AS phase_key FROM coaching.phase_order_slot pos JOIN coaching.session_phase sp ON sp.id = pos.phase_id ORDER BY sp.order_index, pos.order_index`),
       ])
+
+      let sessionPhases = { rows: [] }
+      let phaseOrderSlots = { rows: [] }
+      try {
+        ;[sessionPhases, phaseOrderSlots] = await Promise.all([
+          pool.query(`SELECT id, key, name, description, order_index, freshness_required, can_be_daily, default_min_percent, default_max_percent, fatigue_sensitivity FROM coaching.session_phase ORDER BY order_index`),
+          pool.query(`SELECT pos.id, pos.key, pos.name, pos.description, pos.phase_id, pos.order_index, pos.freshness_sensitivity, sp.key AS phase_key FROM coaching.phase_order_slot pos JOIN coaching.session_phase sp ON sp.id = pos.phase_id ORDER BY sp.order_index, pos.order_index`),
+        ])
+      } catch (phaseErr) {
+        console.warn('[coach/taxonomy] session_phase tables unavailable:', phaseErr.message)
+      }
+
       ok(res, {
         tenets: tenets.rows,
         methodologies: methodologies.rows,
@@ -228,6 +239,14 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         sessionPhases: sessionPhases.rows,
         phaseOrderSlots: phaseOrderSlots.rows,
       })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/schema-status', ...can('library.view'), async (_req, res) => {
+    try {
+      ok(res, await getCoachingSchemaStatus(pool))
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -914,14 +933,6 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   async function runPrescription(facilityId, body) {
     return runPhaseAwarePrescription(pool, facilityId, body)
   }
-
-  app.post('/api/coach/needs-engine/prescribe', ...can('library.view'), async (req, res) => {
-    try {
-      ok(res, await runPrescription(req.platformAuth.user.facility_id, req.body || {}))
-    } catch (error) {
-      bad(res, error.message, 500)
-    }
-  })
 
   app.post('/api/coach/needs-engine/prescribe', ...can('library.view'), async (req, res) => {
     try {

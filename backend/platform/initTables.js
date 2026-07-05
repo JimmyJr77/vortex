@@ -93,12 +93,13 @@ export async function initPlatformTables(pool) {
     try {
       await pool.query(sql)
     } catch (err) {
-      // Migrations re-run on every local boot; tolerate duplicate DDL objects.
-      if (/already exists/i.test(String(err.message))) {
-        console.warn(`[initPlatformTables] Skipping duplicate in ${migrationFile}:`, err.message)
+      const msg = String(err.message || err)
+      // Migrations re-run on every boot; tolerate duplicate DDL/DML conflicts.
+      if (/already exists|duplicate key value violates unique constraint/i.test(msg)) {
+        console.warn(`[initPlatformTables] Skipping duplicate in ${migrationFile}:`, msg)
         continue
       }
-      throw err
+      console.error(`[initPlatformTables] Migration ${migrationFile} failed (continuing):`, msg)
     }
   }
 

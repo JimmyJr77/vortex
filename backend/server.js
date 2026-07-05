@@ -47,6 +47,7 @@ import { registerCoachPortalRoutes } from './platform/coachPortalRoutes.js'
 import { attachMessageWebSocket } from './platform/messageRealtime.js'
 import { ensureCoachClassAssignmentSchema } from './platform/coachRoster.js'
 import { ensureCoachingNotificationSchema, ensureCoachingMessageThreadSchema } from './platform/coachingSchemaEnsure.js'
+import { ensureCoachingWhyLayerSchema } from './platform/ensureCoachingWhyLayerSchema.js'
 import { generateTemporaryPassword, sendTemporaryPasswordEmail } from './scheduling/tempPasswordEmail.js'
 import { logWarn, reportError } from './observability/logger.js'
 import { startAccountInviteReminderScheduler } from './email/accountInviteReminderService.js'
@@ -10729,8 +10730,6 @@ app.post('/api/admin/login', async (req, res) => {
       console.error('[Admin Login] Error checking app_user table:', appUserError.message)
       // Continue to fallback
     }
-    
-    }
 
     if (!admin) {
       return res.status(401).json({
@@ -12747,6 +12746,11 @@ const startServer = async () => {
       await initDbFeatureTables(pool)
     } catch (featureInitError) {
       console.error(`[Server ${workerId}] DB feature tables init failed:`, featureInitError)
+    }
+    try {
+      await ensureCoachingWhyLayerSchema(pool)
+    } catch (whyLayerSchemaError) {
+      console.error(`[Server ${workerId}] Coaching Why Layer schema ensure failed:`, whyLayerSchemaError)
     }
     try {
       await ensureCoachClassAssignmentSchema(pool)
