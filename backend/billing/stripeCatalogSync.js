@@ -587,7 +587,7 @@ export async function syncAllCatalog(pool) {
   }
   await ensureStripeCatalogSchema(pool)
 
-  const summary = { programs: 0, fees: 0, forms: 0, errors: [] }
+  const summary = { programs: 0, fees: 0, forms: 0, formsChecked: 0, formsDeactivated: 0, errors: [] }
   const schema = await resolveProgramsSchema(pool)
 
   const programs = await pool.query(
@@ -616,12 +616,22 @@ export async function syncAllCatalog(pool) {
 
   const forms = await pool.query(
     `SELECT id FROM scheduling_form
-     WHERE deleted_at IS NULL AND pricing_overrides_program = TRUE`,
+     WHERE deleted_at IS NULL
+       AND pricing_overrides_program = TRUE
+       AND (
+         COALESCE(cost_amount_cents, 0) > 0
+         OR COALESCE(slot_cost_monthly_cents, 0) > 0
+       )`,
   )
   for (const row of forms.rows) {
     try {
-      await syncClassOverrideCatalog(pool, Number(row.id))
-      summary.forms += 1
+      const result = await syncClassOverrideCatalog(pool, Number(row.id))
+      summary.formsChecked += 1
+      if (['created', 'updated', 'unchanged'].includes(result?.status)) {
+        summary.forms += 1
+      } else if (result?.status === 'deactivated') {
+        summary.formsDeactivated += 1
+      }
     } catch (err) {
       summary.errors.push({ type: 'form', id: row.id, message: err.message })
       console.error('[stripeCatalogSync] form', row.id, err)

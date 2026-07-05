@@ -32,6 +32,8 @@ interface SyncSummary {
   programs: number
   fees: number
   forms: number
+  formsChecked?: number
+  formsDeactivated?: number
   errors: Array<{ type: string; id: string | number; message: string }>
 }
 
@@ -141,15 +143,21 @@ export default function AdminStripeCatalogSettings() {
             : 'Catalog sync was skipped.',
         )
       } else if (result.summary) {
-        const { programs, fees, forms, errors } = result.summary
+        const { programs, fees, forms, formsDeactivated = 0, errors } = result.summary
         setSyncErrors(errors)
+        const overrideLabel =
+          forms === 1 ? '1 class override' : `${forms} class overrides`
+        const clearedNote =
+          formsDeactivated > 0
+            ? ` (${formsDeactivated} stale override${formsDeactivated === 1 ? '' : 's'} cleared)`
+            : ''
         if (errors.length > 0) {
           setSyncMessage(
-            `Sync finished with errors — ${programs} programs, ${fees} fees, ${forms} class overrides; ${errors.length} failed.`,
+            `Sync finished with errors — ${programs} programs, ${fees} fees, ${overrideLabel}${clearedNote}; ${errors.length} failed.`,
           )
         } else {
           setSyncMessage(
-            `Catalog synced — ${programs} programs, ${fees} fees, ${forms} class overrides.`,
+            `Catalog synced — ${programs} programs, ${fees} fees, ${overrideLabel}${clearedNote}.`,
           )
         }
       } else {
