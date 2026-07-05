@@ -178,8 +178,8 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-gradient-to-br from-black via-gray-900 to-black">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <header className="bg-gradient-to-br from-black via-gray-900 to-black shrink-0">
         <div className="container-admin py-4 flex items-center justify-between gap-4 pt-below-site-header">
           <div className="flex items-center gap-3">
             <button type="button" className="lg:hidden text-white" onClick={() => setNavOpen((o) => !o)}>
@@ -200,7 +200,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
         </div>
       </header>
 
-      <div className="container-admin py-6 grid gap-6 lg:grid-cols-[220px_1fr]">
+      <div className="container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0">
         <nav className={`${navOpen ? 'block' : 'hidden'} lg:block`}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
             {visibleNav.map((item) => {
@@ -222,10 +222,12 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
             })}
           </div>
         </nav>
-        <main className="min-w-0 flex flex-col min-h-0">
-          <Suspense fallback={<div className="flex items-center gap-2 text-gray-500 py-12"><Loader2 className="w-5 h-5 animate-spin" /> Loading…</div>}>
-            {renderPanel()}
-          </Suspense>
+        <main className="min-w-0 flex flex-col min-h-0 flex-1">
+          <div className="flex flex-col flex-1 min-h-0 h-full">
+            <Suspense fallback={<div className="flex items-center gap-2 text-gray-500 py-12"><Loader2 className="w-5 h-5 animate-spin" /> Loading…</div>}>
+              {renderPanel()}
+            </Suspense>
+          </div>
         </main>
       </div>
     </div>

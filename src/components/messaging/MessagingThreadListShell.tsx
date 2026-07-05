@@ -22,7 +22,7 @@ export default function MessagingThreadListShell({
   children,
 }: MessagingThreadListShellProps) {
   return (
-    <div className="messaging-panel flex flex-col min-h-0">
+    <div className="messaging-panel flex flex-col min-h-0 h-full">
       <div className="px-4 py-3 border-b border-gray-100 shrink-0 flex items-center justify-between gap-2">
         <span className="font-semibold text-sm min-w-0 truncate">{title}</span>
         {titleAction}

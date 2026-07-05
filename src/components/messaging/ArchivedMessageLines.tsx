@@ -1,5 +1,6 @@
 import type { MessageRow } from './types'
 import MessageAttachmentDisplay from './MessageAttachmentDisplay'
+import { formatMessageSenderDisplayName } from './messageFormatting'
 
 interface ArchivedMessageLinesProps {
   messages: MessageRow[]
@@ -23,7 +24,7 @@ export default function ArchivedMessageLines({ messages }: ArchivedMessageLinesP
         <div key={m.id} className="border-b border-gray-100 px-3 py-2.5 text-sm">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-xs text-gray-500 mb-1">
             <span className="tabular-nums">{new Date(m.created_at).toLocaleString()}</span>
-            <span className="text-gray-700">{m.sender_name || 'Unknown sender'}</span>
+            <span className="text-gray-700">{formatMessageSenderDisplayName(m)}</span>
             <span className="uppercase tracking-wide text-[10px] text-gray-400">
               {senderPortalLabel(m.sender_portal ?? m.sender_kind)}
             </span>

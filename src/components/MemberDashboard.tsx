@@ -1545,9 +1545,9 @@ export default function MemberDashboard({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Member Portal Header Section - Dark Background */}
-      <div className="bg-gradient-to-br from-black via-gray-900 to-black">
+      <div className="bg-gradient-to-br from-black via-gray-900 to-black shrink-0">
         <div className="container-admin py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button type="button" className="lg:hidden text-white" onClick={() => setNavOpen((o) => !o)}>
@@ -1600,7 +1600,7 @@ export default function MemberDashboard({
       )}
 
       {/* Workspace: sidebar nav + main content */}
-      <div className="container-admin py-6 grid gap-6 lg:grid-cols-[220px_1fr]">
+      <div className="container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0">
         <nav className={`${navOpen ? 'block' : 'hidden'} lg:block`}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
             {visibleNav.map((item) => {
@@ -1622,7 +1622,8 @@ export default function MemberDashboard({
             })}
           </div>
         </nav>
-        <main className="min-w-0 flex flex-col min-h-0">
+        <main className="min-w-0 flex flex-col min-h-0 flex-1">
+          <div className="flex flex-col flex-1 min-h-0 h-full">
           <AnimatePresence mode="wait">
             {activeTab === 'home' && (
               <motion.div
@@ -2063,6 +2064,7 @@ export default function MemberDashboard({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
+                className="flex flex-col flex-1 min-h-0 h-full"
               >
                 <MemberMessagesTab
                   initialThreadId={openMessageThreadId}
@@ -2460,6 +2462,7 @@ export default function MemberDashboard({
               </motion.div>
             )}
           </AnimatePresence>
+          </div>
         </main>
       </div>
 

@@ -387,7 +387,6 @@ export default function AdminMessagesPanel({
   return (
     <div
       className={`${messagingWorkspaceRoot} ${selectedId != null ? messagingWorkspaceThreadOpen : ''}`}
-      style={{ ['--messaging-viewport-top' as string]: '22rem' }}
     >
       <div className={`shrink-0 items-center justify-between flex-wrap gap-3 ${selectedId != null ? 'hidden lg:flex' : 'flex'}`}>
         <div>

@@ -1,5 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
-import { ArrowDownAZ, ArrowUpAZ, ArrowDownWideNarrow, ArrowUpWideNarrow, Filter } from 'lucide-react'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import {
+  ArrowDownAZ,
+  ArrowDownWideNarrow,
+  ArrowUpAZ,
+  ArrowUpWideNarrow,
+  Filter,
+} from 'lucide-react'
 
 export type ThreadListSortField = 'title' | 'recent' | 'created'
 export type ThreadListSortDir = 'asc' | 'desc'
@@ -19,17 +25,23 @@ const SORT_OPTIONS: { field: ThreadListSortField; label: string }[] = [
   { field: 'created', label: 'Date Created' },
 ]
 
-function sortHint(field: ThreadListSortField, dir: ThreadListSortDir): string {
-  if (field === 'title') return dir === 'asc' ? 'A–Z' : 'Z–A'
-  if (field === 'recent') return dir === 'desc' ? 'Most recent first' : 'Oldest activity first'
-  return dir === 'desc' ? 'Newest first' : 'Oldest first'
-}
-
 function SortDirectionIcon({ field, dir }: { field: ThreadListSortField; dir: ThreadListSortDir }) {
   if (field === 'title') {
-    return dir === 'asc' ? <ArrowDownAZ className="w-3.5 h-3.5" /> : <ArrowUpAZ className="w-3.5 h-3.5" />
+    return dir === 'asc' ? <ArrowDownAZ className="w-4 h-4" /> : <ArrowUpAZ className="w-4 h-4" />
   }
-  return dir === 'desc' ? <ArrowDownWideNarrow className="w-3.5 h-3.5" /> : <ArrowUpWideNarrow className="w-3.5 h-3.5" />
+  return dir === 'desc' ? <ArrowDownWideNarrow className="w-4 h-4" /> : <ArrowUpWideNarrow className="w-4 h-4" />
+}
+
+const ICON_BASE =
+  'inline-flex items-center justify-center w-8 h-8 rounded-lg transition-colors cursor-pointer select-none'
+
+function activateOnKey(action: () => void) {
+  return (e: KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      action()
+    }
+  }
 }
 
 interface MessagingThreadListSortMenuProps {
@@ -55,57 +67,70 @@ export default function MessagingThreadListSortMenu({
     return () => document.removeEventListener('mousedown', onPointerDown)
   }, [open])
 
+  const toggleDir = () => {
+    onChange(sort, sortDir === 'asc' ? 'desc' : 'asc')
+  }
+
   const pickSort = (field: ThreadListSortField) => {
-    if (field === sort) {
-      onChange(field, sortDir === 'asc' ? 'desc' : 'asc')
-    } else {
+    if (field !== sort) {
       onChange(field, defaultSortDir(field))
     }
     setOpen(false)
   }
 
   return (
-    <div ref={rootRef} className="relative shrink-0">
-      <button
-        type="button"
-        aria-label="Sort threads"
-        aria-expanded={open}
-        aria-haspopup="menu"
-        onClick={() => setOpen((v) => !v)}
-        className={`inline-flex items-center justify-center w-8 h-8 rounded-lg border transition-colors ${
-          open ? 'border-vortex-red text-vortex-red bg-red-50' : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:text-gray-900'
-        }`}
+    <div className="flex items-center gap-0.5 shrink-0">
+      <span
+        role="button"
+        tabIndex={0}
+        aria-label="Toggle sort direction"
+        onClick={toggleDir}
+        onKeyDown={activateOnKey(toggleDir)}
+        className={`${ICON_BASE} text-gray-600 hover:text-gray-900 hover:bg-gray-100`}
       >
-        <Filter className="w-4 h-4" />
-      </button>
-      {open && (
-        <div
-          role="menu"
-          className="absolute right-0 top-full mt-1 z-20 min-w-[11rem] rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+        <SortDirectionIcon field={sort} dir={sortDir} />
+      </span>
+
+      <div ref={rootRef} className="relative">
+        <span
+          role="button"
+          tabIndex={0}
+          aria-label="Sort threads"
+          aria-expanded={open}
+          aria-haspopup="menu"
+          onClick={() => setOpen((v) => !v)}
+          onKeyDown={activateOnKey(() => setOpen((v) => !v))}
+          className={`${ICON_BASE} ${
+            open ? 'text-vortex-red bg-red-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+          }`}
         >
-          {SORT_OPTIONS.map(({ field, label }) => {
-            const active = sort === field
-            const dir = active ? sortDir : defaultSortDir(field)
-            return (
-              <button
-                key={field}
-                type="button"
-                role="menuitem"
-                onClick={() => pickSort(field)}
-                className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-sm ${
-                  active ? 'bg-red-50 text-vortex-red font-semibold' : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <span>{label}</span>
-                <span className={`inline-flex items-center gap-1 text-[11px] ${active ? 'text-vortex-red' : 'text-gray-400'}`}>
-                  {active && <SortDirectionIcon field={field} dir={dir} />}
-                  <span aria-hidden>{sortHint(field, dir)}</span>
+          <Filter className="w-4 h-4" />
+        </span>
+        {open && (
+          <div
+            role="menu"
+            className="absolute right-0 top-full mt-1 z-20 min-w-[9.5rem] rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+          >
+            {SORT_OPTIONS.map(({ field, label }) => {
+              const active = sort === field
+              return (
+                <span
+                  key={field}
+                  role="menuitem"
+                  tabIndex={0}
+                  onClick={() => pickSort(field)}
+                  onKeyDown={activateOnKey(() => pickSort(field))}
+                  className={`block w-full px-3 py-2 text-sm cursor-pointer ${
+                    active ? 'bg-red-50 text-vortex-red font-semibold' : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {label}
                 </span>
-              </button>
-            )
-          })}
-        </div>
-      )}
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

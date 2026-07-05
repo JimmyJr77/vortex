@@ -97,18 +97,18 @@
   }
 
   .messaging-workspace {
-    height: calc(100dvh - var(--messaging-viewport-top, calc(var(--site-header-height) + var(--messaging-chrome, 10rem))) - var(--messaging-viewport-bottom, 1.5rem));
+    @apply flex flex-col flex-1 min-h-0;
     min-height: 420px;
   }
 
   .messaging-workspace--thread-open {
-    --messaging-viewport-bottom: 0px;
-    height: calc(100dvh - var(--messaging-viewport-top, 16rem));
+    min-height: 0;
+    margin-bottom: -1.5rem;
   }
 
   @media (max-width: 1023px) {
     .messaging-workspace--thread-open {
-      --messaging-viewport-top: 8.5rem;
+      gap: 0;
     }
   }
 
@@ -120,8 +120,24 @@
     @apply flex-1 min-h-0 overflow-y-auto;
   }
 
+  @media (min-width: 1024px) {
+    .messaging-workspace-grid {
+      flex: 1 1 auto;
+      min-height: 0;
+      height: 100%;
+      grid-template-rows: minmax(0, 1fr);
+    }
+
+    .messaging-workspace-grid > * {
+      min-height: 0;
+    }
+  }
+
   @media (max-width: 1023px) {
     .messaging-workspace-grid {
+      flex: 1 1 auto;
+      min-height: 0;
+      height: 100%;
       grid-template-columns: minmax(0, 1fr);
       grid-template-rows: minmax(0, 1fr);
     }

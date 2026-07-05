@@ -19,7 +19,7 @@ export default function MessagingMobileShell({
   const showDetail = selectedThreadId != null
 
   return (
-    <div className={messagingWorkspaceGrid}>
+    <div className={`${messagingWorkspaceGrid} min-h-0`}>
       <div className={`min-h-0 flex flex-col h-full ${showDetail ? 'hidden lg:flex' : 'flex'}`}>
         {listPanel}
       </div>

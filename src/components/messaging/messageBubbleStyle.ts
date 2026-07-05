@@ -1,5 +1,5 @@
 import type { MessageRow } from './types'
-import { formatMessageTime } from './messageFormatting'
+import { formatMessageSenderDisplayName, formatMessageTime } from './messageFormatting'
 
 export type SenderKind = 'member' | 'coach' | 'admin'
 export type SenderPortal = 'member' | 'coach' | 'admin'
@@ -85,8 +85,7 @@ export function senderLabel(message: MessageRow, viewer: MessageViewer): string 
   if (isOwnMessage(message, viewer)) {
     return portal
   }
-  const name = message.sender_name || 'Unknown'
-  return `${name} · ${portal}`
+  return `${formatMessageSenderDisplayName(message)} · ${portal}`
 }
 
 export function messageFooterMeta(message: MessageRow, viewer: MessageViewer): string {
@@ -94,6 +93,5 @@ export function messageFooterMeta(message: MessageRow, viewer: MessageViewer): s
   if (isOwnMessage(message, viewer)) {
     return `You · ${time}`
   }
-  const name = message.sender_name?.trim() || 'Unknown'
-  return `${name} · ${time}`
+  return `${formatMessageSenderDisplayName(message)} · ${time}`
 }

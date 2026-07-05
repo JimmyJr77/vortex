@@ -1073,7 +1073,6 @@ export function MemberMessagesTab({
   return (
     <div
       className={`${messagingWorkspaceRoot} ${selectedId != null ? messagingWorkspaceThreadOpen : ''}`}
-      style={{ ['--messaging-viewport-top' as string]: '18rem' }}
     >
       <div className={`shrink-0 items-center justify-between flex-wrap gap-3 ${selectedId != null ? 'hidden lg:flex' : 'flex'}`}>
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
