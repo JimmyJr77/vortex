@@ -1,12 +1,20 @@
 import { useEffect, useRef, useState, type SyntheticEvent } from 'react'
+import { Volume2, VolumeX } from 'lucide-react'
 import type { MessageRow } from './types'
-import { messageBubbleClassName, messageFooterMeta, type MessageViewer } from './messageBubbleStyle'
+import {
+  criticalBubbleFlashStyle,
+  messageBubbleClassName,
+  messageFooterMeta,
+  resolveSenderPortal,
+  type MessageViewer,
+} from './messageBubbleStyle'
 import MessageAttachmentDisplay from './MessageAttachmentDisplay'
 import MessagingFileChip from './MessagingFileChip'
 import MessageReactionBar, { type MessageReactionGroup } from './MessageReactionBar'
 import MessageMentionBody from './MessageMentionBody'
 import { MessageChecklistBlock, MessagePollBlock } from './MessageCollaboration'
 import { viewerIsMentioned } from './messageMentions'
+import { isCriticalFlashMuted, setCriticalFlashMuted } from './criticalFlashMute'
 import type { MessageChecklist, MessagePoll, MessagingRole, ThreadParticipant } from './types'
 
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
@@ -59,6 +67,11 @@ export default function MessageBubble({
   const footerMeta = messageFooterMeta(message, viewer)
   const isDeleted = Boolean(message.deleted_at)
   const isEdited = Boolean(message.edited_at) && !isDeleted
+  const isCritical = Boolean(message.is_critical) && !isDeleted
+  const senderPortal = resolveSenderPortal(message)
+  const [criticalFlashMuted, setCriticalFlashMutedState] = useState(() =>
+    isCritical ? isCriticalFlashMuted(message.id) : false,
+  )
   const mentionedYou = viewerIsMentioned(message, viewer)
   const files = message.files ?? []
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -80,6 +93,19 @@ export default function MessageBubble({
         : null,
     )
   }, [message.id, message.poll, message.checklist])
+
+  useEffect(() => {
+    if (!isCritical) return
+    setCriticalFlashMutedState(isCriticalFlashMuted(message.id))
+  }, [isCritical, message.id])
+
+  const toggleCriticalFlashMute = () => {
+    const next = !criticalFlashMuted
+    setCriticalFlashMuted(message.id, next)
+    setCriticalFlashMutedState(next)
+  }
+
+  const showCriticalFlash = isCritical && !criticalFlashMuted
 
   const hasContextMenu = Boolean(onReply || onPinComment || (canUnpin && onUnpin))
 
@@ -119,7 +145,8 @@ export default function MessageBubble({
         mentionedYou ? ' ring-2 ring-vortex-red ring-offset-1' : ''
       }${pinSelected ? ' ring-2 ring-amber-400 ring-offset-1' : ''}${
         pinSelectionActive && !isDeleted ? ' cursor-pointer' : ''
-      } flex flex-col touch-manipulation`}
+      }${showCriticalFlash ? ' message-bubble-critical-flash' : ''} flex flex-col touch-manipulation`}
+      style={showCriticalFlash ? criticalBubbleFlashStyle(senderPortal) : undefined}
       onClick={pinSelectionActive ? handleBubbleClick : undefined}
       onContextMenu={(e) => {
         if (longPressHandled.current) {
@@ -220,14 +247,33 @@ export default function MessageBubble({
           )}
         </div>
       )}
-      {(message.is_critical || isDeleted || isEdited) && (
+      {(isCritical || isDeleted || isEdited) && (
         <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
-          {message.is_critical && (
-            <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
-              Critical
-            </span>
+          {isCritical && (
+            <>
+              <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+                Critical
+              </span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  toggleCriticalFlashMute()
+                }}
+                className="inline-flex items-center justify-center rounded-full p-0.5 text-amber-800/80 hover:text-amber-900 hover:bg-amber-100/80"
+                aria-label={criticalFlashMuted ? 'Unmute critical alert flash' : 'Mute critical alert flash'}
+                aria-pressed={criticalFlashMuted}
+                title={criticalFlashMuted ? 'Unmute flash' : 'Mute flash'}
+              >
+                {criticalFlashMuted ? (
+                  <VolumeX className="w-3 h-3" aria-hidden />
+                ) : (
+                  <Volume2 className="w-3 h-3" aria-hidden />
+                )}
+              </button>
+            </>
           )}
-          {message.requires_ack && message.is_critical && (
+          {message.requires_ack && isCritical && (
             <span className="inline-flex items-center rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-semibold text-orange-800">
               Ack required
             </span>

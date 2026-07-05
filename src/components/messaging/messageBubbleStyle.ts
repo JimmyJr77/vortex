@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import type { MessageRow } from './types'
 import { formatMessageSenderDisplayName, formatMessageTime } from './messageFormatting'
 
@@ -64,6 +65,27 @@ function portalBubbleStyles(portal: SenderPortal): string {
       return 'bg-gray-100 text-gray-900 border border-gray-600'
     default:
       return 'bg-blue-50 text-gray-900 border border-blue-100'
+  }
+}
+
+/** Base bubble colors for critical flash animation (must match portalBubbleStyles). */
+export function criticalBubbleFlashStyle(portal: SenderPortal): CSSProperties {
+  switch (portal) {
+    case 'coach':
+      return {
+        '--critical-bubble-base-bg': '#fef2f2',
+        '--critical-bubble-base-border': '#f87171',
+      } as CSSProperties
+    case 'admin':
+      return {
+        '--critical-bubble-base-bg': '#f3f4f6',
+        '--critical-bubble-base-border': '#4b5563',
+      } as CSSProperties
+    default:
+      return {
+        '--critical-bubble-base-bg': '#eff6ff',
+        '--critical-bubble-base-border': '#dbeafe',
+      } as CSSProperties
   }
 }
 

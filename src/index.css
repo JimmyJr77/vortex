@@ -96,6 +96,27 @@
     animation: notification-bell-icon-pulse 2.5s ease-in-out infinite;
   }
 
+  @keyframes message-critical-flash {
+    0%, 100% {
+      background-color: var(--critical-bubble-base-bg);
+      border-color: var(--critical-bubble-base-border);
+    }
+    50% {
+      background-color: #fef9c3;
+      border-color: #facc15;
+    }
+  }
+
+  .message-bubble-critical-flash {
+    animation: message-critical-flash 2.8s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .message-bubble-critical-flash {
+      animation: none;
+    }
+  }
+
   .messaging-workspace {
     @apply flex flex-col flex-1 min-h-0 overflow-hidden;
     min-height: 420px;
