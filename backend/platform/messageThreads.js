@@ -310,9 +310,19 @@ export async function loadThreadWithParticipants(pool, threadId, facilityId) {
             WHERE p.thread_id = t.id
           ),
           '[]'::json
-        ) AS participants
+        ) AS participants,
+        info.info_json AS info_json
       FROM coaching.message_thread t
       LEFT JOIN public.member m ON m.id = t.member_id
+      LEFT JOIN LATERAL (
+        SELECT i.info_json
+        FROM coaching.message_thread_info i
+        WHERE i.thread_id = COALESCE(
+          CASE WHEN t.kind = 'discussion' AND t.linked_thread_id IS NOT NULL THEN t.linked_thread_id END,
+          t.id
+        )
+        LIMIT 1
+      ) info ON TRUE
       WHERE t.id = $1 AND t.facility_id = $2
     `,
     [threadId, facilityId],
@@ -857,8 +867,32 @@ const MESSAGE_ENRICH_SELECT = `
       (SELECT json_agg(json_build_object('user_id', mm.user_id, 'member_id', mm.member_id))
        FROM coaching.message_mention mm WHERE mm.message_id = msg.id),
       '[]'::json
-    ) AS mentions
-  FROM coaching.message msg
+    ) AS mentions,
+    (
+      SELECT json_build_object(
+        'id', p.id,
+        'question', p.question,
+        'options', p.options_json,
+        'closes_at', p.closes_at,
+        'votes', COALESCE(
+          (SELECT json_agg(json_build_object(
+            'option_index', v.option_index,
+            'user_id', v.user_id,
+            'member_id', v.member_id,
+            'voted_at', v.voted_at
+          ) ORDER BY v.voted_at)
+          FROM coaching.message_poll_vote v WHERE v.poll_id = p.id),
+          '[]'::json
+        )
+      )
+      FROM coaching.message_poll p
+      WHERE p.message_id = msg.id
+    ) AS poll,
+    (
+      SELECT json_build_object('id', c.id, 'items', c.items_json)
+      FROM coaching.message_checklist c
+      WHERE c.message_id = msg.id
+    ) AS checklist
 `
 
 export async function loadEnrichedMessagesForThread(pool, threadId) {

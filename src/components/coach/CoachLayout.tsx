@@ -218,7 +218,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
         </div>
       </header>
 
-      <div className={`${messagingFullscreen ? 'flex-1 min-h-0 overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden'}`}>
+      <div className={`${messagingFullscreen ? 'flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden'}`}>
         <nav className={messagingFullscreen ? 'hidden' : navOpen ? 'block' : 'hidden lg:block'}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
             {visibleNav.map((item) => {

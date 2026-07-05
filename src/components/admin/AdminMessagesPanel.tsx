@@ -528,8 +528,10 @@ export default function AdminMessagesPanel({
         selectedThreadId={selectedId}
         onSelectThread={setSelectedId}
         onBack={() => setSelectedId(null)}
+        maximized={maximized}
         listPanel={
           <MessagingThreadListShell
+            maximized={maximized}
             title={listPanelTitle}
             titleAction={
               <div className="flex items-center gap-1 shrink-0">

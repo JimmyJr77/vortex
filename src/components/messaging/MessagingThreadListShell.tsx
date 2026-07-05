@@ -9,6 +9,7 @@ interface MessagingThreadListShellProps {
   searchPlaceholder?: string
   headerExtra?: ReactNode
   children: ReactNode
+  maximized?: boolean
 }
 
 export default function MessagingThreadListShell({
@@ -20,9 +21,12 @@ export default function MessagingThreadListShell({
   searchPlaceholder = 'Search threads…',
   headerExtra,
   children,
+  maximized = false,
 }: MessagingThreadListShellProps) {
   return (
-    <div className="messaging-panel flex flex-col min-h-0 h-full max-h-full overflow-hidden">
+    <div
+      className={`messaging-panel flex flex-col min-h-0 h-full max-h-full overflow-hidden${maximized ? ' messaging-panel--maximized' : ''}`}
+    >
       <div className="px-4 py-3 border-b border-gray-100 shrink-0 flex items-center justify-between gap-2">
         <span className="font-semibold text-sm min-w-0 truncate">{title}</span>
         {titleAction}

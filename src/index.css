@@ -113,6 +113,18 @@
     gap: 0;
   }
 
+  .messaging-workspace--maximized .messaging-workspace-grid {
+    gap: 0;
+    height: 100%;
+    max-height: 100%;
+  }
+
+  .messaging-panel--maximized {
+    @apply rounded-none border-0;
+    height: 100%;
+    max-height: 100%;
+  }
+
   @media (max-width: 1023px) {
     .messaging-workspace--thread-open {
       gap: 0;

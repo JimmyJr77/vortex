@@ -93,7 +93,29 @@ export interface MessageRow {
   deleted_at?: string | null
   files?: MessageFile[]
   reactions?: { emoji: string; count: number }[]
+  poll?: MessagePoll | null
+  checklist?: MessageChecklist | null
   created_at: string
+}
+
+export interface MessagePollVote {
+  option_index: number
+  user_id?: number | null
+  member_id?: number | null
+  voted_at?: string
+}
+
+export interface MessagePoll {
+  id?: number
+  question: string
+  options: unknown[]
+  closes_at?: string | null
+  votes?: MessagePollVote[]
+}
+
+export interface MessageChecklist {
+  id?: number
+  items: unknown[]
 }
 
 export interface RecipientOption {

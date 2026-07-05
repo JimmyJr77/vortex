@@ -17,7 +17,7 @@ import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
 import { NOTIFICATION_NAV_EVENT, type NotificationNavigateDetail } from '../utils/notificationNavigation'
 import { coachFetch } from '../coach/api'
-import { fetchEventMessageThreads, pickEventDiscussionThreadId } from './messaging/messagingApi'
+import { fetchEventMessageThreads, pickEventDiscussionThreadId, fetchEventChatStatus, subscribeToEventChat, submitEventRsvp, fetchUpcomingSchedule, type EventChatStatus, type EventCalendarItem } from './messaging/messagingApi'
 import PortalPreferencesPanel from './messaging/PortalPreferencesPanel'
 import MemberMasterFaqsPanel from './messaging/MemberMasterFaqsPanel'
 import WaiverSigningBlock, { validateWaiverSigning } from './signup/WaiverSigningBlock'
@@ -208,6 +208,11 @@ export default function MemberDashboard({
   const [openMessageThreadId, setOpenMessageThreadId] = useState<number | null>(null)
   const [messagesMaximized, setMessagesMaximized] = useState(false)
   const [eventMessagesLoadingId, setEventMessagesLoadingId] = useState<number | null>(null)
+  const [eventChatStatusById, setEventChatStatusById] = useState<Record<number, EventChatStatus>>({})
+  const [eventSubscribeLoadingId, setEventSubscribeLoadingId] = useState<number | null>(null)
+  const [eventRsvpLoadingId, setEventRsvpLoadingId] = useState<number | null>(null)
+  const [scheduleItems, setScheduleItems] = useState<EventCalendarItem[]>([])
+  const [scheduleLoading, setScheduleLoading] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
   const [profileData, setProfileData] = useState<any>(null)
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([])
@@ -685,11 +690,14 @@ export default function MemberDashboard({
     if (!Number.isFinite(id) || id <= 0) return
     setEventMessagesLoadingId(id)
     try {
-      const threads = await fetchEventMessageThreads('member', id, coachFetch)
-      const threadId = pickEventDiscussionThreadId(threads)
+      const status = eventChatStatusById[id] ?? await fetchEventChatStatus(id, coachFetch)
+      const threadId = status.discussionThreadId
+        ?? pickEventDiscussionThreadId(await fetchEventMessageThreads('member', id, coachFetch))
       if (threadId != null) {
         setOpenMessageThreadId(threadId)
         setActiveTab('messages')
+      } else if (status.hasChat) {
+        alert('Event chat exists but could not resolve the discussion thread.')
       } else {
         alert('No message threads are available for this event yet.')
       }
@@ -697,6 +705,70 @@ export default function MemberDashboard({
       alert(err instanceof Error ? err.message : 'Could not open event messages')
     } finally {
       setEventMessagesLoadingId(null)
+    }
+  }
+
+  const handleSubscribeEventChat = async (eventId: number | string) => {
+    const id = Number(eventId)
+    if (!Number.isFinite(id)) return
+    setEventSubscribeLoadingId(id)
+    try {
+      await subscribeToEventChat(id, coachFetch)
+      const status = await fetchEventChatStatus(id, coachFetch)
+      setEventChatStatusById((prev) => ({ ...prev, [id]: status }))
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Could not subscribe to event chat')
+    } finally {
+      setEventSubscribeLoadingId(null)
+    }
+  }
+
+  const handleEventRsvp = async (eventId: number | string, status: 'going' | 'maybe' | 'declined') => {
+    const id = Number(eventId)
+    if (!Number.isFinite(id)) return
+    setEventRsvpLoadingId(id)
+    try {
+      await submitEventRsvp(id, status, coachFetch)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Could not save RSVP')
+    } finally {
+      setEventRsvpLoadingId(null)
+    }
+  }
+
+  const openScheduleItemChat = (item: EventCalendarItem) => {
+    if (item.discussion_thread_id != null) {
+      setOpenMessageThreadId(item.discussion_thread_id)
+      setActiveTab('messages')
+      return
+    }
+    void openEventMessages(item.event_id)
+  }
+
+  const loadEventChatStatuses = async (eventList: Event[]) => {
+    if (!token) return
+    const entries = await Promise.all(
+      eventList.map(async (event) => {
+        try {
+          const status = await fetchEventChatStatus(Number(event.id), coachFetch)
+          return [Number(event.id), status] as const
+        } catch {
+          return [Number(event.id), { hasChat: false, subscribed: false, discussionThreadId: null, canonicalThreadId: null }] as const
+        }
+      }),
+    )
+    setEventChatStatusById(Object.fromEntries(entries))
+  }
+
+  const loadUpcomingSchedule = async () => {
+    if (!token) return
+    setScheduleLoading(true)
+    try {
+      setScheduleItems(await fetchUpcomingSchedule(coachFetch))
+    } catch {
+      setScheduleItems([])
+    } finally {
+      setScheduleLoading(false)
     }
   }
 
@@ -737,6 +809,7 @@ export default function MemberDashboard({
       }
     } else if (activeTab === 'events') {
       fetchEvents()
+      void loadUpcomingSchedule()
       fetchEnrollments() // Need enrollments for filtering
     } else if (activeTab === 'profile') {
       fetchEnrollments() // Need enrollments to display on profile
@@ -935,6 +1008,7 @@ export default function MemberDashboard({
           }
         })
         setEvents(eventsWithDates)
+        void loadEventChatStatuses(eventsWithDates)
       }
     } catch (error) {
       console.error('Error fetching events:', error)
@@ -1576,7 +1650,7 @@ export default function MemberDashboard({
         </div>
       </div>
 
-      {(enrollmentConfirming || enrollmentConfirmMessage || enrollmentConfirmError) && (
+      {(enrollmentConfirming || enrollmentConfirmMessage || enrollmentConfirmError) && !messagingFullscreen && (
         <div className="container-admin pt-4">
           <div
             className={`rounded-lg border px-4 py-3 text-sm flex items-start justify-between gap-3 ${
@@ -1609,7 +1683,7 @@ export default function MemberDashboard({
       )}
 
       {/* Workspace: sidebar nav + main content */}
-      <div className={`${messagingFullscreen ? 'flex-1 min-h-0 overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden'}`}>
+      <div className={`${messagingFullscreen ? 'flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden'}`}>
         <nav className={messagingFullscreen ? 'hidden' : navOpen ? 'block' : 'hidden lg:block'}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
             {visibleNav.map((item) => {
@@ -2202,6 +2276,53 @@ export default function MemberDashboard({
                   )}
                 </div>
 
+                {/* Upcoming schedule from event calendar items */}
+                {token && eventView === 'upcoming' && (
+                  <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                    <h2 className="text-xl md:text-2xl font-display font-bold text-black mb-4">
+                      Upcoming schedule
+                    </h2>
+                    {scheduleLoading ? (
+                      <div className="text-center py-6 text-gray-600">Loading schedule…</div>
+                    ) : scheduleItems.length === 0 ? (
+                      <p className="text-sm text-gray-500">
+                        Subscribe to event chats to see upcoming calendar items here.
+                      </p>
+                    ) : (
+                      <ul className="space-y-3">
+                        {scheduleItems.map((item) => (
+                          <li
+                            key={item.id}
+                            className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-100 pb-3 last:border-b-0"
+                          >
+                            <div>
+                              <div className="font-semibold text-gray-900">{item.title}</div>
+                              {item.event_name && (
+                                <div className="text-xs text-gray-500">{item.event_name}</div>
+                              )}
+                              {item.when_start && (
+                                <div className="text-sm text-vortex-red mt-0.5">
+                                  {new Date(item.when_start).toLocaleString()}
+                                </div>
+                              )}
+                              {item.where_text && (
+                                <div className="text-xs text-gray-600 mt-0.5">{item.where_text}</div>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => openScheduleItemChat(item)}
+                              className="text-sm font-semibold text-vortex-red hover:underline min-h-[44px] px-2"
+                            >
+                              Open chat
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+
                 {/* Calendar of Events */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   {/* Event View Toggle - Rotator Style */}
@@ -2359,15 +2480,54 @@ export default function MemberDashboard({
                             )}
 
                             <div className="mt-4 flex flex-wrap gap-2">
-                              <button
-                                type="button"
-                                onClick={() => void openEventMessages(event.id)}
-                                disabled={eventMessagesLoadingId === Number(event.id)}
-                                className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60 min-h-[44px]"
-                              >
-                                <MessageSquare className="w-4 h-4" />
-                                {eventMessagesLoadingId === Number(event.id) ? 'Opening…' : 'Event messages'}
-                              </button>
+                              {(() => {
+                                const chatStatus = eventChatStatusById[Number(event.id)]
+                                const hasChat = chatStatus?.hasChat
+                                const subscribed = chatStatus?.subscribed
+                                return (
+                                  <>
+                                    {hasChat && !subscribed && (
+                                      <button
+                                        type="button"
+                                        onClick={() => void handleSubscribeEventChat(event.id)}
+                                        disabled={eventSubscribeLoadingId === Number(event.id)}
+                                        className="inline-flex items-center gap-2 rounded-lg border border-vortex-red px-4 py-2 text-sm font-semibold text-vortex-red hover:bg-red-50 disabled:opacity-60 min-h-[44px]"
+                                      >
+                                        {eventSubscribeLoadingId === Number(event.id) ? 'Subscribing…' : 'Subscribe to event chat'}
+                                      </button>
+                                    )}
+                                    {hasChat && subscribed && (
+                                      <button
+                                        type="button"
+                                        onClick={() => void openEventMessages(event.id)}
+                                        disabled={eventMessagesLoadingId === Number(event.id)}
+                                        className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60 min-h-[44px]"
+                                      >
+                                        <MessageSquare className="w-4 h-4" />
+                                        {eventMessagesLoadingId === Number(event.id) ? 'Opening…' : 'Event messages'}
+                                      </button>
+                                    )}
+                                    {!hasChat && (
+                                      <span className="text-xs text-gray-500 self-center">Event chat not available yet.</span>
+                                    )}
+                                  </>
+                                )
+                              })()}
+                              {token && (
+                                <div className="flex flex-wrap gap-1">
+                                  {(['going', 'maybe', 'declined'] as const).map((status) => (
+                                    <button
+                                      key={status}
+                                      type="button"
+                                      onClick={() => void handleEventRsvp(event.id, status)}
+                                      disabled={eventRsvpLoadingId === Number(event.id)}
+                                      className="rounded-lg border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-60 min-h-[44px]"
+                                    >
+                                      {status === 'going' ? 'Going' : status === 'maybe' ? 'Maybe' : "Can't go"}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
                             </div>
 
                             {event.schedulingFormId != null && (

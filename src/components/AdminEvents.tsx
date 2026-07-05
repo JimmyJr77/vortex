@@ -1,8 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Edit2, Archive, X, Plus, Calendar, MapPin, CheckCircle, Award, Trophy, Search, ChevronUp, ChevronDown, Users, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Edit2, Archive, X, Plus, Calendar, MapPin, CheckCircle, Award, Trophy, Search, ChevronUp, ChevronDown, Users, Image as ImageIcon, ChevronLeft, ChevronRight, MessageSquare, Loader2 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
-import { provisionEventMessageThreads } from './messaging/messagingApi'
+import {
+  createEventCalendarItem,
+  deleteEventCalendarItem,
+  fetchEventCalendarItems,
+  fetchEventMessageThreads,
+  provisionEventMessageThreads,
+  type EventCalendarItem,
+} from './messaging/messagingApi'
 import { formatDateForInput, formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 import { adminFetchSchedulingForms, type SchedulingFormSummary } from '../utils/schedulingApi'
 import EventAttachedSignup from './EventAttachedSignup'
@@ -598,6 +605,112 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
   const [showEditLog, setShowEditLog] = useState(false)
   const [editLog, setEditLog] = useState<Array<{ id: number; eventId: string | number; field: string; oldValue: string; newValue: string; changedBy: string; changedAt: string; adminName?: string; adminEmail?: string; createdAt?: string; changes?: Record<string, { oldValue: unknown; newValue: unknown }> }>>([])
   const [editLogLoading, setEditLogLoading] = useState(false)
+  const [eventChatExists, setEventChatExists] = useState(false)
+  const [eventChatSyncing, setEventChatSyncing] = useState(false)
+  const [calendarItems, setCalendarItems] = useState<EventCalendarItem[]>([])
+  const [calendarLoading, setCalendarLoading] = useState(false)
+  const [calendarDraft, setCalendarDraft] = useState({
+    title: '',
+    who_text: '',
+    what_text: '',
+    why_text: '',
+    when_start: '',
+    where_text: '',
+  })
+  const [calendarSaving, setCalendarSaving] = useState(false)
+
+  const adminMessagingFetch = async (endpoint: string, options?: RequestInit) => {
+    const response = await adminApiRequest(endpoint, options)
+    const json = await response.json().catch(() => ({}))
+    if (!response.ok || json?.success === false) {
+      throw new Error(json?.message || 'Request failed')
+    }
+    return json?.data ?? json
+  }
+
+  const loadEventChatMeta = async (eventId: string | number) => {
+    const id = Number(eventId)
+    if (!Number.isFinite(id)) return
+    setCalendarLoading(true)
+    try {
+      const threads = await fetchEventMessageThreads('admin', id, adminMessagingFetch)
+      setEventChatExists(threads.length > 0)
+      const items = await fetchEventCalendarItems(id, adminMessagingFetch)
+      setCalendarItems(items)
+    } catch {
+      setEventChatExists(false)
+      setCalendarItems([])
+    } finally {
+      setCalendarLoading(false)
+    }
+  }
+
+  const handleSyncEventChat = async () => {
+    if (editingEventId == null) {
+      alert('Save the event first, then create or sync the event chat.')
+      return
+    }
+    setEventChatSyncing(true)
+    try {
+      await provisionEventMessageThreads(
+        Number(editingEventId),
+        adminMessagingFetch,
+        {
+          subject: eventFormData.eventName,
+          info_json: {
+            shortDescription: eventFormData.shortDescription,
+            longDescription: eventFormData.longDescription,
+            startDate: eventFormData.startDate,
+            endDate: eventFormData.endDate,
+            address: eventFormData.address,
+            keyDetails: eventFormData.keyDetails,
+            datesAndTimes: eventFormData.datesAndTimes,
+          },
+        },
+      )
+      setEventChatExists(true)
+      alert(eventChatExists ? 'Event chat synced.' : 'Event chat created.')
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Could not sync event chat')
+    } finally {
+      setEventChatSyncing(false)
+    }
+  }
+
+  const handleAddCalendarItem = async () => {
+    if (editingEventId == null) return
+    if (!calendarDraft.title.trim()) {
+      alert('Calendar item title is required.')
+      return
+    }
+    setCalendarSaving(true)
+    try {
+      const item = await createEventCalendarItem(Number(editingEventId), adminMessagingFetch, {
+        title: calendarDraft.title.trim(),
+        who_text: calendarDraft.who_text || null,
+        what_text: calendarDraft.what_text || null,
+        why_text: calendarDraft.why_text || null,
+        when_start: calendarDraft.when_start || null,
+        where_text: calendarDraft.where_text || null,
+      })
+      setCalendarItems((prev) => [...prev, item])
+      setCalendarDraft({ title: '', who_text: '', what_text: '', why_text: '', when_start: '', where_text: '' })
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Could not add calendar item')
+    } finally {
+      setCalendarSaving(false)
+    }
+  }
+
+  const handleDeleteCalendarItem = async (itemId: number) => {
+    if (editingEventId == null) return
+    try {
+      await deleteEventCalendarItem(Number(editingEventId), itemId, adminMessagingFetch)
+      setCalendarItems((prev) => prev.filter((item) => item.id !== itemId))
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Could not delete calendar item')
+    }
+  }
 
   const loadSchedulingForms = async () => {
     try {
@@ -791,39 +904,11 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
       })
 
       if (response.ok) {
-        const saved = await response.json().catch(() => ({}))
-        const eventId = editingEventId ?? saved?.data?.id ?? saved?.id
-        if (eventId != null) {
-          try {
-            await provisionEventMessageThreads(
-              Number(eventId),
-              async (ep, options) => {
-                const r = await adminApiRequest(ep, options)
-                if (!r.ok) {
-                  const err = await r.json().catch(() => ({}))
-                  throw new Error(err?.message || 'Failed to create event message threads')
-                }
-              },
-              {
-                subject: dataToSubmit.eventName,
-                info_json: {
-                  shortDescription: dataToSubmit.shortDescription,
-                  longDescription: dataToSubmit.longDescription,
-                  startDate: dataToSubmit.startDate,
-                  endDate: dataToSubmit.endDate,
-                  address: dataToSubmit.address,
-                  keyDetails: dataToSubmit.keyDetails,
-                  datesAndTimes: dataToSubmit.datesAndTimes,
-                },
-              },
-            )
-          } catch (threadErr) {
-            console.warn('Event message threads:', threadErr)
-          }
-        }
         await fetchEvents()
         setShowEventForm(false)
         setEditingEventId(null)
+        setEventChatExists(false)
+        setCalendarItems([])
         setEventFormData({
           eventName: '',
           shortDescription: '',
@@ -1248,6 +1333,15 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
       loadSchedulingForms()
     }
   }, [showEventForm])
+
+  useEffect(() => {
+    if (editingEventId != null && showEventForm) {
+      void loadEventChatMeta(editingEventId)
+    } else {
+      setEventChatExists(false)
+      setCalendarItems([])
+    }
+  }, [editingEventId, showEventForm])
 
   useEffect(() => {
     if (!formAttachOpen) return
@@ -2022,6 +2116,125 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                     )}
                   </div>
                 </div>
+
+                {editingEventId && (
+                  <div className="pt-4 mt-4 border-t border-gray-700 space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <h4 className="text-sm font-semibold text-white">Event chat</h4>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {eventChatExists
+                            ? 'Chat exists — sync to refresh info and participants.'
+                            : 'No chat yet — create one when the event is ready.'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void handleSyncEventChat()}
+                        disabled={eventChatSyncing}
+                        className="inline-flex items-center gap-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                      >
+                        {eventChatSyncing ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <MessageSquare className="w-4 h-4" />
+                        )}
+                        {eventChatExists ? 'Sync event chat' : 'Create event chat'}
+                      </button>
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-semibold text-white mb-2">Calendar items (5 Ws)</h4>
+                      {calendarLoading ? (
+                        <div className="text-sm text-gray-400 flex items-center gap-2">
+                          <Loader2 className="w-4 h-4 animate-spin" /> Loading…
+                        </div>
+                      ) : (
+                        <>
+                          {calendarItems.length === 0 ? (
+                            <p className="text-xs text-gray-400 mb-3">No calendar items yet.</p>
+                          ) : (
+                            <ul className="space-y-2 mb-3">
+                              {calendarItems.map((item) => (
+                                <li
+                                  key={item.id}
+                                  className="rounded-lg border border-gray-600 bg-gray-700/40 px-3 py-2 text-sm text-gray-200"
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div>
+                                      <div className="font-semibold text-white">{item.title}</div>
+                                      {item.when_start && (
+                                        <div className="text-xs text-gray-400 mt-0.5">
+                                          {new Date(item.when_start).toLocaleString()}
+                                        </div>
+                                      )}
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => void handleDeleteCalendarItem(item.id)}
+                                      className="text-xs text-red-300 hover:text-red-200"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          <div className="grid gap-2 sm:grid-cols-2">
+                            <input
+                              value={calendarDraft.title}
+                              onChange={(e) => setCalendarDraft((d) => ({ ...d, title: e.target.value }))}
+                              placeholder="Title / event name"
+                              className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white"
+                            />
+                            <input
+                              type="datetime-local"
+                              value={calendarDraft.when_start}
+                              onChange={(e) => setCalendarDraft((d) => ({ ...d, when_start: e.target.value }))}
+                              className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white"
+                            />
+                            <input
+                              value={calendarDraft.who_text}
+                              onChange={(e) => setCalendarDraft((d) => ({ ...d, who_text: e.target.value }))}
+                              placeholder="Who"
+                              className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white"
+                            />
+                            <input
+                              value={calendarDraft.what_text}
+                              onChange={(e) => setCalendarDraft((d) => ({ ...d, what_text: e.target.value }))}
+                              placeholder="What"
+                              className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white"
+                            />
+                            <input
+                              value={calendarDraft.why_text}
+                              onChange={(e) => setCalendarDraft((d) => ({ ...d, why_text: e.target.value }))}
+                              placeholder="Why"
+                              className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white"
+                            />
+                            <input
+                              value={calendarDraft.where_text}
+                              onChange={(e) => setCalendarDraft((d) => ({ ...d, where_text: e.target.value }))}
+                              placeholder="Where"
+                              className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => void handleAddCalendarItem()}
+                            disabled={calendarSaving || !eventChatExists}
+                            className="mt-2 text-sm font-semibold text-vortex-red hover:text-red-400 disabled:opacity-50"
+                          >
+                            {calendarSaving ? 'Adding…' : 'Add calendar item'}
+                          </button>
+                          {!eventChatExists && (
+                            <p className="text-xs text-gray-500 mt-1">Create the event chat first.</p>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex gap-2 pt-4">
                   <button

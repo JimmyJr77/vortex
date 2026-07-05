@@ -844,13 +844,27 @@ export async function voteMessagePoll(pool, pollId, optionIndex, viewer) {
 export async function loadMessagePoll(pool, messageId) {
   const r = await pool.query(
     `SELECT p.*,
-       (SELECT json_agg(v ORDER BY v.voted_at)
-        FROM coaching.message_poll_vote v WHERE v.poll_id = p.id) AS votes
+       COALESCE(
+         (SELECT json_agg(json_build_object(
+           'option_index', v.option_index,
+           'user_id', v.user_id,
+           'member_id', v.member_id,
+           'voted_at', v.voted_at
+         ) ORDER BY v.voted_at)
+         FROM coaching.message_poll_vote v WHERE v.poll_id = p.id),
+         '[]'::json
+       ) AS votes
      FROM coaching.message_poll p
      WHERE p.message_id = $1`,
     [messageId],
   )
-  return r.rows[0] ?? null
+  const row = r.rows[0]
+  if (!row) return null
+  return {
+    ...row,
+    options: row.options_json,
+    votes: row.votes ?? [],
+  }
 }
 
 // --- Checklists ---
@@ -871,6 +885,27 @@ export async function loadMessageChecklist(pool, messageId) {
     [messageId],
   )
   return r.rows[0] ?? null
+}
+
+export async function claimChecklistItem(pool, messageId, itemIndex, viewer) {
+  const checklist = await loadMessageChecklist(pool, messageId)
+  if (!checklist) throw new Error('Checklist not found.')
+  const items = Array.isArray(checklist.items_json) ? [...checklist.items_json] : []
+  const idx = Number(itemIndex)
+  if (!Number.isInteger(idx) || idx < 0 || idx >= items.length) {
+    throw new Error('Invalid checklist item.')
+  }
+  const current = items[idx] && typeof items[idx] === 'object' ? { ...items[idx] } : { text: String(items[idx] ?? '') }
+  items[idx] = {
+    ...current,
+    assigned_member_id: viewer?.memberId ?? null,
+    assigned_user_id: viewer?.userId ?? null,
+  }
+  await pool.query(
+    `UPDATE coaching.message_checklist SET items_json = $2::jsonb WHERE message_id = $1`,
+    [messageId, JSON.stringify(items)],
+  )
+  return loadMessageChecklist(pool, messageId)
 }
 
 // --- FAQ ---

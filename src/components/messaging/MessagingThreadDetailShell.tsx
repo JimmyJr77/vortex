@@ -7,11 +7,11 @@ interface MessagingThreadDetailShellProps {
 }
 
 const MIN_FOOTER_HEIGHT = 120
-const DEFAULT_FOOTER_HEIGHT = 160
+const DEFAULT_FOOTER_HEIGHT = 184
 
 function maxFooterHeight() {
   if (typeof window === 'undefined') return 360
-  return Math.floor(window.innerHeight * 0.5)
+  return Math.floor(window.innerHeight * 0.45)
 }
 
 /** Thread detail: fixed header/footer with a single scroll region for messages + contextual blocks. */
@@ -88,14 +88,21 @@ export default function MessagingThreadDetailShell({
   }
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden">
-      <div className="shrink-0">{header}</div>
-      <div className="messaging-scroll flex-1 min-h-0">{children}</div>
+    <div
+      className="flex-1 h-full min-h-0 max-h-full overflow-hidden"
+      style={{
+        display: 'grid',
+        gridTemplateRows: footer
+          ? `auto minmax(0, 1fr) ${footerHeight}px`
+          : 'auto minmax(0, 1fr)',
+      }}
+    >
+      <div className="min-h-0">{header}</div>
+      <div className="min-h-0 overflow-y-auto overscroll-contain">{children}</div>
       {footer ? (
         <div
           ref={footerRef}
-          className="shrink-0 border-t border-gray-100 bg-white flex flex-col overflow-hidden"
-          style={{ height: footerHeight }}
+          className="min-h-0 border-t border-gray-100 bg-white flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom,0px)]"
         >
           <div
             role="separator"
@@ -107,7 +114,7 @@ export default function MessagingThreadDetailShell({
           >
             <div className="w-10 h-1 rounded-full bg-gray-300" />
           </div>
-          <div className="flex flex-col flex-1 min-h-0 overflow-hidden h-full">{footer}</div>
+          <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">{footer}</div>
         </div>
       ) : null}
     </div>
