@@ -48,6 +48,7 @@ import {
   messagingWorkspaceShell,
   messagingWorkspaceThreadOpen,
   defaultLandingThreadId,
+  messagingViewportShowsBothPanels,
   threadListTitle,
 } from '../messaging/messagingLayout'
 import type {
@@ -110,7 +111,7 @@ export default function AdminMessagesPanel({
   const [threadFavorite, setThreadFavorite] = useState(false)
   const [favoriteLoading, setFavoriteLoading] = useState(false)
   const [pendingAttachment, setPendingAttachment] = useState<File | null>(null)
-  const [inboxTab, setInboxTab] = useState<MessagingInboxTab>('all')
+  const [inboxTab, setInboxTab] = useState<MessagingInboxTab>('messages')
   const [threadInfoJson, setThreadInfoJson] = useState<Record<string, unknown> | null>(null)
   const [linkedThreadId, setLinkedThreadId] = useState<number | null>(null)
   const [faqPanelOpen, setFaqPanelOpen] = useState(false)
@@ -230,7 +231,7 @@ export default function AdminMessagesPanel({
     setFaqDraft(null)
     setPendingFaqReply(null)
     setNewOpen(false)
-    setInboxTab(tab === 'archived' ? 'archived' : 'all')
+    setInboxTab(tab === 'archived' ? 'archived' : 'messages')
     void loadThreads()
   }, [loadThreads, tab])
 
@@ -299,6 +300,8 @@ export default function AdminMessagesPanel({
   useEffect(() => {
     if (loading || autoOpenedRef.current || initialThreadId != null || selectedId != null) return
     if (tab === 'archived') return
+    // On phones/small screens only one panel shows at a time — land on the thread list instead.
+    if (!messagingViewportShowsBothPanels()) return
     const landingId = defaultLandingThreadId(displayedThreads)
     if (landingId == null) return
     autoOpenedRef.current = true

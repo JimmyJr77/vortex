@@ -1,5 +1,6 @@
 export type MessagingInboxTab =
   | 'all'
+  | 'messages'
   | 'unread'
   | 'pinned'
   | 'events'
@@ -10,9 +11,10 @@ export type MessagingInboxTab =
 
 const TAB_DEFS: { id: MessagingInboxTab; label: string }[] = [
   { id: 'all', label: 'All threads' },
+  { id: 'messages', label: 'All messages' },
   { id: 'unread', label: 'Unread Messages' },
   { id: 'pinned', label: 'Favorite Messages' },
-  { id: 'events', label: 'Event Boards' },
+  { id: 'events', label: 'Event Discussion Boards' },
   { id: 'scheduling', label: 'Event Schedules' },
   { id: 'classes', label: 'Classes' },
   { id: 'files', label: 'Files' },

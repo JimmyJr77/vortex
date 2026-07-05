@@ -4,6 +4,13 @@
 
 function mapCalendarRow(row) {
   if (!row) return null
+  let whatToBring = []
+  if (row.what_to_bring != null) {
+    whatToBring = typeof row.what_to_bring === 'string'
+      ? JSON.parse(row.what_to_bring)
+      : row.what_to_bring
+    if (!Array.isArray(whatToBring)) whatToBring = []
+  }
   return {
     id: Number(row.id),
     facility_id: Number(row.facility_id),
@@ -15,12 +22,19 @@ function mapCalendarRow(row) {
     when_start: row.when_start,
     when_end: row.when_end,
     where_text: row.where_text,
+    what_to_bring: whatToBring.filter((item) => String(item || '').trim()),
     ics_uid: row.ics_uid,
     sort_order: Number(row.sort_order ?? 0),
     event_name: row.event_name ?? null,
     created_at: row.created_at,
     updated_at: row.updated_at,
   }
+}
+
+function normalizeBringList(payload) {
+  const raw = payload.what_to_bring ?? payload.whatToBring ?? payload.bring_items ?? payload.bringItems
+  if (!Array.isArray(raw)) return []
+  return raw.map((item) => String(item || '').trim()).filter(Boolean)
 }
 
 export async function listEventCalendarItems(pool, eventId, facilityId) {
@@ -39,8 +53,8 @@ export async function createEventCalendarItem(pool, eventId, facilityId, payload
   const r = await pool.query(
     `INSERT INTO coaching.event_calendar_item (
        facility_id, event_id, title, who_text, what_text, why_text,
-       when_start, when_end, where_text, ics_uid, sort_order
-     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       when_start, when_end, where_text, what_to_bring, ics_uid, sort_order
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11, $12)
      RETURNING *`,
     [
       facilityId,
@@ -52,6 +66,7 @@ export async function createEventCalendarItem(pool, eventId, facilityId, payload
       payload.when_start ?? payload.whenStart ?? null,
       payload.when_end ?? payload.whenEnd ?? null,
       payload.where_text ?? payload.whereText ?? null,
+      JSON.stringify(normalizeBringList(payload)),
       payload.ics_uid ?? payload.icsUid ?? null,
       Number(payload.sort_order ?? payload.sortOrder ?? 0),
     ],
@@ -83,8 +98,9 @@ export async function updateEventCalendarItem(pool, itemId, facilityId, payload)
          when_start = COALESCE($7, when_start),
          when_end = COALESCE($8, when_end),
          where_text = COALESCE($9, where_text),
-         ics_uid = COALESCE($10, ics_uid),
-         sort_order = COALESCE($11, sort_order),
+         what_to_bring = COALESCE($10::jsonb, what_to_bring),
+         ics_uid = COALESCE($11, ics_uid),
+         sort_order = COALESCE($12, sort_order),
          updated_at = now()
      WHERE id = $1 AND facility_id = $2
      RETURNING *`,
@@ -98,6 +114,9 @@ export async function updateEventCalendarItem(pool, itemId, facilityId, payload)
       payload.when_start ?? payload.whenStart ?? null,
       payload.when_end ?? payload.whenEnd ?? null,
       payload.where_text ?? payload.whereText ?? null,
+      payload.what_to_bring != null || payload.whatToBring != null
+        ? JSON.stringify(normalizeBringList(payload))
+        : null,
       payload.ics_uid ?? payload.icsUid ?? null,
       payload.sort_order ?? payload.sortOrder ?? null,
     ],

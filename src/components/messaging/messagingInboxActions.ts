@@ -31,6 +31,7 @@ export function getInboxPrimaryAction(
 
   switch (tab) {
     case 'all':
+    case 'messages':
     case 'unread':
     case 'pinned':
       return { label: 'New message thread', mode: 'message', disabled: false, hidden: false }
@@ -38,11 +39,11 @@ export function getInboxPrimaryAction(
       return { label: 'New class thread', mode: 'class', disabled: false, hidden: false }
     case 'events':
       if (role === 'admin') {
-        return { label: 'New event board', mode: 'eventBoard', disabled: false, hidden: false }
+        return { label: 'New event discussion board', mode: 'eventBoard', disabled: false, hidden: false }
       }
       if (role === 'member' && !options.memberPermissions?.canCreateEventBoards) {
         return {
-          label: 'New event board',
+          label: 'New event discussion board',
           mode: 'eventBoard',
           disabled: true,
           disabledReason: 'Requires permission from your admin',
@@ -51,14 +52,14 @@ export function getInboxPrimaryAction(
       }
       if (role === 'coach') {
         return {
-          label: 'New event board',
+          label: 'New event discussion board',
           mode: 'eventBoard',
           disabled: true,
           disabledReason: 'Admin only',
           hidden: false,
         }
       }
-      return { label: 'New event board', mode: 'eventBoard', disabled: false, hidden: false }
+      return { label: 'New event discussion board', mode: 'eventBoard', disabled: false, hidden: false }
     case 'scheduling':
       if (isStaffRole(role)) {
         return { label: 'New calendar item', mode: 'calendarItem', disabled: false, hidden: false }

@@ -43,6 +43,7 @@ import {
   messagingWorkspaceShell,
   messagingWorkspaceThreadOpen,
   defaultLandingThreadId,
+  messagingViewportShowsBothPanels,
   threadListTitle,
 } from './messaging/messagingLayout'
 import type {
@@ -874,7 +875,7 @@ export function MemberMessagesTab({
   const [threadSearch, setThreadSearch] = useState('')
   const [listSort, setListSort] = useState<ThreadListSortField>('recent')
   const [listSortDir, setListSortDir] = useState<ThreadListSortDir>(() => defaultSortDir('recent'))
-  const [inboxTab, setInboxTab] = useState<MessagingInboxTab>('all')
+  const [inboxTab, setInboxTab] = useState<MessagingInboxTab>('messages')
   const [threadInfoJson, setThreadInfoJson] = useState<Record<string, unknown> | null>(null)
   const [linkedThreadId, setLinkedThreadId] = useState<number | null>(null)
   const [faqPanelOpen, setFaqPanelOpen] = useState(false)
@@ -1037,6 +1038,8 @@ export function MemberMessagesTab({
 
   useEffect(() => {
     if (loading || autoOpenedRef.current || initialThreadId != null || selectedId != null) return
+    // On phones/small screens only one panel shows at a time — land on the thread list instead.
+    if (!messagingViewportShowsBothPanels()) return
     const landingId = defaultLandingThreadId(filteredThreads)
     if (landingId == null) return
     autoOpenedRef.current = true

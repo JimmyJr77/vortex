@@ -15,6 +15,7 @@ interface TargetRow {
 interface BlockRow {
   label: string
   intentId: number | ''
+  phaseKey: string
   minutes: number
 }
 
@@ -29,9 +30,10 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
   const [excludeBodyRegionIds, setExcludeBodyRegionIds] = useState<number[]>([])
   const [targets, setTargets] = useState<TargetRow[]>([{ facetType: 'tenet', facetId: '', weight: 4 }])
   const [blocks, setBlocks] = useState<BlockRow[]>([
-    { label: 'Warmup', intentId: '', minutes: 10 },
-    { label: 'Main Work', intentId: '', minutes: 30 },
-    { label: 'Conditioning', intentId: '', minutes: 10 },
+    { label: 'Prepare / Access', phaseKey: 'prepare_access', intentId: '', minutes: 10 },
+    { label: 'Skill & Movement', phaseKey: 'skill_movement_intelligence', intentId: '', minutes: 15 },
+    { label: 'Capacity', phaseKey: 'capacity', intentId: '', minutes: 25 },
+    { label: 'Fitness', phaseKey: 'fitness_repeatability', intentId: '', minutes: 10 },
   ])
   const [result, setResult] = useState<PrescriptionResult | null>(null)
   const [loading, setLoading] = useState(false)
@@ -57,7 +59,8 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
         equipmentIds,
         excludeBodyRegionIds,
         targets: targets.filter((t) => t.facetId !== '').map((t) => ({ facetType: t.facetType, facetId: t.facetId, weight: t.weight })),
-        blocks: blocks.map((b) => ({ label: b.label, intentId: b.intentId || null, minutes: b.minutes })),
+        blocks: blocks.map((b) => ({ label: b.label, intentId: b.intentId || null, phaseKey: b.phaseKey, minutes: b.minutes })),
+        phasePlan: blocks.map((b) => ({ label: b.label, phaseKey: b.phaseKey, minutes: b.minutes })),
       }
       const data = await coachFetch<PrescriptionResult>('/api/coach/needs-engine/prescribe', { method: 'POST', body: JSON.stringify(body) })
       setResult(data)
@@ -84,7 +87,12 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
         setTargets(p.targets.map((t) => ({ facetType: t.facetType, facetId: t.facetId, weight: t.weight })))
       }
       if (Array.isArray(p.blocks) && p.blocks.length > 0) {
-        setBlocks(p.blocks.map((b) => ({ label: b.label, intentId: b.intentId ?? '', minutes: b.minutes })))
+        setBlocks(p.blocks.map((b) => ({
+          label: b.label,
+          intentId: b.intentId ?? '',
+          phaseKey: (b as { phaseKey?: string }).phaseKey ?? 'capacity',
+          minutes: b.minutes,
+        })))
       }
       setResult({ blocks: data.blocks, candidates: data.candidates })
     } catch (err) {
@@ -106,6 +114,9 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
         block_format: 'straight_sets',
         rounds: 1,
         rest_between_rounds_seconds: 0,
+        phase_key: b.phase_key ?? null,
+        phase_id: b.phase_id ?? null,
+        minutes_budget: b.target_minutes,
         items: b.items.map((it) => ({
           exercise_id: it.exercise_id,
           exercise_name: it.exercise_name,
@@ -234,12 +245,15 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-semibold text-gray-700">Time blocks</span>
-              <button type="button" onClick={() => setBlocks([...blocks, { label: 'Block', intentId: '', minutes: 15 }])} className="text-vortex-red text-sm flex items-center gap-1"><Plus className="w-4 h-4" /> Add</button>
+              <button type="button" onClick={() => setBlocks([...blocks, { label: 'Block', phaseKey: 'capacity', intentId: '', minutes: 15 }])} className="text-vortex-red text-sm flex items-center gap-1"><Plus className="w-4 h-4" /> Add</button>
             </div>
             <div className="space-y-2">
               {blocks.map((b, i) => (
-                <div key={i} className="grid grid-cols-[1fr_1fr_70px_auto] gap-2 items-center text-sm">
+                <div key={i} className="grid grid-cols-[1fr_1fr_1fr_70px_auto] gap-2 items-center text-sm">
                   <input value={b.label} onChange={(e) => setBlocks(blocks.map((x, j) => j === i ? { ...x, label: e.target.value } : x))} className="border border-gray-300 rounded px-2 py-1" />
+                  <select value={b.phaseKey} onChange={(e) => setBlocks(blocks.map((x, j) => j === i ? { ...x, phaseKey: e.target.value } : x))} className="border border-gray-300 rounded px-2 py-1">
+                    {(taxonomy?.sessionPhases ?? []).map((p) => <option key={p.key} value={p.key}>{p.name}</option>)}
+                  </select>
                   <select value={b.intentId} onChange={(e) => setBlocks(blocks.map((x, j) => j === i ? { ...x, intentId: e.target.value ? Number(e.target.value) : '' } : x))} className="border border-gray-300 rounded px-2 py-1">
                     <option value="">Any intent</option>
                     {taxonomy?.intents.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
@@ -268,17 +282,27 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           {!result && <div className="text-sm text-gray-500">Run a prescription to see results.</div>}
           {result && (
             <div className="space-y-4">
+              {(result.phase_rationales ?? []).map((pr, i) => (
+                <div key={i} className="bg-gray-50 rounded-lg p-3 text-sm">
+                  <div className="font-semibold text-gray-800">{pr.phase_name ?? pr.phase_key}</div>
+                  {pr.phase_rationale && <p className="text-gray-600 mt-1 text-xs">{pr.phase_rationale}</p>}
+                </div>
+              ))}
               {result.blocks.map((b, i) => (
                 <div key={i} className="border border-gray-100 rounded-lg p-3">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-gray-800">{b.label}</span>
                     <span className="text-xs text-gray-500">~{b.estimated_minutes}m / {b.target_minutes}m</span>
                   </div>
-                  <ul className="mt-2 space-y-1">
+                  <ul className="mt-2 space-y-2">
                     {b.items.map((it) => (
-                      <li key={it.exercise_id} className="flex items-center justify-between text-sm">
-                        <span className="text-gray-700">{it.exercise_name} <span className="text-gray-400">{it.sets}x{it.reps ?? '-'}</span></span>
-                        <span className="text-xs text-vortex-red font-medium">score {it.score}</span>
+                      <li key={it.exercise_id} className="text-sm border-t border-gray-50 first:border-t-0 pt-2 first:pt-0">
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-700">{it.exercise_name} <span className="text-gray-400">{it.sets}x{it.reps ?? '-'}</span></span>
+                          <span className="text-xs text-vortex-red font-medium">score {it.score}</span>
+                        </div>
+                        {it.selection_rationale && <p className="text-xs text-gray-500 mt-1">{it.selection_rationale}</p>}
+                        {it.placement_rationale && <p className="text-xs text-gray-500">{it.placement_rationale}</p>}
                       </li>
                     ))}
                     {b.items.length === 0 && <li className="text-xs text-gray-400">No matching exercises.</li>}

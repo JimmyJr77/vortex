@@ -67,6 +67,16 @@ export async function initPlatformTables(pool) {
     '074_member_messaging_create_permissions.sql',
     '075_coaching_tenet_flexibility_mobility.sql',
     '076_coaching_methodology_hiit.sql',
+    '077_event_calendar_item_what_to_bring.sql',
+    '078_coaching_session_phases.sql',
+    '079_coaching_education_content.sql',
+    '080_coaching_exercise_programming.sql',
+    '081_coaching_exercise_backfill.sql',
+    '082_coaching_workout_metadata.sql',
+    '083_coaching_validation_rules.sql',
+    '084_coaching_training_block.sql',
+    '085_coaching_regimen_template.sql',
+    '086_coaching_session_templates.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

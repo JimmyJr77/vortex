@@ -34,7 +34,28 @@ function threadHasClassLink(t: MessageThread): boolean {
   return t.links?.some((l) => l.object_type === 'scheduling_form') === true
 }
 
+function threadIsEventCanonicalInfo(t: MessageThread): boolean {
+  return t.kind === 'canonical' && threadHasEventLink(t)
+}
+
+/** Chat / polls / signups board for an event — not the read-only info or schedule row. */
+export function threadIsEventDiscussionBoard(t: MessageThread): boolean {
+  if (t.status === 'archived' || t.is_calendar_inbox_row || t.is_schedule_inbox_row) return false
+  if (t.kind !== 'discussion') return false
+  return threadHasEventLink(t) || t.linked_thread_id != null
+}
+
 export { threadHasEventLink, threadHasSchedulingLink }
+
+/** Direct / class / coaching threads — excludes event boards, canonical event info, and schedule rows. */
+export function threadIsStandardMessage(t: MessageThread): boolean {
+  if (t.status === 'archived') return false
+  if (t.is_calendar_inbox_row || t.is_schedule_inbox_row) return false
+  if (threadHasEventLink(t)) return false
+  if (t.kind === 'canonical') return false
+  if (t.kind === 'discussion' && t.linked_thread_id != null) return false
+  return true
+}
 
 export type ThreadListAccentCategory = 'event' | 'scheduling' | 'message'
 
@@ -59,11 +80,11 @@ function threadHasFiles(t: MessageThread): boolean {
 export function filterThreadsByInboxTab(threads: MessageThread[], tab: MessagingInboxTab): MessageThread[] {
   switch (tab) {
     case 'unread':
-      return threads.filter((t) => (t.unread_count ?? 0) > 0 && t.status !== 'archived')
+      return threads.filter((t) => (t.unread_count ?? 0) > 0 && t.status !== 'archived' && !threadIsEventCanonicalInfo(t))
     case 'pinned':
       return threads.filter((t) => Boolean(t.is_favorite) && t.status !== 'archived')
     case 'events':
-      return threads.filter((t) => t.status !== 'archived' && threadHasEventLink(t) && !t.is_calendar_inbox_row)
+      return threads.filter((t) => threadIsEventDiscussionBoard(t))
     case 'scheduling':
       return []
     case 'classes':
@@ -72,15 +93,18 @@ export function filterThreadsByInboxTab(threads: MessageThread[], tab: Messaging
       return threads.filter((t) => t.status !== 'archived' && threadHasFiles(t))
     case 'archived':
       return threads.filter((t) => t.status === 'archived')
+    case 'messages':
+      return threads.filter((t) => threadIsStandardMessage(t))
     case 'all':
     default:
-      return threads.filter((t) => t.status !== 'archived')
+      return threads.filter((t) => t.status !== 'archived' && !threadIsEventCanonicalInfo(t))
   }
 }
 
 export function countThreadsByInboxTab(threads: MessageThread[]): Partial<Record<MessagingInboxTab, number>> {
   return {
     all: filterThreadsByInboxTab(threads, 'all').length,
+    messages: filterThreadsByInboxTab(threads, 'messages').length,
     unread: filterThreadsByInboxTab(threads, 'unread').length,
     pinned: filterThreadsByInboxTab(threads, 'pinned').length,
     events: filterThreadsByInboxTab(threads, 'events').length,
@@ -104,6 +128,13 @@ export function filterMessageThreads(threads: MessageThread[], query: string): M
 }
 
 export function threadListTitle(t: MessageThread, fallback = 'Conversation') {
+  if (threadIsEventDiscussionBoard(t)) {
+    const base = (t.subject || '')
+      .replace(/ — Discussion$/, '')
+      .replace(/ — Board$/, '')
+      .trim()
+    return base || fallback
+  }
   return t.subject?.trim() || (t.first_name ? `${t.first_name} ${t.last_name}`.trim() : fallback)
 }
 
@@ -146,6 +177,14 @@ export function defaultThreadListOrder(threads: MessageThread[]): MessageThread[
 
 export function defaultLandingThreadId(threads: MessageThread[]): number | null {
   return defaultThreadListOrder(threads.filter((t) => !t.is_calendar_inbox_row && !t.is_schedule_inbox_row))[0]?.id ?? null
+}
+
+/**
+ * Matches the lg breakpoint where the messaging workspace shows list + detail side by side.
+ * Below it, only one panel is visible at a time, so auto-opening a thread would hide the list.
+ */
+export function messagingViewportShowsBothPanels(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
 }
 
 export function calendarItemToInboxThread(

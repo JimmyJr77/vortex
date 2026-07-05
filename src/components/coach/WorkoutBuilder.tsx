@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Clock, Loader2, Plus, Save, Search, Trash2, ChevronUp, ChevronDown, FolderOpen, GripVertical, X, Pencil } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { AlertTriangle, Clock, Loader2, Plus, Save, Search, Trash2, ChevronUp, ChevronDown, FolderOpen, GripVertical, X, Pencil, Sparkles, ChevronRight, ChevronDown as ChevronDownIcon } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import { useCoachBuilderStore, blockSeconds, workoutSeconds } from '../../coach/useCoachBuilderStore'
-import type { BlockFormat, Exercise, Workout, WorkoutType } from '../../coach/types'
+import WorkoutSetupWizard from './WorkoutSetupWizard'
+import { validationStatusLabel, allValidationIssues } from '../../coach/validationMessages'
+import { phaseFitBadge } from '../../coach/exerciseCard'
+import type { BlockFormat, Exercise, ValidationResult, Workout, WorkoutType } from '../../coach/types'
 
 function fmt(seconds: number) {
   const m = Math.floor(seconds / 60)
@@ -22,7 +25,7 @@ const BLOCK_FORMAT_LABELS: Record<BlockFormat, string> = {
 
 export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultType?: WorkoutType }) {
   const { taxonomy } = useTaxonomy()
-  const { workout, patchWorkout, addBlock, updateBlock, removeBlock, addItem, updateItem, removeItem, moveItem, reorderItem, reset, setWorkout } =
+  const { workout, patchWorkout, applyPhasePlan, addBlock, updateBlock, removeBlock, addItem, updateItem, removeItem, moveItem, reorderItem, reset, setWorkout, validation, setValidation, wizardComplete, setWizardComplete } =
     useCoachBuilderStore()
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -31,6 +34,10 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
   const [saved, setSaved] = useState<Workout[]>([])
   const [previewWorkout, setPreviewWorkout] = useState<Workout | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
+  const [showWizard, setShowWizard] = useState(defaultType === 'workout' && !wizardComplete)
+  const [openPhaseEdu, setOpenPhaseEdu] = useState<number | null>(null)
+  const [overrideReason, setOverrideReason] = useState('')
+  const [showOverride, setShowOverride] = useState(false)
 
   useEffect(() => {
     if (!workout.title && workout.blocks.length <= 1 && workout.type !== defaultType) {
@@ -61,16 +68,61 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
 
   const totalSeconds = workoutSeconds(workout)
 
-  const save = async () => {
+  const phaseName = useMemo(() => {
+    const map = new Map<string, string>()
+    taxonomy?.sessionPhases?.forEach((p) => map.set(p.key, p.name))
+    return map
+  }, [taxonomy])
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (workout.blocks.every((b) => b.items.length === 0)) {
+        setValidation(null)
+        return
+      }
+      try {
+        const draft = {
+          blocks: workout.blocks.map((b) => ({
+            label: b.label,
+            phase_key: b.phase_key,
+            phase_id: b.phase_id,
+            items: b.items.map((it) => ({ exercise_id: it.exercise_id, exercise_name: it.exercise_name })),
+          })),
+        }
+        const result = await coachFetch<ValidationResult>('/api/coach/workouts/validate', { method: 'POST', body: JSON.stringify(draft) })
+        setValidation(result)
+      } catch {
+        setValidation(null)
+      }
+    }, 600)
+    return () => clearTimeout(timer)
+  }, [workout.blocks, setValidation])
+
+  const save = async (force = false) => {
+    if (validation?.errors?.length && !force) {
+      setError('Fix validation errors before saving.')
+      return
+    }
+    if (validation?.warnings?.length && !force && !overrideReason.trim()) {
+      setShowOverride(true)
+      return
+    }
     setSaving(true)
     setError(null)
     setMessage(null)
     try {
-      const body = JSON.stringify({ ...workout, type: workout.type || defaultType })
+      const payload = {
+        ...workout,
+        type: workout.type || defaultType,
+        validation_snapshot_json: validation ?? undefined,
+        validation_override_reason: overrideReason || null,
+      }
+      const body = JSON.stringify(payload)
       const result = workout.id
         ? await coachFetch<Workout>(`/api/coach/workouts/${workout.id}`, { method: 'PUT', body })
         : await coachFetch<Workout>('/api/coach/workouts', { method: 'POST', body })
       setWorkout(result)
+      setShowOverride(false)
       setMessage('Saved.')
       void loadSaved()
     } catch (err) {
@@ -113,6 +165,11 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
             {workout.target_minutes ? <span className="text-xs text-gray-300">/ {workout.target_minutes}m target</span> : null}
           </div>
           <button type="button" onClick={() => reset(defaultType)} className="px-3 py-2 rounded-lg border border-gray-300 text-sm">New</button>
+          {defaultType === 'workout' && (
+            <button type="button" onClick={() => setShowWizard(true)} className="flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-300 text-sm">
+              <Sparkles className="w-4 h-4 text-vortex-red" /> Setup
+            </button>
+          )}
           <button type="button" onClick={() => void save()} disabled={saving || !workout.title} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-60">
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save
           </button>
@@ -121,6 +178,29 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
 
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
       {message && <div className="rounded-lg bg-green-50 text-green-700 px-4 py-2 text-sm">{message}</div>}
+
+      {validation && validation.status !== 'valid' && (
+        <div className={`rounded-lg px-4 py-3 text-sm ${validation.errors.length ? 'bg-red-50 text-red-800' : 'bg-amber-50 text-amber-900'}`}>
+          <div className="flex items-center gap-2 font-semibold mb-2"><AlertTriangle className="w-4 h-4" /> Validation: {validationStatusLabel(validation)}</div>
+          <ul className="space-y-2">
+            {allValidationIssues(validation).slice(0, 6).map((issue, i) => (
+              <li key={i}>
+                <div>{issue.message}</div>
+                {issue.why && <div className="text-xs opacity-80 mt-0.5">{issue.why}</div>}
+                {issue.recommendation && <div className="text-xs font-medium mt-0.5">{issue.recommendation}</div>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {workout.session_objective && (
+        <div className="bg-white border border-gray-200 rounded-xl p-4 text-sm">
+          <div className="text-xs font-semibold text-gray-500 uppercase mb-1">Session objective</div>
+          <p className="text-gray-800">{workout.session_objective}</p>
+          {workout.coach_rationale_json?.session_why && <p className="text-gray-600 mt-2 text-xs">{workout.coach_rationale_json.session_why}</p>}
+        </div>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
         <div className="space-y-4">
@@ -145,13 +225,33 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
           {workout.blocks.map((block, bi) => (
             <div key={bi} className="bg-white border border-gray-200 rounded-xl p-4">
               <div className="flex items-center justify-between gap-2 flex-wrap">
-                <input
-                  value={block.label ?? ''}
-                  onChange={(e) => updateBlock(bi, { label: e.target.value })}
-                  className="font-semibold text-gray-900 border-b border-transparent hover:border-gray-300 focus:border-vortex-red outline-none"
-                  placeholder="Block label"
-                />
+                <div className="flex items-center gap-2 flex-wrap">
+                  <input
+                    value={block.label ?? ''}
+                    onChange={(e) => updateBlock(bi, { label: e.target.value })}
+                    className="font-semibold text-gray-900 border-b border-transparent hover:border-gray-300 focus:border-vortex-red outline-none"
+                    placeholder="Block label"
+                  />
+                  {block.phase_key && (
+                    <span className="text-[11px] bg-gray-100 text-gray-700 rounded px-2 py-0.5">{phaseName.get(block.phase_key) ?? block.phase_key}</span>
+                  )}
+                  {block.minutes_budget != null && (
+                    <span className="text-[11px] text-gray-500">{Math.round(blockSeconds(block) / 60)}m / {block.minutes_budget}m budget</span>
+                  )}
+                </div>
                 <div className="flex items-center gap-2 text-xs">
+                  <select
+                    value={block.phase_key ?? ''}
+                    onChange={(e) => {
+                      const key = e.target.value || null
+                      const phase = taxonomy?.sessionPhases?.find((p) => p.key === key)
+                      updateBlock(bi, { phase_key: key, phase_id: phase?.id ?? null, label: block.label || phase?.name || block.label })
+                    }}
+                    className="border border-gray-300 rounded px-2 py-1"
+                  >
+                    <option value="">No phase</option>
+                    {taxonomy?.sessionPhases?.map((p) => <option key={p.key} value={p.key}>{p.name}</option>)}
+                  </select>
                   <select value={block.block_format} onChange={(e) => updateBlock(bi, { block_format: e.target.value as never })} className="border border-gray-300 rounded px-2 py-1">
                     <option value="straight_sets">Straight Sets</option>
                     <option value="circuit">Circuit</option>
@@ -167,6 +267,18 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
                   <button type="button" onClick={() => removeBlock(bi)} className="text-gray-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
                 </div>
               </div>
+
+              {block.phase_key && (
+                <button type="button" onClick={() => setOpenPhaseEdu(openPhaseEdu === bi ? null : bi)} className="mt-2 flex items-center gap-1 text-xs text-vortex-red">
+                  {openPhaseEdu === bi ? <ChevronDownIcon className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                  Why this phase
+                </button>
+              )}
+              {openPhaseEdu === bi && block.phase_key && (
+                <div className="mt-2 text-xs text-gray-600 bg-gray-50 rounded-lg p-3">
+                  {workout.coach_rationale_json?.order_why ?? `Exercises in ${phaseName.get(block.phase_key) ?? block.phase_key} should match freshness and intent for this slot in the session.`}
+                </div>
+              )}
 
               <div className="mt-3 space-y-2">
                 {block.items.map((item, ii) => (
@@ -248,6 +360,7 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
 
       {pickerBlock !== null && (
         <ExercisePicker
+          phaseKey={workout.blocks[pickerBlock]?.phase_key ?? null}
           onClose={() => setPickerBlock(null)}
           onPick={(ex) => {
             addItem(pickerBlock, {
@@ -262,6 +375,35 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
             setPickerBlock(null)
           }}
         />
+      )}
+
+      {showWizard && (
+        <WorkoutSetupWizard
+          workout={workout}
+          onClose={() => setShowWizard(false)}
+          onApply={(patch) => {
+            patchWorkout(patch)
+            if (patch.phase_plan_json?.length) applyPhasePlan(patch.phase_plan_json)
+          }}
+          onComplete={() => {
+            setWizardComplete(true)
+            setShowWizard(false)
+          }}
+        />
+      )}
+
+      {showOverride && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl w-full max-w-md p-5 space-y-3">
+            <h3 className="font-bold text-lg">Override validation warnings</h3>
+            <p className="text-sm text-gray-600">Explain why you are keeping this order despite warnings.</p>
+            <textarea value={overrideReason} onChange={(e) => setOverrideReason(e.target.value)} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setShowOverride(false)} className="px-4 py-2 rounded-lg border text-sm">Cancel</button>
+              <button type="button" disabled={!overrideReason.trim()} onClick={() => void save(true)} className="px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-50">Save with override</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
@@ -308,6 +450,16 @@ function WorkoutPreviewModal({
             <div>
               <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Notes</div>
               <p className="text-sm text-gray-700 whitespace-pre-wrap">{workout.notes}</p>
+            </div>
+          )}
+          {workout.coach_rationale_json && (
+            <div className="bg-gray-50 rounded-lg p-4 text-sm space-y-2">
+              <div className="text-xs font-semibold text-gray-500 uppercase">Coach rationale</div>
+              {workout.coach_rationale_json.session_why && <p><span className="font-semibold">Session:</span> {workout.coach_rationale_json.session_why}</p>}
+              {workout.coach_rationale_json.order_why && <p><span className="font-semibold">Order:</span> {workout.coach_rationale_json.order_why}</p>}
+              {(workout.coach_rationale_json.watch_points ?? []).map((w, i) => (
+                <p key={i} className="text-amber-800">Watch: {w}</p>
+              ))}
             </div>
           )}
 
@@ -366,17 +518,25 @@ function WorkoutPreviewModal({
   )
 }
 
-function ExercisePicker({ onClose, onPick }: { onClose: () => void; onPick: (ex: Exercise) => void }) {
+function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | null; onClose: () => void; onPick: (ex: Exercise) => void }) {
   const [q, setQ] = useState('')
   const [results, setResults] = useState<Exercise[]>([])
   const [loading, setLoading] = useState(false)
+  const [mode, setMode] = useState<'ideal' | 'all'>('ideal')
 
   useEffect(() => {
     const timer = setTimeout(async () => {
       setLoading(true)
       try {
-        const data = await coachFetch<Exercise[]>(`/api/coach/exercises?q=${encodeURIComponent(q)}`)
-        setResults(data)
+        const params = new URLSearchParams({ q })
+        const data = await coachFetch<Exercise[]>(`/api/coach/exercises?${params.toString()}`)
+        const filtered = phaseKey && mode === 'ideal'
+          ? data.filter((ex) => {
+              const fit = phaseFitBadge(ex, phaseKey)
+              return fit === 'strong' || fit === 'conditional'
+            })
+          : data
+        setResults(filtered.length > 0 || !phaseKey || mode === 'all' ? filtered : data)
       } catch {
         setResults([])
       } finally {
@@ -384,12 +544,18 @@ function ExercisePicker({ onClose, onPick }: { onClose: () => void; onPick: (ex:
       }
     }, 250)
     return () => clearTimeout(timer)
-  }, [q])
+  }, [q, phaseKey, mode])
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-gray-100">
+        <div className="p-4 border-b border-gray-100 space-y-2">
+          {phaseKey && (
+            <div className="flex gap-2 text-xs">
+              <button type="button" onClick={() => setMode('ideal')} className={`rounded-full px-2 py-1 ${mode === 'ideal' ? 'bg-vortex-red text-white' : 'border border-gray-200'}`}>Ideal / conditional</button>
+              <button type="button" onClick={() => setMode('all')} className={`rounded-full px-2 py-1 ${mode === 'all' ? 'bg-vortex-red text-white' : 'border border-gray-200'}`}>All (with warnings)</button>
+            </div>
+          )}
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
             <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search exercises..." className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-sm" />
@@ -397,12 +563,25 @@ function ExercisePicker({ onClose, onPick }: { onClose: () => void; onPick: (ex:
         </div>
         <div className="overflow-y-auto p-2">
           {loading && <div className="flex items-center gap-2 text-gray-500 text-sm p-3"><Loader2 className="w-4 h-4 animate-spin" /> Searching...</div>}
-          {results.map((ex) => (
-            <button key={ex.id} type="button" onClick={() => onPick(ex)} className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50">
-              <div className="font-medium text-gray-800">{ex.name}</div>
-              <div className="text-xs text-gray-500">{ex.sport_name ?? 'Universal'} · {ex.est_seconds_per_set}s/set</div>
-            </button>
-          ))}
+          {results.map((ex) => {
+            const fit = phaseKey ? phaseFitBadge(ex, phaseKey) : null
+            return (
+              <button key={ex.id} type="button" onClick={() => onPick(ex)} className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="font-medium text-gray-800">{ex.name}</div>
+                  {fit && fit !== 'unknown' && (
+                    <span className={`text-[10px] rounded px-1.5 py-0.5 ${fit === 'strong' ? 'bg-green-50 text-green-700' : fit === 'avoid' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
+                      {fit === 'strong' ? 'Strong fit' : fit === 'avoid' ? 'Poor fit' : 'Conditional'}
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-gray-500">{ex.sport_name ?? 'Universal'} · {ex.est_seconds_per_set}s/set</div>
+                {ex.why?.phase_rationale && fit && fit !== 'strong' && (
+                  <div className="text-[11px] text-gray-500 mt-1 line-clamp-2">{ex.why.phase_rationale}</div>
+                )}
+              </button>
+            )
+          })}
           {!loading && results.length === 0 && <div className="text-sm text-gray-500 p-3">No matches.</div>}
         </div>
         <div className="p-3 border-t border-gray-100 text-right">

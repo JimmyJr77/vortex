@@ -203,7 +203,7 @@ BIGINT refs (no FK)** are deliberate for polymorphic/calendar wiring:
 `session_attendance.member_id`, `personal_record.source_result_id`, and `exercise_tag.facet_id`
 (validated in app, not by FK).
 
-**Event calendar + messaging ([070](../backend/migrations/070_event_calendar_and_rsvp.sql), [073](../backend/migrations/073_event_calendar_item_classes.sql), [074](../backend/migrations/074_member_messaging_create_permissions.sql)):** `coaching.event_calendar_item` stores 5 Ws rows per `public.events` row; `coaching.event_rsvp` tracks member RSVP. **`073`** adds junction `coaching.event_calendar_item_class (calendar_item_id, scheduling_form_id)` so schedule inbox rows can scope visibility to enrolled classes. Event threads link via `coaching.message_thread_link` (`object_type='event'`, roles `canonical` | `discussion`); multiple discussion boards per event are supported via [messageEventThreads.js](../backend/platform/messageEventThreads.js) `provisionAdditionalEventBoard`. **`074`** catalogs member-only RBAC keys `event_boards.create` and `event_calendar.create` (not granted to `MEMBER_ATHLETE` by default; assign via `app_user_permission_override` in Admin → Accounts → Access).
+**Event calendar + messaging ([070](../backend/migrations/070_event_calendar_and_rsvp.sql), [073](../backend/migrations/073_event_calendar_item_classes.sql), [074](../backend/migrations/074_member_messaging_create_permissions.sql), [077](../backend/migrations/077_event_calendar_item_what_to_bring.sql)):** `coaching.event_calendar_item` stores 5 Ws rows per `public.events` row; **`077`** adds `what_to_bring JSONB` (packing list line items). **`073`** adds junction `coaching.event_calendar_item_class (calendar_item_id, scheduling_form_id)` so schedule inbox rows can scope visibility to enrolled classes. Event threads link via `coaching.message_thread_link` (`object_type='event'`, roles `canonical` | `discussion`); multiple discussion boards per event are supported via [messageEventThreads.js](../backend/platform/messageEventThreads.js) `provisionAdditionalEventBoard`. **`074`** catalogs member-only RBAC keys `event_boards.create` and `event_calendar.create` (not granted to `MEMBER_ATHLETE` by default; assign via `app_user_permission_override` in Admin → Accounts → Access).
 
 ### 4.6 Waivers ([037](../backend/migrations/037_waiver_types.sql))
 
@@ -477,6 +477,16 @@ adjust §4 relationship diagrams (e.g. remove `class_iteration` from the ER char
 | Duplicate `coaching.message_thread` pairs per `events.id` (pre–idempotent `provisionEventThreads`) | Candidate | Single canonical + discussion pair via [messageEventThreads.js](../backend/platform/messageEventThreads.js) `findEventThreadPair` | Old saves called provision on every admin event save; `getEventThreads` now returns oldest canonical pair only. Pre-drop: `SELECT object_id, COUNT(*) FILTER (WHERE link_role = 'canonical') FROM coaching.message_thread_link WHERE object_type = 'event' GROUP BY object_id HAVING COUNT(*) FILTER (WHERE link_role = 'canonical') > 1;` |
 
 **Pre-drop check:** `SELECT COUNT(*) FROM coaching.message WHERE attachment_url IS NOT NULL AND NOT EXISTS (SELECT 1 FROM coaching.message_file mf WHERE mf.message_id = message.id);`
+
+### 10.8 Coaching Why Layer — dual placement paths (Athleticism Accelerator)
+
+| Object | Status | Replacement | Notes |
+|--------|--------|-------------|-------|
+| `coaching.exercise_intent` + `exercise_tag.facet_type = 'intent'` | Active (legacy) | `coaching.session_phase` + `coaching.exercise_phase_profile` | UI label remains "Phase/Intent" for backward compatibility; Needs Engine and library still accept intent tags. Canonical session order uses seven `session_phase` keys (migration `078`). Pre-drop: verify all published exercises have ≥1 `exercise_phase_profile` and no UI filters depend solely on intent. |
+| Block labels without `workout_block.phase_id` | Active (legacy) | Phase-linked blocks (`078`/`082`) | Legacy workouts infer phase on first edit or show migration banner in builder. Pre-drop: `SELECT COUNT(*) FROM coaching.workout_block WHERE phase_id IS NULL AND workout_id IN (SELECT id FROM coaching.workout WHERE archived = FALSE);` |
+| Inline `runPrescription()` tag-only scoring | Removed | `phaseAwarePrescription.js` | Replaced by phase-aware scoring + education rationales in `/api/coach/needs-engine/prescribe`. |
+
+**Why Layer tables (migrations `078`–`086`, registered in [initTables.js](../backend/platform/initTables.js)):** `session_phase`, `phase_order_slot`, `education_content`, `exercise_phase_profile`, `exercise_dosage_profile`, `exercise_scaling_profile`, `exercise_safety_profile`, `exercise_regimen_rule`, `validation_rule`, `training_block_template` (+ session/rule), `regimen_template` (+ phase distribution/session/progression), workout metadata columns on `workout` / `workout_block`.
 
 ### 10.7 Agent recording protocol (mandatory)
 

@@ -18,6 +18,10 @@ export default function MessagingThreadRow({
 }: MessagingThreadRowProps) {
   const unread = thread.unread_count ?? 0
   const accentClass = threadListAccentClass(thread)
+  const displayTags = thread.tags?.filter((tag) => {
+    if (thread.kind === 'discussion' && tag.slug === 'event-info') return false
+    return true
+  })
 
   return (
     <button
@@ -42,9 +46,9 @@ export default function MessagingThreadRow({
             <div className="text-xs text-gray-400 truncate mt-0.5">{thread.last_message_body}</div>
           )}
           {meta && <div className="text-[10px] text-gray-400 mt-0.5">{meta}</div>}
-          {thread.tags && thread.tags.length > 0 && (
+          {displayTags && displayTags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1.5">
-              {thread.tags.map((tag) => (
+              {displayTags.map((tag) => (
                 <span
                   key={tag.id ?? tag.slug}
                   className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600"

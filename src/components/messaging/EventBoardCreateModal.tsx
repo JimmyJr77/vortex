@@ -74,19 +74,19 @@ export default function EventBoardCreateModal({
           subject: subject.trim() || undefined,
         }, role)
         const threadId = result.discussion?.id
-        if (threadId == null) throw new Error('Could not create event board')
+        if (threadId == null) throw new Error('Could not create event discussion board')
         onCreated(threadId)
       } else {
         const result = await provisionEventMessageThreads(selectedId, fetcher, {
           subject: subject.trim() || undefined,
         }, role) as { discussion?: { id: number }; canonical?: { id: number } }
-        const threadId = result.discussion?.id ?? result.canonical?.id
-        if (threadId == null) throw new Error('Could not create event board')
+        const threadId = result.discussion?.id
+        if (threadId == null) throw new Error('Could not create event discussion board')
         onCreated(threadId)
       }
       onClose()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not create event board')
+      setError(err instanceof Error ? err.message : 'Could not create event discussion board')
     } finally {
       setSaving(false)
     }
@@ -96,7 +96,7 @@ export default function EventBoardCreateModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4 space-y-3">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="font-semibold text-gray-900">New event board</h3>
+          <h3 className="font-semibold text-gray-900">New event discussion board</h3>
           <button type="button" onClick={onClose} aria-label="Close" className="p-1 rounded-lg hover:bg-gray-100">
             <X className="w-5 h-5" />
           </button>
@@ -145,7 +145,7 @@ export default function EventBoardCreateModal({
               checked={createAdditional}
               onChange={(e) => setCreateAdditional(e.target.checked)}
             />
-            Add another board (event already has a chat)
+            Add another discussion board (this event already has one)
           </label>
         )}
         <div className="flex justify-end gap-2">
@@ -158,7 +158,7 @@ export default function EventBoardCreateModal({
             onClick={() => void handleCreate()}
             className="px-4 py-2 text-sm bg-vortex-red text-white rounded-lg font-semibold disabled:opacity-60"
           >
-            {saving ? 'Creating…' : 'Create board'}
+            {saving ? 'Creating…' : 'Create discussion board'}
           </button>
         </div>
       </div>

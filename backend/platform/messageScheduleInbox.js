@@ -207,6 +207,9 @@ export async function listScheduleInboxRows(pool, facilityId, { memberId = null,
       when_start: item.when_start,
       when_end: item.when_end,
       where_text: item.where_text,
+      notes: Array.isArray(item.what_to_bring) && item.what_to_bring.length > 0
+        ? JSON.stringify(item.what_to_bring)
+        : null,
       linked_event_id: Number(item.event_id),
       calendar_item_id: Number(item.id),
       discussion_thread_id: item.discussion_thread_id != null ? Number(item.discussion_thread_id) : null,

@@ -73,6 +73,78 @@ interface AdminEventsProps {
   adminInfo: AdminInfo | null
 }
 
+function parseAmPmTime(timeStr: string): { hour: number; minute: number } {
+  if (!timeStr || timeStr.trim() === '') return { hour: 0, minute: 0 }
+  const match = timeStr.match(/(\d{1,2}):(\d{2})(am|pm)/i)
+  if (!match) return { hour: 12, minute: 0 }
+  let hour = parseInt(match[1], 10)
+  const minute = parseInt(match[2], 10)
+  const ampm = match[3].toLowerCase()
+  if (ampm === 'pm' && hour !== 12) hour += 12
+  if (ampm === 'am' && hour === 12) hour = 0
+  return { hour, minute }
+}
+
+function eventAudienceLabel(tagType?: Event['tagType']): string | null {
+  switch (tagType) {
+    case 'all_classes_and_parents':
+      return 'All classes and parents'
+    case 'specific_classes':
+      return 'Selected classes'
+    case 'specific_categories':
+      return 'Selected categories'
+    case 'all_parents':
+      return 'All parents'
+    case 'boosters':
+      return 'Boosters'
+    case 'volunteers':
+      return 'Volunteers'
+    default:
+      return null
+  }
+}
+
+function buildEventCalendarWhenStart(eventFormData: Partial<Event>): string | null {
+  const entries = eventFormData.datesAndTimes?.filter((entry) => entry.date)
+  const entry = entries?.[0]
+  if (entry?.date) {
+    const d = entry.date instanceof Date ? entry.date : parseDateOnly(String(entry.date))
+    if (!d) return null
+    if (entry.allDay) return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0).toISOString()
+    const { hour, minute } = parseAmPmTime(entry.startTime || '12:00am')
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hour, minute).toISOString()
+  }
+  if (eventFormData.startDate) {
+    const d = eventFormData.startDate instanceof Date
+      ? eventFormData.startDate
+      : parseDateOnly(String(eventFormData.startDate))
+    if (!d) return null
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0).toISOString()
+  }
+  return null
+}
+
+function buildEventCalendarPayload(eventFormData: Partial<Event>, useShortAsLong: boolean) {
+  const whyText = useShortAsLong
+    ? eventFormData.shortDescription
+    : (eventFormData.longDescription || eventFormData.shortDescription)
+  return {
+    title: eventFormData.eventName?.trim() || 'Event',
+    what_text: eventFormData.shortDescription?.trim() || null,
+    why_text: whyText?.trim() || null,
+    where_text: eventFormData.address?.trim() || null,
+    when_start: buildEventCalendarWhenStart(eventFormData),
+    who_text: eventAudienceLabel(eventFormData.tagType),
+  }
+}
+
+function formatCalendarPreviewWhen(eventFormData: Partial<Event>): string | null {
+  const iso = buildEventCalendarWhenStart(eventFormData)
+  if (!iso) return null
+  const d = new Date(iso)
+  return Number.isNaN(d.getTime()) ? null : d.toLocaleString()
+}
+
 // Image Slider Component
 const ImageSlider = ({ images }: { images: string[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -531,7 +603,7 @@ const EventsView = ({
                   
                   {event.keyDetails && event.keyDetails.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="font-bold text-black mb-2">Key Details:</h4>
+                      <h4 className="font-bold text-black mb-2">What to bring</h4>
                       <ul className="space-y-1">
                         {event.keyDetails.map((detail, detailIndex) => (
                           <li key={detailIndex} className="flex items-start space-x-2">
@@ -614,14 +686,6 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
   const [linkThreadIdInput, setLinkThreadIdInput] = useState('')
   const [calendarItems, setCalendarItems] = useState<EventCalendarItem[]>([])
   const [calendarLoading, setCalendarLoading] = useState(false)
-  const [calendarDraft, setCalendarDraft] = useState({
-    title: '',
-    who_text: '',
-    what_text: '',
-    why_text: '',
-    when_start: '',
-    where_text: '',
-  })
   const [calendarSaving, setCalendarSaving] = useState(false)
 
   const adminMessagingFetch = async (endpoint: string, options?: RequestInit) => {
@@ -639,8 +703,9 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
     setCalendarLoading(true)
     try {
       const threads = await fetchEventMessageThreads('admin', id, adminMessagingFetch)
-      setEventBoards(threads.map((t) => ({ id: t.id, subject: t.subject, kind: t.kind })))
-      setEventChatExists(threads.length > 0)
+      const discussionBoards = threads.filter((t) => t.kind === 'discussion')
+      setEventBoards(discussionBoards.map((t) => ({ id: t.id, subject: t.subject, kind: t.kind })))
+      setEventChatExists(discussionBoards.length > 0)
       const items = await fetchEventCalendarItems(id, adminMessagingFetch)
       setCalendarItems(items)
     } catch {
@@ -653,9 +718,10 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
 
   const handleSyncEventChat = async () => {
     if (editingEventId == null) {
-      alert('Save the event first, then create or sync the event chat.')
+      alert('Save the event first, then create or sync the event discussion board.')
       return
     }
+    const hadBoard = eventChatExists
     setEventChatSyncing(true)
     try {
       await provisionEventMessageThreads(
@@ -676,9 +742,9 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
       )
       setEventChatExists(true)
       await loadEventChatMeta(Number(editingEventId))
-      alert(eventChatExists ? 'Event chat synced.' : 'Event chat created.')
+      alert(hadBoard ? 'Event discussion board synced.' : 'Event discussion board created.')
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Could not sync event chat')
+      alert(err instanceof Error ? err.message : 'Could not sync event discussion board')
     } finally {
       setEventChatSyncing(false)
     }
@@ -693,7 +759,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
       })
       await loadEventChatMeta(Number(editingEventId))
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Could not add event board')
+      alert(err instanceof Error ? err.message : 'Could not add discussion board')
     } finally {
       setEventBoardAdding(false)
     }
@@ -717,22 +783,18 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
 
   const handleAddCalendarItem = async () => {
     if (editingEventId == null) return
-    if (!calendarDraft.title.trim()) {
-      alert('Calendar item title is required.')
+    if (!eventFormData.eventName?.trim()) {
+      alert('Event name is required before adding a schedule entry.')
       return
     }
     setCalendarSaving(true)
     try {
+      const bringItems = (eventFormData.keyDetails || []).map((item) => item.trim()).filter(Boolean)
       const item = await createEventCalendarItem(Number(editingEventId), adminMessagingFetch, {
-        title: calendarDraft.title.trim(),
-        who_text: calendarDraft.who_text || null,
-        what_text: calendarDraft.what_text || null,
-        why_text: calendarDraft.why_text || null,
-        when_start: calendarDraft.when_start || null,
-        where_text: calendarDraft.where_text || null,
+        ...buildEventCalendarPayload(eventFormData, useShortAsLong),
+        what_to_bring: bringItems,
       })
       setCalendarItems((prev) => [...prev, item])
-      setCalendarDraft({ title: '', who_text: '', what_text: '', why_text: '', when_start: '', where_text: '' })
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Could not add calendar item')
     } finally {
@@ -2044,48 +2106,53 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                   </div>
                 </div>
 
-                {/* Key Details */}
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-semibold text-gray-300">Key Details</label>
-                    <button
-                      type="button"
-                      onClick={() => setEventFormData({
-                        ...eventFormData,
-                        keyDetails: [...(eventFormData.keyDetails || []), '']
-                      })}
-                      className="flex items-center space-x-1 text-vortex-red hover:text-red-400 text-sm"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>Add Key Detail</span>
-                    </button>
-                  </div>
-                  {(eventFormData.keyDetails || []).map((detail, index) => (
-                    <div key={index} className="flex gap-2 mb-2">
-                      <input
-                        type="text"
-                        placeholder="Key detail..."
-                        value={detail}
-                        onChange={(e) => {
-                          const updated = [...(eventFormData.keyDetails || [])]
-                          updated[index] = e.target.value
-                          setEventFormData({ ...eventFormData, keyDetails: updated })
-                        }}
-                        className="flex-1 px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
-                      />
+                {/* What to bring — shown on create; when editing, see schedule section below */}
+                {!editingEventId && (
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="block text-sm font-semibold text-gray-300">What to bring</label>
                       <button
                         type="button"
-                        onClick={() => {
-                          const updated = (eventFormData.keyDetails || []).filter((_, i) => i !== index)
-                          setEventFormData({ ...eventFormData, keyDetails: updated })
-                        }}
-                        className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+                        onClick={() => setEventFormData({
+                          ...eventFormData,
+                          keyDetails: [...(eventFormData.keyDetails || []), ''],
+                        })}
+                        className="flex items-center space-x-1 text-vortex-red hover:text-red-400 text-sm"
                       >
-                        <X className="w-4 h-4" />
+                        <Plus className="w-4 h-4" />
+                        <span>Add item</span>
                       </button>
                     </div>
-                  ))}
-                </div>
+                    {(eventFormData.keyDetails || []).length === 0 ? (
+                      <p className="text-xs text-gray-500">Optional packing list for athletes and families.</p>
+                    ) : null}
+                    {(eventFormData.keyDetails || []).map((detail, index) => (
+                      <div key={index} className="flex gap-2 mb-2">
+                        <input
+                          type="text"
+                          placeholder="e.g. Water bottle, leotard, lunch…"
+                          value={detail}
+                          onChange={(e) => {
+                            const updated = [...(eventFormData.keyDetails || [])]
+                            updated[index] = e.target.value
+                            setEventFormData({ ...eventFormData, keyDetails: updated })
+                          }}
+                          className="flex-1 px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = (eventFormData.keyDetails || []).filter((_, i) => i !== index)
+                            setEventFormData({ ...eventFormData, keyDetails: updated })
+                          }}
+                          className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 <div ref={formAttachRef} className="border-t border-gray-700 pt-4">
                   <label className="block text-sm font-semibold text-gray-300 mb-2">Attach Form</label>
@@ -2159,18 +2226,17 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                   <div className="pt-4 mt-4 border-t border-gray-700 space-y-4">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
-                        <h4 className="text-sm font-semibold text-white">Event chat</h4>
+                        <h4 className="text-sm font-semibold text-white">Event discussion board</h4>
                         <p className="text-xs text-gray-400 mt-0.5">
-                          {eventChatExists
-                            ? 'Chat exists — sync to refresh info and participants.'
-                            : 'No chat yet — create one when the event is ready.'}
+                          Chat, polls, and signups for this event. Members join from the event page (self-select by default).
+                          Event details and what to bring live in the Event schedule entry below.
                         </p>
                       </div>
                       {eventBoards.length > 0 && (
-                        <ul className="space-y-1 mb-3">
+                        <ul className="space-y-1 mb-3 w-full">
                           {eventBoards.map((board) => (
                             <li key={board.id} className="text-xs text-gray-300">
-                              #{board.id} · {board.subject || 'Untitled'} ({board.kind || 'thread'})
+                              #{board.id} · {(board.subject || 'Untitled').replace(/ — Discussion$/, '')}
                             </li>
                           ))}
                         </ul>
@@ -2187,7 +2253,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                           ) : (
                             <MessageSquare className="w-4 h-4" />
                           )}
-                          {eventChatExists ? 'Sync event chat' : 'Create event chat'}
+                          {eventChatExists ? 'Sync discussion board' : 'Create discussion board'}
                         </button>
                         {eventChatExists && (
                           <button
@@ -2197,7 +2263,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                             className="inline-flex items-center gap-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 text-sm font-semibold disabled:opacity-60"
                           >
                             {eventBoardAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                            Add another board
+                            Add another discussion board
                           </button>
                         )}
                       </div>
@@ -2219,7 +2285,10 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                     </div>
 
                     <div>
-                      <h4 className="text-sm font-semibold text-white mb-2">Calendar items (5 Ws)</h4>
+                      <h4 className="text-sm font-semibold text-white mb-1">Event schedule entry</h4>
+                      <p className="text-xs text-gray-400 mb-3">
+                        Uses this event&apos;s name, date, location, and descriptions — no need to re-enter them.
+                      </p>
                       {calendarLoading ? (
                         <div className="text-sm text-gray-400 flex items-center gap-2">
                           <Loader2 className="w-4 h-4 animate-spin" /> Loading…
@@ -2227,7 +2296,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                       ) : (
                         <>
                           {calendarItems.length === 0 ? (
-                            <p className="text-xs text-gray-400 mb-3">No calendar items yet.</p>
+                            <p className="text-xs text-gray-400 mb-3">No schedule entry linked yet.</p>
                           ) : (
                             <ul className="space-y-2 mb-3">
                               {calendarItems.map((item) => (
@@ -2243,11 +2312,18 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                                           {new Date(item.when_start).toLocaleString()}
                                         </div>
                                       )}
+                                      {item.what_to_bring && item.what_to_bring.length > 0 && (
+                                        <ul className="mt-1.5 text-xs text-gray-300 list-disc list-inside">
+                                          {item.what_to_bring.map((bringItem) => (
+                                            <li key={bringItem}>{bringItem}</li>
+                                          ))}
+                                        </ul>
+                                      )}
                                     </div>
                                     <button
                                       type="button"
                                       onClick={() => void handleDeleteCalendarItem(item.id)}
-                                      className="text-xs text-red-300 hover:text-red-200"
+                                      className="text-xs text-red-300 hover:text-red-200 shrink-0"
                                     >
                                       Remove
                                     </button>
@@ -2256,54 +2332,76 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                               ))}
                             </ul>
                           )}
-                          <div className="grid gap-2 sm:grid-cols-2">
-                            <input
-                              value={calendarDraft.title}
-                              onChange={(e) => setCalendarDraft((d) => ({ ...d, title: e.target.value }))}
-                              placeholder="Title / event name"
-                              className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white"
-                            />
-                            <input
-                              type="datetime-local"
-                              value={calendarDraft.when_start}
-                              onChange={(e) => setCalendarDraft((d) => ({ ...d, when_start: e.target.value }))}
-                              className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white"
-                            />
-                            <input
-                              value={calendarDraft.who_text}
-                              onChange={(e) => setCalendarDraft((d) => ({ ...d, who_text: e.target.value }))}
-                              placeholder="Who"
-                              className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white"
-                            />
-                            <input
-                              value={calendarDraft.what_text}
-                              onChange={(e) => setCalendarDraft((d) => ({ ...d, what_text: e.target.value }))}
-                              placeholder="What"
-                              className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white"
-                            />
-                            <input
-                              value={calendarDraft.why_text}
-                              onChange={(e) => setCalendarDraft((d) => ({ ...d, why_text: e.target.value }))}
-                              placeholder="Why"
-                              className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white"
-                            />
-                            <input
-                              value={calendarDraft.where_text}
-                              onChange={(e) => setCalendarDraft((d) => ({ ...d, where_text: e.target.value }))}
-                              placeholder="Where"
-                              className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white"
-                            />
+
+                          <div className="rounded-lg border border-gray-600 bg-gray-700/30 px-3 py-2 mb-3 text-xs text-gray-300 space-y-1">
+                            <div><span className="text-gray-500">Title:</span> {eventFormData.eventName || '—'}</div>
+                            <div><span className="text-gray-500">When:</span> {formatCalendarPreviewWhen(eventFormData) || '—'}</div>
+                            <div><span className="text-gray-500">Where:</span> {eventFormData.address || '—'}</div>
+                            <div><span className="text-gray-500">What:</span> {eventFormData.shortDescription || '—'}</div>
+                            <div>
+                              <span className="text-gray-500">Why:</span>{' '}
+                              {(useShortAsLong ? eventFormData.shortDescription : eventFormData.longDescription) || '—'}
+                            </div>
+                            {eventAudienceLabel(eventFormData.tagType) && (
+                              <div><span className="text-gray-500">Who:</span> {eventAudienceLabel(eventFormData.tagType)}</div>
+                            )}
                           </div>
+
+                          <div className="mb-3">
+                            <div className="flex justify-between items-center mb-2">
+                              <label className="block text-sm font-semibold text-gray-300">What to bring</label>
+                              <button
+                                type="button"
+                                onClick={() => setEventFormData({
+                                  ...eventFormData,
+                                  keyDetails: [...(eventFormData.keyDetails || []), ''],
+                                })}
+                                className="flex items-center space-x-1 text-vortex-red hover:text-red-400 text-sm"
+                              >
+                                <Plus className="w-4 h-4" />
+                                <span>Add item</span>
+                              </button>
+                            </div>
+                            {(eventFormData.keyDetails || []).length === 0 ? (
+                              <p className="text-xs text-gray-500 mb-2">Optional packing list shown on the schedule entry.</p>
+                            ) : null}
+                            {(eventFormData.keyDetails || []).map((detail, index) => (
+                              <div key={index} className="flex gap-2 mb-2">
+                                <input
+                                  type="text"
+                                  placeholder="e.g. Water bottle, leotard, lunch…"
+                                  value={detail}
+                                  onChange={(e) => {
+                                    const updated = [...(eventFormData.keyDetails || [])]
+                                    updated[index] = e.target.value
+                                    setEventFormData({ ...eventFormData, keyDetails: updated })
+                                  }}
+                                  className="flex-1 px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = (eventFormData.keyDetails || []).filter((_, i) => i !== index)
+                                    setEventFormData({ ...eventFormData, keyDetails: updated })
+                                  }}
+                                  className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+
                           <button
                             type="button"
                             onClick={() => void handleAddCalendarItem()}
-                            disabled={calendarSaving || !eventChatExists}
-                            className="mt-2 text-sm font-semibold text-vortex-red hover:text-red-400 disabled:opacity-50"
+                            disabled={calendarSaving || !eventChatExists || !eventFormData.eventName?.trim()}
+                            className="text-sm font-semibold text-vortex-red hover:text-red-400 disabled:opacity-50"
                           >
-                            {calendarSaving ? 'Adding…' : 'Add calendar item'}
+                            {calendarSaving ? 'Adding…' : 'Add schedule entry'}
                           </button>
                           {!eventChatExists && (
-                            <p className="text-xs text-gray-500 mt-1">Create the event chat first.</p>
+                            <p className="text-xs text-gray-500 mt-1">Create the event discussion board first.</p>
                           )}
                         </>
                       )}

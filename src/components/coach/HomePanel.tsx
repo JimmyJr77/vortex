@@ -15,6 +15,8 @@ import {
   Video,
   Bell,
   CircleHelp,
+  Layers,
+  Blocks,
 } from 'lucide-react'
 import type { ComponentType } from 'react'
 import type { CoachTab } from './CoachLayout'
@@ -29,9 +31,12 @@ const CARD_ICONS: Record<Exclude<CoachTab, 'home'>, ComponentType<{ className?: 
   sessions: CalendarDays,
   needs: Sparkles,
   library: BookOpen,
+  framework: BookOpen,
   workout: Dumbbell,
   warmup: Flame,
   programs: CalendarRange,
+  'training-blocks': Blocks,
+  regimens: Layers,
   challenges: Trophy,
   assess: ClipboardCheck,
   skills: GitBranch,

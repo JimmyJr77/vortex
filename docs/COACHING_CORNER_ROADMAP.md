@@ -315,12 +315,23 @@ workouts are searchable by `minMinutes`/`maxMinutes`. **Why:** "I have 30 minute
 give me something that fits" is a core coach workflow; persisting the computed value makes it
 an indexable column instead of an N+1 recompute.
 
+### Why Layer + Athleticism Accelerator (centralized education)
+Coach-facing rationale ("why") lives in **`coaching.education_content`** (migration `079`), keyed by
+`entity_type` + `entity_key` (+ optional `entity_id`). Exercises, session phases, validation rules,
+and regimen templates all reference the same table rather than scattering copy in JSON columns alone.
+**Why:** one import path for LLM-generated content, consistent preview in Library/Builder/Needs Engine,
+and publish gates that require structured why fields before `is_published`.
+
+Seven canonical **`coaching.session_phase`** rows (migration `078`) enforce master session order:
+Prepare/Access → Skill/Movement Intelligence → Output → Capacity → Control/Resilience →
+Fitness/Repeatability → Restore. Workout blocks link via `workout_block.phase_id`; the validator
+(`workoutValidation.js`) and Needs Engine (`phaseAwarePrescription.js`) score exercises using
+`exercise_phase_profile` fit weights and return educational warnings with override flow.
+
 ### Deterministic Needs Engine; AI proposes, the schema disposes
-`runPrescription()` is a pure, rule-based scorer/time-packer. The AI layer (`018`,
-`ai_draft_log`) only *drafts* inputs (NL → constraints, nudges, narratives, auto-tags) and is
-always logged for audit; the deterministic engine and schema remain the executor of record.
-**Why:** reproducibility, explainability, and safety — coaches can trust and audit what gets
-prescribed, and the product works fully even with no LLM key configured.
+`runPhaseAwarePrescription()` (extracted from `coachPortalRoutes.js`) is a phase-aware scorer/time-packer
+with per-exercise/placement/scaling rationales from `education_content`. The AI layer still only *drafts*
+inputs; the deterministic engine remains executor of record.
 
 ### Idempotent migrations, applied on boot
 Every migration uses `CREATE ... IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`, and
@@ -395,6 +406,25 @@ noted; ownership tables carry `created_by` + `is_published` + `visibility`.
 - **`023` — engagement (Phase G)**: `notification`.
 - **`024` — messaging (Phase G)**: `message_thread`, `message`.
 - **`025` — goals/achievements (Phase G)**: `goal`, `achievement`.
+- **`078`–`086` — Why Layer / Athleticism Accelerator**: `session_phase`, `phase_order_slot`,
+  `education_content`, exercise programming profiles (`exercise_phase_profile`, dosage/scaling/
+  safety/regimen), `validation_rule`, workout phase metadata, `training_block_template`,
+  `regimen_template`, session allocation templates (60/90/120).
+
+```mermaid
+graph LR
+  SP["session_phase 078"] --> EC["education_content 079"]
+  SP --> EPP["exercise_phase_profile 080"]
+  EX2["exercise 012 (+programming cols 080)"] --> EPP
+  EX2 --> EC
+  EC --> VAL["workoutValidation.js"]
+  EPP --> NE["phaseAwarePrescription.js"]
+  W2["workout 013 (+metadata 082)"] --> VAL
+  W2 --> NE
+  TB["training_block_template 084"] --> RT["regimen_template 085"]
+```
+
+Legacy diagram (pre-Why Layer):
 
 ```mermaid
 graph LR
@@ -429,10 +459,15 @@ Routes are registered in [backend/platform/coachPortalRoutes.js](../backend/plat
 `req.platformAuth.user.facility_id`. Member training routes use plain `auth` (JWT) and scope by
 the token's member.
 
-- **Taxonomy/library** (`library.view`/`library.manage`): `/api/coach/taxonomy`,
-  `/api/coach/exercises` (+ filters), `/exercises/:id`, media upload-signature, autotag.
-- **Workouts** (`workouts.manage`): `/api/coach/workouts` CRUD with duration filters.
-- **Needs Engine** (`library.view`): `/api/coach/needs-engine/prescribe` (`runPrescription`).
+- **Taxonomy/library** (`library.view`/`library.manage`): `/api/coach/taxonomy` (+ `sessionPhases`,
+  `phaseOrderSlots`), `/api/coach/education`, `/api/coach/session-templates`,
+  `/api/coach/exercises` (+ phase filter, programming profiles), `/exercises/:id`,
+  `/exercises/:id/publish-check`, media upload-signature, autotag.
+- **Workouts** (`workouts.manage`): `/api/coach/workouts` CRUD (phase metadata, rationale JSON),
+  `POST /api/coach/workouts/validate`.
+- **Needs Engine** (`library.view`): `/api/coach/needs-engine/prescribe` (`runPhaseAwarePrescription`).
+- **Blocks & regimens** (`workouts.manage`): `/api/coach/training-blocks`,
+  `/api/coach/regimen-templates` CRUD.
 - **Programs** (`training_programs.manage`): `/api/coach/training-programs` CRUD +
   `…/weeks/:weekId/duplicate` (progressive overload).
 - **Challenges** (`challenges.manage`): `/api/coach/challenges` (+ entries).
@@ -452,8 +487,9 @@ the token's member.
 - **Member portal**: `/api/member/training/assignments|workout/:id|program/:id|challenge/:id|
   log|progress|wellness`.
 
-Key helpers: `canMutateRow`, `runPrescription`, `loadWorkout`/`writeWorkoutStructure`,
-`loadTrainingProgram`/`writeProgramStructure`, `applyProgression`, `notifyAssignment`,
+Key helpers: `canMutateRow`, `runPhaseAwarePrescription`, `validateWorkoutDraft`,
+`loadExerciseProgrammingBundle`/`saveExerciseProgramming`, `educationContent.js`,
+`loadWorkout`/`writeWorkoutStructure`, `loadTrainingProgram`/`writeProgramStructure`, `applyProgression`, `notifyAssignment`,
 `createInAppNotification`, `detectPersonalRecord`/`notifyPrDetected`, `computeReadiness`,
 `loadSessionRoster`.
 
@@ -466,8 +502,13 @@ Multi-portal shell in `src/App.tsx` (website / admin / member / coach). Shared c
 `src/coach/useCoachBuilderStore.ts` (Zustand). Charts use Recharts throughout.
 
 - **Coach portal** ([src/components/coach/CoachLayout.tsx](../src/components/coach/CoachLayout.tsx)):
-  tabs `home`, `sessions`, `needs`, `library`, `workout`/`warmup`, `programs`, `challenges`,
-  `assess`, `skills`, `assign`, `messages`, `insights`, `roster`.
+  tabs `home`, `sessions`, `needs`, `library`, `framework`, `workout`/`warmup`, `programs`,
+  `training-blocks`, `regimens`, `challenges`, `assess`, `skills`, `assign`, `messages`,
+  `insights`, `roster`.
+- **Why Layer panels**: `FrameworkPanel` (philosophy browser), tabbed `LibraryPanel` exercise editor
+  (Why/Phase/Dosage/Safety/Regimen + publish checklist), `WorkoutSetupWizard` + phase canvas +
+  validation UX in `WorkoutBuilder`, rationale cards in `NeedsEnginePanel`, `TrainingBlockBuilder`,
+  `RegimenBuilder`.
 - **Member portal**: `MemberTraining.tsx` — `MemberTrainingTab` (assignments + completion
   logging) and `MemberProgressTab` (assessment trends, skill grades, PRs, daily wellness
   check-in). `NotificationBell` in `MemberDashboard` header.

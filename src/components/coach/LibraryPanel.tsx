@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Loader2, Plus, Search, X, Clock, Pencil, Trash2, Sparkles } from 'lucide-react'
+import { Loader2, Plus, Search, X, Clock, Pencil, Trash2, Sparkles, CheckCircle2 } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
-import type { Exercise, ExerciseTag, ExerciseMedia, ExerciseCue } from '../../coach/types'
+import type { Exercise, ExerciseTag, ExerciseMedia, ExerciseCue, ExercisePhaseProfile, ExerciseWhy, ExerciseSafetyProfile, ExerciseRegimenRule } from '../../coach/types'
 import type { FacetType, TaxonomyItem } from '../../coach/taxonomy'
+import { formatExerciseCardSummary, whyPreview } from '../../coach/exerciseCard'
 
 interface PrerequisiteRow {
   prerequisite_exercise_id: number
@@ -18,9 +19,10 @@ interface FilterState {
   methodology: number | ''
   physiology: number | ''
   intent: number | ''
+  phase: number | ''
 }
 
-const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', intent: '' }
+const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', intent: '', phase: '' }
 
 export default function LibraryPanel() {
   const { taxonomy } = useTaxonomy()
@@ -42,6 +44,7 @@ export default function LibraryPanel() {
       if (filters.methodology) params.set('method', String(filters.methodology))
       if (filters.physiology) params.set('physio', String(filters.physiology))
       if (filters.intent) params.set('intent', String(filters.intent))
+      if (filters.phase) params.set('phase', String(filters.phase))
       const data = await coachFetch<Exercise[]>(`/api/coach/exercises?${params.toString()}`)
       setExercises(data)
     } catch (err) {
@@ -97,6 +100,7 @@ export default function LibraryPanel() {
         <FacetSelect label="Methodology" items={taxonomy?.methodologies as TaxonomyItem[] | undefined} value={filters.methodology} onChange={(v) => setFilters((f) => ({ ...f, methodology: v }))} />
         <FacetSelect label="Physiology" items={taxonomy?.physiology as TaxonomyItem[] | undefined} value={filters.physiology} onChange={(v) => setFilters((f) => ({ ...f, physiology: v }))} />
         <FacetSelect label="Phase/Intent" items={taxonomy?.intents} value={filters.intent} onChange={(v) => setFilters((f) => ({ ...f, intent: v }))} />
+        <FacetSelect label="Session Phase" items={taxonomy?.sessionPhases as TaxonomyItem[] | undefined} value={filters.phase} onChange={(v) => setFilters((f) => ({ ...f, phase: v }))} />
         <button type="button" onClick={() => setFilters(emptyFilters)} className="self-end text-sm text-gray-500 hover:text-gray-800 underline">
           Clear filters
         </button>
@@ -117,7 +121,13 @@ export default function LibraryPanel() {
                 </button>
               </div>
               {ex.sport_name && <span className="inline-block mt-1 text-xs bg-gray-100 text-gray-600 rounded px-2 py-0.5">{ex.sport_name}</span>}
-              {ex.description && <p className="text-sm text-gray-600 mt-2 line-clamp-2">{ex.description}</p>}
+              {ex.description && <p className="text-sm text-gray-600 mt-2 line-clamp-2">{formatExerciseCardSummary(ex)}</p>}
+              {ex.primary_phase && (
+                <span className="inline-block mt-2 text-[11px] bg-blue-50 text-blue-800 rounded px-2 py-0.5">{ex.primary_phase.phaseName}</span>
+              )}
+              {whyPreview(ex.why) && (
+                <p className="text-xs text-gray-500 mt-2 line-clamp-2">{whyPreview(ex.why)}</p>
+              )}
               <div className="flex items-center gap-3 text-xs text-gray-500 mt-3">
                 <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {ex.est_seconds_per_set}s/set</span>
                 {ex.default_sets && <span>{ex.default_sets}x{ex.default_reps ?? '-'}</span>}
@@ -204,6 +214,23 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
   const [allExercises, setAllExercises] = useState<Exercise[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [tab, setTab] = useState<'basics' | 'tags' | 'why' | 'phase' | 'dosage' | 'safety' | 'regimen' | 'media'>('basics')
+  const [why, setWhy] = useState<ExerciseWhy>({})
+  const [phaseProfiles, setPhaseProfiles] = useState<ExercisePhaseProfile[]>([])
+  const [safetyProfile, setSafetyProfile] = useState<ExerciseSafetyProfile>({})
+  const [regimenRule, setRegimenRule] = useState<ExerciseRegimenRule>({})
+  const [publishCheck, setPublishCheck] = useState<{ ready: boolean; issues: string[] } | null>(null)
+
+  const editorTabs: Array<{ id: typeof tab; label: string }> = [
+    { id: 'basics', label: 'Basics' },
+    { id: 'tags', label: 'Tags' },
+    { id: 'why', label: 'Why' },
+    { id: 'phase', label: 'Phase' },
+    { id: 'dosage', label: 'Dosage' },
+    { id: 'safety', label: 'Safety' },
+    { id: 'regimen', label: 'Regimen' },
+    { id: 'media', label: 'Media & Cues' },
+  ]
 
   // Load full detail (media/cues/prerequisites) when editing so a save does not wipe them.
   useEffect(() => {
@@ -214,8 +241,15 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
         setMedia(full.media ?? [])
         setCues(full.cues ?? [])
         setPrerequisites((full.prerequisites ?? []) as PrerequisiteRow[])
+        setWhy(full.why ?? {})
+        setPhaseProfiles(full.phase_profiles ?? [])
+        setSafetyProfile(full.safety_profile ?? {})
+        setRegimenRule(full.regimen_rule ?? {})
       })
       .catch(() => {/* keep list-provided values */})
+    coachFetch<{ ready: boolean; issues: string[] }>(`/api/coach/exercises/${exercise.id}/publish-check`)
+      .then(setPublishCheck)
+      .catch(() => setPublishCheck(null))
   }, [exercise])
 
   // Options for the prerequisite picker.
@@ -295,9 +329,21 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
         media: media.filter((m) => m.url.trim()),
         cues: cues.filter((c) => c.body.trim()),
         prerequisites: prerequisites.map((p) => ({ prerequisite_exercise_id: p.prerequisite_exercise_id, note: p.note ?? null })),
+        why,
+        phase_profiles: phaseProfiles,
+        safety_profile: safetyProfile,
+        regimen_rule: regimenRule,
+        dosage_profile: {
+          default_sets: form.default_sets || null,
+          default_reps: form.default_reps || null,
+          default_rest_seconds: form.default_rest_seconds || null,
+          est_seconds_per_set: Number(form.est_seconds_per_set) || 45,
+        },
       }
       if (exercise) {
         await coachFetch(`/api/coach/exercises/${exercise.id}`, { method: 'PUT', body: JSON.stringify(body) })
+        const check = await coachFetch<{ ready: boolean; issues: string[] }>(`/api/coach/exercises/${exercise.id}/publish-check`)
+        setPublishCheck(check)
       } else {
         await coachFetch('/api/coach/exercises', { method: 'POST', body: JSON.stringify(body) })
       }
@@ -328,6 +374,26 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
         </div>
         <div className="p-5 space-y-4">
           {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
+          {publishCheck && (
+            <div className={`rounded-lg px-4 py-2 text-sm flex items-start gap-2 ${publishCheck.ready ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-900'}`}>
+              <CheckCircle2 className={`w-4 h-4 mt-0.5 ${publishCheck.ready ? 'text-green-600' : 'text-amber-600'}`} />
+              <div>
+                <div className="font-semibold">{publishCheck.ready ? 'Publish ready' : 'Publish checklist'}</div>
+                {!publishCheck.ready && (
+                  <ul className="list-disc ml-4 mt-1 text-xs">{publishCheck.issues.map((issue) => <li key={issue}>{issue}</li>)}</ul>
+                )}
+              </div>
+            </div>
+          )}
+          <div className="flex flex-wrap gap-1 border-b border-gray-100 pb-2">
+            {editorTabs.map((t) => (
+              <button key={t.id} type="button" onClick={() => setTab(t.id)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${tab === t.id ? 'bg-vortex-red text-white' : 'text-gray-600 hover:bg-gray-100'}`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {tab === 'basics' && (
           <div className="grid gap-3 md:grid-cols-2">
             <label className="md:col-span-2 text-sm">
               <span className="block font-semibold text-gray-700 mb-1">Name</span>
@@ -374,7 +440,10 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
               </select>
             </label>
           </div>
+          )}
 
+          {tab === 'tags' && (
+          <>
           <div className="flex justify-end">
             <button type="button" onClick={() => void suggestTags()} disabled={!form.name} className="flex items-center gap-1 text-sm text-vortex-red border border-gray-200 rounded-lg px-3 py-1.5 disabled:opacity-50">
               <Sparkles className="w-4 h-4" /> Suggest tags
@@ -407,6 +476,104 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
             </div>
           ))}
 
+          </>
+          )}
+
+          {tab === 'why' && (
+            <div className="space-y-3 text-sm">
+              {([
+                ['training_purpose', 'Training purpose'],
+                ['phase_rationale', 'Phase rationale'],
+                ['fatigue_rationale', 'Fatigue rationale'],
+                ['scaling_rationale', 'Scaling rationale'],
+                ['regimen_rationale', 'Regimen rationale'],
+                ['common_misuse', 'Common misuse'],
+              ] as const).map(([key, label]) => (
+                <label key={key} className="block">
+                  <span className="font-semibold text-gray-700">{label}</span>
+                  <textarea
+                    value={why[key] ?? ''}
+                    onChange={(e) => setWhy({ ...why, [key]: e.target.value })}
+                    rows={2}
+                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </label>
+              ))}
+            </div>
+          )}
+
+          {tab === 'phase' && (
+            <div className="space-y-3">
+              {(taxonomy?.sessionPhases ?? []).map((phase) => {
+                const profile = phaseProfiles.find((p) => p.phaseKey === phase.key)
+                return (
+                  <div key={phase.id} className="border border-gray-200 rounded-lg p-3 text-sm grid md:grid-cols-4 gap-2 items-center">
+                    <div className="font-semibold text-gray-800">{phase.name}</div>
+                    <select
+                      value={profile?.role ?? ''}
+                      onChange={(e) => {
+                        const role = e.target.value as ExercisePhaseProfile['role'] | ''
+                        const rest = phaseProfiles.filter((p) => p.phaseKey !== phase.key)
+                        if (!role) { setPhaseProfiles(rest); return }
+                        setPhaseProfiles([...rest, {
+                          phaseId: phase.id,
+                          phaseKey: phase.key,
+                          phaseName: phase.name,
+                          fitWeight: profile?.fitWeight ?? 3,
+                          role,
+                        }])
+                      }}
+                      className="border border-gray-300 rounded px-2 py-1"
+                    >
+                      <option value="">Not set</option>
+                      <option value="primary">Primary</option>
+                      <option value="secondary">Secondary</option>
+                      <option value="conditional">Conditional</option>
+                      <option value="avoid">Avoid</option>
+                    </select>
+                    <input
+                      type="number"
+                      min={1}
+                      max={5}
+                      value={profile?.fitWeight ?? 3}
+                      disabled={!profile}
+                      onChange={(e) => setPhaseProfiles(phaseProfiles.map((p) => p.phaseKey === phase.key ? { ...p, fitWeight: Number(e.target.value) } : p))}
+                      className="border border-gray-300 rounded px-2 py-1"
+                      placeholder="Fit 1-5"
+                    />
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {tab === 'dosage' && (
+            <div className="grid gap-3 md:grid-cols-2 text-sm">
+              <label><span className="font-semibold text-gray-700">Default sets</span><input type="number" value={form.default_sets} onChange={(e) => setForm({ ...form, default_sets: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" /></label>
+              <label><span className="font-semibold text-gray-700">Default reps</span><input type="number" value={form.default_reps} onChange={(e) => setForm({ ...form, default_reps: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" /></label>
+              <label><span className="font-semibold text-gray-700">Rest (sec)</span><input type="number" value={form.default_rest_seconds} onChange={(e) => setForm({ ...form, default_rest_seconds: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" /></label>
+              <label><span className="font-semibold text-gray-700">Est sec/set</span><input type="number" value={form.est_seconds_per_set} onChange={(e) => setForm({ ...form, est_seconds_per_set: Number(e.target.value) })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" /></label>
+            </div>
+          )}
+
+          {tab === 'safety' && (
+            <div className="grid gap-3 md:grid-cols-2 text-sm">
+              <label><span className="font-semibold text-gray-700">Risk level (1-5)</span><input type="number" value={safetyProfile.risk_level ?? 2} onChange={(e) => setSafetyProfile({ ...safetyProfile, risk_level: Number(e.target.value) })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" /></label>
+              <label><span className="font-semibold text-gray-700">Impact level (0-5)</span><input type="number" value={safetyProfile.impact_level ?? 1} onChange={(e) => setSafetyProfile({ ...safetyProfile, impact_level: Number(e.target.value) })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" /></label>
+              <label className="md:col-span-2"><span className="font-semibold text-gray-700">Stop signs (comma separated)</span><input value={(safetyProfile.stop_signs ?? []).join(', ')} onChange={(e) => setSafetyProfile({ ...safetyProfile, stop_signs: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" /></label>
+            </div>
+          )}
+
+          {tab === 'regimen' && (
+            <div className="grid gap-3 md:grid-cols-2 text-sm">
+              <label className="flex items-center gap-2"><input type="checkbox" checked={regimenRule.can_be_daily ?? false} onChange={(e) => setRegimenRule({ ...regimenRule, can_be_daily: e.target.checked })} /> Can be daily</label>
+              <label><span className="font-semibold text-gray-700">Weekly max frequency</span><input type="number" value={regimenRule.weekly_max_frequency ?? 3} onChange={(e) => setRegimenRule({ ...regimenRule, weekly_max_frequency: Number(e.target.value) })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" /></label>
+              <label className="md:col-span-2"><span className="font-semibold text-gray-700">Recovery notes</span><textarea value={regimenRule.recovery_notes ?? ''} onChange={(e) => setRegimenRule({ ...regimenRule, recovery_notes: e.target.value })} rows={2} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" /></label>
+            </div>
+          )}
+
+          {tab === 'media' && (
+          <>
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-semibold text-gray-700">Media (videos / images)</span>
@@ -483,6 +650,8 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
               {allExercises.filter((x) => !exercise || x.id !== exercise.id).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
             </select>
           </div>
+          </>
+          )}
         </div>
         <div className="flex justify-end gap-2 px-5 py-4 border-t border-gray-100 sticky bottom-0 bg-white">
           <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border border-gray-300 text-sm">Cancel</button>

@@ -74,6 +74,15 @@ import {
   messageThreadFavoriteSelectSql,
   messageThreadInboxHideFilterSql,
 } from './messageThreads.js'
+import { loadEducationMap, loadEducationForExercise, educationToWhyResponse } from './educationContent.js'
+import {
+  loadExerciseProgrammingBundle,
+  attachProgrammingToExercise,
+  saveExerciseProgramming,
+  validateExercisePublishReady,
+} from './exerciseProgramming.js'
+import { validateWorkoutDraft } from './workoutValidation.js'
+import { runPhaseAwarePrescription, getSessionPhaseTemplates } from './phaseAwarePrescription.js'
 
 function ok(res, data) {
   res.json({ success: true, data })
@@ -193,7 +202,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   // ==========================================================
   app.get('/api/coach/taxonomy', ...can('library.view'), async (_req, res) => {
     try {
-      const [tenets, methodologies, physiology, patterns, equipment, sports, intents, bodyRegions] = await Promise.all([
+      const [tenets, methodologies, physiology, patterns, equipment, sports, intents, bodyRegions, sessionPhases, phaseOrderSlots] = await Promise.all([
         pool.query(`SELECT id, key, name, description, detail, sort_order FROM coaching.tenet ORDER BY sort_order`),
         pool.query(`SELECT id, key, name, description, sort_order FROM coaching.methodology ORDER BY sort_order`),
         pool.query(`SELECT id, key, name, systems, purpose, outcomes, is_optional, sort_order FROM coaching.physiological_emphasis ORDER BY sort_order`),
@@ -202,6 +211,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         pool.query(`SELECT id, key, name, sort_order FROM coaching.sport ORDER BY sort_order`),
         pool.query(`SELECT id, key, name, sort_order FROM coaching.exercise_intent ORDER BY sort_order`),
         pool.query(`SELECT id, key, name, sort_order FROM coaching.body_region ORDER BY sort_order`),
+        pool.query(`SELECT id, key, name, description, order_index, freshness_required, can_be_daily, default_min_percent, default_max_percent, fatigue_sensitivity FROM coaching.session_phase ORDER BY order_index`),
+        pool.query(`SELECT pos.id, pos.key, pos.name, pos.description, pos.phase_id, pos.order_index, pos.freshness_sensitivity, sp.key AS phase_key FROM coaching.phase_order_slot pos JOIN coaching.session_phase sp ON sp.id = pos.phase_id ORDER BY sp.order_index, pos.order_index`),
       ])
       ok(res, {
         tenets: tenets.rows,
@@ -212,6 +223,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         sports: sports.rows,
         intents: intents.rows,
         bodyRegions: bodyRegions.rows,
+        sessionPhases: sessionPhases.rows,
+        phaseOrderSlots: phaseOrderSlots.rows,
       })
     } catch (error) {
       bad(res, error.message, 500)
@@ -231,6 +244,38 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         methodologies: methodologies.rows,
         physiology: physiology.rows,
       })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  // ==========================================================
+  // EDUCATION / WHY LAYER
+  // ==========================================================
+  app.get('/api/coach/education', ...can('library.view'), async (req, res) => {
+    try {
+      const entityType = req.query.entity_type ? String(req.query.entity_type) : null
+      const entityKey = req.query.entity_key ? String(req.query.entity_key) : null
+      if (entityType && entityKey) {
+        const row = await loadEducationMap(pool, entityType, [entityKey])
+        return ok(res, row[0] ? { ...row[0], why: educationToWhyResponse(row[0]) } : null)
+      }
+      if (entityType) {
+        const rows = await loadEducationMap(pool, entityType)
+        return ok(res, rows.map((r) => ({ ...r, why: educationToWhyResponse(r) })))
+      }
+      const rows = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE is_published = TRUE ORDER BY entity_type, sort_order, id LIMIT 500`,
+      )
+      ok(res, rows.rows.map((r) => ({ ...r, why: educationToWhyResponse(r) })))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/session-templates', ...can('library.view'), async (_req, res) => {
+    try {
+      ok(res, await getSessionPhaseTemplates(pool))
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -289,6 +334,18 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         where.push(`e.skill_level = $${params.length}::public.skill_level`)
       }
 
+      const phaseId = num(req.query.phase ?? req.query.phase_id)
+      if (phaseId) {
+        params.push(phaseId)
+        where.push(`EXISTS (SELECT 1 FROM coaching.exercise_phase_profile p WHERE p.exercise_id = e.id AND p.phase_id = $${params.length} AND p.role != 'avoid')`)
+      }
+
+      const phaseRole = req.query.phase_role ? String(req.query.phase_role) : null
+      if (phaseRole && phaseId) {
+        params.push(phaseRole)
+        where.push(`EXISTS (SELECT 1 FROM coaching.exercise_phase_profile p WHERE p.exercise_id = e.id AND p.phase_id = $${params.length - 1} AND p.role = $${params.length})`)
+      }
+
       // Facet filters: tenet, method->methodology, physio->physiology, pattern, equipment, intent, body_region.
       const facetMap = {
         tenet: req.query.tenet,
@@ -328,7 +385,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       )
       const ids = result.rows.map((r) => Number(r.id))
       const tagMap = await loadExerciseTags(ids)
-      ok(res, result.rows.map((r) => ({ ...r, tags: tagMap.get(String(r.id)) ?? [] })))
+      const bundle = await loadExerciseProgrammingBundle(pool, ids)
+      ok(res, result.rows.map((r) => ({ ...attachProgrammingToExercise(r, bundle, null), tags: tagMap.get(String(r.id)) ?? [] })))
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -343,7 +401,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         [id, facilityId],
       )
       if (exercise.rows.length === 0) return bad(res, 'Exercise not found.', 404)
-      const [tagMap, media, cues, prereqs] = await Promise.all([
+      const row = exercise.rows[0]
+      const [tagMap, media, cues, prereqs, bundle, education] = await Promise.all([
         loadExerciseTags([id]),
         pool.query(`SELECT * FROM coaching.exercise_media WHERE exercise_id = $1 ORDER BY sort_order, id`, [id]),
         pool.query(`SELECT * FROM coaching.exercise_cue WHERE exercise_id = $1 ORDER BY sort_order, id`, [id]),
@@ -351,14 +410,29 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           `SELECT p.prerequisite_exercise_id, p.note, e.name FROM coaching.exercise_prerequisite p JOIN coaching.exercise e ON e.id = p.prerequisite_exercise_id WHERE p.exercise_id = $1`,
           [id],
         ),
+        loadExerciseProgrammingBundle(pool, [id]),
+        loadEducationForExercise(pool, id, row.slug),
       ])
+      const attached = attachProgrammingToExercise(row, bundle, education)
       ok(res, {
-        ...exercise.rows[0],
+        ...attached,
         tags: tagMap.get(String(id)) ?? [],
         media: media.rows,
         cues: cues.rows,
         prerequisites: prereqs.rows,
       })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/exercises/:id/publish-check', ...can('library.manage'), async (req, res) => {
+    try {
+      const id = num(req.params.id)
+      const facilityId = req.platformAuth.user.facility_id
+      const existing = await pool.query(`SELECT id FROM coaching.exercise WHERE id = $1 AND facility_id = $2`, [id, facilityId])
+      if (existing.rows.length === 0) return bad(res, 'Exercise not found.', 404)
+      ok(res, await validateExercisePublishReady(pool, id))
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -425,9 +499,9 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
             facility_id, name, slug, description, instructions, sport_id, skill_level,
             age_min, age_max, default_sets, default_reps, default_work_seconds,
             default_rest_seconds, tempo, load_note, est_seconds_per_set, created_by,
-            is_published, visibility
+            is_published, visibility, card_summary, coach_language, athlete_language, programming_logic, scalable_variables
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7::public.skill_level, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+          VALUES ($1, $2, $3, $4, $5, $6, $7::public.skill_level, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23::jsonb, $24)
           RETURNING id
         `,
         [
@@ -437,10 +511,13 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           num(req.body?.default_work_seconds), num(req.body?.default_rest_seconds), req.body?.tempo || null,
           req.body?.load_note || null, num(req.body?.est_seconds_per_set) ?? 45, userId,
           req.body?.is_published !== false, req.body?.visibility === 'private' ? 'private' : 'facility',
+          req.body?.card_summary || null, req.body?.coach_language || null, req.body?.athlete_language || null,
+          JSON.stringify(req.body?.programming_logic ?? {}), req.body?.scalable_variables ?? [],
         ],
       )
       const id = Number(created.rows[0].id)
       await writeExerciseRelations(client, id, req.body || {})
+      await saveExerciseProgramming(client, id, slugify(name), req.body || {})
       await client.query('COMMIT')
       ok(res, { id })
     } catch (error) {
@@ -467,6 +544,13 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         await client.query('ROLLBACK')
         return bad(res, 'You can only edit private items you created.', 403)
       }
+      if (req.body?.is_published === true) {
+        const check = await validateExercisePublishReady(client, id)
+        if (!check.ready) {
+          await client.query('ROLLBACK')
+          return bad(res, `Publish requirements not met: ${check.issues.join('; ')}`)
+        }
+      }
       await client.query(
         `
           UPDATE coaching.exercise SET
@@ -474,7 +558,13 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
             description = $3, instructions = $4, sport_id = $5, skill_level = $6::public.skill_level,
             age_min = $7, age_max = $8, default_sets = $9, default_reps = $10, default_work_seconds = $11,
             default_rest_seconds = $12, tempo = $13, load_note = $14, est_seconds_per_set = COALESCE($15, est_seconds_per_set),
-            is_published = COALESCE($16, is_published), visibility = COALESCE($17, visibility), updated_at = now()
+            is_published = COALESCE($16, is_published), visibility = COALESCE($17, visibility),
+            card_summary = COALESCE($18, card_summary), coach_language = COALESCE($19, coach_language),
+            athlete_language = COALESCE($20, athlete_language),
+            programming_logic = COALESCE($21::jsonb, programming_logic),
+            scalable_variables = COALESCE($22, scalable_variables),
+            why_publish_ready = COALESCE($23, why_publish_ready),
+            updated_at = now()
           WHERE id = $1
         `,
         [
@@ -485,9 +575,15 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           req.body?.load_note || null, num(req.body?.est_seconds_per_set),
           typeof req.body?.is_published === 'boolean' ? req.body.is_published : null,
           req.body?.visibility === 'private' ? 'private' : req.body?.visibility === 'facility' ? 'facility' : null,
+          req.body?.card_summary ?? null, req.body?.coach_language ?? null, req.body?.athlete_language ?? null,
+          req.body?.programming_logic != null ? JSON.stringify(req.body.programming_logic) : null,
+          req.body?.scalable_variables ?? null,
+          typeof req.body?.is_published === 'boolean' ? req.body.is_published : null,
         ],
       )
       await writeExerciseRelations(client, id, req.body || {})
+      const slugRow = await client.query(`SELECT slug FROM coaching.exercise WHERE id = $1`, [id])
+      await saveExerciseProgramming(client, id, slugRow.rows[0]?.slug, req.body || {})
       await client.query('COMMIT')
       ok(res, { id })
     } catch (error) {
@@ -624,13 +720,21 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     for (const block of blocks || []) {
       const createdBlock = await client.query(
         `
-          INSERT INTO coaching.workout_block (workout_id, sort_order, label, block_format, rounds, rest_between_rounds_seconds, cap_minutes)
-          VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id
+          INSERT INTO coaching.workout_block (
+            workout_id, sort_order, label, block_format, rounds, rest_between_rounds_seconds, cap_minutes,
+            phase_id, order_slot, phase_order_index, minutes_budget, phase_goal, contains_tumbling, add_on_focus
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING id
         `,
         [
           workoutId, blockOrder++, block.label || null,
           ['straight_sets', 'circuit', 'amrap', 'emom', 'for_time', 'stations'].includes(block.block_format) ? block.block_format : 'straight_sets',
           Number(block.rounds) || 1, Number(block.rest_between_rounds_seconds) || 0, num(block.cap_minutes),
+          num(block.phase_id ?? block.phaseId), block.order_slot ?? block.orderSlot ?? null,
+          num(block.phase_order_index ?? block.phaseOrderIndex), num(block.minutes_budget ?? block.minutesBudget),
+          block.phase_goal ?? block.phaseGoal ?? null,
+          Boolean(block.contains_tumbling ?? block.containsTumbling),
+          block.add_on_focus ?? block.addOnFocus ?? null,
         ],
       )
       const blockId = Number(createdBlock.rows[0].id)
@@ -660,14 +764,25 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       await client.query('BEGIN')
       const created = await client.query(
         `
-          INSERT INTO coaching.workout (facility_id, title, type, sport_id, description, target_minutes, notes, created_by, is_published, visibility)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id
+          INSERT INTO coaching.workout (
+            facility_id, title, type, sport_id, description, target_minutes, notes, created_by, is_published, visibility,
+            duration_minutes, session_objective, audience_json, format_json, coach_rationale_json, phase_plan_json, validation_snapshot_json, validation_override_reason
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb, $14::jsonb, $15::jsonb, $16::jsonb, $17::jsonb, $18) RETURNING id
         `,
         [
           facilityId, title,
           ['workout', 'warmup', 'cooldown', 'conditioning', 'practice'].includes(req.body?.type) ? req.body.type : 'workout',
           num(req.body?.sport_id), req.body?.description || null, num(req.body?.target_minutes), req.body?.notes || null,
           userId, req.body?.is_published !== false, req.body?.visibility === 'private' ? 'private' : 'facility',
+          num(req.body?.duration_minutes ?? req.body?.durationMinutes),
+          req.body?.session_objective ?? req.body?.sessionObjective ?? null,
+          JSON.stringify(req.body?.audience_json ?? req.body?.audienceJson ?? {}),
+          JSON.stringify(req.body?.format_json ?? req.body?.formatJson ?? {}),
+          JSON.stringify(req.body?.coach_rationale_json ?? req.body?.coachRationaleJson ?? {}),
+          JSON.stringify(req.body?.phase_plan_json ?? req.body?.phasePlanJson ?? []),
+          JSON.stringify(req.body?.validation_snapshot_json ?? req.body?.validationSnapshotJson ?? {}),
+          req.body?.validation_override_reason ?? req.body?.validationOverrideReason ?? null,
         ],
       )
       const id = Number(created.rows[0].id)
@@ -705,7 +820,16 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           UPDATE coaching.workout SET
             title = COALESCE($2, title), type = COALESCE($3, type), sport_id = $4,
             description = $5, target_minutes = $6, notes = $7,
-            is_published = COALESCE($8, is_published), visibility = COALESCE($9, visibility), updated_at = now()
+            is_published = COALESCE($8, is_published), visibility = COALESCE($9, visibility),
+            duration_minutes = COALESCE($10, duration_minutes),
+            session_objective = COALESCE($11, session_objective),
+            audience_json = COALESCE($12::jsonb, audience_json),
+            format_json = COALESCE($13::jsonb, format_json),
+            coach_rationale_json = COALESCE($14::jsonb, coach_rationale_json),
+            phase_plan_json = COALESCE($15::jsonb, phase_plan_json),
+            validation_snapshot_json = COALESCE($16::jsonb, validation_snapshot_json),
+            validation_override_reason = COALESCE($17, validation_override_reason),
+            updated_at = now()
           WHERE id = $1
         `,
         [
@@ -714,6 +838,14 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           num(req.body?.sport_id), req.body?.description || null, num(req.body?.target_minutes), req.body?.notes || null,
           typeof req.body?.is_published === 'boolean' ? req.body.is_published : null,
           req.body?.visibility === 'private' ? 'private' : req.body?.visibility === 'facility' ? 'facility' : null,
+          num(req.body?.duration_minutes ?? req.body?.durationMinutes),
+          req.body?.session_objective ?? req.body?.sessionObjective ?? null,
+          req.body?.audience_json != null || req.body?.audienceJson != null ? JSON.stringify(req.body.audience_json ?? req.body.audienceJson) : null,
+          req.body?.format_json != null || req.body?.formatJson != null ? JSON.stringify(req.body.format_json ?? req.body.formatJson) : null,
+          req.body?.coach_rationale_json != null || req.body?.coachRationaleJson != null ? JSON.stringify(req.body.coach_rationale_json ?? req.body.coachRationaleJson) : null,
+          req.body?.phase_plan_json != null || req.body?.phasePlanJson != null ? JSON.stringify(req.body.phase_plan_json ?? req.body.phasePlanJson) : null,
+          req.body?.validation_snapshot_json != null || req.body?.validationSnapshotJson != null ? JSON.stringify(req.body.validation_snapshot_json ?? req.body.validationSnapshotJson) : null,
+          req.body?.validation_override_reason ?? req.body?.validationOverrideReason ?? null,
         ],
       )
       if (Array.isArray(req.body?.blocks)) {
@@ -746,119 +878,19 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  app.post('/api/coach/workouts/validate', ...can('workouts.manage'), async (req, res) => {
+    try {
+      ok(res, await validateWorkoutDraft(pool, req.body || {}))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
   // ==========================================================
   // NEEDS ENGINE
   // ==========================================================
   async function runPrescription(facilityId, body) {
-      const sportId = num(body.sportId)
-      const ageMin = num(body.ageMin)
-      const ageMax = num(body.ageMax)
-      const level = body.skillLevel || null
-      const equipmentIds = Array.isArray(body.equipmentIds) ? body.equipmentIds.map(num).filter((v) => v != null) : []
-      const excludeBodyRegionIds = Array.isArray(body.excludeBodyRegionIds) ? body.excludeBodyRegionIds.map(num).filter((v) => v != null) : []
-      const targets = Array.isArray(body.targets)
-        ? body.targets
-            .map((t) => ({ facetType: t.facetType, facetId: num(t.facetId), weight: Number(t.weight) || 3 }))
-            .filter((t) => FACET_TYPES.includes(t.facetType) && t.facetId != null)
-        : []
-      const blocks = Array.isArray(body.blocks) && body.blocks.length > 0
-        ? body.blocks
-        : [{ label: 'Main Work', intentId: null, minutes: 30 }]
-
-      // Candidate pool.
-      const params = [facilityId]
-      const where = [`e.facility_id = $1`, `e.archived = FALSE`, `e.is_published = TRUE`]
-      if (sportId) {
-        params.push(sportId)
-        where.push(`(e.sport_id = $${params.length} OR e.sport_id IS NULL)`)
-      }
-      if (level) {
-        params.push(level)
-        where.push(`(e.skill_level IS NULL OR e.skill_level = $${params.length}::public.skill_level)`)
-      }
-      if (ageMin != null) {
-        params.push(ageMin)
-        where.push(`(e.age_max IS NULL OR e.age_max >= $${params.length})`)
-      }
-      if (ageMax != null) {
-        params.push(ageMax)
-        where.push(`(e.age_min IS NULL OR e.age_min <= $${params.length})`)
-      }
-      if (excludeBodyRegionIds.length > 0) {
-        params.push(excludeBodyRegionIds)
-        where.push(`NOT EXISTS (SELECT 1 FROM coaching.exercise_tag t WHERE t.exercise_id = e.id AND t.facet_type = 'body_region' AND t.facet_id = ANY($${params.length}::bigint[]))`)
-      }
-      const candidates = await pool.query(
-        `SELECT e.* FROM coaching.exercise e WHERE ${where.join(' AND ')} LIMIT 1000`,
-        params,
-      )
-      const ids = candidates.rows.map((r) => Number(r.id))
-      const tagMap = await loadExerciseTags(ids)
-      const allowedEquip = new Set(equipmentIds)
-
-      const scored = candidates.rows
-        .map((ex) => {
-          const tags = tagMap.get(String(ex.id)) ?? []
-          // Equipment gate: if a filter was provided, every equipment tag must be allowed.
-          if (allowedEquip.size > 0) {
-            const equip = tags.filter((t) => t.facetType === 'equipment')
-            const blocked = equip.some((t) => !allowedEquip.has(t.facetId))
-            if (blocked) return null
-          }
-          let score = 0
-          for (const target of targets) {
-            const match = tags.find((t) => t.facetType === target.facetType && t.facetId === target.facetId)
-            if (match) score += match.weight * target.weight
-          }
-          const patternTag = tags.find((t) => t.facetType === 'pattern')
-          const intentTags = tags.filter((t) => t.facetType === 'intent').map((t) => t.facetId)
-          return { exercise: ex, tags, score, patternId: patternTag?.facetId ?? null, intentIds: intentTags }
-        })
-        .filter(Boolean)
-        .sort((a, b) => b.score - a.score)
-
-      // Time-pack each block.
-      const usedPatterns = new Map()
-      const resultBlocks = blocks.map((block) => {
-        const budgetSeconds = (Number(block.minutes) || 20) * 60
-        const intentId = num(block.intentId)
-        const pool = scored
-          .filter((c) => (intentId ? c.intentIds.includes(intentId) : true))
-          .map((c) => {
-            const penalty = usedPatterns.get(c.patternId) ? (usedPatterns.get(c.patternId) * 0.25) : 0
-            return { ...c, adjScore: c.score * (1 - Math.min(penalty, 0.75)) }
-          })
-          .sort((a, b) => b.adjScore - a.adjScore)
-
-        const items = []
-        let usedSeconds = 0
-        for (const c of pool) {
-          const sets = Number(c.exercise.default_sets) || 3
-          const est = Number(c.exercise.est_seconds_per_set) || 45
-          const rest = Number(c.exercise.default_rest_seconds) || 30
-          const cost = sets * est + sets * rest
-          if (usedSeconds + cost > budgetSeconds && items.length > 0) continue
-          items.push({
-            exercise_id: Number(c.exercise.id),
-            exercise_name: c.exercise.name,
-            sets,
-            reps: c.exercise.default_reps,
-            work_seconds: c.exercise.default_work_seconds,
-            rest_seconds: rest,
-            est_seconds_per_set: est,
-            score: Number(c.score.toFixed(2)),
-          })
-          usedSeconds += cost
-          if (c.patternId != null) usedPatterns.set(c.patternId, (usedPatterns.get(c.patternId) || 0) + 1)
-          if (usedSeconds >= budgetSeconds) break
-        }
-        return { label: block.label || 'Block', intentId, target_minutes: Number(block.minutes) || 20, estimated_minutes: Math.round(usedSeconds / 60), items }
-      })
-
-      return {
-        blocks: resultBlocks,
-        candidates: scored.slice(0, 40).map((c) => ({ exercise_id: Number(c.exercise.id), exercise_name: c.exercise.name, score: Number(c.score.toFixed(2)), est_seconds_per_set: Number(c.exercise.est_seconds_per_set) })),
-      }
+    return runPhaseAwarePrescription(pool, facilityId, body)
   }
 
   app.post('/api/coach/needs-engine/prescribe', ...can('library.view'), async (req, res) => {
@@ -866,6 +898,327 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       ok(res, await runPrescription(req.platformAuth.user.facility_id, req.body || {}))
     } catch (error) {
       bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/coach/needs-engine/prescribe', ...can('library.view'), async (req, res) => {
+    try {
+      ok(res, await runPrescription(req.platformAuth.user.facility_id, req.body || {}))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  // ==========================================================
+  // TRAINING BLOCK TEMPLATES
+  // ==========================================================
+  async function loadTrainingBlock(blockId, facilityId) {
+    const block = await pool.query(
+      `SELECT tb.*, s.name AS sport_name FROM coaching.training_block_template tb LEFT JOIN coaching.sport s ON s.id = tb.sport_id WHERE tb.id = $1 AND tb.facility_id = $2 AND tb.archived = FALSE`,
+      [blockId, facilityId],
+    )
+    if (block.rows.length === 0) return null
+    const [sessions, rules] = await Promise.all([
+      pool.query(`SELECT * FROM coaching.training_block_session WHERE block_template_id = $1 ORDER BY day_index, sort_order`, [blockId]),
+      pool.query(`SELECT * FROM coaching.training_block_rule WHERE block_template_id = $1 LIMIT 1`, [blockId]),
+    ])
+    return { ...block.rows[0], sessions: sessions.rows, rule: rules.rows[0] ?? null }
+  }
+
+  app.get('/api/coach/training-blocks', ...can('library.view'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const userId = Number(req.platformAuth.user.id)
+      const result = await pool.query(
+        `SELECT tb.*, s.name AS sport_name FROM coaching.training_block_template tb LEFT JOIN coaching.sport s ON s.id = tb.sport_id
+         WHERE tb.facility_id = $1 AND tb.archived = FALSE AND ((tb.visibility = 'facility' AND tb.is_published = TRUE) OR tb.created_by = $2)
+         ORDER BY tb.updated_at DESC`,
+        [facilityId, userId],
+      )
+      ok(res, result.rows)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/training-blocks/:id', ...can('library.view'), async (req, res) => {
+    try {
+      const block = await loadTrainingBlock(num(req.params.id), req.platformAuth.user.facility_id)
+      if (!block) return bad(res, 'Training block not found.', 404)
+      ok(res, block)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/coach/training-blocks', ...can('workouts.manage'), async (req, res) => {
+    const facilityId = req.platformAuth.user.facility_id
+    const userId = Number(req.platformAuth.user.id)
+    const name = String(req.body?.name || '').trim()
+    if (!name) return bad(res, 'Block name is required.')
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      const created = await client.query(
+        `INSERT INTO coaching.training_block_template (facility_id, name, description, duration_days, sessions_per_week, target_population, sport_id, primary_goal, secondary_goals, weekly_rules_json, regimen_rationale_json, created_by, is_published, visibility)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11::jsonb,$12,$13,$14) RETURNING id`,
+        [
+          facilityId, name, req.body?.description || null,
+          num(req.body?.duration_days) ?? 7, num(req.body?.sessions_per_week) ?? 3,
+          req.body?.target_population || null, num(req.body?.sport_id),
+          req.body?.primary_goal || null, req.body?.secondary_goals ?? [],
+          JSON.stringify(req.body?.weekly_rules_json ?? req.body?.weeklyRulesJson ?? {}),
+          JSON.stringify(req.body?.regimen_rationale_json ?? req.body?.regimenRationaleJson ?? {}),
+          userId, req.body?.is_published !== false, req.body?.visibility === 'private' ? 'private' : 'facility',
+        ],
+      )
+      const id = Number(created.rows[0].id)
+      for (const session of req.body?.sessions ?? []) {
+        await client.query(
+          `INSERT INTO coaching.training_block_session (block_template_id, day_index, session_name, session_objective, duration_minutes, format_json, intensity_class, neural_load, impact_load, strength_load, conditioning_load, mobility_load, workout_id, day_rationale, sort_order)
+           VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
+          [
+            id, num(session.day_index ?? session.dayIndex) ?? 0, session.session_name ?? session.sessionName ?? null,
+            session.session_objective ?? session.sessionObjective ?? null, num(session.duration_minutes ?? session.durationMinutes),
+            JSON.stringify(session.format_json ?? session.formatJson ?? {}), session.intensity_class ?? session.intensityClass ?? null,
+            num(session.neural_load ?? session.neuralLoad) ?? 0, num(session.impact_load ?? session.impactLoad) ?? 0,
+            num(session.strength_load ?? session.strengthLoad) ?? 0, num(session.conditioning_load ?? session.conditioningLoad) ?? 0,
+            num(session.mobility_load ?? session.mobilityLoad) ?? 0, num(session.workout_id ?? session.workoutId),
+            session.day_rationale ?? session.dayRationale ?? null, num(session.sort_order ?? session.sortOrder) ?? 0,
+          ],
+        )
+      }
+      const rule = req.body?.rule ?? {}
+      await client.query(
+        `INSERT INTO coaching.training_block_rule (block_template_id, minimum_hours_between_hard_neural, minimum_hours_between_high_impact, max_hiit_sessions_per_week, max_high_plyo_sessions_per_week, max_heavy_eccentric_sessions_per_week, weekly_tenet_coverage_json, weekly_methodology_coverage_json, weekly_physiology_coverage_json, daily_mobility_required)
+         VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9::jsonb,$10)`,
+        [
+          id,
+          num(rule.minimum_hours_between_hard_neural) ?? 48,
+          num(rule.minimum_hours_between_high_impact) ?? 48,
+          num(rule.max_hiit_sessions_per_week) ?? 3,
+          num(rule.max_high_plyo_sessions_per_week) ?? 3,
+          num(rule.max_heavy_eccentric_sessions_per_week) ?? 2,
+          JSON.stringify(rule.weekly_tenet_coverage_json ?? rule.weeklyTenetCoverageJson ?? {}),
+          JSON.stringify(rule.weekly_methodology_coverage_json ?? rule.weeklyMethodologyCoverageJson ?? {}),
+          JSON.stringify(rule.weekly_physiology_coverage_json ?? rule.weeklyPhysiologyCoverageJson ?? {}),
+          rule.daily_mobility_required !== false,
+        ],
+      )
+      await client.query('COMMIT')
+      ok(res, await loadTrainingBlock(id, facilityId))
+    } catch (error) {
+      await client.query('ROLLBACK')
+      bad(res, error.message)
+    } finally {
+      client.release()
+    }
+  })
+
+  app.put('/api/coach/training-blocks/:id', ...can('workouts.manage'), async (req, res) => {
+    const id = num(req.params.id)
+    const facilityId = req.platformAuth.user.facility_id
+    const userId = Number(req.platformAuth.user.id)
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      const existing = await client.query(`SELECT id, created_by, visibility FROM coaching.training_block_template WHERE id = $1 AND facility_id = $2`, [id, facilityId])
+      if (existing.rows.length === 0) {
+        await client.query('ROLLBACK')
+        return bad(res, 'Training block not found.', 404)
+      }
+      if (!canMutateRow(existing.rows[0], userId)) {
+        await client.query('ROLLBACK')
+        return bad(res, 'You can only edit private items you created.', 403)
+      }
+      await client.query(
+        `UPDATE coaching.training_block_template SET
+          name = COALESCE($2, name), description = $3, duration_days = COALESCE($4, duration_days),
+          sessions_per_week = COALESCE($5, sessions_per_week), target_population = $6, sport_id = $7,
+          primary_goal = $8, secondary_goals = COALESCE($9, secondary_goals),
+          weekly_rules_json = COALESCE($10::jsonb, weekly_rules_json),
+          regimen_rationale_json = COALESCE($11::jsonb, regimen_rationale_json),
+          is_published = COALESCE($12, is_published), visibility = COALESCE($13, visibility), updated_at = now()
+         WHERE id = $1`,
+        [
+          id, req.body?.name ? String(req.body.name).trim() : null, req.body?.description || null,
+          num(req.body?.duration_days), num(req.body?.sessions_per_week), req.body?.target_population || null,
+          num(req.body?.sport_id), req.body?.primary_goal || null, req.body?.secondary_goals ?? null,
+          req.body?.weekly_rules_json != null || req.body?.weeklyRulesJson != null ? JSON.stringify(req.body.weekly_rules_json ?? req.body.weeklyRulesJson) : null,
+          req.body?.regimen_rationale_json != null || req.body?.regimenRationaleJson != null ? JSON.stringify(req.body.regimen_rationale_json ?? req.body.regimenRationaleJson) : null,
+          typeof req.body?.is_published === 'boolean' ? req.body.is_published : null,
+          req.body?.visibility === 'private' ? 'private' : req.body?.visibility === 'facility' ? 'facility' : null,
+        ],
+      )
+      if (Array.isArray(req.body?.sessions)) {
+        await client.query(`DELETE FROM coaching.training_block_session WHERE block_template_id = $1`, [id])
+        for (const session of req.body.sessions) {
+          await client.query(
+            `INSERT INTO coaching.training_block_session (block_template_id, day_index, session_name, session_objective, duration_minutes, format_json, intensity_class, neural_load, impact_load, strength_load, conditioning_load, mobility_load, workout_id, day_rationale, sort_order)
+             VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
+            [
+              id, num(session.day_index ?? session.dayIndex) ?? 0, session.session_name ?? session.sessionName ?? null,
+              session.session_objective ?? session.sessionObjective ?? null, num(session.duration_minutes ?? session.durationMinutes),
+              JSON.stringify(session.format_json ?? session.formatJson ?? {}), session.intensity_class ?? session.intensityClass ?? null,
+              num(session.neural_load ?? session.neuralLoad) ?? 0, num(session.impact_load ?? session.impactLoad) ?? 0,
+              num(session.strength_load ?? session.strengthLoad) ?? 0, num(session.conditioning_load ?? session.conditioningLoad) ?? 0,
+              num(session.mobility_load ?? session.mobilityLoad) ?? 0, num(session.workout_id ?? session.workoutId),
+              session.day_rationale ?? session.dayRationale ?? null, num(session.sort_order ?? session.sortOrder) ?? 0,
+            ],
+          )
+        }
+      }
+      await client.query('COMMIT')
+      ok(res, await loadTrainingBlock(id, facilityId))
+    } catch (error) {
+      await client.query('ROLLBACK')
+      bad(res, error.message)
+    } finally {
+      client.release()
+    }
+  })
+
+  // ==========================================================
+  // REGIMEN TEMPLATES
+  // ==========================================================
+  async function loadRegimenTemplate(templateId, facilityId) {
+    const template = await pool.query(
+      `SELECT rt.*, s.name AS sport_name FROM coaching.regimen_template rt LEFT JOIN coaching.sport s ON s.id = rt.sport_id WHERE rt.id = $1 AND rt.facility_id = $2 AND rt.archived = FALSE`,
+      [templateId, facilityId],
+    )
+    if (template.rows.length === 0) return null
+    const [distributions, sessions, progressionRules] = await Promise.all([
+      pool.query(
+        `SELECT d.*, sp.key AS phase_key, sp.name AS phase_name FROM coaching.regimen_phase_distribution d JOIN coaching.session_phase sp ON sp.id = d.phase_id WHERE d.regimen_template_id = $1 ORDER BY sp.order_index`,
+        [templateId],
+      ),
+      pool.query(`SELECT * FROM coaching.regimen_session_template WHERE regimen_template_id = $1 ORDER BY week_number, sort_order`, [templateId]),
+      pool.query(`SELECT * FROM coaching.regimen_progression_rule WHERE regimen_template_id = $1 ORDER BY sort_order`, [templateId]),
+    ])
+    return { ...template.rows[0], phase_distributions: distributions.rows, session_templates: sessions.rows, progression_rules: progressionRules.rows }
+  }
+
+  app.get('/api/coach/regimen-templates', ...can('library.view'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const userId = Number(req.platformAuth.user.id)
+      const result = await pool.query(
+        `SELECT rt.*, s.name AS sport_name FROM coaching.regimen_template rt LEFT JOIN coaching.sport s ON s.id = rt.sport_id
+         WHERE rt.facility_id = $1 AND rt.archived = FALSE AND ((rt.visibility = 'facility' AND rt.is_published = TRUE) OR rt.created_by = $2)
+         ORDER BY rt.updated_at DESC`,
+        [facilityId, userId],
+      )
+      ok(res, result.rows)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/regimen-templates/:id', ...can('library.view'), async (req, res) => {
+    try {
+      const template = await loadRegimenTemplate(num(req.params.id), req.platformAuth.user.facility_id)
+      if (!template) return bad(res, 'Regimen template not found.', 404)
+      ok(res, template)
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/coach/regimen-templates', ...can('workouts.manage'), async (req, res) => {
+    const facilityId = req.platformAuth.user.facility_id
+    const userId = Number(req.platformAuth.user.id)
+    const name = String(req.body?.name || '').trim()
+    if (!name) return bad(res, 'Regimen name is required.')
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      const created = await client.query(
+        `INSERT INTO coaching.regimen_template (facility_id, name, description, population, age_min, age_max, skill_level, sport_id, duration_type, weeks, sessions_per_week, primary_goal, secondary_goals, tumbling_model, specialization_model, regimen_rationale_json, weekly_rules_json, created_by, is_published, visibility)
+         VALUES ($1,$2,$3,$4,$5,$6,$7::public.skill_level,$8,$9,$10,$11,$12,$13,$14,$15,$16::jsonb,$17::jsonb,$18,$19,$20) RETURNING id`,
+        [
+          facilityId, name, req.body?.description || null, req.body?.population || null,
+          num(req.body?.age_min), num(req.body?.age_max), req.body?.skill_level || null, num(req.body?.sport_id),
+          req.body?.duration_type ?? req.body?.durationType ?? '60', num(req.body?.weeks) ?? 4, num(req.body?.sessions_per_week) ?? 3,
+          req.body?.primary_goal || null, req.body?.secondary_goals ?? [],
+          req.body?.tumbling_model ?? req.body?.tumblingModel ?? null,
+          req.body?.specialization_model ?? req.body?.specializationModel ?? null,
+          JSON.stringify(req.body?.regimen_rationale_json ?? req.body?.regimenRationaleJson ?? {}),
+          JSON.stringify(req.body?.weekly_rules_json ?? req.body?.weeklyRulesJson ?? {}),
+          userId, req.body?.is_published !== false, req.body?.visibility === 'private' ? 'private' : 'facility',
+        ],
+      )
+      const id = Number(created.rows[0].id)
+      for (const d of req.body?.phase_distributions ?? req.body?.phaseDistributions ?? []) {
+        await client.query(
+          `INSERT INTO coaching.regimen_phase_distribution (regimen_template_id, phase_id, default_minutes, default_percent, weekly_min_sessions, weekly_max_sessions, notes)
+           VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (regimen_template_id, phase_id) DO UPDATE SET default_minutes = EXCLUDED.default_minutes, default_percent = EXCLUDED.default_percent`,
+          [id, num(d.phase_id ?? d.phaseId), num(d.default_minutes ?? d.defaultMinutes), d.default_percent ?? d.defaultPercent, num(d.weekly_min_sessions ?? d.weeklyMinSessions), num(d.weekly_max_sessions ?? d.weeklyMaxSessions), d.notes ?? null],
+        )
+      }
+      for (const s of req.body?.session_templates ?? req.body?.sessionTemplates ?? []) {
+        await client.query(
+          `INSERT INTO coaching.regimen_session_template (regimen_template_id, week_number, day_of_week, session_objective, duration_minutes, phase_plan_json, format_json, sort_order)
+           VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7::jsonb,$8)`,
+          [id, num(s.week_number ?? s.weekNumber) ?? 1, num(s.day_of_week ?? s.dayOfWeek), s.session_objective ?? s.sessionObjective ?? null, num(s.duration_minutes ?? s.durationMinutes) ?? 60, JSON.stringify(s.phase_plan_json ?? s.phasePlanJson ?? []), JSON.stringify(s.format_json ?? s.formatJson ?? {}), num(s.sort_order ?? s.sortOrder) ?? 0],
+        )
+      }
+      await client.query('COMMIT')
+      ok(res, await loadRegimenTemplate(id, facilityId))
+    } catch (error) {
+      await client.query('ROLLBACK')
+      bad(res, error.message)
+    } finally {
+      client.release()
+    }
+  })
+
+  app.put('/api/coach/regimen-templates/:id', ...can('workouts.manage'), async (req, res) => {
+    const id = num(req.params.id)
+    const facilityId = req.platformAuth.user.facility_id
+    const userId = Number(req.platformAuth.user.id)
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      const existing = await client.query(`SELECT id, created_by, visibility FROM coaching.regimen_template WHERE id = $1 AND facility_id = $2`, [id, facilityId])
+      if (existing.rows.length === 0) {
+        await client.query('ROLLBACK')
+        return bad(res, 'Regimen template not found.', 404)
+      }
+      if (!canMutateRow(existing.rows[0], userId)) {
+        await client.query('ROLLBACK')
+        return bad(res, 'You can only edit private items you created.', 403)
+      }
+      await client.query(
+        `UPDATE coaching.regimen_template SET
+          name = COALESCE($2, name), description = $3, population = $4, age_min = $5, age_max = $6,
+          skill_level = COALESCE($7::public.skill_level, skill_level), sport_id = $8,
+          duration_type = COALESCE($9, duration_type), weeks = COALESCE($10, weeks),
+          sessions_per_week = COALESCE($11, sessions_per_week), primary_goal = $12,
+          secondary_goals = COALESCE($13, secondary_goals), tumbling_model = $14, specialization_model = $15,
+          regimen_rationale_json = COALESCE($16::jsonb, regimen_rationale_json),
+          weekly_rules_json = COALESCE($17::jsonb, weekly_rules_json),
+          is_published = COALESCE($18, is_published), visibility = COALESCE($19, visibility), updated_at = now()
+         WHERE id = $1`,
+        [
+          id, req.body?.name ? String(req.body.name).trim() : null, req.body?.description || null, req.body?.population || null,
+          num(req.body?.age_min), num(req.body?.age_max), req.body?.skill_level || null, num(req.body?.sport_id),
+          req.body?.duration_type ?? req.body?.durationType ?? null, num(req.body?.weeks), num(req.body?.sessions_per_week),
+          req.body?.primary_goal || null, req.body?.secondary_goals ?? null,
+          req.body?.tumbling_model ?? req.body?.tumblingModel ?? null,
+          req.body?.specialization_model ?? req.body?.specializationModel ?? null,
+          req.body?.regimen_rationale_json != null || req.body?.regimenRationaleJson != null ? JSON.stringify(req.body.regimen_rationale_json ?? req.body.regimenRationaleJson) : null,
+          req.body?.weekly_rules_json != null || req.body?.weeklyRulesJson != null ? JSON.stringify(req.body.weekly_rules_json ?? req.body.weeklyRulesJson) : null,
+          typeof req.body?.is_published === 'boolean' ? req.body.is_published : null,
+          req.body?.visibility === 'private' ? 'private' : req.body?.visibility === 'facility' ? 'facility' : null,
+        ],
+      )
+      await client.query('COMMIT')
+      ok(res, await loadRegimenTemplate(id, facilityId))
+    } catch (error) {
+      await client.query('ROLLBACK')
+      bad(res, error.message)
+    } finally {
+      client.release()
     }
   })
 

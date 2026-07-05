@@ -1,6 +1,6 @@
 import { Suspense, useState, useEffect, useMemo } from 'react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
-import { Home, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video, Bell, CircleHelp } from 'lucide-react'
+import { Home, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video, Bell, CircleHelp, Layers, Blocks } from 'lucide-react'
 import PortalPreferencesPanel from '../messaging/PortalPreferencesPanel'
 import MessagingFaqMasterPanel from '../messaging/MessagingFaqMasterPanel'
 import HomePanel from './HomePanel'
@@ -20,6 +20,9 @@ const LibraryPanel = lazyWithRetry(() => import('./LibraryPanel'))
 const WorkoutBuilder = lazyWithRetry(() => import('./WorkoutBuilder'))
 const NeedsEnginePanel = lazyWithRetry(() => import('./NeedsEnginePanel'))
 const ProgramBuilder = lazyWithRetry(() => import('./ProgramBuilder'))
+const FrameworkPanel = lazyWithRetry(() => import('./FrameworkPanel'))
+const TrainingBlockBuilder = lazyWithRetry(() => import('./TrainingBlockBuilder'))
+const RegimenBuilder = lazyWithRetry(() => import('./RegimenBuilder'))
 const ChallengeBuilder = lazyWithRetry(() => import('./ChallengeBuilder'))
 const AssessPanel = lazyWithRetry(() => import('./AssessPanel'))
 const AssignPanel = lazyWithRetry(() => import('./AssignPanel'))
@@ -37,6 +40,9 @@ export type CoachTab =
   | 'warmup'
   | 'needs'
   | 'programs'
+  | 'framework'
+  | 'training-blocks'
+  | 'regimens'
   | 'challenges'
   | 'assess'
   | 'assign'
@@ -66,9 +72,12 @@ const NAV: Array<{ tab: CoachTab; label: string; icon: typeof Home }> = [
   { tab: 'sessions', label: 'Today', icon: CalendarDays },
   { tab: 'needs', label: 'Needs Engine', icon: Sparkles },
   { tab: 'library', label: 'Library', icon: BookOpen },
+  { tab: 'framework', label: 'Philosophy', icon: BookOpen },
   { tab: 'workout', label: 'Workouts', icon: Dumbbell },
   { tab: 'warmup', label: 'Warmups', icon: Flame },
   { tab: 'programs', label: 'Programs', icon: CalendarRange },
+  { tab: 'training-blocks', label: 'Blocks', icon: Blocks },
+  { tab: 'regimens', label: 'Regimens', icon: Layers },
   { tab: 'challenges', label: 'Challenges', icon: Trophy },
   { tab: 'assess', label: 'Assess', icon: ClipboardCheck },
   { tab: 'skills', label: 'Skill Tree', icon: GitBranch },
@@ -154,6 +163,12 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
         return <NeedsEnginePanel onSendToBuilder={() => setTab('workout')} />
       case 'programs':
         return <ProgramBuilder />
+      case 'framework':
+        return <FrameworkPanel />
+      case 'training-blocks':
+        return <TrainingBlockBuilder />
+      case 'regimens':
+        return <RegimenBuilder />
       case 'challenges':
         return <ChallengeBuilder />
       case 'assess':

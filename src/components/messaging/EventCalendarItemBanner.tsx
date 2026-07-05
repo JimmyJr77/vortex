@@ -21,6 +21,10 @@ function formatWhen(item: EventCalendarItem): string | null {
 export default function EventCalendarItemBanner({ item }: EventCalendarItemBannerProps) {
   if (!item) return null
 
+  const bringItems = item.what_to_bring?.length
+    ? item.what_to_bring
+    : []
+
   const rows = [
     item.event_name ? { label: 'Event', value: item.event_name } : null,
     item.who_text ? { label: 'Who', value: item.who_text } : null,
@@ -58,6 +62,16 @@ export default function EventCalendarItemBanner({ item }: EventCalendarItemBanne
             </div>
           ))}
         </dl>
+      )}
+      {bringItems.length > 0 && (
+        <div className="px-3 py-2 border-t border-amber-100">
+          <div className="text-xs font-semibold text-amber-900/70 mb-1">What to bring</div>
+          <ul className="text-sm text-gray-900 list-disc list-inside space-y-0.5">
+            {bringItems.map((bringItem) => (
+              <li key={bringItem}>{bringItem}</li>
+            ))}
+          </ul>
+        </div>
       )}
       <p className="px-3 py-2 text-[11px] text-amber-900/70 border-t border-amber-100">
         Replies here post to the linked event chat.

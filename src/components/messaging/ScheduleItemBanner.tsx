@@ -18,10 +18,22 @@ function formatWhen(item: ScheduleInboxRow): string | null {
   return start.toLocaleString()
 }
 
+function parseBringListNotes(notes?: string | null): string[] {
+  if (!notes?.trim()) return []
+  try {
+    const parsed = JSON.parse(notes)
+    if (!Array.isArray(parsed)) return []
+    return parsed.map((item) => String(item || '').trim()).filter(Boolean)
+  } catch {
+    return []
+  }
+}
+
 export default function ScheduleItemBanner({ item }: ScheduleItemBannerProps) {
   if (!item) return null
 
   const sourceLabel = item.source === 'class' ? 'Class schedule' : item.source === 'event' ? 'Event' : 'Calendar item'
+  const bringItems = parseBringListNotes(item.notes)
   const rows = [
     item.event_name ? { label: 'Event', value: item.event_name } : null,
     item.who_text ? { label: 'Who', value: item.who_text } : null,
@@ -59,6 +71,16 @@ export default function ScheduleItemBanner({ item }: ScheduleItemBannerProps) {
             </div>
           ))}
         </dl>
+      )}
+      {bringItems.length > 0 && (
+        <div className="px-3 py-2 border-t border-teal-100">
+          <div className="text-xs font-semibold text-teal-900/70 mb-1">What to bring</div>
+          <ul className="text-sm text-gray-900 list-disc list-inside space-y-0.5">
+            {bringItems.map((bringItem) => (
+              <li key={bringItem}>{bringItem}</li>
+            ))}
+          </ul>
+        </div>
       )}
       {!item.discussion_thread_id && (
         <p className="px-3 py-2 text-[11px] text-teal-900/70 border-t border-teal-100">

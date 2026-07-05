@@ -61,7 +61,46 @@ export interface Taxonomy {
   sports: TaxonomyItem[]
   intents: TaxonomyItem[]
   bodyRegions: TaxonomyItem[]
+  sessionPhases?: SessionPhaseTaxonomyItem[]
+  phaseOrderSlots?: PhaseOrderSlotTaxonomyItem[]
 }
+
+export interface SessionPhaseTaxonomyItem {
+  id: number
+  key: string
+  name: string
+  description?: string | null
+  order_index: number
+  freshness_required?: boolean
+  can_be_daily?: boolean
+  default_min_percent?: number | null
+  default_max_percent?: number | null
+  fatigue_sensitivity?: number | null
+}
+
+export interface PhaseOrderSlotTaxonomyItem {
+  id: number
+  key: string
+  name: string
+  description?: string | null
+  phase_id: number
+  phase_key?: string
+  order_index: number
+  freshness_sensitivity?: number | null
+}
+
+/** Canonical session phase order enforced in builder + validator. */
+export const SESSION_PHASE_ORDER = [
+  'prepare_access',
+  'skill_movement_intelligence',
+  'output',
+  'capacity',
+  'control_resilience',
+  'fitness_repeatability',
+  'restore',
+] as const
+
+export type SessionPhaseKey = (typeof SESSION_PHASE_ORDER)[number]
 
 export const TENETS: Tenet[] = [
   { key: 'strength', name: 'Strength', description: 'Ability to exert force against resistance.', detail: 'Building foundational power through resistance training, calisthenics, and bodyweight movements to create a robust athletic base.' },

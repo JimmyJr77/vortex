@@ -1,12 +1,36 @@
 import { create } from 'zustand'
-import type { Workout, WorkoutBlock, WorkoutItem, WorkoutType } from './types'
+import type { ValidationResult, Workout, WorkoutBlock, WorkoutItem, WorkoutType } from './types'
+import { SESSION_PHASE_ORDER } from './taxonomy'
 
-function emptyBlock(label = 'Block'): WorkoutBlock {
-  return { label, block_format: 'straight_sets', rounds: 1, rest_between_rounds_seconds: 0, items: [] }
+function emptyBlock(label = 'Block', phaseKey?: string): WorkoutBlock {
+  return {
+    label,
+    block_format: 'straight_sets',
+    rounds: 1,
+    rest_between_rounds_seconds: 0,
+    phase_key: phaseKey ?? null,
+    items: [],
+  }
+}
+
+function phaseBlocksFromPlan(plan: Array<{ phaseKey: string; minutes: number; label?: string }>): WorkoutBlock[] {
+  return plan.map((p) => ({
+    ...emptyBlock(p.label ?? p.phaseKey, p.phaseKey),
+    minutes_budget: p.minutes,
+    label: p.label ?? p.phaseKey,
+  }))
 }
 
 function emptyWorkout(type: WorkoutType = 'workout'): Workout {
-  return { title: '', type, sport_id: null, description: '', target_minutes: null, notes: '', blocks: [emptyBlock(type === 'warmup' ? 'Warmup' : 'Main Work')] }
+  return {
+    title: '',
+    type,
+    sport_id: null,
+    description: '',
+    target_minutes: null,
+    notes: '',
+    blocks: [emptyBlock(type === 'warmup' ? 'Warmup' : 'Main Work')],
+  }
 }
 
 /** Mirrors the server-side computeWorkoutMinutes() so the clock is instant. */
@@ -31,9 +55,13 @@ export function workoutSeconds(workout: Workout): number {
 interface BuilderState {
   workout: Workout
   dirty: boolean
+  wizardComplete: boolean
+  validation: ValidationResult | null
   setWorkout: (workout: Workout) => void
   reset: (type?: WorkoutType) => void
   patchWorkout: (patch: Partial<Workout>) => void
+  applyPhasePlan: (plan: Array<{ phaseKey: string; minutes: number; label?: string }>) => void
+  setValidation: (validation: ValidationResult | null) => void
   addBlock: () => void
   updateBlock: (index: number, patch: Partial<WorkoutBlock>) => void
   removeBlock: (index: number) => void
@@ -42,14 +70,30 @@ interface BuilderState {
   removeItem: (blockIndex: number, itemIndex: number) => void
   moveItem: (blockIndex: number, itemIndex: number, dir: -1 | 1) => void
   reorderItem: (blockIndex: number, from: number, to: number) => void
+  setWizardComplete: (complete: boolean) => void
 }
 
 export const useCoachBuilderStore = create<BuilderState>((set) => ({
   workout: emptyWorkout(),
   dirty: false,
-  setWorkout: (workout) => set({ workout, dirty: false }),
-  reset: (type = 'workout') => set({ workout: emptyWorkout(type), dirty: false }),
+  wizardComplete: false,
+  validation: null,
+  setWorkout: (workout) => set({ workout, dirty: false, wizardComplete: Boolean(workout.phase_plan_json?.length) }),
+  reset: (type = 'workout') => set({ workout: emptyWorkout(type), dirty: false, wizardComplete: false, validation: null }),
   patchWorkout: (patch) => set((s) => ({ workout: { ...s.workout, ...patch }, dirty: true })),
+  applyPhasePlan: (plan) =>
+    set((s) => ({
+      workout: {
+        ...s.workout,
+        phase_plan_json: plan,
+        blocks: phaseBlocksFromPlan(plan),
+        target_minutes: plan.reduce((sum, p) => sum + (Number(p.minutes) || 0), 0),
+      },
+      dirty: true,
+      wizardComplete: true,
+    })),
+  setValidation: (validation) => set({ validation }),
+  setWizardComplete: (wizardComplete) => set({ wizardComplete }),
   addBlock: () => set((s) => ({ workout: { ...s.workout, blocks: [...s.workout.blocks, emptyBlock(`Block ${s.workout.blocks.length + 1}`)] }, dirty: true })),
   updateBlock: (index, patch) =>
     set((s) => ({
@@ -114,3 +158,5 @@ export const useCoachBuilderStore = create<BuilderState>((set) => ({
       dirty: true,
     })),
 }))
+
+export { SESSION_PHASE_ORDER, emptyBlock, phaseBlocksFromPlan }

@@ -216,6 +216,7 @@ export interface EventCalendarItem {
   when_start?: string | null
   when_end?: string | null
   where_text?: string | null
+  what_to_bring?: string[]
   event_name?: string | null
   discussion_thread_id?: number | null
 }
@@ -238,7 +239,7 @@ export async function fetchEventCalendarItems(
 export async function createEventCalendarItem(
   eventId: number,
   fetcher: Fetcher,
-  payload: Partial<EventCalendarItem> & { class_ids?: number[] },
+  payload: Partial<EventCalendarItem> & { class_ids?: number[]; what_to_bring?: string[] },
   role: MessagingRole = 'admin',
 ): Promise<EventCalendarItem> {
   const path = role === 'coach'
