@@ -24,8 +24,7 @@ import { uploadMessageAttachment, type UploadedAttachment } from '../messaging/m
 import { markThreadRead } from '../messaging/messagingApi'
 import MessagingThreadFaq, { type ThreadFaqDraft } from '../messaging/MessagingThreadFaq'
 import MessagingThreadDetailShell from '../messaging/MessagingThreadDetailShell'
-import MessagingLeftPanelTabs, { type MessagingLeftPanel } from '../messaging/MessagingLeftPanelTabs'
-import MessagingFaqMasterPanel from '../messaging/MessagingFaqMasterPanel'
+import MessagingMaximizeToggle from '../messaging/MessagingMaximizeToggle'
 import MessagePinSelectionBar from '../messaging/MessagePinSelectionBar'
 import { useThreadPinGroups } from '../messaging/useThreadPinGroups'
 import {
@@ -36,6 +35,7 @@ import {
   messagingWorkspaceShell,
   messagingWorkspaceThreadOpen,
   sortMessageThreads,
+  defaultLandingThreadId,
   threadListTitle,
 } from '../messaging/messagingLayout'
 import type {
@@ -54,9 +54,13 @@ type MemberPickerScope = 'my_classes' | 'all'
 export default function MessagesPanel({
   initialThreadId = null,
   onInitialThreadOpened,
+  maximized = false,
+  onMaximizedChange,
 }: {
   initialThreadId?: number | null
   onInitialThreadOpened?: () => void
+  maximized?: boolean
+  onMaximizedChange?: (maximized: boolean) => void
 } = {}) {
   const [memberScope, setMemberScope] = useState<MemberPickerScope>('my_classes')
   const [recipientOptions, setRecipientOptions] = useState<RecipientOption[]>([])
@@ -97,8 +101,8 @@ export default function MessagesPanel({
     is_critical: false,
     requires_ack: false,
   })
-  const [leftPanel, setLeftPanel] = useState<MessagingLeftPanel>('threads')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const autoOpenedRef = useRef(false)
   const viewer = useMemo(() => getMessageViewer('coach'), [])
   const pins = useThreadPinGroups(selectedId, 'coach', coachFetch)
   const inboxCounts = useMemo(() => countThreadsByInboxTab(threads), [threads])
@@ -228,8 +232,17 @@ export default function MessagesPanel({
 
   useEffect(() => {
     if (initialThreadId == null) return
+    autoOpenedRef.current = true
     void openThread(initialThreadId).finally(() => onInitialThreadOpened?.())
   }, [initialThreadId])
+
+  useEffect(() => {
+    if (loading || autoOpenedRef.current || initialThreadId != null || selectedId != null) return
+    const landingId = defaultLandingThreadId(filteredThreads)
+    if (landingId == null) return
+    autoOpenedRef.current = true
+    void openThread(landingId)
+  }, [loading, filteredThreads, initialThreadId, selectedId])
 
   const replyToMessage = useCallback((message: MessageRow) => {
     setPendingFaqReply(null)
@@ -378,25 +391,39 @@ export default function MessagesPanel({
 
   return (
     <div
-      className={`${messagingWorkspaceRoot} ${selectedId != null ? messagingWorkspaceThreadOpen : ''}`}
+      className={`${messagingWorkspaceRoot} ${selectedId != null ? messagingWorkspaceThreadOpen : ''} ${maximized ? 'messaging-workspace--maximized' : ''}`}
     >
-      <div className={`shrink-0 items-center justify-between flex-wrap gap-3 ${selectedId != null ? 'hidden lg:flex' : 'flex'}`}>
+      <div className={`shrink-0 items-center justify-between flex-wrap gap-3 ${selectedId != null && !maximized ? 'hidden lg:flex' : maximized ? 'hidden' : 'flex'}`}>
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
           </h2>
           <p className="text-sm text-gray-500">Feedback threads with athletes, coaches, and admins.</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setNewOpen(true)}
-          className="flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700"
-        >
-          <Plus className="w-4 h-4" /> New message
-        </button>
+        <div className="flex items-center gap-2">
+          {onMaximizedChange && (
+            <MessagingMaximizeToggle
+              maximized={maximized}
+              onToggle={() => onMaximizedChange(!maximized)}
+            />
+          )}
+          <button
+            type="button"
+            onClick={() => setNewOpen(true)}
+            className="flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700"
+          >
+            <Plus className="w-4 h-4" /> New message
+          </button>
+        </div>
       </div>
 
       {error && <div className="shrink-0 rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
+
+      {maximized && onMaximizedChange && (
+        <div className="shrink-0 flex justify-end px-2 py-1 bg-white border-b border-gray-100">
+          <MessagingMaximizeToggle maximized={maximized} onToggle={() => onMaximizedChange(false)} />
+        </div>
+      )}
 
       {newOpen && (
         <div className="shrink-0 bg-white border border-gray-200 rounded-xl p-4 space-y-3">
@@ -479,22 +506,10 @@ export default function MessagesPanel({
         onSelectThread={setSelectedId}
         onBack={() => setSelectedId(null)}
         listPanel={
-          leftPanel === 'faq-master' ? (
-            <div className="flex flex-col min-h-0 h-full max-h-full overflow-hidden">
-              <div className="shrink-0 px-4 py-2 border-b border-gray-100 flex justify-end bg-white">
-                <MessagingLeftPanelTabs active={leftPanel} onChange={setLeftPanel} />
-              </div>
-              <div className="flex-1 min-h-0">
-                <MessagingFaqMasterPanel role="coach" fetcher={coachFetch} threads={threads} />
-              </div>
-            </div>
-          ) : (
           <MessagingThreadListShell
             title="Threads"
             titleAction={
-              <div className="flex items-center gap-1">
-                <MessagingLeftPanelTabs active={leftPanel} onChange={setLeftPanel} />
-                <MessagingThreadListSortMenu
+              <MessagingThreadListSortMenu
                 sort={listSort}
                 sortDir={listSortDir}
                 onChange={(sort, sortDir) => {
@@ -502,7 +517,6 @@ export default function MessagesPanel({
                   setListSortDir(sortDir)
                 }}
               />
-              </div>
             }
             search={threadSearch}
             onSearchChange={setThreadSearch}
@@ -531,7 +545,6 @@ export default function MessagesPanel({
               </div>
             )}
           </MessagingThreadListShell>
-          )
         }
         detailPanel={
           !selectedId ? (
@@ -630,16 +643,20 @@ export default function MessagesPanel({
                 />
               ) : (
                 <>
-                  <MessagingContextBanner
-                    linkedThreadId={linkedThreadId}
-                    linkedThreadTitle={
-                      linkedThreadId != null
-                        ? threadListTitle(threads.find((t) => t.id === linkedThreadId) ?? { id: linkedThreadId })
-                        : null
-                    }
-                    onJump={(id) => void openThread(id)}
-                  />
-                  <MessagingInfoCard infoJson={threadInfoJson} />
+                  {pins.pinFilter === 'off' && (
+                    <>
+                      <MessagingContextBanner
+                        linkedThreadId={linkedThreadId}
+                        linkedThreadTitle={
+                          linkedThreadId != null
+                            ? threadListTitle(threads.find((t) => t.id === linkedThreadId) ?? { id: linkedThreadId })
+                            : null
+                        }
+                        onJump={(id) => void openThread(id)}
+                      />
+                      <MessagingInfoCard infoJson={threadInfoJson} />
+                    </>
+                  )}
                   {pins.pinSelection && (
                     <MessagePinSelectionBar
                       selectedCount={pins.pinSelection.size}

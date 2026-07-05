@@ -6,7 +6,8 @@ interface MessagingThreadDetailShellProps {
   children: ReactNode
 }
 
-const MIN_FOOTER_HEIGHT = 100
+const MIN_FOOTER_HEIGHT = 120
+const DEFAULT_FOOTER_HEIGHT = 160
 
 function maxFooterHeight() {
   if (typeof window === 'undefined') return 360
@@ -20,7 +21,7 @@ export default function MessagingThreadDetailShell({
   children,
 }: MessagingThreadDetailShellProps) {
   const footerRef = useRef<HTMLDivElement>(null)
-  const [footerHeight, setFooterHeight] = useState<number | null>(null)
+  const [footerHeight, setFooterHeight] = useState(DEFAULT_FOOTER_HEIGHT)
   const dragState = useRef<{ startY: number; startHeight: number } | null>(null)
 
   const clampFooterHeight = (height: number) => {
@@ -35,11 +36,9 @@ export default function MessagingThreadDetailShell({
 
   const startResize = (clientY: number) => {
     const el = footerRef.current
-    const measured = el?.getBoundingClientRect().height ?? MIN_FOOTER_HEIGHT
-    const startHeight = footerHeight ?? measured
-    if (footerHeight == null) {
-      setFooterHeight(startHeight)
-    }
+    const measured = el?.getBoundingClientRect().height ?? footerHeight
+    const startHeight = measured
+    setFooterHeight(startHeight)
     dragState.current = { startY: clientY, startHeight }
 
     const onMove = (moveClientY: number) => {
@@ -96,7 +95,7 @@ export default function MessagingThreadDetailShell({
         <div
           ref={footerRef}
           className="shrink-0 border-t border-gray-100 bg-white flex flex-col overflow-hidden"
-          style={footerHeight != null ? { height: footerHeight } : undefined}
+          style={{ height: footerHeight }}
         >
           <div
             role="separator"
@@ -108,7 +107,7 @@ export default function MessagingThreadDetailShell({
           >
             <div className="w-10 h-1 rounded-full bg-gray-300" />
           </div>
-          <div className="flex flex-col flex-1 min-h-0 overflow-hidden">{footer}</div>
+          <div className="flex flex-col flex-1 min-h-0 overflow-hidden h-full">{footer}</div>
         </div>
       ) : null}
     </div>

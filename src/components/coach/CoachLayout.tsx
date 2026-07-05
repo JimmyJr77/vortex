@@ -1,7 +1,8 @@
 import { Suspense, useState, useEffect, useMemo } from 'react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
-import { Home, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video, Settings } from 'lucide-react'
+import { Home, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video, Settings, CircleHelp } from 'lucide-react'
 import PortalPreferencesPanel from '../messaging/PortalPreferencesPanel'
+import MessagingFaqMasterPanel from '../messaging/MessagingFaqMasterPanel'
 import HomePanel from './HomePanel'
 import PortalNavButtons from '../PortalNavButtons'
 import NotificationBell from '../NotificationBell'
@@ -42,6 +43,7 @@ export type CoachTab =
   | 'insights'
   | 'skills'
   | 'messages'
+  | 'faqs'
   | 'reviews'
   | 'preferences'
 
@@ -72,6 +74,7 @@ const NAV: Array<{ tab: CoachTab; label: string; icon: typeof Home }> = [
   { tab: 'skills', label: 'Skill Tree', icon: GitBranch },
   { tab: 'assign', label: 'Assign', icon: Send },
   { tab: 'messages', label: 'Messages', icon: MessageSquare },
+  { tab: 'faqs', label: 'FAQ library', icon: CircleHelp },
   { tab: 'reviews', label: 'Form Review', icon: Video },
   { tab: 'insights', label: 'Insights', icon: BarChart3 },
   { tab: 'roster', label: 'Roster', icon: Users },
@@ -82,6 +85,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
   const [tab, setTab] = useState<CoachTab>('home')
   const [navOpen, setNavOpen] = useState(false)
   const [openMessageThreadId, setOpenMessageThreadId] = useState<number | null>(null)
+  const [messagesMaximized, setMessagesMaximized] = useState(false)
   const [openFormReviewSubmissionId, setOpenFormReviewSubmissionId] = useState<number | null>(null)
   const [hiddenCoachTabs, setHiddenCoachTabs] = useState<CoachTab[]>([])
   const [coachTabOrder, setCoachTabOrder] = useState<CoachTab[]>(NAV.map((item) => item.tab))
@@ -128,6 +132,10 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
     return () => window.removeEventListener(NOTIFICATION_NAV_EVENT, onNavigateNotification)
   }, [])
 
+  useEffect(() => {
+    if (tab !== 'messages' && messagesMaximized) setMessagesMaximized(false)
+  }, [tab, messagesMaximized])
+
   const renderPanel = () => {
     switch (tab) {
       case 'home':
@@ -159,7 +167,15 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
           <MessagesPanel
             initialThreadId={openMessageThreadId}
             onInitialThreadOpened={() => setOpenMessageThreadId(null)}
+            maximized={messagesMaximized}
+            onMaximizedChange={setMessagesMaximized}
           />
+        )
+      case 'faqs':
+        return (
+          <div className="flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden">
+            <MessagingFaqMasterPanel role="coach" fetcher={coachFetch} />
+          </div>
         )
       case 'reviews':
         return (
@@ -177,9 +193,11 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
     }
   }
 
+  const messagingFullscreen = messagesMaximized && tab === 'messages'
+
   return (
     <div className="min-h-screen h-dvh max-h-dvh bg-gray-50 flex flex-col overflow-hidden">
-      <header className="bg-gradient-to-br from-black via-gray-900 to-black shrink-0">
+      <header className={`bg-gradient-to-br from-black via-gray-900 to-black shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
         <div className="container-admin py-4 flex items-center justify-between gap-4 pt-below-site-header">
           <div className="flex items-center gap-3">
             <button type="button" className="lg:hidden text-white" onClick={() => setNavOpen((o) => !o)}>
@@ -200,8 +218,8 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
         </div>
       </header>
 
-      <div className="container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden">
-        <nav className={`${navOpen ? 'block' : 'hidden'} lg:block`}>
+      <div className={`${messagingFullscreen ? 'flex-1 min-h-0 overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden'}`}>
+        <nav className={`${messagingFullscreen ? 'hidden' : navOpen ? 'block' : 'hidden'} lg:block`}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
             {visibleNav.map((item) => {
               const Icon = item.icon
@@ -222,7 +240,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
             })}
           </div>
         </nav>
-        <main className={`min-w-0 flex flex-col min-h-0 flex-1 ${tab === 'messages' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+        <main className={`min-w-0 flex flex-col min-h-0 flex-1 ${tab === 'messages' || tab === 'faqs' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           <div className="flex flex-col flex-1 min-h-0 h-full">
             <Suspense fallback={<div className="flex items-center gap-2 text-gray-500 py-12"><Loader2 className="w-5 h-5 animate-spin" /> Loading…</div>}>
               {renderPanel()}

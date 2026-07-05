@@ -206,6 +206,7 @@ export default function MemberDashboard({
 }: MemberDashboardProps) {
   const [activeTab, setActiveTab] = useState<MemberTab>('home')
   const [openMessageThreadId, setOpenMessageThreadId] = useState<number | null>(null)
+  const [messagesMaximized, setMessagesMaximized] = useState(false)
   const [eventMessagesLoadingId, setEventMessagesLoadingId] = useState<number | null>(null)
   const [navOpen, setNavOpen] = useState(false)
   const [profileData, setProfileData] = useState<any>(null)
@@ -1546,10 +1547,16 @@ export default function MemberDashboard({
     setEnrollmentConfirmError(null)
   }
 
+  const messagingFullscreen = messagesMaximized && activeTab === 'messages'
+
+  useEffect(() => {
+    if (activeTab !== 'messages' && messagesMaximized) setMessagesMaximized(false)
+  }, [activeTab, messagesMaximized])
+
   return (
     <div className="min-h-screen h-dvh max-h-dvh bg-gray-50 flex flex-col overflow-hidden">
       {/* Member Portal Header Section - Dark Background */}
-      <div className="bg-gradient-to-br from-black via-gray-900 to-black shrink-0">
+      <div className={`bg-gradient-to-br from-black via-gray-900 to-black shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
         <div className="container-admin py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button type="button" className="lg:hidden text-white" onClick={() => setNavOpen((o) => !o)}>
@@ -1602,8 +1609,8 @@ export default function MemberDashboard({
       )}
 
       {/* Workspace: sidebar nav + main content */}
-      <div className="container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden">
-        <nav className={`${navOpen ? 'block' : 'hidden'} lg:block`}>
+      <div className={`${messagingFullscreen ? 'flex-1 min-h-0 overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden'}`}>
+        <nav className={`${messagingFullscreen ? 'hidden' : navOpen ? 'block' : 'hidden'} lg:block`}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
             {visibleNav.map((item) => {
               const Icon = item.icon
@@ -2071,6 +2078,8 @@ export default function MemberDashboard({
                 <MemberMessagesTab
                   initialThreadId={openMessageThreadId}
                   onInitialThreadOpened={() => setOpenMessageThreadId(null)}
+                  maximized={messagesMaximized}
+                  onMaximizedChange={setMessagesMaximized}
                 />
               </motion.div>
             )}

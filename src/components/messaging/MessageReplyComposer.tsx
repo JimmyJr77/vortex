@@ -112,7 +112,7 @@ export default function MessageReplyComposer({
           )}
         </div>
       )}
-      <div className="flex gap-2 items-end flex-1 min-h-0">
+      <div className="flex gap-2 items-stretch flex-1 min-h-0">
         <div className="relative flex-1 min-h-0 flex flex-col">
           {showMentionMenu && mentionOptions.length > 0 && (
             <div className="absolute bottom-full left-0 right-0 mb-1 max-h-40 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg z-20">
@@ -150,7 +150,7 @@ export default function MessageReplyComposer({
               syncMentionMenu(reply, e.currentTarget.selectionStart ?? reply.length)
             }}
             placeholder={placeholder}
-            className="w-full flex-1 min-h-[42px] border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none"
+            className="w-full flex-1 min-h-[42px] h-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none"
             onKeyDown={(e) => {
               if (showMentionMenu && mentionOptions.length > 0 && e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault()
@@ -168,7 +168,7 @@ export default function MessageReplyComposer({
           type="button"
           onClick={handleSend}
           disabled={sending || !canSend}
-          className="h-[42px] shrink-0 inline-flex items-center justify-center bg-gray-900 text-white px-4 rounded-lg text-sm font-semibold disabled:opacity-60"
+          className="self-end h-[42px] shrink-0 inline-flex items-center justify-center bg-gray-900 text-white px-4 rounded-lg text-sm font-semibold disabled:opacity-60"
         >
           {sendLabel}
         </button>

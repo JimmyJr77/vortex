@@ -33,9 +33,14 @@ export function useThreadPinGroups(
       setSuperGroups([])
       return
     }
-    const data = await fetcher(`${apiBase}/${threadId}/pin-groups`) as PinGroupsResponse
-    setMine(Array.isArray(data.mine) ? data.mine : [])
-    setSuperGroups(Array.isArray(data.super) ? data.super : [])
+    try {
+      const data = await fetcher(`${apiBase}/${threadId}/pin-groups`) as PinGroupsResponse
+      setMine(Array.isArray(data.mine) ? data.mine : [])
+      setSuperGroups(Array.isArray(data.super) ? data.super : [])
+    } catch {
+      setMine([])
+      setSuperGroups([])
+    }
   }, [apiBase, fetcher, threadId])
 
   useEffect(() => {
@@ -43,6 +48,12 @@ export function useThreadPinGroups(
     setPinSelection(null)
     void refresh()
   }, [threadId, refresh])
+
+  useEffect(() => {
+    if (pinFilter !== 'off' && threadId != null) {
+      void refresh()
+    }
+  }, [pinFilter, refresh, threadId])
 
   const togglePinFilter = useCallback((mode: 'mine' | 'super') => {
     if (pinSelection) return
@@ -96,16 +107,24 @@ export function useThreadPinGroups(
   }, [apiBase, fetcher, refresh, threadId])
 
   const findOwnedGroupForMessage = useCallback(
-    (messageId: number) => mine.find((group) => group.message_ids.includes(messageId)),
+    (messageId: number) =>
+      mine.find((group) =>
+        (group.message_ids ?? []).some((id) => Number(id) === Number(messageId)),
+      ),
     [mine],
   )
 
   const displayGroups = useMemo((): MessageDisplayGroup[] | undefined => {
     if (pinFilter === 'off') return undefined
     if (pinFilter === 'mine') {
-      return mine.map((group) => ({ groupId: group.id, messageIds: group.message_ids }))
+      return mine.map((group) => ({
+        groupId: group.id,
+        messageIds: (group.message_ids ?? []).map((id) => Number(id)).filter(Number.isFinite),
+      }))
     }
-    return superGroups.map((group) => ({ messageIds: group.message_ids }))
+    return superGroups.map((group) => ({
+      messageIds: (group.message_ids ?? []).map((id) => Number(id)).filter(Number.isFinite),
+    }))
   }, [mine, pinFilter, superGroups])
 
   const unpinMessage = useCallback(

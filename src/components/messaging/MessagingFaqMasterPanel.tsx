@@ -8,7 +8,6 @@ type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
 interface MessagingFaqMasterPanelProps {
   role: Extract<MessagingRole, 'coach' | 'admin'>
   fetcher: Fetcher
-  threads?: MessageThread[]
 }
 
 const LIBRARY_PATH: Record<MessagingFaqMasterPanelProps['role'], string> = {
@@ -16,11 +15,16 @@ const LIBRARY_PATH: Record<MessagingFaqMasterPanelProps['role'], string> = {
   admin: '/api/admin/messages/faq-library',
 }
 
+const THREADS_PATH: Record<MessagingFaqMasterPanelProps['role'], string> = {
+  coach: '/api/coach/messages',
+  admin: '/api/admin/messages',
+}
+
 export default function MessagingFaqMasterPanel({
   role,
   fetcher,
-  threads = [],
 }: MessagingFaqMasterPanelProps) {
+  const [threads, setThreads] = useState<MessageThread[]>([])
   const [items, setItems] = useState<ThreadFaqRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -49,6 +53,21 @@ export default function MessagingFaqMasterPanel({
   useEffect(() => {
     void load()
   }, [load])
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const rows = await fetcher(THREADS_PATH[role]) as MessageThread[]
+        if (!cancelled) setThreads(Array.isArray(rows) ? rows : [])
+      } catch {
+        if (!cancelled) setThreads([])
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [fetcher, role])
 
   const q = search.trim().toLowerCase()
   const visibleItems = useMemo(() => {

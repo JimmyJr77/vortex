@@ -24,6 +24,7 @@ import AdminEventSignups from './AdminEventSignups'
 import AdminInsurance from './AdminInsurance'
 import AdminMessagesPanel from './admin/AdminMessagesPanel'
 import AdminHomePanel from './admin/AdminHomePanel'
+import MessagingFaqMasterPanel from './messaging/MessagingFaqMasterPanel'
 import HorizontalScrollContainer from './HorizontalScrollContainer'
 import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
@@ -71,7 +72,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'preferences'
+type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
 
 export type GroupId = 'home' | 'messaging' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'dataAnalysis' | 'preferences' | 'settings'
 
@@ -86,6 +87,7 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }>
   { id: 'admins', label: 'Admins', permission: 'admins.manage' },
   { id: 'membership', label: 'Vortex Accounts', permission: 'members.view' },
   { id: 'messages', label: 'Messages' },
+  { id: 'faqs', label: 'FAQ library' },
   { id: 'access', label: 'Access', permission: 'admin_access.manage' },
   { id: 'users', label: 'Inquiries', permission: 'members.view' },
   { id: 'classes', label: 'Classes', permission: 'classes.view' },
@@ -120,7 +122,7 @@ interface GroupDef {
 
 const GROUPS: GroupDef[] = [
   { id: 'home', label: 'Home', icon: Home, sections: [] },
-  { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages'] },
+  { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages', 'faqs'] },
   { id: 'accounts', label: 'Accounts', icon: Users, sections: ['admins', 'membership', 'access'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
   { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classes', 'coaches', 'scheduling', 'classesEvents'] },
@@ -150,6 +152,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
   const [accessContext, setAccessContext] = useState<AccessContext | null>(null)
   const [accessLoading, setAccessLoading] = useState(true)
   const [openMessageThreadId, setOpenMessageThreadId] = useState<number | null>(null)
+  const [messagesMaximized, setMessagesMaximized] = useState(false)
 
   useEffect(() => {
     if (!getAdminToken()) {
@@ -275,6 +278,10 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
   }, [activeGroup, activeTab, visibleSectionsForGroup])
 
   useEffect(() => {
+    if (activeTab !== 'messages' && messagesMaximized) setMessagesMaximized(false)
+  }, [activeTab, messagesMaximized])
+
+  useEffect(() => {
     if (activeTab === 'events') {
       fetchAllCategories()
       fetchAllPrograms()
@@ -395,7 +402,15 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
           <AdminMessagesPanel
             initialThreadId={openMessageThreadId}
             onInitialThreadOpened={() => setOpenMessageThreadId(null)}
+            maximized={messagesMaximized}
+            onMaximizedChange={setMessagesMaximized}
           />
+        )
+      case 'faqs':
+        return (
+          <div className="flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden">
+            <MessagingFaqMasterPanel role="admin" fetcher={adminFetch} />
+          </div>
         )
       case 'preferences':
         return <PortalPreferencesPanel role="admin" fetcher={adminFetch} />
@@ -405,11 +420,12 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
   }
 
   const groupSections = activeGroup === 'home' ? [] : visibleSectionsForGroup(activeGroup)
+  const messagingFullscreen = messagesMaximized && activeTab === 'messages'
 
   return (
     <div className="min-h-screen h-dvh max-h-dvh bg-gray-50 flex flex-col overflow-hidden">
       {/* Admin Header Section - Dark Background */}
-      <div className="bg-gradient-to-br from-black via-gray-900 to-black shrink-0">
+      <div className={`bg-gradient-to-br from-black via-gray-900 to-black shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
         <div className="container-admin py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button type="button" className="lg:hidden text-white" onClick={() => setNavOpen((o) => !o)}>
@@ -430,8 +446,8 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
       </div>
 
       {/* Workspace: sidebar groups + main content */}
-      <div className="container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden">
-        <nav className={`${navOpen ? 'block' : 'hidden'} lg:block`}>
+      <div className={`${messagingFullscreen ? 'flex-1 min-h-0 overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden'}`}>
+        <nav className={`${messagingFullscreen ? 'hidden' : navOpen ? 'block' : 'hidden'} lg:block`}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
             {visibleGroups.map((group) => {
               const Icon = group.icon
@@ -463,7 +479,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
               adminName={adminInfo?.firstName}
             />
           ) : (
-            <div className={`${activeTab === 'messages' ? 'flex flex-col flex-1 min-h-0 h-full gap-4' : 'space-y-4'}`}>
+            <div className={`${activeTab === 'messages' || activeTab === 'faqs' ? 'flex flex-col flex-1 min-h-0 h-full gap-4' : 'space-y-4'}`}>
               {groupSections.length > 1 && (
                 <HorizontalScrollContainer
                   className="border-b border-gray-200"

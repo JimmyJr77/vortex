@@ -113,3 +113,12 @@ export function sortMessageThreads(
   })
   return sorted
 }
+
+/** Favorites first, then most recently updated — used for default thread list order and landing. */
+export function defaultThreadListOrder(threads: MessageThread[]): MessageThread[] {
+  return sortMessageThreads(threads, 'recent', 'desc')
+}
+
+export function defaultLandingThreadId(threads: MessageThread[]): number | null {
+  return defaultThreadListOrder(threads)[0]?.id ?? null
+}

@@ -21,6 +21,7 @@ import { uploadMessageAttachment, type UploadedAttachment } from './messaging/me
 import { markThreadRead } from './messaging/messagingApi'
 import MessagingThreadFaq from './messaging/MessagingThreadFaq'
 import MessagingThreadDetailShell from './messaging/MessagingThreadDetailShell'
+import MessagingMaximizeToggle from './messaging/MessagingMaximizeToggle'
 import MessagePinSelectionBar from './messaging/MessagePinSelectionBar'
 import { useThreadPinGroups } from './messaging/useThreadPinGroups'
 import {
@@ -31,6 +32,7 @@ import {
   messagingWorkspaceShell,
   messagingWorkspaceThreadOpen,
   sortMessageThreads,
+  defaultLandingThreadId,
   threadListTitle,
 } from './messaging/messagingLayout'
 import type {
@@ -829,9 +831,13 @@ function WellnessCheckinCard() {
 export function MemberMessagesTab({
   initialThreadId = null,
   onInitialThreadOpened,
+  maximized = false,
+  onMaximizedChange,
 }: {
   initialThreadId?: number | null
   onInitialThreadOpened?: () => void
+  maximized?: boolean
+  onMaximizedChange?: (maximized: boolean) => void
 } = {}) {
   const [threads, setThreads] = useState<MessageThread[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
@@ -863,6 +869,7 @@ export function MemberMessagesTab({
   const [linkedThreadId, setLinkedThreadId] = useState<number | null>(null)
   const [faqPanelOpen, setFaqPanelOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const autoOpenedRef = useRef(false)
   const viewer = useMemo(() => getMessageViewer('member'), [])
   const pins = useThreadPinGroups(selectedId, 'member', coachFetch)
   const inboxCounts = useMemo(() => countThreadsByInboxTab(threads), [threads])
@@ -968,8 +975,17 @@ export function MemberMessagesTab({
 
   useEffect(() => {
     if (initialThreadId == null) return
+    autoOpenedRef.current = true
     void openThread(initialThreadId).finally(() => onInitialThreadOpened?.())
   }, [initialThreadId])
+
+  useEffect(() => {
+    if (loading || autoOpenedRef.current || initialThreadId != null || selectedId != null) return
+    const landingId = defaultLandingThreadId(filteredThreads)
+    if (landingId == null) return
+    autoOpenedRef.current = true
+    void openThread(landingId)
+  }, [loading, filteredThreads, initialThreadId, selectedId])
 
   const replyToMessage = useCallback((message: MessageRow) => {
     setReplyTarget(message)
@@ -1086,21 +1102,35 @@ export function MemberMessagesTab({
 
   return (
     <div
-      className={`${messagingWorkspaceRoot} ${selectedId != null ? messagingWorkspaceThreadOpen : ''}`}
+      className={`${messagingWorkspaceRoot} ${selectedId != null ? messagingWorkspaceThreadOpen : ''} ${maximized ? 'messaging-workspace--maximized' : ''}`}
     >
-      <div className={`shrink-0 items-center justify-between flex-wrap gap-3 ${selectedId != null ? 'hidden lg:flex' : 'flex'}`}>
+      <div className={`shrink-0 items-center justify-between flex-wrap gap-3 ${selectedId != null && !maximized ? 'hidden lg:flex' : maximized ? 'hidden' : 'flex'}`}>
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
         </h2>
-        <button
-          type="button"
-          onClick={() => setNewOpen((v) => !v)}
-          className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700"
-        >
-          {newOpen ? 'Cancel' : 'New thread'}
-        </button>
+        <div className="flex items-center gap-2">
+          {onMaximizedChange && (
+            <MessagingMaximizeToggle
+              maximized={maximized}
+              onToggle={() => onMaximizedChange(!maximized)}
+            />
+          )}
+          <button
+            type="button"
+            onClick={() => setNewOpen((v) => !v)}
+            className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700"
+          >
+            {newOpen ? 'Cancel' : 'New thread'}
+          </button>
+        </div>
       </div>
       {error && <div className="shrink-0 rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
+
+      {maximized && onMaximizedChange && (
+        <div className="shrink-0 flex justify-end px-2 py-1 bg-white border-b border-gray-100">
+          <MessagingMaximizeToggle maximized={maximized} onToggle={() => onMaximizedChange(false)} />
+        </div>
+      )}
 
       {newOpen && (
         <div className="shrink-0 bg-white border border-gray-200 rounded-xl p-4 space-y-3">
@@ -1261,16 +1291,20 @@ export function MemberMessagesTab({
                 />
               ) : (
               <>
-              <MessagingContextBanner
-                linkedThreadId={linkedThreadId}
-                linkedThreadTitle={
-                  linkedThreadId != null
-                    ? threadListTitle(threads.find((t) => t.id === linkedThreadId) ?? { id: linkedThreadId })
-                    : null
-                }
-                onJump={(id) => void openThread(id)}
-              />
-              <MessagingInfoCard infoJson={threadInfoJson} />
+              {pins.pinFilter === 'off' && (
+                <>
+                  <MessagingContextBanner
+                    linkedThreadId={linkedThreadId}
+                    linkedThreadTitle={
+                      linkedThreadId != null
+                        ? threadListTitle(threads.find((t) => t.id === linkedThreadId) ?? { id: linkedThreadId })
+                        : null
+                    }
+                    onJump={(id) => void openThread(id)}
+                  />
+                  <MessagingInfoCard infoJson={threadInfoJson} />
+                </>
+              )}
               {pins.pinSelection && (
                 <MessagePinSelectionBar
                   selectedCount={pins.pinSelection.size}

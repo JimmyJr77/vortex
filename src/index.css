@@ -106,6 +106,13 @@
     min-height: 0;
   }
 
+  .messaging-workspace--maximized {
+    min-height: 0;
+    max-height: 100%;
+    height: 100%;
+    gap: 0;
+  }
+
   @media (max-width: 1023px) {
     .messaging-workspace--thread-open {
       gap: 0;

@@ -449,6 +449,78 @@ export async function setMessageThreadStatus(pool, threadId, facilityId, status)
   return updated.rows[0] ?? null
 }
 
+const ALL_PARTICIPANTS_INBOX_HIDDEN_SQL = `
+  EXISTS (SELECT 1 FROM coaching.message_thread_participant p WHERE p.thread_id = t.id)
+  AND NOT EXISTS (
+    SELECT 1 FROM coaching.message_thread_participant p
+    WHERE p.thread_id = t.id
+      AND NOT EXISTS (
+        SELECT 1 FROM coaching.message_thread_inbox_hide ih
+        WHERE ih.thread_id = t.id
+          AND (
+            (p.user_id IS NOT NULL AND ih.user_id = p.user_id)
+            OR (p.member_id IS NOT NULL AND ih.member_id = p.member_id)
+          )
+      )
+  )
+`
+
+/** New messages restore globally archived threads and clear per-user inbox hides. */
+export async function touchMessageThreadActivity(pool, threadId) {
+  await pool.query(
+    `UPDATE coaching.message_thread
+     SET last_message_at = now(), updated_at = now(), status = 'open'
+     WHERE id = $1`,
+    [threadId],
+  )
+  await clearInboxHideForThread(pool, threadId)
+}
+
+/**
+ * Archive an open thread when every participant hid it from their inbox,
+ * or when there has been no thread activity for 12 months.
+ */
+export async function evaluateMessageThreadAutoArchive(pool, threadId, facilityId) {
+  const r = await pool.query(
+    `
+      SELECT t.id
+      FROM coaching.message_thread t
+      WHERE t.id = $1 AND t.facility_id = $2 AND t.status = 'open'
+        AND (
+          COALESCE(t.last_message_at, t.created_at) < now() - interval '12 months'
+          OR (${ALL_PARTICIPANTS_INBOX_HIDDEN_SQL})
+        )
+    `,
+    [threadId, facilityId],
+  )
+  if (r.rows.length === 0) return null
+  return setMessageThreadStatus(pool, threadId, facilityId, 'archived')
+}
+
+/** Sweep open threads eligible for automatic archival (daily job). */
+export async function archiveEligibleMessageThreads(pool, { limit = 200 } = {}) {
+  const r = await pool.query(
+    `
+      SELECT t.id, t.facility_id
+      FROM coaching.message_thread t
+      WHERE t.status = 'open'
+        AND (
+          COALESCE(t.last_message_at, t.created_at) < now() - interval '12 months'
+          OR (${ALL_PARTICIPANTS_INBOX_HIDDEN_SQL})
+        )
+      ORDER BY COALESCE(t.last_message_at, t.created_at) ASC
+      LIMIT $1
+    `,
+    [limit],
+  )
+  let archived = 0
+  for (const row of r.rows) {
+    const updated = await setMessageThreadStatus(pool, row.id, row.facility_id, 'archived')
+    if (updated) archived += 1
+  }
+  return { archived, scanned: r.rows.length }
+}
+
 const ACTIVE_SIGNUP = `
   s.member_id IS NOT NULL
   AND s.orphaned_at IS NULL
@@ -692,6 +764,7 @@ export async function setMessageThreadInboxHidden(pool, { threadId, facilityId, 
         [threadId, memberId],
       )
     }
+    await evaluateMessageThreadAutoArchive(pool, threadId, facilityId)
     return { hidden: true }
   }
   if (userId != null) {

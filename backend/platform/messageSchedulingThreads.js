@@ -2,7 +2,7 @@
  * Scheduling-linked message threads and system announcements.
  */
 
-import { insertThreadParticipants } from './messageThreads.js'
+import { insertThreadParticipants, touchMessageThreadActivity } from './messageThreads.js'
 import {
   ensureDefaultTags,
   linkThreadToObject,
@@ -65,10 +65,7 @@ export async function postSchedulingSystemMessage(pool, {
      ) VALUES ($1, $2, $3, 'admin', $4) RETURNING id`,
     [thread.id, senderUserId, String(body || '').trim(), isCritical],
   )
-  await pool.query(
-    `UPDATE coaching.message_thread SET last_message_at = now(), updated_at = now() WHERE id = $1`,
-    [thread.id],
-  )
+  await touchMessageThreadActivity(pool, thread.id)
   return { threadId: thread.id, messageId: inserted.rows[0].id }
 }
 

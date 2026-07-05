@@ -14,6 +14,7 @@ import {
   MessageSquare,
   Video,
   Settings,
+  CircleHelp,
 } from 'lucide-react'
 import type { ComponentType } from 'react'
 import type { CoachTab } from './CoachLayout'
@@ -36,6 +37,7 @@ const CARD_ICONS: Record<Exclude<CoachTab, 'home'>, ComponentType<{ className?: 
   skills: GitBranch,
   assign: Send,
   messages: MessageSquare,
+  faqs: CircleHelp,
   reviews: Video,
   insights: BarChart3,
   roster: Users,

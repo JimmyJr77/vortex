@@ -114,8 +114,8 @@ export default function MessagingMessageThread({
     onReactionsUpdated,
   }
 
-  if (pinFilterActive && displayGroups) {
-    if (displayGroups.length === 0) {
+  if (pinFilterActive) {
+    if (!displayGroups || displayGroups.length === 0) {
       return (
         <div className={`${className} text-center text-sm text-gray-500 py-8`}>
           No pinned messages in this view.
@@ -123,14 +123,26 @@ export default function MessagingMessageThread({
       )
     }
 
-    const messageMap = new Map(messages.map((m) => [m.id, m]))
+    const messageMap = new Map(messages.map((m) => [Number(m.id), m]))
+    const pinnedMessages = displayGroups.flatMap((group) =>
+      group.messageIds
+        .map((messageId) => messageMap.get(Number(messageId)))
+        .filter((message): message is MessageRow => message != null),
+    )
+    if (pinnedMessages.length === 0) {
+      return (
+        <div className={`${className} text-center text-sm text-gray-500 py-8`}>
+          No pinned messages in this view.
+        </div>
+      )
+    }
     return (
       <div className={className}>
         {displayGroups.map((group, groupIndex) => (
           <div key={group.groupId ?? `super-${groupIndex}`} className="space-y-3">
             {groupIndex > 0 && <div className="border-t border-gray-200 pt-3" />}
             {group.messageIds.map((messageId) => {
-              const message = messageMap.get(messageId)
+              const message = messageMap.get(Number(messageId))
               if (!message) return null
               return (
                 <div key={message.id}>

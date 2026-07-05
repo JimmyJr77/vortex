@@ -63,7 +63,7 @@ import {
   resolveMessageEnrollmentGroupMembers,
   setMessageThreadFavorite,
   setMessageThreadInboxHidden,
-  clearInboxHideForThread,
+  touchMessageThreadActivity,
   cloudinaryMessageAttachmentSignature,
   parseMessageAttachmentPayload,
   messageHasContent,
@@ -2910,11 +2910,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       await saveMessageMentions(pool, messageId, resolvedMentions)
     }
 
-    await pool.query(
-      `UPDATE coaching.message_thread SET last_message_at = now(), updated_at = now() WHERE id = $1`,
-      [threadId],
-    )
-    await clearInboxHideForThread(pool, threadId)
+    await touchMessageThreadActivity(pool, threadId)
     const message = await loadEnrichedMessageById(pool, messageId)
 
     emitMessageCreated({
