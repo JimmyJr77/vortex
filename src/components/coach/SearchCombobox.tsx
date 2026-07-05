@@ -1,4 +1,5 @@
-import { useId, useRef, useState } from 'react'
+import { useId, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Loader2 } from 'lucide-react'
 
 export interface SearchComboboxOption {
@@ -34,10 +35,71 @@ export default function SearchCombobox({
 }: SearchComboboxProps) {
   const listId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
+  const [menuStyle, setMenuStyle] = useState<{ top: number; left: number; width: number } | null>(null)
 
   const showList = open
+
+  useLayoutEffect(() => {
+    if (!showList) {
+      setMenuStyle(null)
+      return
+    }
+    const syncMenuPosition = () => {
+      const el = inputRef.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      setMenuStyle({ top: rect.bottom + 4, left: rect.left, width: rect.width })
+    }
+    syncMenuPosition()
+    window.addEventListener('scroll', syncMenuPosition, true)
+    window.addEventListener('resize', syncMenuPosition)
+    return () => {
+      window.removeEventListener('scroll', syncMenuPosition, true)
+      window.removeEventListener('resize', syncMenuPosition)
+    }
+  }, [showList, value, options.length])
+
+  const listbox = showList && menuStyle ? (
+    <ul
+      id={listId}
+      role="listbox"
+      className="fixed z-[200] max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg py-1"
+      style={{ top: menuStyle.top, left: menuStyle.left, width: menuStyle.width }}
+    >
+      {loading && options.length === 0 ? (
+        <li className="px-3 py-2 text-sm text-gray-500">{loadingMessage}</li>
+      ) : options.length === 0 ? (
+        <li className="px-3 py-2 text-sm text-gray-500">{emptyMessage}</li>
+      ) : (
+        options.map((opt, index) => (
+          <li key={opt.key}>
+            <button
+              type="button"
+              role="option"
+              aria-selected={index === activeIndex}
+              className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 ${index === activeIndex ? 'bg-red-50 text-vortex-red' : 'text-gray-800'}`}
+              onMouseDown={(ev) => ev.preventDefault()}
+              onClick={() => {
+                onSelect(opt)
+                setOpen(false)
+                setActiveIndex(-1)
+              }}
+            >
+              <span>{opt.label}</span>
+              {opt.suffix && (
+                <span className={`text-xs shrink-0 ${index === activeIndex ? 'text-vortex-red' : 'text-gray-400'}`}>
+                  {opt.suffix}
+                </span>
+              )}
+            </button>
+          </li>
+        ))
+      )}
+    </ul>
+  ) : null
 
   return (
     <div
@@ -51,6 +113,7 @@ export default function SearchCombobox({
       }}
     >
       <input
+        ref={inputRef}
         type="text"
         value={value}
         autoComplete="off"
@@ -94,43 +157,7 @@ export default function SearchCombobox({
       {loading && (
         <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />
       )}
-      {showList && (
-        <ul
-          id={listId}
-          role="listbox"
-          className="absolute z-20 mt-1 w-full max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg py-1"
-        >
-          {loading && options.length === 0 ? (
-            <li className="px-3 py-2 text-sm text-gray-500">{loadingMessage}</li>
-          ) : options.length === 0 ? (
-            <li className="px-3 py-2 text-sm text-gray-500">{emptyMessage}</li>
-          ) : (
-            options.map((opt, index) => (
-              <li key={opt.key}>
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={index === activeIndex}
-                  className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 ${index === activeIndex ? 'bg-red-50 text-vortex-red' : 'text-gray-800'}`}
-                  onMouseDown={(ev) => ev.preventDefault()}
-                  onClick={() => {
-                    onSelect(opt)
-                    setOpen(false)
-                    setActiveIndex(-1)
-                  }}
-                >
-                  <span>{opt.label}</span>
-                  {opt.suffix && (
-                    <span className={`text-xs shrink-0 ${index === activeIndex ? 'text-vortex-red' : 'text-gray-400'}`}>
-                      {opt.suffix}
-                    </span>
-                  )}
-                </button>
-              </li>
-            ))
-          )}
-        </ul>
-      )}
+      {listbox && createPortal(listbox, document.body)}
     </div>
   )
 }

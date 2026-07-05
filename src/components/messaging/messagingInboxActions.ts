@@ -3,6 +3,11 @@ import type { MessagingRole } from './types'
 
 export type InboxComposeMode = 'message' | 'class' | 'eventBoard' | 'calendarItem' | 'file' | 'none'
 
+export interface MemberMessagingPermissions {
+  canCreateEventBoards?: boolean
+  canCreateCalendarItems?: boolean
+}
+
 export interface InboxPrimaryAction {
   label: string
   mode: InboxComposeMode
@@ -18,7 +23,7 @@ function isStaffRole(role: MessagingRole): boolean {
 export function getInboxPrimaryAction(
   tab: MessagingInboxTab,
   role: MessagingRole,
-  options: { archived?: boolean } = {},
+  options: { archived?: boolean; memberPermissions?: MemberMessagingPermissions } = {},
 ): InboxPrimaryAction {
   if (options.archived || tab === 'archived') {
     return { label: '', mode: 'none', disabled: true, hidden: true }
@@ -32,7 +37,19 @@ export function getInboxPrimaryAction(
     case 'classes':
       return { label: 'New class thread', mode: 'class', disabled: false, hidden: false }
     case 'events':
-      if (role !== 'admin') {
+      if (role === 'admin') {
+        return { label: 'New event board', mode: 'eventBoard', disabled: false, hidden: false }
+      }
+      if (role === 'member' && !options.memberPermissions?.canCreateEventBoards) {
+        return {
+          label: 'New event board',
+          mode: 'eventBoard',
+          disabled: true,
+          disabledReason: 'Requires permission from your admin',
+          hidden: false,
+        }
+      }
+      if (role === 'coach') {
         return {
           label: 'New event board',
           mode: 'eventBoard',
@@ -43,12 +60,15 @@ export function getInboxPrimaryAction(
       }
       return { label: 'New event board', mode: 'eventBoard', disabled: false, hidden: false }
     case 'scheduling':
-      if (!isStaffRole(role)) {
+      if (isStaffRole(role)) {
+        return { label: 'New calendar item', mode: 'calendarItem', disabled: false, hidden: false }
+      }
+      if (!options.memberPermissions?.canCreateCalendarItems) {
         return {
           label: 'New calendar item',
           mode: 'calendarItem',
           disabled: true,
-          disabledReason: 'Admin or coach only',
+          disabledReason: 'Requires permission from your admin',
           hidden: false,
         }
       }

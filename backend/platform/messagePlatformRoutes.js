@@ -81,10 +81,10 @@ import {
   provisionSchedulingFormThread,
 } from './messageSchedulingThreads.js'
 import { broadcastMessageEvent } from './messageRealtime.js'
+import { hasPermission } from './registerRoutes.js'
 import {
   memberIsThreadParticipant,
   coachCanAccessThreadWithParticipants,
-  loadEnrichedMessageById,
 } from './messageThreads.js'
 
 let emitMessageCreatedImpl = (payload) => {
@@ -737,6 +737,63 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
           if (memberId == null) return bad(res, 'Member context required.', 403)
           const limit = Math.min(num(req.query.limit) || 50, 100)
           ok(res, await listUpcomingCalendarItemsForMember(pool, memberId, facilityId, { limit }))
+        } catch (error) {
+          bad(res, error.message, 500)
+        }
+      })
+
+      app.post('/api/member/events/:eventId/message-threads', auth, async (req, res) => {
+        try {
+          await ensureSchema()
+          if (!hasPermission(req.platformAuth, 'event_boards.create')) {
+            return bad(res, 'Missing permission: event_boards.create', 403)
+          }
+          const facilityId = req.platformAuth.user.facility_id
+          const eventId = num(req.params.eventId)
+          const memberId = memberViewer(req).memberId
+          if (memberId == null) return bad(res, 'Member context required.', 403)
+          const result = await provisionEventThreads(pool, eventId, facilityId, {
+            subject: req.body?.subject,
+            infoJson: req.body?.info_json ?? req.body?.infoJson,
+            participantMemberIds: [memberId],
+          })
+          ok(res, result)
+        } catch (error) {
+          bad(res, error.message, 500)
+        }
+      })
+
+      app.post('/api/member/events/:eventId/message-boards', auth, async (req, res) => {
+        try {
+          await ensureSchema()
+          if (!hasPermission(req.platformAuth, 'event_boards.create')) {
+            return bad(res, 'Missing permission: event_boards.create', 403)
+          }
+          const facilityId = req.platformAuth.user.facility_id
+          const eventId = num(req.params.eventId)
+          const memberId = memberViewer(req).memberId
+          if (memberId == null) return bad(res, 'Member context required.', 403)
+          const result = await provisionAdditionalEventBoard(pool, eventId, facilityId, {
+            subject: req.body?.subject,
+            participantMemberIds: [memberId],
+          })
+          ok(res, result)
+        } catch (error) {
+          bad(res, error.message, 500)
+        }
+      })
+
+      app.post('/api/member/events/:eventId/calendar-items', auth, async (req, res) => {
+        try {
+          await ensureSchema()
+          if (!hasPermission(req.platformAuth, 'event_calendar.create')) {
+            return bad(res, 'Missing permission: event_calendar.create', 403)
+          }
+          const facilityId = req.platformAuth.user.facility_id
+          const eventId = num(req.params.eventId)
+          const memberId = memberViewer(req).memberId
+          if (memberId == null) return bad(res, 'Member context required.', 403)
+          ok(res, await createEventCalendarItem(pool, eventId, facilityId, req.body ?? {}))
         } catch (error) {
           bad(res, error.message, 500)
         }

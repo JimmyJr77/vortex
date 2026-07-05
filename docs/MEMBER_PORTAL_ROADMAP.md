@@ -150,7 +150,9 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
   `MemberTrainingTab` (assignments + completion logging), `MemberProgressTab` (assessment
   trends, skill grades, PRs, daily wellness check-in), and `MemberMessagesTab` (mobile-first inbox
   with tabs All/Unread/Events/Scheduling/Files, WebSocket live updates, unread badges, event thread
-  deep links from Events tab, critical-alert opt-in preferences, reactions + FAQ).
+  deep links from Events tab, critical-alert opt-in preferences, reactions + FAQ). **Event board** and
+  **calendar/schedule item** creation is disabled by default; admins grant `event_boards.create` and
+  `event_calendar.create` per user in Admin → Accounts → Access.
 - **[src/components/PortalNavButtons.tsx](../src/components/PortalNavButtons.tsx)** — portal switcher.
 - **[src/components/FamilyMemberModal.tsx](../src/components/FamilyMemberModal.tsx)** —
   ⚠️ legacy dark admin-oriented stub; **not** used by the member portal (family CRUD is inline).
@@ -190,6 +192,7 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
 - `GET /api/members/billing/statements`, `GET /api/members/billing/payments` (payer/
   `PARENT_GUARDIAN` sees all; athletes see only their own / none).
 - `GET /api/members/waivers`, `POST /api/members/waivers/:templateId/accept`.
+- `GET /api/member/access/me` — current user's RBAC permission keys (for messaging create gates).
 
 ### Training ([backend/platform/coachPortalRoutes.js](../backend/platform/coachPortalRoutes.js), guard `auth`)
 - `GET /api/member/training/assignments|workout/:id|program/:id|challenge/:id`
@@ -198,6 +201,9 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
 - `POST/GET /api/member/training/wellness`
 - `GET/POST /api/member/messages`, `GET /api/member/messages/recipient-options`,
   `PATCH /api/member/messages/:threadId/subject` (blocked when `subject_locked`).
+- Event board / calendar create (permission-gated): `POST /api/member/events/:eventId/message-threads`,
+  `POST /api/member/events/:eventId/message-boards` (`event_boards.create`),
+  `POST /api/member/events/:eventId/calendar-items` (`event_calendar.create`).
 
 ### Public endpoints consumed
 - `GET /api/events`; `GET /api/public/classes-offered?site=`

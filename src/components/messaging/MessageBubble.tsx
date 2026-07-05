@@ -122,7 +122,7 @@ export default function MessageBubble({
   return (
     <div
       className={`${messageBubbleClassName(message, viewer)}${
-        mentionedYou ? ' ring-2 ring-vortex-red ring-offset-1' : ''
+        mentionedYou || isCritical ? ' ring-2 ring-vortex-red ring-offset-1' : ''
       }${pinSelected ? ' ring-2 ring-amber-400 ring-offset-1' : ''}${
         pinSelectionActive && !isDeleted ? ' cursor-pointer' : ''
       }${showCriticalFlash ? ' message-bubble-critical-flash' : ''} flex flex-col touch-manipulation`}

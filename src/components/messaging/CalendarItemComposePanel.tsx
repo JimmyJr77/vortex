@@ -8,6 +8,7 @@ import {
   type HighlightEventOption,
   type ScheduleInboxRow,
 } from './messagingApi'
+import type { MessagingRole } from './types'
 
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
 
@@ -33,7 +34,7 @@ const EMPTY_DRAFT: CalendarItemDraft = {
 
 interface CalendarItemComposePanelProps {
   fetcher: Fetcher
-  role: 'admin' | 'coach'
+  role: MessagingRole
   onCancel: () => void
   onCreated: (item: ScheduleInboxRow | null, threadId: number | null) => void
 }

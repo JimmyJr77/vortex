@@ -257,6 +257,7 @@ export async function provisionEventThreads(pool, eventId, facilityId, {
 export async function provisionAdditionalEventBoard(pool, eventId, facilityId, {
   subject,
   adminUserId,
+  participantMemberIds = [],
 }) {
   const { canonical } = await findEventThreadPair(pool, eventId, facilityId)
   if (!canonical) {
@@ -274,8 +275,12 @@ export async function provisionAdditionalEventBoard(pool, eventId, facilityId, {
 
   const eventRow = await pool.query(`SELECT * FROM events WHERE id = $1`, [eventId])
   const audienceMemberIds = await resolveEventAudienceMemberIds(pool, eventRow.rows[0] || {})
+  const allMemberIds = [...new Set([
+    ...audienceMemberIds,
+    ...participantMemberIds.map(Number).filter(Number.isFinite),
+  ])]
   await insertThreadParticipants(pool, discussion.id, {
-    memberIds: audienceMemberIds,
+    memberIds: allMemberIds,
     userIds: adminUserId != null ? [Number(adminUserId)] : [],
   })
 

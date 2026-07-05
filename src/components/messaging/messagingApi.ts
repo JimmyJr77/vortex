@@ -31,12 +31,16 @@ export async function provisionEventMessageThreads(
     subject?: string
     info_json?: Record<string, unknown>
   } = {},
-): Promise<{ created?: boolean }> {
-  const result = await fetcher(`/api/admin/events/${eventId}/message-threads`, {
+  role: MessagingRole = 'admin',
+): Promise<{ created?: boolean; discussion?: { id: number }; canonical?: { id: number } }> {
+  const path = role === 'member'
+    ? `/api/member/events/${eventId}/message-threads`
+    : `/api/admin/events/${eventId}/message-threads`
+  const result = await fetcher(path, {
     method: 'POST',
     body: JSON.stringify(payload),
   })
-  return (result && typeof result === 'object' ? result : {}) as { created?: boolean }
+  return (result && typeof result === 'object' ? result : {}) as { created?: boolean; discussion?: { id: number }; canonical?: { id: number } }
 }
 
 export async function fetchEventMessageThreads(
@@ -132,8 +136,12 @@ export async function provisionAdditionalEventBoard(
   eventId: number,
   fetcher: Fetcher,
   payload: { subject?: string } = {},
+  role: MessagingRole = 'admin',
 ): Promise<{ discussion?: { id: number } }> {
-  return fetcher(`/api/admin/events/${eventId}/message-boards`, {
+  const path = role === 'member'
+    ? `/api/member/events/${eventId}/message-boards`
+    : `/api/admin/events/${eventId}/message-boards`
+  return fetcher(path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -235,7 +243,9 @@ export async function createEventCalendarItem(
 ): Promise<EventCalendarItem> {
   const path = role === 'coach'
     ? `/api/coach/events/${eventId}/calendar-items`
-    : `/api/admin/events/${eventId}/calendar-items`
+    : role === 'member'
+      ? `/api/member/events/${eventId}/calendar-items`
+      : `/api/admin/events/${eventId}/calendar-items`
   return fetcher(path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

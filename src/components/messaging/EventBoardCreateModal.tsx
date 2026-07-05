@@ -7,6 +7,8 @@ import {
   type HighlightEventOption,
 } from './messagingApi'
 
+import type { MessagingRole } from './types'
+
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
 
 interface EventBoardCreateModalProps {
@@ -15,6 +17,7 @@ interface EventBoardCreateModalProps {
   fetcher: Fetcher
   onCreated: (threadId: number) => void
   allowAdditionalBoard?: boolean
+  role?: MessagingRole
 }
 
 export default function EventBoardCreateModal({
@@ -23,6 +26,7 @@ export default function EventBoardCreateModal({
   fetcher,
   onCreated,
   allowAdditionalBoard = true,
+  role = 'admin',
 }: EventBoardCreateModalProps) {
   const [events, setEvents] = useState<HighlightEventOption[]>([])
   const [loading, setLoading] = useState(false)
@@ -37,7 +41,7 @@ export default function EventBoardCreateModal({
     if (!open) return
     setLoading(true)
     setError(null)
-    void fetchHighlightEvents('admin', fetcher)
+    void fetchHighlightEvents(role, fetcher)
       .then((rows) => {
         setEvents(rows)
         setSelectedId(rows[0]?.id != null ? Number(rows[0].id) : null)
@@ -47,7 +51,7 @@ export default function EventBoardCreateModal({
         setError(err instanceof Error ? err.message : 'Could not load events')
       })
       .finally(() => setLoading(false))
-  }, [open, fetcher])
+  }, [open, fetcher, role])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -68,14 +72,14 @@ export default function EventBoardCreateModal({
       if (createAdditional && allowAdditionalBoard) {
         const result = await provisionAdditionalEventBoard(selectedId, fetcher, {
           subject: subject.trim() || undefined,
-        })
+        }, role)
         const threadId = result.discussion?.id
         if (threadId == null) throw new Error('Could not create event board')
         onCreated(threadId)
       } else {
         const result = await provisionEventMessageThreads(selectedId, fetcher, {
           subject: subject.trim() || undefined,
-        }) as { discussion?: { id: number }; canonical?: { id: number } }
+        }, role) as { discussion?: { id: number }; canonical?: { id: number } }
         const threadId = result.discussion?.id ?? result.canonical?.id
         if (threadId == null) throw new Error('Could not create event board')
         onCreated(threadId)

@@ -151,7 +151,8 @@ export default function MessagesPanel({
     setRecipientsLoading(true)
     setRecipientLoadError(null)
     try {
-      const list = await coachFetch<RecipientOption[]>(`/api/coach/messages/recipient-options?scope=${scope}`)
+      const raw = await coachFetch<RecipientOption[]>(`/api/coach/messages/recipient-options?scope=${scope}`)
+      const list = Array.isArray(raw) ? raw : []
       setRecipientOptions(list)
       if (list.length === 0) {
         setRecipientLoadError('No recipients found. Try “Any athlete” or check class assignments.')
@@ -167,6 +168,10 @@ export default function MessagesPanel({
   useEffect(() => {
     void loadRecipientOptions(memberScope)
   }, [memberScope, loadRecipientOptions])
+
+  useEffect(() => {
+    if (newOpen) void loadRecipientOptions(memberScope)
+  }, [newOpen, memberScope, loadRecipientOptions])
 
   useEffect(() => {
     setGroupsLoading(true)
@@ -492,7 +497,7 @@ export default function MessagesPanel({
       {error && <div className="shrink-0 rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
 
       {newOpen && !maximized && (
-        <div className="shrink-0 bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+        <div className="relative z-30 shrink-0 bg-white border border-gray-200 rounded-xl p-4 space-y-3">
           <h3 className="font-semibold text-gray-800">New thread</h3>
           <div className="flex flex-wrap gap-2">
             <button

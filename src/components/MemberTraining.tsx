@@ -33,6 +33,8 @@ import MessagingThreadListHeaderActions from './messaging/MessagingThreadListHea
 import { getInboxPrimaryAction } from './messaging/messagingInboxActions'
 import ClassThreadCreateModal from './messaging/ClassThreadCreateModal'
 import FileUploadComposeModal from './messaging/FileUploadComposeModal'
+import EventBoardCreateModal from './messaging/EventBoardCreateModal'
+import CalendarItemComposePanel from './messaging/CalendarItemComposePanel'
 import ScheduleItemBanner from './messaging/ScheduleItemBanner'
 import {
   countThreadsByInboxTab,
@@ -878,6 +880,9 @@ export function MemberMessagesTab({
   const [faqPanelOpen, setFaqPanelOpen] = useState(false)
   const [classModalOpen, setClassModalOpen] = useState(false)
   const [fileModalOpen, setFileModalOpen] = useState(false)
+  const [eventBoardModalOpen, setEventBoardModalOpen] = useState(false)
+  const [calendarComposeOpen, setCalendarComposeOpen] = useState(false)
+  const [memberPermissions, setMemberPermissions] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const autoOpenedRef = useRef(false)
   const viewer = useMemo(() => getMessageViewer('member'), [])
@@ -901,9 +906,16 @@ export function MemberMessagesTab({
     () => ({ ...inboxCountsBase, ...inboxList.inboxCountsPatch }),
     [inboxCountsBase, inboxList.inboxCountsPatch],
   )
+  const memberMessagingPermissions = useMemo(
+    () => ({
+      canCreateEventBoards: memberPermissions.includes('event_boards.create'),
+      canCreateCalendarItems: memberPermissions.includes('event_calendar.create'),
+    }),
+    [memberPermissions],
+  )
   const primaryAction = useMemo(
-    () => getInboxPrimaryAction(inboxTab, 'member'),
-    [inboxTab],
+    () => getInboxPrimaryAction(inboxTab, 'member', { memberPermissions: memberMessagingPermissions }),
+    [inboxTab, memberMessagingPermissions],
   )
   const existingParticipantKeys = useMemo(
     () => threadParticipants.map((p) => participantKey(p)).filter((k): k is string => k != null),
@@ -911,7 +923,12 @@ export function MemberMessagesTab({
   )
 
   useEffect(() => {
-    setRecipientsLoading(true)
+    void coachFetch<{ permissions?: string[] }>('/api/member/access/me')
+      .then((data) => setMemberPermissions(Array.isArray(data?.permissions) ? data.permissions : []))
+      .catch(() => setMemberPermissions([]))
+  }, [])
+
+  useEffect(() => {
     coachFetch<RecipientOption[]>('/api/member/messages/recipient-options')
       .then(setRecipientOptions)
       .catch(() => {})
@@ -1117,12 +1134,20 @@ export function MemberMessagesTab({
   const handlePrimaryCreate = () => {
     if (primaryAction.disabled) return
     setNewOpen(false)
+    setCalendarComposeOpen(false)
     switch (primaryAction.mode) {
       case 'message':
         setNewOpen(true)
         break
       case 'class':
         setClassModalOpen(true)
+        break
+      case 'eventBoard':
+        setEventBoardModalOpen(true)
+        break
+      case 'calendarItem':
+        setSelectedId(null)
+        setCalendarComposeOpen(true)
         break
       case 'file':
         setFileModalOpen(true)
@@ -1278,7 +1303,19 @@ export function MemberMessagesTab({
           </MessagingThreadListShell>
         }
         detailPanel={
-          !selectedId ? (
+          calendarComposeOpen ? (
+            <CalendarItemComposePanel
+              fetcher={coachFetch}
+              role="member"
+              onCancel={() => setCalendarComposeOpen(false)}
+              onCreated={(_row, threadId) => {
+                setCalendarComposeOpen(false)
+                inboxList.refreshScheduleRows()
+                void loadThreads()
+                if (threadId != null) void openThread(threadId)
+              }}
+            />
+          ) : !selectedId ? (
             <div className="flex-1 flex items-center justify-center text-sm text-gray-500 p-6">Select a thread or start a new one.</div>
           ) : (
             <MessagingThreadDetailShell
@@ -1498,6 +1535,16 @@ export function MemberMessagesTab({
         fetcher={coachFetch}
         threads={threads}
         onUploaded={(threadId) => {
+          void loadThreads()
+          void openThread(threadId)
+        }}
+      />
+      <EventBoardCreateModal
+        open={eventBoardModalOpen}
+        onClose={() => setEventBoardModalOpen(false)}
+        fetcher={coachFetch}
+        role="member"
+        onCreated={(threadId) => {
           void loadThreads()
           void openThread(threadId)
         }}

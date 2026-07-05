@@ -617,6 +617,17 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     })
   })
 
+  app.get('/api/member/access/me', authMiddleware(pool, jwtSecret), async (req, res) => {
+    const ctx = req.platformAuth
+    res.json({
+      success: true,
+      data: {
+        permissions: ctx.permissions,
+        isMasterAdmin: ctx.isMasterAdmin,
+      },
+    })
+  })
+
   app.get('/api/admin/access/users', ...requirePermission(pool, jwtSecret, 'admin_access.manage'), async (req, res) => {
     const users = await pool.query(
       `
