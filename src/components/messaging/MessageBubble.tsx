@@ -204,6 +204,8 @@ export default function MessageBubble({
             ))}
           </div>
         )}
+      </div>
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0 w-full">
         {!isDeleted && threadId != null && role && fetcher && (
           <MessageReactionBar
             role={role}
@@ -215,12 +217,12 @@ export default function MessageBubble({
             onUpdated={(reactions) => onReactionsUpdated?.(message.id, reactions)}
           />
         )}
-      </div>
-      <div className="mt-1.5 text-[10px] text-right opacity-70 tabular-nums">
-        {footerMeta}
-        {isEdited && !isDeleted && message.edited_at && (
-          <span className="ml-1 opacity-80">· edited</span>
-        )}
+        <div className="ml-auto shrink-0 text-[10px] text-right opacity-70 tabular-nums whitespace-nowrap leading-tight">
+          {footerMeta}
+          {isEdited && !isDeleted && message.edited_at && (
+            <span className="ml-1 opacity-80">· edited</span>
+          )}
+        </div>
       </div>
     </div>
   )

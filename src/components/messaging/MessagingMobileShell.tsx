@@ -19,12 +19,12 @@ export default function MessagingMobileShell({
   const showDetail = selectedThreadId != null
 
   return (
-    <div className={`${messagingWorkspaceGrid} min-h-0`}>
-      <div className={`min-h-0 flex flex-col h-full ${showDetail ? 'hidden lg:flex' : 'flex'}`}>
+    <div className={`${messagingWorkspaceGrid} min-h-0 flex-1`}>
+      <div className={`min-h-0 flex flex-col h-full max-h-full overflow-hidden ${showDetail ? 'hidden lg:flex' : 'flex'}`}>
         {listPanel}
       </div>
-      <div className={`min-h-0 flex flex-col h-full ${showDetail ? 'flex' : 'hidden lg:flex'}`}>
-        <div className="messaging-panel flex flex-col min-h-0 flex-1 h-full">
+      <div className={`min-h-0 flex flex-col h-full max-h-full overflow-hidden ${showDetail ? 'flex' : 'hidden lg:flex'}`}>
+        <div className="messaging-panel flex flex-col min-h-0 flex-1 h-full max-h-full overflow-hidden">
           {showDetail && (
             <div className="lg:hidden shrink-0 px-3 py-2 border-b border-gray-100 flex items-center gap-2 bg-white">
               <button
@@ -37,7 +37,7 @@ export default function MessagingMobileShell({
               </button>
             </div>
           )}
-          {detailPanel}
+          <div className="flex flex-col flex-1 min-h-0 overflow-hidden">{detailPanel}</div>
         </div>
       </div>
     </div>

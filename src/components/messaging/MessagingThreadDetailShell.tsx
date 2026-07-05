@@ -13,9 +13,9 @@ export default function MessagingThreadDetailShell({
   children,
 }: MessagingThreadDetailShellProps) {
   return (
-    <div className="flex flex-col flex-1 min-h-0 h-full">
+    <div className="flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden">
       <div className="shrink-0">{header}</div>
-      <div className="messaging-scroll flex-1 min-h-0 overflow-y-auto">{children}</div>
+      <div className="messaging-scroll flex-1 min-h-0">{children}</div>
       {footer ? <div className="shrink-0">{footer}</div> : null}
     </div>
   )

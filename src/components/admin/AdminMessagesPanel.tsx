@@ -31,6 +31,7 @@ import {
   filterMessageThreads,
   filterThreadsByInboxTab,
   messagingWorkspaceRoot,
+  messagingWorkspaceShell,
   messagingWorkspaceThreadOpen,
   threadListTitle,
 } from '../messaging/messagingLayout'
@@ -472,6 +473,7 @@ export default function AdminMessagesPanel({
         </div>
       )}
 
+      <div className={messagingWorkspaceShell}>
       <MessagingMobileShell
         selectedThreadId={selectedId}
         onSelectThread={setSelectedId}
@@ -757,6 +759,7 @@ export default function AdminMessagesPanel({
           )
         }
       />
+      </div>
     </div>
   )
 }

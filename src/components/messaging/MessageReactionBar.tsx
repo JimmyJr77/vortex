@@ -16,6 +16,7 @@ interface MessageReactionBarProps {
   reactions?: MessageReactionGroup[]
   onUpdated?: (reactions: MessageReactionGroup[]) => void
   disabled?: boolean
+  className?: string
 }
 
 const QUICK_EMOJI = ['👍', '❤️', '😂', '🎉', '👀']
@@ -34,6 +35,7 @@ export default function MessageReactionBar({
   reactions = [],
   onUpdated,
   disabled = false,
+  className = '',
 }: MessageReactionBarProps) {
   const [busy, setBusy] = useState(false)
 
@@ -64,7 +66,7 @@ export default function MessageReactionBar({
   }
 
   return (
-    <div className="mt-1 flex flex-wrap items-center gap-1">
+    <div className={`flex flex-wrap items-center gap-1 min-w-0 ${className}`.trim()}>
       {reactions.map((r) => (
         <button
           key={r.emoji}

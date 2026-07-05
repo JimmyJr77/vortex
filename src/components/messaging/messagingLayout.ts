@@ -3,9 +3,10 @@ import type { MessagingInboxTab } from './MessagingInboxTabs'
 import type { ThreadListSortDir, ThreadListSortField } from './MessagingThreadListSortMenu'
 
 /** Shared layout classes — flex chain from portal main fills remaining viewport height. */
-export const messagingWorkspaceRoot = 'flex flex-col gap-4 messaging-workspace flex-1 min-h-0 h-full'
+export const messagingWorkspaceRoot = 'flex flex-col gap-4 messaging-workspace flex-1 min-h-0 h-full max-h-full overflow-hidden'
 export const messagingWorkspaceThreadOpen = 'messaging-workspace--thread-open'
-export const messagingWorkspaceGrid = 'grid gap-4 lg:gap-5 lg:grid-cols-[minmax(220px,280px)_1fr] flex-1 min-h-0 h-full messaging-workspace-grid'
+export const messagingWorkspaceGrid = 'grid gap-4 lg:gap-5 lg:grid-cols-[minmax(220px,280px)_1fr] flex-1 min-h-0 h-full max-h-full overflow-hidden messaging-workspace-grid'
+export const messagingWorkspaceShell = 'flex-1 min-h-0 overflow-hidden'
 export const messagingPanel = 'messaging-panel'
 export const messagingScroll = 'messaging-scroll'
 

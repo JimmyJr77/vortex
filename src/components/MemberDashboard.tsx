@@ -1545,7 +1545,7 @@ export default function MemberDashboard({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen h-dvh max-h-dvh bg-gray-50 flex flex-col overflow-hidden">
       {/* Member Portal Header Section - Dark Background */}
       <div className="bg-gradient-to-br from-black via-gray-900 to-black shrink-0">
         <div className="container-admin py-4 flex items-center justify-between gap-4">
@@ -1600,7 +1600,7 @@ export default function MemberDashboard({
       )}
 
       {/* Workspace: sidebar nav + main content */}
-      <div className="container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0">
+      <div className="container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden">
         <nav className={`${navOpen ? 'block' : 'hidden'} lg:block`}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
             {visibleNav.map((item) => {
@@ -1622,7 +1622,7 @@ export default function MemberDashboard({
             })}
           </div>
         </nav>
-        <main className="min-w-0 flex flex-col min-h-0 flex-1">
+        <main className={`min-w-0 flex flex-col min-h-0 flex-1 ${activeTab === 'messages' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           <div className="flex flex-col flex-1 min-h-0 h-full">
           <AnimatePresence mode="wait">
             {activeTab === 'home' && (

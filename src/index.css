@@ -97,13 +97,13 @@
   }
 
   .messaging-workspace {
-    @apply flex flex-col flex-1 min-h-0;
+    @apply flex flex-col flex-1 min-h-0 overflow-hidden;
     min-height: 420px;
+    max-height: 100%;
   }
 
   .messaging-workspace--thread-open {
     min-height: 0;
-    margin-bottom: -1.5rem;
   }
 
   @media (max-width: 1023px) {
@@ -113,23 +113,30 @@
   }
 
   .messaging-panel {
-    @apply bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col min-h-0;
+    @apply bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col min-h-0 max-h-full;
   }
 
   .messaging-scroll {
-    @apply flex-1 min-h-0 overflow-y-auto;
+    @apply flex-1 min-h-0 overflow-y-auto overscroll-contain;
+  }
+
+  .messaging-workspace-grid {
+    overflow: hidden;
   }
 
   @media (min-width: 1024px) {
     .messaging-workspace-grid {
       flex: 1 1 auto;
       min-height: 0;
+      max-height: 100%;
       height: 100%;
       grid-template-rows: minmax(0, 1fr);
+      align-items: stretch;
     }
 
     .messaging-workspace-grid > * {
       min-height: 0;
+      max-height: 100%;
     }
   }
 
@@ -137,6 +144,7 @@
     .messaging-workspace-grid {
       flex: 1 1 auto;
       min-height: 0;
+      max-height: 100%;
       height: 100%;
       grid-template-columns: minmax(0, 1fr);
       grid-template-rows: minmax(0, 1fr);
@@ -144,6 +152,7 @@
 
     .messaging-workspace-grid > * {
       min-height: 0;
+      max-height: 100%;
     }
   }
 }
