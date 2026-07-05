@@ -243,9 +243,9 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick }: FooterProps) 
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <motion.p
-              className="text-gray-400 text-sm"
+              className="text-gray-400 text-sm text-center md:text-left"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
@@ -253,6 +253,31 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick }: FooterProps) 
             >
               © 2024 Vortex Athletics, LLC. All rights reserved.
             </motion.p>
+
+            <motion.nav
+              className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-gray-400"
+              aria-label="Legal"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05, duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <a href={getHubSiteUrl('/support')} className="hover:text-vortex-red transition-colors">
+                Support
+              </a>
+              <a
+                href={getHubSiteUrl('/privacy-policy')}
+                className="hover:text-vortex-red transition-colors"
+              >
+                Privacy Policy
+              </a>
+              <a
+                href={getHubSiteUrl('/terms-of-service')}
+                className="hover:text-vortex-red transition-colors"
+              >
+                Terms of Service
+              </a>
+            </motion.nav>
             
             <motion.button
               onClick={scrollToTop}

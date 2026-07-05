@@ -35,6 +35,9 @@ const SignupFamilyPage = lazyWithRetry(() => import('./components/signup/SignupF
 const SignupInvitePage = lazyWithRetry(() => import('./components/signup/SignupInvitePage'))
 const VerifyEmailPage = lazyWithRetry(() => import('./components/VerifyEmailPage'))
 const EnrollmentReceiptPage = lazyWithRetry(() => import('./components/EnrollmentReceiptPage'))
+const SupportPage = lazyWithRetry(() => import('./components/legal/SupportPage'))
+const PrivacyPolicyPage = lazyWithRetry(() => import('./components/legal/PrivacyPolicyPage'))
+const TermsOfServicePage = lazyWithRetry(() => import('./components/legal/TermsOfServicePage'))
 const Admin = lazyWithRetry(() => import('./components/Admin'))
 const MemberDashboard = lazyWithRetry(() => import('./components/MemberDashboard'))
 const CoachDashboard = lazyWithRetry(() => import('./components/CoachDashboard'))
@@ -258,6 +261,9 @@ function App() {
             path="/registration/receipt"
             element={<EnrollmentReceiptPage />}
           />
+          <Route path="/support" element={<SupportPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
           <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
           <Route path="/schedule" element={<Navigate to="/enroll" replace />} />
         </Routes>

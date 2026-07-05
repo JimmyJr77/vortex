@@ -77,6 +77,7 @@ export async function initPlatformTables(pool) {
     '084_coaching_training_block.sql',
     '085_coaching_regimen_template.sql',
     '086_coaching_session_templates.sql',
+    '087_coaching_phase_order_slot_education.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

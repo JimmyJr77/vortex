@@ -3,6 +3,7 @@ import { Loader2, Sparkles, Plus, Trash2, ArrowRight } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import { useCoachBuilderStore } from '../../coach/useCoachBuilderStore'
+import { phasePlanForObjective, SESSION_OBJECTIVE_OPTIONS, type SessionObjective } from '../../coach/phasePlan'
 import type { FacetType } from '../../coach/taxonomy'
 import type { PrescriptionResult, Workout } from '../../coach/types'
 
@@ -21,9 +22,11 @@ interface BlockRow {
 
 export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?: () => void }) {
   const { taxonomy } = useTaxonomy()
-  const setWorkout = useCoachBuilderStore((s) => s.setWorkout)
+  const { setWorkout, applyPhasePlan, setWizardComplete } = useCoachBuilderStore()
   const [sportId, setSportId] = useState<number | ''>('')
   const [skillLevel, setSkillLevel] = useState('')
+  const [sessionObjective, setSessionObjective] = useState<SessionObjective>('general_athletic_development')
+  const [sessionMinutes, setSessionMinutes] = useState(60)
   const [ageMin, setAgeMin] = useState<number | ''>('')
   const [ageMax, setAgeMax] = useState<number | ''>('')
   const [equipmentIds, setEquipmentIds] = useState<number[]>([])
@@ -47,6 +50,16 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     physiology: taxonomy?.physiology ?? [],
   }
 
+  const applyObjectivePlan = () => {
+    const plan = phasePlanForObjective(sessionObjective, sessionMinutes)
+    setBlocks(plan.map((p) => ({
+      label: taxonomy?.sessionPhases?.find((sp) => sp.key === p.phaseKey)?.name ?? p.phaseKey,
+      phaseKey: p.phaseKey,
+      intentId: '',
+      minutes: p.minutes,
+    })))
+  }
+
   const prescribe = async () => {
     setLoading(true)
     setError(null)
@@ -58,6 +71,8 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
         ageMax: ageMax || null,
         equipmentIds,
         excludeBodyRegionIds,
+        sessionObjective,
+        durationMinutes: sessionMinutes,
         targets: targets.filter((t) => t.facetId !== '').map((t) => ({ facetType: t.facetType, facetId: t.facetId, weight: t.weight })),
         blocks: blocks.map((b) => ({ label: b.label, intentId: b.intentId || null, phaseKey: b.phaseKey, minutes: b.minutes })),
         phasePlan: blocks.map((b) => ({ label: b.label, phaseKey: b.phaseKey, minutes: b.minutes })),
@@ -104,11 +119,19 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
 
   const sendToBuilder = () => {
     if (!result) return
+    const plan = blocks.map((b) => ({ phaseKey: b.phaseKey, minutes: b.minutes, label: b.label }))
     const workout: Workout = {
       title: 'Prescribed Session',
       type: 'workout',
       sport_id: sportId || null,
+      session_objective: sessionObjective,
       target_minutes: blocks.reduce((sum, b) => sum + b.minutes, 0),
+      duration_minutes: sessionMinutes,
+      phase_plan_json: plan,
+      coach_rationale_json: {
+        session_why: SESSION_OBJECTIVE_OPTIONS.find((o) => o.value === sessionObjective)?.label,
+        order_why: 'Prescribed via Needs Engine using phase-aware exercise selection.',
+      },
       blocks: result.blocks.map((b) => ({
         label: b.label,
         block_format: 'straight_sets',
@@ -129,6 +152,8 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       })),
     }
     setWorkout(workout)
+    applyPhasePlan(plan)
+    setWizardComplete(true)
     onSendToBuilder?.()
   }
 
@@ -161,6 +186,23 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
           <div className="grid grid-cols-2 gap-3">
+            <label className="text-sm col-span-2">
+              <span className="block font-semibold text-gray-700 mb-1">Session objective</span>
+              <select value={sessionObjective} onChange={(e) => setSessionObjective(e.target.value as SessionObjective)} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+                {SESSION_OBJECTIVE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </label>
+            <label className="text-sm">
+              <span className="block font-semibold text-gray-700 mb-1">Session length (min)</span>
+              <select value={sessionMinutes} onChange={(e) => setSessionMinutes(Number(e.target.value))} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+                {[60, 90, 120].map((m) => <option key={m} value={m}>{m} min</option>)}
+              </select>
+            </label>
+            <div className="flex items-end">
+              <button type="button" onClick={applyObjectivePlan} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-medium hover:border-vortex-red hover:text-vortex-red">
+                Apply phase plan
+              </button>
+            </div>
             <label className="text-sm">
               <span className="block font-semibold text-gray-700 mb-1">Sport</span>
               <select value={sportId} onChange={(e) => setSportId(e.target.value ? Number(e.target.value) : '')} className="w-full border border-gray-300 rounded-lg px-3 py-2">
@@ -303,6 +345,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                         </div>
                         {it.selection_rationale && <p className="text-xs text-gray-500 mt-1">{it.selection_rationale}</p>}
                         {it.placement_rationale && <p className="text-xs text-gray-500">{it.placement_rationale}</p>}
+                        {it.scaling_rationale && <p className="text-xs text-blue-600">{it.scaling_rationale}</p>}
                       </li>
                     ))}
                     {b.items.length === 0 && <li className="text-xs text-gray-400">No matching exercises.</li>}

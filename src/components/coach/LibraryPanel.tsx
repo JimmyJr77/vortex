@@ -2,9 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, Plus, Search, X, Clock, Pencil, Trash2, Sparkles, CheckCircle2 } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
-import type { Exercise, ExerciseTag, ExerciseMedia, ExerciseCue, ExercisePhaseProfile, ExerciseWhy, ExerciseSafetyProfile, ExerciseRegimenRule } from '../../coach/types'
+import type { Exercise, ExerciseTag, ExerciseMedia, ExerciseCue, ExercisePhaseProfile, ExerciseWhy, ExerciseSafetyProfile, ExerciseRegimenRule, ExerciseScalingProfile, ExerciseProgrammingLogic } from '../../coach/types'
 import type { FacetType, TaxonomyItem } from '../../coach/taxonomy'
-import { formatExerciseCardSummary, whyPreview } from '../../coach/exerciseCard'
+import { formatExerciseCardSummary, primaryPhaseProfile, whyPreview } from '../../coach/exerciseCard'
 
 interface PrerequisiteRow {
   prerequisite_exercise_id: number
@@ -20,9 +20,13 @@ interface FilterState {
   physiology: number | ''
   intent: number | ''
   phase: number | ''
+  orderSlot: string
+  freshness: boolean
+  canBeDaily: boolean
+  minImpact: number | ''
 }
 
-const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', intent: '', phase: '' }
+const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', intent: '', phase: '', orderSlot: '', freshness: false, canBeDaily: false, minImpact: '' }
 
 export default function LibraryPanel() {
   const { taxonomy } = useTaxonomy()
@@ -45,6 +49,10 @@ export default function LibraryPanel() {
       if (filters.physiology) params.set('physio', String(filters.physiology))
       if (filters.intent) params.set('intent', String(filters.intent))
       if (filters.phase) params.set('phase', String(filters.phase))
+      if (filters.orderSlot) params.set('order_slot', filters.orderSlot)
+      if (filters.freshness) params.set('freshness', 'true')
+      if (filters.canBeDaily) params.set('can_be_daily', 'true')
+      if (filters.minImpact !== '') params.set('min_impact', String(filters.minImpact))
       const data = await coachFetch<Exercise[]>(`/api/coach/exercises?${params.toString()}`)
       setExercises(data)
     } catch (err) {
@@ -101,6 +109,28 @@ export default function LibraryPanel() {
         <FacetSelect label="Physiology" items={taxonomy?.physiology as TaxonomyItem[] | undefined} value={filters.physiology} onChange={(v) => setFilters((f) => ({ ...f, physiology: v }))} />
         <FacetSelect label="Phase/Intent" items={taxonomy?.intents} value={filters.intent} onChange={(v) => setFilters((f) => ({ ...f, intent: v }))} />
         <FacetSelect label="Session Phase" items={taxonomy?.sessionPhases as TaxonomyItem[] | undefined} value={filters.phase} onChange={(v) => setFilters((f) => ({ ...f, phase: v }))} />
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 mb-1">Order slot</label>
+          <select value={filters.orderSlot} onChange={(e) => setFilters((f) => ({ ...f, orderSlot: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            <option value="">All</option>
+            {(taxonomy?.phaseOrderSlots ?? []).map((s) => <option key={s.key} value={s.key}>{s.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 mb-1">Impact (min)</label>
+          <select value={filters.minImpact} onChange={(e) => setFilters((f) => ({ ...f, minImpact: e.target.value ? Number(e.target.value) : '' }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            <option value="">Any</option>
+            {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}+</option>)}
+          </select>
+        </div>
+        <label className="flex items-center gap-2 text-sm self-end pb-2">
+          <input type="checkbox" checked={filters.freshness} onChange={(e) => setFilters((f) => ({ ...f, freshness: e.target.checked }))} />
+          Freshness required
+        </label>
+        <label className="flex items-center gap-2 text-sm self-end pb-2">
+          <input type="checkbox" checked={filters.canBeDaily} onChange={(e) => setFilters((f) => ({ ...f, canBeDaily: e.target.checked }))} />
+          Can be daily
+        </label>
         <button type="button" onClick={() => setFilters(emptyFilters)} className="self-end text-sm text-gray-500 hover:text-gray-800 underline">
           Clear filters
         </button>
@@ -125,6 +155,18 @@ export default function LibraryPanel() {
               {ex.primary_phase && (
                 <span className="inline-block mt-2 text-[11px] bg-blue-50 text-blue-800 rounded px-2 py-0.5">{ex.primary_phase.phaseName}</span>
               )}
+              {primaryPhaseProfile(ex)?.freshnessRequired && (
+                <span className="inline-block mt-2 ml-1 text-[11px] bg-amber-50 text-amber-800 rounded px-2 py-0.5">Freshness</span>
+              )}
+              {(primaryPhaseProfile(ex)?.fatigueCost ?? 0) >= 4 && (
+                <span className="inline-block mt-2 ml-1 text-[11px] bg-orange-50 text-orange-800 rounded px-2 py-0.5">High fatigue</span>
+              )}
+              {(primaryPhaseProfile(ex)?.impactLevel ?? 0) >= 3 && (
+                <span className="inline-block mt-2 ml-1 text-[11px] bg-purple-50 text-purple-800 rounded px-2 py-0.5">High impact</span>
+              )}
+              {ex.regimen_rule?.can_be_daily && (
+                <span className="inline-block mt-2 ml-1 text-[11px] bg-green-50 text-green-800 rounded px-2 py-0.5">Daily OK</span>
+              )}
               {whyPreview(ex.why) && (
                 <p className="text-xs text-gray-500 mt-2 line-clamp-2">{whyPreview(ex.why)}</p>
               )}
@@ -133,10 +175,13 @@ export default function LibraryPanel() {
                 {ex.default_sets && <span>{ex.default_sets}x{ex.default_reps ?? '-'}</span>}
               </div>
               <div className="flex flex-wrap gap-1 mt-2">
-                {(ex.tags ?? []).filter((t) => t.facetType === 'tenet').slice(0, 4).map((t: ExerciseTag) => (
-                  <span key={t.facetId} className="text-[11px] bg-red-50 text-vortex-red rounded px-2 py-0.5">
-                    {tenetName.get(Number(t.facetId)) ?? 'Unknown tenet'}
+                {(ex.tags ?? []).filter((t) => t.facetType === 'tenet').slice(0, 3).map((t: ExerciseTag) => (
+                  <span key={`t-${t.facetId}`} className="text-[11px] bg-red-50 text-vortex-red rounded px-2 py-0.5">
+                    {tenetName.get(Number(t.facetId)) ?? 'Tenet'}
                   </span>
+                ))}
+                {(ex.tags ?? []).filter((t) => t.facetType === 'methodology').slice(0, 2).map((t: ExerciseTag) => (
+                  <span key={`m-${t.facetId}`} className="text-[11px] bg-gray-100 text-gray-700 rounded px-2 py-0.5">Method</span>
                 ))}
               </div>
             </div>
@@ -214,9 +259,12 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
   const [allExercises, setAllExercises] = useState<Exercise[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [tab, setTab] = useState<'basics' | 'tags' | 'why' | 'phase' | 'dosage' | 'safety' | 'regimen' | 'media'>('basics')
+  const [tab, setTab] = useState<'basics' | 'tags' | 'why' | 'phase' | 'dosage' | 'scaling' | 'logic' | 'safety' | 'regimen' | 'media'>('basics')
   const [why, setWhy] = useState<ExerciseWhy>({})
+  const [programmingLogic, setProgrammingLogic] = useState<ExerciseProgrammingLogic>({})
+  const [scalableVariables, setScalableVariables] = useState<string[]>([])
   const [phaseProfiles, setPhaseProfiles] = useState<ExercisePhaseProfile[]>([])
+  const [scalingProfiles, setScalingProfiles] = useState<ExerciseScalingProfile[]>([])
   const [safetyProfile, setSafetyProfile] = useState<ExerciseSafetyProfile>({})
   const [regimenRule, setRegimenRule] = useState<ExerciseRegimenRule>({})
   const [publishCheck, setPublishCheck] = useState<{ ready: boolean; issues: string[] } | null>(null)
@@ -227,6 +275,8 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
     { id: 'why', label: 'Why' },
     { id: 'phase', label: 'Phase' },
     { id: 'dosage', label: 'Dosage' },
+    { id: 'scaling', label: 'Scaling' },
+    { id: 'logic', label: 'Programming Logic' },
     { id: 'safety', label: 'Safety' },
     { id: 'regimen', label: 'Regimen' },
     { id: 'media', label: 'Media & Cues' },
@@ -243,6 +293,9 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
         setPrerequisites((full.prerequisites ?? []) as PrerequisiteRow[])
         setWhy(full.why ?? {})
         setPhaseProfiles(full.phase_profiles ?? [])
+        setScalingProfiles(full.scaling_profiles ?? [])
+        setProgrammingLogic((full.programming_logic as ExerciseProgrammingLogic) ?? {})
+        setScalableVariables(full.scalable_variables ?? [])
         setSafetyProfile(full.safety_profile ?? {})
         setRegimenRule(full.regimen_rule ?? {})
       })
@@ -331,6 +384,9 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
         prerequisites: prerequisites.map((p) => ({ prerequisite_exercise_id: p.prerequisite_exercise_id, note: p.note ?? null })),
         why,
         phase_profiles: phaseProfiles,
+        scaling_profiles: scalingProfiles,
+        programming_logic: programmingLogic,
+        scalable_variables: scalableVariables,
         safety_profile: safetyProfile,
         regimen_rule: regimenRule,
         dosage_profile: {
@@ -483,7 +539,11 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
             <div className="space-y-3 text-sm">
               {([
                 ['training_purpose', 'Training purpose'],
+                ['tenet_rationale', 'Tenet rationale'],
+                ['methodology_rationale', 'Methodology rationale'],
+                ['physiological_rationale', 'Physiological rationale'],
                 ['phase_rationale', 'Phase rationale'],
+                ['order_rationale', 'Order rationale'],
                 ['fatigue_rationale', 'Fatigue rationale'],
                 ['scaling_rationale', 'Scaling rationale'],
                 ['regimen_rationale', 'Regimen rationale'],
@@ -506,44 +566,88 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
             <div className="space-y-3">
               {(taxonomy?.sessionPhases ?? []).map((phase) => {
                 const profile = phaseProfiles.find((p) => p.phaseKey === phase.key)
+                const slots = (taxonomy?.phaseOrderSlots ?? []).filter((s) => s.phase_key === phase.key)
+                const upsert = (patch: Partial<ExercisePhaseProfile>) => {
+                  const rest = phaseProfiles.filter((p) => p.phaseKey !== phase.key)
+                  if (!profile && !patch.role) return
+                  setPhaseProfiles([...rest, { ...profile, phaseId: phase.id, phaseKey: phase.key, phaseName: phase.name, fitWeight: 3, role: 'secondary', ...patch } as ExercisePhaseProfile])
+                }
                 return (
-                  <div key={phase.id} className="border border-gray-200 rounded-lg p-3 text-sm grid md:grid-cols-4 gap-2 items-center">
+                  <div key={phase.id} className="border border-gray-200 rounded-lg p-3 text-sm space-y-2">
                     <div className="font-semibold text-gray-800">{phase.name}</div>
-                    <select
-                      value={profile?.role ?? ''}
-                      onChange={(e) => {
-                        const role = e.target.value as ExercisePhaseProfile['role'] | ''
-                        const rest = phaseProfiles.filter((p) => p.phaseKey !== phase.key)
-                        if (!role) { setPhaseProfiles(rest); return }
-                        setPhaseProfiles([...rest, {
-                          phaseId: phase.id,
-                          phaseKey: phase.key,
-                          phaseName: phase.name,
-                          fitWeight: profile?.fitWeight ?? 3,
-                          role,
-                        }])
-                      }}
-                      className="border border-gray-300 rounded px-2 py-1"
-                    >
-                      <option value="">Not set</option>
-                      <option value="primary">Primary</option>
-                      <option value="secondary">Secondary</option>
-                      <option value="conditional">Conditional</option>
-                      <option value="avoid">Avoid</option>
-                    </select>
-                    <input
-                      type="number"
-                      min={1}
-                      max={5}
-                      value={profile?.fitWeight ?? 3}
-                      disabled={!profile}
-                      onChange={(e) => setPhaseProfiles(phaseProfiles.map((p) => p.phaseKey === phase.key ? { ...p, fitWeight: Number(e.target.value) } : p))}
-                      className="border border-gray-300 rounded px-2 py-1"
-                      placeholder="Fit 1-5"
-                    />
+                    <div className="grid md:grid-cols-4 gap-2">
+                      <select
+                        value={profile?.role ?? ''}
+                        onChange={(e) => {
+                          const role = e.target.value as ExercisePhaseProfile['role'] | ''
+                          const rest = phaseProfiles.filter((p) => p.phaseKey !== phase.key)
+                          if (!role) { setPhaseProfiles(rest); return }
+                          setPhaseProfiles([...rest, {
+                            phaseId: phase.id,
+                            phaseKey: phase.key,
+                            phaseName: phase.name,
+                            fitWeight: profile?.fitWeight ?? 3,
+                            role,
+                          }])
+                        }}
+                        className="border border-gray-300 rounded px-2 py-1"
+                      >
+                        <option value="">Not set</option>
+                        <option value="primary">Primary</option>
+                        <option value="secondary">Secondary</option>
+                        <option value="conditional">Conditional</option>
+                        <option value="avoid">Avoid</option>
+                      </select>
+                      <input
+                        type="number"
+                        min={1}
+                        max={5}
+                        value={profile?.fitWeight ?? 3}
+                        disabled={!profile}
+                        onChange={(e) => upsert({ fitWeight: Number(e.target.value) })}
+                        className="border border-gray-300 rounded px-2 py-1"
+                        placeholder="Fit 1-5"
+                      />
+                      <select
+                        value={profile?.orderSlot ?? ''}
+                        disabled={!profile}
+                        onChange={(e) => upsert({ orderSlot: e.target.value || null })}
+                        className="border border-gray-300 rounded px-2 py-1 md:col-span-2"
+                      >
+                        <option value="">Order slot</option>
+                        {slots.map((s) => <option key={s.id} value={s.key}>{s.name}</option>)}
+                      </select>
+                    </div>
+                    {profile && (
+                      <div className="grid md:grid-cols-4 gap-2">
+                        <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={profile.freshnessRequired ?? false} onChange={(e) => upsert({ freshnessRequired: e.target.checked })} /> Freshness</label>
+                        <input type="number" min={1} max={5} value={profile.fatigueCost ?? 3} onChange={(e) => upsert({ fatigueCost: Number(e.target.value) })} className="border border-gray-300 rounded px-2 py-1" placeholder="Fatigue cost" />
+                        <input type="number" min={0} max={5} value={profile.impactLevel ?? 1} onChange={(e) => upsert({ impactLevel: Number(e.target.value) })} className="border border-gray-300 rounded px-2 py-1" placeholder="Impact" />
+                        <input type="number" min={1} max={5} value={profile.fatigueSensitivity ?? 3} onChange={(e) => upsert({ fatigueSensitivity: Number(e.target.value) })} className="border border-gray-300 rounded px-2 py-1" placeholder="Fatigue sensitivity" />
+                      </div>
+                    )}
                   </div>
                 )
               })}
+            </div>
+          )}
+
+          {tab === 'scaling' && (
+            <div className="space-y-3 text-sm">
+              {scalingProfiles.map((s, i) => (
+                <div key={i} className="border border-gray-200 rounded-lg p-3 grid md:grid-cols-2 gap-2">
+                  <input value={s.label} onChange={(e) => setScalingProfiles(scalingProfiles.map((x, j) => j === i ? { ...x, label: e.target.value } : x))} placeholder="Label (e.g. Regression)" className="border border-gray-300 rounded px-2 py-1" />
+                  <select value={s.scale_direction ?? 'baseline'} onChange={(e) => setScalingProfiles(scalingProfiles.map((x, j) => j === i ? { ...x, scale_direction: e.target.value as ExerciseScalingProfile['scale_direction'] } : x))} className="border border-gray-300 rounded px-2 py-1">
+                    <option value="regression">Regression</option>
+                    <option value="baseline">Baseline</option>
+                    <option value="progression">Progression</option>
+                  </select>
+                  <textarea value={s.load_guidance ?? ''} onChange={(e) => setScalingProfiles(scalingProfiles.map((x, j) => j === i ? { ...x, load_guidance: e.target.value } : x))} placeholder="Load guidance" rows={2} className="md:col-span-2 border border-gray-300 rounded px-2 py-1" />
+                  <textarea value={s.complexity_guidance ?? ''} onChange={(e) => setScalingProfiles(scalingProfiles.map((x, j) => j === i ? { ...x, complexity_guidance: e.target.value } : x))} placeholder="Complexity guidance" rows={2} className="md:col-span-2 border border-gray-300 rounded px-2 py-1" />
+                  <button type="button" onClick={() => setScalingProfiles(scalingProfiles.filter((_, j) => j !== i))} className="text-red-600 text-xs justify-self-start">Remove</button>
+                </div>
+              ))}
+              <button type="button" onClick={() => setScalingProfiles([...scalingProfiles, { label: 'Baseline', scale_direction: 'baseline' }])} className="text-vortex-red text-sm flex items-center gap-1"><Plus className="w-4 h-4" /> Add scaling profile</button>
             </div>
           )}
 
@@ -553,6 +657,43 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
               <label><span className="font-semibold text-gray-700">Default reps</span><input type="number" value={form.default_reps} onChange={(e) => setForm({ ...form, default_reps: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" /></label>
               <label><span className="font-semibold text-gray-700">Rest (sec)</span><input type="number" value={form.default_rest_seconds} onChange={(e) => setForm({ ...form, default_rest_seconds: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" /></label>
               <label><span className="font-semibold text-gray-700">Est sec/set</span><input type="number" value={form.est_seconds_per_set} onChange={(e) => setForm({ ...form, est_seconds_per_set: Number(e.target.value) })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" /></label>
+            </div>
+          )}
+
+          {tab === 'logic' && (
+            <div className="space-y-3 text-sm">
+              <label className="block">
+                <span className="font-semibold text-gray-700">Training effect</span>
+                <textarea value={programmingLogic.training_effect ?? ''} onChange={(e) => setProgrammingLogic({ ...programmingLogic, training_effect: e.target.value })} rows={2} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" />
+              </label>
+              {([
+                ['best_used_for', 'Best used for (comma separated)'],
+                ['avoid_when', 'Avoid when (comma separated)'],
+                ['recommended_preceded_by', 'Recommended preceded by (order slots)'],
+                ['recommended_followed_by', 'Recommended followed by (order slots)'],
+              ] as const).map(([key, label]) => (
+                <label key={key} className="block">
+                  <span className="font-semibold text-gray-700">{label}</span>
+                  <input
+                    value={(programmingLogic[key] ?? []).join(', ')}
+                    onChange={(e) => setProgrammingLogic({ ...programmingLogic, [key]: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })}
+                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </label>
+              ))}
+              <div>
+                <span className="font-semibold text-gray-700">Scalable variables</span>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {['sets', 'reps', 'rest_seconds', 'height', 'load', 'complexity', 'distance', 'tempo', 'rom'].map((v) => {
+                    const active = scalableVariables.includes(v)
+                    return (
+                      <button key={v} type="button" onClick={() => setScalableVariables(active ? scalableVariables.filter((x) => x !== v) : [...scalableVariables, v])} className={`rounded-full border px-2 py-1 text-xs ${active ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-200 text-gray-600'}`}>
+                        {v}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
           )}
 

@@ -82,6 +82,8 @@ import {
   validateExercisePublishReady,
 } from './exerciseProgramming.js'
 import { validateWorkoutDraft } from './workoutValidation.js'
+import { validateTrainingBlockDraft } from './trainingBlockValidation.js'
+import { validateRegimenDraft } from './regimenValidation.js'
 import { runPhaseAwarePrescription, getSessionPhaseTemplates } from './phaseAwarePrescription.js'
 
 function ok(res, data) {
@@ -344,6 +346,26 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (phaseRole && phaseId) {
         params.push(phaseRole)
         where.push(`EXISTS (SELECT 1 FROM coaching.exercise_phase_profile p WHERE p.exercise_id = e.id AND p.phase_id = $${params.length - 1} AND p.role = $${params.length})`)
+      }
+
+      const orderSlot = req.query.order_slot ? String(req.query.order_slot).trim() : null
+      if (orderSlot) {
+        params.push(orderSlot)
+        where.push(`EXISTS (SELECT 1 FROM coaching.exercise_phase_profile p WHERE p.exercise_id = e.id AND p.order_slot = $${params.length})`)
+      }
+
+      if (req.query.freshness === 'true' || req.query.freshness_required === 'true') {
+        where.push(`EXISTS (SELECT 1 FROM coaching.exercise_phase_profile p WHERE p.exercise_id = e.id AND p.freshness_required = TRUE)`)
+      }
+
+      if (req.query.can_be_daily === 'true') {
+        where.push(`EXISTS (SELECT 1 FROM coaching.exercise_regimen_rule r WHERE r.exercise_id = e.id AND r.can_be_daily = TRUE)`)
+      }
+
+      const minImpact = num(req.query.min_impact ?? req.query.impact_min)
+      if (minImpact != null) {
+        params.push(minImpact)
+        where.push(`EXISTS (SELECT 1 FROM coaching.exercise_phase_profile p WHERE p.exercise_id = e.id AND p.impact_level >= $${params.length})`)
       }
 
       // Facet filters: tenet, method->methodology, physio->physiology, pattern, equipment, intent, body_region.
@@ -925,6 +947,14 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     return { ...block.rows[0], sessions: sessions.rows, rule: rules.rows[0] ?? null }
   }
 
+  app.post('/api/coach/training-blocks/validate', ...can('workouts.manage'), async (req, res) => {
+    try {
+      ok(res, await validateTrainingBlockDraft(pool, req.body || {}))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
   app.get('/api/coach/training-blocks', ...can('library.view'), async (req, res) => {
     try {
       const facilityId = req.platformAuth.user.facility_id
@@ -1097,6 +1127,14 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     ])
     return { ...template.rows[0], phase_distributions: distributions.rows, session_templates: sessions.rows, progression_rules: progressionRules.rows }
   }
+
+  app.post('/api/coach/regimen-templates/validate', ...can('workouts.manage'), async (req, res) => {
+    try {
+      ok(res, await validateRegimenDraft(pool, req.body || {}))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
 
   app.get('/api/coach/regimen-templates', ...can('library.view'), async (req, res) => {
     try {

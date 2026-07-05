@@ -73,6 +73,27 @@ export const HUB_ROUTES: HubRouteSeo[] = [
       'Reserve your spot with Vortex Athletics enrollment in Bowie, MD. Choose your category, day, and time.',
     priority: 0.8,
   },
+  {
+    path: '/support',
+    title: 'Customer Support | Vortex Athletics',
+    description:
+      'Contact Vortex Athletics in Bowie, MD for enrollment, billing, and program support. Email team@vortexathletics.com or call (443) 422-4794.',
+    priority: 0.5,
+  },
+  {
+    path: '/privacy-policy',
+    title: 'Privacy Policy | Vortex Athletics',
+    description:
+      'How Vortex Athletics collects, uses, discloses, and protects personal information for enrollment, billing, and member services.',
+    priority: 0.3,
+  },
+  {
+    path: '/terms-of-service',
+    title: 'Terms of Service | Vortex Athletics',
+    description:
+      'Terms governing use of Vortex Athletics websites, enrollment, billing, and program participation in Bowie, MD.',
+    priority: 0.3,
+  },
 ]
 
 const routeMap = new Map(HUB_ROUTES.map((route) => [route.path, route]))

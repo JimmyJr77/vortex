@@ -213,6 +213,51 @@ export async function saveExerciseProgramming(client, exerciseId, slug, body) {
     )
   }
 
+  const scalingRows = body.scaling_profiles ?? (body.scaling_profile ? [body.scaling_profile] : null)
+  if (Array.isArray(scalingRows) && scalingRows.length > 0) {
+    await client.query(`DELETE FROM coaching.exercise_scaling_profile WHERE exercise_id = $1`, [exerciseId])
+    for (const s of scalingRows) {
+      if (!s.label && !s.load_guidance && !s.complexity_guidance) continue
+      await client.query(
+        `
+          INSERT INTO coaching.exercise_scaling_profile (
+            exercise_id, label, age_min, age_max, skill_level, scale_direction,
+            sets_min, sets_max, reps_min, reps_max, work_seconds_min, work_seconds_max,
+            rest_seconds_min, rest_seconds_max, load_guidance, height_guidance, distance_guidance,
+            tempo_guidance, rom_guidance, complexity_guidance, impact_guidance,
+            coach_notes, athlete_notes, contraindication_notes
+          ) VALUES ($1,$2,$3,$4,$5::public.skill_level,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)
+        `,
+        [
+          exerciseId,
+          s.label || 'Baseline',
+          s.age_min ?? s.ageMin ?? null,
+          s.age_max ?? s.ageMax ?? null,
+          s.skill_level ?? s.skillLevel ?? null,
+          s.scale_direction ?? s.scaleDirection ?? 'baseline',
+          s.sets_min ?? s.setsMin ?? null,
+          s.sets_max ?? s.setsMax ?? null,
+          s.reps_min ?? s.repsMin ?? null,
+          s.reps_max ?? s.repsMax ?? null,
+          s.work_seconds_min ?? s.workSecondsMin ?? null,
+          s.work_seconds_max ?? s.workSecondsMax ?? null,
+          s.rest_seconds_min ?? s.restSecondsMin ?? null,
+          s.rest_seconds_max ?? s.restSecondsMax ?? null,
+          s.load_guidance ?? s.loadGuidance ?? null,
+          s.height_guidance ?? s.heightGuidance ?? null,
+          s.distance_guidance ?? s.distanceGuidance ?? null,
+          s.tempo_guidance ?? s.tempoGuidance ?? null,
+          s.rom_guidance ?? s.romGuidance ?? null,
+          s.complexity_guidance ?? s.complexityGuidance ?? null,
+          s.impact_guidance ?? s.impactGuidance ?? null,
+          s.coach_notes ?? s.coachNotes ?? null,
+          s.athlete_notes ?? s.athleteNotes ?? null,
+          s.contraindication_notes ?? s.contraindicationNotes ?? null,
+        ],
+      )
+    }
+  }
+
   if (body.why || body.education) {
     await upsertExerciseEducation(client, exerciseId, slug, body.why ?? body.education)
   }

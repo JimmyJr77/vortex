@@ -104,6 +104,14 @@ export interface ExerciseRegimenRule {
   recovery_notes?: string | null
 }
 
+export interface ExerciseProgrammingLogic {
+  training_effect?: string
+  best_used_for?: string[]
+  avoid_when?: string[]
+  recommended_preceded_by?: string[]
+  recommended_followed_by?: string[]
+}
+
 export interface Exercise {
   id: number
   name: string
@@ -127,7 +135,7 @@ export interface Exercise {
   card_summary?: string | null
   coach_language?: string | null
   athlete_language?: string | null
-  programming_logic?: Record<string, unknown>
+  programming_logic?: ExerciseProgrammingLogic
   scalable_variables?: string[]
   why_publish_ready?: boolean
   tags?: ExerciseTag[]
@@ -276,6 +284,14 @@ export interface ValidationIssue {
   override_requires_reason?: boolean
 }
 
+export interface ValidationTimeSummary {
+  planned_seconds?: number
+  budget_seconds?: number
+  delta_seconds?: number
+  planned_minutes?: number
+  budget_minutes?: number | null
+}
+
 export interface ValidationResult {
   status: 'valid' | 'warning' | 'error'
   errors: ValidationIssue[]
@@ -283,7 +299,7 @@ export interface ValidationResult {
   recommendations: ValidationIssue[]
   coverage?: Record<string, unknown>
   fatigue?: Record<string, unknown>
-  time?: Record<string, unknown>
+  time?: ValidationTimeSummary
 }
 
 export interface PrescriptionRationale {

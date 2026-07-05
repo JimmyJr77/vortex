@@ -13,12 +13,15 @@ function emptyBlock(label = 'Block', phaseKey?: string): WorkoutBlock {
   }
 }
 
-function phaseBlocksFromPlan(plan: Array<{ phaseKey: string; minutes: number; label?: string }>): WorkoutBlock[] {
-  return plan.map((p) => ({
-    ...emptyBlock(p.label ?? p.phaseKey, p.phaseKey),
-    minutes_budget: p.minutes,
-    label: p.label ?? p.phaseKey,
-  }))
+function phaseBlocksFromPlan(plan: Array<{ phaseKey?: string; phase?: string; minutes: number; label?: string }>): WorkoutBlock[] {
+  return plan.map((p) => {
+    const phaseKey = p.phaseKey ?? p.phase ?? ''
+    return {
+      ...emptyBlock(p.label ?? phaseKey, phaseKey),
+      minutes_budget: p.minutes,
+      label: p.label ?? phaseKey,
+    }
+  })
 }
 
 function emptyWorkout(type: WorkoutType = 'workout'): Workout {
@@ -60,7 +63,7 @@ interface BuilderState {
   setWorkout: (workout: Workout) => void
   reset: (type?: WorkoutType) => void
   patchWorkout: (patch: Partial<Workout>) => void
-  applyPhasePlan: (plan: Array<{ phaseKey: string; minutes: number; label?: string }>) => void
+  applyPhasePlan: (plan: Array<{ phaseKey?: string; phase?: string; minutes: number; label?: string }>) => void
   setValidation: (validation: ValidationResult | null) => void
   addBlock: () => void
   updateBlock: (index: number, patch: Partial<WorkoutBlock>) => void
@@ -82,16 +85,23 @@ export const useCoachBuilderStore = create<BuilderState>((set) => ({
   reset: (type = 'workout') => set({ workout: emptyWorkout(type), dirty: false, wizardComplete: false, validation: null }),
   patchWorkout: (patch) => set((s) => ({ workout: { ...s.workout, ...patch }, dirty: true })),
   applyPhasePlan: (plan) =>
-    set((s) => ({
-      workout: {
-        ...s.workout,
-        phase_plan_json: plan,
-        blocks: phaseBlocksFromPlan(plan),
-        target_minutes: plan.reduce((sum, p) => sum + (Number(p.minutes) || 0), 0),
-      },
-      dirty: true,
-      wizardComplete: true,
-    })),
+    set((s) => {
+      const normalized = plan.map((p) => ({
+        phaseKey: p.phaseKey ?? p.phase ?? '',
+        minutes: p.minutes,
+        label: p.label,
+      })).filter((p) => p.phaseKey)
+      return {
+        workout: {
+          ...s.workout,
+          phase_plan_json: normalized,
+          blocks: phaseBlocksFromPlan(normalized),
+          target_minutes: normalized.reduce((sum, p) => sum + (Number(p.minutes) || 0), 0),
+        },
+        dirty: true,
+        wizardComplete: true,
+      }
+    }),
   setValidation: (validation) => set({ validation }),
   setWizardComplete: (wizardComplete) => set({ wizardComplete }),
   addBlock: () => set((s) => ({ workout: { ...s.workout, blocks: [...s.workout.blocks, emptyBlock(`Block ${s.workout.blocks.length + 1}`)] }, dirty: true })),

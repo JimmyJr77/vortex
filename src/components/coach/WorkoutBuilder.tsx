@@ -36,6 +36,7 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
   const [previewLoading, setPreviewLoading] = useState(false)
   const [showWizard, setShowWizard] = useState(defaultType === 'workout' && !wizardComplete)
   const [openPhaseEdu, setOpenPhaseEdu] = useState<number | null>(null)
+  const [phaseEducation, setPhaseEducation] = useState<Map<string, { short_summary?: string | null; why_it_matters?: string | null; programming_guidance?: string | null; why_this_order?: string | null }>>(new Map())
   const [overrideReason, setOverrideReason] = useState('')
   const [showOverride, setShowOverride] = useState(false)
 
@@ -75,6 +76,18 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
   }, [taxonomy])
 
   useEffect(() => {
+    coachFetch<Array<{ entity_key: string; short_summary?: string | null; why_it_matters?: string | null; programming_guidance?: string | null; why_this_order?: string | null }>>(
+      '/api/coach/education?entity_type=session_phase',
+    )
+      .then((rows) => {
+        const map = new Map<string, { short_summary?: string | null; why_it_matters?: string | null; programming_guidance?: string | null; why_this_order?: string | null }>()
+        for (const row of rows) map.set(row.entity_key, row)
+        setPhaseEducation(map)
+      })
+      .catch(() => setPhaseEducation(new Map()))
+  }, [])
+
+  useEffect(() => {
     const timer = setTimeout(async () => {
       if (workout.blocks.every((b) => b.items.length === 0)) {
         setValidation(null)
@@ -82,11 +95,23 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
       }
       try {
         const draft = {
+          duration_minutes: workout.duration_minutes ?? workout.target_minutes,
+          target_minutes: workout.target_minutes,
           blocks: workout.blocks.map((b) => ({
             label: b.label,
             phase_key: b.phase_key,
             phase_id: b.phase_id,
-            items: b.items.map((it) => ({ exercise_id: it.exercise_id, exercise_name: it.exercise_name })),
+            rounds: b.rounds,
+            rest_between_rounds_seconds: b.rest_between_rounds_seconds,
+            items: b.items.map((it) => ({
+              exercise_id: it.exercise_id,
+              exercise_name: it.exercise_name,
+              sets: it.sets,
+              reps: it.reps,
+              rest_seconds: it.rest_seconds,
+              work_seconds: it.work_seconds,
+              est_seconds_per_set: it.est_seconds_per_set,
+            })),
           })),
         }
         const result = await coachFetch<ValidationResult>('/api/coach/workouts/validate', { method: 'POST', body: JSON.stringify(draft) })
@@ -96,7 +121,7 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
       }
     }, 600)
     return () => clearTimeout(timer)
-  }, [workout.blocks, setValidation])
+  }, [workout.blocks, workout.target_minutes, workout.duration_minutes, setValidation])
 
   const save = async (force = false) => {
     if (validation?.errors?.length && !force) {
@@ -191,6 +216,17 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
               </li>
             ))}
           </ul>
+          {validation.time?.budget_minutes != null && (
+            <div className="text-xs mt-2 opacity-80">
+              Time: {Number(validation.time.planned_minutes ?? 0)} min planned / {Number(validation.time.budget_minutes)} min budget
+            </div>
+          )}
+        </div>
+      )}
+
+      {wizardComplete && workout.phase_plan_json && workout.phase_plan_json.length > 0 && (
+        <div className="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+          Phase canvas active — blocks follow the session setup plan. Use Setup to reconfigure.
         </div>
       )}
 
@@ -275,8 +311,19 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
                 </button>
               )}
               {openPhaseEdu === bi && block.phase_key && (
-                <div className="mt-2 text-xs text-gray-600 bg-gray-50 rounded-lg p-3">
-                  {workout.coach_rationale_json?.order_why ?? `Exercises in ${phaseName.get(block.phase_key) ?? block.phase_key} should match freshness and intent for this slot in the session.`}
+                <div className="mt-2 text-xs text-gray-600 bg-gray-50 rounded-lg p-3 space-y-1">
+                  {phaseEducation.get(block.phase_key)?.short_summary && (
+                    <p>{phaseEducation.get(block.phase_key)?.short_summary}</p>
+                  )}
+                  {phaseEducation.get(block.phase_key)?.why_it_matters && (
+                    <p><span className="font-semibold">Why it matters:</span> {phaseEducation.get(block.phase_key)?.why_it_matters}</p>
+                  )}
+                  {phaseEducation.get(block.phase_key)?.programming_guidance && (
+                    <p><span className="font-semibold">Programming:</span> {phaseEducation.get(block.phase_key)?.programming_guidance}</p>
+                  )}
+                  {!phaseEducation.get(block.phase_key) && (
+                    <p>{workout.coach_rationale_json?.order_why ?? `Exercises in ${phaseName.get(block.phase_key) ?? block.phase_key} should match freshness and intent for this slot in the session.`}</p>
+                  )}
                 </div>
               )}
 
@@ -310,9 +357,11 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
             </div>
           ))}
 
+          {!wizardComplete && (
           <button type="button" onClick={addBlock} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-gray-300 text-sm text-gray-600 hover:border-vortex-red hover:text-vortex-red">
             <Plus className="w-4 h-4" /> Add block
           </button>
+          )}
         </div>
 
         <div className="bg-white border border-gray-200 rounded-xl p-4 h-fit">

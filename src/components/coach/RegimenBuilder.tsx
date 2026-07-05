@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Layers, Loader2, Save } from 'lucide-react'
+import { Layers, Loader2, Save, AlertTriangle } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
-import type { RegimenTemplate } from '../../coach/types'
+import { allValidationIssues, validationStatusLabel } from '../../coach/validationMessages'
+import type { RegimenTemplate, ValidationResult } from '../../coach/types'
 
 export default function RegimenBuilder() {
   const { taxonomy } = useTaxonomy()
   const [templates, setTemplates] = useState<RegimenTemplate[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [validating, setValidating] = useState(false)
+  const [validation, setValidation] = useState<ValidationResult | null>(null)
   const [draft, setDraft] = useState<RegimenTemplate>({
     name: '',
     description: '',
@@ -35,14 +38,27 @@ export default function RegimenBuilder() {
     void load()
   }, [load])
 
+  const validate = async () => {
+    setValidating(true)
+    try {
+      setValidation(await coachFetch<ValidationResult>('/api/coach/regimen-templates/validate', { method: 'POST', body: JSON.stringify(draft) }))
+    } catch {
+      setValidation(null)
+    } finally {
+      setValidating(false)
+    }
+  }
+
   const save = async () => {
     if (!draft.name.trim()) return
     setSaving(true)
     setMessage(null)
     try {
+      await validate()
       await coachFetch('/api/coach/regimen-templates', { method: 'POST', body: JSON.stringify(draft) })
       setMessage('Regimen saved.')
       setDraft({ name: '', description: '', duration_type: '60', weeks: 4, sessions_per_week: 3, regimen_rationale_json: {}, phase_distributions: [] })
+      setValidation(null)
       void load()
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Save failed')
@@ -58,6 +74,12 @@ export default function RegimenBuilder() {
         <p className="text-sm text-gray-500">Evergreen templates with phase distribution and weekly philosophy.</p>
       </div>
       {message && <div className="rounded-lg bg-gray-100 text-gray-800 px-4 py-2 text-sm">{message}</div>}
+      {validation && validation.status !== 'valid' && (
+        <div className={`rounded-lg px-4 py-3 text-sm ${validation.errors.length ? 'bg-red-50 text-red-800' : 'bg-amber-50 text-amber-900'}`}>
+          <div className="flex items-center gap-2 font-semibold mb-2"><AlertTriangle className="w-4 h-4" /> {validationStatusLabel(validation)}</div>
+          <ul className="space-y-1 text-xs">{allValidationIssues(validation).slice(0, 5).map((issue, i) => <li key={i}>{issue.message}</li>)}</ul>
+        </div>
+      )}
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
           <input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="Regimen name" className="w-full border border-gray-300 rounded-lg px-3 py-2" />
@@ -78,7 +100,7 @@ export default function RegimenBuilder() {
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
           />
           <div>
-            <div className="text-sm font-semibold text-gray-700 mb-2">Phase distribution</div>
+            <div className="text-sm font-semibold text-gray-700 mb-2">Phase distribution (minutes per session)</div>
             {(taxonomy?.sessionPhases ?? []).map((phase) => {
               const existing = draft.phase_distributions?.find((d) => d.phase_id === phase.id)
               return (
@@ -86,7 +108,7 @@ export default function RegimenBuilder() {
                   <span className="w-40 truncate">{phase.name}</span>
                   <input
                     type="number"
-                    placeholder="min/wk"
+                    placeholder="min"
                     value={existing?.default_minutes ?? ''}
                     onChange={(e) => {
                       const minutes = e.target.value ? Number(e.target.value) : undefined
@@ -99,9 +121,14 @@ export default function RegimenBuilder() {
               )
             })}
           </div>
-          <button type="button" onClick={() => void save()} disabled={saving} className="w-full flex items-center justify-center gap-2 bg-vortex-red text-white py-2 rounded-lg font-semibold disabled:opacity-60">
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save regimen
-          </button>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => void validate()} disabled={validating} className="flex-1 border border-gray-300 py-2 rounded-lg text-sm font-semibold">
+              {validating ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Validate'}
+            </button>
+            <button type="button" onClick={() => void save()} disabled={saving} className="flex-1 flex items-center justify-center gap-2 bg-vortex-red text-white py-2 rounded-lg font-semibold disabled:opacity-60">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save
+            </button>
+          </div>
         </div>
         <div className="bg-white border border-gray-200 rounded-xl p-4">
           <h3 className="font-semibold text-gray-800 mb-3">Saved regimens</h3>

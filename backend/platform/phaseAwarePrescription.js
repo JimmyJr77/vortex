@@ -97,6 +97,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     const phaseKey = block.phaseKey ?? block.phase_key ?? block.phase
     const phase = phaseByKey.get(phaseKey)
     const budgetSeconds = (Number(block.minutes) || 20) * 60
+    const intentId = block.intentId != null ? Number(block.intentId) : (block.intent_id != null ? Number(block.intent_id) : null)
     const edu = phase
       ? await pool.query(
           `SELECT * FROM coaching.education_content WHERE entity_type = 'session_phase' AND entity_key = $1 LIMIT 1`,
@@ -114,8 +115,16 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       .map((c) => {
         const profile = c.profiles.find((p) => p.phaseKey === phaseKey && p.role !== 'avoid')
         if (!profile) return null
-        const phaseFit = profile.fitWeight * 2
-        const penalty = usedPatterns.get(c.tags.find((t) => t.facetType === 'pattern')?.facetId) ? 0.25 : 0
+        if (intentId) {
+          const intentMatch = c.tags.some((t) => t.facetType === 'intent' && t.facetId === intentId)
+          if (!intentMatch) return null
+        }
+        let phaseFit = profile.fitWeight * 2
+        if (profile.role === 'primary') phaseFit += 6
+        else if (profile.role === 'secondary') phaseFit += 2
+        else if (profile.role === 'conditional') phaseFit *= 0.75
+        const patternId = c.tags.find((t) => t.facetType === 'pattern')?.facetId
+        const penalty = patternId && usedPatterns.get(patternId) ? 0.25 : 0
         return { ...c, adjScore: (c.score + phaseFit) * (1 - Math.min(penalty, 0.75)), profile }
       })
       .filter(Boolean)
@@ -177,14 +186,25 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
 
 export async function getSessionPhaseTemplates(pool) {
   const result = await pool.query(
-    `SELECT entity_key, title, short_summary, examples_json FROM coaching.education_content
+    `SELECT entity_key, title, short_summary, examples_json, programming_guidance FROM coaching.education_content
      WHERE entity_type = 'template' AND entity_key LIKE 'session_%' AND is_published = TRUE
      ORDER BY sort_order, entity_key`,
   )
-  return result.rows.map((r) => ({
-    key: r.entity_key,
-    title: r.title,
-    summary: r.short_summary,
-    phase_plan: r.examples_json,
-  }))
+  return result.rows.map((r) => {
+    const rawPlan = Array.isArray(r.examples_json) ? r.examples_json : []
+    const phase_plan = rawPlan.map((row) => ({
+      phaseKey: row.phaseKey ?? row.phase,
+      minutes: Number(row.minutes) || 0,
+      label: row.label ?? undefined,
+      contains_tumbling: Boolean(row.contains_tumbling ?? row.containsTumbling),
+      add_on_focus: row.add_on_focus ?? row.addOnFocus ?? undefined,
+    })).filter((p) => p.phaseKey && p.minutes >= 0)
+    return {
+      key: r.entity_key,
+      title: r.title,
+      summary: r.short_summary,
+      phase_plan,
+      placement_guidance: r.programming_guidance ?? null,
+    }
+  })
 }

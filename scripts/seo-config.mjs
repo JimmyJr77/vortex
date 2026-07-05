@@ -12,6 +12,9 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
   { path: '/enroll', priority: '0.8', changefreq: 'weekly' },
   { path: '/scheduling', priority: '0.8', changefreq: 'weekly' },
+  { path: '/support', priority: '0.5', changefreq: 'monthly' },
+  { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
+  { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
 ]
 
 export const HUB_PRERENDER_PATHS = HUB_SITEMAP_ENTRIES.map((entry) => entry.path)

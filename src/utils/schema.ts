@@ -197,6 +197,9 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
     '/summer-athletic-training': 'Summer Athletic Training',
     '/value': 'Why Vortex',
     '/read-board': 'Classes & Events',
+    '/support': 'Customer Support',
+    '/privacy-policy': 'Privacy Policy',
+    '/terms-of-service': 'Terms of Service',
   }
   const name = breadcrumbName[pathname]
   if (name) {

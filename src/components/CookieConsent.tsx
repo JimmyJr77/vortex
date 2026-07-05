@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { initCrossDomainConsent, saveConsent, shouldShowCookieConsent } from '../utils/consent'
+import { getHubSiteUrl } from '../utils/crossDomainConsent'
 
 const CookieConsent = () => {
   const [visible, setVisible] = useState(false)
@@ -48,7 +49,14 @@ const CookieConsent = () => {
               <p>
                 We use necessary cookies to run the site. With your permission we use analytics
                 cookies to improve our programs and marketing cookies for relevant ads. We do not
-                use cookies to build advertising audiences from children&apos;s information.
+                use cookies to build advertising audiences from children&apos;s information. See our{' '}
+                <a
+                  href={getHubSiteUrl('/privacy-policy')}
+                  className="text-vortex-red hover:underline"
+                >
+                  Privacy Policy
+                </a>
+                .
               </p>
             </div>
             <div className="flex flex-wrap gap-2 shrink-0">
