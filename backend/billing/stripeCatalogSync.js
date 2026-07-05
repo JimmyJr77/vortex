@@ -175,15 +175,27 @@ export async function upsertCatalogItem(
 
   const existing = await loadCatalogRow(pool, lookupKey)
   let productId = existing?.stripe_product_id ?? null
+  let forceNewPrice = false
 
   if (productId) {
-    await stripe.products.update(productId, {
-      name: productName,
-      description: productDescription || undefined,
-      metadata,
-      active: true,
-    })
-  } else {
+    try {
+      await stripe.products.update(productId, {
+        name: productName,
+        description: productDescription || undefined,
+        metadata,
+        active: true,
+      })
+    } catch (err) {
+      // Test-mode product IDs in DB are invalid after switching to live keys.
+      if (err?.code === 'resource_missing') {
+        productId = null
+        forceNewPrice = true
+      } else {
+        throw err
+      }
+    }
+  }
+  if (!productId) {
     const product = await stripe.products.create({
       name: productName,
       description: productDescription || undefined,
@@ -193,6 +205,7 @@ export async function upsertCatalogItem(
   }
 
   const priceUnchanged =
+    !forceNewPrice &&
     existing &&
     existing.active &&
     Number(existing.amount_cents) === normalizedAmount &&
