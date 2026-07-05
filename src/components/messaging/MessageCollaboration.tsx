@@ -150,11 +150,23 @@ export function MessageChecklistBlock({
           const row = item && typeof item === 'object' ? item as Record<string, unknown> : { text: String(item) }
           const text = String(row.text ?? item ?? '')
           const assigned = row.assigned_member_id != null || row.assigned_user_id != null
+          const assignedName = String(row.assigned_name || '').trim()
+          const assignedPhone = String(row.assigned_phone || '').trim()
+          const claimNote = String(row.claim_note || '').trim()
           return (
             <li key={index} className="flex items-start justify-between gap-2 text-sm">
-              <span className="text-gray-800">{text}</span>
+              <div className="min-w-0">
+                <span className="text-gray-800">{text}</span>
+                {assigned && (
+                  <div className="mt-1 text-xs text-gray-600 space-y-0.5">
+                    <div className="font-medium text-gray-900">{assignedName || 'Claimed'}</div>
+                    {assignedPhone && <div>{assignedPhone}</div>}
+                    {claimNote && <div className="italic">{claimNote}</div>}
+                  </div>
+                )}
+              </div>
               {assigned ? (
-                <span className="shrink-0 text-xs text-gray-500">Claimed</span>
+                <span className="shrink-0 text-xs font-semibold text-emerald-700">Claimed</span>
               ) : (
                 <button
                   type="button"

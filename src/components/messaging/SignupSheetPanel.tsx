@@ -42,6 +42,31 @@ function itemClaimNote(item: unknown): string {
   return String((item as Record<string, unknown>).claim_note || '').trim()
 }
 
+function itemAssignedName(item: unknown): string {
+  if (!item || typeof item !== 'object') return ''
+  return String((item as Record<string, unknown>).assigned_name || '').trim()
+}
+
+function itemAssignedPhone(item: unknown): string {
+  if (!item || typeof item !== 'object') return ''
+  return String((item as Record<string, unknown>).assigned_phone || '').trim()
+}
+
+function responseNotes(response: SignupResponse): string {
+  const value = response.response && typeof response.response === 'object'
+    ? String((response.response as Record<string, unknown>).notes || '').trim()
+    : ''
+  return value
+}
+
+function responseGuestCount(response: SignupResponse): number | null {
+  if (!response.response || typeof response.response !== 'object') return null
+  const raw = (response.response as Record<string, unknown>).guest_count
+  if (raw == null || raw === '') return null
+  const count = Number(raw)
+  return Number.isFinite(count) ? count : null
+}
+
 function isClaimed(item: unknown): boolean {
   if (!item || typeof item !== 'object') return false
   const row = item as Record<string, unknown>
@@ -206,15 +231,23 @@ function SignupParticipateCard({
           </button>
           {responses.length > 0 && (
             <div className="rounded-lg border border-gray-200 divide-y divide-gray-100">
-              {responses.map((response, index) => (
-                <div key={index} className="px-3 py-2 text-sm flex items-center justify-between gap-3">
-                  <span className="font-medium text-gray-800">{responseLabel(response)}</span>
-                  <span className="text-xs text-gray-500">
-                    {String((response.response as Record<string, unknown> | undefined)?.guest_count ?? '')}
-                    {(response.response as Record<string, unknown> | undefined)?.notes ? ` · ${(response.response as Record<string, unknown>).notes}` : ''}
-                  </span>
-                </div>
-              ))}
+              {responses.map((response, index) => {
+                const notes = responseNotes(response)
+                const guestCount = responseGuestCount(response)
+                const name = response.participant_name?.trim() || 'Unknown'
+                const phone = response.phone?.trim() || ''
+                return (
+                  <div key={index} className="px-3 py-2 text-sm space-y-0.5">
+                    <div className="font-medium text-gray-900">{name}</div>
+                    <div className="text-xs text-gray-600">
+                      {responseLabel(response)}
+                      {guestCount != null ? ` · ${guestCount} guest${guestCount === 1 ? '' : 's'}` : ''}
+                    </div>
+                    {phone && <div className="text-xs text-gray-600">{phone}</div>}
+                    {notes && <div className="text-xs text-gray-500 italic">{notes}</div>}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>
@@ -224,12 +257,14 @@ function SignupParticipateCard({
             const claimed = isClaimed(item)
             const mine = isClaimedByViewer(item, viewerUserId, viewerMemberId)
             const note = itemClaimNote(item)
+            const assignedName = itemAssignedName(item)
+            const assignedPhone = itemAssignedPhone(item)
             return (
               <li key={index} className="rounded-lg border border-gray-200 px-3 py-2 text-sm space-y-2">
                 <div className="flex items-start justify-between gap-3">
                   <span className="text-gray-800">{itemText(item)}</span>
                   {claimed && !mine && (
-                    <span className="shrink-0 text-xs text-gray-500">Claimed</span>
+                    <span className="shrink-0 text-xs font-semibold text-emerald-700">Claimed</span>
                   )}
                   {mine && (
                     <div className="flex items-center gap-2 shrink-0">
@@ -245,8 +280,12 @@ function SignupParticipateCard({
                     </div>
                   )}
                 </div>
-                {mine && note && (
-                  <div className="text-xs text-gray-500">{note}</div>
+                {claimed && (
+                  <div className="rounded-md bg-gray-50 px-2.5 py-2 text-xs text-gray-600 space-y-0.5">
+                    <div className="font-medium text-gray-900">{assignedName || 'Claimed'}</div>
+                    {assignedPhone && <div>{assignedPhone}</div>}
+                    {note && <div className="italic">{note}</div>}
+                  </div>
                 )}
                 {!claimed && (
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center">

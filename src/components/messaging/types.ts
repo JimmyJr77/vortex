@@ -134,6 +134,8 @@ export type SignupSheetType = 'rsvp' | 'items' | 'support'
 export interface SignupResponse {
   user_id?: number | null
   member_id?: number | null
+  participant_name?: string | null
+  phone?: string | null
   response?: {
     status?: 'yes' | 'no' | 'maybe'
     guest_count?: number

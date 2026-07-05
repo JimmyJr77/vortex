@@ -1015,6 +1015,127 @@ function normalizeSheetType(value) {
   return ['rsvp', 'items', 'support'].includes(type) ? type : 'items'
 }
 
+function collectChecklistParticipantIds(row, memberIds, userIds) {
+  const responses = Array.isArray(row.responses) ? row.responses : []
+  for (const resp of responses) {
+    if (resp?.member_id != null) memberIds.add(Number(resp.member_id))
+    if (resp?.user_id != null) userIds.add(Number(resp.user_id))
+  }
+  const items = Array.isArray(row.items_json) ? row.items_json : (Array.isArray(row.items) ? row.items : [])
+  for (const item of items) {
+    if (!item || typeof item !== 'object') continue
+    if (item.assigned_member_id != null) memberIds.add(Number(item.assigned_member_id))
+    if (item.assigned_user_id != null) userIds.add(Number(item.assigned_user_id))
+  }
+}
+
+async function loadParticipantContactMaps(pool, memberIds, userIds) {
+  const members = new Map()
+  const users = new Map()
+  if (memberIds.length > 0) {
+    const r = await pool.query(
+      `SELECT id, TRIM(CONCAT(first_name, ' ', last_name)) AS name, phone
+       FROM member WHERE id = ANY($1::bigint[])`,
+      [memberIds],
+    )
+    for (const row of r.rows) {
+      members.set(Number(row.id), {
+        name: String(row.name || '').trim() || null,
+        phone: row.phone != null ? String(row.phone).trim() || null : null,
+      })
+    }
+  }
+  if (userIds.length > 0) {
+    const r = await pool.query(
+      `SELECT id, full_name AS name, phone FROM app_user WHERE id = ANY($1::bigint[])`,
+      [userIds],
+    )
+    for (const row of r.rows) {
+      users.set(Number(row.id), {
+        name: String(row.name || '').trim() || null,
+        phone: row.phone != null ? String(row.phone).trim() || null : null,
+      })
+    }
+  }
+  return { members, users }
+}
+
+function participantContact(members, users, memberId, userId) {
+  if (memberId != null) {
+    const contact = members.get(Number(memberId))
+    if (contact) return contact
+  }
+  if (userId != null) {
+    const contact = users.get(Number(userId))
+    if (contact) return contact
+  }
+  return { name: null, phone: null }
+}
+
+function applyChecklistParticipantContacts(row, members, users) {
+  if (!row) return row
+  const responses = Array.isArray(row.responses) ? row.responses : []
+  const rawItems = row.items_json ?? row.items ?? []
+  const items = Array.isArray(rawItems) ? rawItems : []
+  const enrichedResponses = responses.map((resp) => {
+    const contact = participantContact(members, users, resp.member_id, resp.user_id)
+    return {
+      ...resp,
+      participant_name: contact.name,
+      phone: contact.phone,
+    }
+  })
+  const enrichedItems = items.map((item) => {
+    if (!item || typeof item !== 'object') return item
+    if (item.assigned_member_id == null && item.assigned_user_id == null) return item
+    const contact = participantContact(
+      members,
+      users,
+      item.assigned_member_id,
+      item.assigned_user_id,
+    )
+    return {
+      ...item,
+      assigned_name: contact.name,
+      assigned_phone: contact.phone,
+    }
+  })
+  return {
+    ...row,
+    responses: enrichedResponses,
+    items_json: enrichedItems,
+    items: enrichedItems,
+  }
+}
+
+async function enrichChecklistParticipantData(pool, row) {
+  if (!row) return row
+  const memberIds = new Set()
+  const userIds = new Set()
+  collectChecklistParticipantIds(row, memberIds, userIds)
+  if (memberIds.size === 0 && userIds.size === 0) return row
+  const { members, users } = await loadParticipantContactMaps(
+    pool,
+    [...memberIds],
+    [...userIds],
+  )
+  return applyChecklistParticipantContacts(row, members, users)
+}
+
+async function enrichChecklistRowsParticipantData(pool, rows) {
+  if (!rows?.length) return rows || []
+  const memberIds = new Set()
+  const userIds = new Set()
+  for (const row of rows) collectChecklistParticipantIds(row, memberIds, userIds)
+  if (memberIds.size === 0 && userIds.size === 0) return rows
+  const { members, users } = await loadParticipantContactMaps(
+    pool,
+    [...memberIds],
+    [...userIds],
+  )
+  return rows.map((row) => applyChecklistParticipantContacts(row, members, users))
+}
+
 function normalizeChecklistRow(row) {
   if (!row) return null
   return {
@@ -1099,7 +1220,8 @@ export async function loadMessageChecklist(pool, messageId) {
      WHERE c.message_id = $1`,
     [messageId],
   )
-  return normalizeChecklistRow(r.rows[0])
+  const enriched = await enrichChecklistParticipantData(pool, r.rows[0])
+  return normalizeChecklistRow(enriched)
 }
 
 export async function listThreadSignupSheets(pool, threadId, viewer) {
@@ -1155,7 +1277,8 @@ export async function listThreadSignupSheets(pool, threadId, viewer) {
      ORDER BY c.created_at ASC, c.id ASC`,
     params,
   )
-  return r.rows.map((row) => enrichChecklistRow(row, viewer))
+  const enrichedRows = await enrichChecklistRowsParticipantData(pool, r.rows)
+  return enrichedRows.map((row) => enrichChecklistRow(row, viewer))
 }
 
 export async function dismissSignupSheet(pool, checklistId, viewer) {
