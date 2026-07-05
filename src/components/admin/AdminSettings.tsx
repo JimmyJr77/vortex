@@ -2,13 +2,15 @@ import { useState } from 'react'
 import { Settings } from 'lucide-react'
 import AdminEmail from '../AdminEmail'
 import AdminPortalTabSettings from './AdminPortalTabSettings'
+import AdminStripeCatalogSettings from './AdminStripeCatalogSettings'
 
-type SettingsTab = 'email' | 'memberPortal' | 'coachPortal'
+type SettingsTab = 'email' | 'memberPortal' | 'coachPortal' | 'stripe'
 
 const TABS: Array<{ id: SettingsTab; label: string }> = [
   { id: 'email', label: 'Email' },
   { id: 'memberPortal', label: 'Member Portal' },
   { id: 'coachPortal', label: 'Coach Portal' },
+  { id: 'stripe', label: 'Stripe' },
 ]
 
 export default function AdminSettings() {
@@ -22,7 +24,7 @@ export default function AdminSettings() {
           Settings
         </h2>
         <p className="text-gray-600 text-sm mt-1">
-          Email delivery, member portal navigation, and coach portal navigation.
+          Email delivery, portal navigation, and Stripe catalog sync.
         </p>
       </div>
 
@@ -48,6 +50,7 @@ export default function AdminSettings() {
       {tab === 'email' && <AdminEmail embedded />}
       {tab === 'memberPortal' && <AdminPortalTabSettings portal="member" />}
       {tab === 'coachPortal' && <AdminPortalTabSettings portal="coach" />}
+      {tab === 'stripe' && <AdminStripeCatalogSettings />}
     </div>
   )
 }

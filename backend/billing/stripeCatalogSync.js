@@ -461,6 +461,113 @@ export async function deactivateClassOverrideCatalog(pool, formId) {
   return deactivateCatalogByLookupKey(pool, formOverrideLookupKey(formId))
 }
 
+function buildCatalogOfferingLabel(row) {
+  const programName = String(row.program_display_name ?? row.program_name ?? '').trim()
+  switch (row.entity_type) {
+    case 'program_option': {
+      const label = OPTION_LABELS[row.sub_key] ?? row.sub_key
+      return programName ? `${programName} — ${label}` : label
+    }
+    case 'multi_class_pass': {
+      const packages = normalizeMultiClassPassPackages(row.multi_class_pass_packages ?? [])
+      const pkg = packages.find((p) => p.id === row.sub_key)
+      const passLabel = pkg?.label ?? `Pass ${row.sub_key}`
+      return programName ? `${programName} — ${passLabel}` : passLabel
+    }
+    case 'additional_fee':
+      return String(row.fee_name ?? `Fee ${row.entity_id}`)
+    case 'class_override': {
+      const className = String(row.form_title ?? `Class ${row.entity_id}`).trim()
+      const parentName = String(row.form_program_display_name ?? row.form_program_name ?? '').trim()
+      return parentName ? `${parentName} — ${className} (override)` : `${className} (override)`
+    }
+    default:
+      return row.stripe_lookup_key
+  }
+}
+
+/** Admin-facing rows: every mapped catalog item and its Stripe price. */
+export async function listStripeCatalogBreakdown(pool) {
+  await ensureStripeCatalogSchema(pool)
+  const schema = await resolveProgramsSchema(pool)
+  const res = await pool.query(
+    `
+      SELECT
+        sci.id,
+        sci.entity_type,
+        sci.entity_id,
+        sci.sub_key,
+        sci.amount_cents,
+        sci.recurring_interval,
+        sci.active,
+        sci.stripe_product_id,
+        sci.stripe_price_id,
+        sci.stripe_lookup_key,
+        sci.last_synced_at,
+        p.display_name AS program_display_name,
+        p.name AS program_name,
+        p.multi_class_pass_packages,
+        af.name AS fee_name,
+        sf.title AS form_title,
+        parent.display_name AS form_program_display_name,
+        parent.name AS form_program_name
+      FROM stripe_catalog_item sci
+      LEFT JOIN ${schema.programsTable} p
+        ON sci.entity_type IN ('program_option', 'multi_class_pass') AND p.id = sci.entity_id
+      LEFT JOIN additional_fee af
+        ON sci.entity_type = 'additional_fee' AND af.id = sci.entity_id
+      LEFT JOIN scheduling_form sf
+        ON sci.entity_type = 'class_override' AND sf.id = sci.entity_id
+      LEFT JOIN ${schema.programsTable} parent
+        ON sci.entity_type = 'class_override' AND parent.id = sf.programs_id
+      ORDER BY sci.active DESC, sci.entity_type, sci.entity_id, sci.sub_key NULLS LAST
+    `,
+  )
+
+  return res.rows.map((row) => ({
+    offering: buildCatalogOfferingLabel(row),
+    entityType: row.entity_type,
+    entityId: Number(row.entity_id),
+    subKey: row.sub_key,
+    amountCents: Number(row.amount_cents),
+    recurringInterval: row.recurring_interval,
+    active: Boolean(row.active),
+    stripeProductId: row.stripe_product_id,
+    stripePriceId: row.stripe_price_id,
+    lookupKey: row.stripe_lookup_key,
+    lastSyncedAt: row.last_synced_at,
+  }))
+}
+
+export async function getCatalogSyncStatus(pool) {
+  await ensureStripeCatalogSchema(pool)
+  const totals = await pool.query(`
+    SELECT
+      COUNT(*) FILTER (WHERE active) AS active_count,
+      COUNT(*) FILTER (WHERE NOT active) AS inactive_count,
+      COUNT(*) AS total_count
+    FROM stripe_catalog_item
+  `)
+  const secretKey = process.env.STRIPE_SECRET_KEY || ''
+  const stripeMode = secretKey.startsWith('sk_live_')
+    ? 'live'
+    : secretKey.startsWith('sk_test_')
+      ? 'test'
+      : secretKey
+        ? 'unknown'
+        : 'none'
+  const items = await listStripeCatalogBreakdown(pool)
+  return {
+    stripeEnabled: stripeEnabled(),
+    stripeMode,
+    catalogItems: totals.rows[0],
+    lastSynced: await pool.query(
+      `SELECT MAX(last_synced_at) AS last_synced_at FROM stripe_catalog_item`,
+    ).then((r) => r.rows[0]?.last_synced_at ?? null),
+    items,
+  }
+}
+
 /** Resolve stripe_price_id for a catalog entity (used by checkout in Phase 2). */
 export async function resolveStripePriceId(pool, lookupKey) {
   await ensureStripeCatalogSchema(pool)

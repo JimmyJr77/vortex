@@ -37,9 +37,8 @@ import {
   createEnrollmentCheckoutSession,
   commitPendingEnrollment,
   confirmEnrollmentCheckoutSession,
-  getCatalogSyncStatus,
 } from '../billing/stripeEnrollmentCheckout.js'
-import { syncAllCatalog } from '../billing/stripeCatalogSync.js'
+import { syncAllCatalog, getCatalogSyncStatus } from '../billing/stripeCatalogSync.js'
 import { buildBillingAccountView } from '../billing/billingAccountView.js'
 import { chargeDisplayCategory } from '../billing/billingPeriodView.js'
 import { notifyPaymentReceipt, notifyPaymentFailed } from '../email/memberNotifications.js'

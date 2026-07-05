@@ -13,6 +13,7 @@ import {
   resolveStripePriceId,
   ensureStripeCatalogSchema,
   ensureBillingRecurringSchema,
+  getCatalogSyncStatus,
 } from './stripeCatalogSync.js'
 import { buildSignupOrderPreview } from '../scheduling/orderPricing.js'
 import { executeSignupBatch } from '../scheduling/handlers.js'
@@ -757,20 +758,4 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
   }
 }
 
-export async function getCatalogSyncStatus(pool) {
-  await ensureStripeCatalogSchema(pool)
-  const totals = await pool.query(`
-    SELECT
-      COUNT(*) FILTER (WHERE active) AS active_count,
-      COUNT(*) FILTER (WHERE NOT active) AS inactive_count,
-      COUNT(*) AS total_count
-    FROM stripe_catalog_item
-  `)
-  return {
-    stripeEnabled: stripeEnabled(),
-    catalogItems: totals.rows[0],
-    lastSynced: await pool.query(
-      `SELECT MAX(last_synced_at) AS last_synced_at FROM stripe_catalog_item`,
-    ).then((r) => r.rows[0]?.last_synced_at ?? null),
-  }
-}
+export { getCatalogSyncStatus } from './stripeCatalogSync.js'
