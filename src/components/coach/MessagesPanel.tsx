@@ -11,7 +11,7 @@ import MessagingThreadListSortMenu, {
   type ThreadListSortField,
 } from '../messaging/MessagingThreadListSortMenu'
 import { buildReplyQuote, stripReplyQuote } from '../messaging/messageFormatting'
-import { tokenizeMentionsInBody, type MessageMentionPayload } from '../messaging/messageMentions'
+import { prepareMessageBodyForSend, type MessageMentionPayload } from '../messaging/messageMentions'
 import MessagingThreadListShell from '../messaging/MessagingThreadListShell'
 import MessagingMobileShell from '../messaging/MessagingMobileShell'
 import MessagingInboxTabs, { type MessagingInboxTab } from '../messaging/MessagingInboxTabs'
@@ -68,6 +68,7 @@ export default function MessagesPanel({
   const [detailLoading, setDetailLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [reply, setReply] = useState('')
+  const [replyTarget, setReplyTarget] = useState<MessageRow | null>(null)
   const [sending, setSending] = useState(false)
   const [newOpen, setNewOpen] = useState(false)
   const [newRecipients, setNewRecipients] = useState<RecipientOption[]>([])
@@ -226,11 +227,13 @@ export default function MessagesPanel({
 
   const replyToMessage = useCallback((message: MessageRow) => {
     setPendingFaqReply(null)
+    setReplyTarget(message)
     setReply(buildReplyQuote(message))
   }, [])
 
   const replyToMessageWithFaq = useCallback((message: MessageRow) => {
     const prefix = buildReplyQuote(message)
+    setReplyTarget(message)
     setReply(prefix)
     setPendingFaqReply({
       question: message.body?.trim() || 'Question',
@@ -247,12 +250,17 @@ export default function MessagesPanel({
         attachmentPayload = await uploadMessageAttachment(pendingAttachment, 'coach', coachFetch)
       }
       const replyText = reply.trim()
-      const body = tokenizeMentionsInBody(replyText, mentions, threadParticipants)
+      const { body, mentions: resolvedMentions } = prepareMessageBodyForSend(
+        replyText,
+        mentions,
+        replyTarget,
+        threadParticipants,
+      )
       const msg = await coachFetch<MessageRow>(`/api/coach/messages/${selectedId}`, {
         method: 'POST',
         body: JSON.stringify({
           body,
-          mentions,
+          mentions: resolvedMentions,
           ...attachmentPayload,
           is_critical: criticalFlags.is_critical,
           requires_ack: criticalFlags.requires_ack,
@@ -268,6 +276,7 @@ export default function MessagesPanel({
         setPendingFaqReply(null)
       }
       setReply('')
+      setReplyTarget(null)
       setPendingAttachment(null)
       setCriticalFlags({ is_critical: false, requires_ack: false })
       void loadThreads()

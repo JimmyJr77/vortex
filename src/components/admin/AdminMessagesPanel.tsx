@@ -19,7 +19,7 @@ import MessagingThreadFaq, { type ThreadFaqDraft } from '../messaging/MessagingT
 import MessagingThreadDetailShell from '../messaging/MessagingThreadDetailShell'
 import MessagingMessageThread from '../messaging/MessagingMessageThread'
 import { buildReplyQuote, stripReplyQuote } from '../messaging/messageFormatting'
-import { tokenizeMentionsInBody, type MessageMentionPayload } from '../messaging/messageMentions'
+import { prepareMessageBodyForSend, type MessageMentionPayload } from '../messaging/messageMentions'
 import MessagingThreadListSortMenu, {
   defaultSortDir,
   toApiThreadSort,
@@ -77,6 +77,7 @@ export default function AdminMessagesPanel({
   const [detailLoading, setDetailLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [reply, setReply] = useState('')
+  const [replyTarget, setReplyTarget] = useState<MessageRow | null>(null)
   const [sending, setSending] = useState(false)
   const [newOpen, setNewOpen] = useState(false)
   const [newRecipients, setNewRecipients] = useState<RecipientOption[]>([])
@@ -239,11 +240,13 @@ export default function AdminMessagesPanel({
 
   const replyToMessage = useCallback((message: MessageRow) => {
     setPendingFaqReply(null)
+    setReplyTarget(message)
     setReply(buildReplyQuote(message))
   }, [])
 
   const replyToMessageWithFaq = useCallback((message: MessageRow) => {
     const prefix = buildReplyQuote(message)
+    setReplyTarget(message)
     setReply(prefix)
     setPendingFaqReply({
       question: message.body?.trim() || 'Question',
@@ -260,12 +263,17 @@ export default function AdminMessagesPanel({
         attachmentPayload = await uploadMessageAttachment(pendingAttachment, 'admin', adminFetch)
       }
       const replyText = reply.trim()
-      const body = tokenizeMentionsInBody(replyText, mentions, threadParticipants)
+      const { body, mentions: resolvedMentions } = prepareMessageBodyForSend(
+        replyText,
+        mentions,
+        replyTarget,
+        threadParticipants,
+      )
       const msg = await adminFetch<MessageRow>(`/api/admin/messages/${selectedId}`, {
         method: 'POST',
         body: JSON.stringify({
           body,
-          mentions,
+          mentions: resolvedMentions,
           ...attachmentPayload,
           is_critical: criticalFlags.is_critical,
           requires_ack: criticalFlags.requires_ack,
@@ -281,6 +289,7 @@ export default function AdminMessagesPanel({
         setPendingFaqReply(null)
       }
       setReply('')
+      setReplyTarget(null)
       setPendingAttachment(null)
       setCriticalFlags({ is_critical: false, requires_ack: false })
       void loadThreads()

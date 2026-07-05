@@ -9,7 +9,7 @@ import MessagingThreadListSortMenu, {
   type ThreadListSortField,
 } from './messaging/MessagingThreadListSortMenu'
 import { buildReplyQuote } from './messaging/messageFormatting'
-import { tokenizeMentionsInBody, type MessageMentionPayload } from './messaging/messageMentions'
+import { prepareMessageBodyForSend, type MessageMentionPayload } from './messaging/messageMentions'
 import MessagingThreadListShell from './messaging/MessagingThreadListShell'
 import MessagingMobileShell from './messaging/MessagingMobileShell'
 import MessagingInboxTabs, { type MessagingInboxTab } from './messaging/MessagingInboxTabs'
@@ -839,6 +839,7 @@ export function MemberMessagesTab({
   const [threadParticipants, setThreadParticipants] = useState<ThreadParticipant[]>([])
   const [loading, setLoading] = useState(true)
   const [reply, setReply] = useState('')
+  const [replyTarget, setReplyTarget] = useState<MessageRow | null>(null)
   const [newOpen, setNewOpen] = useState(false)
   const [newBody, setNewBody] = useState('')
   const [newSubject, setNewSubject] = useState('')
@@ -966,6 +967,7 @@ export function MemberMessagesTab({
   }, [initialThreadId])
 
   const replyToMessage = useCallback((message: MessageRow) => {
+    setReplyTarget(message)
     setReply(buildReplyQuote(message))
   }, [])
 
@@ -978,17 +980,23 @@ export function MemberMessagesTab({
         attachmentPayload = await uploadMessageAttachment(pendingAttachment, 'member', coachFetch)
       }
       const replyText = reply.trim()
-      const body = tokenizeMentionsInBody(replyText, mentions, threadParticipants)
+      const { body, mentions: resolvedMentions } = prepareMessageBodyForSend(
+        replyText,
+        mentions,
+        replyTarget,
+        threadParticipants,
+      )
       const msg = await coachFetch<MessageRow>(`/api/member/messages/${selectedId}`, {
         method: 'POST',
         body: JSON.stringify({
           body,
-          mentions,
+          mentions: resolvedMentions,
           ...attachmentPayload,
         }),
       })
       setMessages((prev) => [...prev, msg])
       setReply('')
+      setReplyTarget(null)
       setPendingAttachment(null)
       void loadThreads()
     } catch (err) {

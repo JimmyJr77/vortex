@@ -1,5 +1,6 @@
 import type { MessageRow, ThreadParticipant } from './types'
 import type { MessageViewer } from './messageBubbleStyle'
+import { formatMessageSenderDisplayName } from './messageFormatting'
 
 export interface MessageMentionPayload {
   userId?: number
@@ -116,44 +117,108 @@ export function viewerIsMentioned(message: MessageRow, viewer: MessageViewer): b
   return false
 }
 
+export function mentionPayloadFromMessage(
+  message: Pick<MessageRow, 'sender_user_id' | 'sender_member_id'>,
+): MessageMentionPayload | null {
+  if (message.sender_member_id != null) return { memberId: Number(message.sender_member_id) }
+  if (message.sender_user_id != null) return { userId: Number(message.sender_user_id) }
+  return null
+}
+
+export function mergeMentionPayloads(...lists: MessageMentionPayload[][]): MessageMentionPayload[] {
+  const seen = new Set<string>()
+  const out: MessageMentionPayload[] = []
+  for (const list of lists) {
+    for (const m of list) {
+      const key = mentionKey(m)
+      if (!key || seen.has(key)) continue
+      seen.add(key)
+      out.push(m)
+    }
+  }
+  return out
+}
+
+export function tokenizeReplyMentionPrefix(
+  text: string,
+  mention: MessageMentionPayload,
+  replyTarget: Pick<MessageRow, 'sender_name' | 'sender_portal' | 'sender_kind' | 'sender_member_id'>,
+  participants: ThreadParticipant[],
+): string {
+  const token = mention.userId != null ? `@user:${mention.userId}` : `@member:${mention.memberId}`
+  const displayName = formatMessageSenderDisplayName(replyTarget)
+  let body = text.replace(new RegExp(`^@${escapeRegex(displayName)}:`), `${token}:`)
+  if (body !== text) return body
+
+  const participant = participants.find((p) => {
+    if (mention.userId != null && p.user_id != null) return Number(p.user_id) === Number(mention.userId)
+    if (mention.memberId != null && p.member_id != null) return Number(p.member_id) === Number(mention.memberId)
+    return false
+  })
+  const name = participant?.name?.trim()
+  if (name) {
+    body = text.replace(new RegExp(`^@${escapeRegex(name)}:`), `${token}:`)
+    if (body !== text) return body
+  }
+  return text.replace(/^@[^:\n]+:/, `${token}:`)
+}
+
+export function prepareMessageBodyForSend(
+  text: string,
+  composerMentions: MessageMentionPayload[],
+  replyTarget: MessageRow | null,
+  participants: ThreadParticipant[],
+): { body: string; mentions: MessageMentionPayload[] } {
+  const replyMention = replyTarget ? mentionPayloadFromMessage(replyTarget) : null
+  const mentions = mergeMentionPayloads(composerMentions, replyMention ? [replyMention] : [])
+  let body = text
+  if (replyMention && replyTarget) {
+    body = tokenizeReplyMentionPrefix(body, replyMention, replyTarget, participants)
+  }
+  body = tokenizeMentionsInBody(body, composerMentions, participants)
+  return { body, mentions }
+}
+
 export interface MentionSegment {
   text: string
   isMention: boolean
   isSelfMention: boolean
 }
 
-export function splitMessageBodyForMentions(
-  body: string,
+export type MessageBodySegment =
+  | { kind: 'text'; text: string }
+  | { kind: 'mention'; text: string; isSelfMention: boolean }
+  | { kind: 'quote'; text: string }
+
+function splitLineForMentions(
+  line: string,
   participants: ThreadParticipant[],
   viewer: MessageViewer,
 ): MentionSegment[] {
-  const display = formatMentionTokensForDisplay(body, participants)
   const names = mentionableParticipants(participants)
     .map((p) => p.name?.trim())
     .filter((name): name is string => Boolean(name))
     .sort((a, b) => b.length - a.length)
 
   if (names.length === 0) {
-    return [{ text: display, isMention: false, isSelfMention: false }]
+    return [{ text: line, isMention: false, isSelfMention: false }]
   }
 
-  const pattern = new RegExp(`@(${names.map(escapeRegex).join('|')})(?=\\s|$|[.,!?;:])`, 'g')
+  const pattern = new RegExp(`@(${names.map(escapeRegex).join('|')})(?=\\s|:|$|[.,!?;])`, 'g')
   const segments: MentionSegment[] = []
   let lastIndex = 0
   let match: RegExpExecArray | null
 
-  while ((match = pattern.exec(display)) !== null) {
+  while ((match = pattern.exec(line)) !== null) {
     if (match.index > lastIndex) {
       segments.push({
-        text: display.slice(lastIndex, match.index),
+        text: line.slice(lastIndex, match.index),
         isMention: false,
         isSelfMention: false,
       })
     }
     const mentionName = match[1]
-    const participant = names.includes(mentionName)
-      ? participants.find((p) => p.name?.trim() === mentionName)
-      : undefined
+    const participant = participants.find((p) => p.name?.trim() === mentionName)
     const isSelfMention = participant
       ? ((viewer.memberId != null &&
           participant.member_id != null &&
@@ -170,9 +235,55 @@ export function splitMessageBodyForMentions(
     lastIndex = pattern.lastIndex
   }
 
-  if (lastIndex < display.length) {
-    segments.push({ text: display.slice(lastIndex), isMention: false, isSelfMention: false })
+  if (lastIndex < line.length) {
+    segments.push({ text: line.slice(lastIndex), isMention: false, isSelfMention: false })
   }
 
-  return segments.length > 0 ? segments : [{ text: display, isMention: false, isSelfMention: false }]
+  return segments.length > 0 ? segments : [{ text: line, isMention: false, isSelfMention: false }]
+}
+
+export function splitMessageBodyForDisplay(
+  body: string,
+  participants: ThreadParticipant[],
+  viewer: MessageViewer,
+): MessageBodySegment[] {
+  const display = formatMentionTokensForDisplay(body, participants)
+  const lines = display.split('\n')
+  const segments: MessageBodySegment[] = []
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    const suffix = i < lines.length - 1 ? '\n' : ''
+
+    if (line.startsWith('> ')) {
+      segments.push({ kind: 'quote', text: line + suffix })
+      continue
+    }
+
+    for (const part of splitLineForMentions(line + suffix, participants, viewer)) {
+      if (part.isMention) {
+        segments.push({ kind: 'mention', text: part.text, isSelfMention: part.isSelfMention })
+      } else {
+        segments.push({ kind: 'text', text: part.text })
+      }
+    }
+  }
+
+  return segments.length > 0 ? segments : [{ kind: 'text', text: display }]
+}
+
+export function splitMessageBodyForMentions(
+  body: string,
+  participants: ThreadParticipant[],
+  viewer: MessageViewer,
+): MentionSegment[] {
+  const segments: MentionSegment[] = []
+  for (const segment of splitMessageBodyForDisplay(body, participants, viewer)) {
+    if (segment.kind === 'mention') {
+      segments.push({ text: segment.text, isMention: true, isSelfMention: segment.isSelfMention })
+    } else {
+      segments.push({ text: segment.text, isMention: false, isSelfMention: false })
+    }
+  }
+  return segments
 }
