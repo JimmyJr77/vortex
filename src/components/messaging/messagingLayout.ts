@@ -1,8 +1,10 @@
 import type { MessageThread } from './types'
 import type { MessagingInboxTab } from './MessagingInboxTabs'
+import type { ThreadListSortDir, ThreadListSortField } from './MessagingThreadListSortMenu'
 
 /** Shared layout classes — set `--messaging-viewport-top` on the root wrapper for viewport height. */
-export const messagingWorkspaceRoot = 'flex flex-col gap-4 messaging-workspace min-h-[420px]'
+export const messagingWorkspaceRoot = 'flex flex-col gap-4 messaging-workspace flex-1 min-h-0'
+export const messagingWorkspaceThreadOpen = 'messaging-workspace--thread-open'
 export const messagingWorkspaceGrid = 'grid gap-4 lg:gap-5 lg:grid-cols-[minmax(220px,280px)_1fr] flex-1 min-h-0 messaging-workspace-grid'
 export const messagingPanel = 'messaging-panel'
 export const messagingScroll = 'messaging-scroll'
@@ -77,4 +79,36 @@ export function filterMessageThreads(threads: MessageThread[], query: string): M
 
 export function threadListTitle(t: MessageThread, fallback = 'Conversation') {
   return t.subject?.trim() || (t.first_name ? `${t.first_name} ${t.last_name}`.trim() : fallback)
+}
+
+function threadSortTitle(t: MessageThread): string {
+  return (t.subject?.trim() || threadListTitle(t)).toLowerCase()
+}
+
+export function sortMessageThreads(
+  threads: MessageThread[],
+  sort: ThreadListSortField,
+  sortDir: ThreadListSortDir,
+): MessageThread[] {
+  const sorted = [...threads]
+  sorted.sort((a, b) => {
+    const aFav = a.is_favorite ? 0 : 1
+    const bFav = b.is_favorite ? 0 : 1
+    if (aFav !== bFav) return aFav - bFav
+
+    let cmp = 0
+    if (sort === 'title') {
+      cmp = threadSortTitle(a).localeCompare(threadSortTitle(b))
+    } else if (sort === 'recent') {
+      const aTime = new Date(a.last_message_at || a.created_at || 0).getTime()
+      const bTime = new Date(b.last_message_at || b.created_at || 0).getTime()
+      cmp = aTime - bTime
+    } else {
+      const aTime = new Date(a.created_at || 0).getTime()
+      const bTime = new Date(b.created_at || 0).getTime()
+      cmp = aTime - bTime
+    }
+    return sortDir === 'asc' ? cmp : -cmp
+  })
+  return sorted
 }

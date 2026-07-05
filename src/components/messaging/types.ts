@@ -70,9 +70,15 @@ export function participantKey(p: ThreadParticipant): string | null {
   return null
 }
 
+export interface MessageMention {
+  user_id?: number | null
+  member_id?: number | null
+}
+
 export interface MessageRow {
   id: number
   body: string
+  mentions?: MessageMention[]
   sender_name?: string | null
   sender_kind?: 'member' | 'coach' | 'admin'
   sender_portal?: 'member' | 'coach' | 'admin'

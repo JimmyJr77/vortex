@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Lock, MoreHorizontal, Pencil, Paperclip, Star, UserPlus, Archive, ArchiveRestore } from 'lucide-react'
+import { Lock, MoreHorizontal, Pencil, Paperclip, Star, UserPlus, Archive, ArchiveRestore, CircleHelp } from 'lucide-react'
 import RecipientPicker from './RecipientPicker'
 import type { EnrollmentGroup, RecipientOption } from './types'
 import { mergeRecipientOptions } from './types'
@@ -27,6 +27,7 @@ interface ThreadHeaderMenuProps {
   favoriteLoading?: boolean
   onAttachmentPick?: (file: File) => void
   canAttach?: boolean
+  onOpenFaq?: () => void
 }
 
 export default function ThreadHeaderMenu({
@@ -51,6 +52,7 @@ export default function ThreadHeaderMenu({
   favoriteLoading = false,
   onAttachmentPick,
   canAttach = false,
+  onOpenFaq,
 }: ThreadHeaderMenuProps) {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -156,7 +158,7 @@ export default function ThreadHeaderMenu({
     attachmentInputRef.current?.click()
   }
 
-  if (!canEdit && !canLock && !canAddRecipients && !canHideInbox && !canRestoreThread && !onToggleFavorite && !canPickAttachment) return null
+  if (!canEdit && !canLock && !canAddRecipients && !canHideInbox && !canRestoreThread && !onToggleFavorite && !canPickAttachment && !onOpenFaq) return null
 
   return (
     <div ref={rootRef} className="relative shrink-0 flex items-center gap-0.5">
@@ -237,6 +239,18 @@ export default function ThreadHeaderMenu({
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
             >
               <Paperclip className="w-4 h-4" /> Add attachment
+            </button>
+          )}
+          {onOpenFaq && (
+            <button
+              type="button"
+              onClick={() => {
+                onOpenFaq()
+                setOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
+            >
+              <CircleHelp className="w-4 h-4" /> FAQ
             </button>
           )}
           {canHideInbox && !isGloballyArchived && (

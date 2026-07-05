@@ -7,6 +7,10 @@ import {
   isNotificationNavigable,
   resolveNotificationTarget,
 } from '../utils/notificationNavigation'
+import {
+  highlightNotificationLabel,
+  isHighlightNotification,
+} from '../utils/notificationHighlight'
 import { HEADER_ACTION_BTN } from './PortalNavButtons'
 
 interface NotificationRow {
@@ -222,15 +226,35 @@ export default function NotificationBell({ apiPrefix, onOpenThread }: Notificati
             <ul className="divide-y divide-gray-100">
               {notifications.map((n) => {
                 const navigable = isNotificationNavigable(n.kind, n.payload, apiPrefix)
+                const highlighted = isHighlightNotification(n.kind, n.payload)
+                const highlightLabel = highlightNotificationLabel(n.kind, n.payload)
+                const isCritical = n.payload?.critical === true
                 return (
                   <li key={n.id}>
                     <button
                       type="button"
                       onClick={() => handleNotificationClick(n)}
                       className={`w-full text-left px-3 py-2.5 hover:bg-gray-50 ${
-                        !n.read_at ? 'bg-blue-50/50' : ''
+                        !n.read_at && highlighted
+                          ? isCritical
+                            ? 'bg-orange-50 border-l-4 border-l-orange-500'
+                            : 'bg-amber-50 border-l-4 border-l-amber-500'
+                          : highlighted
+                            ? isCritical
+                              ? 'border-l-4 border-l-orange-200'
+                              : 'border-l-4 border-l-amber-200'
+                            : ''
                       } ${navigable ? 'cursor-pointer' : 'cursor-default'}`}
                     >
+                      {highlightLabel && (
+                        <div
+                          className={`text-[10px] font-bold uppercase tracking-wide mb-0.5 ${
+                            isCritical ? 'text-orange-700' : 'text-amber-700'
+                          }`}
+                        >
+                          {highlightLabel}
+                        </div>
+                      )}
                       <div className="text-sm font-medium text-gray-900">{n.title}</div>
                       {n.body && (
                         <div className="text-xs text-gray-600 mt-0.5 line-clamp-2">{n.body}</div>

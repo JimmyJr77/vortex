@@ -1,10 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Loader2, MessageSquare, Plus } from 'lucide-react'
+import { Loader2, MessageSquare, Plus, X } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import RecipientPicker, { recipientsToPayload } from '../messaging/RecipientPicker'
 import ThreadHeaderMenu from '../messaging/ThreadHeaderMenu'
-import MessageBubble from '../messaging/MessageBubble'
 import MessageReplyComposer from '../messaging/MessageReplyComposer'
+import MessagingMessageThread from '../messaging/MessagingMessageThread'
+import MessagingThreadListSortMenu, {
+  defaultSortDir,
+  type ThreadListSortDir,
+  type ThreadListSortField,
+} from '../messaging/MessagingThreadListSortMenu'
+import { buildReplyQuote, stripReplyQuote } from '../messaging/messageFormatting'
+import { tokenizeMentionsInBody, type MessageMentionPayload } from '../messaging/messageMentions'
 import MessagingThreadListShell from '../messaging/MessagingThreadListShell'
 import MessagingMobileShell from '../messaging/MessagingMobileShell'
 import MessagingInboxTabs, { type MessagingInboxTab } from '../messaging/MessagingInboxTabs'
@@ -15,13 +22,15 @@ import CriticalMessageToggle from '../messaging/CriticalMessageToggle'
 import { getMessageViewer } from '../messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from '../messaging/messageAttachmentUpload'
 import { markThreadRead } from '../messaging/messagingApi'
-import MessagingThreadFaq from '../messaging/MessagingThreadFaq'
+import MessagingThreadFaq, { type ThreadFaqDraft } from '../messaging/MessagingThreadFaq'
 import MessagingThreadDetailShell from '../messaging/MessagingThreadDetailShell'
 import {
   countThreadsByInboxTab,
   filterMessageThreads,
   filterThreadsByInboxTab,
   messagingWorkspaceRoot,
+  messagingWorkspaceThreadOpen,
+  sortMessageThreads,
   threadListTitle,
 } from '../messaging/messagingLayout'
 import type {
@@ -70,9 +79,14 @@ export default function MessagesPanel({
   const [favoriteLoading, setFavoriteLoading] = useState(false)
   const [pendingAttachment, setPendingAttachment] = useState<File | null>(null)
   const [threadSearch, setThreadSearch] = useState('')
+  const [listSort, setListSort] = useState<ThreadListSortField>('recent')
+  const [listSortDir, setListSortDir] = useState<ThreadListSortDir>(() => defaultSortDir('recent'))
   const [inboxTab, setInboxTab] = useState<MessagingInboxTab>('all')
   const [threadInfoJson, setThreadInfoJson] = useState<Record<string, unknown> | null>(null)
   const [linkedThreadId, setLinkedThreadId] = useState<number | null>(null)
+  const [faqPanelOpen, setFaqPanelOpen] = useState(false)
+  const [faqDraft, setFaqDraft] = useState<ThreadFaqDraft | null>(null)
+  const [pendingFaqReply, setPendingFaqReply] = useState<{ question: string; prefix: string } | null>(null)
   const [criticalFlags, setCriticalFlags] = useState<CriticalComposeFlags>({
     is_critical: false,
     requires_ack: false,
@@ -85,8 +99,8 @@ export default function MessagesPanel({
     [threads, inboxTab],
   )
   const filteredThreads = useMemo(
-    () => filterMessageThreads(tabFilteredThreads, threadSearch),
-    [tabFilteredThreads, threadSearch],
+    () => sortMessageThreads(filterMessageThreads(tabFilteredThreads, threadSearch), listSort, listSortDir),
+    [tabFilteredThreads, threadSearch, listSort, listSortDir],
   )
   const existingParticipantKeys = useMemo(
     () => threadParticipants.map((p) => participantKey(p)).filter((k): k is string => k != null),
@@ -190,6 +204,9 @@ export default function MessagesPanel({
       setThreadParticipants(Array.isArray(data.thread.participants) ? data.thread.participants : [])
       setThreadInfoJson(data.thread.info_json ?? null)
       setLinkedThreadId(data.thread.linked_thread_id ?? null)
+      setFaqPanelOpen(false)
+      setFaqDraft(null)
+      setPendingFaqReply(null)
       setMessages(data.messages)
       const lastId = data.messages[data.messages.length - 1]?.id
       void markThreadRead('coach', id, coachFetch, lastId)
@@ -206,7 +223,21 @@ export default function MessagesPanel({
     void openThread(initialThreadId).finally(() => onInitialThreadOpened?.())
   }, [initialThreadId])
 
-  const sendReply = async () => {
+  const replyToMessage = useCallback((message: MessageRow) => {
+    setPendingFaqReply(null)
+    setReply(buildReplyQuote(message))
+  }, [])
+
+  const replyToMessageWithFaq = useCallback((message: MessageRow) => {
+    const prefix = buildReplyQuote(message)
+    setReply(prefix)
+    setPendingFaqReply({
+      question: message.body?.trim() || 'Question',
+      prefix,
+    })
+  }, [])
+
+  const sendReply = async (mentions: MessageMentionPayload[] = []) => {
     if (!selectedId || (!reply.trim() && !pendingAttachment)) return
     setSending(true)
     try {
@@ -214,16 +245,27 @@ export default function MessagesPanel({
       if (pendingAttachment) {
         attachmentPayload = await uploadMessageAttachment(pendingAttachment, 'coach', coachFetch)
       }
+      const replyText = reply.trim()
+      const body = tokenizeMentionsInBody(replyText, mentions, threadParticipants)
       const msg = await coachFetch<MessageRow>(`/api/coach/messages/${selectedId}`, {
         method: 'POST',
         body: JSON.stringify({
-          body: reply.trim(),
+          body,
+          mentions,
           ...attachmentPayload,
           is_critical: criticalFlags.is_critical,
           requires_ack: criticalFlags.requires_ack,
         }),
       })
       setMessages((prev) => [...prev, msg])
+      if (pendingFaqReply) {
+        setFaqDraft({
+          question: pendingFaqReply.question,
+          answer: stripReplyQuote(replyText, pendingFaqReply.prefix),
+        })
+        setFaqPanelOpen(true)
+        setPendingFaqReply(null)
+      }
       setReply('')
       setPendingAttachment(null)
       setCriticalFlags({ is_critical: false, requires_ack: false })
@@ -319,7 +361,10 @@ export default function MessagesPanel({
   }
 
   return (
-    <div className={messagingWorkspaceRoot} style={{ ['--messaging-viewport-top' as string]: '19rem' }}>
+    <div
+      className={`${messagingWorkspaceRoot} ${selectedId != null ? messagingWorkspaceThreadOpen : ''}`}
+      style={{ ['--messaging-viewport-top' as string]: '19rem' }}
+    >
       <div className={`shrink-0 items-center justify-between flex-wrap gap-3 ${selectedId != null ? 'hidden lg:flex' : 'flex'}`}>
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -420,6 +465,16 @@ export default function MessagesPanel({
         listPanel={
           <MessagingThreadListShell
             title="Threads"
+            titleAction={
+              <MessagingThreadListSortMenu
+                sort={listSort}
+                sortDir={listSortDir}
+                onChange={(sort, sortDir) => {
+                  setListSort(sort)
+                  setListSortDir(sortDir)
+                }}
+              />
+            }
             search={threadSearch}
             onSearchChange={setThreadSearch}
             searchPlaceholder="Search threads…"
@@ -473,31 +528,44 @@ export default function MessagesPanel({
                         Share with coaching circle
                       </button>
                     )}
-                    <ThreadHeaderMenu
-                      subject={threadSubject}
-                      subjectLocked={threadSubjectLocked}
-                      canLock
-                      canEdit
-                      onUpdateSubject={updateThreadSubject}
-                      recipientOptions={recipientOptions}
-                      existingParticipantKeys={existingParticipantKeys}
-                      recipientsLoading={recipientsLoading}
-                      onAddRecipients={addRecipients}
-                      enrollmentGroups={enrollmentGroups}
-                      resolveEnrollmentGroup={resolveEnrollmentGroup}
-                      groupsLoading={groupsLoading}
-                      canHideFromInbox
-                      onHideFromInbox={hideFromInbox}
-                      isFavorite={threadFavorite}
-                      onToggleFavorite={toggleFavorite}
-                      favoriteLoading={favoriteLoading}
-                      canAttach
-                      onAttachmentPick={setPendingAttachment}
-                    />
+                    {faqPanelOpen ? (
+                      <button
+                        type="button"
+                        aria-label="Close FAQ"
+                        onClick={() => setFaqPanelOpen(false)}
+                        className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    ) : (
+                      <ThreadHeaderMenu
+                        subject={threadSubject}
+                        subjectLocked={threadSubjectLocked}
+                        canLock
+                        canEdit
+                        onUpdateSubject={updateThreadSubject}
+                        recipientOptions={recipientOptions}
+                        existingParticipantKeys={existingParticipantKeys}
+                        recipientsLoading={recipientsLoading}
+                        onAddRecipients={addRecipients}
+                        enrollmentGroups={enrollmentGroups}
+                        resolveEnrollmentGroup={resolveEnrollmentGroup}
+                        groupsLoading={groupsLoading}
+                        canHideFromInbox
+                        onHideFromInbox={hideFromInbox}
+                        isFavorite={threadFavorite}
+                        onToggleFavorite={toggleFavorite}
+                        favoriteLoading={favoriteLoading}
+                        canAttach
+                        onAttachmentPick={setPendingAttachment}
+                        onOpenFaq={() => setFaqPanelOpen(true)}
+                      />
+                    )}
                   </div>
                 </div>
               }
               footer={
+                faqPanelOpen ? undefined : (
                 <>
                   <div className="border-t border-gray-100 px-4 pt-3">
                     <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
@@ -505,44 +573,58 @@ export default function MessagesPanel({
                   <MessageReplyComposer
                     reply={reply}
                     onReplyChange={setReply}
-                    onSend={() => void sendReply()}
+                    onSend={(mentions) => void sendReply(mentions)}
                     sending={sending}
-                    placeholder="Type a reply…"
+                    placeholder="Type a reply… (@ to mention)"
+                    participants={threadParticipants}
+                    viewer={viewer}
                     pendingAttachment={pendingAttachment}
                     onClearAttachment={() => setPendingAttachment(null)}
                   />
                 </>
+                )
               }
             >
-              <MessagingContextBanner
-                linkedThreadId={linkedThreadId}
-                linkedThreadTitle={
-                  linkedThreadId != null
-                    ? threadListTitle(threads.find((t) => t.id === linkedThreadId) ?? { id: linkedThreadId })
-                    : null
-                }
-                onJump={(id) => void openThread(id)}
-              />
-              <MessagingInfoCard infoJson={threadInfoJson} />
-              <MessagingThreadFaq role="coach" threadId={selectedId} fetcher={coachFetch} canEdit />
-              <div className="p-4 space-y-3">
-                {messages.map((m) => (
-                  <MessageBubble
-                    key={m.id}
-                    message={m}
+              {faqPanelOpen ? (
+                <MessagingThreadFaq
+                  role="coach"
+                  threadId={selectedId}
+                  fetcher={coachFetch}
+                  canEdit
+                  variant="panel"
+                  initialDraft={faqDraft}
+                  onSaved={() => setFaqDraft(null)}
+                />
+              ) : (
+                <>
+                  <MessagingContextBanner
+                    linkedThreadId={linkedThreadId}
+                    linkedThreadTitle={
+                      linkedThreadId != null
+                        ? threadListTitle(threads.find((t) => t.id === linkedThreadId) ?? { id: linkedThreadId })
+                        : null
+                    }
+                    onJump={(id) => void openThread(id)}
+                  />
+                  <MessagingInfoCard infoJson={threadInfoJson} />
+                  <MessagingMessageThread
+                    messages={messages}
                     viewer={viewer}
                     threadId={selectedId}
                     role="coach"
                     fetcher={coachFetch}
+                    participants={threadParticipants}
+                    messagesEndRef={messagesEndRef}
+                    onReply={replyToMessage}
+                    onReplyWithFaq={replyToMessageWithFaq}
                     onReactionsUpdated={(messageId, reactions) => {
                       setMessages((prev) =>
                         prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
                       )
                     }}
                   />
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
+                </>
+              )}
             </MessagingThreadDetailShell>
           )
         }

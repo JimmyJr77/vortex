@@ -1622,7 +1622,7 @@ export default function MemberDashboard({
             })}
           </div>
         </nav>
-        <main className="min-w-0">
+        <main className="min-w-0 flex flex-col min-h-0">
           <AnimatePresence mode="wait">
             {activeTab === 'home' && (
               <motion.div

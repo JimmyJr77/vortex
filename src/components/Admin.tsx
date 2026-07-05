@@ -450,7 +450,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
           </div>
         </nav>
 
-        <main className="min-w-0">
+        <main className="min-w-0 flex flex-col min-h-0">
           {accessLoading ? (
             <div className="rounded-xl bg-white p-8 text-center text-gray-600 shadow-sm">
               Loading admin access...

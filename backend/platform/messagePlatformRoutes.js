@@ -29,6 +29,7 @@ import {
   exportMessageAudit,
   getMessageRetentionPolicy,
 } from './messagePlatform.js'
+import { HIGHLIGHT_NOTIFICATION_SQL } from './notificationHighlight.js'
 import { provisionEventThreads, getEventThreads } from './messageEventThreads.js'
 import {
   getSchedulingFormThread,
@@ -475,7 +476,7 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
       const unreadOnly = req.query.unreadOnly === 'true'
       const limit = Math.min(num(req.query.limit) || 50, 100)
       const params = [userId, facilityId]
-      let where = `recipient_user_id = $1 AND facility_id = $2`
+      let where = `recipient_user_id = $1 AND facility_id = $2 AND ${HIGHLIGHT_NOTIFICATION_SQL}`
       if (unreadOnly) where += ` AND read_at IS NULL`
       params.push(limit)
       const result = await pool.query(
@@ -488,7 +489,8 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
       )
       const countRes = await pool.query(
         `SELECT COUNT(*)::int AS n FROM coaching.notification
-         WHERE recipient_user_id = $1 AND facility_id = $2 AND read_at IS NULL`,
+         WHERE recipient_user_id = $1 AND facility_id = $2 AND read_at IS NULL
+           AND ${HIGHLIGHT_NOTIFICATION_SQL}`,
         [userId, facilityId],
       )
       ok(res, { notifications: result.rows, unreadCount: countRes.rows[0]?.n ?? 0 })
@@ -529,7 +531,8 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
       const facilityId = req.platformAuth.user.facility_id
       await pool.query(
         `UPDATE coaching.notification SET read_at = now()
-         WHERE recipient_user_id = $1 AND facility_id = $2 AND read_at IS NULL`,
+         WHERE recipient_user_id = $1 AND facility_id = $2 AND read_at IS NULL
+           AND ${HIGHLIGHT_NOTIFICATION_SQL}`,
         [userId, facilityId],
       )
       ok(res, { ok: true })

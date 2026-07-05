@@ -1,15 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import RecipientPicker, { recipientsToPayload } from './messaging/RecipientPicker'
 import ThreadHeaderMenu from './messaging/ThreadHeaderMenu'
-import MessageBubble from './messaging/MessageBubble'
 import MessageReplyComposer from './messaging/MessageReplyComposer'
+import MessagingMessageThread from './messaging/MessagingMessageThread'
+import MessagingThreadListSortMenu, {
+  defaultSortDir,
+  type ThreadListSortDir,
+  type ThreadListSortField,
+} from './messaging/MessagingThreadListSortMenu'
+import { buildReplyQuote } from './messaging/messageFormatting'
+import { tokenizeMentionsInBody, type MessageMentionPayload } from './messaging/messageMentions'
 import MessagingThreadListShell from './messaging/MessagingThreadListShell'
 import MessagingMobileShell from './messaging/MessagingMobileShell'
 import MessagingInboxTabs, { type MessagingInboxTab } from './messaging/MessagingInboxTabs'
 import MessagingThreadRow from './messaging/MessagingThreadRow'
 import MessagingContextBanner from './messaging/MessagingContextBanner'
 import MessagingInfoCard from './messaging/MessagingInfoCard'
-import CriticalMessageToggle from './messaging/CriticalMessageToggle'
 import { getMessageViewer } from './messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from './messaging/messageAttachmentUpload'
 import { markThreadRead } from './messaging/messagingApi'
@@ -20,10 +26,11 @@ import {
   filterMessageThreads,
   filterThreadsByInboxTab,
   messagingWorkspaceRoot,
+  messagingWorkspaceThreadOpen,
+  sortMessageThreads,
   threadListTitle,
 } from './messaging/messagingLayout'
 import type {
-  CriticalComposeFlags,
   EnrollmentGroup,
   MessageRow,
   MessageThread,
@@ -845,13 +852,11 @@ export function MemberMessagesTab({
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [threadSearch, setThreadSearch] = useState('')
+  const [listSort, setListSort] = useState<ThreadListSortField>('recent')
+  const [listSortDir, setListSortDir] = useState<ThreadListSortDir>(() => defaultSortDir('recent'))
   const [inboxTab, setInboxTab] = useState<MessagingInboxTab>('all')
   const [threadInfoJson, setThreadInfoJson] = useState<Record<string, unknown> | null>(null)
   const [linkedThreadId, setLinkedThreadId] = useState<number | null>(null)
-  const [criticalFlags, setCriticalFlags] = useState<CriticalComposeFlags>({
-    is_critical: false,
-    requires_ack: false,
-  })
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const viewer = useMemo(() => getMessageViewer('member'), [])
   const inboxCounts = useMemo(() => countThreadsByInboxTab(threads), [threads])
@@ -860,8 +865,8 @@ export function MemberMessagesTab({
     [threads, inboxTab],
   )
   const filteredThreads = useMemo(
-    () => filterMessageThreads(tabFilteredThreads, threadSearch),
-    [tabFilteredThreads, threadSearch],
+    () => sortMessageThreads(filterMessageThreads(tabFilteredThreads, threadSearch), listSort, listSortDir),
+    [tabFilteredThreads, threadSearch, listSort, listSortDir],
   )
   const existingParticipantKeys = useMemo(
     () => threadParticipants.map((p) => participantKey(p)).filter((k): k is string => k != null),
@@ -959,7 +964,11 @@ export function MemberMessagesTab({
     void openThread(initialThreadId).finally(() => onInitialThreadOpened?.())
   }, [initialThreadId])
 
-  const sendReply = async () => {
+  const replyToMessage = useCallback((message: MessageRow) => {
+    setReply(buildReplyQuote(message))
+  }, [])
+
+  const sendReply = async (mentions: MessageMentionPayload[] = []) => {
     if (!selectedId || (!reply.trim() && !pendingAttachment)) return
     setSending(true)
     try {
@@ -967,19 +976,19 @@ export function MemberMessagesTab({
       if (pendingAttachment) {
         attachmentPayload = await uploadMessageAttachment(pendingAttachment, 'member', coachFetch)
       }
+      const replyText = reply.trim()
+      const body = tokenizeMentionsInBody(replyText, mentions, threadParticipants)
       const msg = await coachFetch<MessageRow>(`/api/member/messages/${selectedId}`, {
         method: 'POST',
         body: JSON.stringify({
-          body: reply.trim(),
+          body,
+          mentions,
           ...attachmentPayload,
-          is_critical: criticalFlags.is_critical,
-          requires_ack: criticalFlags.requires_ack,
         }),
       })
       setMessages((prev) => [...prev, msg])
       setReply('')
       setPendingAttachment(null)
-      setCriticalFlags({ is_critical: false, requires_ack: false })
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send')
@@ -1062,7 +1071,10 @@ export function MemberMessagesTab({
   }
 
   return (
-    <div className={messagingWorkspaceRoot} style={{ ['--messaging-viewport-top' as string]: '18rem' }}>
+    <div
+      className={`${messagingWorkspaceRoot} ${selectedId != null ? messagingWorkspaceThreadOpen : ''}`}
+      style={{ ['--messaging-viewport-top' as string]: '18rem' }}
+    >
       <div className={`shrink-0 items-center justify-between flex-wrap gap-3 ${selectedId != null ? 'hidden lg:flex' : 'flex'}`}>
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
@@ -1122,6 +1134,16 @@ export function MemberMessagesTab({
         listPanel={
           <MessagingThreadListShell
             title="Threads"
+            titleAction={
+              <MessagingThreadListSortMenu
+                sort={listSort}
+                sortDir={listSortDir}
+                onChange={(sort, sortDir) => {
+                  setListSort(sort)
+                  setListSortDir(sortDir)
+                }}
+              />
+            }
             search={threadSearch}
             onSearchChange={setThreadSearch}
             searchPlaceholder="Search threads…"
@@ -1185,20 +1207,17 @@ export function MemberMessagesTab({
                 </div>
               }
               footer={
-                <>
-                  <div className="border-t border-gray-100 px-4 pt-3">
-                    <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
-                  </div>
-                  <MessageReplyComposer
-                    reply={reply}
-                    onReplyChange={setReply}
-                    onSend={() => void sendReply()}
-                    sending={sending}
-                    placeholder="Reply…"
-                    pendingAttachment={pendingAttachment}
-                    onClearAttachment={() => setPendingAttachment(null)}
-                  />
-                </>
+                <MessageReplyComposer
+                  reply={reply}
+                  onReplyChange={setReply}
+                  onSend={(mentions) => void sendReply(mentions)}
+                  sending={sending}
+                  placeholder="Reply… (@ to mention)"
+                  participants={threadParticipants}
+                  viewer={viewer}
+                  pendingAttachment={pendingAttachment}
+                  onClearAttachment={() => setPendingAttachment(null)}
+                />
               }
             >
               <MessagingContextBanner
@@ -1211,26 +1230,24 @@ export function MemberMessagesTab({
                 onJump={(id) => void openThread(id)}
               />
               <MessagingInfoCard infoJson={threadInfoJson} />
-              <MessagingThreadFaq role="member" threadId={selectedId} fetcher={coachFetch} />
-              <div className="p-4 space-y-2">
-                {messages.map((m) => (
-                  <MessageBubble
-                    key={m.id}
-                    message={m}
-                    viewer={viewer}
-                    showSenderName={false}
-                    threadId={selectedId}
-                    role="member"
-                    fetcher={coachFetch}
-                    onReactionsUpdated={(messageId, reactions) => {
-                      setMessages((prev) =>
-                        prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
-                      )
-                    }}
-                  />
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
+              <MessagingThreadFaq role="member" threadId={selectedId} fetcher={coachFetch} canEdit />
+              <MessagingMessageThread
+                messages={messages}
+                viewer={viewer}
+                threadId={selectedId}
+                role="member"
+                fetcher={coachFetch}
+                participants={threadParticipants}
+                messagesEndRef={messagesEndRef}
+                showSenderName={false}
+                onReply={replyToMessage}
+                onReactionsUpdated={(messageId, reactions) => {
+                  setMessages((prev) =>
+                    prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
+                  )
+                }}
+                className="p-4 space-y-2"
+              />
             </MessagingThreadDetailShell>
           )
         }

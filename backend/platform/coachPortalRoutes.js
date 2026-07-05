@@ -40,6 +40,7 @@ import {
 } from './messagePlatform.js'
 import { registerMessagePlatformRoutes, emitMessageCreated } from './messagePlatformRoutes.js'
 import { sendCriticalMessageAlerts, parseMentions } from './criticalAlerts.js'
+import { HIGHLIGHT_NOTIFICATION_SQL } from './notificationHighlight.js'
 import {
   insertThreadParticipants,
   coachCanAccessThreadWithParticipants,
@@ -104,6 +105,30 @@ function parseMessageFilesPayload(body) {
     .filter((f) => f.url)
 }
 
+function normalizeMentionList(raw) {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .map((m) => ({
+      userId: m.userId != null ? Number(m.userId) : (m.user_id != null ? Number(m.user_id) : null),
+      memberId: m.memberId != null ? Number(m.memberId) : (m.member_id != null ? Number(m.member_id) : null),
+    }))
+    .filter((m) => Number.isFinite(m.userId) || Number.isFinite(m.memberId))
+}
+
+function mergeMentions(...lists) {
+  const seen = new Set()
+  const out = []
+  for (const list of lists) {
+    for (const m of list || []) {
+      const key = m.userId != null ? `u:${m.userId}` : `m:${m.memberId}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      out.push(m)
+    }
+  }
+  return out
+}
+
 function parseMessageSendBody(rawBody) {
   const body = String(rawBody?.body || '').trim()
   const attachment = parseMessageAttachmentPayload(rawBody)
@@ -114,7 +139,7 @@ function parseMessageSendBody(rawBody) {
     files,
     isCritical: Boolean(rawBody?.is_critical ?? rawBody?.isCritical),
     requiresAck: Boolean(rawBody?.requires_ack ?? rawBody?.requiresAck),
-    mentions: Array.isArray(rawBody?.mentions) ? rawBody.mentions : null,
+    mentions: normalizeMentionList(rawBody?.mentions),
   }
 }
 
@@ -2618,7 +2643,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const unreadOnly = req.query.unreadOnly === 'true'
       const limit = Math.min(num(req.query.limit) || 50, 100)
       const params = [userId, facilityId]
-      let where = `recipient_user_id = $1 AND facility_id = $2`
+      let where = `recipient_user_id = $1 AND facility_id = $2 AND ${HIGHLIGHT_NOTIFICATION_SQL}`
       if (unreadOnly) where += ` AND read_at IS NULL`
       params.push(limit)
       const result = await pool.query(
@@ -2631,7 +2656,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       )
       const countRes = await pool.query(
         `SELECT COUNT(*)::int AS n FROM coaching.notification
-         WHERE recipient_user_id = $1 AND facility_id = $2 AND read_at IS NULL`,
+         WHERE recipient_user_id = $1 AND facility_id = $2 AND read_at IS NULL
+           AND ${HIGHLIGHT_NOTIFICATION_SQL}`,
         [userId, facilityId],
       )
       ok(res, { notifications: result.rows, unreadCount: countRes.rows[0]?.n ?? 0 })
@@ -2664,7 +2690,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const facilityId = req.platformAuth.user.facility_id
       await pool.query(
         `UPDATE coaching.notification SET read_at = now()
-         WHERE recipient_user_id = $1 AND facility_id = $2 AND read_at IS NULL`,
+         WHERE recipient_user_id = $1 AND facility_id = $2 AND read_at IS NULL
+           AND ${HIGHLIGHT_NOTIFICATION_SQL}`,
         [userId, facilityId],
       )
       ok(res, { ok: true })
@@ -2682,7 +2709,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const unreadOnly = req.query.unreadOnly === 'true'
       const limit = Math.min(num(req.query.limit) || 50, 100)
       const params = [memberId, facilityId]
-      let where = `recipient_member_id = $1 AND facility_id = $2`
+      let where = `recipient_member_id = $1 AND facility_id = $2 AND ${HIGHLIGHT_NOTIFICATION_SQL}`
       if (unreadOnly) where += ` AND read_at IS NULL`
       params.push(limit)
       const result = await pool.query(
@@ -2695,7 +2722,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       )
       const countRes = await pool.query(
         `SELECT COUNT(*)::int AS n FROM coaching.notification
-         WHERE recipient_member_id = $1 AND facility_id = $2 AND read_at IS NULL`,
+         WHERE recipient_member_id = $1 AND facility_id = $2 AND read_at IS NULL
+           AND ${HIGHLIGHT_NOTIFICATION_SQL}`,
         [memberId, facilityId],
       )
       ok(res, { notifications: result.rows, unreadCount: countRes.rows[0]?.n ?? 0 })
@@ -2730,7 +2758,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const facilityId = ctx.user.facility_id
       await pool.query(
         `UPDATE coaching.notification SET read_at = now()
-         WHERE recipient_member_id = $1 AND facility_id = $2 AND read_at IS NULL`,
+         WHERE recipient_member_id = $1 AND facility_id = $2 AND read_at IS NULL
+           AND ${HIGHLIGHT_NOTIFICATION_SQL}`,
         [memberId, facilityId],
       )
       ok(res, { ok: true })
@@ -2876,7 +2905,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       })
     }
 
-    const resolvedMentions = mentions ?? parseMentions(text)
+    const resolvedMentions = mergeMentions(mentions ?? [], parseMentions(text))
     if (resolvedMentions.length > 0) {
       await saveMessageMentions(pool, messageId, resolvedMentions)
     }
@@ -3708,6 +3737,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const memberId = num(ctx.user.member_id ?? ctx.user.id)
       const facilityId = ctx.user.facility_id
       const { body, attachment, files, isCritical, requiresAck, mentions } = parseMessageSendBody(req.body)
+      if (isCritical || requiresAck) return bad(res, 'Members cannot send critical messages.', 403)
       if (!messageHasExtendedContent(body, attachment, files)) return bad(res, 'Message text or attachment is required.')
       const subject = req.body?.subject ? String(req.body.subject).trim() : null
       const { userIds, memberIds } = parseRecipientPayload(req.body)
@@ -3746,6 +3776,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const facilityId = ctx.user.facility_id
       const threadId = num(req.params.threadId)
       const { body, attachment, files, isCritical, requiresAck, mentions } = parseMessageSendBody(req.body)
+      if (isCritical || requiresAck) return bad(res, 'Members cannot send critical messages.', 403)
       if (!messageHasExtendedContent(body, attachment, files)) return bad(res, 'Message text or attachment is required.')
       const threadRes = await pool.query(
         `SELECT * FROM coaching.message_thread WHERE id = $1 AND facility_id = $2`,

@@ -97,8 +97,19 @@
   }
 
   .messaging-workspace {
-    height: calc(100dvh - var(--messaging-viewport-top, calc(var(--site-header-height) + var(--messaging-chrome, 10rem))));
+    height: calc(100dvh - var(--messaging-viewport-top, calc(var(--site-header-height) + var(--messaging-chrome, 10rem))) - var(--messaging-viewport-bottom, 1.5rem));
     min-height: 420px;
+  }
+
+  .messaging-workspace--thread-open {
+    --messaging-viewport-bottom: 0px;
+    height: calc(100dvh - var(--messaging-viewport-top, 16rem));
+  }
+
+  @media (max-width: 1023px) {
+    .messaging-workspace--thread-open {
+      --messaging-viewport-top: 8.5rem;
+    }
   }
 
   .messaging-panel {

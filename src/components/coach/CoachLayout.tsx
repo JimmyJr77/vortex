@@ -222,7 +222,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
             })}
           </div>
         </nav>
-        <main className="min-w-0">
+        <main className="min-w-0 flex flex-col min-h-0">
           <Suspense fallback={<div className="flex items-center gap-2 text-gray-500 py-12"><Loader2 className="w-5 h-5 animate-spin" /> Loading…</div>}>
             {renderPanel()}
           </Suspense>

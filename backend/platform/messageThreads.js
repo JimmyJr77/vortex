@@ -230,32 +230,46 @@ export async function queryAdminRecipientOptions(pool, facilityId) {
 
 export async function notifyThreadParticipants(pool, createInAppNotification, thread, message, { senderUserId, senderMemberId }) {
   const preview = String(message.body || '').slice(0, 160)
-  const title = thread.subject || 'New message'
-  const participantUserIds = await loadThreadParticipantUserIds(pool, thread.id)
-  const participantMemberIds = await loadThreadParticipantMemberIds(pool, thread.id)
+  const mentionTitle = thread.subject
+    ? `You were mentioned in ${thread.subject}`
+    : 'You were mentioned in a conversation'
 
-  const notifyUserIds = participantUserIds.filter((id) => id !== Number(senderUserId))
-  const notifyMemberIds = participantMemberIds.filter((id) => id !== Number(senderMemberId))
+  const mentionRes = await pool.query(
+    `SELECT user_id, member_id FROM coaching.message_mention WHERE message_id = $1`,
+    [message.id],
+  )
+  const mentionedUserIds = new Set()
+  const mentionedMemberIds = new Set()
+  for (const row of mentionRes.rows) {
+    if (row.user_id != null && Number(row.user_id) !== Number(senderUserId)) {
+      mentionedUserIds.add(Number(row.user_id))
+    }
+    if (row.member_id != null && Number(row.member_id) !== Number(senderMemberId)) {
+      mentionedMemberIds.add(Number(row.member_id))
+    }
+  }
+
+  const mentionPayload = { thread_id: thread.id, message_id: message.id, mentioned: true }
 
   await Promise.all([
-    ...notifyUserIds.map((recipientUserId) =>
+    ...[...mentionedUserIds].map((recipientUserId) =>
       createInAppNotification({
         facilityId: thread.facility_id,
         recipientUserId,
-        kind: 'message',
-        title,
+        kind: 'message_mention',
+        title: mentionTitle,
         body: preview,
-        payload: { thread_id: thread.id, message_id: message.id },
+        payload: mentionPayload,
       }).catch(() => {}),
     ),
-    ...notifyMemberIds.map((recipientMemberId) =>
+    ...[...mentionedMemberIds].map((recipientMemberId) =>
       createInAppNotification({
         facilityId: thread.facility_id,
         recipientMemberId,
-        kind: 'message',
-        title,
+        kind: 'message_mention',
+        title: mentionTitle,
         body: preview,
-        payload: { thread_id: thread.id, message_id: message.id },
+        payload: mentionPayload,
       }).catch(() => {}),
     ),
   ])
@@ -765,7 +779,12 @@ const MESSAGE_ENRICH_SELECT = `
          GROUP BY emoji
        ) rx),
       '[]'::json
-    ) AS reactions
+    ) AS reactions,
+    COALESCE(
+      (SELECT json_agg(json_build_object('user_id', mm.user_id, 'member_id', mm.member_id))
+       FROM coaching.message_mention mm WHERE mm.message_id = msg.id),
+      '[]'::json
+    ) AS mentions
   FROM coaching.message msg
 `
 

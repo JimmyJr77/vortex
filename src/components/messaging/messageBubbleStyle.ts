@@ -1,4 +1,5 @@
 import type { MessageRow } from './types'
+import { formatMessageTime } from './messageFormatting'
 
 export type SenderKind = 'member' | 'coach' | 'admin'
 export type SenderPortal = 'member' | 'coach' | 'admin'
@@ -86,4 +87,13 @@ export function senderLabel(message: MessageRow, viewer: MessageViewer): string 
   }
   const name = message.sender_name || 'Unknown'
   return `${name} · ${portal}`
+}
+
+export function messageFooterMeta(message: MessageRow, viewer: MessageViewer): string {
+  const time = formatMessageTime(message.created_at)
+  if (isOwnMessage(message, viewer)) {
+    return `You · ${time}`
+  }
+  const name = message.sender_name?.trim() || 'Unknown'
+  return `${name} · ${time}`
 }
