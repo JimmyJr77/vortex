@@ -229,10 +229,14 @@ goals and lightweight achievements.*
 ### Tranche A — closed the loop on existing APIs
 - `LibraryPanel` exercise editor loads full `/exercises/:id` detail on open and edits
   media, cues/faults, and prerequisites (prereq picker), sending them back on save.
+- `LibraryPanel` filter bar: aligned search field with facet dropdowns, renamed flexibility
+  tenet to **Flexibility/Mobility** (migration `075`), **Phase/Intent** label, tenet tags
+  show specific tenet names, removed max-sec/set filter.
 - `AssessPanel` gained a rubric builder (`/api/coach/rubrics`) and a per-athlete
   skill-grade form (`/api/coach/athletes/:id/skill-grade`), alongside benchmark recording.
 - `NeedsEnginePanel` exposes equipment, age min/max, and contraindicated body-region filters.
-- `ChallengeBuilder` lets coaches attach tenet/methodology focus criteria.
+- `WorkoutBuilder` saved-workout cards open a read-only preview modal (full blocks,
+  exercises, dosage, notes) with **Edit in Builder** to load into the editor.
 - `MemberTraining` renders program week/session detail and challenge leaderboards, backed
   by `/api/member/training/program/:id` and `/challenge/:id`.
 
@@ -361,7 +365,7 @@ own chunk.
 Tables grouped by the migration that introduced them. All carry `facility_id` scoping unless
 noted; ownership tables carry `created_by` + `is_published` + `visibility`.
 
-- **`011` — schema, taxonomy, permissions**: `tenet` (8), `methodology` (8),
+- **`011` — schema, taxonomy, permissions**: `tenet` (8), `methodology` (9; HIIT added in `076`),
   `physiological_emphasis` (6), `movement_pattern`, `equipment`, `sport`, `exercise_intent`;
   seeds permission keys + role grants.
 - **`012` — exercise library**: `body_region`, `exercise` (with `est_seconds_per_set`,

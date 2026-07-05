@@ -18,10 +18,9 @@ interface FilterState {
   methodology: number | ''
   physiology: number | ''
   intent: number | ''
-  maxSeconds: number | ''
 }
 
-const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', intent: '', maxSeconds: '' }
+const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', intent: '' }
 
 export default function LibraryPanel() {
   const { taxonomy } = useTaxonomy()
@@ -43,7 +42,6 @@ export default function LibraryPanel() {
       if (filters.methodology) params.set('method', String(filters.methodology))
       if (filters.physiology) params.set('physio', String(filters.physiology))
       if (filters.intent) params.set('intent', String(filters.intent))
-      if (filters.maxSeconds) params.set('maxSeconds', String(filters.maxSeconds))
       const data = await coachFetch<Exercise[]>(`/api/coach/exercises?${params.toString()}`)
       setExercises(data)
     } catch (err) {
@@ -59,7 +57,9 @@ export default function LibraryPanel() {
 
   const tenetName = useMemo(() => {
     const map = new Map<number, string>()
-    taxonomy?.tenets.forEach((t) => t.id && map.set(t.id, t.name))
+    taxonomy?.tenets.forEach((t) => {
+      if (t.id != null) map.set(Number(t.id), t.name)
+    })
     return map
   }, [taxonomy])
 
@@ -80,30 +80,23 @@ export default function LibraryPanel() {
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl p-4 grid gap-3 md:grid-cols-3 lg:grid-cols-4">
-        <div className="relative md:col-span-2 lg:col-span-1">
-          <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
-          <input
-            value={filters.q}
-            onChange={(e) => setFilters((f) => ({ ...f, q: e.target.value }))}
-            placeholder="Search exercises..."
-            className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-sm"
-          />
+        <div className="md:col-span-2 lg:col-span-1">
+          <label className="block text-xs font-semibold text-gray-500 mb-1">Search</label>
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              value={filters.q}
+              onChange={(e) => setFilters((f) => ({ ...f, q: e.target.value }))}
+              placeholder="Search exercises..."
+              className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-sm"
+            />
+          </div>
         </div>
         <FacetSelect label="Sport" items={taxonomy?.sports} value={filters.sport} onChange={(v) => setFilters((f) => ({ ...f, sport: v }))} />
         <FacetSelect label="Tenet" items={taxonomy?.tenets as TaxonomyItem[] | undefined} value={filters.tenet} onChange={(v) => setFilters((f) => ({ ...f, tenet: v }))} />
         <FacetSelect label="Methodology" items={taxonomy?.methodologies as TaxonomyItem[] | undefined} value={filters.methodology} onChange={(v) => setFilters((f) => ({ ...f, methodology: v }))} />
         <FacetSelect label="Physiology" items={taxonomy?.physiology as TaxonomyItem[] | undefined} value={filters.physiology} onChange={(v) => setFilters((f) => ({ ...f, physiology: v }))} />
-        <FacetSelect label="Intent" items={taxonomy?.intents} value={filters.intent} onChange={(v) => setFilters((f) => ({ ...f, intent: v }))} />
-        <div>
-          <label className="block text-xs font-semibold text-gray-500 mb-1">Max sec / set</label>
-          <input
-            type="number"
-            value={filters.maxSeconds}
-            onChange={(e) => setFilters((f) => ({ ...f, maxSeconds: e.target.value ? Number(e.target.value) : '' }))}
-            placeholder="e.g. 45"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          />
-        </div>
+        <FacetSelect label="Phase/Intent" items={taxonomy?.intents} value={filters.intent} onChange={(v) => setFilters((f) => ({ ...f, intent: v }))} />
         <button type="button" onClick={() => setFilters(emptyFilters)} className="self-end text-sm text-gray-500 hover:text-gray-800 underline">
           Clear filters
         </button>
@@ -132,7 +125,7 @@ export default function LibraryPanel() {
               <div className="flex flex-wrap gap-1 mt-2">
                 {(ex.tags ?? []).filter((t) => t.facetType === 'tenet').slice(0, 4).map((t: ExerciseTag) => (
                   <span key={t.facetId} className="text-[11px] bg-red-50 text-vortex-red rounded px-2 py-0.5">
-                    {tenetName.get(t.facetId) ?? 'tenet'}
+                    {tenetName.get(Number(t.facetId)) ?? 'Unknown tenet'}
                   </span>
                 ))}
               </div>
@@ -322,7 +315,7 @@ function ExerciseEditor({ exercise, onClose, onSaved }: { exercise: Exercise | n
     { type: 'physiology', label: 'Physiological Emphasis', items: taxonomy?.physiology as TaxonomyItem[] | undefined },
     { type: 'pattern', label: 'Movement Patterns', items: taxonomy?.patterns },
     { type: 'equipment', label: 'Equipment', items: taxonomy?.equipment },
-    { type: 'intent', label: 'Intent', items: taxonomy?.intents },
+    { type: 'intent', label: 'Phase/Intent', items: taxonomy?.intents },
     { type: 'body_region', label: 'Body Regions', items: taxonomy?.bodyRegions },
   ]
 

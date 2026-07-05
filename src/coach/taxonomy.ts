@@ -68,7 +68,7 @@ export const TENETS: Tenet[] = [
   { key: 'explosiveness', name: 'Explosiveness', description: 'Exert maximal force in minimal time.', detail: 'Developing explosive movement capability through plyometrics, jumping drills, and fast-twitch muscle activation for superior athletic performance.' },
   { key: 'speed', name: 'Speed', description: 'Rapid execution of movement and reaction.', detail: 'Enhancing neuromuscular response times and quickness through sprint work, agility drills, and reaction training.' },
   { key: 'agility', name: 'Agility', description: 'Rapid direction changes with control.', detail: 'Mastering multi-directional movement with precision and balance through ladder drills, cones, and spatial awareness exercises.' },
-  { key: 'flexibility', name: 'Flexibility', description: 'Range of motion and muscular elasticity.', detail: 'Improving functional mobility and movement efficiency through targeted stretching, dynamic warm-ups, and range-of-motion exercises.' },
+  { key: 'flexibility', name: 'Flexibility/Mobility', description: 'Range of motion and muscular elasticity.', detail: 'Improving functional mobility and movement efficiency through targeted stretching, dynamic warm-ups, and range-of-motion exercises.' },
   { key: 'balance', name: 'Balance', description: 'Maintain stability in static or dynamic movement.', detail: 'Building proprioceptive awareness through beam work, stability challenges, and single-leg exercises for superior body control.' },
   { key: 'coordination', name: 'Coordination', description: 'Integrate multiple body parts for fluid motion.', detail: 'Developing seamless movement patterns through complex drills, multi-plane exercises, and neural synchronization training.' },
   { key: 'body_control', name: 'Body Control', description: 'Kinematic awareness - Precise understanding of where the body is in space.', detail: "Achieving exceptional spatial awareness through gymnastics-based training, air sense development, and proprioceptive exercises that translate to any sport." },
@@ -83,6 +83,7 @@ export const TRAINING_METHODOLOGIES: Methodology[] = [
   { key: 'balance_stability', name: 'Balance & Stability Work', description: 'Proprioception and spatial control' },
   { key: 'mobility_flexibility', name: 'Mobility & Flexibility Drills', description: 'Full-range functional movement' },
   { key: 'core_body_control', name: 'Core & Body Control Work', description: 'Control, posture, and spatial awareness' },
+  { key: 'hiit', name: 'HIIT', description: 'High-intensity interval training for metabolic conditioning' },
 ]
 
 export const PHYSIOLOGICAL_EMPHASIS: PhysiologicalEmphasis[] = [
@@ -111,6 +112,6 @@ export const FACET_LABELS: Record<FacetType, string> = {
   pattern: 'Movement Pattern',
   equipment: 'Equipment',
   sport: 'Sport',
-  intent: 'Intent',
+  intent: 'Phase/Intent',
   body_region: 'Body Region',
 }

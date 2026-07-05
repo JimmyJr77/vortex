@@ -1,14 +1,23 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Clock, Loader2, Plus, Save, Search, Trash2, ChevronUp, ChevronDown, FolderOpen, GripVertical } from 'lucide-react'
+import { Clock, Loader2, Plus, Save, Search, Trash2, ChevronUp, ChevronDown, FolderOpen, GripVertical, X, Pencil } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import { useCoachBuilderStore, blockSeconds, workoutSeconds } from '../../coach/useCoachBuilderStore'
-import type { Exercise, Workout, WorkoutType } from '../../coach/types'
+import type { BlockFormat, Exercise, Workout, WorkoutType } from '../../coach/types'
 
 function fmt(seconds: number) {
   const m = Math.floor(seconds / 60)
   const s = seconds % 60
   return `${m}m ${s.toString().padStart(2, '0')}s`
+}
+
+const BLOCK_FORMAT_LABELS: Record<BlockFormat, string> = {
+  straight_sets: 'Straight Sets',
+  circuit: 'Circuit',
+  amrap: 'AMRAP',
+  emom: 'EMOM',
+  for_time: 'For Time',
+  stations: 'Stations',
 }
 
 export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultType?: WorkoutType }) {
@@ -20,6 +29,8 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
   const [error, setError] = useState<string | null>(null)
   const [pickerBlock, setPickerBlock] = useState<number | null>(null)
   const [saved, setSaved] = useState<Workout[]>([])
+  const [previewWorkout, setPreviewWorkout] = useState<Workout | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
 
   useEffect(() => {
     if (!workout.title && workout.blocks.length <= 1 && workout.type !== defaultType) {
@@ -69,14 +80,23 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
     }
   }
 
-  const openSaved = async (id?: number) => {
+  const openPreview = async (id?: number) => {
     if (!id) return
+    setPreviewLoading(true)
+    setError(null)
     try {
       const data = await coachFetch<Workout>(`/api/coach/workouts/${id}`)
-      setWorkout(data)
+      setPreviewWorkout(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to open workout')
+    } finally {
+      setPreviewLoading(false)
     }
+  }
+
+  const loadIntoBuilder = (workout: Workout) => {
+    setWorkout(workout)
+    setPreviewWorkout(null)
   }
 
   return (
@@ -191,17 +211,40 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
             <input type="number" value={maxMinutes} onChange={(e) => setMaxMinutes(e.target.value ? Number(e.target.value) : '')} placeholder="max" className="w-16 border border-gray-300 rounded px-2 py-1" />
             <span className="text-gray-400">min</span>
           </div>
-          <div className="space-y-1 max-h-[420px] overflow-y-auto">
+          <div className="space-y-2 max-h-[420px] overflow-y-auto">
             {saved.map((w) => (
-              <button key={w.id} type="button" onClick={() => void openSaved(w.id)} className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 text-sm">
+              <button
+                key={w.id}
+                type="button"
+                onClick={() => void openPreview(w.id)}
+                className="w-full text-left border border-gray-100 rounded-lg px-3 py-2.5 hover:bg-gray-50 hover:border-gray-200 transition-colors"
+              >
                 <div className="font-medium text-gray-800">{w.title}</div>
-                <div className="text-xs text-gray-500">{w.computed_minutes ?? 0} min</div>
+                <div className="text-xs text-gray-500 mt-0.5">
+                  {w.sport_name ?? 'Universal'} · {w.computed_minutes ?? 0} min
+                </div>
               </button>
             ))}
             {saved.length === 0 && <div className="text-sm text-gray-500">None saved yet.</div>}
           </div>
         </div>
       </div>
+
+      {previewLoading && (
+        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl px-5 py-4 flex items-center gap-2 text-gray-600">
+            <Loader2 className="w-4 h-4 animate-spin" /> Loading workout...
+          </div>
+        </div>
+      )}
+
+      {previewWorkout && (
+        <WorkoutPreviewModal
+          workout={previewWorkout}
+          onClose={() => setPreviewWorkout(null)}
+          onEdit={() => loadIntoBuilder(previewWorkout)}
+        />
+      )}
 
       {pickerBlock !== null && (
         <ExercisePicker
@@ -220,6 +263,105 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
           }}
         />
       )}
+    </div>
+  )
+}
+
+function WorkoutPreviewModal({
+  workout,
+  onClose,
+  onEdit,
+}: {
+  workout: Workout
+  onClose: () => void
+  onEdit: () => void
+}) {
+  const totalSeconds = workoutSeconds(workout)
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-gray-100 sticky top-0 bg-white">
+          <div>
+            <h3 className="font-bold text-lg text-gray-900">{workout.title}</h3>
+            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
+              <span className="capitalize">{workout.type}</span>
+              <span>{workout.sport_name ?? 'Universal'}</span>
+              <span>{fmt(totalSeconds)} total</span>
+              {workout.computed_minutes != null && <span>{workout.computed_minutes} min computed</span>}
+              {workout.target_minutes != null && <span>{workout.target_minutes} min target</span>}
+            </div>
+          </div>
+          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700 shrink-0" aria-label="Close">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="overflow-y-auto p-5 space-y-4">
+          {workout.description && (
+            <div>
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Description</div>
+              <p className="text-sm text-gray-700 whitespace-pre-wrap">{workout.description}</p>
+            </div>
+          )}
+          {workout.notes && (
+            <div>
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Notes</div>
+              <p className="text-sm text-gray-700 whitespace-pre-wrap">{workout.notes}</p>
+            </div>
+          )}
+
+          {workout.blocks.map((block, bi) => (
+            <div key={block.id ?? bi} className="border border-gray-200 rounded-xl p-4">
+              <div className="flex items-start justify-between gap-2 flex-wrap">
+                <div className="font-semibold text-gray-900">{block.label || `Block ${bi + 1}`}</div>
+                <span className="text-xs text-gray-500">{fmt(blockSeconds(block))}</span>
+              </div>
+              <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
+                <span>{BLOCK_FORMAT_LABELS[block.block_format] ?? block.block_format}</span>
+                <span>{block.rounds} round{block.rounds === 1 ? '' : 's'}</span>
+                {block.rest_between_rounds_seconds > 0 && (
+                  <span>{block.rest_between_rounds_seconds}s rest between rounds</span>
+                )}
+                {block.cap_minutes != null && <span>{block.cap_minutes} min cap</span>}
+              </div>
+              <ul className="mt-3 space-y-2">
+                {block.items.map((item, ii) => (
+                  <li key={item.id ?? ii} className="text-sm border-t border-gray-100 first:border-t-0 first:pt-0 pt-2">
+                    <div className="font-medium text-gray-800">{item.exercise_name ?? 'Exercise'}</div>
+                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5 text-xs text-gray-500">
+                      {item.sets != null && <span>{item.sets} sets</span>}
+                      {item.reps != null && <span>{item.reps} reps</span>}
+                      {item.work_seconds != null && <span>{item.work_seconds}s work</span>}
+                      {item.rest_seconds != null && <span>{item.rest_seconds}s rest</span>}
+                      {item.load && <span>Load: {item.load}</span>}
+                      {item.tempo && <span>Tempo: {item.tempo}</span>}
+                    </div>
+                    {item.coaching_note && (
+                      <p className="text-xs text-gray-600 mt-1 italic">{item.coaching_note}</p>
+                    )}
+                  </li>
+                ))}
+                {block.items.length === 0 && <li className="text-xs text-gray-400">No exercises in this block.</li>}
+              </ul>
+            </div>
+          ))}
+          {workout.blocks.length === 0 && <div className="text-sm text-gray-500">This workout has no blocks yet.</div>}
+        </div>
+
+        <div className="flex justify-end gap-2 px-5 py-4 border-t border-gray-100 sticky bottom-0 bg-white">
+          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border border-gray-300 text-sm">
+            Close
+          </button>
+          <button
+            type="button"
+            onClick={onEdit}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold"
+          >
+            <Pencil className="w-4 h-4" /> Edit in Builder
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
