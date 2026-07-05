@@ -128,9 +128,7 @@ export default function MessagesPanel() {
     try {
       let attachmentPayload: Partial<UploadedAttachment> = {}
       if (pendingAttachment) {
-        attachmentPayload = await uploadMessageAttachment(pendingAttachment, () =>
-          coachFetch('/api/coach/messages/upload-signature'),
-        )
+        attachmentPayload = await uploadMessageAttachment(pendingAttachment, 'coach', coachFetch)
       }
       const msg = await coachFetch<MessageRow>(`/api/coach/messages/${selectedId}`, {
         method: 'POST',

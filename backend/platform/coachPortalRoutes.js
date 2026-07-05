@@ -56,6 +56,8 @@ import {
   cloudinaryMessageAttachmentSignature,
   parseMessageAttachmentPayload,
   messageHasContent,
+  normalizeMessageBodyForInsert,
+  uploadMessageAttachmentFromBase64,
   MESSAGE_THREAD_FAVORITE_ORDER,
   messageThreadFavoriteJoinSql,
   messageThreadFavoriteSelectSql,
@@ -2726,8 +2728,36 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     ok(res, cloudinaryMessageAttachmentSignature())
   })
 
+  async function handleMessageAttachmentUpload(req, res) {
+    try {
+      const dataBase64 = req.body?.dataBase64
+      const fileName = req.body?.fileName
+      const mimeType = req.body?.mimeType ?? null
+      if (!dataBase64 || !fileName) return bad(res, 'Missing file data.', 400)
+      const attachment = await uploadMessageAttachmentFromBase64({ dataBase64, fileName, mimeType })
+      ok(res, attachment)
+    } catch (error) {
+      if (error.code === 'CLOUDINARY_NOT_CONFIGURED') {
+        return bad(
+          res,
+          'File upload is not configured. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET on the backend service.',
+          503,
+        )
+      }
+      if (error.code === 'FILE_TOO_LARGE') return bad(res, error.message, 413)
+      bad(res, error.message, 500)
+    }
+  }
+
+  app.post('/api/coach/messages/upload-attachment', auth, handleMessageAttachmentUpload)
+  app.post('/api/member/messages/upload-attachment', auth, handleMessageAttachmentUpload)
+  app.post('/api/admin/messages/upload-attachment', auth, (req, res) => {
+    if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+    return handleMessageAttachmentUpload(req, res)
+  })
+
   async function appendThreadMessage(threadId, { senderUserId, senderMemberId, body, senderPortal, attachment }) {
-    const text = String(body || '').trim() || null
+    const text = normalizeMessageBodyForInsert(body)
     const inserted = await pool.query(
       `INSERT INTO coaching.message (
          thread_id, sender_user_id, sender_member_id, body, sender_portal,

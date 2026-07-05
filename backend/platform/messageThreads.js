@@ -692,7 +692,14 @@ export async function clearInboxHideForThread(pool, threadId) {
   await pool.query(`DELETE FROM coaching.message_thread_inbox_hide WHERE thread_id = $1`, [threadId])
 }
 
-export { cloudinaryMessageAttachmentSignature, parseMessageAttachmentPayload, messageHasContent } from './messageMedia.js'
+export {
+  cloudinaryMessageAttachmentSignature,
+  isCloudinaryConfigured,
+  parseMessageAttachmentPayload,
+  messageHasContent,
+  normalizeMessageBodyForInsert,
+  uploadMessageAttachmentFromBase64,
+} from './messageMedia.js'
 
 const MESSAGE_ENRICH_SELECT = `
   SELECT msg.*,

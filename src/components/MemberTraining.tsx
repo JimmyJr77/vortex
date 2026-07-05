@@ -881,9 +881,7 @@ export function MemberMessagesTab() {
     try {
       let attachmentPayload: Partial<UploadedAttachment> = {}
       if (pendingAttachment) {
-        attachmentPayload = await uploadMessageAttachment(pendingAttachment, () =>
-          coachFetch('/api/member/messages/upload-signature'),
-        )
+        attachmentPayload = await uploadMessageAttachment(pendingAttachment, 'member', coachFetch)
       }
       const msg = await coachFetch<MessageRow>(`/api/member/messages/${selectedId}`, {
         method: 'POST',

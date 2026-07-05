@@ -145,9 +145,7 @@ export default function AdminMessagesPanel() {
     try {
       let attachmentPayload: Partial<UploadedAttachment> = {}
       if (pendingAttachment) {
-        attachmentPayload = await uploadMessageAttachment(pendingAttachment, () =>
-          adminFetch('/api/admin/messages/upload-signature'),
-        )
+        attachmentPayload = await uploadMessageAttachment(pendingAttachment, 'admin', adminFetch)
       }
       const msg = await adminFetch<MessageRow>(`/api/admin/messages/${selectedId}`, {
         method: 'POST',

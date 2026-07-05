@@ -11,3 +11,10 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # Optional — portal message attachments, exercise media, form-review video
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
