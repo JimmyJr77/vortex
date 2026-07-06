@@ -45,6 +45,12 @@ BEGIN
       );
     DELETE FROM coaching.phase_order_slot WHERE phase_id = old_id;
 
+    DELETE FROM coaching.exercise_phase_profile p
+    WHERE p.phase_id = old_id
+      AND EXISTS (
+        SELECT 1 FROM coaching.exercise_phase_profile x
+        WHERE x.exercise_id = p.exercise_id AND x.phase_id = new_id
+      );
     UPDATE coaching.exercise_phase_profile SET phase_id = new_id WHERE phase_id = old_id;
 
     DELETE FROM coaching.regimen_phase_distribution d
@@ -98,16 +104,32 @@ WHERE legacy.entity_type = 'session_phase'
   );
 
 UPDATE coaching.education_content SET entity_key = 'prepare_and_access', title = 'Prepare & Access', updated_at = now()
-WHERE entity_type = 'session_phase' AND entity_id IS NULL AND entity_key = 'prepare_access';
+WHERE entity_type = 'session_phase' AND entity_id IS NULL AND entity_key = 'prepare_access'
+  AND NOT EXISTS (
+    SELECT 1 FROM coaching.education_content
+    WHERE entity_type = 'session_phase' AND entity_id IS NULL AND entity_key = 'prepare_and_access'
+  );
 
 UPDATE coaching.education_content SET entity_key = 'movement_intelligence', title = 'Movement Intelligence', updated_at = now()
-WHERE entity_type = 'session_phase' AND entity_id IS NULL AND entity_key = 'skill_movement_intelligence';
+WHERE entity_type = 'session_phase' AND entity_id IS NULL AND entity_key = 'skill_movement_intelligence'
+  AND NOT EXISTS (
+    SELECT 1 FROM coaching.education_content
+    WHERE entity_type = 'session_phase' AND entity_id IS NULL AND entity_key = 'movement_intelligence'
+  );
 
 UPDATE coaching.education_content SET entity_key = 'resilience', title = 'Resilience', updated_at = now()
-WHERE entity_type = 'session_phase' AND entity_id IS NULL AND entity_key = 'control_resilience';
+WHERE entity_type = 'session_phase' AND entity_id IS NULL AND entity_key = 'control_resilience'
+  AND NOT EXISTS (
+    SELECT 1 FROM coaching.education_content
+    WHERE entity_type = 'session_phase' AND entity_id IS NULL AND entity_key = 'resilience'
+  );
 
 UPDATE coaching.education_content SET entity_key = 'sustained_capacity', title = 'Sustained Capacity', updated_at = now()
-WHERE entity_type = 'session_phase' AND entity_id IS NULL AND entity_key = 'fitness_repeatability';
+WHERE entity_type = 'session_phase' AND entity_id IS NULL AND entity_key = 'fitness_repeatability'
+  AND NOT EXISTS (
+    SELECT 1 FROM coaching.education_content
+    WHERE entity_type = 'session_phase' AND entity_id IS NULL AND entity_key = 'sustained_capacity'
+  );
 
 UPDATE coaching.education_content SET
   title = replace(replace(replace(replace(title,

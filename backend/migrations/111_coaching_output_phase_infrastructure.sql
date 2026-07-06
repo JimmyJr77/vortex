@@ -15,7 +15,19 @@ ALTER TABLE coaching.exercise ADD CONSTRAINT exercise_phase_subrole_check
     'elastic_stiffness_plyometric_rudiments',
     'jump_throw_explosive_power',
     'deceleration_cod_power',
-    'reactive_agility_tumbling_output'
+    'reactive_agility_tumbling_output',
+    'squat_knee_dominant_strength',
+    'hinge_posterior_chain_strength',
+    'upper_body_push_strength',
+    'pull_hang_grip_strength',
+    'carry_trunk_loaded_bracing_strength',
+    'tissue_capacity_isometric_eccentric_accessory',
+    'landing_braking_control',
+    'single_leg_balance_foot_ankle_hip_control',
+    'trunk_pelvis_anti_movement_control',
+    'scapular_wrist_hand_support_resilience',
+    'slow_eccentric_isometric_joint_resilience',
+    'conditioning_intervals'
   ));
 
 INSERT INTO coaching.phase_subrole (

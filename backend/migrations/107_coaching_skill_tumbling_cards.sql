@@ -7,6 +7,12 @@ ALTER TABLE coaching.exercise_dosage_profile
   ALTER COLUMN session_volume_min TYPE TEXT USING session_volume_min::text,
   ALTER COLUMN session_volume_max TYPE TEXT USING session_volume_max::text;
 
+ALTER TABLE coaching.exercise_phase_profile DROP CONSTRAINT IF EXISTS exercise_phase_profile_intensity_ceiling_check;
+ALTER TABLE coaching.exercise_phase_profile ADD CONSTRAINT exercise_phase_profile_intensity_ceiling_check
+  CHECK (intensity_ceiling IS NULL OR intensity_ceiling IN (
+    'low', 'low_to_moderate', 'moderate', 'moderate_to_high', 'high', 'high_to_max', 'max'
+  ));
+
 -- Equipment taxonomy for tumbling foundation tags
 INSERT INTO coaching.equipment (key, name, sort_order) VALUES
   ('wedge', 'Incline / Wedge Mat', 15),

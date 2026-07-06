@@ -3,28 +3,45 @@
 
 -- 0) Legacy key → canonical key
 UPDATE coaching.session_phase SET key = 'prepare_and_access', updated_at = now()
-WHERE key = 'prepare_access';
+WHERE key = 'prepare_access'
+  AND NOT EXISTS (SELECT 1 FROM coaching.session_phase WHERE key = 'prepare_and_access');
 
 UPDATE coaching.session_phase SET key = 'movement_intelligence', updated_at = now()
-WHERE key = 'skill_movement_intelligence';
+WHERE key = 'skill_movement_intelligence'
+  AND NOT EXISTS (SELECT 1 FROM coaching.session_phase WHERE key = 'movement_intelligence');
 
 UPDATE coaching.session_phase SET key = 'resilience', updated_at = now()
-WHERE key = 'control_resilience';
+WHERE key = 'control_resilience'
+  AND NOT EXISTS (SELECT 1 FROM coaching.session_phase WHERE key = 'resilience');
 
 -- 1) Session phase keys + names + descriptions
+UPDATE coaching.session_phase SET
+  name = 'Prepare & Access',
+  description = 'Raise temperature, mobilize joints, activate key tissues, and create access to the positions needed for training.',
+  updated_at = now()
+WHERE key = 'prepare_and_access';
+
 UPDATE coaching.session_phase SET
   key = 'prepare_and_access',
   name = 'Prepare & Access',
   description = 'Raise temperature, mobilize joints, activate key tissues, and create access to the positions needed for training.',
   updated_at = now()
-WHERE key IN ('prepare_and_access', 'prepare_access');
+WHERE key = 'prepare_access'
+  AND NOT EXISTS (SELECT 1 FROM coaching.session_phase WHERE key = 'prepare_and_access');
+
+UPDATE coaching.session_phase SET
+  name = 'Movement Intelligence',
+  description = 'Develop coordination, body shapes, rhythm, mechanics, spatial awareness, and movement literacy before fatigue.',
+  updated_at = now()
+WHERE key = 'movement_intelligence';
 
 UPDATE coaching.session_phase SET
   key = 'movement_intelligence',
   name = 'Movement Intelligence',
   description = 'Develop coordination, body shapes, rhythm, mechanics, spatial awareness, and movement literacy before fatigue.',
   updated_at = now()
-WHERE key IN ('movement_intelligence', 'skill_movement_intelligence');
+WHERE key = 'skill_movement_intelligence'
+  AND NOT EXISTS (SELECT 1 FROM coaching.session_phase WHERE key = 'movement_intelligence');
 
 UPDATE coaching.session_phase SET
   name = 'Output',
@@ -39,17 +56,32 @@ UPDATE coaching.session_phase SET
 WHERE key = 'capacity';
 
 UPDATE coaching.session_phase SET
+  name = 'Resilience',
+  description = 'Build control, stability, landing mechanics, braking ability, joint ownership, trunk control, and tissue durability.',
+  updated_at = now()
+WHERE key = 'resilience';
+
+UPDATE coaching.session_phase SET
   key = 'resilience',
   name = 'Resilience',
   description = 'Build control, stability, landing mechanics, braking ability, joint ownership, trunk control, and tissue durability.',
   updated_at = now()
-WHERE key IN ('resilience', 'control_resilience');
+WHERE key = 'control_resilience'
+  AND NOT EXISTS (SELECT 1 FROM coaching.session_phase WHERE key = 'resilience');
 
 UPDATE coaching.session_phase SET
   name = 'Sustained Capacity',
   description = 'Build the ability to repeat useful athletic work under fatigue while maintaining quality, posture, and safe mechanics.',
   updated_at = now()
-WHERE key IN ('fitness_repeatability', 'sustained_capacity');
+WHERE key = 'sustained_capacity';
+
+UPDATE coaching.session_phase SET
+  key = 'sustained_capacity',
+  name = 'Sustained Capacity',
+  description = 'Build the ability to repeat useful athletic work under fatigue while maintaining quality, posture, and safe mechanics.',
+  updated_at = now()
+WHERE key = 'fitness_repeatability'
+  AND NOT EXISTS (SELECT 1 FROM coaching.session_phase WHERE key = 'sustained_capacity');
 
 UPDATE coaching.session_phase SET
   name = 'Restore',

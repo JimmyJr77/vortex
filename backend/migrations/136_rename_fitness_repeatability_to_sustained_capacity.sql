@@ -6,7 +6,17 @@ UPDATE coaching.session_phase SET
   name = 'Sustained Capacity',
   description = 'Sustained work capacity: HIIT, conditioning, intervals, and repeatability under fatigue.',
   updated_at = now()
-WHERE key = 'fitness_repeatability';
+WHERE key = 'fitness_repeatability'
+  AND NOT EXISTS (SELECT 1 FROM coaching.session_phase WHERE key = 'sustained_capacity');
+
+DELETE FROM coaching.education_content ec
+WHERE ec.entity_type = 'session_phase'
+  AND ec.entity_key = 'fitness_repeatability'
+  AND ec.entity_id IS NULL
+  AND EXISTS (
+    SELECT 1 FROM coaching.education_content
+    WHERE entity_type = 'session_phase' AND entity_key = 'sustained_capacity' AND entity_id IS NULL
+  );
 
 UPDATE coaching.education_content SET
   entity_key = 'sustained_capacity',
