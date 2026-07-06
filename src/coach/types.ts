@@ -519,6 +519,7 @@ export interface EducationContent {
   common_misuse?: string | null
   scaling_guidance?: string | null
   why?: ExerciseWhy | null
+  examples_json?: unknown
 }
 
 export interface ValidationIssue {

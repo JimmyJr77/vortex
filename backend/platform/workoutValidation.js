@@ -1812,6 +1812,573 @@ function analyzeOutputJumpPowerReadiness(items, ctx) {
   return findings
 }
 
+const DECEL_COD_OUTPUT_SLUGS = new Set([
+  'sprint-to-stick-deceleration', '5-yard-accel-to-decel-stick', 'lateral-bound-to-decel-stick',
+  'pro-agility-5-10-5-technical-rep', '90-degree-cut-drill', '180-degree-turn-shuttle-cut', 'curved-run-to-cut',
+])
+const LINEAR_DECEL_OUTPUT_SLUGS = new Set(['sprint-to-stick-deceleration', '5-yard-accel-to-decel-stick'])
+const SPRINT_TO_STICK_SLUG = 'sprint-to-stick-deceleration'
+const FIVE_YARD_DECEL_SLUG = '5-yard-accel-to-decel-stick'
+const LATERAL_BOUND_DECEL_SLUG = 'lateral-bound-to-decel-stick'
+const PRO_AGILITY_SLUG = 'pro-agility-5-10-5-technical-rep'
+const NINETY_CUT_SLUG = '90-degree-cut-drill'
+const ONE_EIGHTY_TURN_SLUG = '180-degree-turn-shuttle-cut'
+const CURVED_RUN_TO_CUT_SLUG = 'curved-run-to-cut'
+const COD_POWER_ADVANCED_SLUGS = new Set([
+  PRO_AGILITY_SLUG, NINETY_CUT_SLUG, ONE_EIGHTY_TURN_SLUG, CURVED_RUN_TO_CUT_SLUG,
+])
+const PRO_AGILITY_MIN_REST_SECONDS = 120
+const DECEL_COD_SYMPTOM_PATTERN = /knee|ankle|hip|back\s*pain|plant\s*slip|heel\s*pain/i
+const DECEL_EXTRA_STEPS_PATTERN = /extra\s*step|uncontrolled\s*stop|stutter\s*step|cannot\s*stick/i
+const DECEL_KNEE_VALGUS_PATTERN = /knee\s*collapse|valgus|knees?\s*cav(e|ing)/i
+const DECEL_PLANT_DROP_PATTERN = /plant\s*quality|poor\s*plant|plant\s*drops|plant\s*deteriorat/i
+const DECEL_REACTIVE_MISLABEL_PATTERN = /reactive\s*agility|true\s*agility|reactive\s*cod/i
+const DECEL_UNSAFE_SURFACE_PATTERN = /slip(ping)?|unsafe\s*surface|poor\s*traction|plant\s*foot\s*slip/i
+const DECEL_CURVE_UNSAFE_PATTERN = /curve\s*too\s*tight|cannot\s*hold\s*curve|drift\s*wide|cannot\s*run\s*curve/i
+const DECEL_ANGLE_VELOCITY_PATTERN = /sharp\s*angle|high\s*speed.*cut|max\s*speed.*90|max\s*speed.*180/i
+const DECEL_EXIT_FAIL_PATTERN = /cannot\s*decelerate|no\s*decel|cannot\s*stop\s*after/i
+
+/** Deceleration / COD Power Output cluster checks. Pure helper for tests. */
+function analyzeOutputDecelCodReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    blockMeta = [],
+    outputBlockIndex = 0,
+    exerciseSkillLevelById = new Map(),
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const ordered = []
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug || !DECEL_COD_OUTPUT_SLUGS.has(slug)) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  if (ordered.length === 0) return findings
+
+  const slugsInBlock = new Set(ordered.map((o) => o.slug))
+  const slugsInWorkout = new Set(slugsInBlock)
+  for (const meta of blockMeta ?? []) {
+    if (meta.phaseKey !== OUTPUT) continue
+    for (const item of meta.block?.items ?? []) {
+      const slug = exerciseSlug(item, slugByExercise)
+      if (slug && DECEL_COD_OUTPUT_SLUGS.has(slug)) slugsInWorkout.add(slug)
+    }
+  }
+
+  const hasLinearDecelFoundation = [...LINEAR_DECEL_OUTPUT_SLUGS].some((s) => slugsInWorkout.has(s))
+  const hasCodPower = [...COD_POWER_ADVANCED_SLUGS].some((s) => slugsInBlock.has(s))
+
+  for (let j = 0; j < outputBlockIndex; j++) {
+    const priorKey = blockMeta[j]?.phaseKey
+    if (priorKey === 'fitness_repeatability') {
+      findings.push({
+        rule_key: 'output_decel_cod_after_fitness',
+        severity: 'warning',
+        message: 'COD Output requires freshness — move before Fitness / Repeatability conditioning.',
+        affected_items: ordered.map((o) => o.name),
+        meta: { prior_phase: priorKey },
+      })
+    }
+    if (priorKey === 'capacity') {
+      findings.push({
+        rule_key: 'output_decel_cod_after_capacity',
+        severity: 'warning',
+        message:
+          'Braking and plant quality may be compromised after heavy lower-body strength, eccentrics, or high plyometric volume.',
+        affected_items: ordered.map((o) => o.name),
+        meta: { prior_phase: priorKey },
+      })
+    }
+  }
+
+  if (hasCodPower && !slugsInWorkout.has(SPRINT_TO_STICK_SLUG)) {
+    findings.push({
+      rule_key: 'output_decel_cod_linear_prerequisite',
+      severity: 'error',
+      message: 'Do not progress to COD power until linear Sprint to Stick deceleration is controlled.',
+      affected_items: ordered.filter((o) => COD_POWER_ADVANCED_SLUGS.has(o.slug)).map((o) => o.name),
+      meta: { missing_prereq: SPRINT_TO_STICK_SLUG },
+    })
+  }
+
+  if (DECEL_COD_SYMPTOM_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_decel_cod_tissue_warning',
+      severity: 'recommendation',
+      message: 'Knee, ankle, hip, or back warning signs — end COD Output and regress to lower-speed mechanics or Control / Resilience.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (DECEL_PLANT_DROP_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_decel_cod_plant_quality_stop',
+      severity: 'warning',
+      message: 'Plant quality is dropping — end COD reps or increase rest. Do not practice poor plants.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (DECEL_UNSAFE_SURFACE_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_decel_cod_unsafe_surface',
+      severity: 'error',
+      message: 'Do not perform high-intent COD on unsafe surface or when plant foot slips.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (DECEL_ANGLE_VELOCITY_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_decel_cod_angle_velocity',
+      severity: 'warning',
+      message: 'Angle and approach speed both increase COD stress — progress only one variable at a time.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (DECEL_EXIT_FAIL_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_decel_cod_exit_deceleration',
+      severity: 'recommendation',
+      message: 'Add deceleration zone coaching after exit or reduce exit speed.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
+    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+
+    if (slug === FIVE_YARD_DECEL_SLUG && DECEL_EXTRA_STEPS_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'output_decel_cod_accel_extra_steps',
+        severity: 'recommendation',
+        message: `${name}: increase stop zone, reduce approach speed, or regress to Sprint to Stick.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === LATERAL_BOUND_DECEL_SLUG && DECEL_KNEE_VALGUS_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'output_decel_cod_lateral_valgus',
+        severity: 'recommendation',
+        message: `${name}: regress to lateral line hops, lateral lunge shift, or supported single-leg balance.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === PRO_AGILITY_SLUG) {
+      if (restSeconds > 0 && restSeconds < PRO_AGILITY_MIN_REST_SECONDS) {
+        findings.push({
+          rule_key: 'output_decel_cod_pro_agility_short_rest',
+          severity: 'warning',
+          message: `${name}: rest (${restSeconds}s) is becoming conditioning — increase rest or classify as Fitness / Repeatability.`,
+          affected_items: [name],
+          meta: { rest_seconds: restSeconds, slug },
+        })
+      }
+      if (DECEL_REACTIVE_MISLABEL_PATTERN.test(watchText)) {
+        findings.push({
+          rule_key: 'output_decel_cod_pro_agility_not_reactive',
+          severity: 'warning',
+          message: `${name}: 5-10-5 is pre-planned change-of-direction speed, not true reactive agility without an external cue.`,
+          affected_items: [name],
+          meta: { slug, symptom_flags: true },
+        })
+      }
+    }
+
+    if (slug === NINETY_CUT_SLUG && !hasLinearDecelFoundation) {
+      findings.push({
+        rule_key: 'output_decel_cod_90cut_prerequisite',
+        severity: 'recommendation',
+        message: `${name}: use linear decel stick and controlled plant rehearsal before 90-degree cuts.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+    }
+
+    if (slug === ONE_EIGHTY_TURN_SLUG && isBeginner) {
+      findings.push({
+        rule_key: 'output_decel_cod_180_beginner',
+        severity: 'warning',
+        message: `${name}: 180-degree turns have high braking demand — use lower-speed shuttle turn or decel stick first.`,
+        affected_items: [name],
+        meta: { beginner: true, slug },
+      })
+    }
+
+    if (slug === CURVED_RUN_TO_CUT_SLUG) {
+      findings.push({
+        rule_key: 'output_decel_cod_curve_safety',
+        severity: 'recommendation',
+        message: `${name}: confirm curve radius, traction, clear exit lane, and curved sprint control before cutting.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+      if (DECEL_CURVE_UNSAFE_PATTERN.test(watchText)) {
+        findings.push({
+          rule_key: 'output_decel_cod_curve_unsafe',
+          severity: 'warning',
+          message: `${name}: curve control or surface safety is compromised — widen radius, reduce speed, or stop.`,
+          affected_items: [name],
+          meta: { slug, symptom_flags: true },
+        })
+      }
+    }
+  }
+
+  return findings
+}
+
+const REACTIVE_TUMBLING_OUTPUT_SLUGS = new Set([
+  'reactive-gate-sprint',
+  'mirror-shuffle-to-sprint-exit',
+  'ball-drop-sprint-catch',
+  'power-hurdle-to-cartwheel-round-off-entry',
+  'round-off-rebound-snap-down-to-stick',
+])
+const REACTIVE_AGILITY_OUTPUT_SLUGS = new Set([
+  'reactive-gate-sprint',
+  'mirror-shuffle-to-sprint-exit',
+  'ball-drop-sprint-catch',
+])
+const TUMBLING_TAKEOFF_SLUG = 'power-hurdle-to-cartwheel-round-off-entry'
+const ROUND_OFF_REBOUND_OUTPUT_SLUG = 'round-off-rebound-snap-down-to-stick'
+const MIRROR_SPRINT_EXIT_SLUG = 'mirror-shuffle-to-sprint-exit'
+const BALL_DROP_SPRINT_CATCH_SLUG = 'ball-drop-sprint-catch'
+const REACTIVE_GATE_SPRINT_SLUG = 'reactive-gate-sprint'
+
+const REACTIVE_GATE_PREREQ_SLUGS = new Set([
+  'coach-point-and-go', 'gate-reaction-drill', 'two-point-start-walk-in', 'sprint-to-stick-deceleration',
+])
+const MIRROR_EXIT_PREREQ_SLUGS = new Set([
+  'mirror-shuffle-drill', 'lateral-shuffle-walkthrough', 'lateral-bound-to-decel-stick',
+])
+const BALL_DROP_OUTPUT_PREREQ_SLUGS = new Set([
+  'ball-drop-reaction', 'two-point-start-to-5-10-yard-sprint', 'sprint-to-stick-deceleration',
+])
+const POWER_HURDLE_OUTPUT_PREREQ_SLUGS = new Set([
+  'hurdle-step-lunge', 'cartwheel', 'cartwheel-step-over', 'cartwheel-finish-lunge', 'round-off',
+])
+const ROUND_OFF_REBOUND_OUTPUT_PREREQ_SLUGS = new Set([
+  'cartwheel', 'cartwheel-step-over', 'cartwheel-finish-lunge', 'round-off',
+  'power-hurdle-to-cartwheel-round-off-entry', 'snap-down-to-rebound',
+])
+
+const REACTIVE_COLLISION_PATTERN = /cross(ing)?\s*path|collision\s*risk|paths?\s*cross/i
+const REACTIVE_NO_DECEL_ZONE_PATTERN = /no\s*(safe\s*)?(run-out|deceleration|decel)|cannot\s*(stop|decelerate)/i
+const REACTIVE_DIVING_PATTERN = /\bdive(s|ing)?\b|\blunge(s)?\s*reckless/i
+const REACTIVE_GUESSING_PATTERN = /guess(es|ing)?\s*(before|early)|chooses?\s*wrong\s*gate/i
+const REACTIVE_NO_CUE_PATTERN = /pre-planned|no\s*(external\s*)?cue|predetermined\s*route/i
+const REACTIVE_QUALITY_DROP_PATTERN = /chaotic|sloppy|quality\s*drop|tired|reckless/i
+const REACTIVE_SYMPTOM_PATTERN = /wrist|shoulder|neck|back|knee|ankle|achilles/i
+const REACTIVE_FEAR_PATTERN = /fear|hesitat/i
+const TUMBLING_FRONT_FOOT_PATTERN = /front\s*foot\s*(too\s*)?(far|reach)|kicking\s*far\s*out/i
+const TUMBLING_ROUND_OFF_FAULT_PATTERN = /bent\s*arm|slow\s*snap|feet\s*apart|dead\s*landing|no\s*rebound/i
+const REACTIVE_HIGH_VOLUME_THRESHOLD = 10
+const MIRROR_MAX_WORK_SECONDS = 10
+
+/** Reactive Agility & Tumbling Output cluster checks. Pure helper for tests. */
+function analyzeOutputReactiveTumblingReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    blockMeta = [],
+    outputBlockIndex = 0,
+    skillSlugsInWorkout = new Set(),
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const ordered = []
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug || !REACTIVE_TUMBLING_OUTPUT_SLUGS.has(slug)) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  if (ordered.length === 0) return findings
+
+  const slugsInWorkout = new Set(skillSlugsInWorkout)
+  for (const meta of blockMeta ?? []) {
+    for (const item of meta.block?.items ?? []) {
+      const slug = exerciseSlug(item, slugByExercise)
+      if (slug) slugsInWorkout.add(slug)
+    }
+  }
+
+  let totalAttempts = 0
+
+  for (let j = 0; j < outputBlockIndex; j++) {
+    const priorKey = blockMeta[j]?.phaseKey
+    if (priorKey === 'fitness_repeatability') {
+      findings.push({
+        rule_key: 'output_reactive_tumbling_after_fitness',
+        severity: 'warning',
+        message: 'Reactive and tumbling Output require freshness — move before Fitness / Repeatability conditioning.',
+        affected_items: ordered.map((o) => o.name),
+        meta: { prior_phase: priorKey },
+      })
+    }
+    if (priorKey === 'capacity') {
+      findings.push({
+        rule_key: 'output_reactive_tumbling_after_capacity',
+        severity: 'warning',
+        message: 'Reactive cue recognition and tumbling rebound quality may be compromised after heavy Capacity work.',
+        affected_items: ordered.map((o) => o.name),
+        meta: { prior_phase: priorKey },
+      })
+    }
+  }
+
+  if (REACTIVE_COLLISION_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_reactive_tumbling_collision',
+      severity: 'error',
+      message: 'Gate or partner layout creates collision risk — redesign lanes and eliminate crossing paths.',
+      affected_items: ordered.filter((o) => REACTIVE_AGILITY_OUTPUT_SLUGS.has(o.slug)).map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (REACTIVE_NO_DECEL_ZONE_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_reactive_tumbling_no_decel_zone',
+      severity: 'error',
+      message: 'Sprint exits require safe run-out and deceleration space.',
+      affected_items: ordered.filter((o) => REACTIVE_AGILITY_OUTPUT_SLUGS.has(o.slug)).map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (REACTIVE_NO_CUE_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_reactive_tumbling_no_cue',
+      severity: 'warning',
+      message: 'This is not reactive Output — add visual, auditory, partner, object, or spatial cue, or classify as COD/acceleration.',
+      affected_items: ordered.filter((o) => REACTIVE_AGILITY_OUTPUT_SLUGS.has(o.slug)).map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (REACTIVE_GUESSING_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_reactive_tumbling_guessing',
+      severity: 'recommendation',
+      message: 'Add false-cue penalty, longer ready hold, or reduce cue options when athlete guesses instead of reacting.',
+      affected_items: ordered.filter((o) => REACTIVE_AGILITY_OUTPUT_SLUGS.has(o.slug)).map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (REACTIVE_SYMPTOM_PATTERN.test(watchText) && /pain|symptom|hurt/i.test(watchText)) {
+    findings.push({
+      rule_key: 'output_reactive_tumbling_tissue_warning',
+      severity: 'recommendation',
+      message:
+        'Pain warning signs — regress reactive/tumbling Output (Coach Point-and-Go, Mirror Shuffle Drill, Ball Drop Reaction, Hurdle-to-Lunge, or Round-Off Snap-Down Shape).',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (REACTIVE_QUALITY_DROP_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_reactive_tumbling_quality_stop',
+      severity: 'warning',
+      message: 'High-complexity Output quality is dropping — stop reps or increase rest before movement becomes chaotic.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const sets = Number(item.sets ?? dosage?.default_sets) || 1
+    const reps = Number(item.reps ?? dosage?.default_reps) || 1
+    const workSeconds = Number(item.work_seconds ?? item.workSeconds ?? dosage?.default_work_seconds) || 0
+    totalAttempts += sets * (reps || 1)
+
+    if (slug === REACTIVE_GATE_SPRINT_SLUG) {
+      const missing = [...REACTIVE_GATE_PREREQ_SLUGS].filter((s) => !slugsInWorkout.has(s))
+      if (missing.length >= 3) {
+        findings.push({
+          rule_key: 'output_reactive_tumbling_gate_prerequisite',
+          severity: 'recommendation',
+          message: `${name}: build Coach Point-and-Go, Gate Reaction, walk-in start, and Sprint to Stick before reactive gate sprints.`,
+          affected_items: [name],
+          meta: { missing_prereqs: missing, slug },
+        })
+      }
+    }
+
+    if (slug === MIRROR_SPRINT_EXIT_SLUG) {
+      const missing = [...MIRROR_EXIT_PREREQ_SLUGS].filter((s) => !slugsInWorkout.has(s))
+      if (!slugsInWorkout.has('mirror-shuffle-drill') && !slugsInWorkout.has('lateral-shuffle-walkthrough')) {
+        findings.push({
+          rule_key: 'output_reactive_tumbling_mirror_prerequisite',
+          severity: 'warning',
+          message: `${name}: regress to Mirror Shuffle Drill or Lateral Shuffle Mechanics Walkthrough before sprint exit.`,
+          affected_items: [name],
+          meta: { slug },
+        })
+      } else if (missing.length >= 2) {
+        findings.push({
+          rule_key: 'output_reactive_tumbling_mirror_prerequisite',
+          severity: 'recommendation',
+          message: `${name}: confirm mirror shuffle, lateral shuffle mechanics, and lateral decel stick before sprint exit.`,
+          affected_items: [name],
+          meta: { missing_prereqs: missing, slug },
+        })
+      }
+      if (workSeconds > MIRROR_MAX_WORK_SECONDS) {
+        findings.push({
+          rule_key: 'output_reactive_tumbling_mirror_long_round',
+          severity: 'warning',
+          message: `${name}: mirror round (${workSeconds}s) may become fatigue-based — keep mirror phase short before sprint exit.`,
+          affected_items: [name],
+          meta: { work_seconds: workSeconds, slug },
+        })
+      }
+    }
+
+    if (slug === BALL_DROP_SPRINT_CATCH_SLUG) {
+      if (REACTIVE_DIVING_PATTERN.test(watchText)) {
+        findings.push({
+          rule_key: 'output_reactive_tumbling_diving',
+          severity: 'error',
+          message: `${name}: no diving in Output reaction drills — reduce distance or allow more bounces.`,
+          affected_items: [name],
+          meta: { slug, symptom_flags: true },
+        })
+      }
+      if (REACTIVE_NO_DECEL_ZONE_PATTERN.test(watchText)) {
+        findings.push({
+          rule_key: 'output_reactive_tumbling_ball_decel',
+          severity: 'recommendation',
+          message: `${name}: reduce sprint distance and confirm Sprint to Stick deceleration before max-intent ball drops.`,
+          affected_items: [name],
+          meta: { slug, symptom_flags: true },
+        })
+      }
+      const missing = [...BALL_DROP_OUTPUT_PREREQ_SLUGS].filter((s) => !slugsInWorkout.has(s))
+      if (missing.length >= 2) {
+        findings.push({
+          rule_key: 'output_reactive_tumbling_ball_prerequisite',
+          severity: 'recommendation',
+          message: `${name}: use Ball Drop Reaction, sprint start, and decel stick foundations before sprint-and-catch Output.`,
+          affected_items: [name],
+          meta: { missing_prereqs: missing, slug },
+        })
+      }
+    }
+
+    if (slug === TUMBLING_TAKEOFF_SLUG) {
+      const missing = [...POWER_HURDLE_OUTPUT_PREREQ_SLUGS].filter((s) => !slugsInWorkout.has(s))
+      if (missing.length >= 3) {
+        findings.push({
+          rule_key: 'output_reactive_tumbling_hurdle_prerequisite',
+          severity: 'error',
+          message: `${name}: explosive tumbling entry requires hurdle, cartwheel, hand-placement, and round-off foundation prerequisites.`,
+          affected_items: [name],
+          meta: { missing_prereqs: missing, slug },
+        })
+      }
+      if (TUMBLING_FRONT_FOOT_PATTERN.test(watchText)) {
+        findings.push({
+          rule_key: 'output_reactive_tumbling_hurdle_front_foot',
+          severity: 'recommendation',
+          message: `${name}: return to Hurdle Step to Lunge Shape and weight-transfer drills when front foot reaches too far.`,
+          affected_items: [name],
+          meta: { slug, symptom_flags: true },
+        })
+      }
+      findings.push({
+        rule_key: 'output_reactive_tumbling_surface',
+        severity: 'recommendation',
+        message: `${name}: tumbling Output requires safe mat/tumbling surface and qualified coach supervision.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+    }
+
+    if (slug === ROUND_OFF_REBOUND_OUTPUT_SLUG) {
+      const missing = [...ROUND_OFF_REBOUND_OUTPUT_PREREQ_SLUGS].filter((s) => !slugsInWorkout.has(s))
+      if (missing.length >= 3) {
+        findings.push({
+          rule_key: 'output_reactive_tumbling_roundoff_prerequisite',
+          severity: 'error',
+          message: `${name}: round-off rebound requires cartwheel, round-off entry, snap-down, and power hurdle foundations.`,
+          affected_items: [name],
+          meta: { missing_prereqs: missing, slug },
+        })
+      }
+      if (TUMBLING_ROUND_OFF_FAULT_PATTERN.test(watchText)) {
+        findings.push({
+          rule_key: 'output_reactive_tumbling_roundoff_quality_stop',
+          severity: 'warning',
+          message: `${name}: end Output round-off reps and regress to snap-down or cartwheel-to-snap when block, snap, or rebound quality fails.`,
+          affected_items: [name],
+          meta: { slug, symptom_flags: true },
+        })
+      }
+      if (REACTIVE_FEAR_PATTERN.test(watchText)) {
+        findings.push({
+          rule_key: 'output_reactive_tumbling_fear_stop',
+          severity: 'warning',
+          message: `${name}: stop Output tumbling and regress to Skill / Movement Intelligence when fear or hesitation appears.`,
+          affected_items: [name],
+          meta: { slug, symptom_flags: true },
+        })
+      }
+      findings.push({
+        rule_key: 'output_reactive_tumbling_surface',
+        severity: 'recommendation',
+        message: `${name}: tumbling Output requires safe mat/tumbling surface and qualified coach supervision.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+    }
+  }
+
+  if (totalAttempts > REACTIVE_HIGH_VOLUME_THRESHOLD) {
+    findings.push({
+      rule_key: 'output_reactive_tumbling_volume_high',
+      severity: 'warning',
+      message: `High-complexity reactive/tumbling Output volume (~${totalAttempts} attempts) is high — confirm quality, rest, and athlete readiness.`,
+      affected_items: ordered.map((o) => o.name),
+      meta: { total_attempts: totalAttempts },
+    })
+  }
+
+  return findings
+}
+
 const ACCELERATION_OUTPUT_SLUGS = new Set([
   'falling-start-to-5-10-yard-sprint',
   'two-point-start-to-5-10-yard-sprint',
@@ -3055,12 +3622,30 @@ export async function validateWorkoutDraft(pool, draft) {
       exerciseSkillLevelById,
       draft,
     })
+    const decelCodFindings = analyzeOutputDecelCodReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      outputBlockIndex: i,
+      exerciseSkillLevelById,
+      draft,
+    })
+    const reactiveTumblingFindings = analyzeOutputReactiveTumblingReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      outputBlockIndex: i,
+      skillSlugsInWorkout,
+      draft,
+    })
     const allOutputFindings = [
       ...outputFindings,
       ...maxVelocityFindings,
       ...accelerationFindings,
       ...elasticFindings,
       ...jumpPowerFindings,
+      ...decelCodFindings,
+      ...reactiveTumblingFindings,
     ]
     if (allOutputFindings.length > 0) {
       const outputEdu = await pool.query(
@@ -3078,11 +3663,19 @@ export async function validateWorkoutDraft(pool, draft) {
       const jumpPowerEdu = await pool.query(
         `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'output_jump_power_readiness' LIMIT 1`,
       )
+      const decelCodEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'output_decel_cod_readiness' LIMIT 1`,
+      )
+      const reactiveTumblingEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'output_reactive_tumbling_readiness' LIMIT 1`,
+      )
       for (const finding of allOutputFindings) {
         const ruleKey = String(finding.rule_key ?? '')
         const isMaxVelocityRule = ruleKey.startsWith('output_max_velocity_')
         const isElasticRule = ruleKey.startsWith('output_elastic_')
         const isJumpPowerRule = ruleKey.startsWith('output_jump_power_')
+        const isDecelCodRule = ruleKey.startsWith('output_decel_cod_')
+        const isReactiveTumblingRule = ruleKey.startsWith('output_reactive_tumbling_')
         const isAccelerationRule = ruleKey.startsWith('output_acceleration_')
           || ruleKey.startsWith('output_three_point_')
           || ruleKey.startsWith('output_prone_start_')
@@ -3096,9 +3689,13 @@ export async function validateWorkoutDraft(pool, draft) {
             ? elasticEdu.rows[0]
             : isJumpPowerRule
               ? jumpPowerEdu.rows[0]
-              : isAccelerationRule
-                ? accelerationEdu.rows[0]
-                : outputEdu.rows[0]
+              : isDecelCodRule
+                ? decelCodEdu.rows[0]
+                : isReactiveTumblingRule
+                  ? reactiveTumblingEdu.rows[0]
+                  : isAccelerationRule
+                    ? accelerationEdu.rows[0]
+                    : outputEdu.rows[0]
         const payload = {
           severity: finding.severity ?? 'warning',
           rule_key: finding.rule_key,
@@ -3110,9 +3707,11 @@ export async function validateWorkoutDraft(pool, draft) {
                 ? 'Elastic Output should make the athlete springier, not tired — crisp contacts and clean landings require freshness.'
                 : isJumpPowerRule
                   ? 'Jump and throw Output expresses power while fresh — not after conditioning or when height, distance, or throw speed drops.'
-                  : isAccelerationRule
-                    ? 'Acceleration Output expresses speed while fresh — not after conditioning or with short rest.'
-                    : 'Output expresses speed and power while fresh — not after conditioning or high-volume strength.'),
+                  : isDecelCodRule
+                    ? 'COD Output requires clean plants and controlled braking while fresh — not tired shuttle running.'
+                    : isAccelerationRule
+                      ? 'Acceleration Output expresses speed while fresh — not after conditioning or with short rest.'
+                      : 'Output expresses speed and power while fresh — not after conditioning or high-volume strength.'),
           recommendation: edu?.programming_guidance
             ?? (isMaxVelocityRule
               ? 'Use Build-Up first for beginners, Flying 10 before Flying 20, 2+ minute rest on fly sprints, and stop when speed drops.'
@@ -3120,9 +3719,11 @@ export async function validateWorkoutDraft(pool, draft) {
                 ? 'Use bilateral pogos before single-leg work, Snap-Down to Stick before rebound, cap contacts, and stop when contacts get loud.'
                 : isJumpPowerRule
                   ? 'Keep reps low, rest generous, landings clean, throws fast, and stop when power quality drops.'
-                  : isAccelerationRule
-                    ? 'Keep distance short, reps low, rest generous, and stop when speed or first-step quality drops.'
-                    : 'Use low reps, full rest, and stop when quality drops. Place Output after Prepare and Skill, before Capacity and Fitness.'),
+                  : isDecelCodRule
+                    ? 'Master Sprint to Stick before COD power, use 2+ minute rest on 5-10-5, and stop when plant quality drops.'
+                    : isAccelerationRule
+                      ? 'Keep distance short, reps low, rest generous, and stop when speed or first-step quality drops.'
+                      : 'Use low reps, full rest, and stop when quality drops. Place Output after Prepare and Skill, before Capacity and Fitness.'),
           affected_items: finding.affected_items ?? [],
           related_phase: OUTPUT,
           can_override: finding.severity !== 'error',
@@ -3240,5 +3841,7 @@ export {
   analyzeOutputMaxVelocityReadiness,
   analyzeOutputElasticReadiness,
   analyzeOutputJumpPowerReadiness,
+  analyzeOutputDecelCodReadiness,
+  analyzeOutputReactiveTumblingReadiness,
   analyzeOutputAccelerationReadiness,
 }

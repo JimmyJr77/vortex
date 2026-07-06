@@ -172,7 +172,7 @@ export const COACH_PORTAL_HOME_CARD_COPY: Record<
   sessions: { title: "Today's Sessions", description: 'Run a class: attendance and group logging.' },
   needs: { title: 'Needs Engine', description: 'Describe a need, get a time-packed session.' },
   library: { title: 'Exercise Library', description: 'Search and tag the movement library.' },
-  framework: { title: 'Training Philosophy', description: 'Browse phases, tenets, and coach-facing rationale.' },
+  framework: { title: 'Training Philosophy', description: 'Explore the Athleticism Accelerator taxonomy — phases, tenets, methodologies, order slots, session models, and validation rules.' },
   workout: { title: 'Workout Builder', description: 'Build sessions with a live time clock.' },
   warmup: { title: 'Warmup Builder', description: 'Design quick activation routines.' },
   programs: { title: 'Training Programs', description: 'Sequence weeks of training.' },

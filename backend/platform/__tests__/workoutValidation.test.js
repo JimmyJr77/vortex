@@ -20,6 +20,8 @@ import {
   analyzeOutputMaxVelocityReadiness,
   analyzeOutputElasticReadiness,
   analyzeOutputJumpPowerReadiness,
+  analyzeOutputDecelCodReadiness,
+  analyzeOutputReactiveTumblingReadiness,
   analyzeOutputAccelerationReadiness,
 } from '../workoutValidation.js'
 
@@ -935,5 +937,159 @@ describe('analyzeOutputJumpPowerReadiness', () => {
       },
     )
     assert.ok(findings.some((f) => f.rule_key === 'output_jump_power_quality_stop'))
+  })
+})
+
+describe('analyzeOutputDecelCodReadiness', () => {
+  it('errors when COD power lacks Sprint to Stick foundation', () => {
+    const findings = analyzeOutputDecelCodReadiness(
+      [{ exercise_id: 1, exercise_name: 'Pro-Agility 5-10-5 Technical Rep' }],
+      {
+        slugByExercise: new Map([['1', 'pro-agility-5-10-5-technical-rep']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'output', block: {} }],
+        outputBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_decel_cod_linear_prerequisite' && f.severity === 'error'))
+  })
+
+  it('warns when Pro-Agility rest is under 2 minutes', () => {
+    const findings = analyzeOutputDecelCodReadiness(
+      [{ exercise_id: 2, exercise_name: 'Pro-Agility 5-10-5 Technical Rep', rest_seconds: 60 }],
+      {
+        slugByExercise: new Map([['2', 'pro-agility-5-10-5-technical-rep']]),
+        dosageByExercise: new Map([['2', { default_rest_seconds: 120 }]]),
+        blockMeta: [],
+        outputBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_decel_cod_pro_agility_short_rest'))
+  })
+
+  it('warns on 180-degree turn for beginners', () => {
+    const findings = analyzeOutputDecelCodReadiness(
+      [{ exercise_id: 3, exercise_name: '180-Degree Turn / Shuttle Cut' }],
+      {
+        slugByExercise: new Map([['3', '180-degree-turn-shuttle-cut']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        outputBlockIndex: 0,
+        exerciseSkillLevelById: new Map([['3', 'BEGINNER']]),
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_decel_cod_180_beginner'))
+  })
+
+  it('errors on unsafe surface for COD', () => {
+    const findings = analyzeOutputDecelCodReadiness(
+      [{ exercise_id: 4, exercise_name: '90-Degree Cut Drill' }],
+      {
+        slugByExercise: new Map([['4', '90-degree-cut-drill']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        outputBlockIndex: 0,
+        draft: { watch_points: ['plant foot slips on surface'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_decel_cod_unsafe_surface' && f.severity === 'error'))
+  })
+
+  it('warns when COD Output follows Fitness', () => {
+    const blockMeta = [
+      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'output', block: {} },
+    ]
+    const findings = analyzeOutputDecelCodReadiness(
+      [{ exercise_id: 5, exercise_name: 'Sprint to Stick Deceleration' }],
+      {
+        slugByExercise: new Map([['5', 'sprint-to-stick-deceleration']]),
+        dosageByExercise: new Map(),
+        blockMeta,
+        outputBlockIndex: 1,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_decel_cod_after_fitness'))
+  })
+})
+
+describe('analyzeOutputReactiveTumblingReadiness', () => {
+  it('errors on diving during ball drop sprint catch', () => {
+    const findings = analyzeOutputReactiveTumblingReadiness(
+      [{ exercise_id: 1, exercise_name: 'Ball Drop Sprint Catch' }],
+      {
+        slugByExercise: new Map([['1', 'ball-drop-sprint-catch']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        outputBlockIndex: 0,
+        skillSlugsInWorkout: new Set(),
+        draft: { watch_points: ['athlete dives on catch'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_reactive_tumbling_diving' && f.severity === 'error'))
+  })
+
+  it('errors when tumbling entry lacks prerequisites', () => {
+    const findings = analyzeOutputReactiveTumblingReadiness(
+      [{ exercise_id: 2, exercise_name: 'Power Hurdle to Cartwheel / Round-Off Entry' }],
+      {
+        slugByExercise: new Map([['2', 'power-hurdle-to-cartwheel-round-off-entry']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        outputBlockIndex: 0,
+        skillSlugsInWorkout: new Set(),
+        draft: {},
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_reactive_tumbling_hurdle_prerequisite' && f.severity === 'error'))
+  })
+
+  it('errors on collision-risk gate layout', () => {
+    const findings = analyzeOutputReactiveTumblingReadiness(
+      [{ exercise_id: 3, exercise_name: 'Reactive Gate Sprint' }],
+      {
+        slugByExercise: new Map([['3', 'reactive-gate-sprint']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        outputBlockIndex: 0,
+        skillSlugsInWorkout: new Set(['gate-reaction-drill']),
+        draft: { watch_points: ['crossing paths between athletes'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_reactive_tumbling_collision' && f.severity === 'error'))
+  })
+
+  it('warns when mirror round exceeds 10 seconds', () => {
+    const findings = analyzeOutputReactiveTumblingReadiness(
+      [{ exercise_id: 4, exercise_name: 'Mirror Shuffle to Sprint Exit', work_seconds: 15 }],
+      {
+        slugByExercise: new Map([['4', 'mirror-shuffle-to-sprint-exit']]),
+        dosageByExercise: new Map([['4', { default_work_seconds: 8 }]]),
+        blockMeta: [],
+        outputBlockIndex: 0,
+        skillSlugsInWorkout: new Set(['mirror-shuffle-drill']),
+        draft: {},
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_reactive_tumbling_mirror_long_round'))
+  })
+
+  it('warns when reactive Output follows Fitness', () => {
+    const blockMeta = [
+      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'output', block: {} },
+    ]
+    const findings = analyzeOutputReactiveTumblingReadiness(
+      [{ exercise_id: 5, exercise_name: 'Reactive Gate Sprint' }],
+      {
+        slugByExercise: new Map([['5', 'reactive-gate-sprint']]),
+        dosageByExercise: new Map(),
+        blockMeta,
+        outputBlockIndex: 1,
+        skillSlugsInWorkout: new Set(),
+        draft: {},
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_reactive_tumbling_after_fitness'))
   })
 })
