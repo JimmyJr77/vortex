@@ -6,7 +6,6 @@ import {
   type ColumnFilters,
   type OverviewColumnDef,
   type SortConfig,
-  type SortDirection,
 } from './overviewColumns'
 
 interface Props {
