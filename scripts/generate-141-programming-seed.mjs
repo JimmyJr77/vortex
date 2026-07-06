@@ -9,7 +9,7 @@ import { PROGRAMMING_METHODS } from './data/programming-methods-top50.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const OUT = path.join(__dirname, '../backend/migrations/141_coaching_programming_library_seed.sql')
-const CANONICAL_FACILITY_ID = 1
+const CANONICAL_FACILITY_SQL = '(SELECT id FROM public.facility ORDER BY id LIMIT 1)'
 
 function sqlStr(s) {
   if (s == null) return 'NULL'
@@ -42,7 +42,7 @@ INSERT INTO coaching.programming_method (
   is_published, visibility
 )
 SELECT
-  ${CANONICAL_FACILITY_ID},
+  ${CANONICAL_FACILITY_SQL},
   d.name, d.slug, d.category, d.definition, d.coach_summary, d.athlete_summary,
   d.primary_goal, d.secondary_goals, d.programming_type,
   d.best_phase, d.compatible_phases, d.incompatible_phases,
@@ -107,7 +107,7 @@ for (const table of childTables) {
   sql += `DELETE FROM coaching.${table}
 WHERE programming_method_id IN (
   SELECT id FROM coaching.programming_method
-  WHERE facility_id = ${CANONICAL_FACILITY_ID} AND slug IN (${slugList(PROGRAMMING_METHODS)})
+  WHERE facility_id = ${CANONICAL_FACILITY_SQL} AND slug IN (${slugList(PROGRAMMING_METHODS)})
 );
 
 `
@@ -128,7 +128,7 @@ for (const m of PROGRAMMING_METHODS) {
 sql += phaseRows.join(',\n')
 sql += `
 ) AS v(slug, phase_key, role, fit_weight)
-JOIN coaching.programming_method pm ON pm.slug = v.slug AND pm.facility_id = ${CANONICAL_FACILITY_ID}
+JOIN coaching.programming_method pm ON pm.slug = v.slug AND pm.facility_id = ${CANONICAL_FACILITY_SQL}
 ON CONFLICT (programming_method_id, phase_key) DO UPDATE SET
   role = EXCLUDED.role,
   fit_weight = EXCLUDED.fit_weight;
@@ -154,7 +154,7 @@ for (const m of PROGRAMMING_METHODS) {
 sql += rxRows.join(',\n')
 sql += `
 ) AS v(slug, profile_name, total_minutes, rounds, work_seconds, rest_seconds, rpe_min, rpe_max, notes)
-JOIN coaching.programming_method pm ON pm.slug = v.slug AND pm.facility_id = ${CANONICAL_FACILITY_ID}
+JOIN coaching.programming_method pm ON pm.slug = v.slug AND pm.facility_id = ${CANONICAL_FACILITY_SQL}
 ON CONFLICT (programming_method_id, profile_name) DO UPDATE SET
   default_total_minutes = EXCLUDED.default_total_minutes,
   default_rounds = EXCLUDED.default_rounds,
@@ -188,7 +188,7 @@ for (const m of PROGRAMMING_METHODS) {
 sql += compatRows.join(',\n')
 sql += `
 ) AS v(slug, compat_type, exercise_type, weight, rationale)
-JOIN coaching.programming_method pm ON pm.slug = v.slug AND pm.facility_id = ${CANONICAL_FACILITY_ID};
+JOIN coaching.programming_method pm ON pm.slug = v.slug AND pm.facility_id = ${CANONICAL_FACILITY_SQL};
 
 `
 
@@ -207,7 +207,7 @@ for (const m of PROGRAMMING_METHODS) {
 sql += qsRows.join(',\n')
 sql += `
 ) AS v(slug, standard, severity)
-JOIN coaching.programming_method pm ON pm.slug = v.slug AND pm.facility_id = ${CANONICAL_FACILITY_ID};
+JOIN coaching.programming_method pm ON pm.slug = v.slug AND pm.facility_id = ${CANONICAL_FACILITY_SQL};
 
 `
 
@@ -226,7 +226,7 @@ for (const m of PROGRAMMING_METHODS) {
 sql += stopRows.join(',\n')
 sql += `
 ) AS v(slug, stop_rule, severity)
-JOIN coaching.programming_method pm ON pm.slug = v.slug AND pm.facility_id = ${CANONICAL_FACILITY_ID};
+JOIN coaching.programming_method pm ON pm.slug = v.slug AND pm.facility_id = ${CANONICAL_FACILITY_SQL};
 
 `
 
@@ -245,7 +245,7 @@ for (const m of PROGRAMMING_METHODS) {
 sql += valRows.join(',\n')
 sql += `
 ) AS v(slug, rule_key, condition_json, message, severity)
-JOIN coaching.programming_method pm ON pm.slug = v.slug AND pm.facility_id = ${CANONICAL_FACILITY_ID};
+JOIN coaching.programming_method pm ON pm.slug = v.slug AND pm.facility_id = ${CANONICAL_FACILITY_SQL};
 
 `
 
@@ -264,7 +264,7 @@ for (const m of PROGRAMMING_METHODS) {
 sql += exRows.join(',\n')
 sql += `
 ) AS v(slug, label, audience, example_json, coaching_notes)
-JOIN coaching.programming_method pm ON pm.slug = v.slug AND pm.facility_id = ${CANONICAL_FACILITY_ID};
+JOIN coaching.programming_method pm ON pm.slug = v.slug AND pm.facility_id = ${CANONICAL_FACILITY_SQL};
 
 `
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Apply coaching library migrations 096–142 (Prepare through Resilience + backfill).
+ * Apply coaching library migrations 096–144 (exercises, programming methods, backfills).
  * Use when boot migrations were skipped due to initTables filename drift or a mid-batch abort.
  *
  *   cd backend && node scripts/repair-coaching-library.mjs
@@ -64,6 +64,8 @@ const LIBRARY_MIGRATIONS = [
   '137_rename_session_phase_labels.sql',
   '138_coaching_programming_library_infrastructure.sql',
   '139_coaching_workout_block_programming_method.sql',
+  '141_coaching_programming_library_seed.sql',
+  '144_coaching_programming_library_facility_backfill.sql',
 ]
 
 function resolveSsl(connectionString) {
@@ -101,9 +103,21 @@ async function printCounts(label) {
   const total = await pool.query(`
     SELECT COUNT(*)::int AS n FROM coaching.exercise WHERE archived = FALSE
   `)
+  const programming = await pool.query(`
+    SELECT facility_id, COUNT(*)::int AS n
+    FROM coaching.programming_method
+    WHERE archived = FALSE
+    GROUP BY 1
+    ORDER BY 1
+  `)
   console.log(`\n${label}`)
-  for (const row of byPhase.rows) console.log(`  ${row.phase}: ${row.n}`)
-  console.log(`  TOTAL: ${total.rows[0].n}`)
+  for (const row of byPhase.rows) console.log(`  exercise ${row.phase}: ${row.n}`)
+  console.log(`  exercise TOTAL: ${total.rows[0].n}`)
+  if (programming.rows.length === 0) {
+    console.log('  programming methods: 0 (seed 141 may not have run)')
+  } else {
+    for (const row of programming.rows) console.log(`  programming facility ${row.facility_id}: ${row.n}`)
+  }
 }
 
 async function main() {

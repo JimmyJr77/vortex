@@ -135,6 +135,7 @@ export async function initPlatformTables(pool) {
     '141_coaching_programming_library_seed.sql',
     '142_coaching_session_phase_dedupe.sql',
     '143_coaching_exercise_phase_key_constraint_sync.sql',
+    '144_coaching_programming_library_facility_backfill.sql',
   ]
 
   for (const migrationFile of migrationFiles) {
