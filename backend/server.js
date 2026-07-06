@@ -11086,6 +11086,107 @@ app.post('/api/admin/admins', requireAdminPermission('admins.manage'), async (re
   }
 })
 
+/** Ensures program_categories, skill_levels, and program.category_id/archived exist (local DB bootstrap). */
+let programTaxonomyCache = null
+async function resolveProgramTaxonomy() {
+  if (programTaxonomyCache) return programTaxonomyCache
+  const tableCheck = await pool.query(`
+    SELECT table_name FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name IN ('programs', 'program_categories')
+  `)
+  const hasPrograms = tableCheck.rows.some((r) => r.table_name === 'programs')
+  const programsTable = hasPrograms ? 'programs' : 'program_categories'
+  const colCheck = await pool.query(`
+    SELECT column_name FROM information_schema.columns
+    WHERE table_name = 'program' AND column_name IN ('programs_id', 'category_id')
+  `)
+  const programFkColumn = colCheck.rows.some((r) => r.column_name === 'programs_id')
+    ? 'programs_id'
+    : 'category_id'
+  const activeColCheck = await pool.query(
+    `SELECT 1 FROM information_schema.columns WHERE table_name = $1 AND column_name = 'is_active' LIMIT 1`,
+    [programsTable],
+  )
+  programTaxonomyCache = {
+    programsTable,
+    programFkColumn,
+    hasProgramIsActive: activeColCheck.rows.length > 0,
+  }
+  return programTaxonomyCache
+}
+
+async function deactivateClassesForProgram(programsId, taxonomy) {
+  const { programsTable, programFkColumn } = taxonomy
+  await pool.query(
+    `UPDATE program SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
+     WHERE ${programFkColumn} = $1 AND archived = FALSE`,
+    [programsId],
+  )
+  try {
+    await pool.query(
+      `UPDATE scheduling_form sf SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
+       FROM program p
+       WHERE sf.program_id = p.id AND p.${programFkColumn} = $1`,
+      [programsId],
+    )
+  } catch {
+    /* scheduling_form optional */
+  }
+  try {
+    await pool.query(
+      `UPDATE scheduling_form SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
+       WHERE programs_id = $1 AND deleted_at IS NULL`,
+      [programsId],
+    )
+  } catch {
+    /* programs_id on scheduling_form optional */
+  }
+  try {
+    await pool.query(
+      `UPDATE ${programsTable} SET scheduling_active = FALSE, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $1`,
+      [programsId],
+    )
+  } catch {
+    /* scheduling_active optional */
+  }
+}
+
+const ensureProgramCategoriesSchema = async () => {
+  const migrationFiles = [
+    'add_categories_levels_tables.sql',
+    'add_category_description.sql',
+    'add_programs_is_active.sql',
+  ]
+
+  for (const file of migrationFiles) {
+    const migrationPath = path.join(__dirname, 'migrations', file)
+    if (!fs.existsSync(migrationPath)) {
+      console.warn(`[ensureProgramCategoriesSchema] Missing migration file: ${file}`)
+      continue
+    }
+
+    try {
+      await pool.query(fs.readFileSync(migrationPath, 'utf8'))
+    } catch (err) {
+      if (err.code === '42P01') {
+        console.error(`[ensureProgramCategoriesSchema] ${file} failed:`, err.message)
+        throw err
+      }
+      console.warn(`[ensureProgramCategoriesSchema] ${file}:`, err.message)
+    }
+  }
+
+  console.log('✅ Program categories schema ensured')
+  programTaxonomyCache = null
+  try {
+    const { ensureProgramsSchedulingSchema } = await import('./programs/schema.js')
+    await ensureProgramsSchedulingSchema(pool)
+  } catch (err) {
+    console.warn('[ensureProgramCategoriesSchema] unify programs:', err.message)
+  }
+}
+
 // ========== PROGRAM ENDPOINTS ==========
 
 // Get all programs (admin endpoint)
