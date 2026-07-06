@@ -394,7 +394,7 @@ export default function ExerciseEditor({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col">
+      <div className="bg-white rounded-xl w-full max-w-4xl h-[min(85vh,720px)] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
           <h3 className="font-bold text-lg">{exercise ? 'Edit Exercise' : 'New Exercise'}</h3>
           <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700"><X className="w-5 h-5" /></button>
@@ -413,7 +413,7 @@ export default function ExerciseEditor({
           ))}
         </div>
 
-        <div className="p-5 overflow-y-auto flex-1 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
           {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
           {publishCheck && (
             <div className={`rounded-lg px-4 py-2 text-sm flex items-start gap-2 ${publishCheck.ready ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-900'}`}>

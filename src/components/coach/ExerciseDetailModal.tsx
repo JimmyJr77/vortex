@@ -55,6 +55,11 @@ function facetNameMap(taxonomy: Taxonomy | null): Map<string, string> {
   return map
 }
 
+const EXERCISE_MODAL_SHELL =
+  'bg-white rounded-xl w-full max-w-4xl h-[min(85vh,720px)] overflow-hidden flex flex-col shadow-xl'
+
+const EXERCISE_MODAL_BODY = 'flex-1 min-h-0 overflow-y-auto p-5 space-y-4'
+
 function ReadOnlyField({ label, value }: { label: string; value?: string | number | null }) {
   const text = value != null && String(value).trim() !== '' ? String(value) : null
   if (!text) return null
@@ -160,7 +165,7 @@ export default function ExerciseDetailModal({
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
+        className={EXERCISE_MODAL_SHELL}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-gray-100 shrink-0">
@@ -183,15 +188,17 @@ export default function ExerciseDetailModal({
         </div>
 
         {loading && !exercise && (
-          <div className="flex items-center justify-center gap-2 p-12 text-gray-600">
+          <div className="flex-1 min-h-0 flex items-center justify-center gap-2 text-gray-600">
             <Loader2 className="w-5 h-5 animate-spin" /> Loading exercise...
           </div>
         )}
         {error && (
-          <div className="m-5 rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>
+          <div className={`${EXERCISE_MODAL_BODY} flex items-start`}>
+            <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm w-full">{error}</div>
+          </div>
         )}
 
-        {exercise && (
+        {exercise && !error && (
           <>
             <div className="px-5 pt-3 flex flex-wrap gap-1 border-b border-gray-100 shrink-0 overflow-x-auto">
               {TABS.map((t) => (
@@ -206,7 +213,7 @@ export default function ExerciseDetailModal({
               ))}
             </div>
 
-            <div className="p-5 overflow-y-auto flex-1 space-y-4">
+            <div className={EXERCISE_MODAL_BODY}>
               {card && tab === 'identity' && (
                 <div className="grid gap-4 md:grid-cols-2">
                   <ReadOnlyField label="Card summary" value={card.movement_identity.card_summary} />

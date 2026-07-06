@@ -209,6 +209,12 @@ BIGINT refs (no FK)** are deliberate for polymorphic/calendar wiring:
 
 **Prepare / Access subrole hierarchy ([096](../backend/migrations/096_coaching_prepare_access_subroles.sql)):** `coaching.phase_subrole` (5 RAMP subroles) + `phase_order_slot.subrole_key` link fine slots to subroles. `exercise.phase_subrole` derived from `order_slot` on save ([phaseSubrole.js](../backend/platform/phaseSubrole.js)).
 
+**Prepare / Access movement seed ([097](../backend/migrations/097_coaching_prepare_access_seed.sql)):** Idempotent seed of **50** canonical warm-up movements (49 inserts + `worlds-greatest-stretch` update) with full card v2 fields: movement identity, `movement_requirements`, `coaching_execution`, taxonomy tags (incl. `body_region`), `prepare_access` phase profiles, default dosage/safety/regimen, six cohort scaling rows per exercise, and Why-layer `education_content`. Generator: [scripts/generate-097-prepare-seed.mjs](../scripts/generate-097-prepare-seed.mjs).
+
+**Foundation Prepare/Access cards 1–10 ([098](../backend/migrations/098_coaching_prepare_access_foundation_cards.sql)):** Rich card v2 upgrade for the first 10 foundation movements (breathing, spine, T-spine, hip rotation, integrated mobility) with weighted taxonomy, RPE dosage, cohort scaling prose, pairing/media, and `why_it_works`. Adds `hip_rotation` order slot. Spec: [EXERCISE_CARD_SPEC.md](EXERCISE_CARD_SPEC.md). Generator: [scripts/generate-098-foundation-cards.mjs](../scripts/generate-098-foundation-cards.mjs).
+
+**Prepare/Access content support ([099](../backend/migrations/099_coaching_prepare_access_content_support.sql)):** `body_region.foot` taxonomy row; `validation_rule` education `prepare_readiness_stealing` for workout validator. Coach filters: `?session_need=`, `?max_fatigue_cost=`. See [EXERCISE_CARD_SPEC.md](EXERCISE_CARD_SPEC.md) §8.
+
 ### 4.6 Waivers ([037](../backend/migrations/037_waiver_types.sql))
 
 `waiver_template` is versioned per facility (`UNIQUE (facility_id, name, version)`). Columns added in **037**:

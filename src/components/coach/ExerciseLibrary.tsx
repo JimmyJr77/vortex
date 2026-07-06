@@ -5,6 +5,7 @@ import { useTaxonomy } from './useTaxonomy'
 import type { Exercise } from '../../coach/types'
 import type { TaxonomyItem } from '../../coach/taxonomy'
 import { orderSlotsForSubrole, prepareAccessSubroleSequence } from '../../coach/taxonomy'
+import { PREPARE_SESSION_NEED_OPTIONS } from '../../coach/prepareAccessFilters'
 import { exerciseDosageLabel, exerciseFacetLabels, exerciseFitnessGoal, exerciseIdentityLine, exerciseRequirementChips, exerciseSessionPhaseHint, exerciseTenetLabels, phaseSubroleLabel, primaryPhaseProfile, whyPreview } from '../../coach/exerciseCard'
 import ExerciseDetailModal from './ExerciseDetailModal'
 import ExerciseEditor from './ExerciseEditor'
@@ -18,12 +19,15 @@ interface FilterState {
   phase: number | ''
   subrole: string
   orderSlot: string
+  bodyRegion: number | ''
+  sessionNeed: string
+  maxFatigueCost: number | ''
   freshness: boolean
   canBeDaily: boolean
   minImpact: number | ''
 }
 
-const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', freshness: false, canBeDaily: false, minImpact: '' }
+const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, minImpact: '' }
 
 export default function ExerciseLibrary() {
   const { taxonomy } = useTaxonomy()
@@ -48,6 +52,9 @@ export default function ExerciseLibrary() {
       if (filters.phase) params.set('phase', String(filters.phase))
       if (filters.subrole) params.set('subrole', filters.subrole)
       if (filters.orderSlot) params.set('order_slot', filters.orderSlot)
+      if (filters.bodyRegion) params.set('body_region', String(filters.bodyRegion))
+      if (filters.sessionNeed) params.set('session_need', filters.sessionNeed)
+      if (filters.maxFatigueCost !== '') params.set('max_fatigue_cost', String(filters.maxFatigueCost))
       if (filters.freshness) params.set('freshness', 'true')
       if (filters.canBeDaily) params.set('can_be_daily', 'true')
       if (filters.minImpact !== '') params.set('min_impact', String(filters.minImpact))
@@ -130,6 +137,27 @@ export default function ExerciseLibrary() {
             <select value={filters.subrole} onChange={(e) => setFilters((f) => ({ ...f, subrole: e.target.value, orderSlot: '' }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
               <option value="">All subroles</option>
               {subroleOptions.map((s) => <option key={s.key} value={s.key}>{s.name}</option>)}
+            </select>
+          </div>
+        )}
+        {isPrepareFiltered && (
+          <FacetSelect label="Body region" items={taxonomy?.bodyRegions as TaxonomyItem[] | undefined} value={filters.bodyRegion} onChange={(v) => setFilters((f) => ({ ...f, bodyRegion: v }))} />
+        )}
+        {isPrepareFiltered && (
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 mb-1">Session need</label>
+            <select value={filters.sessionNeed} onChange={(e) => setFilters((f) => ({ ...f, sessionNeed: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <option value="">Any</option>
+              {PREPARE_SESSION_NEED_OPTIONS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
+            </select>
+          </div>
+        )}
+        {isPrepareFiltered && (
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 mb-1">Max fatigue cost</label>
+            <select value={filters.maxFatigueCost} onChange={(e) => setFilters((f) => ({ ...f, maxFatigueCost: e.target.value ? Number(e.target.value) : '' }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <option value="">Any</option>
+              {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n} or lower</option>)}
             </select>
           </div>
         )}

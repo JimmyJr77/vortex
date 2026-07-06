@@ -84,13 +84,13 @@ function resolveSsl(connectionString) {
 }
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || process.env.DB_URL,
+  connectionString: process.env.DATABASE_URL || process.env.EXTERNAL_DB_URL || process.env.DB_URL,
   user: process.env.DB_USER || 'postgres',
   host: process.env.DB_HOST || 'localhost',
   database: process.env.DB_NAME || 'vortex_athletics',
   password: process.env.DB_PASSWORD || 'password',
   port: process.env.DB_PORT || 5432,
-  ssl: resolveSsl(process.env.DATABASE_URL || process.env.DB_URL),
+  ssl: resolveSsl(process.env.DATABASE_URL || process.env.EXTERNAL_DB_URL || process.env.DB_URL),
 })
 
 async function ensureMigrationTable(client) {

@@ -334,6 +334,9 @@ Fine `phase_order_slot` rows (ankle mobility, landing prep, etc.) map to exactly
 exercise cards store `order_slot` and derive `phase_subrole` automatically. Workout Builder and
 Exercise Library filter by subrole then slot; validation warns when subrole order is violated.
 
+**Exercise card format:** See [EXERCISE_CARD_SPEC.md](EXERCISE_CARD_SPEC.md) for the canonical card v2
+authoring guide (field mapping, publish gate, Prepare/Access conventions, foundation cards 1–10).
+
 ### Deterministic Needs Engine; AI proposes, the schema disposes
 `runPhaseAwarePrescription()` (extracted from `coachPortalRoutes.js`) is a phase-aware scorer/time-packer
 with per-exercise/placement/scaling rationales from `education_content`. The AI layer still only *drafts*

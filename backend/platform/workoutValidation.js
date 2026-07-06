@@ -114,6 +114,68 @@ function computeTimeSummary(blockMeta, budgetMinutes) {
   }
 }
 
+/** Analyze Prepare / Access block for drills that steal output readiness. Pure helper for tests. */
+function analyzePrepareAccessDrain(items, ctx) {
+  const {
+    profileByExercisePhase,
+    methodologyKeysByExercise,
+    dosageByExercise,
+    phaseKey = PREPARE_ACCESS,
+  } = ctx
+
+  const counts = {
+    high_fatigue: 0,
+    high_impact: 0,
+    long_isometric: 0,
+    conditioning_like: 0,
+    non_low_ceiling: 0,
+  }
+  const flagged = []
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const profile = profileByExercisePhase.get(`${exerciseId}:${phaseKey}`)
+    const methods = methodologyKeysByExercise.get(String(exerciseId)) ?? []
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const fatigue = Number(profile?.fatigue_cost) || 0
+    const impact = Number(profile?.impact_level) || 0
+    const workSeconds = Number(item.work_seconds ?? item.workSeconds ?? dosage?.default_work_seconds) || 0
+    const sets = Number(item.sets ?? dosage?.default_sets) || 1
+
+    if (fatigue > 2) {
+      counts.high_fatigue += 1
+      flagged.push({ name, reason: 'high_fatigue_cost', fatigue })
+    }
+    if (impact >= 2) {
+      counts.high_impact += 1
+      flagged.push({ name, reason: 'high_impact', impact })
+    }
+    if (methods.includes('isometrics') && workSeconds * sets >= 45) {
+      counts.long_isometric += 1
+      flagged.push({ name, reason: 'long_isometric', workSeconds })
+    }
+    if (methods.includes('hiit') || methods.includes('plyometrics')) {
+      counts.conditioning_like += 1
+      flagged.push({ name, reason: 'conditioning_methodology', methods })
+    }
+    if (profile?.intensity_ceiling && profile.intensity_ceiling !== 'low') {
+      counts.non_low_ceiling += 1
+      flagged.push({ name, reason: 'non_low_intensity_ceiling', ceiling: profile.intensity_ceiling })
+    }
+  }
+
+  const stealsOutput =
+    counts.high_fatigue >= 2
+    || counts.high_impact >= 3
+    || counts.long_isometric >= 2
+    || counts.conditioning_like >= 1
+    || counts.non_low_ceiling >= 2
+
+  return { counts, flagged, stealsOutput }
+}
+
 export async function validateWorkoutDraft(pool, draft) {
   const errors = []
   const warnings = []
@@ -138,11 +200,12 @@ export async function validateWorkoutDraft(pool, draft) {
 
   const profileByExercisePhase = new Map()
   const regimenByExercise = new Map()
+  const dosageByExercise = new Map()
   let tagRows = []
   const methodologyKeysByExercise = new Map()
 
   if (exerciseIds.length > 0) {
-    const [profiles, tags, regimens] = await Promise.all([
+    const [profiles, tags, regimens, dosages] = await Promise.all([
       pool.query(
         `SELECT p.*, sp.key AS phase_key FROM coaching.exercise_phase_profile p
          JOIN coaching.session_phase sp ON sp.id = p.phase_id WHERE p.exercise_id = ANY($1::bigint[])`,
@@ -159,6 +222,11 @@ export async function validateWorkoutDraft(pool, draft) {
         [exerciseIds],
       ),
       pool.query(`SELECT * FROM coaching.exercise_regimen_rule WHERE exercise_id = ANY($1::bigint[])`, [exerciseIds]),
+      pool.query(
+        `SELECT exercise_id, default_work_seconds, default_sets, volume_unit
+         FROM coaching.exercise_dosage_profile WHERE exercise_id = ANY($1::bigint[]) AND profile_name = 'Default'`,
+        [exerciseIds],
+      ),
     ])
     tagRows = tags.rows
     for (const p of profiles.rows) {
@@ -166,6 +234,9 @@ export async function validateWorkoutDraft(pool, draft) {
     }
     for (const r of regimens.rows) {
       regimenByExercise.set(String(r.exercise_id), r)
+    }
+    for (const d of dosages.rows) {
+      dosageByExercise.set(String(d.exercise_id), d)
     }
     for (const t of tags.rows) {
       if (t.facet_type !== 'methodology') continue
@@ -337,6 +408,32 @@ export async function validateWorkoutDraft(pool, draft) {
         can_override: true,
       })
     }
+
+    const drain = analyzePrepareAccessDrain(items, {
+      profileByExercisePhase,
+      methodologyKeysByExercise,
+      dosageByExercise,
+      phaseKey: PREPARE_ACCESS,
+    })
+    if (drain.stealsOutput) {
+      const edu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'prepare_readiness_stealing' LIMIT 1`,
+      )
+      const affected = drain.flagged.map((f) => f.name)
+      warnings.push({
+        severity: 'warning',
+        rule_key: 'prepare_readiness_stealing',
+        message: 'Prepare / Access block may steal readiness from Skill or Output.',
+        why: edu.rows[0]?.why_it_matters ?? 'Prepare / Access should increase readiness without stealing output.',
+        recommendation: edu.rows[0]?.programming_guidance
+          ?? 'Reduce high fatigue-cost drills, long isometric holds, conditioning work, and repeated high-impact contacts in the warm-up.',
+        affected_items: [...new Set(affected)],
+        related_phase: PREPARE_ACCESS,
+        can_override: true,
+        override_requires_reason: true,
+        meta: { prepare_drain_counts: drain.counts },
+      })
+    }
   }
 
   // HIIT before skill/output (phase-level)
@@ -403,4 +500,4 @@ export async function validateWorkoutDraft(pool, draft) {
   return { status, errors, warnings, recommendations, coverage, fatigue, time }
 }
 
-export { PHASE_ORDER, phaseIndex, itemSeconds, blockSeconds, computePriorFatigue, computeTimeSummary }
+export { PHASE_ORDER, phaseIndex, itemSeconds, blockSeconds, computePriorFatigue, computeTimeSummary, analyzePrepareAccessDrain }

@@ -7,6 +7,7 @@ import {
   computePriorFatigue,
   computeTimeSummary,
   PHASE_ORDER,
+  analyzePrepareAccessDrain,
 } from '../workoutValidation.js'
 
 describe('workoutValidation helpers', () => {
@@ -43,5 +44,35 @@ describe('workoutValidation helpers', () => {
     assert.equal(time.planned_seconds, 120)
     assert.equal(time.budget_seconds, 120)
     assert.equal(time.delta_seconds, 0)
+  })
+
+  it('flags prepare blocks that steal output readiness', () => {
+    const profileByExercisePhase = new Map([
+      ['1:prepare_access', { fatigue_cost: 4, impact_level: 0, intensity_ceiling: 'low' }],
+      ['2:prepare_access', { fatigue_cost: 3, impact_level: 3, intensity_ceiling: 'moderate' }],
+    ])
+    const methodologyKeysByExercise = new Map([
+      ['3', ['hiit']],
+    ])
+    const dosageByExercise = new Map([
+      ['4', { default_work_seconds: 60, default_sets: 2 }],
+    ])
+    const drain = analyzePrepareAccessDrain(
+      [
+        { exercise_id: 1, exercise_name: 'Heavy drill' },
+        { exercise_id: 2, exercise_name: 'Impact drill' },
+        { exercise_id: 3, exercise_name: 'HIIT drill' },
+        { exercise_id: 4, exercise_name: 'Long plank' },
+      ],
+      {
+        profileByExercisePhase,
+        methodologyKeysByExercise,
+        dosageByExercise,
+        phaseKey: 'prepare_access',
+      },
+    )
+    assert.equal(drain.counts.high_fatigue, 2)
+    assert.equal(drain.counts.conditioning_like, 1)
+    assert.equal(drain.stealsOutput, true)
   })
 })

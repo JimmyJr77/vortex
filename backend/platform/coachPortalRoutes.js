@@ -397,6 +397,22 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         where.push(`EXISTS (SELECT 1 FROM coaching.exercise_regimen_rule r WHERE r.exercise_id = e.id AND r.can_be_daily = TRUE)`)
       }
 
+      const maxFatigue = num(req.query.max_fatigue_cost ?? req.query.maxFatigueCost)
+      if (maxFatigue != null) {
+        params.push(maxFatigue)
+        where.push(`EXISTS (
+          SELECT 1 FROM coaching.exercise_phase_profile p
+          JOIN coaching.session_phase sp ON sp.id = p.phase_id AND sp.key = 'prepare_access'
+          WHERE p.exercise_id = e.id AND p.fatigue_cost <= $${params.length}
+        )`)
+      }
+
+      const sessionNeed = req.query.session_need ? String(req.query.session_need).trim() : null
+      if (sessionNeed) {
+        params.push(JSON.stringify([sessionNeed]))
+        where.push(`e.pairing_logic->'good_for_sessions' @> $${params.length}::jsonb`)
+      }
+
       const minImpact = num(req.query.min_impact ?? req.query.impact_min)
       if (minImpact != null) {
         params.push(minImpact)
