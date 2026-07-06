@@ -176,6 +176,440 @@ function analyzePrepareAccessDrain(items, ctx) {
   return { counts, flagged, stealsOutput }
 }
 
+const LOW_POGOS_SLUG = 'low-pogos'
+const JUMP_ROPE_SLUG = 'jump-rope-easy-bounce'
+const CALF_HEEL_DROP_SLUG = 'calf-raise-to-heel-drop'
+const LOWER_LEG_SYMPTOM_PATTERN = /achilles|heel|shin|calf/i
+
+function exerciseSlug(item, slugByExercise) {
+  const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+  return slugByExercise.get(String(exerciseId)) ?? null
+}
+
+function itemContacts(item, dosage, slug) {
+  if (item.contacts != null) return Number(item.contacts) || 0
+  const sets = Number(item.sets ?? dosage?.default_sets) || 1
+  const reps = Number(item.reps ?? dosage?.default_reps) || 0
+  if (reps > 0) return sets * reps
+  if (slug === LOW_POGOS_SLUG && dosage?.default_contacts != null) {
+    return Number(dosage.default_contacts) || 0
+  }
+  return 0
+}
+
+function itemWorkSeconds(item, dosage) {
+  const sets = Number(item.sets ?? dosage?.default_sets) || 1
+  const work = Number(item.work_seconds ?? item.workSeconds ?? dosage?.default_work_seconds) || 0
+  return sets * work
+}
+
+function itemRpe(item, dosage) {
+  const rpe = item.rpe ?? item.RPE
+  if (rpe != null) return Number(rpe) || 0
+  return Number(dosage?.default_rpe_max ?? dosage?.default_rpe_min) || 0
+}
+
+function hasLowerLegSymptomFlags(draft) {
+  const sources = [
+    ...(draft?.readiness_checks ?? []),
+    ...(draft?.safety_flags ?? []),
+    ...(draft?.audience_json?.exclusions ?? []),
+    ...(draft?.audience_json?.readiness_checks ?? []),
+    ...(draft?.coach_rationale_json?.watch_points ?? []),
+  ]
+  return sources.some((s) => LOWER_LEG_SYMPTOM_PATTERN.test(String(s)))
+}
+
+function hasLaterOutputPhase(blockMeta, prepareBlockIndex) {
+  for (let j = prepareBlockIndex + 1; j < blockMeta.length; j++) {
+    const key = blockMeta[j].phaseKey
+    if (key === 'output' || key === 'skill_movement_intelligence') return true
+  }
+  return false
+}
+
+/** Lower-leg Prepare / Access dose and symptom checks. Pure helper for tests. */
+function analyzePrepareLowerLegReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    profileByExercisePhase,
+    dosageByExercise,
+    phaseKey = PREPARE_ACCESS,
+    blockMeta = [],
+    prepareBlockIndex = 0,
+    draft = {},
+  } = ctx
+
+  const findings = []
+  let totalElasticContacts = 0
+  let highImpactCount = 0
+  let hasElasticPrep = false
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const profile = profileByExercisePhase.get(`${exerciseId}:${phaseKey}`)
+    const impact = Number(profile?.impact_level) || 0
+
+    if (slug === LOW_POGOS_SLUG) {
+      hasElasticPrep = true
+      const contacts = itemContacts(item, dosage, slug)
+      totalElasticContacts += contacts
+      if (contacts > 40) {
+        findings.push({
+          rule_key: 'prepare_pogos_output_dose',
+          message: `${name}: pogos contacts (${contacts}) exceed ~40 before Output.`,
+          affected_items: [name],
+          meta: { contacts, slug },
+        })
+      }
+    }
+
+    if (slug === JUMP_ROPE_SLUG) {
+      hasElasticPrep = true
+      const workSeconds = itemWorkSeconds(item, dosage)
+      const rpe = itemRpe(item, dosage)
+      totalElasticContacts += Math.max(1, Math.round(workSeconds / 2))
+      if (workSeconds > 90) {
+        findings.push({
+          rule_key: 'prepare_jump_rope_fitness_dose',
+          message: `${name}: jump rope duration (${workSeconds}s) exceeds ~90s at warm-up dose.`,
+          affected_items: [name],
+          meta: { work_seconds: workSeconds, slug },
+        })
+      } else if (rpe > 4) {
+        findings.push({
+          rule_key: 'prepare_jump_rope_fitness_dose',
+          message: `${name}: jump rope RPE (${rpe}) is high for Prepare / Access before Output.`,
+          affected_items: [name],
+          meta: { rpe, slug },
+        })
+      }
+    }
+
+    if (slug === CALF_HEEL_DROP_SLUG && hasLaterOutputPhase(blockMeta, prepareBlockIndex)) {
+      const sets = Number(item.sets ?? dosage?.default_sets) || 1
+      const reps = Number(item.reps ?? dosage?.default_reps) || 0
+      const totalReps = sets * reps
+      if (totalReps > 15) {
+        findings.push({
+          rule_key: 'prepare_calf_fatigue_before_output',
+          message: `${name}: calf raise volume (${totalReps} reps) may pre-fatigue calves before Output.`,
+          affected_items: [name],
+          meta: { total_reps: totalReps, slug },
+        })
+      }
+    }
+
+    if (impact >= 2) highImpactCount += 1
+  }
+
+  if (
+    hasElasticPrep
+    && hasLowerLegSymptomFlags(draft)
+  ) {
+    const elasticNames = (items ?? [])
+      .filter((it) => {
+        const slug = exerciseSlug(it, slugByExercise)
+        return slug === LOW_POGOS_SLUG || slug === JUMP_ROPE_SLUG
+      })
+      .map((it) => it.exercise_name ?? it.exerciseName ?? String(it.exercise_id ?? it.exerciseId))
+    findings.push({
+      rule_key: 'prepare_lower_leg_symptoms',
+      message: 'Elastic lower-leg prep paired with Achilles/heel/shin/calf symptom flags.',
+      affected_items: elasticNames,
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (
+    hasLaterOutputPhase(blockMeta, prepareBlockIndex)
+    && (highImpactCount >= 2 || totalElasticContacts > 60)
+  ) {
+    findings.push({
+      rule_key: 'prepare_lower_leg_spring_check',
+      message: 'Prepare / Access lower-leg spring volume may reduce Output readiness.',
+      affected_items: [],
+      meta: { high_impact_count: highImpactCount, total_elastic_contacts: totalElasticContacts },
+    })
+  }
+
+  return findings
+}
+
+const DEEP_SQUAT_PRY_SLUG = 'deep-squat-pry'
+const COSSACK_SHIFT_SLUG = 'cossack-shift'
+const LATERAL_LUNGE_SHIFT_SLUG = 'lateral-lunge-shift'
+const LEG_SWING_SLUGS = new Set(['leg-swings-front-back', 'leg-swings-lateral'])
+const HIP_ROTATION_SLUGS = new Set(['9090-hip-switch', 'shin-box-switch', 'shin-box-get-up', 'hip-cars'])
+const GROIN_SENSITIVE_SLUGS = new Set([
+  'adductor-rockback', 'frog-rockback', COSSACK_SHIFT_SLUG, LATERAL_LUNGE_SHIFT_SLUG,
+])
+const HIP_CLUSTER_SLUGS = new Set([
+  'walking-knee-hug', 'walking-quad-pull', 'leg-swings-front-back', 'leg-swings-lateral',
+  '9090-hip-switch', 'shin-box-switch', 'shin-box-get-up', 'hip-cars',
+  'adductor-rockback', 'frog-rockback', COSSACK_SHIFT_SLUG, DEEP_SQUAT_PRY_SLUG,
+  'squat-to-stand-with-reach', LATERAL_LUNGE_SHIFT_SLUG,
+])
+const GROIN_SYMPTOM_PATTERN = /groin|adductor/i
+
+function itemTotalReps(item, dosage) {
+  const sets = Number(item.sets ?? dosage?.default_sets) || 1
+  const reps = Number(item.reps ?? dosage?.default_reps) || 0
+  return sets * reps
+}
+
+function hasGroinSymptomFlags(draft) {
+  const sources = [
+    ...(draft?.readiness_checks ?? []),
+    ...(draft?.safety_flags ?? []),
+    ...(draft?.audience_json?.exclusions ?? []),
+    ...(draft?.audience_json?.readiness_checks ?? []),
+    ...(draft?.coach_rationale_json?.watch_points ?? []),
+  ]
+  return sources.some((s) => GROIN_SYMPTOM_PATTERN.test(String(s)))
+}
+
+/** Hip/pelvis Prepare / Access dose and symptom checks. Pure helper for tests. */
+function analyzePrepareHipAccessReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    profileByExercisePhase,
+    dosageByExercise,
+    methodologyKeysByExercise,
+    phaseKey = PREPARE_ACCESS,
+    blockMeta = [],
+    prepareBlockIndex = 0,
+    draft = {},
+  } = ctx
+
+  const findings = []
+  let hipRotationSlugCount = 0
+  let hipRotationReps = 0
+  let hipClusterReps = 0
+  let highFatigueHipCount = 0
+  let hasGroinSensitive = false
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug) continue
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const profile = profileByExercisePhase.get(`${exerciseId}:${phaseKey}`)
+    const methods = methodologyKeysByExercise?.get(String(exerciseId)) ?? []
+    const totalReps = itemTotalReps(item, dosage)
+
+    if (HIP_CLUSTER_SLUGS.has(slug)) hipClusterReps += totalReps
+    if (GROIN_SENSITIVE_SLUGS.has(slug)) hasGroinSensitive = true
+
+    if (slug === DEEP_SQUAT_PRY_SLUG) {
+      const workSeconds = itemWorkSeconds(item, dosage)
+      if (workSeconds > 60) {
+        findings.push({
+          rule_key: 'prepare_squat_pry_duration',
+          message: `${name}: deep squat pry (${workSeconds}s) exceeds ~60s — becoming a mobility block.`,
+          affected_items: [name],
+          meta: { work_seconds: workSeconds, slug },
+        })
+      }
+    }
+
+    if (
+      (slug === COSSACK_SHIFT_SLUG || slug === LATERAL_LUNGE_SHIFT_SLUG)
+      && hasLaterOutputPhase(blockMeta, prepareBlockIndex)
+      && totalReps > 16
+    ) {
+      findings.push({
+        rule_key: 'prepare_frontal_plane_fatigue',
+        message: `${name}: frontal-plane prep volume (${totalReps} reps) may fatigue adductors before Output.`,
+        affected_items: [name],
+        meta: { total_reps: totalReps, slug },
+      })
+    }
+
+    if (LEG_SWING_SLUGS.has(slug)) {
+      const impact = Number(profile?.impact_level) || 0
+      const rpe = itemRpe(item, dosage)
+      if (impact >= 2 || methods.includes('plyometrics') || rpe > 4) {
+        findings.push({
+          rule_key: 'prepare_leg_swing_intensity',
+          message: `${name}: leg swings should stay dynamic and controlled, not ballistic.`,
+          affected_items: [name],
+          meta: { impact, rpe, slug },
+        })
+      }
+    }
+
+    if (HIP_ROTATION_SLUGS.has(slug)) {
+      hipRotationSlugCount += 1
+      hipRotationReps += totalReps
+    }
+
+    if (HIP_CLUSTER_SLUGS.has(slug) && Number(profile?.fatigue_cost) >= 2) {
+      highFatigueHipCount += 1
+    }
+  }
+
+  if (hipRotationSlugCount >= 3 && hipRotationReps > 24) {
+    findings.push({
+      rule_key: 'prepare_hip_rotation_volume',
+      message: `Hip rotation prep volume (${hipRotationReps} reps across ${hipRotationSlugCount} drills) may be excessive before Output.`,
+      affected_items: [],
+      meta: { hip_rotation_reps: hipRotationReps, hip_rotation_drill_count: hipRotationSlugCount },
+    })
+  }
+
+  if (hasGroinSensitive && hasGroinSymptomFlags(draft)) {
+    const groinNames = (items ?? [])
+      .filter((it) => GROIN_SENSITIVE_SLUGS.has(exerciseSlug(it, slugByExercise) ?? ''))
+      .map((it) => it.exercise_name ?? it.exerciseName ?? String(it.exercise_id ?? it.exerciseId))
+    findings.push({
+      rule_key: 'prepare_groin_symptoms',
+      message: 'Adductor/groin-sensitive prep paired with groin symptom flags.',
+      affected_items: groinNames,
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (
+    hasLaterOutputPhase(blockMeta, prepareBlockIndex)
+    && (highFatigueHipCount >= 2 || hipClusterReps > 80)
+  ) {
+    findings.push({
+      rule_key: 'prepare_hip_heaviness_before_output',
+      message: 'Prepare / Access hip/pelvis volume may create leg heaviness before Output.',
+      affected_items: [],
+      meta: { high_fatigue_hip_count: highFatigueHipCount, hip_cluster_reps: hipClusterReps },
+    })
+  }
+
+  return findings
+}
+
+const GLUTE_BRIDGE_SLUG = 'glute-bridge'
+const GLUTE_BRIDGE_MARCH_SLUG = 'glute-bridge-march'
+const DEAD_BUG_HEEL_TAP_SLUG = 'dead-bug-heel-tap'
+const BIRD_DOG_SLUG = 'bird-dog'
+const MINI_BAND_LATERAL_WALK_SLUG = 'mini-band-lateral-walk'
+const A_MARCH_SLUG = 'a-march'
+const ACTIVATION_CLUSTER_SLUGS = new Set([
+  GLUTE_BRIDGE_SLUG,
+  GLUTE_BRIDGE_MARCH_SLUG,
+  DEAD_BUG_HEEL_TAP_SLUG,
+  BIRD_DOG_SLUG,
+  MINI_BAND_LATERAL_WALK_SLUG,
+  A_MARCH_SLUG,
+])
+const PELVIC_SYMPTOM_PATTERN = /postpartum|pelvic\s*floor|pelvic\s*symptom|diastasis|prolapse/i
+
+function hasPriorConditioningPhase(blockMeta, blockIndex) {
+  for (let j = 0; j < blockIndex; j++) {
+    const key = blockMeta[j].phaseKey
+    if (key === 'fitness_repeatability' || key === 'capacity_resilience') return true
+  }
+  return false
+}
+
+function hasPelvicSymptomFlags(draft) {
+  const sources = [
+    ...(draft?.readiness_checks ?? []),
+    ...(draft?.safety_flags ?? []),
+    ...(draft?.audience_json?.exclusions ?? []),
+    ...(draft?.audience_json?.readiness_checks ?? []),
+    ...(draft?.coach_rationale_json?.watch_points ?? []),
+  ]
+  return sources.some((s) => PELVIC_SYMPTOM_PATTERN.test(String(s)))
+}
+
+/** Activation / integration Prepare / Access dose and symptom checks. Pure helper for tests. */
+function analyzePrepareActivationReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    blockMeta = [],
+    prepareBlockIndex = 0,
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const priorConditioning = hasPriorConditioningPhase(blockMeta, prepareBlockIndex)
+  const pelvicSymptoms = hasPelvicSymptomFlags(draft)
+  let hasActivationWithPelvicFlags = false
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const totalReps = itemTotalReps(item, dosage)
+    const workSeconds = Number(item.work_seconds ?? item.workSeconds ?? dosage?.default_work_seconds) || 0
+
+    if (slug === GLUTE_BRIDGE_SLUG) {
+      if (totalReps > 15 || workSeconds > 30) {
+        findings.push({
+          rule_key: 'prepare_glute_bridge_dose',
+          message: `${name}: glute bridge volume (${totalReps} reps${workSeconds > 30 ? `, ${workSeconds}s work` : ''}) may become Capacity or Control / Resilience before Output.`,
+          affected_items: [name],
+          meta: { total_reps: totalReps, work_seconds: workSeconds, slug },
+        })
+      }
+    }
+
+    if (slug === MINI_BAND_LATERAL_WALK_SLUG && totalReps > 24) {
+      findings.push({
+        rule_key: 'prepare_mini_band_lateral_dose',
+        message: `${name}: lateral walk volume (${totalReps} steps) may fatigue glutes before agility or Output.`,
+        affected_items: [name],
+        meta: { total_reps: totalReps, slug },
+      })
+    }
+
+    if (slug === A_MARCH_SLUG) {
+      if (priorConditioning) {
+        findings.push({
+          rule_key: 'prepare_amarch_after_conditioning',
+          message: `${name} is sprint-mechanics prep placed after conditioning — posture and rhythm suffer under fatigue.`,
+          affected_items: [name],
+          meta: { slug },
+        })
+      }
+      const rpe = itemRpe(item, dosage)
+      if (rpe > 4) {
+        findings.push({
+          rule_key: 'prepare_amarch_skill_phase',
+          message: `${name}: high RPE (${rpe}) suggests Skill / Movement Intelligence, not Prepare / Access.`,
+          affected_items: [name],
+          meta: { rpe, slug },
+        })
+      }
+    }
+
+    if (pelvicSymptoms && ACTIVATION_CLUSTER_SLUGS.has(slug ?? '')) {
+      hasActivationWithPelvicFlags = true
+    }
+  }
+
+  if (hasActivationWithPelvicFlags) {
+    const activationNames = (items ?? [])
+      .filter((it) => ACTIVATION_CLUSTER_SLUGS.has(exerciseSlug(it, slugByExercise) ?? ''))
+      .map((it) => it.exercise_name ?? it.exerciseName ?? String(it.exercise_id ?? it.exerciseId))
+    findings.push({
+      rule_key: 'prepare_activation_pelvic_floor',
+      message: 'Activation cluster paired with postpartum/pelvic-floor symptom flags — use low-pressure variants.',
+      affected_items: activationNames,
+      meta: { symptom_flags: true },
+    })
+  }
+
+  return findings
+}
+
 export async function validateWorkoutDraft(pool, draft) {
   const errors = []
   const warnings = []
@@ -201,11 +635,12 @@ export async function validateWorkoutDraft(pool, draft) {
   const profileByExercisePhase = new Map()
   const regimenByExercise = new Map()
   const dosageByExercise = new Map()
+  const slugByExercise = new Map()
   let tagRows = []
   const methodologyKeysByExercise = new Map()
 
   if (exerciseIds.length > 0) {
-    const [profiles, tags, regimens, dosages] = await Promise.all([
+    const [profiles, tags, regimens, dosages, exercises] = await Promise.all([
       pool.query(
         `SELECT p.*, sp.key AS phase_key FROM coaching.exercise_phase_profile p
          JOIN coaching.session_phase sp ON sp.id = p.phase_id WHERE p.exercise_id = ANY($1::bigint[])`,
@@ -223,12 +658,17 @@ export async function validateWorkoutDraft(pool, draft) {
       ),
       pool.query(`SELECT * FROM coaching.exercise_regimen_rule WHERE exercise_id = ANY($1::bigint[])`, [exerciseIds]),
       pool.query(
-        `SELECT exercise_id, default_work_seconds, default_sets, volume_unit
+        `SELECT exercise_id, default_work_seconds, default_sets, default_reps, default_contacts,
+                default_rpe_min, default_rpe_max, volume_unit
          FROM coaching.exercise_dosage_profile WHERE exercise_id = ANY($1::bigint[]) AND profile_name = 'Default'`,
         [exerciseIds],
       ),
+      pool.query(`SELECT id, slug FROM coaching.exercise WHERE id = ANY($1::bigint[])`, [exerciseIds]),
     ])
     tagRows = tags.rows
+    for (const ex of exercises.rows) {
+      slugByExercise.set(String(ex.id), ex.slug)
+    }
     for (const p of profiles.rows) {
       profileByExercisePhase.set(`${p.exercise_id}:${p.phase_key}`, p)
     }
@@ -434,6 +874,95 @@ export async function validateWorkoutDraft(pool, draft) {
         meta: { prepare_drain_counts: drain.counts },
       })
     }
+
+    const lowerLegFindings = analyzePrepareLowerLegReadiness(items, {
+      slugByExercise,
+      profileByExercisePhase,
+      dosageByExercise,
+      phaseKey: PREPARE_ACCESS,
+      blockMeta,
+      prepareBlockIndex: i,
+      draft,
+    })
+    if (lowerLegFindings.length > 0) {
+      const edu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'prepare_lower_leg_readiness' LIMIT 1`,
+      )
+      for (const finding of lowerLegFindings) {
+        warnings.push({
+          severity: 'warning',
+          rule_key: finding.rule_key,
+          message: finding.message,
+          why: edu.rows[0]?.why_it_matters
+            ?? 'Foot/ankle readiness drills should prepare lower-body output without pre-fatigue.',
+          recommendation: edu.rows[0]?.programming_guidance
+            ?? 'Keep pogos under ~40 contacts, jump rope under ~90 seconds at low RPE, and calf raises at warm-up dose.',
+          affected_items: finding.affected_items ?? [],
+          related_phase: PREPARE_ACCESS,
+          can_override: true,
+          meta: finding.meta,
+        })
+      }
+    }
+
+    const hipAccessFindings = analyzePrepareHipAccessReadiness(items, {
+      slugByExercise,
+      profileByExercisePhase,
+      dosageByExercise,
+      methodologyKeysByExercise,
+      phaseKey: PREPARE_ACCESS,
+      blockMeta,
+      prepareBlockIndex: i,
+      draft,
+    })
+    if (hipAccessFindings.length > 0) {
+      const edu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'prepare_hip_access_readiness' LIMIT 1`,
+      )
+      for (const finding of hipAccessFindings) {
+        warnings.push({
+          severity: 'warning',
+          rule_key: finding.rule_key,
+          message: finding.message,
+          why: edu.rows[0]?.why_it_matters
+            ?? 'Hip/pelvis access should improve positions without pre-fatiguing legs before Output.',
+          recommendation: edu.rows[0]?.programming_guidance
+            ?? 'Keep squat pry under ~60s, frontal-plane prep moderate, and leg swings controlled.',
+          affected_items: finding.affected_items ?? [],
+          related_phase: PREPARE_ACCESS,
+          can_override: true,
+          meta: finding.meta,
+        })
+      }
+    }
+
+    const activationFindings = analyzePrepareActivationReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      prepareBlockIndex: i,
+      draft,
+    })
+    if (activationFindings.length > 0) {
+      const edu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'prepare_activation_readiness' LIMIT 1`,
+      )
+      for (const finding of activationFindings) {
+        warnings.push({
+          severity: 'warning',
+          rule_key: finding.rule_key,
+          message: finding.message,
+          why: edu.rows[0]?.why_it_matters
+            ?? 'Activation drills should improve position and readiness without trunk, hip, or shoulder fatigue before Skill or Output.',
+          recommendation: edu.rows[0]?.programming_guidance
+            ?? 'Keep bridges under ~15 reps, lateral walks under ~12 steps per direction, and A-March slow and technical before speed work.',
+          affected_items: finding.affected_items ?? [],
+          related_phase: PREPARE_ACCESS,
+          can_override: true,
+          meta: finding.meta,
+        })
+      }
+    }
   }
 
   // HIIT before skill/output (phase-level)
@@ -500,4 +1029,15 @@ export async function validateWorkoutDraft(pool, draft) {
   return { status, errors, warnings, recommendations, coverage, fatigue, time }
 }
 
-export { PHASE_ORDER, phaseIndex, itemSeconds, blockSeconds, computePriorFatigue, computeTimeSummary, analyzePrepareAccessDrain }
+export {
+  PHASE_ORDER,
+  phaseIndex,
+  itemSeconds,
+  blockSeconds,
+  computePriorFatigue,
+  computeTimeSummary,
+  analyzePrepareAccessDrain,
+  analyzePrepareLowerLegReadiness,
+  analyzePrepareHipAccessReadiness,
+  analyzePrepareActivationReadiness,
+}
