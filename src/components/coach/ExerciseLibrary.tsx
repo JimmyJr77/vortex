@@ -11,6 +11,7 @@ import { exportExercises, type LibraryExportFormat } from '../../coach/libraryEx
 import ExerciseDetailModal from './ExerciseDetailModal'
 import ExerciseEditor from './ExerciseEditor'
 import LibraryCardMenu from './LibraryCardMenu'
+import LibraryCard from './LibraryCard'
 import LibraryExportControls from './LibraryExportControls'
 
 interface FilterState {
@@ -229,7 +230,7 @@ export default function ExerciseLibrary() {
       {loading ? (
         <div className="flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading library...</div>
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid items-start gap-3 md:grid-cols-2 lg:grid-cols-3">
           {exercises.map((ex) => {
             const tenets = exerciseTenetLabels(ex, tenetName)
             const methodologies = exerciseFacetLabels(ex, 'methodology', facetName, 2)
@@ -240,20 +241,18 @@ export default function ExerciseLibrary() {
             const subrole = phaseSubroleLabel(ex.phase_subrole)
             const programmingNote = whyPreview(ex.why)
             return (
-            <button
+            <LibraryCard
               key={ex.id}
-              type="button"
               onClick={() => setViewing(ex)}
-              className="text-left bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md hover:border-gray-300 transition-shadow cursor-pointer w-full"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="font-bold text-gray-900">{ex.name}</h3>
+              menu={
                 <LibraryCardMenu
                   itemLabel={ex.name}
                   onEdit={() => setEditing(ex)}
                   onDelete={() => { void handleDelete(ex) }}
                 />
-              </div>
+              }
+            >
+              <h3 className="pr-8 font-bold leading-snug text-gray-900">{ex.name}</h3>
               {ex.sport_name && <span className="inline-block mt-1 text-xs bg-gray-100 text-gray-600 rounded px-2 py-0.5">{ex.sport_name}</span>}
               {identityLine && <p className="text-[11px] text-gray-500 mt-1">{identityLine}</p>}
               {subrole && <span className="inline-block mt-1 mr-1 text-[11px] bg-violet-50 text-violet-800 rounded px-2 py-0.5">{subrole}</span>}
@@ -301,7 +300,7 @@ export default function ExerciseLibrary() {
                   <span key={`p-${label}`} className="text-[11px] bg-indigo-50 text-indigo-800 rounded px-2 py-0.5">{label}</span>
                 ))}
               </div>
-            </button>
+            </LibraryCard>
             )
           })}
           {exercises.length === 0 && <div className="text-sm text-gray-500">No exercises match these filters.</div>}

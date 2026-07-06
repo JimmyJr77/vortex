@@ -111,6 +111,7 @@ export default function MessagesPanel({
   const [criticalFlags, setCriticalFlags] = useState<CriticalComposeFlags>({
     is_critical: false,
     requires_ack: false,
+    send_critical_sms: false,
   })
   const [classModalOpen, setClassModalOpen] = useState(false)
   const [eventBoardModalOpen, setEventBoardModalOpen] = useState(false)
@@ -335,6 +336,7 @@ export default function MessagesPanel({
           ...attachmentPayload,
           is_critical: criticalFlags.is_critical,
           requires_ack: criticalFlags.requires_ack,
+          send_critical_sms: criticalFlags.is_critical && criticalFlags.send_critical_sms,
         }),
       })
       setMessages((prev) => [...prev, msg])
@@ -349,7 +351,7 @@ export default function MessagesPanel({
       setReply('')
       setReplyTarget(null)
       setPendingAttachment(null)
-      setCriticalFlags({ is_critical: false, requires_ack: false })
+      setCriticalFlags({ is_critical: false, requires_ack: false, send_critical_sms: false })
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send message')

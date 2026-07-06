@@ -116,6 +116,17 @@ export async function initPlatformTables(pool) {
     '121_coaching_capacity_seed.sql',
     '122_coaching_capacity_squat_cards.sql',
     '123_coaching_capacity_hinge_cards.sql',
+    '124_coaching_capacity_push_cards.sql',
+    '125_coaching_capacity_pull_cards.sql',
+    '126_coaching_capacity_carry_cards.sql',
+    '127_coaching_capacity_tissue_cards.sql',
+    '128_coaching_control_resilience_phase_infrastructure.sql',
+    '129_coaching_control_resilience_seed.sql',
+    '130_coaching_control_landing_cards.sql',
+    '131_coaching_control_single_leg_cards.sql',
+    '132_coaching_control_trunk_cards.sql',
+    '133_coaching_control_scapular_cards.sql',
+    '134_coaching_control_slow_eccentric_cards.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

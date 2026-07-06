@@ -1,4 +1,12 @@
-import { loadSubroleMapForPhase, PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE, OUTPUT, CAPACITY } from './phaseSubrole.js'
+import { loadSubroleMapForPhase, PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE, OUTPUT, CAPACITY, CONTROL_RESILIENCE } from './phaseSubrole.js'
+import {
+  analyzeControlResilienceReadiness,
+  analyzeControlLandingReadiness,
+  analyzeControlSingleLegReadiness,
+  analyzeControlTrunkReadiness,
+  analyzeControlSlowEccentricReadiness,
+  analyzeControlHandSupportReadiness,
+} from './controlResilienceValidation.js'
 
 const SUBROLE_ORDER = {
   raise: 10,
@@ -3166,6 +3174,1169 @@ function analyzeCapacityHingeReadiness(items, ctx) {
   return findings
 }
 
+const CAPACITY_PUSH_SLUGS = new Set([
+  'incline-push-up',
+  'push-up',
+  'tempo-eccentric-push-up',
+  'dumbbell-kettlebell-floor-press',
+  'dumbbell-bench-press',
+  'half-kneeling-single-arm-press',
+  'pike-push-up-box-pike-push-up',
+  'dip-support-ring-support-hold',
+])
+const INCLINE_PUSH_UP_SLUG = 'incline-push-up'
+const PUSH_UP_SLUG = 'push-up'
+const TEMPO_ECCENTRIC_PUSH_UP_SLUG = 'tempo-eccentric-push-up'
+const FLOOR_PRESS_SLUG = 'dumbbell-kettlebell-floor-press'
+const BENCH_PRESS_SLUG = 'dumbbell-bench-press'
+const HALF_KNEELING_PRESS_SLUG = 'half-kneeling-single-arm-press'
+const PIKE_PUSH_UP_SLUG = 'pike-push-up-box-pike-push-up'
+const DIP_SUPPORT_SLUG = 'dip-support-ring-support-hold'
+const HAND_SUPPORT_AFTER_PUSH_CAPACITY_SLUGS = new Set([
+  ...TUMBLING_SKILL_PREREQ_SLUGS,
+  ...HANDSTAND_SKILL_SLUGS,
+  'handstand-hold',
+  'donkey-kick',
+  'ring-row-trx-row',
+])
+const CAPACITY_PUSH_SAG_PATTERN = /hips?\s*sag|sagging\s*hip|butt\s*pike|elbow\s*flare|flaring\s*elbow/i
+const CAPACITY_PUSH_PLANK_FAIL_PATTERN = /cannot\s*maintain\s*plank|plank\s*line\s*break|lose\s*plank|trunk\s*sag|hips?\s*sag/i
+const CAPACITY_PUSH_QUALITY_BREAK_PATTERN = /form\s*break|quality\s*break|sloppy\s*rep|cannot\s*control\s*(the\s*)?rep|rep\s*quality\s*break/i
+const CAPACITY_PUSH_ECCENTRIC_SORENESS_PATTERN = /eccentric\s*soreness|excessive\s*soreness|too\s*much\s*soreness|doms/i
+const CAPACITY_PUSH_SETUP_FAIL_PATTERN = /cannot\s*(safely\s*)?get\s*weight|setup\s*unsafe|cannot\s*control\s*dumbbell|dumbbell\s*control\s*fail/i
+const CAPACITY_PUSH_SHOULDER_BOTTOM_PATTERN = /shoulder\s*pain\s*at\s*bottom|pinch(es|ing)?\s*at\s*bottom|pain\s*at\s*depth|shoulder\s*pinch/i
+const CAPACITY_PUSH_RIB_FLARE_PATTERN = /rib\s*flare|low\s*back\s*arch|lean(s|ing)?\s*back|lumbar\s*extension/i
+const CAPACITY_PUSH_RING_FAULT_PATTERN = /ring(s)?\s*drift|shoulder\s*shrug|elbow\s*bend|cannot\s*hold\s*support|rings?\s*wide/i
+const CAPACITY_PUSH_BOX_PIKE_PATTERN = /box\s*pike|feet\s*on\s*box\s*pike/i
+const CAPACITY_PUSH_PARALLEL_BAR_FAIL_PATTERN = /cannot\s*hold\s*parallel|parallel\s*bar\s*support\s*fail|unstable\s*support/i
+const WRIST_PAIN_PATTERN = /wrist\s*pain/i
+
+/** Upper-body push Capacity cluster checks. Pure helper for tests. */
+function analyzeCapacityPushReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    blockMeta = [],
+    capacityBlockIndex = 0,
+    exerciseSkillLevelById = new Map(),
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const ordered = []
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug || !CAPACITY_PUSH_SLUGS.has(slug)) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  if (ordered.length === 0) return findings
+
+  const slugsInWorkout = new Set(ordered.map((o) => o.slug))
+  for (const meta of blockMeta ?? []) {
+    for (const blockItem of meta.block?.items ?? []) {
+      const slug = exerciseSlug(blockItem, slugByExercise)
+      if (slug) slugsInWorkout.add(slug)
+    }
+  }
+
+  let handSupportAfterCapacity = false
+  for (let j = capacityBlockIndex + 1; j < blockMeta.length; j++) {
+    const key = blockMeta[j]?.phaseKey
+    if (key !== SKILL_MOVEMENT_INTELLIGENCE && key !== OUTPUT) continue
+    for (const blockItem of blockMeta[j]?.block?.items ?? []) {
+      const slug = exerciseSlug(blockItem, slugByExercise)
+      if (slug && HAND_SUPPORT_AFTER_PUSH_CAPACITY_SLUGS.has(slug)) {
+        handSupportAfterCapacity = true
+        break
+      }
+    }
+    if (handSupportAfterCapacity) break
+  }
+
+  if (handSupportAfterCapacity) {
+    findings.push({
+      rule_key: 'capacity_push_before_hand_support',
+      severity: 'warning',
+      message:
+        'Pressing fatigue may reduce hand-support quality. Confirm strength-priority session.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { capacity_before_hand_support: true },
+    })
+  }
+
+  const isYouthAthlete = ordered.some(({ exerciseId }) => {
+    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    return level === 'EARLY_STAGE' || level === 'BEGINNER'
+  })
+
+  if (WRIST_PAIN_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'capacity_push_wrist_pain',
+      severity: 'recommendation',
+      message:
+        'Wrist pain — substitute: push-up→handles/parallettes or incline push-up; pike→overhead press; ring support→parallel-bar or box-assisted support; floor/bench press→neutral-grip DB press.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (SHOULDER_PAIN_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'capacity_push_shoulder_pain',
+      severity: 'recommendation',
+      message:
+        'Shoulder pain — substitute: push-up→incline with shorter range; bench press→floor press; overhead press→landmine/band press or wall slide; pike→half-kneeling press or push-up regression; ring support→front support or scapular prep.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  let hasHighDensity = false
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
+    const volume = countCapacityVolume(item, dosage)
+    const rpe = itemRpe(item, dosage)
+    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+
+    if (restSeconds > 0 && restSeconds < CAPACITY_SHORT_REST_SECONDS && volume >= 12 && rpe >= CAPACITY_MIN_RPE_STRENGTH) {
+      hasHighDensity = true
+    }
+
+    if (slug === INCLINE_PUSH_UP_SLUG && CAPACITY_PUSH_SAG_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_push_incline_sag',
+        severity: 'recommendation',
+        message: `${name}: raise the incline, reduce reps, or return to front support hold when hips sag or elbows flare.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === PUSH_UP_SLUG && CAPACITY_PUSH_QUALITY_BREAK_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_push_pushup_quality_stop',
+        severity: 'warning',
+        message: `${name}: end the set — do not finish sloppy reps for Capacity.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === PUSH_UP_SLUG && CAPACITY_PUSH_PLANK_FAIL_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_push_pushup_plank_regress',
+        severity: 'recommendation',
+        message: `${name}: use Incline Push-Up or Tempo Incline Push-Up when plank line cannot be maintained.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === TEMPO_ECCENTRIC_PUSH_UP_SLUG && (CAPACITY_PUSH_ECCENTRIC_SORENESS_PATTERN.test(watchText) || WRIST_PAIN_PATTERN.test(watchText) || SHOULDER_PAIN_PATTERN.test(watchText))) {
+      findings.push({
+        rule_key: 'capacity_push_eccentric_volume',
+        severity: 'warning',
+        message: `${name}: eccentric push volume may be too high — reduce tempo, range, reps, or incline.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === FLOOR_PRESS_SLUG && CAPACITY_PUSH_SETUP_FAIL_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_push_floor_press_setup',
+        severity: 'recommendation',
+        message: `${name}: use lighter load, coach handoff, or push-up regression when setup is unsafe.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if ((slug === FLOOR_PRESS_SLUG || slug === BENCH_PRESS_SLUG) && CAPACITY_PUSH_SHOULDER_BOTTOM_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_push_press_shoulder_pain',
+        severity: 'recommendation',
+        message: `${name}: reduce range, use neutral grip, use floor press, or substitute incline push-up when shoulder pain appears at bottom.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (
+      slug === BENCH_PRESS_SLUG
+      && (isYouthAthlete || YOUTH_ATHLETE_CAPACITY_PATTERN.test(watchText))
+      && (CAPACITY_SQUAT_YOUTH_LOAD_PATTERN.test(watchText) || HEAVY_LOAD_PATTERN.test(watchText))
+    ) {
+      findings.push({
+        rule_key: 'capacity_push_bench_youth_load',
+        severity: 'recommendation',
+        message: `${name}: youth bench press requires coach confirmation — sound technique, appropriate load, no max-lift intent, safe spot/setup.`,
+        affected_items: [name],
+        meta: { slug, youth_flags: true },
+      })
+    }
+
+    if (slug === HALF_KNEELING_PRESS_SLUG && CAPACITY_PUSH_RIB_FLARE_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_push_overhead_rib_flare',
+        severity: 'recommendation',
+        message: `${name}: reduce load, use landmine/band press, or return to core/overhead prep when rib flare or low-back extension appears.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === PIKE_PUSH_UP_SLUG && !slugsInWorkout.has(PUSH_UP_SLUG) && !slugsInWorkout.has(INCLINE_PUSH_UP_SLUG)) {
+      findings.push({
+        rule_key: 'capacity_push_pike_prerequisite',
+        severity: 'warning',
+        message: `${name}: pike push-ups require standard push-up strength and shoulder control — use incline push-up or pike hold first.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+    }
+
+    if (slug === PIKE_PUSH_UP_SLUG && CAPACITY_PUSH_BOX_PIKE_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_push_box_pike_prerequisite',
+        severity: 'warning',
+        message: `${name}: box pike increases vertical load — regress to floor pike or hands-elevated pike first.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+    }
+
+    if (slug === DIP_SUPPORT_SLUG && (CAPACITY_PUSH_PARALLEL_BAR_FAIL_PATTERN.test(watchText) || (isBeginner && !slugsInWorkout.has(PUSH_UP_SLUG) && !slugsInWorkout.has(PIKE_PUSH_UP_SLUG)))) {
+      findings.push({
+        rule_key: 'capacity_push_support_prerequisite',
+        severity: 'recommendation',
+        message: `${name}: use box-assisted support, parallel bars, or front support before rings when support is unstable or push-up/pike competency is missing.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: CAPACITY_PUSH_PARALLEL_BAR_FAIL_PATTERN.test(watchText), beginner: isBeginner },
+      })
+    }
+
+    if (slug === DIP_SUPPORT_SLUG && CAPACITY_PUSH_RING_FAULT_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_push_ring_support_stop',
+        severity: 'warning',
+        message: `${name}: end the hold and regress to assisted or bar support when rings drift, shoulders shrug, or elbows bend.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+  }
+
+  if (hasHighDensity) {
+    findings.push({
+      rule_key: 'capacity_push_short_rest_density',
+      severity: 'warning',
+      message: 'This may be Fitness / Repeatability rather than Capacity. Confirm intent — push strength needs full rest between sets.',
+      affected_items: ordered.map((o) => o.name),
+      meta: {},
+    })
+  }
+
+  return findings
+}
+
+const CAPACITY_PULL_SLUGS = new Set([
+  'ring-row-trx-row',
+  'inverted-row',
+  'one-arm-dumbbell-row',
+  'band-cable-row',
+  'assisted-pull-up',
+  'eccentric-pull-up-chin-up-negative',
+  'pull-up-chin-up',
+  'scapular-pull-up',
+  'dead-hang-active-hang',
+  'rope-climb-foot-lock-pull-towel-pull',
+])
+const RING_ROW_SLUG = 'ring-row-trx-row'
+const INVERTED_ROW_SLUG = 'inverted-row'
+const ONE_ARM_ROW_SLUG = 'one-arm-dumbbell-row'
+const BAND_CABLE_ROW_SLUG = 'band-cable-row'
+const ECCENTRIC_PULL_SLUG = 'eccentric-pull-up-chin-up-negative'
+const SCAPULAR_PULL_UP_SLUG = 'scapular-pull-up'
+const ROPE_CLIMB_SLUG = 'rope-climb-foot-lock-pull-towel-pull'
+const HORIZONTAL_PULL_FOUNDATION_SLUGS = new Set([
+  RING_ROW_SLUG,
+  INVERTED_ROW_SLUG,
+  BAND_CABLE_ROW_SLUG,
+  ONE_ARM_ROW_SLUG,
+])
+const CAPACITY_PULL_BODY_SAG_PATTERN = /body\s*sag|hip\s*sag|hips?\s*sag|sagging/i
+const CAPACITY_PULL_UNSAFE_BAR_PATTERN = /unstable\s*bar|unsafe\s*rack|bar\s*setup\s*unsafe|setup\s*unstable|rack\s*unstable/i
+const CAPACITY_PULL_TORSO_ROTATION_PATTERN = /torso\s*rotat|trunk\s*rotat|twist(s|ing)?\s*open|rotates?\s*open/i
+const CAPACITY_PULL_UNSAFE_ANCHOR_PATTERN = /unsafe\s*anchor|anchor\s*fail|band\s*snap|anchor\s*unsafe/i
+const CAPACITY_PULL_KIPPING_PATTERN = /kipp(ing)?|swing(ing)?|leg\s*kick|kick(ing)?|bounce|rebound/i
+const CAPACITY_PULL_CANNOT_LOWER_PATTERN = /cannot\s*lower|incomplete\s*lower|no\s*control\s*on\s*lower|cannot\s*control\s*lower/i
+const CAPACITY_PULL_FAST_ECCENTRIC_PATTERN = /drop(s|ped)?\s*quick|less\s*than\s*3|fast\s*lower|crash(es|ing)?\s*down|drops?\s*after\s*top/i
+const CAPACITY_PULL_PARTIAL_REP_PATTERN = /partial\s*rep|cannot\s*complete\s*strict|incomplete\s*range|not\s*full\s*range/i
+const CAPACITY_PULL_ELBOW_BEND_SCAPULAR_PATTERN = /elbow\s*bend|mini\s*pull.?up|partial\s*pull|elbows?\s*bend/i
+const CAPACITY_PULL_HANG_STOP_PATTERN = /shoulder\s*pain|numbness|tingling|grip\s*slip/i
+const CAPACITY_PULL_GRIP_FAILURE_PATTERN = /grip\s*fail|hold\s*to\s*failure|cannot\s*hold|grip\s*slipping|grip\s*fail/i
+const CAPACITY_PULL_FOOTLOCK_PATTERN = /foot\s*lock\s*fail|no\s*foot.?lock|footlock\s*not|cannot\s*lock\s*feet|foot\s*lock\s*slip/i
+const CAPACITY_PULL_ROPE_SETUP_PATTERN = /no\s*mat|no\s*supervision|unsafe\s*descent|cannot\s*descend|no\s*safe\s*descent/i
+const CAPACITY_PULL_TISSUE_PAIN_PATTERN = /shoulder\s*pain|elbow\s*pain|wrist\s*pain|hand\s*pain/i
+
+/** Pull / hang / grip Capacity cluster checks. Pure helper for tests. */
+function analyzeCapacityPullReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    blockMeta = [],
+    capacityBlockIndex = 0,
+    exerciseSkillLevelById = new Map(),
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const ordered = []
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug || !CAPACITY_PULL_SLUGS.has(slug)) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  if (ordered.length === 0) return findings
+
+  const slugsInWorkout = new Set(ordered.map((o) => o.slug))
+  for (const meta of blockMeta ?? []) {
+    for (const blockItem of meta.block?.items ?? []) {
+      const slug = exerciseSlug(blockItem, slugByExercise)
+      if (slug) slugsInWorkout.add(slug)
+    }
+  }
+
+  let skillAfterCapacity = false
+  for (let j = capacityBlockIndex + 1; j < blockMeta.length; j++) {
+    if (blockMeta[j]?.phaseKey === SKILL_MOVEMENT_INTELLIGENCE) {
+      skillAfterCapacity = true
+      break
+    }
+  }
+
+  if (skillAfterCapacity) {
+    findings.push({
+      rule_key: 'capacity_pull_before_skill',
+      severity: 'warning',
+      message:
+        'Grip and pulling fatigue may reduce skill safety. Confirm strength-priority session.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { capacity_before_skill: true },
+    })
+  }
+
+  const isYouthAthlete = ordered.some(({ exerciseId }) => {
+    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    return level === 'EARLY_STAGE' || level === 'BEGINNER'
+  })
+
+  const hasHorizontalFoundation = [...HORIZONTAL_PULL_FOUNDATION_SLUGS].some((s) => slugsInWorkout.has(s))
+
+  if (CAPACITY_PULL_TISSUE_PAIN_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'capacity_pull_tissue_substitution',
+      severity: 'recommendation',
+      message:
+        'Pain warning signs — substitute: pull-up→assisted pull-up or row; eccentric→band/cable row; dead hang→feet-assisted active hang; rope climb→rope foot-lock practice or towel row; inverted row→TRX/ring row at easier angle.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  let hasHighDensity = false
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
+    const volume = countCapacityVolume(item, dosage)
+    const rpe = itemRpe(item, dosage)
+    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+
+    if (restSeconds > 0 && restSeconds < CAPACITY_SHORT_REST_SECONDS && volume >= 12 && rpe >= CAPACITY_MIN_RPE_STRENGTH) {
+      hasHighDensity = true
+    }
+
+    if (slug === RING_ROW_SLUG && CAPACITY_PULL_BODY_SAG_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_pull_ring_row_sag',
+        severity: 'recommendation',
+        message: `${name}: increase body angle, reduce reps, or regress to band/cable row when body sags.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === INVERTED_ROW_SLUG && CAPACITY_PULL_UNSAFE_BAR_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_pull_inverted_row_unsafe',
+        severity: 'error',
+        message: `${name}: inverted rows require a secure bar/rack setup.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === ONE_ARM_ROW_SLUG && CAPACITY_PULL_TORSO_ROTATION_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_pull_db_row_rotation',
+        severity: 'recommendation',
+        message: `${name}: reduce load, add bench support, or use cable row when torso rotates.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === BAND_CABLE_ROW_SLUG && CAPACITY_PULL_UNSAFE_ANCHOR_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_pull_band_anchor_unsafe',
+        severity: 'error',
+        message: `${name}: do not perform band/cable row without secure anchor.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === ASSISTED_PULL_UP_SLUG && CAPACITY_PULL_KIPPING_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_pull_assisted_kipping',
+        severity: 'warning',
+        message: `${name}: assistance should support controlled strict pulling, not rebound or kipping reps.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === ASSISTED_PULL_UP_SLUG && CAPACITY_PULL_CANNOT_LOWER_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_pull_assisted_lower',
+        severity: 'recommendation',
+        message: `${name}: increase assistance or use ring rows when lowering is uncontrolled.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (
+      slug === ECCENTRIC_PULL_SLUG
+      && (isYouthAthlete || isBeginner || YOUTH_ATHLETE_CAPACITY_PATTERN.test(watchText))
+    ) {
+      findings.push({
+        rule_key: 'capacity_pull_eccentric_beginner',
+        severity: 'warning',
+        message: `${name}: eccentric pull-ups create high tissue stress — use assisted pull-up or ring row first.`,
+        affected_items: [name],
+        meta: { slug, youth_flags: isYouthAthlete, beginner: isBeginner },
+      })
+    }
+
+    if (slug === ECCENTRIC_PULL_SLUG && CAPACITY_PULL_FAST_ECCENTRIC_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_pull_eccentric_fast',
+        severity: 'recommendation',
+        message: `${name}: increase assistance or reduce range until controlled 3+ second lowering is possible.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === PULL_UP_SLUG && (CAPACITY_PULL_PARTIAL_REP_PATTERN.test(watchText) || CAPACITY_PULL_CANNOT_LOWER_PATTERN.test(watchText))) {
+      findings.push({
+        rule_key: 'capacity_pull_pullup_strict',
+        severity: 'recommendation',
+        message: `${name}: use assisted pull-up, eccentric pull-up, or ring row when strict full-range reps are not available.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === PULL_UP_SLUG && !hasHorizontalFoundation && !slugsInWorkout.has(ASSISTED_PULL_UP_SLUG) && !slugsInWorkout.has(ECCENTRIC_PULL_SLUG)) {
+      findings.push({
+        rule_key: 'capacity_pull_pullup_prerequisite',
+        severity: 'warning',
+        message: `${name}: build horizontal row and assisted vertical pulling before strict pull-ups/chin-ups.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+    }
+
+    if (slug === PULL_UP_SLUG && CAPACITY_PULL_KIPPING_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_pull_pullup_kipping',
+        severity: 'recommendation',
+        message: `${name}: kipping or swinging is not strict Capacity — classify separately or regress to assisted pull-up.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === SCAPULAR_PULL_UP_SLUG && CAPACITY_PULL_ELBOW_BEND_SCAPULAR_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_pull_scapular_elbow',
+        severity: 'warning',
+        message: `${name}: scapular pull-up should be straight-arm shoulder-blade control — no elbow bend.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === DEAD_HANG_SLUG && CAPACITY_PULL_HANG_STOP_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_pull_hang_stop',
+        severity: 'warning',
+        message: `${name}: end hanging and regress to feet-assisted active hang or band pulldown when shoulder pain, numbness, or tingling appears.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (
+      (slug === DEAD_HANG_SLUG || slug === ROPE_CLIMB_SLUG)
+      && CAPACITY_PULL_GRIP_FAILURE_PATTERN.test(watchText)
+      && skillAfterCapacity
+    ) {
+      findings.push({
+        rule_key: 'capacity_pull_grip_failure_before_skill',
+        severity: 'warning',
+        message: `${name}: grip failure can compromise skill safety — reduce volume or move hang/grip work after skill.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (
+      slug === ROPE_CLIMB_SLUG
+      && (CAPACITY_PULL_FOOTLOCK_PATTERN.test(watchText) || (isBeginner && !hasHorizontalFoundation))
+    ) {
+      findings.push({
+        rule_key: 'capacity_pull_rope_footlock',
+        severity: 'warning',
+        message: `${name}: teach foot-lock from seated/low position before climbing or high rope pulls.`,
+        affected_items: [name],
+        meta: { slug, beginner: isBeginner, symptom_flags: CAPACITY_PULL_FOOTLOCK_PATTERN.test(watchText) },
+      })
+    }
+
+    if (slug === ROPE_CLIMB_SLUG && CAPACITY_PULL_GRIP_FAILURE_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_pull_rope_grip_failure',
+        severity: 'warning',
+        message: `${name}: end set immediately — do not continue grip-based climbing when descent cannot be controlled.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === ROPE_CLIMB_SLUG && CAPACITY_PULL_ROPE_SETUP_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_pull_rope_setup',
+        severity: 'error',
+        message: `${name}: rope-climb capacity requires safe setup, mat, supervision, and a planned descent.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+  }
+
+  if (hasHighDensity) {
+    findings.push({
+      rule_key: 'capacity_pull_short_rest_density',
+      severity: 'warning',
+      message: 'This may be Fitness / Repeatability rather than Capacity. Confirm intent — pull strength needs full rest between sets.',
+      affected_items: ordered.map((o) => o.name),
+      meta: {},
+    })
+  }
+
+  return findings
+}
+
+const CAPACITY_CARRY_SLUGS = new Set([
+  'farmer-carry',
+  'suitcase-carry',
+  'front-rack-carry',
+  'bear-hug-sandbag-carry',
+  'zercher-carry',
+  'overhead-carry',
+  'pallof-press-pallof-hold',
+  'tall-kneeling-cable-band-chop',
+])
+const CAPACITY_CARRY_WALK_SLUGS = new Set([
+  'farmer-carry',
+  'suitcase-carry',
+  'front-rack-carry',
+  'bear-hug-sandbag-carry',
+  'zercher-carry',
+  'overhead-carry',
+])
+const FARMER_CARRY_SLUG = 'farmer-carry'
+const SUITCASE_CARRY_SLUG = 'suitcase-carry'
+const FRONT_RACK_CARRY_SLUG = 'front-rack-carry'
+const BEAR_HUG_CARRY_SLUG = 'bear-hug-sandbag-carry'
+const ZERCHER_CARRY_SLUG = 'zercher-carry'
+const PALLOF_SLUG = 'pallof-press-pallof-hold'
+const CHOP_SLUG = 'tall-kneeling-cable-band-chop'
+const CAPACITY_CARRY_SKILL_AFTER_SLUGS = new Set([
+  ...TUMBLING_SKILL_SLUGS,
+  ...TUMBLING_SKILL_PREREQ_SLUGS,
+  ...HANDSTAND_SKILL_SLUGS,
+  'handstand-hold',
+  DEAD_HANG_SLUG,
+  PULL_UP_SLUG,
+  'rope-climb-foot-lock-pull-towel-pull',
+  'assisted-pull-up',
+])
+const CAPACITY_CARRY_GRIP_HANG_SLUGS = new Set([
+  DEAD_HANG_SLUG,
+  PULL_UP_SLUG,
+  'assisted-pull-up',
+  'eccentric-pull-up-chin-up-negative',
+  'rope-climb-foot-lock-pull-towel-pull',
+  'scapular-pull-up',
+])
+const CAPACITY_CARRY_FARMER_FAULT_PATTERN = /shoulder\s*shrug|grip\s*slip|posture\s*collapse|trunk\s*collapse|rounded\s*back/i
+const CAPACITY_CARRY_LATERAL_LEAN_PATTERN = /lateral\s*lean|lean(s|ing)?\s*(away|toward)|side\s*bend|cannot\s*resist\s*side/i
+const CAPACITY_CARRY_RIB_FLARE_PATTERN = /rib\s*flare|low\s*back\s*arch|breath.?hold|valsalva/i
+const CAPACITY_CARRY_FOLD_PATTERN = /fold(s|ing)?\s*forward|forward\s*fold|trunk\s*collapse|bag\s*slides/i
+const CAPACITY_CARRY_ZERCHER_FAULT_PATTERN = /elbow\s*pain|elbow\s*numb|load\s*drift|drifts?\s*away/i
+const CAPACITY_CARRY_OVERHEAD_DRIFT_PATTERN = /arm\s*drift|ribs?\s*flare|low\s*back\s*arch|over\s*arch/i
+const CAPACITY_CARRY_PALLof_ROTATION_PATTERN = /rotat(es|ing)?\s*toward|twist(s|ing)?\s*toward|turns?\s*toward\s*anchor/i
+const CAPACITY_CARRY_ANCHOR_UNSAFE_PATTERN = /unsafe\s*anchor|anchor\s*fail|band\s*slip|cable\s*detach|unsecured\s*anchor/i
+const CAPACITY_CARRY_CHOP_HIP_SHIFT_PATTERN = /hip\s*shift|hips?\s*rotate|low\s*back\s*rotat/i
+const CAPACITY_CARRY_TISSUE_PAIN_PATTERN = /shoulder\s*pain|elbow\s*pain|wrist\s*pain|hip\s*pain|back\s*pain|pressure\s*symptom|pelvic\s*floor/i
+const CAPACITY_CARRY_GRIP_FAIL_PATTERN = /grip\s*fail|grip\s*slip|cannot\s*hold\s*load|drops?\s*weight/i
+const CAPACITY_CARRY_MAX_YARDS = 40
+const CAPACITY_CARRY_MAX_WORK_SECONDS = 45
+
+/** Carry / trunk / loaded-bracing Capacity cluster checks. Pure helper for tests. */
+function analyzeCapacityCarryReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    blockMeta = [],
+    capacityBlockIndex = 0,
+    exerciseSkillLevelById = new Map(),
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const ordered = []
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug || !CAPACITY_CARRY_SLUGS.has(slug)) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  if (ordered.length === 0) return findings
+
+  let skillAfterCapacity = false
+  for (let j = capacityBlockIndex + 1; j < blockMeta.length; j++) {
+    const key = blockMeta[j]?.phaseKey
+    if (key === SKILL_MOVEMENT_INTELLIGENCE || key === OUTPUT) {
+      for (const blockItem of blockMeta[j]?.block?.items ?? []) {
+        const slug = exerciseSlug(blockItem, slugByExercise) ?? ''
+        const name = String(blockItem.exercise_name ?? blockItem.exerciseName ?? '')
+        if (CAPACITY_CARRY_SKILL_AFTER_SLUGS.has(slug)) {
+          skillAfterCapacity = true
+          break
+        }
+        if (key === OUTPUT && (SPEED_OUTPUT_SLUG_PATTERN.test(slug) || SPEED_OUTPUT_SLUG_PATTERN.test(name))) {
+          skillAfterCapacity = true
+          break
+        }
+      }
+    }
+    if (skillAfterCapacity) break
+  }
+
+  if (skillAfterCapacity) {
+    findings.push({
+      rule_key: 'capacity_carry_before_skill',
+      severity: 'warning',
+      message:
+        'Loaded bracing, grip, and shoulder fatigue may reduce skill quality. Confirm strength-priority session.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { capacity_before_skill: true },
+    })
+  }
+
+  let gripHangBeforeCapacity = false
+  for (let j = 0; j < capacityBlockIndex; j++) {
+    for (const blockItem of blockMeta[j]?.block?.items ?? []) {
+      const slug = exerciseSlug(blockItem, slugByExercise)
+      if (slug && CAPACITY_CARRY_GRIP_HANG_SLUGS.has(slug)) {
+        gripHangBeforeCapacity = true
+        break
+      }
+    }
+    if (gripHangBeforeCapacity) break
+  }
+
+  if (gripHangBeforeCapacity && ordered.some((o) => CAPACITY_CARRY_WALK_SLUGS.has(o.slug))) {
+    findings.push({
+      rule_key: 'capacity_carry_after_grip_hang',
+      severity: 'warning',
+      message: 'Grip fatigue may compromise carry safety. Reduce load or move carries earlier/later in the session.',
+      affected_items: ordered.filter((o) => CAPACITY_CARRY_WALK_SLUGS.has(o.slug)).map((o) => o.name),
+      meta: { grip_fatigue: true },
+    })
+  }
+
+  const isYouthAthlete = ordered.some(({ exerciseId }) => {
+    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    return level === 'EARLY_STAGE' || level === 'BEGINNER'
+  })
+
+  if (CAPACITY_CARRY_TISSUE_PAIN_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'capacity_carry_tissue_substitution',
+      severity: 'recommendation',
+      message:
+        'Symptom warning signs — substitute: farmer→lighter farmer or goblet carry; suitcase→Pallof hold; front-rack→bear-hug; Zercher→bear-hug; overhead→front-rack or half-kneeling press; Pallof/chop→dead bug or supported anti-rotation hold.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  let hasHighDensity = false
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
+    const volume = countCapacityVolume(item, dosage)
+    const rpe = itemRpe(item, dosage)
+    const workSeconds = Number(item.work_seconds ?? item.workSeconds ?? dosage?.default_work_seconds) || 0
+    const totalYards = parseTotalDistanceYards(item, dosage)
+    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+
+    if (restSeconds > 0 && restSeconds < CAPACITY_SHORT_REST_SECONDS && volume >= 12 && rpe >= CAPACITY_MIN_RPE_STRENGTH) {
+      hasHighDensity = true
+    }
+
+    if (
+      CAPACITY_CARRY_WALK_SLUGS.has(slug)
+      && restSeconds > 0
+      && restSeconds < CAPACITY_SHORT_REST_SECONDS
+      && (totalYards > CAPACITY_CARRY_MAX_YARDS || workSeconds > CAPACITY_CARRY_MAX_WORK_SECONDS)
+    ) {
+      findings.push({
+        rule_key: 'capacity_carry_fitness_distance',
+        severity: 'recommendation',
+        message: `${name}: long distance or timed carry with short rest may be Fitness / Repeatability rather than Capacity. Confirm intent.`,
+        affected_items: [name],
+        meta: { slug, total_yards: totalYards, work_seconds: workSeconds, rest_seconds: restSeconds },
+      })
+    }
+
+    if (slug === FARMER_CARRY_SLUG && CAPACITY_CARRY_FARMER_FAULT_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_carry_farmer_posture',
+        severity: 'recommendation',
+        message: `${name}: reduce load, distance, or use shorter sets when shoulder shrugging, grip slipping, or posture collapses.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === SUITCASE_CARRY_SLUG && CAPACITY_CARRY_LATERAL_LEAN_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_carry_suitcase_lean',
+        severity: 'recommendation',
+        message: `${name}: reduce load or shorten distance — the goal is resisting side bend, not leaning to survive.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === FRONT_RACK_CARRY_SLUG && CAPACITY_CARRY_RIB_FLARE_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_carry_front_rack_rib_flare',
+        severity: 'recommendation',
+        message: `${name}: reduce load, switch to goblet/bear-hug carry, or shorten distance when ribs flare, low back arches, or breath-holding appears.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === BEAR_HUG_CARRY_SLUG && CAPACITY_CARRY_FOLD_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_carry_bear_hug_fold',
+        severity: 'recommendation',
+        message: `${name}: reduce bag weight/size, elevate pickup height, or shorten distance when the athlete folds forward.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === ZERCHER_CARRY_SLUG && CAPACITY_CARRY_ZERCHER_FAULT_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_carry_zercher_elbow',
+        severity: 'recommendation',
+        message: `${name}: use bear-hug sandbag carry or front-rack carry when elbow pain, numbness, or load drift appears.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (
+      slug === OVERHEAD_CARRY_SLUG
+      && (isBeginner || isYouthAthlete || OVERHEAD_MOBILITY_PATTERN.test(watchText))
+    ) {
+      findings.push({
+        rule_key: 'capacity_carry_overhead_prerequisite',
+        severity: 'warning',
+        message: `${name}: use half-kneeling press, front-rack carry, or farmer carry first when overhead mobility or shoulder control is limited.`,
+        affected_items: [name],
+        meta: { slug, skill_level: isBeginner ? 'BEGINNER' : undefined, symptom_flags: OVERHEAD_MOBILITY_PATTERN.test(watchText) },
+      })
+    }
+
+    if (slug === OVERHEAD_CARRY_SLUG && CAPACITY_CARRY_OVERHEAD_DRIFT_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_carry_overhead_quality_stop',
+        severity: 'error',
+        message: `${name}: end overhead carry and regress to lighter hold or front-rack carry when rib flare, arm drift, or low-back arch appears.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === PALLOF_SLUG && CAPACITY_CARRY_PALLof_ROTATION_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_carry_pallof_rotation',
+        severity: 'recommendation',
+        message: `${name}: reduce resistance, shorten lever, or use Pallof hold when the torso rotates toward the anchor.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if ((slug === PALLOF_SLUG || slug === CHOP_SLUG) && CAPACITY_CARRY_ANCHOR_UNSAFE_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_carry_anchor_unsafe',
+        severity: 'error',
+        message: `${name}: do not perform band/cable trunk work without a secure anchor.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === CHOP_SLUG && CAPACITY_CARRY_CHOP_HIP_SHIFT_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_carry_chop_hip_shift',
+        severity: 'recommendation',
+        message: `${name}: reduce load/range or regress to Pallof hold when hips shift or low back rotates.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (CAPACITY_CARRY_WALK_SLUGS.has(slug) && CAPACITY_CARRY_GRIP_FAIL_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_carry_grip_not_target',
+        severity: 'recommendation',
+        message: `${name}: use straps only if grip is not the target, or reduce load/distance when grip fails before posture stimulus.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+  }
+
+  if (hasHighDensity) {
+    findings.push({
+      rule_key: 'capacity_carry_short_rest_density',
+      severity: 'warning',
+      message: 'This may be Fitness / Repeatability rather than Capacity. Confirm intent — loaded bracing needs full rest between sets.',
+      affected_items: ordered.map((o) => o.name),
+      meta: {},
+    })
+  }
+
+  return findings
+}
+
+const CAPACITY_TISSUE_SLUGS = new Set([
+  'spanish-squat-isometric',
+  'split-squat-isometric-hold',
+  COPENHAGEN_SLUG,
+  'tibialis-raise',
+  'seated-soleus-raise-bent-knee-calf-raise',
+  'wrist-forearm-capacity-series',
+])
+const SPANISH_SQUAT_ISO_SLUG = 'spanish-squat-isometric'
+const SPLIT_SQUAT_ISO_SLUG = 'split-squat-isometric-hold'
+const TIBIALIS_RAISE_SLUG = 'tibialis-raise'
+const SOLEUS_RAISE_SLUG = 'seated-soleus-raise-bent-knee-calf-raise'
+const WRIST_FOREARM_SERIES_SLUG = 'wrist-forearm-capacity-series'
+const CAPACITY_TISSUE_HAND_SUPPORT_AFTER_SLUGS = new Set([
+  ...CAPACITY_CARRY_SKILL_AFTER_SLUGS,
+  'dip-support-ring-support-hold',
+  'ring-row-trx-row',
+])
+const CAPACITY_TISSUE_ELASTIC_OUTPUT_SLUGS = new Set([
+  ...POGO_ELASTIC_SLUGS,
+  LOW_POGOS_SLUG,
+  'single-leg-pogo-hold-to-hop',
+])
+const CAPACITY_TISSUE_JUMP_OUTPUT_PATTERN = /jump|bound|hop|plyo|pogo|sprint|acceleration|fly/i
+const CAPACITY_TISSUE_SPANISH_ANCHOR_UNSAFE_PATTERN = /unsafe\s*anchor|anchor\s*fail|band\s*slip|strap\s*slip|unsecured\s*anchor|band\s*snap/i
+const CAPACITY_TISSUE_ANTERIOR_KNEE_PATTERN = /anterior\s*knee|patellar|sharp\s*knee|knee\s*pain\s*worsen|knee\s*pain\s*increase/i
+const CAPACITY_TISSUE_SPLIT_ISO_FAULT_PATTERN = /knee\s*valgus|knees?\s*cave|knees?\s*collapse|balance\s*loss|cannot\s*balance|breath\s*hold|breath-hold|holding\s*breath/i
+const CAPACITY_TISSUE_SHIN_PAIN_PATTERN = /shin\s*pain|anterior\s*shin|tibialis\s*pain|sharp\s*shin|anterior\s*ankle/i
+const CAPACITY_TISSUE_ACHILLES_PATTERN = /achilles\s*pain|calf\s*pain|achilles\s*worsen|calf\s*strain/i
+const CAPACITY_TISSUE_WRIST_STOP_PATTERN = /numbness|tingling|sharp\s*wrist|wrist\s*pain|grip\s*pain\s*worsen|thumb.?side\s*wrist/i
+const CAPACITY_TISSUE_PAIN_SUBSTITUTION_PATTERN = /knee\s*pain|groin|adductor|shin|achilles|calf|wrist|forearm|grip\s*pain/i
+const CAPACITY_TISSUE_CONSECUTIVE_GRIP_PATTERN = /consecutive\s*day|every\s*day|daily\s*grip|back.?to.?back\s*day|two\s*days?\s*in\s*a\s*row/i
+const CAPACITY_TISSUE_HIGH_TIB_VOLUME = 40
+
+/** Tissue Capacity cluster checks (cards 45–50). Pure helper for tests. */
+function analyzeCapacityTissueReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    blockMeta = [],
+    capacityBlockIndex = 0,
+    exerciseSkillLevelById = new Map(),
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const ordered = []
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug || !CAPACITY_TISSUE_SLUGS.has(slug)) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  if (ordered.length === 0) return findings
+
+  let outputAfterCapacity = false
+  let elasticOutputAfterCapacity = false
+  let jumpSprintOutputAfterCapacity = false
+  let handSupportAfterCapacity = false
+
+  for (let j = capacityBlockIndex + 1; j < blockMeta.length; j++) {
+    const key = blockMeta[j]?.phaseKey
+    if (key === OUTPUT) outputAfterCapacity = true
+    if (key === SKILL_MOVEMENT_INTELLIGENCE || key === OUTPUT) {
+      for (const blockItem of blockMeta[j]?.block?.items ?? []) {
+        const slug = exerciseSlug(blockItem, slugByExercise) ?? ''
+        const itemName = String(blockItem.exercise_name ?? blockItem.exerciseName ?? '')
+        if (CAPACITY_TISSUE_HAND_SUPPORT_AFTER_SLUGS.has(slug)) {
+          handSupportAfterCapacity = true
+        }
+        if (/ninja|rope\s*climb|ring\s*support|bar\s*support|handstand/i.test(slug) || /ninja|rope\s*climb|handstand/i.test(itemName)) {
+          handSupportAfterCapacity = true
+        }
+        if (key === OUTPUT) {
+          if (CAPACITY_TISSUE_ELASTIC_OUTPUT_SLUGS.has(slug)) elasticOutputAfterCapacity = true
+          if (CAPACITY_TISSUE_JUMP_OUTPUT_PATTERN.test(slug) || CAPACITY_TISSUE_JUMP_OUTPUT_PATTERN.test(itemName)) {
+            jumpSprintOutputAfterCapacity = true
+          }
+        }
+      }
+    }
+  }
+
+  if (outputAfterCapacity) {
+    findings.push({
+      rule_key: 'capacity_tissue_before_output',
+      severity: 'warning',
+      message:
+        'Hard tissue-capacity work may reduce sprint, jump, tumbling, or grip quality. Confirm primer vs capacity intent.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { capacity_before_output: true },
+    })
+  }
+
+  if (CAPACITY_TISSUE_PAIN_SUBSTITUTION_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'capacity_tissue_pain_substitution',
+      severity: 'recommendation',
+      message:
+        'Pain flags — substitute: anterior knee → shallow Spanish squat, box squat hold, or split squat iso; groin/adductor → adductor squeeze, side plank, adductor rockback; shin → seated toe raise or lower-volume tibialis raise; Achilles/calf → isometric calf hold or lower-range seated soleus raise; wrist/forearm → wrist ROM, light band work, handles for push support.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (/daily|every\s*day|hard\s*intensity/i.test(watchText)) {
+    findings.push({
+      rule_key: 'capacity_tissue_daily_hard',
+      severity: 'warning',
+      message: 'Daily hard tissue-capacity work can irritate tissues. Use low-intensity daily exposure only if tolerated.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { tissue_flags: true },
+    })
+  }
+
+  if (CAPACITY_TISSUE_CONSECUTIVE_GRIP_PATTERN.test(watchText)
+    && ordered.some((o) => o.slug === WRIST_FOREARM_SERIES_SLUG)) {
+    findings.push({
+      rule_key: 'capacity_tissue_grip_consecutive_days',
+      severity: 'warning',
+      message: 'Grip and forearm tissues need recovery. Reduce load, volume, or intensity.',
+      affected_items: ordered.filter((o) => o.slug === WRIST_FOREARM_SERIES_SLUG).map((o) => o.name),
+      meta: { tissue_flags: true },
+    })
+  }
+
+  if (handSupportAfterCapacity && ordered.some((o) => o.slug === WRIST_FOREARM_SERIES_SLUG)) {
+    findings.push({
+      rule_key: 'capacity_tissue_wrist_before_skill',
+      severity: 'warning',
+      message: 'Wrist/grip fatigue may compromise hand support or hanging safety.',
+      affected_items: ordered.filter((o) => o.slug === WRIST_FOREARM_SERIES_SLUG).map((o) => o.name),
+      meta: { capacity_before_skill: true },
+    })
+  }
+
+  const isYouthAthlete = ordered.some(({ exerciseId }) => {
+    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    return level === 'EARLY_STAGE' || level === 'BEGINNER'
+  })
+
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const sets = Number(item.sets ?? dosage?.default_sets) || 1
+    const reps = Number(item.reps ?? dosage?.default_reps) || 0
+    const volume = sets * (reps || 1)
+    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER' || isYouthAthlete
+
+    if (slug === SPANISH_SQUAT_ISO_SLUG && CAPACITY_TISSUE_SPANISH_ANCHOR_UNSAFE_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_tissue_spanish_anchor_unsafe',
+        severity: 'error',
+        message: `${name}: Spanish squat requires secure anchor.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === SPANISH_SQUAT_ISO_SLUG && CAPACITY_TISSUE_ANTERIOR_KNEE_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_tissue_spanish_knee_stop',
+        severity: 'warning',
+        message: `${name}: reduce depth/intensity or remove from session when anterior knee pain is sharp or worsens after exposure.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === SPLIT_SQUAT_ISO_SLUG && CAPACITY_TISSUE_SPLIT_ISO_FAULT_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_tissue_split_iso_valgus',
+        severity: 'recommendation',
+        message: `${name}: use support, reduce depth, shorten hold, or regress to split stance when knee valgus, balance loss, or breath-holding appears.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === COPENHAGEN_SLUG && isBeginner) {
+      findings.push({
+        rule_key: 'capacity_tissue_copenhagen_beginner',
+        severity: 'recommendation',
+        message: `${name}: use short-lever version or adductor squeeze before long-lever Copenhagen.`,
+        affected_items: [name],
+        meta: { slug, skill_level: 'BEGINNER' },
+      })
+    }
+
+    if (slug === COPENHAGEN_SLUG && CAPACITY_SQUAT_GROIN_PAIN_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_tissue_copenhagen_groin_stop',
+        severity: 'warning',
+        message: `${name}: end adductor loading and regress to adductor squeeze or rockback when sharp groin pain appears.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === TIBIALIS_RAISE_SLUG && CAPACITY_TISSUE_SHIN_PAIN_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_tissue_tibialis_shin_stop',
+        severity: 'warning',
+        message: `${name}: reduce range, reduce volume, or remove from session when sharp shin or anterior ankle pain appears.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (
+      slug === TIBIALIS_RAISE_SLUG
+      && jumpSprintOutputAfterCapacity
+      && volume >= CAPACITY_TISSUE_HIGH_TIB_VOLUME
+    ) {
+      findings.push({
+        rule_key: 'capacity_tissue_tibialis_before_sprint',
+        severity: 'warning',
+        message: `${name}: anterior shin fatigue may affect foot strike and lower-leg rhythm before sprint/jump Output.`,
+        affected_items: [name],
+        meta: { slug, volume, jump_output_after: true },
+      })
+    }
+
+    if (slug === SOLEUS_RAISE_SLUG && CAPACITY_TISSUE_ACHILLES_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_tissue_soleus_achilles_stop',
+        severity: 'warning',
+        message: `${name}: reduce load/range/volume and monitor response when Achilles or calf pain worsens.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === SOLEUS_RAISE_SLUG && elasticOutputAfterCapacity) {
+      findings.push({
+        rule_key: 'capacity_tissue_soleus_before_elastic',
+        severity: 'warning',
+        message: `${name}: lower-leg fatigue may compromise elastic Output when hard calf/soleus work precedes pogos, sprints, or jumps.`,
+        affected_items: [name],
+        meta: { slug, elastic_output_after: true },
+      })
+    }
+
+    if (slug === WRIST_FOREARM_SERIES_SLUG && CAPACITY_TISSUE_WRIST_STOP_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_tissue_wrist_stop',
+        severity: 'warning',
+        message: `${name}: end wrist/forearm loading and regress when numbness, tingling, sharp wrist pain, or worsening grip pain appears.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+  }
+
+  return findings
+}
+
 /** Capacity phase dose, placement, and progression checks. Pure helper for tests. */
 function analyzeCapacityReadiness(items, ctx) {
   const {
@@ -3294,16 +4465,6 @@ function analyzeCapacityReadiness(items, ctx) {
       })
     }
 
-    if (slug === COPENHAGEN_SLUG && isYouthAthlete) {
-      findings.push({
-        rule_key: 'capacity_copenhagen_beginner',
-        severity: 'recommendation',
-        message: 'Use short-lever Copenhagen or side plank adductor squeeze first.',
-        affected_items: [name],
-        meta: { slug, skill_level: 'BEGINNER' },
-      })
-    }
-
     if (slug === PULL_UP_SLUG && isYouthAthlete) {
       findings.push({
         rule_key: 'capacity_pullup_regression',
@@ -3362,17 +4523,6 @@ function analyzeCapacityReadiness(items, ctx) {
       message: 'This may be Fitness / Repeatability rather than Capacity. Confirm intent — strength work needs full rest between sets.',
       affected_items: ordered.map((o) => o.name),
       meta: {},
-    })
-  }
-
-  const tissueItems = ordered.filter(({ subrole }) => subrole === TISSUE_CAPACITY_SUBROLE)
-  if (tissueItems.length > 0 && /daily|every\s*day|hard\s*intensity/i.test(watchText)) {
-    findings.push({
-      rule_key: 'capacity_tissue_daily_hard',
-      severity: 'warning',
-      message: 'Hard tissue-capacity work needs recovery. Reduce intensity or frequency.',
-      affected_items: tissueItems.map((o) => o.name),
-      meta: { tissue_flags: true },
     })
   }
 
@@ -4521,7 +5671,39 @@ export async function validateWorkoutDraft(pool, draft) {
       exerciseSkillLevelById,
       draft,
     })
-    const allCapacityFindings = [...capacityFindings, ...squatFindings, ...hingeFindings]
+    const pushFindings = analyzeCapacityPushReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      capacityBlockIndex: i,
+      exerciseSkillLevelById,
+      draft,
+    })
+    const pullFindings = analyzeCapacityPullReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      capacityBlockIndex: i,
+      exerciseSkillLevelById,
+      draft,
+    })
+    const carryFindings = analyzeCapacityCarryReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      capacityBlockIndex: i,
+      exerciseSkillLevelById,
+      draft,
+    })
+    const tissueFindings = analyzeCapacityTissueReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      capacityBlockIndex: i,
+      exerciseSkillLevelById,
+      draft,
+    })
+    const allCapacityFindings = [...capacityFindings, ...squatFindings, ...hingeFindings, ...pushFindings, ...pullFindings, ...carryFindings, ...tissueFindings]
     if (allCapacityFindings.length > 0) {
       const capacityEdu = await pool.query(
         `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'capacity_readiness' LIMIT 1`,
@@ -4532,11 +5714,39 @@ export async function validateWorkoutDraft(pool, draft) {
       const hingeEdu = await pool.query(
         `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'capacity_hinge_readiness' LIMIT 1`,
       )
+      const pushEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'capacity_push_readiness' LIMIT 1`,
+      )
+      const pullEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'capacity_pull_readiness' LIMIT 1`,
+      )
+      const carryEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'capacity_carry_readiness' LIMIT 1`,
+      )
+      const tissueEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'capacity_tissue_readiness' LIMIT 1`,
+      )
       for (const finding of allCapacityFindings) {
         const ruleKey = String(finding.rule_key ?? '')
         const isSquatRule = ruleKey.startsWith('capacity_squat_')
         const isHingeRule = ruleKey.startsWith('capacity_hinge_')
-        const edu = isSquatRule ? squatEdu.rows[0] : isHingeRule ? hingeEdu.rows[0] : capacityEdu.rows[0]
+        const isPushRule = ruleKey.startsWith('capacity_push_')
+        const isPullRule = ruleKey.startsWith('capacity_pull_')
+        const isCarryRule = ruleKey.startsWith('capacity_carry_')
+        const isTissueRule = ruleKey.startsWith('capacity_tissue_')
+        const edu = isSquatRule
+          ? squatEdu.rows[0]
+          : isHingeRule
+            ? hingeEdu.rows[0]
+            : isPushRule
+              ? pushEdu.rows[0]
+              : isPullRule
+                ? pullEdu.rows[0]
+                : isCarryRule
+                  ? carryEdu.rows[0]
+                  : isTissueRule
+                    ? tissueEdu.rows[0]
+                    : capacityEdu.rows[0]
         const payload = {
           severity: finding.severity ?? 'warning',
           rule_key: finding.rule_key,
@@ -4546,15 +5756,70 @@ export async function validateWorkoutDraft(pool, draft) {
               ? 'Squat Capacity builds lower-body force with controlled load and full rest — not before fresh Output or as fatiguing circuits.'
               : isHingeRule
                 ? 'Hinge Capacity builds posterior-chain strength without stealing sprint, jump, or max-velocity quality earlier in the session.'
-                : 'Capacity builds force and tissue tolerance after Output — not before speed/power work or as fatiguing circuits.'),
+                : isPushRule
+                  ? 'Push Capacity builds pressing reserve without wrist, shoulder, elbow, or trunk fatigue that ruins hand-support skill quality.'
+                  : isPullRule
+                    ? 'Pull/hang/grip Capacity builds useful strength without reckless shoulder, elbow, wrist, or grip fatigue before ninja, bars, rings, or tumbling skill.'
+                    : isCarryRule
+                      ? 'Loaded-bracing Capacity builds trunk stiffness and posture under load without ugly posture survival or grip fatigue before skill work.'
+                      : isTissueRule
+                        ? 'Tissue Capacity builds durable tendons and accessory strength without irritating bottleneck tissues or stealing elastic or hand-support quality.'
+                        : 'Capacity builds force and tissue tolerance after Output — not before speed/power work or as fatiguing circuits.'),
           recommendation: edu?.programming_guidance
             ?? (isSquatRule
               ? 'Master goblet/box before front squat and RFESS; stop on groin pain in frontal-plane work; heavy slow sled is Capacity.'
               : isHingeRule
                 ? 'Master deadlift/RDL before good morning and Nordics; use slider curl before full Nordics; keep eccentric volume low before speed days.'
-                : 'Use progressive overload with full rest. Place Capacity after Output unless strength-priority session.'),
+                : isPushRule
+                  ? 'Master incline/floor push-up before pike and ring support; regress on wrist/shoulder pain; keep eccentric push volume conservative before hand-support skill.'
+                  : isPullRule
+                    ? 'Progress rows → assisted vertical → eccentrics → pull-ups → scapular → hang → climb; regress on pain; avoid grip-to-failure before skill.'
+                    : isCarryRule
+                      ? 'Master farmer/suitcase before overhead and Zercher; keep carry distance moderate with full rest; regress on lean, rib flare, or grip failure.'
+                      : isTissueRule
+                        ? 'Place tissue work after Output and main lifts unless primer intent; monitor symptoms; keep wrist/grip conservative before bars, rings, ninja, or tumbling.'
+                        : 'Use progressive overload with full rest. Place Capacity after Output unless strength-priority session.'),
           affected_items: finding.affected_items ?? [],
           related_phase: CAPACITY,
+          can_override: finding.severity !== 'error',
+          override_requires_reason: finding.severity === 'error',
+          meta: finding.meta,
+        }
+        if (finding.severity === 'error') errors.push(payload)
+        else if (finding.severity === 'recommendation') recommendations.push(payload)
+        else warnings.push(payload)
+      }
+    }
+  }
+
+  for (let i = 0; i < blockMeta.length; i++) {
+    const meta = blockMeta[i]
+    if (meta.phaseKey !== CONTROL_RESILIENCE) continue
+    const items = meta.block.items ?? []
+    const controlFindings = analyzeControlResilienceReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      controlBlockIndex: i,
+      exerciseSkillLevelById,
+      draft,
+    })
+    if (controlFindings.length > 0) {
+      const controlEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'control_resilience_readiness' LIMIT 1`,
+      )
+      for (const finding of controlFindings) {
+        const edu = controlEdu.rows[0]
+        const payload = {
+          severity: finding.severity ?? 'warning',
+          rule_key: finding.rule_key,
+          message: finding.message,
+          why: edu?.why_it_matters
+            ?? 'Control / Resilience builds precision, landing quality, balance, trunk stiffness, and tissue tolerance — not speed, power, or fatiguing circuits.',
+          recommendation: edu?.programming_guidance
+            ?? 'Use low volume, full rest, clean shapes, and regress on valgus, rib flare, balance flail, or pain. Place after Output and Capacity for hard work; light daily-safe drills can appear elsewhere.',
+          affected_items: finding.affected_items ?? [],
+          related_phase: CONTROL_RESILIENCE,
           can_override: finding.severity !== 'error',
           override_requires_reason: finding.severity === 'error',
           meta: finding.meta,
@@ -4676,4 +5941,14 @@ export {
   analyzeCapacityReadiness,
   analyzeCapacitySquatReadiness,
   analyzeCapacityHingeReadiness,
+  analyzeCapacityPushReadiness,
+  analyzeCapacityPullReadiness,
+  analyzeCapacityCarryReadiness,
+  analyzeCapacityTissueReadiness,
+  analyzeControlResilienceReadiness,
+  analyzeControlLandingReadiness,
+  analyzeControlSingleLegReadiness,
+  analyzeControlTrunkReadiness,
+  analyzeControlSlowEccentricReadiness,
+  analyzeControlHandSupportReadiness,
 }

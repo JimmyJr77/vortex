@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { parseMentions, resolveTwilioCredentials } from '../criticalAlerts.js'
+import { parseMentions, resolveTwilioCredentials, shouldSendCriticalSms } from '../criticalAlerts.js'
 
 describe('criticalAlerts', () => {
   it('parses user and member mention tokens', () => {
@@ -45,5 +45,13 @@ describe('criticalAlerts', () => {
       }).ok,
       false,
     )
+  })
+
+  it('gates SMS on sender flag and recipient opt-in', () => {
+    const pref = { allow_critical_sms: true, phone_e164: '+15551234567' }
+    assert.equal(shouldSendCriticalSms(false, pref), false)
+    assert.equal(shouldSendCriticalSms(true, pref), true)
+    assert.equal(shouldSendCriticalSms(true, { allow_critical_sms: false, phone_e164: '+15551234567' }), false)
+    assert.equal(shouldSendCriticalSms(true, { allow_critical_sms: true, phone_e164: null }), false)
   })
 })

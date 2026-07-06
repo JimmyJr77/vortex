@@ -26,6 +26,16 @@ import {
   analyzeCapacityReadiness,
   analyzeCapacitySquatReadiness,
   analyzeCapacityHingeReadiness,
+  analyzeCapacityPushReadiness,
+  analyzeCapacityPullReadiness,
+  analyzeCapacityCarryReadiness,
+  analyzeCapacityTissueReadiness,
+  analyzeControlResilienceReadiness,
+  analyzeControlLandingReadiness,
+  analyzeControlSingleLegReadiness,
+  analyzeControlTrunkReadiness,
+  analyzeControlSlowEccentricReadiness,
+  analyzeControlHandSupportReadiness,
 } from '../workoutValidation.js'
 
 describe('workoutValidation helpers', () => {
@@ -1270,5 +1280,863 @@ describe('analyzeCapacityHingeReadiness', () => {
       },
     )
     assert.ok(findings.some((f) => f.rule_key === 'capacity_hinge_nordic_volume'))
+  })
+})
+
+describe('analyzeCapacityPushReadiness', () => {
+  it('warns when push Capacity precedes hand-support skill', () => {
+    const blockMeta = [
+      { phaseKey: 'capacity', block: {} },
+      { phaseKey: 'skill_movement_intelligence', block: { items: [{ exercise_id: 9, exercise_name: 'Cartwheel' }] } },
+    ]
+    const findings = analyzeCapacityPushReadiness(
+      [{ exercise_id: 1, exercise_name: 'Push-Up' }],
+      {
+        slugByExercise: new Map([
+          ['1', 'push-up'],
+          ['9', 'cartwheel'],
+        ]),
+        dosageByExercise: new Map(),
+        blockMeta,
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_push_before_hand_support'))
+  })
+
+  it('warns when pike push-up lacks push-up foundation', () => {
+    const findings = analyzeCapacityPushReadiness(
+      [{ exercise_id: 1, exercise_name: 'Pike Push-Up / Box Pike Push-Up' }],
+      {
+        slugByExercise: new Map([['1', 'pike-push-up-box-pike-push-up']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'capacity', block: {} }],
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_push_pike_prerequisite'))
+  })
+
+  it('stops push-up set on quality breakdown', () => {
+    const findings = analyzeCapacityPushReadiness(
+      [{ exercise_id: 2, exercise_name: 'Push-Up' }],
+      {
+        slugByExercise: new Map([['2', 'push-up']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['rep quality breaks on last two reps'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_push_pushup_quality_stop'))
+  })
+
+  it('recommends incline regression on incline sag', () => {
+    const findings = analyzeCapacityPushReadiness(
+      [{ exercise_id: 3, exercise_name: 'Incline Push-Up' }],
+      {
+        slugByExercise: new Map([['3', 'incline-push-up']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['hips sag on last rep'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_push_incline_sag'))
+  })
+
+  it('warns on ring support faults', () => {
+    const findings = analyzeCapacityPushReadiness(
+      [{ exercise_id: 4, exercise_name: 'Dip Support / Ring Support Hold' }],
+      {
+        slugByExercise: new Map([['4', 'dip-support-ring-support-hold']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['rings drift wide and shoulders shrug'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_push_ring_support_stop'))
+  })
+
+  it('warns on short-rest high-density pressing', () => {
+    const findings = analyzeCapacityPushReadiness(
+      [{ exercise_id: 5, exercise_name: 'Push-Up', sets: 4, reps: 12, rest_seconds: 30 }],
+      {
+        slugByExercise: new Map([['5', 'push-up']]),
+        dosageByExercise: new Map([['5', { default_sets: 3, default_reps: 8, default_rest_seconds: 60, default_rpe_min: 6, default_rpe_max: 8 }]]),
+        blockMeta: [{ phaseKey: 'capacity', block: {} }],
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_push_short_rest_density'))
+  })
+})
+
+describe('analyzeCapacityPullReadiness', () => {
+  it('warns when pull Capacity precedes skill work', () => {
+    const blockMeta = [
+      { phaseKey: 'capacity', block: {} },
+      { phaseKey: 'skill_movement_intelligence', block: { items: [{ exercise_id: 9 }] } },
+    ]
+    const findings = analyzeCapacityPullReadiness(
+      [{ exercise_id: 1, exercise_name: 'Ring Row / TRX Row' }],
+      {
+        slugByExercise: new Map([['1', 'ring-row-trx-row']]),
+        dosageByExercise: new Map(),
+        blockMeta,
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_pull_before_skill'))
+  })
+
+  it('warns when strict pull-up lacks horizontal foundation', () => {
+    const findings = analyzeCapacityPullReadiness(
+      [{ exercise_id: 2, exercise_name: 'Pull-Up / Chin-Up' }],
+      {
+        slugByExercise: new Map([['2', 'pull-up-chin-up']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'capacity', block: {} }],
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_pull_pullup_prerequisite'))
+  })
+
+  it('errors on unsafe inverted row bar setup', () => {
+    const findings = analyzeCapacityPullReadiness(
+      [{ exercise_id: 3, exercise_name: 'Inverted Row' }],
+      {
+        slugByExercise: new Map([['3', 'inverted-row']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['rack setup unstable'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_pull_inverted_row_unsafe' && f.severity === 'error'))
+  })
+
+  it('warns on eccentric pull-up for beginner athlete', () => {
+    const findings = analyzeCapacityPullReadiness(
+      [{ exercise_id: 4, exercise_name: 'Eccentric Pull-Up / Chin-Up Negative' }],
+      {
+        slugByExercise: new Map([['4', 'eccentric-pull-up-chin-up-negative']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        exerciseSkillLevelById: new Map([['4', 'BEGINNER']]),
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_pull_eccentric_beginner'))
+  })
+
+  it('warns on scapular pull-up elbow bend', () => {
+    const findings = analyzeCapacityPullReadiness(
+      [{ exercise_id: 5, exercise_name: 'Scapular Pull-Up' }],
+      {
+        slugByExercise: new Map([['5', 'scapular-pull-up']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['elbow bend every rep'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_pull_scapular_elbow'))
+  })
+
+  it('errors on rope climb without safe setup', () => {
+    const findings = analyzeCapacityPullReadiness(
+      [{ exercise_id: 6, exercise_name: 'Rope Climb Foot-Lock Pull / Towel Pull' }],
+      {
+        slugByExercise: new Map([['6', 'rope-climb-foot-lock-pull-towel-pull']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['no mat and no supervision for beginner rope'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_pull_rope_setup' && f.severity === 'error'))
+  })
+})
+
+describe('analyzeCapacityCarryReadiness', () => {
+  it('warns when overhead carry follows limited overhead mobility', () => {
+    const findings = analyzeCapacityCarryReadiness(
+      [{ exercise_id: 1, exercise_name: 'Overhead Carry' }],
+      {
+        slugByExercise: new Map([['1', 'overhead-carry']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'capacity', block: {} }],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['overhead mobility restriction on left side'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_carry_overhead_prerequisite'))
+  })
+
+  it('recommends when suitcase carry shows lateral lean', () => {
+    const findings = analyzeCapacityCarryReadiness(
+      [{ exercise_id: 2, exercise_name: 'Suitcase Carry' }],
+      {
+        slugByExercise: new Map([['2', 'suitcase-carry']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['lateral lean toward loaded side'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_carry_suitcase_lean'))
+  })
+
+  it('errors on unsafe band anchor for Pallof press', () => {
+    const findings = analyzeCapacityCarryReadiness(
+      [{ exercise_id: 3, exercise_name: 'Pallof Press / Pallof Hold' }],
+      {
+        slugByExercise: new Map([['3', 'pallof-press-pallof-hold']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['unsafe anchor — band slip risk'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_carry_anchor_unsafe' && f.severity === 'error'))
+  })
+
+  it('recommends when farmer carry distance exceeds 40 yd with short rest', () => {
+    const findings = analyzeCapacityCarryReadiness(
+      [{ exercise_id: 4, exercise_name: 'Farmer Carry', rest_seconds: 30, distance: '50 yards' }],
+      {
+        slugByExercise: new Map([['4', 'farmer-carry']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_carry_fitness_distance'))
+  })
+
+  it('warns when carry Capacity precedes tumbling skill work', () => {
+    const blockMeta = [
+      { phaseKey: 'capacity', block: {} },
+      { phaseKey: 'skill_movement_intelligence', block: { items: [{ exercise_id: 9, exercise_name: 'Forward Roll' }] } },
+    ]
+    const findings = analyzeCapacityCarryReadiness(
+      [{ exercise_id: 5, exercise_name: 'Farmer Carry' }],
+      {
+        slugByExercise: new Map([
+          ['5', 'farmer-carry'],
+          ['9', 'forward-roll-progression'],
+        ]),
+        dosageByExercise: new Map(),
+        blockMeta,
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_carry_before_skill'))
+  })
+})
+
+describe('analyzeCapacityTissueReadiness', () => {
+  it('errors when Spanish squat has unsafe band anchor', () => {
+    const findings = analyzeCapacityTissueReadiness(
+      [{ exercise_id: 1, exercise_name: 'Spanish Squat Isometric' }],
+      {
+        slugByExercise: new Map([['1', 'spanish-squat-isometric']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['unsafe anchor — band slip risk'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_tissue_spanish_anchor_unsafe' && f.severity === 'error'))
+  })
+
+  it('warns when tissue Capacity precedes Output', () => {
+    const blockMeta = [
+      { phaseKey: 'capacity', block: {} },
+      { phaseKey: 'output', block: {} },
+    ]
+    const findings = analyzeCapacityTissueReadiness(
+      [{ exercise_id: 2, exercise_name: 'Tibialis Raise' }],
+      {
+        slugByExercise: new Map([['2', 'tibialis-raise']]),
+        dosageByExercise: new Map(),
+        blockMeta,
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_tissue_before_output'))
+  })
+
+  it('warns on high-volume tibialis raise before sprint Output', () => {
+    const blockMeta = [
+      { phaseKey: 'capacity', block: {} },
+      { phaseKey: 'output', block: { items: [{ exercise_id: 9, exercise_name: '30m Sprint' }] } },
+    ]
+    const findings = analyzeCapacityTissueReadiness(
+      [{ exercise_id: 3, exercise_name: 'Tibialis Raise', sets: 4, reps: 20 }],
+      {
+        slugByExercise: new Map([
+          ['3', 'tibialis-raise'],
+          ['9', '30m-sprint'],
+        ]),
+        dosageByExercise: new Map(),
+        blockMeta,
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_tissue_tibialis_before_sprint'))
+  })
+
+  it('recommends Copenhagen regression for beginner athletes', () => {
+    const findings = analyzeCapacityTissueReadiness(
+      [{ exercise_id: 4, exercise_name: 'Copenhagen Plank — Short Lever' }],
+      {
+        slugByExercise: new Map([['4', 'copenhagen-plank-short-lever']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        exerciseSkillLevelById: new Map([['4', 'BEGINNER']]),
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_tissue_copenhagen_beginner'))
+  })
+
+  it('warns when wrist series precedes handstand skill work', () => {
+    const blockMeta = [
+      { phaseKey: 'capacity', block: {} },
+      { phaseKey: 'skill_movement_intelligence', block: { items: [{ exercise_id: 8, exercise_name: 'Handstand Hold' }] } },
+    ]
+    const findings = analyzeCapacityTissueReadiness(
+      [{ exercise_id: 5, exercise_name: 'Wrist / Forearm Capacity Series' }],
+      {
+        slugByExercise: new Map([
+          ['5', 'wrist-forearm-capacity-series'],
+          ['8', 'handstand-hold'],
+        ]),
+        dosageByExercise: new Map(),
+        blockMeta,
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_tissue_wrist_before_skill'))
+  })
+
+  it('recommends pain substitutions for tissue cluster', () => {
+    const findings = analyzeCapacityTissueReadiness(
+      [{ exercise_id: 6, exercise_name: 'Split Squat Isometric Hold' }],
+      {
+        slugByExercise: new Map([['6', 'split-squat-isometric-hold']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['groin pain on loaded side'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_tissue_pain_substitution'))
+  })
+})
+
+describe('analyzeControlResilienceReadiness', () => {
+  it('warns when hard Control precedes Output', () => {
+    const blockMeta = [
+      { phaseKey: 'control_resilience', block: {} },
+      { phaseKey: 'output', block: {} },
+    ]
+    const findings = analyzeControlResilienceReadiness(
+      [{ exercise_id: 1, exercise_name: 'Snap-Down to Stick — Control Version' }],
+      {
+        slugByExercise: new Map([['1', 'snap-down-to-stick-control-version']]),
+        dosageByExercise: new Map(),
+        blockMeta,
+        controlBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_before_output'))
+  })
+
+  it('recommends bilateral landing regression on knee valgus watch text', () => {
+    const findings = analyzeControlResilienceReadiness(
+      [{ exercise_id: 2, exercise_name: 'Drop Squat to Stick' }],
+      {
+        slugByExercise: new Map([['2', 'drop-squat-to-stick']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        controlBlockIndex: 0,
+        draft: { watch_points: ['knee valgus on landing'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_landing_valgus'))
+  })
+
+  it('warns on single-leg hop without balance foundation', () => {
+    const findings = analyzeControlResilienceReadiness(
+      [{ exercise_id: 3, exercise_name: 'Single-Leg Hop to Stick — Low Amplitude' }],
+      {
+        slugByExercise: new Map([['3', 'single-leg-hop-to-stick-low-amplitude']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        controlBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_sl_hop_prerequisite'))
+  })
+
+  it('warns on short-rest high-density trunk block', () => {
+    const findings = analyzeControlResilienceReadiness(
+      [{ exercise_id: 4, exercise_name: 'Bear Plank Shoulder Tap', sets: 4, reps: 12, rest_seconds: 30, rpe: 7 }],
+      {
+        slugByExercise: new Map([['4', 'bear-plank-shoulder-tap']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        controlBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_short_rest_density'))
+  })
+
+  it('warns on wall handstand for beginner athletes', () => {
+    const findings = analyzeControlResilienceReadiness(
+      [{ exercise_id: 5, exercise_name: 'Wall Handstand Line Hold' }],
+      {
+        slugByExercise: new Map([['5', 'wall-handstand-line-hold']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        controlBlockIndex: 0,
+        exerciseSkillLevelById: new Map([['5', 'BEGINNER']]),
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_handstand_prerequisite'))
+  })
+})
+
+describe('analyzeControlLandingReadiness', () => {
+  it('warns when snap-down rebounds instead of sticking', () => {
+    const findings = analyzeControlLandingReadiness(
+      [{ exercise_id: 1, exercise_name: 'Snap-Down to Stick — Control Version' }],
+      {
+        slugByExercise: new Map([['1', 'snap-down-to-stick-control-version']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        controlBlockIndex: 0,
+        draft: { watch_points: ['athlete rebounded instead of sticking'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_landing_snapdown_rebound'))
+  })
+
+  it('recommends quieter contact on loud landing watch text', () => {
+    const findings = analyzeControlLandingReadiness(
+      [{ exercise_id: 2, exercise_name: 'Drop Squat to Stick' }],
+      {
+        slugByExercise: new Map([['2', 'drop-squat-to-stick']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        controlBlockIndex: 0,
+        draft: { watch_points: ['loud landing on every rep'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_landing_loud_contact'))
+  })
+
+  it('warns when stick is not owned due to extra steps', () => {
+    const findings = analyzeControlLandingReadiness(
+      [{ exercise_id: 3, exercise_name: 'Forward Hop to Stick — Low Amplitude' }],
+      {
+        slugByExercise: new Map([['3', 'forward-hop-to-stick-low-amplitude']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        controlBlockIndex: 0,
+        draft: { watch_points: ['extra step after landing'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_landing_extra_steps'))
+  })
+
+  it('errors when backpedal lane is unsafe', () => {
+    const findings = analyzeControlLandingReadiness(
+      [{ exercise_id: 4, exercise_name: 'Backpedal to Stick' }],
+      {
+        slugByExercise: new Map([['4', 'backpedal-to-stick']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        controlBlockIndex: 0,
+        draft: { watch_points: ['no clear lane behind athlete'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_landing_backpedal_lane' && f.severity === 'error'))
+  })
+
+  it('recommends shuffle mechanics regression on foot crossing', () => {
+    const findings = analyzeControlLandingReadiness(
+      [{ exercise_id: 5, exercise_name: 'Lateral Shuffle to Stick' }],
+      {
+        slugByExercise: new Map([['5', 'lateral-shuffle-to-stick']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        controlBlockIndex: 0,
+        draft: { watch_points: ['feet cross during shuffle'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_landing_shuffle_cross'))
+  })
+
+  it('warns when box step-off height causes uncontrolled landing', () => {
+    const findings = analyzeControlLandingReadiness(
+      [{ exercise_id: 6, exercise_name: 'Low Box Step-Off to Stick' }],
+      {
+        slugByExercise: new Map([['6', 'low-box-step-off-to-stick']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        controlBlockIndex: 0,
+        draft: { watch_points: ['box too high — loud step-off'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_landing_box_height'))
+  })
+})
+
+describe('analyzeControlSingleLegReadiness', () => {
+  function ctx(id, slug, watchPoints, extras = {}) {
+    return {
+      slugByExercise: new Map([[String(id), slug]]),
+      dosageByExercise: extras.dosageByExercise ?? new Map(),
+      draft: { watch_points: Array.isArray(watchPoints) ? watchPoints : [watchPoints] },
+      ...extras,
+    }
+  }
+
+  it('recommends support when single-leg balance cannot be held for 10 seconds', () => {
+    const findings = analyzeControlSingleLegReadiness(
+      [{ exercise_id: 11, exercise_name: 'Single-Leg Balance Hold — Tripod Foot' }],
+      ctx(11, 'single-leg-balance-hold-tripod-foot', 'athlete cannot hold single-leg balance under 10 seconds'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_sl_static_hold_fail'))
+  })
+
+  it('warns when reach-clock transfers weight to the reaching foot', () => {
+    const findings = analyzeControlSingleLegReadiness(
+      [{ exercise_id: 12, exercise_name: 'Single-Leg Balance Reach Clock — Control Version' }],
+      ctx(12, 'single-leg-balance-reach-clock-control', 'reaching foot takes bodyweight on every tap'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_sl_reach_weight_transfer'))
+  })
+
+  it('warns when Y-Balance chases distance before control', () => {
+    const findings = analyzeControlSingleLegReadiness(
+      [{ exercise_id: 13, exercise_name: 'Y-Balance Reach / Star Reach' }],
+      ctx(13, 'y-balance-reach-star-reach', 'athlete is chasing max distance before control'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_sl_ybalance_distance_chase'))
+  })
+
+  it('warns when hip airplane appears before hinge control', () => {
+    const findings = analyzeControlSingleLegReadiness(
+      [{ exercise_id: 15, exercise_name: 'Hip Airplane — Supported' }],
+      ctx(15, 'hip-airplane-supported', 'clean reps'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_sl_airplane_prerequisite'))
+  })
+
+  it('does not warn on hip airplane prerequisite when single-leg RDL reach appears first', () => {
+    const findings = analyzeControlSingleLegReadiness(
+      [
+        { exercise_id: 14, exercise_name: 'Single-Leg RDL Reach — Bodyweight Control' },
+        { exercise_id: 15, exercise_name: 'Hip Airplane — Supported' },
+      ],
+      {
+        slugByExercise: new Map([
+          ['14', 'single-leg-rdl-reach-bodyweight-control'],
+          ['15', 'hip-airplane-supported'],
+        ]),
+        dosageByExercise: new Map(),
+        draft: { watch_points: ['clean reps'] },
+      },
+    )
+    assert.ok(!findings.some((f) => f.rule_key === 'control_resilience_sl_airplane_prerequisite'))
+  })
+
+  it('warns when step-down uses free-foot push-off', () => {
+    const findings = analyzeControlSingleLegReadiness(
+      [{ exercise_id: 16, exercise_name: 'Step-Down to Hover' }],
+      ctx(16, 'step-down-to-hover', 'free foot push-off helps every rep'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_sl_stepdown_pushoff'))
+  })
+
+  it('stops perturbation balance when disturbance is too strong', () => {
+    const findings = analyzeControlSingleLegReadiness(
+      [{ exercise_id: 19, exercise_name: 'Perturbation Single-Leg Balance' }],
+      ctx(19, 'perturbation-single-leg-balance', 'perturbation too strong and athlete steps every rep'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_sl_perturbation_too_strong' && f.severity === 'error'))
+  })
+
+  it('requires raised beam safety checks', () => {
+    const findings = analyzeControlSingleLegReadiness(
+      [{ exercise_id: 20, exercise_name: 'Beam / Line Balance Freeze' }],
+      ctx(20, 'beam-line-balance-freeze', 'raised beam with no mat and no fall clearance'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_sl_beam_safety' && f.severity === 'error'))
+  })
+
+  it('stops single-leg control work when joint or back pain appears', () => {
+    const findings = analyzeControlSingleLegReadiness(
+      [{ exercise_id: 14, exercise_name: 'Single-Leg RDL Reach — Bodyweight Control' }],
+      ctx(14, 'single-leg-rdl-reach-bodyweight-control', 'low-back pain during the hinge'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_sl_pain_stop' && f.severity === 'error'))
+  })
+})
+
+describe('analyzeControlTrunkReadiness', () => {
+  function ctx(id, slug, watchPoints, extras = {}) {
+    return {
+      slugByExercise: new Map([[String(id), slug]]),
+      dosageByExercise: extras.dosageByExercise ?? new Map(),
+      exerciseSkillLevelById: extras.exerciseSkillLevelById ?? new Map(),
+      draft: { watch_points: Array.isArray(watchPoints) ? watchPoints : [watchPoints] },
+      ...extras,
+    }
+  }
+
+  it('recommends shorter range when dead bug causes lumbar arching', () => {
+    const findings = analyzeControlTrunkReadiness(
+      [{ exercise_id: 21, exercise_name: 'Dead Bug Heel Tap / Dead Bug Progression' }],
+      ctx(21, 'dead-bug-heel-tap-control-progression', 'low back arches as heel lowers'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_trunk_dead_bug_arch'))
+  })
+
+  it('recommends lighter Pallof when torso rotates toward anchor', () => {
+    const findings = analyzeControlTrunkReadiness(
+      [{ exercise_id: 29, exercise_name: 'Pallof Press Iso Hold' }],
+      ctx(29, 'pallof-press-iso-hold', 'torso rotates toward anchor on every rep'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_trunk_pallof_rotation'))
+  })
+
+  it('errors when band anchor is unsafe', () => {
+    const findings = analyzeControlTrunkReadiness(
+      [{ exercise_id: 29, exercise_name: 'Pallof Press Iso Hold' }],
+      ctx(29, 'pallof-press-iso-hold', 'band anchor unsafe'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_trunk_unsafe_anchor' && f.severity === 'error'))
+  })
+
+  it('recommends widening base when bear shoulder tap shows hip rotation', () => {
+    const findings = analyzeControlTrunkReadiness(
+      [{ exercise_id: 27, exercise_name: 'Bear Plank Shoulder Tap' }],
+      ctx(27, 'bear-plank-shoulder-tap', 'hips twist side to side on every tap'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_trunk_bear_tap_rotation'))
+  })
+
+  it('warns when trunk drill is programmed like a fatigue circuit', () => {
+    const findings = analyzeControlTrunkReadiness(
+      [{ exercise_id: 27, exercise_name: 'Bear Plank Shoulder Tap', sets: 3, reps: 5, rest_seconds: 30, rpe: 7 }],
+      ctx(27, 'bear-plank-shoulder-tap', 'quality still good', {
+        dosageByExercise: new Map([['27', { default_rest_seconds: 30, default_reps: 5, default_rpe_max: 7 }]]),
+      }),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_trunk_fitness_density'))
+  })
+
+  it('recommends trunk substitutions when back pain appears', () => {
+    const findings = analyzeControlTrunkReadiness(
+      [{ exercise_id: 24, exercise_name: 'Front Plank / Long-Lever Plank' }],
+      ctx(24, 'front-plank-long-lever-plank', 'low-back pain during hold'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_trunk_symptom_substitution'))
+  })
+})
+
+describe('analyzeControlSlowEccentricReadiness', () => {
+  function ctx(id, slug, watchPoints, extras = {}) {
+    return {
+      slugByExercise: new Map([[String(id), slug]]),
+      dosageByExercise: extras.dosageByExercise ?? new Map(),
+      exerciseSkillLevelById: extras.exerciseSkillLevelById ?? new Map(),
+      blockMeta: extras.blockMeta ?? [],
+      controlBlockIndex: extras.controlBlockIndex ?? 0,
+      draft: { watch_points: Array.isArray(watchPoints) ? watchPoints : [watchPoints] },
+      ...extras,
+    }
+  }
+
+  it('recommends split squat regress when knee valgus appears', () => {
+    const findings = analyzeControlSlowEccentricReadiness(
+      [{ exercise_id: 41, exercise_name: 'Split Squat Eccentric to Pause' }],
+      ctx(41, 'split-squat-eccentric-to-pause', 'knee valgus on descent'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_slow_ecc_split_valgus'))
+  })
+
+  it('errors on lateral lunge when groin pain appears', () => {
+    const findings = analyzeControlSlowEccentricReadiness(
+      [{ exercise_id: 42, exercise_name: 'Isometric Lateral Lunge Hold' }],
+      ctx(42, 'isometric-lateral-lunge-hold', 'groin pain in bottom hold'),
+    )
+    const hit = findings.find((f) => f.rule_key === 'control_resilience_slow_ecc_lateral_groin_stop')
+    assert.ok(hit)
+    assert.equal(hit.severity, 'error')
+  })
+
+  it('recommends slider regress when hip drops', () => {
+    const findings = analyzeControlSlowEccentricReadiness(
+      [{ exercise_id: 46, exercise_name: 'Slider Hamstring Eccentric Slow Lower' }],
+      ctx(46, 'slider-hamstring-eccentric-slow-lower', 'hip drop on every rep'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_slow_ecc_slider_hip_drop'))
+  })
+
+  it('errors on Nordic lean when ankle anchor is unsafe', () => {
+    const findings = analyzeControlSlowEccentricReadiness(
+      [{ exercise_id: 50, exercise_name: 'Nordic Lean Isometric Partial Range' }],
+      ctx(50, 'nordic-lean-isometric-partial-range', 'unsafe ankle anchor, feet slip'),
+    )
+    const hit = findings.find((f) => f.rule_key === 'control_resilience_slow_ecc_nordic_unsafe_anchor')
+    assert.ok(hit)
+    assert.equal(hit.severity, 'error')
+  })
+
+  it('warns on Nordic lean for beginner athletes', () => {
+    const findings = analyzeControlSlowEccentricReadiness(
+      [{ exercise_id: 50, exercise_name: 'Nordic Lean Isometric Partial Range' }],
+      ctx(50, 'nordic-lean-isometric-partial-range', 'quality looks ok', {
+        exerciseSkillLevelById: new Map([['50', 'BEGINNER']]),
+      }),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_slow_ecc_nordic_beginner'))
+  })
+
+  it('warns on short rest high-volume joint drill density', () => {
+    const findings = analyzeControlSlowEccentricReadiness(
+      [{ exercise_id: 41, exercise_name: 'Split Squat Eccentric to Pause', sets: 4, reps: 8, rest_seconds: 30, rpe: 7 }],
+      ctx(41, 'split-squat-eccentric-to-pause', 'quality still good', {
+        dosageByExercise: new Map([['41', { default_rest_seconds: 30, default_reps: 8, default_rpe_max: 7 }]]),
+      }),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_slow_ecc_fitness_density'))
+  })
+})
+
+describe('analyzeControlHandSupportReadiness', () => {
+  function ctx(id, slug, watchPoints, extras = {}) {
+    return {
+      slugByExercise: new Map([[String(id), slug]]),
+      dosageByExercise: extras.dosageByExercise ?? new Map(),
+      exerciseSkillLevelById: extras.exerciseSkillLevelById ?? new Map(),
+      blockMeta: extras.blockMeta ?? [],
+      controlBlockIndex: extras.controlBlockIndex ?? 0,
+      draft: { watch_points: Array.isArray(watchPoints) ? watchPoints : [watchPoints] },
+      ...extras,
+    }
+  }
+
+  it('warns when scapular push-up shows elbow bend', () => {
+    const findings = analyzeControlHandSupportReadiness(
+      [{ exercise_id: 31, exercise_name: 'Quadruped Scapular Push-Up Hold' }],
+      ctx(31, 'quadruped-scapular-push-up-hold', 'elbows bend on every rep'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_hs_scapular_elbow_bend'))
+  })
+
+  it('recommends depression when prone Y-T-W shows shoulder shrug', () => {
+    const findings = analyzeControlHandSupportReadiness(
+      [{ exercise_id: 32, exercise_name: 'Prone Y-T-W Isometric Series' }],
+      ctx(32, 'prone-y-t-w-isometric-series', 'shoulders shrug into ears'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_hs_ytw_shrug'))
+  })
+
+  it('recommends wider base when tall plank shoulder tap shows hip rotation', () => {
+    const findings = analyzeControlHandSupportReadiness(
+      [{ exercise_id: 33, exercise_name: 'Tall Plank Shoulder Tap' }],
+      ctx(33, 'tall-plank-shoulder-tap', 'hips twist on every tap'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_hs_plank_tap_rotation'))
+  })
+
+  it('warns when bear crawl is programmed like conditioning', () => {
+    const findings = analyzeControlHandSupportReadiness(
+      [{ exercise_id: 34, exercise_name: 'Slow Bear Crawl' }],
+      ctx(34, 'slow-bear-crawl', 'fast crawl circuit with short rest'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_hs_bear_crawl_fitness'))
+  })
+
+  it('stops crab hold when shoulder pinching appears', () => {
+    const findings = analyzeControlHandSupportReadiness(
+      [{ exercise_id: 35, exercise_name: 'Crab / Reverse Tabletop Hold' }],
+      ctx(35, 'crab-reverse-tabletop-hold', 'shoulder pinching in extension'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_hs_crab_pinch_stop' && f.severity === 'error'))
+  })
+
+  it('errors when wall handstand has no safe exit', () => {
+    const findings = analyzeControlHandSupportReadiness(
+      [{ exercise_id: 36, exercise_name: 'Wall Handstand Line Hold' }],
+      ctx(36, 'wall-handstand-line-hold', 'no safe exit plan'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_hs_no_safe_exit' && f.severity === 'error'))
+  })
+
+  it('warns when wall handstand shrug appears before line hold', () => {
+    const findings = analyzeControlHandSupportReadiness(
+      [
+        { exercise_id: 37, exercise_name: 'Wall Handstand Shoulder Shrug' },
+        { exercise_id: 36, exercise_name: 'Wall Handstand Line Hold' },
+      ],
+      {
+        slugByExercise: new Map([
+          ['37', 'wall-handstand-shoulder-shrug'],
+          ['36', 'wall-handstand-line-hold'],
+        ]),
+        dosageByExercise: new Map(),
+        draft: { watch_points: ['clean reps'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_hs_shrug_prerequisite'))
+  })
+
+  it('stops wall walk when collapse appears', () => {
+    const findings = analyzeControlHandSupportReadiness(
+      [{ exercise_id: 38, exercise_name: 'Wall Walk Negative' }],
+      ctx(38, 'wall-walk-negative-controlled-wall-walk-down', 'uncontrolled fall from wall'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_hs_wall_walk_collapse_stop' && f.severity === 'error'))
+  })
+
+  it('recommends regress when ring support drifts', () => {
+    const findings = analyzeControlHandSupportReadiness(
+      [{ exercise_id: 39, exercise_name: 'Ring Support Hold — Assisted Control' }],
+      ctx(39, 'ring-support-hold-assisted-control', 'rings drift wide'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_hs_ring_support_regress'))
+  })
+
+  it('stops wrist lean on sharp wrist pain', () => {
+    const findings = analyzeControlHandSupportReadiness(
+      [{ exercise_id: 40, exercise_name: 'Wrist Lean / Wrist Support Rock Hold' }],
+      ctx(40, 'wrist-lean-isometric-wrist-support-rock-hold', 'sharp wrist pain thumb-side'),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_hs_wrist_sharp_stop' && f.severity === 'error'))
+  })
+
+  it('warns when hand-support control precedes skill block', () => {
+    const findings = analyzeControlHandSupportReadiness(
+      [{ exercise_id: 36, exercise_name: 'Wall Handstand Line Hold' }],
+      ctx(36, 'wall-handstand-line-hold', 'clean holds', {
+        blockMeta: [
+          { phaseKey: 'control_resilience', block: {} },
+          { phaseKey: 'skill_movement_intelligence', block: {} },
+        ],
+        controlBlockIndex: 0,
+      }),
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'control_resilience_hs_before_skill'))
   })
 })

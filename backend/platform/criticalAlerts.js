@@ -145,7 +145,17 @@ async function sendSmsStub({ phone, body }) {
   }
 }
 
-export async function sendCriticalMessageAlerts(pool, { thread, message, createInAppNotification, sendEmail }) {
+export function shouldSendCriticalSms(sendCriticalSms, pref) {
+  return Boolean(sendCriticalSms && pref?.allow_critical_sms && pref?.phone_e164)
+}
+
+export async function sendCriticalMessageAlerts(pool, {
+  thread,
+  message,
+  createInAppNotification,
+  sendEmail,
+  sendCriticalSms = false,
+}) {
   if (!message?.is_critical) return { skipped: true, reason: 'not_critical' }
 
   const facilityId = thread.facility_id
@@ -184,7 +194,7 @@ export async function sendCriticalMessageAlerts(pool, { thread, message, createI
         }).catch(() => {})
         results.email += 1
       }
-      if (pref?.allow_critical_sms && pref.phone_e164) {
+      if (shouldSendCriticalSms(sendCriticalSms, pref)) {
         const sms = await sendSmsStub({ phone: pref.phone_e164, body: `[Critical] ${title}: ${preview}` })
         if (sms.sent) results.sms += 1
       }
@@ -211,7 +221,7 @@ export async function sendCriticalMessageAlerts(pool, { thread, message, createI
         }).catch(() => {})
         results.email += 1
       }
-      if (pref?.allow_critical_sms && pref.phone_e164) {
+      if (shouldSendCriticalSms(sendCriticalSms, pref)) {
         const sms = await sendSmsStub({ phone: pref.phone_e164, body: `[Critical] ${title}: ${preview}` })
         if (sms.sent) results.sms += 1
       }

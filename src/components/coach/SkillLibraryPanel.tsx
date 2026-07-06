@@ -8,6 +8,7 @@ import { exportSkills, type LibraryExportFormat } from '../../coach/libraryExpor
 import { EVALUATION_LABELS, formatSkillMetric } from '../../coach/skillCard'
 import SkillDetailModal from './SkillDetailModal'
 import LibraryCardMenu from './LibraryCardMenu'
+import LibraryCard from './LibraryCard'
 import LibraryExportControls from './LibraryExportControls'
 
 interface FilterState {
@@ -156,24 +157,22 @@ export default function SkillLibraryPanel() {
       {loading ? (
         <div className="flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading skills...</div>
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid items-start gap-3 md:grid-cols-2 lg:grid-cols-3">
           {skills.map((sk) => {
             const metric = formatSkillMetric(sk)
             return (
-              <button
+              <LibraryCard
                 key={sk.id}
-                type="button"
                 onClick={() => setViewing(sk)}
-                className="text-left bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md hover:border-gray-300 transition-shadow w-full"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-bold text-gray-900">{sk.name}</h3>
+                menu={
                   <LibraryCardMenu
                     itemLabel={sk.name}
                     onEdit={() => setEditing(sk)}
                     onDelete={() => { void handleDelete(sk) }}
                   />
-                </div>
+                }
+              >
+                <h3 className="pr-8 font-bold leading-snug text-gray-900">{sk.name}</h3>
                 <div className="flex flex-wrap gap-1 mt-2">
                   <span className={`text-[11px] rounded px-2 py-0.5 ${kindBadgeClass(sk.skill_kind)}`}>
                     {sk.skill_kind === 'combo' ? 'Combo' : 'Skill'}
@@ -197,7 +196,7 @@ export default function SkillLibraryPanel() {
                     {(sk.components ?? []).map((c) => c.name).filter(Boolean).join(' → ')}
                   </p>
                 )}
-              </button>
+              </LibraryCard>
             )
           })}
           {skills.length === 0 && <div className="text-sm text-gray-500 col-span-full">No skills match your filters.</div>}

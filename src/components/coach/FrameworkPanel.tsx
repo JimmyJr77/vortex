@@ -331,8 +331,8 @@ export default function FrameworkPanel() {
           const open = openKey === key
           return (
             <div key={key} className="border border-gray-200 rounded-lg overflow-hidden">
-              <button type="button" onClick={() => toggle(key)} className="w-full flex items-center justify-between px-4 py-3 bg-violet-50 text-left">
-                <span className="font-semibold text-gray-800">{sr.order_index / 10}. {sr.name}</span>
+              <button type="button" onClick={() => toggle(key)} className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 text-left">
+                <span className="font-semibold text-gray-800">{sr.name}</span>
                 {open ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
               </button>
               {open && (

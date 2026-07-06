@@ -5,10 +5,12 @@ export default function LibraryCardMenu({
   itemLabel,
   onEdit,
   onDelete,
+  className = '',
 }: {
   itemLabel: string
   onEdit: () => void
   onDelete: () => void
+  className?: string
 }) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -23,7 +25,7 @@ export default function LibraryCardMenu({
   }, [open])
 
   return (
-    <div ref={rootRef} className="relative shrink-0">
+    <div ref={rootRef} className={`relative shrink-0 ${className}`.trim()}>
       <button
         type="button"
         onClick={(event) => {

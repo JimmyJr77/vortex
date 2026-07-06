@@ -210,6 +210,7 @@ export interface ThreadSubjectUpdate {
 export interface CriticalComposeFlags {
   is_critical: boolean
   requires_ack: boolean
+  send_critical_sms: boolean
 }
 
 export interface MessagePinGroup {
