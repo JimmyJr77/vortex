@@ -81,8 +81,8 @@ SELECT
   d.name, d.slug, d.description,
   (SELECT id FROM coaching.sport WHERE key = 'fitness'),
   d.skill::public.skill_level,
-  d.age_min,
-  d.sets, d.reps, d.work, d.rest, d.est,
+  d.age_min::int,
+  d.sets::int, d.reps::int, d.work::int, d.rest::int, d.est::int,
   TRUE, 'facility',
   d.summary, d.coach_lang, d.athlete_lang,
   d.family, d.phase_key, d.subrole, d.slot,
@@ -612,7 +612,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, m.unit, m.sets, m.reps, m.work, m.rest, m.distance, m.est, m.rpe_min, m.rpe_max
+SELECT e.id, 'Default', TRUE, m.unit, m.sets::int, m.reps::int, m.work::int, m.rest::int, m.distance, m.est::int, m.rpe_min::int, m.rpe_max::int
 FROM (VALUES
   ('cross-crawl-dead-bug', 'reps', 2, 5, 25, 30, NULL, 60, 2, 5),
   ('bear-crawl-contralateral-tap', 'reps', 2, 5, 25, 30, NULL, 60, 2, 5),

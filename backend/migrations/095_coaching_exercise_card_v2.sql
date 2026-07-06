@@ -56,7 +56,13 @@ EXCEPTION WHEN undefined_object THEN NULL; END $$;
 
 -- Backfill primary phase identity from existing phase profiles.
 UPDATE coaching.exercise e SET
-  primary_phase_key = sub.phase_key,
+  primary_phase_key = CASE sub.phase_key
+    WHEN 'prepare_access' THEN 'prepare_and_access'
+    WHEN 'skill_movement_intelligence' THEN 'movement_intelligence'
+    WHEN 'control_resilience' THEN 'resilience'
+    WHEN 'fitness_repeatability' THEN 'sustained_capacity'
+    ELSE sub.phase_key
+  END,
   primary_order_slot = sub.order_slot,
   movement_requirements = CASE
     WHEN e.movement_requirements = '{}'::jsonb OR e.movement_requirements IS NULL

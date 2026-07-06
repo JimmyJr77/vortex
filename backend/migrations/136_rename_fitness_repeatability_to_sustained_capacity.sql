@@ -22,29 +22,23 @@ UPDATE coaching.education_content SET
   what_it_is = replace(replace(what_it_is, 'Fitness / Repeatability', 'Sustained Capacity'), 'Fitness/Repeatability', 'Sustained Capacity'),
   why_it_matters = replace(replace(why_it_matters, 'Fitness / Repeatability', 'Sustained Capacity'), 'Fitness/Repeatability', 'Sustained Capacity'),
   why_it_goes_here = replace(replace(why_it_goes_here, 'Fitness / Repeatability', 'Sustained Capacity'), 'Fitness/Repeatability', 'Sustained Capacity'),
-  fatigue_guidance = replace(replace(fatigue_guidance, 'Fitness / Repeatability', 'Sustained Capacity'), 'Fitness/Repeatability', 'Sustained Capacity'),
-  coach_guidance = replace(replace(coach_guidance, 'Fitness / Repeatability', 'Sustained Capacity'), 'Fitness/Repeatability', 'Sustained Capacity'),
-  what_belongs_here = replace(replace(what_belongs_here, 'Fitness / Repeatability', 'Sustained Capacity'), 'Fitness/Repeatability', 'Sustained Capacity'),
-  what_to_avoid = replace(replace(what_to_avoid, 'Fitness / Repeatability', 'Sustained Capacity'), 'Fitness/Repeatability', 'Sustained Capacity'),
+  fatigue_logic = replace(replace(fatigue_logic, 'Fitness / Repeatability', 'Sustained Capacity'), 'Fitness/Repeatability', 'Sustained Capacity'),
+  programming_guidance = replace(replace(programming_guidance, 'Fitness / Repeatability', 'Sustained Capacity'), 'Fitness/Repeatability', 'Sustained Capacity'),
   updated_at = now()
 WHERE title ILIKE '%Fitness / Repeatability%'
    OR short_summary ILIKE '%Fitness / Repeatability%'
    OR what_it_is ILIKE '%Fitness / Repeatability%'
    OR why_it_matters ILIKE '%Fitness / Repeatability%'
    OR why_it_goes_here ILIKE '%Fitness / Repeatability%'
-   OR fatigue_guidance ILIKE '%Fitness / Repeatability%'
-   OR coach_guidance ILIKE '%Fitness / Repeatability%'
-   OR what_belongs_here ILIKE '%Fitness / Repeatability%'
-   OR what_to_avoid ILIKE '%Fitness / Repeatability%'
+   OR fatigue_logic ILIKE '%Fitness / Repeatability%'
+   OR programming_guidance ILIKE '%Fitness / Repeatability%'
    OR title ILIKE '%Fitness/Repeatability%'
    OR short_summary ILIKE '%Fitness/Repeatability%'
    OR what_it_is ILIKE '%Fitness/Repeatability%'
    OR why_it_matters ILIKE '%Fitness/Repeatability%'
    OR why_it_goes_here ILIKE '%Fitness/Repeatability%'
-   OR fatigue_guidance ILIKE '%Fitness/Repeatability%'
-   OR coach_guidance ILIKE '%Fitness/Repeatability%'
-   OR what_belongs_here ILIKE '%Fitness/Repeatability%'
-   OR what_to_avoid ILIKE '%Fitness/Repeatability%';
+   OR fatigue_logic ILIKE '%Fitness/Repeatability%'
+   OR programming_guidance ILIKE '%Fitness/Repeatability%';
 
 UPDATE coaching.education_content SET
   examples_json = replace(replace(examples_json::text, 'fitness_repeatability', 'sustained_capacity'), 'Fitness / Repeatability', 'Sustained Capacity')::jsonb,
@@ -53,9 +47,8 @@ WHERE examples_json::text LIKE '%fitness_repeatability%'
    OR examples_json::text LIKE '%Fitness / Repeatability%';
 
 UPDATE coaching.validation_rule SET
-  condition = replace(condition::text, 'fitness_repeatability', 'sustained_capacity')::jsonb,
-  updated_at = now()
-WHERE condition::text LIKE '%fitness_repeatability%';
+  rule_logic_json = replace(rule_logic_json::text, 'fitness_repeatability', 'sustained_capacity')::jsonb
+WHERE rule_logic_json::text LIKE '%fitness_repeatability%';
 
 UPDATE coaching.education_content SET
   title = replace(title, 'Fitness Add-On', 'Sustained Capacity Add-On'),

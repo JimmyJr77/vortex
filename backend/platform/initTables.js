@@ -170,6 +170,7 @@ export async function initPlatformTables(pool) {
     '176_coaching_sandbag_nontraditional_strength_cards.sql',
     '177_coaching_resistance_band_body_resistance_infrastructure_and_seed.sql',
     '178_coaching_resistance_band_body_resistance_cards.sql',
+    '179_coaching_exercise_participant_structure.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

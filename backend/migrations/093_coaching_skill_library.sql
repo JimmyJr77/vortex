@@ -60,8 +60,8 @@ SELECT
   (SELECT id FROM coaching.sport WHERE key = d.sport_key),
   NULLIF(d.skill_level, '')::public.skill_level,
   d.skill_kind,
-  NULLIF(d.min_hold_seconds, '')::int,
-  NULLIF(d.default_hold_seconds, '')::int,
+  d.min_hold_seconds,
+  d.default_hold_seconds,
   NULLIF(d.assistance_note, ''),
   TRUE, 'facility'
 FROM (VALUES

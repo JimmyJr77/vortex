@@ -136,14 +136,13 @@ WHERE examples_json::text LIKE '%prepare_and_access%'
    OR examples_json::text LIKE '%resilience%';
 
 UPDATE coaching.validation_rule SET
-  condition = replace(replace(replace(condition::text,
-    'prepare_and_access', 'prepare_and_access'),
-    'movement_intelligence', 'movement_intelligence'),
-    'resilience', 'resilience')::jsonb,
-  updated_at = now()
-WHERE condition::text LIKE '%prepare_and_access%'
-   OR condition::text LIKE '%movement_intelligence%'
-   OR condition::text LIKE '%resilience%';
+  rule_logic_json = replace(replace(replace(rule_logic_json::text,
+    'prepare_access', 'prepare_and_access'),
+    'skill_movement_intelligence', 'movement_intelligence'),
+    'control_resilience', 'resilience')::jsonb
+WHERE rule_logic_json::text LIKE '%prepare_access%'
+   OR rule_logic_json::text LIKE '%skill_movement_intelligence%'
+   OR rule_logic_json::text LIKE '%control_resilience%';
 
 -- 5) Replace legacy display strings in education copy
 UPDATE coaching.education_content SET
