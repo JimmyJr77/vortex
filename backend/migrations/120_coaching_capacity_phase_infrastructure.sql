@@ -189,7 +189,7 @@ VALUES (
   'Capacity is where athletes build the ability to produce, tolerate, and progressively adapt to force — strength, muscle/tendon capacity, grip, trunk bracing, and targeted tissue work.',
   'Strength supports safer and more powerful Output over time. Capacity belongs after Output in standard sessions because heavy strength before sprinting, jumping, or reactive work reduces quality and increases risk.',
   'Use progressive overload (load, reps, sets, ROM, tempo, unilateral demand) with full rest between sets. Youth resistance training is supported when supervised and technique-first. Hard eccentrics and tissue accessories need recovery days.',
-  'Do not program heavy Capacity before Output unless the session is strength-priority. Do not use short-rest high-density circuits and call it Capacity — that is Fitness / Repeatability. Do not chase max loads without supervision or technique.'
+  'Do not program heavy Capacity before Output unless the session is strength-priority. Do not use short-rest high-density circuits and call it Capacity — that is Sustained Capacity. Do not chase max loads without supervision or technique.'
 )
 ON CONFLICT (entity_type, entity_key) WHERE entity_id IS NULL DO UPDATE SET
   title = EXCLUDED.title,

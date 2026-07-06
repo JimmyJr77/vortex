@@ -931,7 +931,7 @@ export const FOUNDATION_CARDS = [
     subrole: 'integrate',
     slot: 'integrated_mobility',
     cardSummary: 'Integrated posterior-chain and shoulder-access drill that links hamstring mobility, plank position, trunk control, and hand-supported movement.',
-    bestPlacement: 'Late Prepare / Access, after basic spine/hip/shoulder access, before Skill, Output, or Capacity.',
+    bestPlacement: 'Late Prepare & Access, after basic spine/hip/shoulder access, before Skill, Output, or Capacity.',
     description: 'From standing, hinge forward and place hands on the ground. Walk hands forward into a tall plank. Pause briefly with ribs and pelvis controlled. Walk feet toward hands or hands back toward feet, then stand tall and repeat.',
     coachLanguage: 'Bridge to integrated control — hinge, plank line, then return.',
     athleteLanguage: 'Reach down, walk out to a strong plank, walk back, stand tall.',

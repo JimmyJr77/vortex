@@ -107,8 +107,8 @@ export interface PhaseSubroleTaxonomyItem {
   coach_guidance?: string | null
 }
 
-const PREPARE_ACCESS = 'prepare_access'
-const SKILL_MOVEMENT_INTELLIGENCE = 'skill_movement_intelligence'
+const PREPARE_AND_ACCESS = 'prepare_and_access'
+const MOVEMENT_INTELLIGENCE = 'movement_intelligence'
 
 export function subroleForOrderSlot(
   taxonomy: Taxonomy | null | undefined,
@@ -131,11 +131,11 @@ export function orderSlotsForSubrole(
 }
 
 export function prepareAccessSubroleSequence(taxonomy: Taxonomy | null | undefined): PhaseSubroleTaxonomyItem[] {
-  return subroleSequenceForPhase(taxonomy, PREPARE_ACCESS)
+  return subroleSequenceForPhase(taxonomy, PREPARE_AND_ACCESS)
 }
 
 export function skillMovementSubroleSequence(taxonomy: Taxonomy | null | undefined): PhaseSubroleTaxonomyItem[] {
-  return subroleSequenceForPhase(taxonomy, SKILL_MOVEMENT_INTELLIGENCE)
+  return subroleSequenceForPhase(taxonomy, MOVEMENT_INTELLIGENCE)
 }
 
 export function outputSubroleSequence(taxonomy: Taxonomy | null | undefined): PhaseSubroleTaxonomyItem[] {
@@ -165,12 +165,12 @@ export function orderSlotLabel(
 
 /** Canonical session phase order enforced in builder + validator. */
 export const SESSION_PHASE_ORDER = [
-  'prepare_access',
-  'skill_movement_intelligence',
+  'prepare_and_access',
+  'movement_intelligence',
   'output',
   'capacity',
-  'control_resilience',
-  'fitness_repeatability',
+  'resilience',
+  'sustained_capacity',
   'restore',
 ] as const
 

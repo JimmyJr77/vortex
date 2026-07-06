@@ -173,9 +173,9 @@ VALUES (
   'Output without fatigue',
   'Output expresses patterns fast and powerfully while fresh — not after conditioning or high-volume strength.',
   'Output is where the athlete expresses speed, explosiveness, elastic stiffness, plyometric power, reactive strength, jump/throw power, deceleration quality, COD power, and high-intensity reactive agility. Skill teaches the pattern; Output expresses it with intent.',
-  'These qualities are most sensitive to fatigue. Output belongs after Prepare / Access and Skill / Movement Intelligence, but before Capacity, Control / Resilience, and Fitness / Repeatability.',
+  'These qualities are most sensitive to fatigue. Output belongs after Prepare & Access and Movement Intelligence, but before Capacity, Resilience, and Sustained Capacity.',
   'Use low reps, low total volume, high rest, and high intent. Stop when speed, jump height, landing quality, or reaction quality drops. NSCA: hard sprinting often needs 48–72h between exposures; plyometrics favor 2–3 sessions/week with 3–6 sets of 2–5 reps.',
-  'Do not place Output after Fitness / Repeatability, HIIT, or high-volume Capacity. Do not let sprints, jumps, or plyos become conditioning circuits with short rest.'
+  'Do not place Output after Sustained Capacity, HIIT, or high-volume Capacity. Do not let sprints, jumps, or plyos become conditioning circuits with short rest.'
 )
 ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
   title = EXCLUDED.title,

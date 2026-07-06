@@ -19,7 +19,7 @@ CROSS JOIN (VALUES
   ('hip_mobility', 'Hip Mobility', 'Hip switches, 90/90, and hip CARs.', 131, 1, 'mobilize'),
   ('squat_access', 'Squat Access', 'Squat patterning and depth access work.', 132, 1, 'mobilize')
 ) AS v(key, name, description, order_index, freshness_sensitivity, subrole_key)
-WHERE sp.key = 'prepare_access'
+WHERE sp.key = 'prepare_and_access'
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -36,7 +36,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use this before any session with hand contact, tumbling, crawling, bars, ninja, or upper-body loading.',
   athlete_language = 'Spread your fingers, press the floor, and gently shift your shoulders forward and back.',
   movement_family = 'Wrist prep',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'wrist_prep',
   default_sets = 1,
@@ -61,9 +61,9 @@ UPDATE coaching.exercise_phase_profile p SET
   technical_complexity = 2,
   impact_level = 0,
   intensity_ceiling = 'low',
-  notes = 'Best early in Prepare / Access before hand-support work.'
+  notes = 'Best early in Prepare & Access before hand-support work.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'wrist_prep' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'wrist-rockers-palms-down';
 
@@ -95,7 +95,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use carefully and progressively; this is more intense than palms-down wrist rocks for many athletes.',
   athlete_language = 'Backs of hands down, fingers toward knees, shift gently without pain.',
   movement_family = 'Wrist prep',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'wrist_prep',
   default_sets = 1,
@@ -122,7 +122,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'Use low dose. More intense than palms-down wrist rocks; not required for every athlete.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'wrist_prep' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'wrist-rockers-palms-up';
 
@@ -154,7 +154,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use after wrist rockers when athletes need better finger pressure and palm control for handstands, cartwheels, crawling, or obstacle work.',
   athlete_language = 'Press through your fingers and lift the palm without bouncing.',
   movement_family = 'Hand activation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'activate',
   primary_order_slot = 'hand_activation',
   default_sets = 1,
@@ -181,7 +181,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'Useful before handstands, cartwheels, bars, crawling, and ninja grip/hand-support work.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'hand_activation' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'finger-pulses';
 
@@ -213,7 +213,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before crawling, tumbling, handstands, push-ups, planks, bars, rings, or overhead work. Do not turn into a shoulder-fatigue circuit.',
   athlete_language = 'Keep your elbows straight and move only your shoulder blades.',
   movement_family = 'Scapular activation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'activate',
   primary_order_slot = 'scapular_activation',
   default_sets = 1,
@@ -240,7 +240,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'moderate',
   notes = 'Use low dose as activation; do not turn into a shoulder-fatigue circuit before tumbling.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'scapular_activation' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'scapular-push-up';
 
@@ -272,7 +272,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Primary subrole: Mobilize. Secondary intent: Activate. Use when athletes need scapular motion under light hand support.',
   athlete_language = 'Keep your arms long and slowly draw circles with your shoulders.',
   movement_family = 'Shoulder mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'shoulder_mobility',
   default_sets = 1,
@@ -299,7 +299,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'Great bridge from wrist prep into scapular activation.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'shoulder_mobility' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'quadruped-shoulder-circles';
 
@@ -331,7 +331,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use when the session needs overhead access, shoulder blade control, or handstand/tumbling prep.',
   athlete_language = 'Slide up the wall, keep ribs down, then gently lift your hands away without arching.',
   movement_family = 'Shoulder prep',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'shoulder_prep',
   default_sets = 1,
@@ -358,7 +358,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'moderate',
   notes = 'Best before overhead work, handstands, tumbling, and upper-body strength.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'shoulder_prep' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'wall-slides-with-lift-off';
 
@@ -390,7 +390,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use as cuff activation before tumbling, bars, rings, pressing, pulling, throwing, or overhead work. Activation drill, not a burnout.',
   athlete_language = 'Elbows stay by your sides. Rotate the hands out without arching.',
   movement_family = 'Rotator cuff activation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'activate',
   primary_order_slot = 'rotator_cuff_activation',
   default_sets = 1,
@@ -417,7 +417,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'moderate',
   notes = 'Activation drill, not a burnout. Use light band and crisp reps.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'rotator_cuff_activation' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'band-external-rotation';
 
@@ -449,7 +449,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use as an active mobility scan. Keep it slow enough to reveal compensation.',
   athlete_language = 'Make the biggest smooth circle you can without twisting your body.',
   movement_family = 'Shoulder mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'shoulder_cars',
   default_sets = 1,
@@ -476,7 +476,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'Use slow CARs for control; faster arm circles only as general raise/mobilize drill.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'shoulder_cars' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'arm-circles';
 
@@ -508,7 +508,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use after wrist/scap prep to bridge into crawling, tumbling, ninja, or hand-supported locomotion.',
   athlete_language = 'Hover your knees, push the floor, and rock hips back without losing your back shape.',
   movement_family = 'Crawl pattern prep',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'integrate',
   primary_order_slot = 'crawl_pattern_prep',
   default_sets = 1,
@@ -535,7 +535,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'moderate',
   notes = 'Excellent integration drill, but keep volume low before advanced tumbling.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'crawl_pattern_prep' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'bear-crawl-rock-back';
 
@@ -564,10 +564,10 @@ UPDATE coaching.exercise SET
   name = 'Down Dog to Plank Wave',
   description = 'Start in high plank. Push the floor away and shift hips up and back into down dog. Then wave or shift forward into plank, stacking shoulders over wrists and controlling ribs/pelvis.',
   card_summary = 'Full-body upper-body access flow connecting shoulder flexion, scapular protraction, trunk control, hamstring/calf access, and plank alignment.',
-  coach_language = 'Use late in Prepare / Access as a bridge from mobility into skill, crawling, tumbling, or upper-body loading.',
+  coach_language = 'Use late in Prepare & Access as a bridge from mobility into skill, crawling, tumbling, or upper-body loading.',
   athlete_language = 'Push back into an upside-down V, then wave forward into a strong plank.',
   movement_family = 'Full body flow',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'integrate',
   primary_order_slot = 'full_body_flow',
   default_sets = 1,
@@ -594,7 +594,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'moderate',
   notes = 'Good integrated warm-up drill, but reduce volume before wrist-heavy or shoulder-heavy tumbling.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'full_body_flow' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'down-dog-to-plank-wave';
 
@@ -1140,7 +1140,7 @@ SELECT
   v.misuse,
   v.scale_guidance
 FROM (VALUES
-  ('wrist-rockers-palms-down', 'Wrist rockers expose the athlete to controlled wrist extension under partial bodyweight. This is critical for gymnastics, tumbling, crawling, push-ups, planks, and handstands because those skills require the wrist to tolerate load in an extended position. The Prehab Guys quadruped wrist flexion/extension drill cues a hands-and-knees setup with fingers forward and a slow weight shift forward and back while staying strong through the shoulder blades, arms, wrists, and fingers.', 'Belongs in Mobilize (wrist_prep) — first-line hand-support prep before activate/integrate upper-body work.', 'Early in Prepare / Access before hand-support work — tumbling, crawling, bars, ninja, push-ups, planks, or handstands.', 'Do not bounce into end range or use high volume before wrist-heavy tumbling when wrists are already irritated.', 'Scale by wrist tolerance, body size, and hand-support demands; elevate hands when floor load is too intense.'),
+  ('wrist-rockers-palms-down', 'Wrist rockers expose the athlete to controlled wrist extension under partial bodyweight. This is critical for gymnastics, tumbling, crawling, push-ups, planks, and handstands because those skills require the wrist to tolerate load in an extended position. The Prehab Guys quadruped wrist flexion/extension drill cues a hands-and-knees setup with fingers forward and a slow weight shift forward and back while staying strong through the shoulder blades, arms, wrists, and fingers.', 'Belongs in Mobilize (wrist_prep) — first-line hand-support prep before activate/integrate upper-body work.', 'Early in Prepare & Access before hand-support work — tumbling, crawling, bars, ninja, push-ups, planks, or handstands.', 'Do not bounce into end range or use high volume before wrist-heavy tumbling when wrists are already irritated.', 'Scale by wrist tolerance, body size, and hand-support demands; elevate hands when floor load is too intense.'),
   ('wrist-rockers-palms-up', 'This variation opens the wrist and forearm in the opposite orientation from traditional hand-support loading. GMB wrist routine includes rear-facing palms-up pulses and cautions that this position can be uncomfortable at first and should only be taken as far as comfortable, not into pain.', 'Belongs in Mobilize (wrist_prep) — optional flexor-bias complement to palms-down rocks.', 'After palms-down wrist rockers when athlete tolerates it; low dose — not required for every athlete.', 'Do not force end range or prescribe high volume; regress to wrist circles if uncomfortable.', 'Often optional for youth beginners; use seated or minimal load progressions.'),
   ('finger-pulses', 'Hand-support sports require the athlete to use the fingers and palm as an active base, not just dump into the heel of the hand. GMB wrist strengthening sequence includes finger pulses and palm pulses; the cheat sheet cues pressure through the fingers with bent first knuckles for finger pulses, and lifting the palms while keeping fingers down for palm pulses.', 'Belongs in Activate (hand_activation) — bridges wrist mobility into active hand support.', 'After wrist rockers when athletes need better finger pressure and palm control for handstands, cartwheels, crawling, or obstacle work.', 'Do not use high volume or bouncing before grip-heavy ninja work if fingers are irritated.', 'Scale by hand size, grip history, and wrist tolerance.'),
   ('scapular-push-up', 'The scapular push-up trains active scapular protraction, a major role of the serratus anterior. The Prehab Guys describe the serratus anterior as important for scapular control and preventing scapular winging; PhysioPedia notes the push-up plus activates serratus anterior and improves scapular kinematics.', 'Belongs in Activate (scapular_activation) — teaches push-the-floor-away before hand support.', 'Before crawling, tumbling, handstands, push-ups, planks, bars, rings, or overhead work — low dose activation only.', 'Do not use high reps or advanced variations that create shoulder fatigue before tumbling.', 'Scale by upper-body strength and wrist/shoulder tolerance.'),
@@ -1149,7 +1149,7 @@ FROM (VALUES
   ('band-external-rotation', 'External rotation drills prepare the posterior shoulder and rotator cuff to help center and control the shoulder before more demanding movement. The Prehab Guys band external-rotation page cues a band anchored at elbow height; E3 Rehab lists band external rotation as a rotator cuff exercise with the elbow bent to 90 degrees.', 'Belongs in Activate (rotator_cuff_activation) — low-load cuff prep before upper-body loading.', 'Before tumbling, bars, rings, pressing, pulling, throwing, or overhead work — light band, crisp reps only.', 'Do not use heavy bands or high reps that create shoulder fatigue before skill work.', 'Scale by shoulder history, band strength, and control.'),
   ('arm-circles', 'Shoulder CARs move the shoulder through active usable range under control. The Prehab Guys Shoulder CARs page emphasizes active usable range and neurological control rather than passive stretching.', 'Belongs in Mobilize (shoulder_cars) — active shoulder scan before upper-body loading.', 'As an active mobility scan — slow enough to reveal compensation before overhead or hand-support work.', 'Do not use fast uncontrolled arm circles as a substitute for slow CARs when assessing readiness.', 'Scale by shoulder control and mobility profile.'),
   ('bear-crawl-rock-back', 'Bear crawl patterns integrate shoulder stability, trunk control, hip position, and coordination. The Prehab Guys Bear Plank Rock Back starts in all fours, lifts the knees, pushes through the palms, and rocks the hips toward the heels.', 'Belongs in Integrate (crawl_pattern_prep) — bridges wrist/scap prep into locomotion.', 'After wrist/scap prep to bridge into crawling, tumbling, ninja, or hand-supported locomotion — keep volume low.', 'Do not use high volume before advanced tumbling if wrists, shoulders, or trunk fatigue.', 'Scale by trunk control and hand-support tolerance.'),
-  ('down-dog-to-plank-wave', 'This flow connects upper-body support, scapular protraction, trunk line, hip hinge, and posterior-chain access. The Prehab Guys downward-dog-to-upward-dog page cues pushing through the arms and protracting the scapula to drive into down dog rather than simply moving the hips.', 'Belongs in Integrate (full_body_flow) — late Prepare / Access bridge into skill work.', 'Late in Prepare / Access as a bridge from mobility into skill, crawling, tumbling, or upper-body loading.', 'Do not use high volume before wrist-heavy or shoulder-heavy tumbling.', 'Scale by shoulder/wrist load tolerance and trunk control.')
+  ('down-dog-to-plank-wave', 'This flow connects upper-body support, scapular protraction, trunk line, hip hinge, and posterior-chain access. The Prehab Guys downward-dog-to-upward-dog page cues pushing through the arms and protracting the scapula to drive into down dog rather than simply moving the hips.', 'Belongs in Integrate (full_body_flow) — late Prepare & Access bridge into skill work.', 'Late in Prepare & Access as a bridge from mobility into skill, crawling, tumbling, or upper-body loading.', 'Do not use high volume before wrist-heavy or shoulder-heavy tumbling.', 'Scale by shoulder/wrist load tolerance and trunk control.')
 ) AS v(slug, why_works, why_here, best_placement, misuse, scale_guidance)
 JOIN coaching.exercise e ON e.slug = v.slug
 ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
@@ -1172,10 +1172,10 @@ VALUES (
   'validation_rule',
   'prepare_upper_body_access',
   NULL,
-  'Prepare / Access upper-body access without pre-fatigue',
+  'Prepare & Access upper-body access without pre-fatigue',
   'Upper-body access drills should prepare hand support without pre-fatiguing wrists, shoulders, grip, or trunk.',
   'Upper-body access drills should prepare the athlete for hand support, not pre-fatigue the wrists, shoulders, grip, or trunk before tumbling, gymnastics, ninja, or overhead work.',
-  'Tumbling, gymnastics, ninja, crawling, handstands, bars, rings, and overhead lifting require fresh wrist and shoulder control. Fatigue circuits in Prepare / Access steal output readiness.',
+  'Tumbling, gymnastics, ninja, crawling, handstands, bars, rings, and overhead lifting require fresh wrist and shoulder control. Fatigue circuits in Prepare & Access steal output readiness.',
   'Keep wrist rockers, finger pulses, scapular push-ups, and integration flows at low dose (fatigue_cost 1–2). Sequence Mobilize → Activate → Integrate. Do not stack high-rep scapular or bear-crawl work before skill.',
   'Do not turn upper-body prep into a shoulder or core burnout before tumbling, handstands, or overhead work.'
 )

@@ -1,4 +1,4 @@
--- Skill / Movement Intelligence phase infrastructure: subroles, fine order slots, validation education.
+-- Movement Intelligence phase infrastructure: subroles, fine order slots, validation education.
 -- IDEMPOTENT.
 
 -- Extend exercise.phase_subrole CHECK for Skill subroles.
@@ -54,7 +54,7 @@ CROSS JOIN (VALUES
    'Line walks, balance reaches, cross-crawl, skipping, carioca, shuffle/backpedal mechanics, ladder rhythm, hurdle step-overs.',
    'Nonstop ladder circuits, fatiguing footwork conditioning, sloppy contacts at speed.',
    'Crisp rhythm with full recovery. Coordination quality over rep count.',
-   'If rest is short and heart rate rises, this is Fitness / Repeatability, not Skill.'),
+   'If rest is short and heart rate rises, this is Sustained Capacity, not Skill.'),
   ('perception_action_reactive_movement', 'Perception-Action / Reactive Movement', 'Decision-making coupled with movement execution.', 250,
    'Teaches athletes to perceive cues, make decisions, and execute movement in response to changing information.',
    'Mirror drills, point-and-go, color call-outs, ball drops, tag games, gate reactions.',
@@ -62,7 +62,7 @@ CROSS JOIN (VALUES
    'Fresh reaction quality. Cognitive load is part of the drill — not exhaustion.',
    'Add visual, auditory, partner, ball, or environmental cues for true reactive agility.')
 ) AS v(key, name, description, order_index, why_it_exists, what_belongs_here, what_to_avoid, fatigue_guidance, coach_guidance)
-WHERE sp.key = 'skill_movement_intelligence'
+WHERE sp.key = 'movement_intelligence'
 ON CONFLICT (phase_id, key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -84,7 +84,7 @@ FROM coaching.session_phase sp,
   ('sprint_mechanics', 'locomotion_sprint_mechanics'),
   ('reaction_coordination', 'perception_action_reactive_movement')
 ) AS v(slot_key, subrole_key)
-WHERE sp.key = 'skill_movement_intelligence'
+WHERE sp.key = 'movement_intelligence'
   AND pos.phase_id = sp.id
   AND pos.key = v.slot_key;
 
@@ -138,7 +138,7 @@ CROSS JOIN (VALUES
   ('movement_game', 'Movement Game', 'Partner tag and shadow tag games.', 255, 4, 'perception_action_reactive_movement'),
   ('reactive_start', 'Reactive Start', 'Gate reaction and start-decision drills.', 256, 4, 'perception_action_reactive_movement')
 ) AS v(key, name, description, order_index, freshness_sensitivity, subrole_key)
-WHERE sp.key = 'skill_movement_intelligence'
+WHERE sp.key = 'movement_intelligence'
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -150,7 +150,7 @@ ON CONFLICT (key) DO UPDATE SET
 -- Re-sequence legacy sprint_mechanics coarse slot after fine locomotion band.
 UPDATE coaching.phase_order_slot pos SET order_index = 234, subrole_key = 'locomotion_sprint_mechanics'
 FROM coaching.session_phase sp
-WHERE sp.key = 'skill_movement_intelligence' AND pos.phase_id = sp.id AND pos.key = 'sprint_mechanics';
+WHERE sp.key = 'movement_intelligence' AND pos.phase_id = sp.id AND pos.key = 'sprint_mechanics';
 
 -- Subrole education rows.
 INSERT INTO coaching.education_content (
@@ -160,7 +160,7 @@ SELECT
   'phase_subrole', ps.key, ps.id, ps.name, ps.description,
   ps.what_belongs_here, ps.why_it_exists, ps.coach_guidance, ps.what_to_avoid
 FROM coaching.phase_subrole ps
-JOIN coaching.session_phase sp ON sp.id = ps.phase_id AND sp.key = 'skill_movement_intelligence'
+JOIN coaching.session_phase sp ON sp.id = ps.phase_id AND sp.key = 'movement_intelligence'
 ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
   title = EXCLUDED.title,
   short_summary = EXCLUDED.short_summary,
@@ -177,11 +177,11 @@ INSERT INTO coaching.education_content (
 )
 VALUES (
   'validation_rule',
-  'skill_movement_intelligence_readiness',
+  'movement_intelligence_readiness',
   NULL,
-  'Skill / Movement Intelligence without fatigue',
+  'Movement Intelligence without fatigue',
   'Skill training teaches coordination and decision-making while fresh — not conditioning or max output.',
-  'Skill / Movement Intelligence is where athletes learn to organize movement, process information, coordinate timing, and solve movement problems before fatigue degrades learning quality.',
+  'Movement Intelligence is where athletes learn to organize movement, process information, coordinate timing, and solve movement problems before fatigue degrades learning quality.',
   'Learning quality, reaction quality, posture, timing, and technical precision all degrade under fatigue. This phase should usually precede heavy strength, hard plyometrics, HIIT, and fatigue-based work.',
   'Keep block RPE ≤6, place technical tumbling before Fitness, use crisp ladder rhythm with rest, add perception cues to agility drills, and move max-speed sprint work to Output.',
   'Do not let skill blocks become HIIT, max sprinting, high-volume tumbling fatigue, ladder conditioning circuits, or core burnouts.'

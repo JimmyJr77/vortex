@@ -1,5 +1,5 @@
 /**
- * Top 50 Control / Resilience phase movement candidates (JSON-lite + seed metadata).
+ * Top 50 Resilience phase movement candidates (JSON-lite + seed metadata).
  * Consumed by scripts/generate-128-control-seed.mjs
  */
 
@@ -227,7 +227,7 @@ export function buildControlMovements() {
       ...row,
       slug,
       family: FAMILY_BY_SUBROLE[row.subrole],
-      desc: `Control / Resilience drill: ${row.name}. Precision work — own positions, absorb force, and maintain alignment under low-to-moderate stress.`,
+      desc: `Resilience drill: ${row.name}. Precision work — own positions, absorb force, and maintain alignment under low-to-moderate stress.`,
       focus,
       joints: row.subrole.includes('single_leg') || row.slot.includes('single_leg') ? ['hip_flexion', 'ankle_plantarflexion'] : ['multi_joint'],
       tenets: TENETS_BY_SUBROLE[row.subrole],

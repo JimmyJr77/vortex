@@ -1,5 +1,5 @@
 /**
- * Generates backend/migrations/102_coaching_prepare_access_hip_access_cards.sql
+ * Generates backend/migrations/102_coaching_prepare_and_access_hip_access_cards.sql
  * Run: node scripts/generate-102-hip-access-cards.mjs
  */
 import fs from 'fs'
@@ -45,13 +45,13 @@ const COHORT_KEYS = [
 ]
 
 const VALIDATION_EDU = {
-  title: 'Prepare / Access hip access without pre-fatigue',
+  title: 'Prepare & Access hip access without pre-fatigue',
   short_summary:
     'Hip/pelvis access should improve squat, lunge, sprint, and landing positions without becoming a flexibility session or leg-fatigue circuit.',
   what_it_is:
     'Hip/pelvis access should improve squat, lunge, sprint, and landing positions without becoming a deep flexibility session or leg-fatigue circuit before Output.',
   why_it_matters:
-    'Sprinting, tumbling, jumping, landing, squatting, lunging, and cutting require usable hip range and pelvic control. High-volume adductor work, long squat holds, or ballistic leg swings in Prepare / Access steal output readiness.',
+    'Sprinting, tumbling, jumping, landing, squatting, lunging, and cutting require usable hip range and pelvic control. High-volume adductor work, long squat holds, or ballistic leg swings in Prepare & Access steal output readiness.',
   programming_guidance:
     'Keep deep squat pry under ~60 seconds, frontal-plane prep under ~16 reps per side before agility, and leg swings controlled (not ballistic). Sequence Mobilize → Integrate without visible leg heaviness before Output.',
   common_misuse:
@@ -82,7 +82,7 @@ CROSS JOIN (VALUES
   ('squat_to_stand', 'Squat to Stand', 'Squat-to-stand and pattern integration flows.', 149, 2, 'integrate'),
   ('lateral_lunge_prep', 'Lateral Lunge Prep', 'Lateral lunge shifts and cutting prep.', 150, 2, 'integrate')
 ) AS v(key, name, description, order_index, freshness_sensitivity, subrole_key)
-WHERE sp.key = 'prepare_access'
+WHERE sp.key = 'prepare_and_access'
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -121,7 +121,7 @@ UPDATE coaching.exercise SET
   coach_language = ${sqlStr(card.coachLanguage)},
   athlete_language = ${sqlStr(card.athleteLanguage)},
   movement_family = ${sqlStr(card.family)},
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = ${sqlStr(card.subrole)},
   primary_order_slot = ${sqlStr(card.slot)},
   default_sets = ${d.default_sets},
@@ -149,7 +149,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = ${sqlStr(pp.intensity_ceiling)},
   notes = ${sqlStr(pp.notes)}
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = ${sqlStr(card.slot)} AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = ${sqlStr(card.slug)};
 
@@ -301,6 +301,6 @@ ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
   updated_at = now();
 `
 
-const outPath = path.join(__dirname, '../backend/migrations/102_coaching_prepare_access_hip_access_cards.sql')
+const outPath = path.join(__dirname, '../backend/migrations/102_coaching_prepare_and_access_hip_access_cards.sql')
 fs.writeFileSync(outPath, sql)
 console.log('Wrote', outPath, '—', HIP_ACCESS_CARDS.length, 'hip-access cards')

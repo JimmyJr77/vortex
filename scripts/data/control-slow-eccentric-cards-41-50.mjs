@@ -1,5 +1,5 @@
 /**
- * Rich card v2 content for Control / Resilience Slow Eccentric / Isometric cards 41–50.
+ * Rich card v2 content for Resilience Slow Eccentric / Isometric cards 41–50.
  * Consumed by scripts/generate-control-rich.mjs (migration 134).
  */
 

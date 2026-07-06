@@ -7,7 +7,7 @@ WITH canonical AS (
   SELECT id AS facility_id FROM public.facility ORDER BY id LIMIT 1
 ),
 phase_keys AS (
-  SELECT unnest(ARRAY['prepare_access', 'skill_movement_intelligence', 'output', 'capacity', 'control_resilience']::text[]) AS phase_key
+  SELECT unnest(ARRAY['prepare_and_access', 'movement_intelligence', 'output', 'capacity', 'resilience']::text[]) AS phase_key
 )
 INSERT INTO coaching.exercise (
   facility_id, name, slug, description, instructions, sport_id, skill_level, age_min, age_max,
@@ -47,7 +47,7 @@ pairs AS (
   JOIN coaching.exercise tgt ON tgt.slug = src.slug AND tgt.facility_id <> src.facility_id
   JOIN canonical c ON src.facility_id = c.facility_id
   WHERE src.archived = FALSE
-    AND src.primary_phase_key IN ('prepare_access', 'skill_movement_intelligence', 'output', 'capacity', 'control_resilience')
+    AND src.primary_phase_key IN ('prepare_and_access', 'movement_intelligence', 'output', 'capacity', 'resilience')
 )
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
 SELECT p.tgt_id, t.facet_type, t.facet_id, t.weight
@@ -64,7 +64,7 @@ pairs AS (
   JOIN coaching.exercise tgt ON tgt.slug = src.slug AND tgt.facility_id <> src.facility_id
   JOIN canonical c ON src.facility_id = c.facility_id
   WHERE src.archived = FALSE
-    AND src.primary_phase_key IN ('prepare_access', 'skill_movement_intelligence', 'output', 'capacity', 'control_resilience')
+    AND src.primary_phase_key IN ('prepare_and_access', 'movement_intelligence', 'output', 'capacity', 'resilience')
 )
 INSERT INTO coaching.exercise_phase_profile (
   exercise_id, phase_id, fit_weight, role, order_slot, order_index,
@@ -97,7 +97,7 @@ pairs AS (
   JOIN coaching.exercise tgt ON tgt.slug = src.slug AND tgt.facility_id <> src.facility_id
   JOIN canonical c ON src.facility_id = c.facility_id
   WHERE src.archived = FALSE
-    AND src.primary_phase_key IN ('prepare_access', 'skill_movement_intelligence', 'output', 'capacity', 'control_resilience')
+    AND src.primary_phase_key IN ('prepare_and_access', 'movement_intelligence', 'output', 'capacity', 'resilience')
 )
 INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit,
@@ -134,7 +134,7 @@ pairs AS (
   JOIN coaching.exercise tgt ON tgt.slug = src.slug AND tgt.facility_id <> src.facility_id
   JOIN canonical c ON src.facility_id = c.facility_id
   WHERE src.archived = FALSE
-    AND src.primary_phase_key IN ('prepare_access', 'skill_movement_intelligence', 'output', 'capacity', 'control_resilience')
+    AND src.primary_phase_key IN ('prepare_and_access', 'movement_intelligence', 'output', 'capacity', 'resilience')
 )
 INSERT INTO coaching.exercise_safety_profile (
   exercise_id, risk_level, impact_level, requires_spotting, requires_coach_supervision,
@@ -168,7 +168,7 @@ pairs AS (
   JOIN coaching.exercise tgt ON tgt.slug = src.slug AND tgt.facility_id <> src.facility_id
   JOIN canonical c ON src.facility_id = c.facility_id
   WHERE src.archived = FALSE
-    AND src.primary_phase_key IN ('prepare_access', 'skill_movement_intelligence', 'output', 'capacity', 'control_resilience')
+    AND src.primary_phase_key IN ('prepare_and_access', 'movement_intelligence', 'output', 'capacity', 'resilience')
 )
 INSERT INTO coaching.exercise_regimen_rule (
   exercise_id, can_be_daily, daily_min_dose, daily_max_dose, weekly_min_frequency, weekly_max_frequency,
@@ -204,7 +204,7 @@ pairs AS (
   JOIN coaching.exercise tgt ON tgt.slug = src.slug AND tgt.facility_id <> src.facility_id
   JOIN canonical c ON src.facility_id = c.facility_id
   WHERE src.archived = FALSE
-    AND src.primary_phase_key IN ('prepare_access', 'skill_movement_intelligence', 'output', 'capacity', 'control_resilience')
+    AND src.primary_phase_key IN ('prepare_and_access', 'movement_intelligence', 'output', 'capacity', 'resilience')
 )
 INSERT INTO coaching.exercise_scaling_profile (
   exercise_id, label, age_min, age_max, skill_level, training_age_min_months, training_age_max_months,

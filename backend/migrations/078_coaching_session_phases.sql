@@ -17,13 +17,13 @@ CREATE TABLE IF NOT EXISTS coaching.session_phase (
 );
 
 INSERT INTO coaching.session_phase (key, name, description, order_index, freshness_required, can_be_daily, fatigue_sensitivity) VALUES
-  ('prepare_access', 'Prepare / Access', 'Warm-up, joint access, mobility, activation, and tissue preparation.', 10, FALSE, TRUE, 1),
-  ('skill_movement_intelligence', 'Skill / Movement Intelligence', 'Tumbling, coordination, reaction, sprint mechanics, balance skill, body control.', 20, TRUE, TRUE, 4),
-  ('output', 'Output', 'Speed, explosiveness, plyometrics, agility, high-intent power.', 30, TRUE, FALSE, 5),
-  ('capacity', 'Capacity', 'Strength, resistance, calisthenics, loaded force development.', 40, FALSE, FALSE, 3),
-  ('control_resilience', 'Control / Resilience', 'Isometrics, eccentrics, stability, balance, trunk control, tissue capacity.', 50, FALSE, TRUE, 3),
-  ('fitness_repeatability', 'Fitness / Repeatability', 'HIIT, conditioning, intervals, work capacity.', 60, FALSE, FALSE, 2),
-  ('restore', 'Restore', 'Cooldown, breathing, post-workout flexibility, recovery.', 70, FALSE, TRUE, 1)
+  ('prepare_and_access', 'Prepare & Access', 'Raise temperature, mobilize joints, activate key tissues, and create access to the positions needed for training.', 10, FALSE, TRUE, 1),
+  ('movement_intelligence', 'Movement Intelligence', 'Develop coordination, body shapes, rhythm, mechanics, spatial awareness, and movement literacy before fatigue.', 20, TRUE, TRUE, 4),
+  ('output', 'Output', 'Express high-quality speed, power, elasticity, acceleration, jumping, throwing, and reactive athleticism while fresh.', 30, TRUE, FALSE, 5),
+  ('capacity', 'Capacity', 'Build strength, force production, tissue tolerance, and structural reserve through loaded and progressive work.', 40, FALSE, FALSE, 3),
+  ('resilience', 'Resilience', 'Build control, stability, landing mechanics, braking ability, joint ownership, trunk control, and tissue durability.', 50, FALSE, TRUE, 3),
+  ('sustained_capacity', 'Sustained Capacity', 'Build the ability to repeat useful athletic work under fatigue while maintaining quality, posture, and safe mechanics.', 60, FALSE, FALSE, 2),
+  ('restore', 'Restore', 'Downshift the nervous system, restore breathing, reduce tension, recover range, and support readiness.', 70, FALSE, TRUE, 1)
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -49,14 +49,14 @@ CREATE INDEX IF NOT EXISTS idx_coaching_phase_order_slot_phase ON coaching.phase
 INSERT INTO coaching.phase_order_slot (key, name, description, phase_id, order_index, freshness_sensitivity)
 SELECT v.key, v.name, v.description, sp.id, v.order_index, v.freshness_sensitivity
 FROM (VALUES
-  ('general_warmup', 'General Warmup', 'Raise temperature and general movement.', 'prepare_access', 100, 1),
-  ('mobility_access', 'Mobility / Access', 'Dynamic mobility and joint access.', 'prepare_access', 110, 1),
-  ('activation', 'Activation', 'Light activation and tissue prep.', 'prepare_access', 120, 2),
-  ('landing_prep', 'Landing Prep', 'Landing mechanics and absorption prep.', 'prepare_access', 130, 2),
-  ('technical_skill', 'Technical Skill', 'Low-intensity technical skill work.', 'skill_movement_intelligence', 200, 4),
-  ('tumbling', 'Tumbling', 'Tumbling and rotational skill.', 'skill_movement_intelligence', 210, 5),
-  ('sprint_mechanics', 'Sprint Mechanics', 'Sprint posture and mechanics drills.', 'skill_movement_intelligence', 220, 4),
-  ('reaction_coordination', 'Reaction / Coordination', 'Reaction and coordination drills.', 'skill_movement_intelligence', 230, 4),
+  ('general_warmup', 'General Warmup', 'Raise temperature and general movement.', 'prepare_and_access', 100, 1),
+  ('mobility_access', 'Mobility / Access', 'Dynamic mobility and joint access.', 'prepare_and_access', 110, 1),
+  ('activation', 'Activation', 'Light activation and tissue prep.', 'prepare_and_access', 120, 2),
+  ('landing_prep', 'Landing Prep', 'Landing mechanics and absorption prep.', 'prepare_and_access', 130, 2),
+  ('technical_skill', 'Technical Skill', 'Low-intensity technical skill work.', 'movement_intelligence', 200, 4),
+  ('tumbling', 'Tumbling', 'Tumbling and rotational skill.', 'movement_intelligence', 210, 5),
+  ('sprint_mechanics', 'Sprint Mechanics', 'Sprint posture and mechanics drills.', 'movement_intelligence', 220, 4),
+  ('reaction_coordination', 'Reaction / Coordination', 'Reaction and coordination drills.', 'movement_intelligence', 230, 4),
   ('speed_acceleration', 'Speed / Acceleration', 'Short accelerations and max-speed work.', 'output', 300, 5),
   ('elastic_prep', 'Elastic Prep', 'Pogo, stiffness, and spring drills.', 'output', 310, 4),
   ('main_plyometric', 'Main Plyometric', 'Primary plyometric exposure.', 'output', 320, 5),
@@ -67,13 +67,13 @@ FROM (VALUES
   ('calisthenics_strength', 'Calisthenics Strength', 'Bodyweight strength emphasis.', 'capacity', 420, 3),
   ('accessory_strength', 'Accessory Strength', 'Accessory strength patterns.', 'capacity', 430, 2),
   ('loaded_carry', 'Loaded Carry', 'Carries and loaded locomotion.', 'capacity', 440, 3),
-  ('isometric_control', 'Isometric Control', 'Isometric holds and position ownership.', 'control_resilience', 500, 3),
-  ('eccentric_control', 'Eccentric Control', 'Eccentric and negative emphasis.', 'control_resilience', 510, 4),
-  ('balance_stability', 'Balance / Stability', 'Balance and stability challenges.', 'control_resilience', 520, 3),
-  ('core_body_control', 'Core / Body Control', 'Trunk and body-line control.', 'control_resilience', 530, 3),
-  ('tissue_capacity', 'Tissue Capacity', 'Tendon and tissue tolerance work.', 'control_resilience', 540, 4),
-  ('conditioning_intervals', 'Conditioning Intervals', 'Interval-based conditioning.', 'fitness_repeatability', 600, 2),
-  ('conditioning_circuit', 'Conditioning Circuit', 'Fatigue-producing circuits.', 'fitness_repeatability', 610, 1),
+  ('isometric_control', 'Isometric Control', 'Isometric holds and position ownership.', 'resilience', 500, 3),
+  ('eccentric_control', 'Eccentric Control', 'Eccentric and negative emphasis.', 'resilience', 510, 4),
+  ('balance_stability', 'Balance / Stability', 'Balance and stability challenges.', 'resilience', 520, 3),
+  ('core_body_control', 'Core / Body Control', 'Trunk and body-line control.', 'resilience', 530, 3),
+  ('tissue_capacity', 'Tissue Capacity', 'Tendon and tissue tolerance work.', 'resilience', 540, 4),
+  ('conditioning_intervals', 'Conditioning Intervals', 'Interval-based conditioning.', 'sustained_capacity', 600, 2),
+  ('conditioning_circuit', 'Conditioning Circuit', 'Fatigue-producing circuits.', 'sustained_capacity', 610, 1),
   ('cooldown_breathing', 'Cooldown / Breathing', 'Downshift and breathing reset.', 'restore', 700, 1),
   ('post_workout_flexibility', 'Post-Workout Flexibility', 'Longer static flexibility work.', 'restore', 710, 1)
 ) AS v(key, name, description, phase_key, order_index, freshness_sensitivity)

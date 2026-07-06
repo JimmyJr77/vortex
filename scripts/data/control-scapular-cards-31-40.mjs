@@ -1,5 +1,5 @@
 /**
- * Rich card v2 content for Control / Resilience Scapular / Wrist / Hand-Support cards 31–40.
+ * Rich card v2 content for Resilience Scapular / Wrist / Hand-Support cards 31–40.
  * Consumed by scripts/generate-control-rich.mjs (migration 133).
  */
 
@@ -103,7 +103,7 @@ export const CONTROL_SCAPULAR_CARDS = [
     whyItGoesHere:
       'Belongs in scapular_quadruped_control (541) — first scapular hand-support control slot before plank taps, crawling, and inversion.',
     bestPlacement:
-      'Use early in Control / Resilience upper-support blocks, after wrist prep and before tall plank shoulder taps, bear crawls, or wall handstand progressions.',
+      'Use early in Resilience upper-support blocks, after wrist prep and before tall plank shoulder taps, bear crawls, or wall handstand progressions.',
     movementRequirements: {
       primary_joint_actions: ['scapular_protraction', 'scapular_retraction', 'wrist_extension', 'trunk_bracing'],
       primary_tissues: ['serratus', 'rotator_cuff', 'forearms', 'core'],
@@ -1440,7 +1440,7 @@ export const CONTROL_SCAPULAR_CARDS = [
       intensity_ceiling: 'moderate_to_high',
       daily_ok: false,
       requires_supervision: 'recommended_required_for_ring_beginners',
-      notes: 'Assisted version belongs in Control / Resilience. Unassisted longer/harder support may become Capacity.',
+      notes: 'Assisted version belongs in Resilience. Unassisted longer/harder support may become Capacity.',
     },
     scalingOverrides: {
       youth_beginner: 'Parallel-bar support or box-assisted ring support, 3–5 seconds.',

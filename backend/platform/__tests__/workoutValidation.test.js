@@ -40,7 +40,7 @@ import {
 
 describe('workoutValidation helpers', () => {
   it('orders phases correctly', () => {
-    assert.equal(phaseIndex('prepare_access'), 0)
+    assert.equal(phaseIndex('prepare_and_access'), 0)
     assert.equal(phaseIndex('output'), 2)
     assert.equal(phaseIndex('restore'), PHASE_ORDER.length - 1)
     assert.equal(phaseIndex('unknown'), 999)
@@ -53,11 +53,11 @@ describe('workoutValidation helpers', () => {
 
   it('accumulates prior fatigue from profiles and fitness phase', () => {
     const blockMeta = [
-      { phaseKey: 'fitness_repeatability', block: { items: [{ exercise_id: 1, exercise_name: 'Burpees' }] } },
+      { phaseKey: 'sustained_capacity', block: { items: [{ exercise_id: 1, exercise_name: 'Burpees' }] } },
       { phaseKey: 'output', block: { items: [{ exercise_id: 2, exercise_name: 'Sprint' }] } },
     ]
     const profileByExercisePhase = new Map([
-      ['1:fitness_repeatability', { fatigue_cost: 4 }],
+      ['1:sustained_capacity', { fatigue_cost: 4 }],
     ])
     const regimenByExercise = new Map()
     const fatigue = computePriorFatigue(blockMeta, 1, profileByExercisePhase, regimenByExercise)
@@ -76,8 +76,8 @@ describe('workoutValidation helpers', () => {
 
   it('flags prepare blocks that steal output readiness', () => {
     const profileByExercisePhase = new Map([
-      ['1:prepare_access', { fatigue_cost: 4, impact_level: 0, intensity_ceiling: 'low' }],
-      ['2:prepare_access', { fatigue_cost: 3, impact_level: 3, intensity_ceiling: 'moderate' }],
+      ['1:prepare_and_access', { fatigue_cost: 4, impact_level: 0, intensity_ceiling: 'low' }],
+      ['2:prepare_and_access', { fatigue_cost: 3, impact_level: 3, intensity_ceiling: 'moderate' }],
     ])
     const methodologyKeysByExercise = new Map([
       ['3', ['hiit']],
@@ -96,7 +96,7 @@ describe('workoutValidation helpers', () => {
         profileByExercisePhase,
         methodologyKeysByExercise,
         dosageByExercise,
-        phaseKey: 'prepare_access',
+        phaseKey: 'prepare_and_access',
       },
     )
     assert.equal(drain.counts.high_fatigue, 2)
@@ -138,7 +138,7 @@ describe('workoutValidation helpers', () => {
     const slugByExercise = new Map([['4', 'cossack-shift']])
     const dosageByExercise = new Map([['4', { default_sets: 1, default_reps: 6 }]])
     const blockMeta = [
-      { phaseKey: 'prepare_access', block: {} },
+      { phaseKey: 'prepare_and_access', block: {} },
       { phaseKey: 'output', block: {} },
     ]
     const findings = analyzePrepareHipAccessReadiness(
@@ -172,8 +172,8 @@ describe('workoutValidation helpers', () => {
     const slugByExercise = new Map([['7', 'a-march']])
     const dosageByExercise = new Map([['7', { default_sets: 1, default_rpe_max: 4 }]])
     const blockMeta = [
-      { phaseKey: 'fitness_repeatability', block: {} },
-      { phaseKey: 'prepare_access', block: {} },
+      { phaseKey: 'sustained_capacity', block: {} },
+      { phaseKey: 'prepare_and_access', block: {} },
     ]
     const findings = analyzePrepareActivationReadiness(
       [{ exercise_id: 7, exercise_name: 'A-March' }],
@@ -185,8 +185,8 @@ describe('workoutValidation helpers', () => {
   it('flags skill block fatigue when RPE and fatigue cost are high', () => {
     const slugByExercise = new Map([['8', 'hollow-body-hold'], ['9', 'a-skip']])
     const profileByExercisePhase = new Map([
-      ['8:skill_movement_intelligence', { fatigue_cost: 4 }],
-      ['9:skill_movement_intelligence', { fatigue_cost: 5 }],
+      ['8:movement_intelligence', { fatigue_cost: 4 }],
+      ['9:movement_intelligence', { fatigue_cost: 5 }],
     ])
     const dosageByExercise = new Map([
       ['8', { default_rpe_max: 7 }],
@@ -205,8 +205,8 @@ describe('workoutValidation helpers', () => {
   it('flags tumbling after fitness in skill analysis', () => {
     const slugByExercise = new Map([['10', 'forward-roll-progression']])
     const blockMeta = [
-      { phaseKey: 'fitness_repeatability', block: {} },
-      { phaseKey: 'skill_movement_intelligence', block: {} },
+      { phaseKey: 'sustained_capacity', block: {} },
+      { phaseKey: 'movement_intelligence', block: {} },
     ]
     const findings = analyzeSkillMovementIntelligenceReadiness(
       [{ exercise_id: 10, exercise_name: 'Forward Roll' }],
@@ -228,8 +228,8 @@ describe('workoutValidation helpers', () => {
   it('flags balance cluster after fitness in skill analysis', () => {
     const slugByExercise = new Map([['12', 'beam-walk']])
     const blockMeta = [
-      { phaseKey: 'fitness_repeatability', block: {} },
-      { phaseKey: 'skill_movement_intelligence', block: {} },
+      { phaseKey: 'sustained_capacity', block: {} },
+      { phaseKey: 'movement_intelligence', block: {} },
     ]
     const findings = analyzeSkillMovementIntelligenceReadiness(
       [{ exercise_id: 12, exercise_name: 'Beam Walk' }],
@@ -295,8 +295,8 @@ describe('analyzeSkillPerceptionReadiness', () => {
   it('warns reactive drills after fitness block', () => {
     const slugByExercise = new Map([['23', 'gate-reaction-drill']])
     const blockMeta = [
-      { phaseKey: 'fitness_repeatability', block: {} },
-      { phaseKey: 'skill_movement_intelligence', block: {} },
+      { phaseKey: 'sustained_capacity', block: {} },
+      { phaseKey: 'movement_intelligence', block: {} },
     ]
     const findings = analyzeSkillPerceptionReadiness(
       [{ exercise_id: 23, exercise_name: 'Gate Reaction' }],
@@ -494,7 +494,7 @@ describe('analyzeSkillSprintReadiness', () => {
   it('recommends Output when A-Skip RPE is high', () => {
     const slugByExercise = new Map([['3', 'a-skip']])
     const dosageByExercise = new Map([['3', { default_rpe_max: 5 }]])
-    const profileByExercisePhase = new Map([['3:skill_movement_intelligence', { impact_level: 1 }]])
+    const profileByExercisePhase = new Map([['3:movement_intelligence', { impact_level: 1 }]])
     const findings = analyzeSkillSprintReadiness(
       [{ exercise_id: 3, exercise_name: 'A-Skip', rpe: 7 }],
       { slugByExercise, dosageByExercise, profileByExercisePhase, blockMeta: [], skillBlockIndex: 0 },
@@ -595,8 +595,8 @@ describe('analyzeSkillSprintReadiness', () => {
   it('warns when sprint mechanics follow fitness phase', () => {
     const slugByExercise = new Map([['10', 'wall-drill-march']])
     const blockMeta = [
-      { phaseKey: 'fitness_repeatability', block: {} },
-      { phaseKey: 'skill_movement_intelligence', block: {} },
+      { phaseKey: 'sustained_capacity', block: {} },
+      { phaseKey: 'movement_intelligence', block: {} },
     ]
     const findings = analyzeSkillSprintReadiness(
       [{ exercise_id: 10, exercise_name: 'Wall March' }],
@@ -608,11 +608,11 @@ describe('analyzeSkillSprintReadiness', () => {
   it('warns when sprint block precedes tumbling with high fatigue', () => {
     const slugByExercise = new Map([['11', 'a-skip'], ['12', 'forward-roll-progression']])
     const profileByExercisePhase = new Map([
-      ['11:skill_movement_intelligence', { fatigue_cost: 4 }],
+      ['11:movement_intelligence', { fatigue_cost: 4 }],
     ])
     const blockMeta = [
-      { phaseKey: 'skill_movement_intelligence', block: { items: [{ exercise_id: 11 }] } },
-      { phaseKey: 'skill_movement_intelligence', block: { items: [{ exercise_id: 12 }] } },
+      { phaseKey: 'movement_intelligence', block: { items: [{ exercise_id: 11 }] } },
+      { phaseKey: 'movement_intelligence', block: { items: [{ exercise_id: 12 }] } },
     ]
     const findings = analyzeSkillSprintReadiness(
       [{ exercise_id: 11, exercise_name: 'A-Skip' }],
@@ -633,7 +633,7 @@ describe('analyzeSprintPrepBeforeOutput', () => {
   it('recommends sprint mechanics before speed Output', () => {
     const slugByExercise = new Map([['20', '10-yard-sprint']])
     const blockMeta = [
-      { phaseKey: 'prepare_access', block: { items: [] } },
+      { phaseKey: 'prepare_and_access', block: { items: [] } },
       { phaseKey: 'output', block: { items: [{ exercise_id: 20, exercise_name: '10-Yard Sprint' }] } },
     ]
     const finding = analyzeSprintPrepBeforeOutput(blockMeta, slugByExercise)
@@ -645,7 +645,7 @@ describe('analyzeSprintPrepBeforeOutput', () => {
 describe('analyzeOutputReadiness', () => {
   it('errors when Output follows Fitness', () => {
     const blockMeta = [
-      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'sustained_capacity', block: {} },
       { phaseKey: 'output', block: {} },
     ]
     const findings = analyzeOutputReadiness(
@@ -694,7 +694,7 @@ describe('analyzeOutputAccelerationReadiness', () => {
 
   it('errors when acceleration Output follows Fitness', () => {
     const blockMeta = [
-      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'sustained_capacity', block: {} },
       { phaseKey: 'output', block: {} },
     ]
     const findings = analyzeOutputAccelerationReadiness(
@@ -739,7 +739,7 @@ describe('analyzeOutputAccelerationReadiness', () => {
 describe('analyzeOutputMaxVelocityReadiness', () => {
   it('errors when max-velocity Output follows Fitness', () => {
     const blockMeta = [
-      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'sustained_capacity', block: {} },
       { phaseKey: 'output', block: {} },
     ]
     const findings = analyzeOutputMaxVelocityReadiness(
@@ -811,7 +811,7 @@ describe('analyzeOutputMaxVelocityReadiness', () => {
 describe('analyzeOutputElasticReadiness', () => {
   it('errors when elastic Output follows Fitness', () => {
     const blockMeta = [
-      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'sustained_capacity', block: {} },
       { phaseKey: 'output', block: {} },
     ]
     const findings = analyzeOutputElasticReadiness(
@@ -884,7 +884,7 @@ describe('analyzeOutputElasticReadiness', () => {
 describe('analyzeOutputJumpPowerReadiness', () => {
   it('warns when jump/throw Output follows Fitness', () => {
     const blockMeta = [
-      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'sustained_capacity', block: {} },
       { phaseKey: 'output', block: {} },
     ]
     const findings = analyzeOutputJumpPowerReadiness(
@@ -1010,7 +1010,7 @@ describe('analyzeOutputDecelCodReadiness', () => {
 
   it('warns when COD Output follows Fitness', () => {
     const blockMeta = [
-      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'sustained_capacity', block: {} },
       { phaseKey: 'output', block: {} },
     ]
     const findings = analyzeOutputDecelCodReadiness(
@@ -1089,7 +1089,7 @@ describe('analyzeOutputReactiveTumblingReadiness', () => {
 
   it('warns when reactive Output follows Fitness', () => {
     const blockMeta = [
-      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'sustained_capacity', block: {} },
       { phaseKey: 'output', block: {} },
     ]
     const findings = analyzeOutputReactiveTumblingReadiness(
@@ -1287,7 +1287,7 @@ describe('analyzeCapacityPushReadiness', () => {
   it('warns when push Capacity precedes hand-support skill', () => {
     const blockMeta = [
       { phaseKey: 'capacity', block: {} },
-      { phaseKey: 'skill_movement_intelligence', block: { items: [{ exercise_id: 9, exercise_name: 'Cartwheel' }] } },
+      { phaseKey: 'movement_intelligence', block: { items: [{ exercise_id: 9, exercise_name: 'Cartwheel' }] } },
     ]
     const findings = analyzeCapacityPushReadiness(
       [{ exercise_id: 1, exercise_name: 'Push-Up' }],
@@ -1377,7 +1377,7 @@ describe('analyzeCapacityPullReadiness', () => {
   it('warns when pull Capacity precedes skill work', () => {
     const blockMeta = [
       { phaseKey: 'capacity', block: {} },
-      { phaseKey: 'skill_movement_intelligence', block: { items: [{ exercise_id: 9 }] } },
+      { phaseKey: 'movement_intelligence', block: { items: [{ exercise_id: 9 }] } },
     ]
     const findings = analyzeCapacityPullReadiness(
       [{ exercise_id: 1, exercise_name: 'Ring Row / TRX Row' }],
@@ -1520,7 +1520,7 @@ describe('analyzeCapacityCarryReadiness', () => {
   it('warns when carry Capacity precedes tumbling skill work', () => {
     const blockMeta = [
       { phaseKey: 'capacity', block: {} },
-      { phaseKey: 'skill_movement_intelligence', block: { items: [{ exercise_id: 9, exercise_name: 'Forward Roll' }] } },
+      { phaseKey: 'movement_intelligence', block: { items: [{ exercise_id: 9, exercise_name: 'Forward Roll' }] } },
     ]
     const findings = analyzeCapacityCarryReadiness(
       [{ exercise_id: 5, exercise_name: 'Farmer Carry' }],
@@ -1607,7 +1607,7 @@ describe('analyzeCapacityTissueReadiness', () => {
   it('warns when wrist series precedes handstand skill work', () => {
     const blockMeta = [
       { phaseKey: 'capacity', block: {} },
-      { phaseKey: 'skill_movement_intelligence', block: { items: [{ exercise_id: 8, exercise_name: 'Handstand Hold' }] } },
+      { phaseKey: 'movement_intelligence', block: { items: [{ exercise_id: 8, exercise_name: 'Handstand Hold' }] } },
     ]
     const findings = analyzeCapacityTissueReadiness(
       [{ exercise_id: 5, exercise_name: 'Wrist / Forearm Capacity Series' }],
@@ -1642,7 +1642,7 @@ describe('analyzeCapacityTissueReadiness', () => {
 describe('analyzeControlResilienceReadiness', () => {
   it('warns when hard Control precedes Output', () => {
     const blockMeta = [
-      { phaseKey: 'control_resilience', block: {} },
+      { phaseKey: 'resilience', block: {} },
       { phaseKey: 'output', block: {} },
     ]
     const findings = analyzeControlResilienceReadiness(
@@ -1663,7 +1663,7 @@ describe('analyzeControlResilienceReadiness', () => {
       {
         slugByExercise: new Map([['2', 'drop-squat-to-stick']]),
         dosageByExercise: new Map(),
-        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        blockMeta: [{ phaseKey: 'resilience', block: {} }],
         controlBlockIndex: 0,
         draft: { watch_points: ['knee valgus on landing'] },
       },
@@ -1677,7 +1677,7 @@ describe('analyzeControlResilienceReadiness', () => {
       {
         slugByExercise: new Map([['3', 'single-leg-hop-to-stick-low-amplitude']]),
         dosageByExercise: new Map(),
-        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        blockMeta: [{ phaseKey: 'resilience', block: {} }],
         controlBlockIndex: 0,
       },
     )
@@ -1690,7 +1690,7 @@ describe('analyzeControlResilienceReadiness', () => {
       {
         slugByExercise: new Map([['4', 'bear-plank-shoulder-tap']]),
         dosageByExercise: new Map(),
-        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        blockMeta: [{ phaseKey: 'resilience', block: {} }],
         controlBlockIndex: 0,
       },
     )
@@ -1703,7 +1703,7 @@ describe('analyzeControlResilienceReadiness', () => {
       {
         slugByExercise: new Map([['5', 'wall-handstand-line-hold']]),
         dosageByExercise: new Map(),
-        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        blockMeta: [{ phaseKey: 'resilience', block: {} }],
         controlBlockIndex: 0,
         exerciseSkillLevelById: new Map([['5', 'BEGINNER']]),
       },
@@ -1719,7 +1719,7 @@ describe('analyzeControlLandingReadiness', () => {
       {
         slugByExercise: new Map([['1', 'snap-down-to-stick-control-version']]),
         dosageByExercise: new Map(),
-        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        blockMeta: [{ phaseKey: 'resilience', block: {} }],
         controlBlockIndex: 0,
         draft: { watch_points: ['athlete rebounded instead of sticking'] },
       },
@@ -1733,7 +1733,7 @@ describe('analyzeControlLandingReadiness', () => {
       {
         slugByExercise: new Map([['2', 'drop-squat-to-stick']]),
         dosageByExercise: new Map(),
-        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        blockMeta: [{ phaseKey: 'resilience', block: {} }],
         controlBlockIndex: 0,
         draft: { watch_points: ['loud landing on every rep'] },
       },
@@ -1747,7 +1747,7 @@ describe('analyzeControlLandingReadiness', () => {
       {
         slugByExercise: new Map([['3', 'forward-hop-to-stick-low-amplitude']]),
         dosageByExercise: new Map(),
-        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        blockMeta: [{ phaseKey: 'resilience', block: {} }],
         controlBlockIndex: 0,
         draft: { watch_points: ['extra step after landing'] },
       },
@@ -1761,7 +1761,7 @@ describe('analyzeControlLandingReadiness', () => {
       {
         slugByExercise: new Map([['4', 'backpedal-to-stick']]),
         dosageByExercise: new Map(),
-        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        blockMeta: [{ phaseKey: 'resilience', block: {} }],
         controlBlockIndex: 0,
         draft: { watch_points: ['no clear lane behind athlete'] },
       },
@@ -1775,7 +1775,7 @@ describe('analyzeControlLandingReadiness', () => {
       {
         slugByExercise: new Map([['5', 'lateral-shuffle-to-stick']]),
         dosageByExercise: new Map(),
-        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        blockMeta: [{ phaseKey: 'resilience', block: {} }],
         controlBlockIndex: 0,
         draft: { watch_points: ['feet cross during shuffle'] },
       },
@@ -1789,7 +1789,7 @@ describe('analyzeControlLandingReadiness', () => {
       {
         slugByExercise: new Map([['6', 'low-box-step-off-to-stick']]),
         dosageByExercise: new Map(),
-        blockMeta: [{ phaseKey: 'control_resilience', block: {} }],
+        blockMeta: [{ phaseKey: 'resilience', block: {} }],
         controlBlockIndex: 0,
         draft: { watch_points: ['box too high — loud step-off'] },
       },
@@ -2131,8 +2131,8 @@ describe('analyzeControlHandSupportReadiness', () => {
       [{ exercise_id: 36, exercise_name: 'Wall Handstand Line Hold' }],
       ctx(36, 'wall-handstand-line-hold', 'clean holds', {
         blockMeta: [
-          { phaseKey: 'control_resilience', block: {} },
-          { phaseKey: 'skill_movement_intelligence', block: {} },
+          { phaseKey: 'resilience', block: {} },
+          { phaseKey: 'movement_intelligence', block: {} },
         ],
         controlBlockIndex: 0,
       }),

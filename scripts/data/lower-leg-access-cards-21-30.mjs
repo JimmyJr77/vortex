@@ -412,7 +412,7 @@ export const LOWER_LEG_CARDS = [
     description:
       'Lean against a wall with heels on the floor and feet slightly forward. Keep knees mostly straight. Lift the toes toward the shins, then lower under control.',
     coachLanguage:
-      'Use low dose before sprinting, jumping, landing, agility, or lower-body strength. Higher-volume tibialis training belongs in Control / Resilience or Capacity.',
+      'Use low dose before sprinting, jumping, landing, agility, or lower-body strength. Higher-volume tibialis training belongs in Resilience or Capacity.',
     athleteLanguage: 'Keep your heels down and lift your toes toward your shins.',
     tenets: [
       { key: 'strength', weight: 2 },
@@ -503,7 +503,7 @@ export const LOWER_LEG_CARDS = [
       impact_level: 0,
       intensity_ceiling: 'moderate',
       daily_ok: true,
-      notes: 'Low-dose activation in Prepare / Access; higher-volume tibialis training belongs in Control / Resilience or Capacity.',
+      notes: 'Low-dose activation in Prepare & Access; higher-volume tibialis training belongs in Resilience or Capacity.',
     },
     scaling: {
       youth_beginner: 'Seated toe lifts or wall version with feet closer.',
@@ -534,9 +534,9 @@ export const LOWER_LEG_CARDS = [
     bestPlacement:
       'Before jumping, sprinting, tumbling, or agility when the athlete needs calf/Achilles prep without fatigue.',
     description:
-      'Stand near a wall or support. Rise onto the balls of the feet. Pause tall. Lower heels under control. In Prepare / Access, keep this low dose and smooth, not fatiguing.',
+      'Stand near a wall or support. Rise onto the balls of the feet. Pause tall. Lower heels under control. In Prepare & Access, keep this low dose and smooth, not fatiguing.',
     coachLanguage:
-      'Use before jumping, sprinting, tumbling, or agility when the athlete needs calf/Achilles prep without fatigue. If slow eccentric or high-volume, move to Control / Resilience.',
+      'Use before jumping, sprinting, tumbling, or agility when the athlete needs calf/Achilles prep without fatigue. If slow eccentric or high-volume, move to Resilience.',
     athleteLanguage: 'Rise tall, control the lower, and keep pressure through the ball of the foot.',
     tenets: [
       { key: 'strength', weight: 3 },
@@ -569,7 +569,7 @@ export const LOWER_LEG_CARDS = [
       { key: 'hip', weight: 1 },
     ],
     whyItWorks:
-      'Calf raises prepare the ankle plantarflexors and Achilles for takeoff and landing. Eccentric heel drops use controlled lowering to strengthen the calf/Achilles system; in Prepare / Access keep volume low and smooth.',
+      'Calf raises prepare the ankle plantarflexors and Achilles for takeoff and landing. Eccentric heel drops use controlled lowering to strengthen the calf/Achilles system; in Prepare & Access keep volume low and smooth.',
     whyItGoesHere: 'Belongs in Activate (calf_achilles_prep) — low-dose calf/Achilles readiness.',
     commonMisuse: 'Do not use high volume before jumping or sprinting if calves become fatigued.',
     scalingGuidance: 'Scale by calf/Achilles history, body mass, jumping load, and soreness.',
@@ -642,7 +642,7 @@ export const LOWER_LEG_CARDS = [
       impact_level: 0,
       intensity_ceiling: 'moderate',
       daily_ok: true,
-      notes: 'Low-dose calf/Achilles prep. If slow eccentric or high-volume, move to Control / Resilience.',
+      notes: 'Low-dose calf/Achilles prep. If slow eccentric or high-volume, move to Resilience.',
     },
     scaling: {
       youth_beginner: 'Double-leg only, hands on wall, 6–8 reps.',
@@ -660,7 +660,7 @@ export const LOWER_LEG_CARDS = [
     avoidBefore: ['Max plyometrics if calves become fatigued', 'Sprint work if Achilles is symptomatic'],
     doNotUseWhen: ['Acute Achilles pain', 'Recent calf strain', 'Heel pain that worsens with loading'],
     mediaReferences: ['Prehab Guys eccentric heel raise', 'Elite Performance Institute eccentric heel drop'],
-    mediaInternalNotes: ['Keep Prepare / Access volume lower than true eccentric training blocks.'],
+    mediaInternalNotes: ['Keep Prepare & Access volume lower than true eccentric training blocks.'],
   },
   {
     slug: 'toe-yoga',
@@ -1178,7 +1178,7 @@ export const LOWER_LEG_CARDS = [
       impact_level: 2,
       intensity_ceiling: 'moderate',
       daily_ok: false,
-      notes: 'Prepare / Access only when low amplitude and low volume. High-quality pogos belong in Output.',
+      notes: 'Prepare & Access only when low amplitude and low volume. High-quality pogos belong in Output.',
     },
     scaling: {
       youth_beginner: 'Start with marching or low ankle bounces holding a wall.',
@@ -1330,7 +1330,7 @@ export const LOWER_LEG_CARDS = [
       impact_level: 2,
       intensity_ceiling: 'moderate',
       daily_ok: false,
-      notes: 'Great warm-up if low dose and technically easy. If performed hard, long, or interval-style, it becomes Fitness / Repeatability.',
+      notes: 'Great warm-up if low dose and technically easy. If performed hard, long, or interval-style, it becomes Sustained Capacity.',
     },
     scaling: {
       youth_beginner: 'Use imaginary rope first; 10–20 seconds.',
@@ -1358,7 +1358,7 @@ export const LOWER_LEG_CARDS = [
       'Poor landing tolerance',
     ],
     mediaReferences: ['Crossrope jump-rope warm-up article', 'ACE jump-rope progression cautions', 'Prehab Guys jump-rope archive'],
-    mediaInternalNotes: ['Keep Vortex Prepare / Access card limited to easy bounce rhythm, not conditioning intervals.'],
+    mediaInternalNotes: ['Keep Vortex Prepare & Access card limited to easy bounce rhythm, not conditioning intervals.'],
   },
 ]
 

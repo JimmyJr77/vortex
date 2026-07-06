@@ -10,11 +10,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const outPath = path.join(__dirname, '../backend/migrations/135_coaching_library_facility_backfill.sql')
 
 const PHASE_KEYS = [
-  'prepare_access',
-  'skill_movement_intelligence',
+  'prepare_and_access',
+  'movement_intelligence',
   'output',
   'capacity',
-  'control_resilience',
+  'resilience',
 ]
 
 const sql = `-- Multi-facility coaching card library backfill.

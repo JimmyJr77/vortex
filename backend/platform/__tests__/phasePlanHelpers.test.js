@@ -2,12 +2,12 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 
 const PHASE_ORDER = [
-  'prepare_access',
-  'skill_movement_intelligence',
+  'prepare_and_access',
+  'movement_intelligence',
   'output',
   'capacity',
-  'control_resilience',
-  'fitness_repeatability',
+  'resilience',
+  'sustained_capacity',
   'restore',
 ]
 
@@ -21,7 +21,7 @@ function normalizePhasePlanRow(raw) {
 function applyAddOnToPlan(plan, addOnFocus, addOnMinutes) {
   if (!addOnFocus || addOnMinutes <= 0) return plan
   const rows = [...plan]
-  const fitnessIdx = rows.findIndex((r) => r.phaseKey === 'fitness_repeatability')
+  const fitnessIdx = rows.findIndex((r) => r.phaseKey === 'sustained_capacity')
   if (addOnFocus === 'fitness' && fitnessIdx >= 0) {
     rows[fitnessIdx] = { ...rows[fitnessIdx], minutes: rows[fitnessIdx].minutes + addOnMinutes }
   }
@@ -37,7 +37,7 @@ describe('phase plan template normalization', () => {
   it('extends fitness phase for fitness add-on', () => {
     const plan = PHASE_ORDER.map((phaseKey, i) => ({ phaseKey, minutes: i === 5 ? 5 : 8 }))
     const updated = applyAddOnToPlan(plan, 'fitness', 10)
-    const fitness = updated.find((p) => p.phaseKey === 'fitness_repeatability')
+    const fitness = updated.find((p) => p.phaseKey === 'sustained_capacity')
     assert.equal(fitness.minutes, 15)
   })
 })

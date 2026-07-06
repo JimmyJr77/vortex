@@ -1,10 +1,10 @@
 const PHASE_ORDER = [
-  'prepare_access',
-  'skill_movement_intelligence',
+  'prepare_and_access',
+  'movement_intelligence',
   'output',
   'capacity',
-  'control_resilience',
-  'fitness_repeatability',
+  'resilience',
+  'sustained_capacity',
   'restore',
 ]
 
@@ -57,7 +57,7 @@ export async function validateRegimenDraft(pool, draft) {
       .filter(Boolean),
   )
 
-  for (const key of ['prepare_access', 'restore']) {
+  for (const key of ['prepare_and_access', 'restore']) {
     if (distributions.length > 0 && !coveredKeys.has(key)) {
       recommendations.push({
         severity: 'recommendation',
@@ -73,7 +73,7 @@ export async function validateRegimenDraft(pool, draft) {
     .filter((d) => (d.phase_key ?? d.phaseKey ?? phaseById.get(String(d.phase_id ?? d.phaseId))?.key) === 'output')
     .reduce((sum, d) => sum + (Number(d.default_minutes ?? d.defaultMinutes) || 0), 0)
   const fitnessMinutes = distributions
-    .filter((d) => (d.phase_key ?? d.phaseKey ?? phaseById.get(String(d.phase_id ?? d.phaseId))?.key) === 'fitness_repeatability')
+    .filter((d) => (d.phase_key ?? d.phaseKey ?? phaseById.get(String(d.phase_id ?? d.phaseId))?.key) === 'sustained_capacity')
     .reduce((sum, d) => sum + (Number(d.default_minutes ?? d.defaultMinutes) || 0), 0)
 
   if (fitnessMinutes > outputMinutes * 1.5 && outputMinutes > 0) {

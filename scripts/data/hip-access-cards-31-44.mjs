@@ -965,7 +965,7 @@ export const HIP_ACCESS_CARDS = [
       impact_level: 0,
       intensity_ceiling: 'moderate',
       daily_ok: true,
-      notes: 'Good integrated mobility drill; if loaded or high volume, it shifts toward Capacity or Control / Resilience.',
+      notes: 'Good integrated mobility drill; if loaded or high volume, it shifts toward Capacity or Resilience.',
     },
     scaling: {
       youth_beginner: 'Use hands and partial rise only.',
@@ -1469,7 +1469,7 @@ export const HIP_ACCESS_CARDS = [
       { key: 'core', weight: 2 },
     ],
     whyItWorks:
-      'The Cossack pattern prepares the body for lateral loading, adductor length, hip control, ankle dorsiflexion, and knee tracking. The Prehab Guys cue shifting weight to one side into a deep lateral lunge while trying to sit back on the heel and keeping the opposite leg straight; for Prepare / Access, use a lower-amplitude version rather than maximal depth.',
+      'The Cossack pattern prepares the body for lateral loading, adductor length, hip control, ankle dorsiflexion, and knee tracking. The Prehab Guys cue shifting weight to one side into a deep lateral lunge while trying to sit back on the heel and keeping the opposite leg straight; for Prepare & Access, use a lower-amplitude version rather than maximal depth.',
     whyItGoesHere:
       'Belongs in Integrate (frontal_plane_mobility) — shallow frontal-plane squat shift before agility or lateral power.',
     commonMisuse: 'Do not force depth or collapse the knee inward before reactive agility.',
@@ -1538,7 +1538,7 @@ export const HIP_ACCESS_CARDS = [
       impact_level: 0,
       intensity_ceiling: 'moderate',
       daily_ok: true,
-      notes: 'Prepare / Access version should be shallow-to-moderate and non-fatiguing. Deep or loaded Cossacks belong in Capacity or Control.',
+      notes: 'Prepare & Access version should be shallow-to-moderate and non-fatiguing. Deep or loaded Cossacks belong in Capacity or Control.',
     },
     scaling: {
       youth_beginner: 'Shallow lateral shifts only.',

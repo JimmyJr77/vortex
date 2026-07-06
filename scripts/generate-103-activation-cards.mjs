@@ -1,5 +1,5 @@
 /**
- * Generates backend/migrations/103_coaching_prepare_access_activation_cards.sql
+ * Generates backend/migrations/103_coaching_prepare_and_access_activation_cards.sql
  * Run: node scripts/generate-103-activation-cards.mjs
  */
 import fs from 'fs'
@@ -45,13 +45,13 @@ const COHORT_KEYS = [
 ]
 
 const VALIDATION_EDU = {
-  title: 'Prepare / Access activation without pre-fatigue',
+  title: 'Prepare & Access activation without pre-fatigue',
   short_summary:
     'Activation and integration drills should improve position and readiness without creating trunk, hip, or shoulder fatigue before Skill or Output.',
   what_it_is:
     'Activation and integration drills should improve position, awareness, and readiness without creating trunk, hip, calf, or shoulder fatigue before Skill, Output, tumbling, or strength.',
   why_it_matters:
-    'Cards 45–50 bridge mobility/access into coordinated movement. High-volume bridges, band walks, or core burnouts in Prepare / Access steal output readiness.',
+    'Cards 45–50 bridge mobility/access into coordinated movement. High-volume bridges, band walks, or core burnouts in Prepare & Access steal output readiness.',
   programming_guidance:
     'Keep glute bridges ≤15 reps, band walks ≤12 steps per direction, dead bug/bird dog at warm-up dose, and A-March slow and technical before Skill or Output.',
   common_misuse:
@@ -75,7 +75,7 @@ CROSS JOIN (VALUES
   ('cross_body_core', 'Cross-Body Core', 'Bird dog and contralateral trunk integration.', 151, 2, 'integrate'),
   ('marching_mechanics', 'Marching Mechanics', 'A-march, B-march, and sprint posture drills.', 160, 2, 'potentiate_bridge')
 ) AS v(key, name, description, order_index, freshness_sensitivity, subrole_key)
-WHERE sp.key = 'prepare_access'
+WHERE sp.key = 'prepare_and_access'
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -115,7 +115,7 @@ UPDATE coaching.exercise SET
   coach_language = ${sqlStr(card.coachLanguage)},
   athlete_language = ${sqlStr(card.athleteLanguage)},
   movement_family = ${sqlStr(card.family)},
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = ${sqlStr(card.subrole)},
   primary_order_slot = ${sqlStr(card.slot)},
   default_sets = ${d.default_sets},
@@ -143,7 +143,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = ${sqlStr(pp.intensity_ceiling)},
   notes = ${sqlStr(pp.notes)}
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = ${sqlStr(card.slot)} AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = ${sqlStr(card.slug)};
 
@@ -296,6 +296,6 @@ ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
   updated_at = now();
 `
 
-const outPath = path.join(__dirname, '../backend/migrations/103_coaching_prepare_access_activation_cards.sql')
+const outPath = path.join(__dirname, '../backend/migrations/103_coaching_prepare_and_access_activation_cards.sql')
 fs.writeFileSync(outPath, sql)
 console.log('Wrote', outPath, '—', ACTIVATION_ACCESS_CARDS.length, 'activation cards')

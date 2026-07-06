@@ -1,5 +1,5 @@
 /**
- * Generates backend/migrations/101_coaching_prepare_access_lower_leg_cards.sql
+ * Generates backend/migrations/101_coaching_prepare_and_access_lower_leg_cards.sql
  * Run: node scripts/generate-101-lower-leg-cards.mjs
  */
 import fs from 'fs'
@@ -45,13 +45,13 @@ const COHORT_KEYS = [
 ]
 
 const VALIDATION_EDU = {
-  title: 'Prepare / Access lower-leg readiness without pre-fatigue',
+  title: 'Prepare & Access lower-leg readiness without pre-fatigue',
   short_summary:
     'Foot/ankle readiness drills should prepare lower-body output without becoming conditioning or high-impact fatigue.',
   what_it_is:
     'Foot/ankle readiness drills should prepare the athlete for lower-body output, not become conditioning or high-impact fatigue before sprinting, jumping, tumbling, or agility.',
   why_it_matters:
-    'Landing, sprinting, jumping, agility, and tumbling takeoffs require fresh ankle spring and foot control. High-dose pogos, jump rope, or calf burnouts in Prepare / Access steal output readiness.',
+    'Landing, sprinting, jumping, agility, and tumbling takeoffs require fresh ankle spring and foot control. High-dose pogos, jump rope, or calf burnouts in Prepare & Access steal output readiness.',
   programming_guidance:
     'Keep pogos under ~40 contacts, jump rope under ~90 seconds at low RPE, and calf raises at warm-up dose (≤15 reps). Sequence Mobilize → Activate → Integrate → Potentiate Bridge without visible lower-leg fatigue.',
   common_misuse:
@@ -83,7 +83,7 @@ CROSS JOIN (VALUES
   ('hip_mobility', 'Hip Mobility', 'Hip switches, 90/90, and hip CARs.', 140, 1, 'mobilize'),
   ('squat_access', 'Squat Access', 'Squat patterning and depth access work.', 141, 1, 'mobilize')
 ) AS v(key, name, description, order_index, freshness_sensitivity, subrole_key)
-WHERE sp.key = 'prepare_access'
+WHERE sp.key = 'prepare_and_access'
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -123,7 +123,7 @@ UPDATE coaching.exercise SET
   coach_language = ${sqlStr(card.coachLanguage)},
   athlete_language = ${sqlStr(card.athleteLanguage)},
   movement_family = ${sqlStr(card.family)},
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = ${sqlStr(card.subrole)},
   primary_order_slot = ${sqlStr(card.slot)},
   default_sets = ${d.default_sets},
@@ -151,7 +151,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = ${sqlStr(pp.intensity_ceiling)},
   notes = ${sqlStr(pp.notes)}
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = ${sqlStr(card.slot)} AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = ${sqlStr(card.slug)};
 
@@ -304,6 +304,6 @@ ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
   updated_at = now();
 `
 
-const outPath = path.join(__dirname, '../backend/migrations/101_coaching_prepare_access_lower_leg_cards.sql')
+const outPath = path.join(__dirname, '../backend/migrations/101_coaching_prepare_and_access_lower_leg_cards.sql')
 fs.writeFileSync(outPath, sql)
 console.log('Wrote', outPath, '—', LOWER_LEG_CARDS.length, 'lower-leg cards')

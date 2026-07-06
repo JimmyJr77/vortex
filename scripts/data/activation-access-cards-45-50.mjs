@@ -61,7 +61,7 @@ export const ACTIVATION_ACCESS_CARDS = [
     whyItGoesHere:
       'Belongs in Activate (glute_activation) — low-dose hip-extension and glute priming before integrated or power work.',
     commonMisuse:
-      'Do not use as a high-volume finisher, long isometric hold, or loaded strength set before Output; that belongs in Capacity or Control / Resilience.',
+      'Do not use as a high-volume finisher, long isometric hold, or loaded strength set before Output; that belongs in Capacity or Resilience.',
     scalingGuidance:
       'Scale by hip-extension control, trunk strategy, hamstring dominance, pregnancy/postpartum considerations, and symptoms.',
     movementRequirements: {
@@ -136,7 +136,7 @@ export const ACTIVATION_ACCESS_CARDS = [
       intensity_ceiling: 'moderate',
       daily_ok: true,
       notes:
-        'Use as glute activation and hip-extension access. If loaded, long-held, or high-volume, shift to Capacity or Control / Resilience.',
+        'Use as glute activation and hip-extension access. If loaded, long-held, or high-volume, shift to Capacity or Resilience.',
     },
     scaling: {
       youth_beginner: 'Use simple cue: "push the floor, squeeze your glutes." Keep reps low.',
@@ -221,7 +221,7 @@ export const ACTIVATION_ACCESS_CARDS = [
     whyItGoesHere:
       'Belongs in Activate (glute_core_integration) — pelvic-control primer linking glute activation to single-leg readiness.',
     commonMisuse:
-      'Do not march before the athlete owns a level double-leg bridge, or use high volume before Output; that belongs in Control / Resilience.',
+      'Do not march before the athlete owns a level double-leg bridge, or use high volume before Output; that belongs in Resilience.',
     scalingGuidance:
       'Scale by trunk control, pelvic control, hip-extension quality, and postpartum/pelvic-floor symptoms when relevant.',
     movementRequirements: {
@@ -296,7 +296,7 @@ export const ACTIVATION_ACCESS_CARDS = [
       intensity_ceiling: 'moderate',
       daily_ok: true,
       notes:
-        'Use only after athlete owns a clean bridge. Low-volume primer in Prepare / Access; higher-volume version belongs in Control / Resilience.',
+        'Use only after athlete owns a clean bridge. Low-volume primer in Prepare & Access; higher-volume version belongs in Resilience.',
     },
     scaling: {
       youth_beginner: 'Stay with regular glute bridge until hips stay level.',
@@ -380,7 +380,7 @@ export const ACTIVATION_ACCESS_CARDS = [
     whyItGoesHere:
       'Belongs in Activate (core_activation) — low-dose anti-extension and rib-pelvis organization before integrated movement.',
     commonMisuse:
-      'Do not use as a core burnout or high-volume finisher before Output; that belongs in Control / Resilience.',
+      'Do not use as a core burnout or high-volume finisher before Output; that belongs in Resilience.',
     scalingGuidance:
       'Scale by trunk control, breathing, pressure management, and ability to keep the spine organized.',
     movementRequirements: {
@@ -454,7 +454,7 @@ export const ACTIVATION_ACCESS_CARDS = [
       impact_level: 0,
       intensity_ceiling: 'moderate',
       daily_ok: true,
-      notes: 'Use as activation, not a core burnout. If fatigue-based, move to Control / Resilience.',
+      notes: 'Use as activation, not a core burnout. If fatigue-based, move to Resilience.',
     },
     scaling: {
       youth_beginner: 'Use heel taps from feet-on-floor position.',
@@ -539,7 +539,7 @@ export const ACTIVATION_ACCESS_CARDS = [
     whyItGoesHere:
       'Belongs in Integrate (cross_body_core) — contralateral trunk control linking upper and lower body before crawl or power work.',
     commonMisuse:
-      'Do not rush reps, use high volume, or load heavily before Output; advanced variations belong in Control / Resilience or Skill.',
+      'Do not rush reps, use high volume, or load heavily before Output; advanced variations belong in Resilience or Skill.',
     scalingGuidance:
       'Scale by trunk control, shoulder/wrist tolerance, and cross-body coordination.',
     movementRequirements: {
@@ -614,7 +614,7 @@ export const ACTIVATION_ACCESS_CARDS = [
       intensity_ceiling: 'moderate',
       daily_ok: true,
       notes:
-        'Excellent cross-body integration drill. Keep reps crisp; high-volume or advanced variations belong in Control / Resilience.',
+        'Excellent cross-body integration drill. Keep reps crisp; high-volume or advanced variations belong in Resilience.',
     },
     scaling: {
       youth_beginner: 'Start with only leg reach or only arm reach.',
@@ -835,11 +835,11 @@ export const ACTIVATION_ACCESS_CARDS = [
     cardSummary:
       'Low-intensity sprint-mechanics primer that teaches posture, knee lift, dorsiflexion, rhythm, and ground contact before speed or movement skill.',
     bestPlacement:
-      'Final bridge from Prepare / Access into Skill / Movement Intelligence or Output on speed, agility, tumbling, or general athletic days.',
+      'Final bridge from Prepare & Access into Movement Intelligence or Output on speed, agility, tumbling, or general athletic days.',
     description:
       'March forward slowly with tall posture. Lift one knee to roughly hip height, keep the toe pulled up, coordinate opposite arm swing, and step down under the hip with control. Repeat rhythmically.',
     coachLanguage:
-      'Use as the final bridge from Prepare / Access into Skill / Movement Intelligence or Output on speed, agility, tumbling, or general athletic days.',
+      'Use as the final bridge from Prepare & Access into Movement Intelligence or Output on speed, agility, tumbling, or general athletic days.',
     athleteLanguage: 'Stand tall, knee up, toe up, step down under your hip with rhythm.',
     tenets: [
       { key: 'speed', weight: 4 },
@@ -881,7 +881,7 @@ export const ACTIVATION_ACCESS_CARDS = [
     whyItGoesHere:
       'Belongs in Potentiate Bridge (marching_mechanics) — slow technical sprint-posture primer before Skill or Output.',
     commonMisuse:
-      'Do not march fast, use high coaching detail, or place after conditioning if the goal is sprint-mechanics prep; faster versions belong in Skill / Movement Intelligence.',
+      'Do not march fast, use high coaching detail, or place after conditioning if the goal is sprint-mechanics prep; faster versions belong in Movement Intelligence.',
     scalingGuidance:
       'Scale by coordination, sprint skill, balance, hip-flexor comfort, and pelvic-floor/load tolerance when relevant.',
     movementRequirements: {
@@ -958,7 +958,7 @@ export const ACTIVATION_ACCESS_CARDS = [
       intensity_ceiling: 'moderate',
       daily_ok: true,
       notes:
-        'Prepare / Access version is slow and technical. Faster, more coached versions belong in Skill / Movement Intelligence.',
+        'Prepare & Access version is slow and technical. Faster, more coached versions belong in Movement Intelligence.',
     },
     scaling: {
       youth_beginner: 'March in place first; use "knee up, toe up" rhythm game.',

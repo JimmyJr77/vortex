@@ -28,14 +28,14 @@ Each exercise card is assembled from `coaching.exercise` plus related profile ta
 
 ## 2. Authoring conventions
 
-### Phase and subrole (Prepare / Access)
+### Phase and subrole (Prepare & Access)
 
-- **Phase:** `primary_phase_key = 'prepare_access'`
+- **Phase:** `primary_phase_key = 'prepare_and_access'`
 - **Subrole:** One of `raise | mobilize | activate | integrate | potentiate_bridge`
 - **Order slot:** Fine-grained key from `coaching.phase_order_slot` (e.g. `breathing_reset`, `hip_rotation`)
 - **Dual subroles** (e.g. “Mobilize / Activate”): Store the **primary** subrole on `phase_subrole` (first listed / dominant intent). Record secondary intent in `coach_language` or card summary.
 
-### RAMP framework & Vortex Prepare / Access sequence
+### RAMP framework & Vortex Prepare & Access sequence
 
 **RAMP** (Ian Jeffreys) is a widely accepted strength-and-conditioning warm-up model used in collegiate athletics, professional sports, military performance, and elite programs. The **original** acronym and order:
 
@@ -59,11 +59,11 @@ Raise → Mobilize → Activate → Integrate → **Potentiate Bridge** → **Pe
 | Activate | Prime glutes, core, scapular stabilizers, feet, posterior chain |
 | Integrate | Locomotion, coordination, balance, sprint mechanics — whole-body patterning |
 | Potentiate Bridge | Low-stress elastic / reactive ramp (pogos, snap-down prep, bounds, build-ups) before maximal output |
-| **Performance Work** | Main session intent: **Skill / Movement Intelligence**, **Output**, Capacity, Control / Resilience, Fitness / Repeatability — then Restore |
+| **Performance Work** | Main session intent: **Movement Intelligence**, **Output**, Capacity, Resilience, Sustained Capacity — then Restore |
 
 Mobilize before Activate fits Vortex's blend of athletic development, tumbling, and Ninja-style movement: open usable ranges before asking stabilizers to fire in integrated positions. **Potentiate Bridge** closes the gap between warm-up and max effort — especially valuable for Ninja, sprinting, gymnastics, football, tactical athletes, parkour, and high-performance youth.
 
-Coach UI copy lives in [prepareAccessRampPhilosophy.ts](../src/coach/prepareAccessRampPhilosophy.ts); Philosophy tab renders it in [FrameworkPanel.tsx](../src/components/coach/FrameworkPanel.tsx). Workout validation enforces subrole order within Prepare / Access blocks (`prepare_subrole_sequence`).
+Coach UI copy lives in [prepareAccessRampPhilosophy.ts](../src/coach/prepareAccessRampPhilosophy.ts); Philosophy tab renders it in [FrameworkPanel.tsx](../src/components/coach/FrameworkPanel.tsx). Workout validation enforces subrole order within Prepare & Access blocks (`prepare_subrole_sequence`).
 
 
 There is no dedicated `best_placement` column. Store session placement guidance in:
@@ -141,7 +141,7 @@ Below is the **target card format** and where each block lands in the product.
 | Name | 90/90 Breathing with Reach |
 | Card summary | Supine breathing reset that stacks ribs over pelvis, restores diaphragmatic breathing, and prepares the trunk for movement. |
 | Movement family | Breathing reset |
-| Phase | Prepare / Access |
+| Phase | Prepare & Access |
 | Subrole | Mobilize *(secondary: Activate — noted in coach language)* |
 | Order slot | `breathing_reset` |
 
@@ -226,7 +226,7 @@ Below is the **target card format** and where each block lands in the product.
 
 ## 5. Foundation cards 1–10 (implemented)
 
-Migration **`098_coaching_prepare_access_foundation_cards.sql`** upgrades these slugs to the full spec above:
+Migration **`098_coaching_prepare_and_access_foundation_cards.sql`** upgrades these slugs to the full spec above:
 
 | # | Slug | Order slot |
 |---|------|------------|
@@ -237,14 +237,14 @@ Migration **`098_coaching_prepare_access_foundation_cards.sql`** upgrades these 
 | 5 | `quadruped-spinal-circles` | `spinal_mobility` |
 | 6 | `quadruped-thread-the-needle` | `thoracic_rotation` |
 | 7 | `side-lying-open-book` | `thoracic_rotation` |
-| 8 | `9090-hip-switch` | `hip_rotation` *(slot added in 098; **content/placement superseded by hip cluster card #35 in [102](../backend/migrations/102_coaching_prepare_access_hip_access_cards.sql) — see §8.6)*) |
+| 8 | `9090-hip-switch` | `hip_rotation` *(slot added in 098; **content/placement superseded by hip cluster card #35 in [102](../backend/migrations/102_coaching_prepare_and_access_hip_access_cards.sql) — see §8.6)*) |
 | 9 | `worlds-greatest-stretch` | `integrated_mobility` |
 | 10 | `inchworm-walkout` | `integrated_mobility` |
 
 **Source data:** [scripts/data/foundation-access-cards-1-10.mjs](../scripts/data/foundation-access-cards-1-10.mjs)  
 **Regenerate SQL:** `node scripts/generate-098-foundation-cards.mjs`
 
-Cards 11–44 are rich card v2 in migrations [`100`](../backend/migrations/100_coaching_prepare_access_upper_body_cards.sql), [`101`](../backend/migrations/101_coaching_prepare_access_lower_leg_cards.sql), and [`102`](../backend/migrations/102_coaching_prepare_access_hip_access_cards.sql). Cards 45–50 remain at the thinner `097` seed until a future content pass.
+Cards 11–44 are rich card v2 in migrations [`100`](../backend/migrations/100_coaching_prepare_and_access_upper_body_cards.sql), [`101`](../backend/migrations/101_coaching_prepare_and_access_lower_leg_cards.sql), and [`102`](../backend/migrations/102_coaching_prepare_and_access_hip_access_cards.sql). Cards 45–50 remain at the thinner `097` seed until a future content pass.
 
 ---
 
@@ -275,7 +275,7 @@ After seeding, this query should return **0 rows**:
 SELECT e.slug, e.phase_subrole, pos.subrole_key
 FROM coaching.exercise e
 JOIN coaching.phase_order_slot pos ON pos.key = e.primary_order_slot
-WHERE e.primary_phase_key = 'prepare_access'
+WHERE e.primary_phase_key = 'prepare_and_access'
   AND e.phase_subrole <> pos.subrole_key;
 ```
 
@@ -303,9 +303,9 @@ When writing a new card, include:
 
 ---
 
-## 8. Implementation notes for Cursor / content agents (Prepare / Access)
+## 8. Implementation notes for Cursor / content agents (Prepare & Access)
 
-Use this section when authoring or upgrading Prepare / Access cards (migrations `097`–`098+`, generator scripts under `scripts/`).
+Use this section when authoring or upgrading Prepare & Access cards (migrations `097`–`098+`, generator scripts under `scripts/`).
 
 ### 8.1 Coach filter dimensions
 
@@ -316,7 +316,7 @@ Build the library so coaches can filter by:
 | **phase_subrole** | `exercise.phase_subrole`, `?subrole=` | `raise`, `mobilize`, `activate`, `integrate`, `potentiate_bridge` |
 | **body_region** | `exercise_tag` facet `body_region`, `?body_region=` | `foot`, `ankle`, `knee`, `hip`, `spine`, `core`, `shoulder`, `wrist`, `full_body` |
 | **session_need** | `pairing_logic.good_for_sessions[]`, `?session_need=` | See table below |
-| **fatigue_cost** | `exercise_phase_profile.fatigue_cost`, `?max_fatigue_cost=` | **1–2 preferred** for most Prepare / Access cards |
+| **fatigue_cost** | `exercise_phase_profile.fatigue_cost`, `?max_fatigue_cost=` | **1–2 preferred** for most Prepare & Access cards |
 | **daily_ok** | `exercise_regimen_rule.can_be_daily`, `?can_be_daily=true` | `true` for most low-intensity mobility and breathing drills |
 
 **Session need keys** (store exactly in `good_for_sessions`):
@@ -338,9 +338,9 @@ Example on a card:
 "good_for_sessions": ["tumbling_prep", "overhead_prep", "general_warmup"]
 ```
 
-### 8.2 Phase profile defaults (Prepare / Access)
+### 8.2 Phase profile defaults (Prepare & Access)
 
-When seeding `exercise_phase_profile` for `prepare_access`:
+When seeding `exercise_phase_profile` for `prepare_and_access`:
 
 | Field | Typical value |
 |-------|----------------|
@@ -356,9 +356,9 @@ Set `exercise_regimen_rule.can_be_daily = true` and `weekly_max_frequency = 7` f
 
 ### 8.3 Validation principle: readiness without stealing output
 
-**Prepare / Access should increase readiness without stealing output.**
+**Prepare & Access should increase readiness without stealing output.**
 
-The workout validator (`workoutValidation.js`) flags Prepare / Access blocks that contain too many:
+The workout validator (`workoutValidation.js`) flags Prepare & Access blocks that contain too many:
 
 - High **fatigue-cost** items (`fatigue_cost > 2`)
 - **High-impact** contacts (`impact_level >= 2`, beyond 1–2 bridge drills)
@@ -366,11 +366,11 @@ The workout validator (`workoutValidation.js`) flags Prepare / Access blocks tha
 - **Conditioning-style** work (methodology `hiit`, or regimen flags)
 - **Non-low intensity ceiling** on phase profile
 
-Content agents: if a drill fatigues athletes for Output/Skill, it belongs in Capacity or Fitness — not Prepare / Access.
+Content agents: if a drill fatigues athletes for Output/Skill, it belongs in Capacity or Sustained Capacity — not Prepare & Access.
 
 ### 8.4 Upper-body access cards 11–20 (complete)
 
-Cards **11–20** cover **wrist, shoulder, scapular, and upper-body access** — implemented in migration [`100`](../backend/migrations/100_coaching_prepare_access_upper_body_cards.sql). **097 slugs are canonical** (display names updated only).
+Cards **11–20** cover **wrist, shoulder, scapular, and upper-body access** — implemented in migration [`100`](../backend/migrations/100_coaching_prepare_and_access_upper_body_cards.sql). **097 slugs are canonical** (display names updated only).
 
 | # | Slug | Subrole / slot | session_need tags |
 |---|------|----------------|-------------------|
@@ -391,7 +391,7 @@ Data: [`scripts/data/upper-body-access-cards-11-20.mjs`](../scripts/data/upper-b
 
 ### 8.5 Lower-leg access cards 21–30 (complete)
 
-Cards **21–30** cover **foot, ankle, shin, calf, and elastic readiness** — implemented in migration [`101`](../backend/migrations/101_coaching_prepare_access_lower_leg_cards.sql). **097 slugs are canonical** (display names updated where noted).
+Cards **21–30** cover **foot, ankle, shin, calf, and elastic readiness** — implemented in migration [`101`](../backend/migrations/101_coaching_prepare_and_access_lower_leg_cards.sql). **097 slugs are canonical** (display names updated where noted).
 
 | # | Slug | Subrole / slot | session_need tags |
 |---|------|----------------|-------------------|
@@ -412,20 +412,20 @@ Display name updates: card 25 → **Calf Raise to Controlled Heel Drop**; card 2
 
 Data: [`scripts/data/lower-leg-access-cards-21-30.mjs`](../scripts/data/lower-leg-access-cards-21-30.mjs). Generator: [`scripts/generate-101-lower-leg-cards.mjs`](../scripts/generate-101-lower-leg-cards.mjs).
 
-**Dose-phase escalation (Prepare / Access):**
+**Dose-phase escalation (Prepare & Access):**
 
-| Drill type | Prepare / Access cap | Escalates to |
+| Drill type | Prepare & Access cap | Escalates to |
 |------------|---------------------|--------------|
-| Low pogos | ≤40 contacts, low amplitude | Output / Fitness plyometrics |
-| Jump rope | ≤90s, RPE ≤4 | Fitness / conditioning |
-| Calf raise + heel drop | ≤15 total reps | Control / Resilience eccentrics |
+| Low pogos | ≤40 contacts, low amplitude | Output / Sustained Capacity plyometrics |
+| Jump rope | ≤90s, RPE ≤4 | Sustained Capacity / conditioning |
+| Calf raise + heel drop | ≤15 total reps | Resilience eccentrics |
 | Ankle mobility / activation | Low fatigue, 1 set default | — |
 
 **Validation rule:** `prepare_lower_leg_readiness` — foot/ankle prep should not steal spring or become conditioning before sprinting, jumping, tumbling, or agility. Rules: `prepare_pogos_output_dose`, `prepare_jump_rope_fitness_dose`, `prepare_calf_fatigue_before_output`, `prepare_lower_leg_symptoms`, `prepare_lower_leg_spring_check`.
 
 ### 8.6 Hip/pelvis access cards 31–44 (complete)
 
-Cards **31–44** cover **hip, pelvis, squat, lunge, and frontal-plane access** — implemented in migration [`102`](../backend/migrations/102_coaching_prepare_access_hip_access_cards.sql). **097 slugs are canonical** (display names updated where noted).
+Cards **31–44** cover **hip, pelvis, squat, lunge, and frontal-plane access** — implemented in migration [`102`](../backend/migrations/102_coaching_prepare_and_access_hip_access_cards.sql). **097 slugs are canonical** (display names updated where noted).
 
 | # | Slug | Subrole / slot | session_need tags |
 |---|------|----------------|-------------------|
@@ -450,9 +450,9 @@ Display name updates: cards 33–34 → **Leg Swings — Front/Back** / **Latera
 
 Data: [`scripts/data/hip-access-cards-31-44.mjs`](../scripts/data/hip-access-cards-31-44.mjs). Generator: [`scripts/generate-102-hip-access-cards.mjs`](../scripts/generate-102-hip-access-cards.mjs).
 
-**Dose-phase escalation (Prepare / Access):**
+**Dose-phase escalation (Prepare & Access):**
 
-| Drill type | Prepare / Access cap | Escalates to |
+| Drill type | Prepare & Access cap | Escalates to |
 |------------|---------------------|--------------|
 | Deep squat pry | ≤60 seconds | Capacity / mobility block |
 | Cossack / lateral lunge | ≤16 reps per side before agility | Capacity / Control |
@@ -461,9 +461,9 @@ Data: [`scripts/data/hip-access-cards-31-44.mjs`](../scripts/data/hip-access-car
 
 **Validation rule:** `prepare_hip_access_readiness` — hip/pelvis prep should not become a flexibility session or leg-fatigue circuit before Output. Rules: `prepare_squat_pry_duration`, `prepare_frontal_plane_fatigue`, `prepare_leg_swing_intensity`, `prepare_hip_rotation_volume`, `prepare_groin_symptoms`, `prepare_hip_heaviness_before_output`.
 
-### 8.7 Activation / integration cards 45–50 (Prepare / Access complete)
+### 8.7 Activation / integration cards 45–50 (Prepare & Access complete)
 
-Cards **45–50** cover **activation and integrated movement-prep** — the bridge from mobility/access into Skill / Movement Intelligence or Output — implemented in migration [`103`](../backend/migrations/103_coaching_prepare_access_activation_cards.sql). **097 slugs are canonical** (display names updated where noted).
+Cards **45–50** cover **activation and integrated movement-prep** — the bridge from mobility/access into Movement Intelligence or Output — implemented in migration [`103`](../backend/migrations/103_coaching_prepare_and_access_activation_cards.sql). **097 slugs are canonical** (display names updated where noted).
 
 | # | Slug | Subrole / slot | session_need tags |
 |---|------|----------------|-------------------|
@@ -480,7 +480,7 @@ Display name updates: card 47 → **Dead Bug Breathing / Heel Tap**; card 50 →
 
 Data: [`scripts/data/activation-access-cards-45-50.mjs`](../scripts/data/activation-access-cards-45-50.mjs). Generator: [`scripts/generate-103-activation-cards.mjs`](../scripts/generate-103-activation-cards.mjs).
 
-**Subrole bands (Prepare / Access):**
+**Subrole bands (Prepare & Access):**
 
 | Subrole | order_index band |
 |---------|------------------|
@@ -490,26 +490,26 @@ Data: [`scripts/data/activation-access-cards-45-50.mjs`](../scripts/data/activat
 | integrate | 160–179 |
 | potentiate_bridge | 180–199 |
 
-**Dose-phase escalation (Prepare / Access):**
+**Dose-phase escalation (Prepare & Access):**
 
-| Drill type | Prepare / Access cap | Escalates to |
+| Drill type | Prepare & Access cap | Escalates to |
 |------------|---------------------|--------------|
 | Glute bridge | ≤15 reps; hold ≤30s | Capacity / Control |
-| Bridge march | Low-volume pelvic primer | Control / Resilience |
-| Dead bug | Low-dose anti-extension | Control / Resilience |
-| Bird dog | Crisp reps, low volume | Control / Resilience or Skill |
+| Bridge march | Low-volume pelvic primer | Resilience |
+| Dead bug | Low-dose anti-extension | Resilience |
+| Bird dog | Crisp reps, low volume | Resilience or Skill |
 | Mini-band lateral walk | ≤12 steps each direction | Capacity / Control if high volume |
-| A-March | Slow, technical primer | Skill / Movement Intelligence if fast |
+| A-March | Slow, technical primer | Movement Intelligence if fast |
 
 **Validation rule:** `prepare_activation_readiness` — activation should improve position and readiness without fatigue before Skill or Output. Rules: `prepare_glute_bridge_dose`, `prepare_mini_band_lateral_dose`, `prepare_amarch_after_conditioning`, `prepare_amarch_skill_phase`, `prepare_activation_pelvic_floor`.
 
-**Prepare / Access library (cards 1–50) is complete.** Principle: athletes should be warmer, sharper, more mobile, and more ready — not tired.
+**Prepare & Access library (cards 1–50) is complete.** Principle: athletes should be warmer, sharper, more mobile, and more ready — not tired.
 
-## 9. Skill / Movement Intelligence
+## 9. Movement Intelligence
 
-**Phase goal:** Teach coordination, perception-action, tumbling foundations, sprint mechanics, landing skill, rhythm, reaction, balance, and body-shape control while the athlete is still fresh. Prepare / Access gives positions; Skill teaches what to do with those positions; Output expresses skills at higher speed and power.
+**Phase goal:** Teach coordination, perception-action, tumbling foundations, sprint mechanics, landing skill, rhythm, reaction, balance, and body-shape control while the athlete is still fresh. Prepare & Access gives positions; Skill teaches what to do with those positions; Output expresses skills at higher speed and power.
 
-**Placement:** Prepare / Access → **Skill / Movement Intelligence** → Output → Capacity → Control / Resilience → Fitness / Repeatability → Restore
+**Placement:** Prepare & Access → **Movement Intelligence** → Output → Capacity → Resilience → Sustained Capacity → Restore
 
 **Subroles** ([104](../backend/migrations/104_coaching_skill_phase_infrastructure.sql)):
 
@@ -525,7 +525,7 @@ Data: [`scripts/data/activation-access-cards-45-50.mjs`](../scripts/data/activat
 
 Some drills span phases by intent, not by creating duplicate exercises. Use multiple `exercise_phase_profile` rows on one slug:
 
-| Example slug | Prepare / Access | Skill / Movement Intelligence | Output |
+| Example slug | Prepare & Access | Movement Intelligence | Output |
 |--------------|------------------|-------------------------------|--------|
 | `a-march` | `marching_mechanics` / potentiate_bridge, RPE 2–4 | `technical_march` / locomotion_sprint_mechanics, RPE 2–5 | — |
 | `low-pogos` | `low_level_plyo_prep` | — | `elastic_prep` |
@@ -534,7 +534,7 @@ Document intent in `phase_profile.notes` and dosage RPE bands. Prepare slot `mar
 
 ### 9.2 Shape & position cards 1–10
 
-Thin seed: [105](../backend/migrations/105_coaching_skill_movement_intelligence_seed.sql). Rich pass: [106](../backend/migrations/106_coaching_skill_shape_cards.sql). Data: [`scripts/data/skill-shape-cards-1-10.mjs`](../scripts/data/skill-shape-cards-1-10.mjs).
+Thin seed: [105](../backend/migrations/105_coaching_movement_intelligence_seed.sql). Rich pass: [106](../backend/migrations/106_coaching_skill_shape_cards.sql). Data: [`scripts/data/skill-shape-cards-1-10.mjs`](../scripts/data/skill-shape-cards-1-10.mjs).
 
 | # | Slug | Slot | session_need tags |
 |---|------|------|-------------------|
@@ -549,21 +549,21 @@ Thin seed: [105](../backend/migrations/105_coaching_skill_movement_intelligence_
 | 9 | `wall-body-line-drill` | `line_drill` | tumbling_prep, sprint_prep, general_warmup |
 | 10 | `stick-to-shape-freeze-game` | `shape_reaction` | tumbling_prep, general_warmup |
 
-**Dose-phase escalation (Skill / Movement Intelligence):**
+**Dose-phase escalation (Movement Intelligence):**
 
 | Drill type | Skill cap | Escalates to |
 |------------|-----------|--------------|
-| Static shape hold | ≤30 seconds | Control / Resilience |
-| Shape reaction game | Low volume, full rest | Fitness if conditioning |
+| Static shape hold | ≤30 seconds | Resilience |
+| Shape reaction game | Low volume, full rest | Sustained Capacity if conditioning |
 | Tumbling foundation | Fresh, supervised | Capacity if high volume |
 
-**Validation rules:** `skill_movement_intelligence_readiness` (phase), `skill_shape_readiness` (shape cluster), `skill_tumbling_readiness` (tumbling cluster), `skill_sprint_readiness` (sprint mechanics cluster), `skill_balance_readiness` (balance cluster), `skill_perception_readiness` (perception cluster). Rules: `skill_block_fatigue`, `skill_tumbling_after_fitness`, `skill_balance_after_fitness`, `skill_reactive_after_fitness`, `skill_agility_conditioning_dose`, `skill_ladder_pass_volume`, `skill_skipping_high_intensity`, `skill_mirror_shuffle_prerequisite`, `skill_mirror_round_duration`, `skill_tag_game_conditioning`, `skill_tag_unsafe_contact`, `skill_ball_drop_diving`, `skill_reactive_output_intent`, `skill_sprint_max_speed`, `skill_shape_hold_duration`, plus tumbling cluster rules (`skill_roll_mat_required`, `skill_forward_roll_prerequisite`, `skill_backward_roll_progression`, `skill_backward_roll_neck_stop`, `skill_shoulder_roll_surface`, `skill_handstand_endurance`, `skill_donkey_kick_volume`, `skill_cartwheel_hand_placement`, `skill_cartwheel_finish`, `skill_roundoff_prerequisite`, `skill_hurdle_entry_balance`, `skill_rotational_stop`), plus sprint cluster rules (`skill_sprint_iso_hold_duration`, `skill_sprint_switch_volume`, `skill_sprint_high_intensity_drill`, `skill_sprint_toe_down`, `skill_sprint_backward_lean`, `skill_sprint_hip_projection`, `skill_sprint_falling_hinge`, `skill_sprint_start_overreach`, `skill_sprint_arm_midline`, `skill_sprint_after_fitness`, `skill_sprint_before_tumbling_fatigue`, `skill_sprint_missing_prep_before_output`).
+**Validation rules:** `movement_intelligence_readiness` (phase), `skill_shape_readiness` (shape cluster), `skill_tumbling_readiness` (tumbling cluster), `skill_sprint_readiness` (sprint mechanics cluster), `skill_balance_readiness` (balance cluster), `skill_perception_readiness` (perception cluster). Rules: `skill_block_fatigue`, `skill_tumbling_after_fitness`, `skill_balance_after_fitness`, `skill_reactive_after_fitness`, `skill_agility_conditioning_dose`, `skill_ladder_pass_volume`, `skill_skipping_high_intensity`, `skill_mirror_shuffle_prerequisite`, `skill_mirror_round_duration`, `skill_tag_game_conditioning`, `skill_tag_unsafe_contact`, `skill_ball_drop_diving`, `skill_reactive_output_intent`, `skill_sprint_max_speed`, `skill_shape_hold_duration`, plus tumbling cluster rules (`skill_roll_mat_required`, `skill_forward_roll_prerequisite`, `skill_backward_roll_progression`, `skill_backward_roll_neck_stop`, `skill_shoulder_roll_surface`, `skill_handstand_endurance`, `skill_donkey_kick_volume`, `skill_cartwheel_hand_placement`, `skill_cartwheel_finish`, `skill_roundoff_prerequisite`, `skill_hurdle_entry_balance`, `skill_rotational_stop`), plus sprint cluster rules (`skill_sprint_iso_hold_duration`, `skill_sprint_switch_volume`, `skill_sprint_high_intensity_drill`, `skill_sprint_toe_down`, `skill_sprint_backward_lean`, `skill_sprint_hip_projection`, `skill_sprint_falling_hinge`, `skill_sprint_start_overreach`, `skill_sprint_arm_midline`, `skill_sprint_after_fitness`, `skill_sprint_before_tumbling_fatigue`, `skill_sprint_missing_prep_before_output`).
 
-**Roadmap:** All **50** Skill / Movement Intelligence cards have rich passes in migrations **106–110**. Phase complete.
+**Roadmap:** All **50** Movement Intelligence cards have rich passes in migrations **106–110**. Phase complete.
 
 ### 9.3 Rotation / tumbling cards 11–24
 
-Thin seed: [105](../backend/migrations/105_coaching_skill_movement_intelligence_seed.sql). Rich pass: [107](../backend/migrations/107_coaching_skill_tumbling_cards.sql). Data: [`scripts/data/skill-tumbling-cards-11-24.mjs`](../scripts/data/skill-tumbling-cards-11-24.mjs).
+Thin seed: [105](../backend/migrations/105_coaching_movement_intelligence_seed.sql). Rich pass: [107](../backend/migrations/107_coaching_skill_tumbling_cards.sql). Data: [`scripts/data/skill-tumbling-cards-11-24.mjs`](../scripts/data/skill-tumbling-cards-11-24.mjs).
 
 | # | Slug | Slot | session_need tags |
 |---|------|------|-------------------|
@@ -592,7 +592,7 @@ Legacy slugs `cartwheel` and `round-off` are enriched in place (not duplicated).
 |------------|-----------|--------------|
 | Rolling foundations | Low reps, mat required | Capacity if high volume |
 | Forward/backward roll | Supervised, ≤8 attempts | — |
-| Handstand line/kick-up | ≤20s hold | Control / Resilience |
+| Handstand line/kick-up | ≤20s hold | Resilience |
 | Donkey kick | ≤10 reps/block | Conditioning elsewhere |
 | Round-off snap-down | Technical, not max power | Output |
 
@@ -600,7 +600,7 @@ Legacy slugs `cartwheel` and `round-off` are enriched in place (not duplicated).
 
 ### 9.4 Locomotion / sprint cards 25–34
 
-Thin seed: [105](../backend/migrations/105_coaching_skill_movement_intelligence_seed.sql). Rich pass: [108](../backend/migrations/108_coaching_skill_sprint_cards.sql). Data: [`scripts/data/skill-sprint-cards-25-34.mjs`](../scripts/data/skill-sprint-cards-25-34.mjs).
+Thin seed: [105](../backend/migrations/105_coaching_movement_intelligence_seed.sql). Rich pass: [108](../backend/migrations/108_coaching_skill_sprint_cards.sql). Data: [`scripts/data/skill-sprint-cards-25-34.mjs`](../scripts/data/skill-sprint-cards-25-34.mjs).
 
 | # | Slug | Slot | session_need tags |
 |---|------|------|-------------------|
@@ -615,7 +615,7 @@ Thin seed: [105](../backend/migrations/105_coaching_skill_movement_intelligence_
 | 33 | `two-point-start-walk-in` | `acceleration_entry` | sprint_prep, general_warmup |
 | 34 | `arm-action-drill` | `arm_action` | sprint_prep, general_warmup |
 
-Cards 26–27 share slot `sprint_mechanics` (234). **`a-march` dual profile:** Prepare/Access primary stays `prepare_access` / `marching_mechanics`; Skill profile uses `technical_march` (108 does not overwrite primary phase columns).
+Cards 26–27 share slot `sprint_mechanics` (234). **`a-march` dual profile:** Prepare/Access primary stays `prepare_and_access` / `marching_mechanics`; Skill profile uses `technical_march` (108 does not overwrite primary phase columns).
 
 **Equipment taxonomy (108):** `mirror` added to `coaching.equipment` (optional arm-action feedback). Wall drills tag `wall` (seeded in Prepare migrations).
 
@@ -623,7 +623,7 @@ Cards 26–27 share slot `sprint_mechanics` (234). **`a-march` dual profile:** P
 
 | Drill type | Skill cap | Escalates to |
 |------------|-----------|--------------|
-| Wall ISO hold | ≤8s per side | Control / Resilience |
+| Wall ISO hold | ≤8s per side | Resilience |
 | Wall switch | Crisp, low volume | Output if maximal |
 | A-Skip / straight-leg prep | Rhythm-first, short distance | Output if high intent |
 | Falling start / two-point walk-in | Technical setup | Output if timed or >5 yards |
@@ -633,7 +633,7 @@ Cards 26–27 share slot `sprint_mechanics` (234). **`a-march` dual profile:** P
 
 ### 9.5 Balance / coordination / rhythm cards 35–44
 
-Thin seed: [105](../backend/migrations/105_coaching_skill_movement_intelligence_seed.sql). Rich pass: [109](../backend/migrations/109_coaching_skill_balance_cards.sql). Data: [`scripts/data/skill-balance-cards-35-44.mjs`](../scripts/data/skill-balance-cards-35-44.mjs).
+Thin seed: [105](../backend/migrations/105_coaching_movement_intelligence_seed.sql). Rich pass: [109](../backend/migrations/109_coaching_skill_balance_cards.sql). Data: [`scripts/data/skill-balance-cards-35-44.mjs`](../scripts/data/skill-balance-cards-35-44.mjs).
 
 | # | Slug | Slot | session_need tags |
 |---|------|------|-------------------|
@@ -659,14 +659,14 @@ Migration 109 resequences balance slots to band **260–268** (after perception 
 | Beam / line walk | Low passes, floor first | Output if speed challenge |
 | Single-leg reach clock | Clean taps, moderate reach | Control if loaded/high volume |
 | Skipping rhythm | RPE ≤5, quiet contacts | Output if power skips |
-| Ladder rhythm | ~4 passes/pattern, full rest | Fitness if circuits |
+| Ladder rhythm | ~4 passes/pattern, full rest | Sustained Capacity if circuits |
 | Low hurdle step-over | Clean clearance, slow tempo | Output if hurdle hops |
 
 **Validation rule:** `skill_balance_readiness` — balance, coordination, and rhythm drills should improve movement quality at low fatigue, not become conditioning or reactive agility without perception cues. Implemented in `analyzeSkillMovementIntelligenceReadiness` ([workoutValidation.js](../backend/platform/workoutValidation.js)).
 
 ### 9.6 Perception-action / reactive movement cards 45–50
 
-Thin seed: [105](../backend/migrations/105_coaching_skill_movement_intelligence_seed.sql). Rich pass: [110](../backend/migrations/110_coaching_skill_perception_cards.sql). Data: [`scripts/data/skill-perception-cards-45-50.mjs`](../scripts/data/skill-perception-cards-45-50.mjs).
+Thin seed: [105](../backend/migrations/105_coaching_movement_intelligence_seed.sql). Rich pass: [110](../backend/migrations/110_coaching_skill_perception_cards.sql). Data: [`scripts/data/skill-perception-cards-45-50.mjs`](../scripts/data/skill-perception-cards-45-50.mjs).
 
 | # | Slug | Slot | session_need tags |
 |---|------|------|-------------------|
@@ -677,7 +677,7 @@ Thin seed: [105](../backend/migrations/105_coaching_skill_movement_intelligence_
 | 49 | `partner-shadow-tag` | `movement_game` | general_warmup, sprint_prep, landing_prep |
 | 50 | `gate-reaction-drill` | `reactive_start` | general_warmup, sprint_prep, landing_prep |
 
-Migration 110 resequences perception slots to band **280–285** (after balance 260–268). Completes the 50-card Skill / Movement Intelligence library.
+Migration 110 resequences perception slots to band **280–285** (after balance 260–268). Completes the 50-card Movement Intelligence library.
 
 **Equipment taxonomy (110):** `tennis_ball`, `reaction_ball`. Color cone drills tag `cones` with `setup_requirements` for visually distinguishable markers.
 
@@ -687,9 +687,9 @@ Migration 110 resequences perception slots to band **280–285** (after balance 
 |------------|-----------|--------------|
 | Mirror shuffle | ≤15s rounds, shuffle prep first | Output if competitive max speed |
 | Coach point-and-go | 2–4 directions, clean stops | Output if sprint exits |
-| Color cone call-out | Short cues, controlled stops | Fitness if shuttle circuits |
+| Color cone call-out | Short cues, controlled stops | Sustained Capacity if shuttle circuits |
 | Ball drop | No diving, full rest | Output if max accelerations |
-| Partner tag/shadow | ≤12s rounds, clear rules | Fitness if long chaotic rounds |
+| Partner tag/shadow | ≤12s rounds, clear rules | Sustained Capacity if long chaotic rounds |
 | Gate reaction | Cue-read + first step | Output if timed max sprint |
 
 **Validation rule:** `skill_perception_readiness` — reactive drills should improve see-decide-move quality while fresh, not become conditioning games or unsafe contact. Implemented in `analyzeSkillPerceptionReadiness` ([workoutValidation.js](../backend/platform/workoutValidation.js)).
@@ -698,7 +698,7 @@ Migration 110 resequences perception slots to band **280–285** (after balance 
 
 **Phase goal:** Express speed, explosiveness, elastic stiffness, plyometric power, reactive strength, jump/throw power, deceleration quality, COD power, and high-intensity reactive agility while the athlete is fresh. Skill teaches the pattern; **Output expresses the pattern fast, powerfully, and with intent.**
 
-**Placement:** Prepare / Access → Skill / Movement Intelligence → **Output** → Capacity → Control / Resilience → Fitness / Repeatability → Restore
+**Placement:** Prepare & Access → Movement Intelligence → **Output** → Capacity → Resilience → Sustained Capacity → Restore
 
 **Subroles** ([111](../backend/migrations/111_coaching_output_phase_infrastructure.sql)):
 
@@ -713,7 +713,7 @@ Migration 110 resequences perception slots to band **280–285** (after balance 
 
 **Dosing principles:** Low reps, low total volume, high rest, high intent (RPE 7–9). Track plyometric **contacts** where applicable. Regimen: `can_be_daily = false`, `minimum_hours_between_hard_exposures = 48`, `counts_as_neural` and `counts_as_high_intensity = true`.
 
-**Output vs Fitness:** A sprint is Output when distance is short, intent is high, recovery is full, and speed stays high. It becomes Fitness when rest is short, reps accumulate, speed drops, and the goal is repeatability under fatigue.
+**Output vs Sustained Capacity:** A sprint is Output when distance is short, intent is high, recovery is full, and speed stays high. It becomes Sustained Capacity when rest is short, reps accumulate, speed drops, and the goal is repeatability under fatigue.
 
 **Validation rule:** `output_readiness` — implemented in `analyzeOutputReadiness` ([workoutValidation.js](../backend/platform/workoutValidation.js)). Key rules: `output_after_fitness` (error), `output_after_capacity`, `output_high_rpe_short_rest`, `output_plyo_contact_volume`, `output_advanced_plyo_prerequisite`, `output_tumbling_missing_skill_prereq`, `output_roundoff_rebound_prerequisite`, `output_cod_missing_decel_prerequisite`.
 
@@ -749,7 +749,7 @@ Rich pass in [119](../backend/migrations/119_coaching_output_reactive_tumbling_c
 
 **Phase goal:** Build the athlete’s ability to produce, tolerate, and progressively adapt to force — strength, muscle/tendon capacity, grip, trunk bracing, and targeted tissue work.
 
-**Placement:** Prepare → Skill → Output → **Capacity** → Control / Resilience → Fitness / Repeatability → Restore. Capacity is not Fitness: the same goblet squat becomes Capacity with progressive load and full rest, or Fitness in a short-rest circuit.
+**Placement:** Prepare → Skill → Output → **Capacity** → Resilience → Sustained Capacity → Restore. Capacity is not Sustained Capacity: the same goblet squat becomes Capacity with progressive load and full rest, or Sustained Capacity in a short-rest circuit.
 
 **Subroles** ([120](../backend/migrations/120_coaching_capacity_phase_infrastructure.sql)):
 
@@ -794,11 +794,11 @@ Rich pass in [126](../backend/migrations/126_coaching_capacity_carry_cards.sql) 
 
 Rich pass in [127](../backend/migrations/127_coaching_capacity_tissue_cards.sql) — Spanish Squat Isometric through Wrist / Forearm Capacity Series (`tissue_capacity_isometric_eccentric_accessory`, slots 461–466: `quad_tendon_capacity`, `split_stance_isometric`, `adductor_capacity`, `shin_capacity`, `soleus_capacity`, `wrist_forearm_capacity`). Completes the 50-card Capacity library. Isometric holds use `volume_unit: seconds`; tibialis and soleus use reps; wrist series uses `reps_or_seconds`. Card `movement_requirements` includes `setup_requirements`. Equipment taxonomy: `strap`, `tib_bar`, `calf_raise_machine`, `wrist_roller`, `rice_bucket`, `grip_tool` (plus existing `bands`, `rack`, `wall`, `bench`, `dumbbell`, `handles`). Validation education: `capacity_tissue_readiness`; validator `analyzeCapacityTissueReadiness`. Key rules: `capacity_tissue_before_output`, `capacity_tissue_spanish_anchor_unsafe`, `capacity_tissue_spanish_knee_stop`, `capacity_tissue_split_iso_valgus`, `capacity_tissue_copenhagen_beginner`, `capacity_tissue_copenhagen_groin_stop`, `capacity_tissue_tibialis_shin_stop`, `capacity_tissue_tibialis_before_sprint`, `capacity_tissue_soleus_achilles_stop`, `capacity_tissue_soleus_before_elastic`, `capacity_tissue_wrist_before_skill`, `capacity_tissue_wrist_stop`, `capacity_tissue_grip_consecutive_days`, `capacity_tissue_daily_hard`, `capacity_tissue_pain_substitution`. Generator: [scripts/generate-127-capacity-tissue-cards.mjs](../scripts/generate-127-capacity-tissue-cards.mjs). Data: [scripts/data/capacity-tissue-cards-45-50.mjs](../scripts/data/capacity-tissue-cards-45-50.mjs).
 
-## 12. Control / Resilience
+## 12. Resilience
 
-**Phase goal:** Build precision — landing and braking quality, single-leg balance, trunk/pelvis anti-movement control, hand-support resilience, and slow eccentric/isometric joint tolerance — without stealing Output speed or Fitness conditioning intent.
+**Phase goal:** Build precision — landing and braking quality, single-leg balance, trunk/pelvis anti-movement control, hand-support resilience, and slow eccentric/isometric joint tolerance — without stealing Output speed or Sustained Capacity conditioning intent.
 
-**Placement:** Prepare → Skill → Output → Capacity → **Control / Resilience** → Fitness / Repeatability → Restore. Hard Control work belongs after Output and Capacity; daily-safe drills (dead bug, bird dog, Pallof hold, light balance, tibialis ISO) may appear elsewhere at low intensity.
+**Placement:** Prepare → Skill → Output → Capacity → **Resilience** → Sustained Capacity → Restore. Hard Control work belongs after Output and Capacity; daily-safe drills (dead bug, bird dog, Pallof hold, light balance, tibialis ISO) may appear elsewhere at low intensity.
 
 **Subroles** ([128](../backend/migrations/128_coaching_control_resilience_phase_infrastructure.sql)):
 
@@ -877,7 +877,7 @@ Validator: `analyzeControlHandSupportReadiness` in [controlResilienceValidation.
 
 ### 12.5 Slow Eccentric / Isometric Joint Resilience (cards 41–50)
 
-Rich pass in [134](../backend/migrations/134_coaching_control_slow_eccentric_cards.sql) — Split Squat Eccentric to Pause through Nordic Lean Isometric Partial Range (`slow_eccentric_isometric_joint_resilience`, slots 551–560). **Completes the 50-card Control / Resilience library.** Card `movement_requirements` includes `setup_requirements` and optional `joint_resilience_profile`:
+Rich pass in [134](../backend/migrations/134_coaching_control_slow_eccentric_cards.sql) — Split Squat Eccentric to Pause through Nordic Lean Isometric Partial Range (`slow_eccentric_isometric_joint_resilience`, slots 551–560). **Completes the 50-card Resilience library.** Card `movement_requirements` includes `setup_requirements` and optional `joint_resilience_profile`:
 
 ```json
 {

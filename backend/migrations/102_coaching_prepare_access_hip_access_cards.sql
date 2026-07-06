@@ -22,7 +22,7 @@ CROSS JOIN (VALUES
   ('squat_to_stand', 'Squat to Stand', 'Squat-to-stand and pattern integration flows.', 149, 2, 'integrate'),
   ('lateral_lunge_prep', 'Lateral Lunge Prep', 'Lateral lunge shifts and cutting prep.', 150, 2, 'integrate')
 ) AS v(key, name, description, order_index, freshness_sensitivity, subrole_key)
-WHERE sp.key = 'prepare_access'
+WHERE sp.key = 'prepare_and_access'
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -39,7 +39,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before sprinting, jumping, tumbling, squatting, lunging, or general lower-body work.',
   athlete_language = 'Stand tall, hug the knee, balance for a moment, then step forward.',
   movement_family = 'Hip mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'integrate',
   primary_order_slot = 'dynamic_hip_mobility',
   default_sets = 1,
@@ -67,7 +67,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'Excellent early integrated hip mobility and balance drill.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'dynamic_hip_mobility' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'walking-knee-hug';
 
@@ -99,7 +99,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before sprinting, tumbling takeoffs, squatting, lunging, jumping, and lower-body strength.',
   athlete_language = 'Grab your ankle, stand tall, keep knees close, then step forward.',
   movement_family = 'Hip mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'integrate',
   primary_order_slot = 'dynamic_quad_hip_flexor',
   default_sets = 1,
@@ -127,7 +127,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'Dynamic quad/hip-flexor access; avoid yanking the knee or arching the back.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'dynamic_quad_hip_flexor' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'walking-quad-pull';
 
@@ -159,7 +159,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before sprinting, tumbling, jumping, squatting, lunging, or running-based work.',
   athlete_language = 'Hold support, stand tall, and swing the leg forward and back with control.',
   movement_family = 'Hip mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'hip_swing_sagittal',
   default_sets = 1,
@@ -187,7 +187,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'moderate',
   notes = 'Dynamic mobility only; do not force range or turn into ballistic kicking.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'hip_swing_sagittal' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'leg-swings-front-back';
 
@@ -219,7 +219,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before cutting, lateral shuffling, tumbling takeoffs, Cossack work, lateral lunges, or agility.',
   athlete_language = 'Stand tall and swing your leg across and away from your body without twisting.',
   movement_family = 'Hip mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'hip_swing_frontal',
   default_sets = 1,
@@ -247,7 +247,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'moderate',
   notes = 'Good frontal-plane prep before lateral athletic work.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'hip_swing_frontal' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'leg-swings-lateral';
 
@@ -279,7 +279,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before squatting, sprinting, tumbling, cutting, lateral movement, or ground transitions.',
   athlete_language = 'Sit tall, switch your knees side to side, and keep the movement controlled.',
   movement_family = 'Hip rotation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'hip_rotation',
   default_sets = 1,
@@ -307,7 +307,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'Useful hip-rotation access drill. Use hand support until athlete can control the switch.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'hip_rotation' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = '9090-hip-switch';
 
@@ -339,7 +339,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Dual mobilize/integrate intent: use after basic 90/90 work when the athlete can control hip rotation and pelvic/trunk position without knee pain.',
   athlete_language = 'Switch your knees side to side while keeping your spine long and your hips controlled.',
   movement_family = 'Hip mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'hip_rotation_integrated',
   default_sets = 1,
@@ -367,7 +367,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'moderate',
   notes = 'Higher complexity than 90/90 hip switch; use hand support for beginners.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'hip_rotation_integrated' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'shin-box-switch';
 
@@ -399,7 +399,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use when athletes need hip rotation plus transition control before tumbling, ninja, squatting, or athletic ground movement.',
   athlete_language = 'Start in shin box, stay tall, and come up without dropping or twisting.',
   movement_family = 'Hip integration',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'integrate',
   primary_order_slot = 'hip_transition',
   default_sets = 1,
@@ -425,9 +425,9 @@ UPDATE coaching.exercise_phase_profile p SET
   technical_complexity = 4,
   impact_level = 0,
   intensity_ceiling = 'moderate',
-  notes = 'Good integrated mobility drill; if loaded or high volume, it shifts toward Capacity or Control / Resilience.'
+  notes = 'Good integrated mobility drill; if loaded or high volume, it shifts toward Capacity or Resilience.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'hip_transition' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'shin-box-get-up';
 
@@ -459,7 +459,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use as a hip scan and active mobility drill before sprinting, squatting, tumbling, cutting, or lower-body strength.',
   athlete_language = 'Move your hip in the biggest slow circle you can without twisting the rest of your body.',
   movement_family = 'Hip mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'hip_cars',
   default_sets = 1,
@@ -487,7 +487,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'High-value active mobility scan. Standing version adds balance demand; quadruped reduces balance demand.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'hip_cars' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'hip-cars';
 
@@ -519,7 +519,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before lateral movement, Cossack shifts, squats, lunges, cutting, and tumbling takeoffs.',
   athlete_language = 'One leg out, back flat, hips rock back until you feel your inner thigh.',
   movement_family = 'Hip mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'adductor_mobility',
   default_sets = 1,
@@ -547,7 +547,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'Good adductor/groin prep; avoid forcing range after groin strain.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'adductor_mobility' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'adductor-rockback';
 
@@ -579,7 +579,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before squat, lateral movement, Cossack, tumbling takeoff, or cutting work when groin access is needed.',
   athlete_language = 'Knees wide, back flat, hips rock back gently.',
   movement_family = 'Hip mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'adductor_mobility',
   default_sets = 1,
@@ -607,7 +607,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'Good groin mobility drill; avoid aggressive range if athlete has adductor irritation.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'adductor_mobility' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'frog-rockback';
 
@@ -639,7 +639,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before lateral lunges, cutting, agility, squatting, landing, and lateral power work.',
   athlete_language = 'Shift side to side like a lateral squat, but stay smooth and controlled.',
   movement_family = 'Hip mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'integrate',
   primary_order_slot = 'frontal_plane_mobility',
   default_sets = 1,
@@ -665,9 +665,9 @@ UPDATE coaching.exercise_phase_profile p SET
   technical_complexity = 4,
   impact_level = 0,
   intensity_ceiling = 'moderate',
-  notes = 'Prepare / Access version should be shallow-to-moderate and non-fatiguing. Deep or loaded Cossacks belong in Capacity or Control.'
+  notes = 'Prepare & Access version should be shallow-to-moderate and non-fatiguing. Deep or loaded Cossacks belong in Capacity or Control.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'frontal_plane_mobility' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'cossack-shift';
 
@@ -699,7 +699,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before squatting, jumping, landing, tumbling takeoffs, or lower-body strength when squat access matters.',
   athlete_language = 'Sit into your squat, elbows inside knees, gently shift and open the hips.',
   movement_family = 'Squat access',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'integrate',
   primary_order_slot = 'squat_access',
   default_sets = 1,
@@ -727,7 +727,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'moderate',
   notes = 'Good if athlete owns squat depth. Avoid long holds or loaded fatigue before Output.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'squat_access' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'deep-squat-pry';
 
@@ -759,7 +759,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before squats, jumps, tumbling, lower-body strength, and overhead work.',
   athlete_language = 'Touch down, pull into your squat, reach tall, then stand.',
   movement_family = 'Squat access',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'integrate',
   primary_order_slot = 'squat_to_stand',
   default_sets = 1,
@@ -787,7 +787,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'moderate',
   notes = 'Excellent integrated squat prep. Reduce range if hamstrings, hips, or back are irritated.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'squat_to_stand' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'squat-to-stand-with-reach';
 
@@ -819,7 +819,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before agility, cutting, lateral bounds, lower-body strength, tumbling takeoffs, or sport change-of-direction work.',
   athlete_language = 'Step or shift sideways, sit into one hip, keep the other leg long, then return.',
   movement_family = 'Lunge pattern',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'integrate',
   primary_order_slot = 'lateral_lunge_prep',
   default_sets = 1,
@@ -847,7 +847,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'moderate',
   notes = 'Use as a controlled prep drill before faster lateral movement. High-load or high-volume versions belong in Capacity or Control.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'lateral_lunge_prep' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'lateral-lunge-shift';
 
@@ -1556,7 +1556,7 @@ FROM (VALUES
   ('hip-cars', 'Hip CARs train active motion through hip flexion, abduction, rotation, extension, and adduction while the rest of the body stays organized. The Prehab Guys cue quadruped hip CARs as lifting the leg and moving through extension, external rotation, abduction, and flexion while trying to isolate the hip; their standing version adds a balance challenge while moving through hip flexion, abduction, internal rotation, extension, and adduction.', 'Belongs in Mobilize (hip_cars) — active hip range scan before integrated or power work.', 'Active hip scan and mobility before sprinting, squatting, tumbling, cutting, or lower-body strength.', 'Do not rush circles, arch the low back, or hang passively at end range.', 'Scale by hip control, balance demand, and pinching symptoms.'),
   ('adductor-rockback', 'Adductor rockbacks target the adductors/groin while the quadruped position allows the athlete to control pelvic and spinal position. The Prehab Guys cue setting up on hands and knees, extending one leg to the side with the knee straight, finding a neutral pelvis, then shifting the hips backward comfortably.', 'Belongs in Mobilize (adductor_mobility) — groin/adductor access with neutral spine before frontal-plane work.', 'Adductor/groin prep before lateral movement, Cossack shifts, squats, lunges, cutting, and tumbling takeoffs.', 'Do not force groin stretch or round the low back for more range.', 'Scale by groin history, hip structure, and lateral sport demands.'),
   ('frog-rockback', 'Frog rockbacks target hip abduction and the adductor/groin region while the athlete practices pelvic control. The Prehab Guys describe the dynamic frog stretch as starting in tabletop with knees spread comfortably, rocking back until a groin/adductor stretch is felt, and keeping the back flat rather than rounding.', 'Belongs in Mobilize (adductor_mobility) — short adductor/groin access with neutral spine.', 'Groin/adductor access before squat, lateral movement, Cossack, tumbling takeoff, or cutting work.', 'Do not force knees too wide or round the low back aggressively.', 'Scale by pelvic/groin comfort, hip structure, and adductor tolerance.'),
-  ('cossack-shift', 'The Cossack pattern prepares the body for lateral loading, adductor length, hip control, ankle dorsiflexion, and knee tracking. The Prehab Guys cue shifting weight to one side into a deep lateral lunge while trying to sit back on the heel and keeping the opposite leg straight; for Prepare / Access, use a lower-amplitude version rather than maximal depth.', 'Belongs in Integrate (frontal_plane_mobility) — shallow frontal-plane squat shift before agility or lateral power.', 'Frontal-plane prep before lateral lunges, cutting, agility, squatting, landing, and lateral power work.', 'Do not force depth or collapse the knee inward before reactive agility.', 'Scale by groin/hip/ankle tolerance and lateral sport demands.'),
+  ('cossack-shift', 'The Cossack pattern prepares the body for lateral loading, adductor length, hip control, ankle dorsiflexion, and knee tracking. The Prehab Guys cue shifting weight to one side into a deep lateral lunge while trying to sit back on the heel and keeping the opposite leg straight; for Prepare & Access, use a lower-amplitude version rather than maximal depth.', 'Belongs in Integrate (frontal_plane_mobility) — shallow frontal-plane squat shift before agility or lateral power.', 'Frontal-plane prep before lateral lunges, cutting, agility, squatting, landing, and lateral power work.', 'Do not force depth or collapse the knee inward before reactive agility.', 'Scale by groin/hip/ankle tolerance and lateral sport demands.'),
   ('deep-squat-pry', 'Deep squat prying exposes the athlete to the bottom squat position while gently opening hips and ankles. Muscle & Strength describes the deep squat prying drill as a dynamic warm-up movement that activates lower-body muscles and promotes mobility by rocking side to side and using the elbows to open the hips.', 'Belongs in Integrate (squat_access) — squat-bottom mobility before squat, jump, or landing work.', 'Squat-bottom access before squatting, jumping, landing, tumbling takeoffs, or lower-body strength.', 'Do not turn into a long static hold or force depth before Output.', 'Scale by squat anatomy, ankle/hip access, and symptoms.'),
   ('squat-to-stand-with-reach', 'Squat-to-stand with reach connects a forward fold/hinge, deep squat, thoracic reach, and return to standing. Physitrack''s deep squat to arm reach and stand cues bending to touch a ball, dropping hips into a squat, raising one arm while following it with the eyes, raising the other arm into a Y, and standing with the chest tall.', 'Belongs in Integrate (squat_to_stand) — links hinge, squat bottom, and thoracic reach before loaded squat work.', 'Integrated squat prep before squats, jumps, tumbling, lower-body strength, and overhead work.', 'Do not force hamstring stretch or round aggressively to reach toes.', 'Scale by hamstring range, squat depth, trunk control, and symptoms.'),
   ('lateral-lunge-shift', 'Lateral lunge shifts prepare the athlete to load one hip while lengthening the opposite adductor line, which is directly relevant to cutting, deceleration, lateral shuffle, and frontal-plane strength. The Prehab Guys'' walking Cossack/lateral-lunge family cues beginning wide, shifting weight to one side, sitting back onto the heel, and keeping the opposite leg straight.', 'Belongs in Integrate (lateral_lunge_prep) — frontal-plane loading pattern before agility or cutting.', 'Controlled frontal-plane prep before agility, cutting, lateral bounds, lower-body strength, tumbling takeoffs, or sport change-of-direction work.', 'Do not push too deep too soon or collapse the loaded knee before reactive agility.', 'Scale by groin tolerance, knee tracking, and lateral sport demands.')
@@ -1582,10 +1582,10 @@ VALUES (
   'validation_rule',
   'prepare_hip_access_readiness',
   NULL,
-  'Prepare / Access hip access without pre-fatigue',
+  'Prepare & Access hip access without pre-fatigue',
   'Hip/pelvis access should improve squat, lunge, sprint, and landing positions without becoming a flexibility session or leg-fatigue circuit.',
   'Hip/pelvis access should improve squat, lunge, sprint, and landing positions without becoming a deep flexibility session or leg-fatigue circuit before Output.',
-  'Sprinting, tumbling, jumping, landing, squatting, lunging, and cutting require usable hip range and pelvic control. High-volume adductor work, long squat holds, or ballistic leg swings in Prepare / Access steal output readiness.',
+  'Sprinting, tumbling, jumping, landing, squatting, lunging, and cutting require usable hip range and pelvic control. High-volume adductor work, long squat holds, or ballistic leg swings in Prepare & Access steal output readiness.',
   'Keep deep squat pry under ~60 seconds, frontal-plane prep under ~16 reps per side before agility, and leg swings controlled (not ballistic). Sequence Mobilize → Integrate without visible leg heaviness before Output.',
   'Do not turn hip prep into a deep stretch session, adductor burnout, or conditioning circuit before Output or Skill phases.'
 )

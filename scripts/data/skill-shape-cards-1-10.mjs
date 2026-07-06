@@ -1,5 +1,5 @@
 /**
- * Rich card v2 content for Skill / Movement Intelligence shape cards 1–10.
+ * Rich card v2 content for Movement Intelligence shape cards 1–10.
  * Consumed by scripts/generate-106-skill-shape-cards.mjs
  * UPDATE-only on slugs seeded in migration 105.
  */
@@ -97,7 +97,7 @@ export const SKILL_SHAPE_CARDS = [
     ],
     whyItWorks: 'The hollow shape organizes anterior trunk tension, rib-pelvis stacking, and global body line — the same shape demanded in tumbling takeoffs, handstands, and bar work. Teaching it on the floor reduces compensation through the low back and neck before dynamic skill.',
     whyItGoesHere: 'Belongs in Shape & Position Intelligence (hollow_shape) — first static shape athletes must own before hollow-to-arch transitions and inversion progressions.',
-    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Control / Resilience; shape games that become conditioning belong in Fitness / Repeatability — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not progress to hollow rocks if the static hold loses low-back contact or ribs flare.',
+    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Resilience; shape games that become conditioning belong in Sustained Capacity — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not progress to hollow rocks if the static hold loses low-back contact or ribs flare.',
     scalingGuidance: 'Scale by lumbar control, neck tolerance, hip flexor length, and symptoms; regress to tuck hollow or feet on floor.',
     movementRequirements: {
       primary_joint_actions: [
@@ -182,7 +182,7 @@ export const SKILL_SHAPE_CARDS = [
       impact_level: 0,
       intensity_ceiling: 'moderate',
       daily_ok: true,
-      notes: 'Skill-dose hollow holds (10–20s, RPE 2–4). If holds exceed ~30s, add load, or become a core finisher, shift to Control / Resilience.'
+      notes: 'Skill-dose hollow holds (10–20s, RPE 2–4). If holds exceed ~30s, add load, or become a core finisher, shift to Resilience.'
     },
     scaling: {
       youth_beginner: 'Tuck hollow with feet on floor and arms at sides; 5–10s holds.',
@@ -315,7 +315,7 @@ export const SKILL_SHAPE_CARDS = [
     ],
     whyItWorks: 'Arch/superman shape builds awareness of posterior chain engagement and long-spine extension used in backward rolls, walkovers, and hollow-to-arch contrast. Modest lift teaches control without turning the drill into maximal back extension.',
     whyItGoesHere: 'Belongs in Shape & Position Intelligence (arch_shape) — posterior counterpart to hollow before shape transitions and rolling foundations.',
-    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Control / Resilience; shape games that become conditioning belong in Fitness / Repeatability — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not hyperextend or hold maximal arch isometrics here — that is Control / Resilience work.',
+    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Resilience; shape games that become conditioning belong in Sustained Capacity — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not hyperextend or hold maximal arch isometrics here — that is Resilience work.',
     scalingGuidance: 'Scale by extension tolerance, lumbar symptoms, and coordination; use unilateral lifts or shorter holds.',
     movementRequirements: {
       primary_joint_actions: [
@@ -399,7 +399,7 @@ export const SKILL_SHAPE_CARDS = [
       impact_level: 0,
       intensity_ceiling: 'moderate',
       daily_ok: true,
-      notes: 'Skill-dose arch holds (10–15s). Longer loaded back-extension holds belong in Control / Resilience.'
+      notes: 'Skill-dose arch holds (10–15s). Longer loaded back-extension holds belong in Resilience.'
     },
     scaling: {
       youth_beginner: 'Lift one arm and opposite leg only; 5s holds.',
@@ -530,7 +530,7 @@ export const SKILL_SHAPE_CARDS = [
     ],
     whyItWorks: 'Alternating hollow and arch through a slow roll teaches the athlete to maintain tension while changing body line — the same demand in rolling progressions and tumbling shape switches. Slow speed exposes breaks in line that fast rolls hide.',
     whyItGoesHere: 'Belongs in Shape & Position Intelligence (shape_transition) — bridge between static shapes and rolling/tumbling foundations.',
-    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Control / Resilience; shape games that become conditioning belong in Fitness / Repeatability — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not use high-rep roll circuits for conditioning; that belongs in Fitness. Do not assign without hollow and arch holds first.',
+    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Resilience; shape games that become conditioning belong in Sustained Capacity — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not use high-rep roll circuits for conditioning; that belongs in Fitness. Do not assign without hollow and arch holds first.',
     scalingGuidance: 'Assist through hips, shorten range, or use egg roll before full hollow-to-arch.',
     movementRequirements: {
       primary_joint_actions: [
@@ -744,7 +744,7 @@ export const SKILL_SHAPE_CARDS = [
     ],
     whyItWorks: 'Tuck shape is the compression body line used in backward rolls, bar swings, and tuck jumps. Holding and lightly rocking the tuck builds spinal flexion control separate from hip flexor cramping.',
     whyItGoesHere: 'Belongs in Shape & Position Intelligence (tuck_shape) — compression counterpart to long hollow/straddle lines.',
-    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Control / Resilience; shape games that become conditioning belong in Fitness / Repeatability — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not turn tuck rocks into high-rep abdominal conditioning.',
+    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Resilience; shape games that become conditioning belong in Sustained Capacity — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not turn tuck rocks into high-rep abdominal conditioning.',
     scalingGuidance: 'Feet down between reps, smaller rock amplitude, or seated tuck hold.',
     movementRequirements: {
       primary_joint_actions: [
@@ -958,7 +958,7 @@ export const SKILL_SHAPE_CARDS = [
     ],
     whyItWorks: 'Pike shape combines hamstring length with spinal flexion control needed for jumps, casts, and floor pike skills. Alternating fold and tall sit teaches the athlete to find both compression and stacked posture.',
     whyItGoesHere: 'Belongs in Shape & Position Intelligence (pike_shape) — compression line distinct from straddle and hollow.',
-    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Control / Resilience; shape games that become conditioning belong in Fitness / Repeatability — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not force maximal pike stretch or high-rep sit-ups disguised as pike folds.',
+    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Resilience; shape games that become conditioning belong in Sustained Capacity — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not force maximal pike stretch or high-rep sit-ups disguised as pike folds.',
     scalingGuidance: 'Bent knees, elevated hips, or hands on floor beside hips for support.',
     movementRequirements: {
       primary_joint_actions: [
@@ -1168,7 +1168,7 @@ export const SKILL_SHAPE_CARDS = [
     ],
     whyItWorks: 'Active straddle shape combines hip abduction control, adductor engagement, and trunk stack used in straddle jumps and press entries. Reach-and-lift teaches tension without passive oversplits.',
     whyItGoesHere: 'Belongs in Shape & Position Intelligence (straddle_shape) — wide-base compression line before dynamic straddle skills.',
-    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Control / Resilience; shape games that become conditioning belong in Fitness / Repeatability — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not force splits depth or high-rep leg lifts for conditioning in Skill.',
+    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Resilience; shape games that become conditioning belong in Sustained Capacity — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not force splits depth or high-rep leg lifts for conditioning in Skill.',
     scalingGuidance: 'Narrow straddle, bent knees, hand support behind, or single-leg lift only.',
     movementRequirements: {
       primary_joint_actions: [
@@ -1386,7 +1386,7 @@ export const SKILL_SHAPE_CARDS = [
     ],
     whyItWorks: 'Front support is the base shape for handstands, cartwheels, and bars. Teaching protraction, shoulder stack, and rib-pelvis control on the floor reduces sag and wrist collapse before inversion.',
     whyItGoesHere: 'Belongs in Shape & Position Intelligence (support_shape) — anterior support line paired with rear support.',
-    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Control / Resilience; shape games that become conditioning belong in Fitness / Repeatability — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not hold maximal plank time here; >30s or weighted planks → Control. Do not stack before fresh wrist prep.',
+    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Resilience; shape games that become conditioning belong in Sustained Capacity — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not hold maximal plank time here; >30s or weighted planks → Control. Do not stack before fresh wrist prep.',
     scalingGuidance: 'Elevated hands, knees down, or shorter holds based on wrist and shoulder tolerance.',
     movementRequirements: {
       primary_joint_actions: [
@@ -1472,7 +1472,7 @@ export const SKILL_SHAPE_CARDS = [
       impact_level: 0,
       intensity_ceiling: 'moderate',
       daily_ok: true,
-      notes: 'Short front-support shape holds (10–20s). Long plank endurance or RPE >5 support work → Control / Resilience.'
+      notes: 'Short front-support shape holds (10–20s). Long plank endurance or RPE >5 support work → Resilience.'
     },
     scaling: {
       youth_beginner: 'Knees-down front support; 5–10s.',
@@ -1604,7 +1604,7 @@ export const SKILL_SHAPE_CARDS = [
     ],
     whyItWorks: 'Rear support builds the posterior hand-support line used in bridges, table walks, and cast preparation. It complements front support so athletes feel both protraction and open-shoulder extension under load.',
     whyItGoesHere: 'Belongs in Shape & Position Intelligence (support_shape) — posterior support counterpart to front support.',
-    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Control / Resilience; shape games that become conditioning belong in Fitness / Repeatability — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not turn into high-rep hip thrusts or long table holds for conditioning.',
+    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Resilience; shape games that become conditioning belong in Sustained Capacity — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not turn into high-rep hip thrusts or long table holds for conditioning.',
     scalingGuidance: 'Bent knees, elevated hands, or shorter holds; regress if wrist extension is limited.',
     movementRequirements: {
       primary_joint_actions: [
@@ -1821,7 +1821,7 @@ export const SKILL_SHAPE_CARDS = [
     ],
     whyItWorks: 'Wall line feedback gives immediate visual and tactile cues for global alignment used in handstands, sprint posture, and stuck landings. Overhead reach exposes rib flare that hollow work also targets.',
     whyItGoesHere: 'Belongs in Shape & Position Intelligence (line_drill) — vertical line intelligence after floor shapes.',
-    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Control / Resilience; shape games that become conditioning belong in Fitness / Repeatability — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not use long wall sits or overhead holds >30s as conditioning.',
+    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Resilience; shape games that become conditioning belong in Sustained Capacity — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. Do not use long wall sits or overhead holds >30s as conditioning.',
     scalingGuidance: 'Partial wall contact, arms at sides first, or single-arm reach.',
     movementRequirements: {
       primary_joint_actions: [
@@ -2034,7 +2034,7 @@ export const SKILL_SHAPE_CARDS = [
     ],
     whyItWorks: 'Random shape recall under cue links static shape learning to decision and timing — the same demand when a coach calls corrections mid-pass or when an athlete must rebuild line quickly between skills.',
     whyItGoesHere: 'Belongs in Shape & Position Intelligence (shape_reaction) — perception-action capstone for the shape cluster, not a conditioning game.',
-    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Control / Resilience; shape games that become conditioning belong in Fitness / Repeatability — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. If athletes chase speed with sloppy shapes or elevated heart rate for multiple minutes, move the game to Fitness / Repeatability or reduce rounds.',
+    commonMisuse: 'Gymnastics shape programming rule: teach clean static shapes at low RPE in Skill first. Holds beyond ~30s or loaded isometrics belong in Resilience; shape games that become conditioning belong in Sustained Capacity — not Skill. Do not rush dynamic transitions without prerequisite shapes in the same session. If athletes chase speed with sloppy shapes or elevated heart rate for multiple minutes, move the game to Sustained Capacity or reduce rounds.',
     scalingGuidance: 'Fewer shapes in rotation, longer rest, partner demo first, or stick to floor shapes only.',
     movementRequirements: {
       primary_joint_actions: [

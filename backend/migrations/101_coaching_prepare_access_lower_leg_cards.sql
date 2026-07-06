@@ -23,7 +23,7 @@ CROSS JOIN (VALUES
   ('hip_mobility', 'Hip Mobility', 'Hip switches, 90/90, and hip CARs.', 140, 1, 'mobilize'),
   ('squat_access', 'Squat Access', 'Squat patterning and depth access work.', 141, 1, 'mobilize')
 ) AS v(key, name, description, order_index, freshness_sensitivity, subrole_key)
-WHERE sp.key = 'prepare_access'
+WHERE sp.key = 'prepare_and_access'
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -40,7 +40,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use early in lower-body prep when the athlete needs ankle access before squats, jumps, agility, or landings.',
   athlete_language = 'Keep your heel down and drive your knee over your toes without letting the arch collapse.',
   movement_family = 'Ankle mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'ankle_mobility',
   default_sets = 1,
@@ -68,7 +68,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'Use as ankle access before lower-body skill, Output, Capacity, tumbling, or landing work.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'ankle_mobility' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'knee-to-wall-ankle-rockers';
 
@@ -101,7 +101,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use when athletes need a more stable ankle mobility setup than standing knee-to-wall rockers.',
   athlete_language = 'Knee forward, heel down, arch strong.',
   movement_family = 'Ankle mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'ankle_mobility',
   default_sets = 1,
@@ -129,7 +129,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'Stable option for dorsiflexion prep before lower-body work.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'ankle_mobility' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'half-kneeling-ankle-dorsiflexion-pulse';
 
@@ -162,7 +162,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Primary subrole: Mobilize. Secondary intent: Activate. Use as a quick ankle scan before lower-body prep.',
   athlete_language = 'Keep the leg still and draw the biggest smooth circle with your ankle.',
   movement_family = 'Ankle mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'ankle_cars',
   default_sets = 1,
@@ -190,7 +190,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'Excellent daily ankle scan and control drill.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'ankle_cars' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'ankle-cars';
 
@@ -220,10 +220,10 @@ UPDATE coaching.exercise SET
   name = 'Tibialis Raises',
   description = 'Lean against a wall with heels on the floor and feet slightly forward. Keep knees mostly straight. Lift the toes toward the shins, then lower under control.',
   card_summary = 'Anterior shin activation drill that prepares the lower leg for foot clearance, dorsiflexion control, deceleration, and landing.',
-  coach_language = 'Use low dose before sprinting, jumping, landing, agility, or lower-body strength. Higher-volume tibialis training belongs in Control / Resilience or Capacity.',
+  coach_language = 'Use low dose before sprinting, jumping, landing, agility, or lower-body strength. Higher-volume tibialis training belongs in Resilience or Capacity.',
   athlete_language = 'Keep your heels down and lift your toes toward your shins.',
   movement_family = 'Shin activation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'activate',
   primary_order_slot = 'shin_activation',
   default_sets = 1,
@@ -249,9 +249,9 @@ UPDATE coaching.exercise_phase_profile p SET
   technical_complexity = 1,
   impact_level = 0,
   intensity_ceiling = 'moderate',
-  notes = 'Low-dose activation in Prepare / Access; higher-volume tibialis training belongs in Control / Resilience or Capacity.'
+  notes = 'Low-dose activation in Prepare & Access; higher-volume tibialis training belongs in Resilience or Capacity.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'shin_activation' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'tibialis-raises';
 
@@ -279,12 +279,12 @@ WHERE r.exercise_id = e.id AND e.slug = 'tibialis-raises';
 -- Calf Raise to Controlled Heel Drop (calf-raise-to-heel-drop)
 UPDATE coaching.exercise SET
   name = 'Calf Raise to Controlled Heel Drop',
-  description = 'Stand near a wall or support. Rise onto the balls of the feet. Pause tall. Lower heels under control. In Prepare / Access, keep this low dose and smooth, not fatiguing.',
+  description = 'Stand near a wall or support. Rise onto the balls of the feet. Pause tall. Lower heels under control. In Prepare & Access, keep this low dose and smooth, not fatiguing.',
   card_summary = 'Low-dose calf and Achilles readiness drill emphasizing controlled rise, balance, and smooth lowering.',
-  coach_language = 'Use before jumping, sprinting, tumbling, or agility when the athlete needs calf/Achilles prep without fatigue. If slow eccentric or high-volume, move to Control / Resilience.',
+  coach_language = 'Use before jumping, sprinting, tumbling, or agility when the athlete needs calf/Achilles prep without fatigue. If slow eccentric or high-volume, move to Resilience.',
   athlete_language = 'Rise tall, control the lower, and keep pressure through the ball of the foot.',
   movement_family = 'Calf/Achilles prep',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'activate',
   primary_order_slot = 'calf_achilles_prep',
   default_sets = 1,
@@ -295,7 +295,7 @@ UPDATE coaching.exercise SET
   movement_requirements = '{"primary_joint_actions":["ankle_plantarflexion"],"primary_tissues":["achilles","gastrocnemius"],"breathing_demand":"nasal","balance_demand":"stable","impact_level":0}'::jsonb,
   coaching_execution = '{"movement_description":"Stand near support. Rise onto balls of feet, pause tall, lower heels under control without bouncing.","setup":["Stand tall near support.","Feet hip-width.","Pressure through big toe mound and little toe mound.","Knees mostly straight unless soleus bias is intended."],"execution_steps":["Rise onto balls of feet.","Pause tall.","Lower heels slowly.","Maintain foot tripod.","Repeat without bouncing."],"breathing_cues":["Exhale as you rise.","Inhale or steady breathe as you lower."],"coach_cues":["Tall at the top.","Control the lower.","Do not roll to the outside of the foot.","No bouncing yet.","Stop before calf fatigue changes mechanics."],"athlete_cues":["Rise tall.","Lower slow.","Big toe stays heavy."],"common_faults":["Rolling ankles outward.","Bouncing off the bottom.","Collapsing arches.","Knees bending unintentionally.","Too much volume before jumping."],"stop_signs":["Achilles pain.","Calf strain sensation.","Heel pain.","Cramping that alters gait.","Pain increases with pogo or jump prep."]}'::jsonb,
   pairing_logic = '{"pairs_well_before":["Low Pogos","Jump Rope Easy Bounce","A-March","Landing prep"],"pairs_well_after":["Ankle CARs","Short-Foot Drill","Foot Tripod Weight Shifts"],"good_for_sessions":["landing_prep","sprint_prep","squat_prep"],"avoid_before":["Max plyometrics if calves become fatigued","Sprint work if Achilles is symptomatic"],"avoid_after":[],"do_not_use_when":["Acute Achilles pain","Recent calf strain","Heel pain that worsens with loading"]}'::jsonb,
-  media_library = '{"demo_video_sources":[],"coaching_articles":[],"clinical_or_sport_science_references":["Prehab Guys eccentric heel raise","Elite Performance Institute eccentric heel drop"],"internal_notes":["Keep Prepare / Access volume lower than true eccentric training blocks."]}'::jsonb,
+  media_library = '{"demo_video_sources":[],"coaching_articles":[],"clinical_or_sport_science_references":["Prehab Guys eccentric heel raise","Elite Performance Institute eccentric heel drop"],"internal_notes":["Keep Prepare & Access volume lower than true eccentric training blocks."]}'::jsonb,
   updated_at = now()
 WHERE slug = 'calf-raise-to-heel-drop';
 
@@ -310,9 +310,9 @@ UPDATE coaching.exercise_phase_profile p SET
   technical_complexity = 2,
   impact_level = 0,
   intensity_ceiling = 'moderate',
-  notes = 'Low-dose calf/Achilles prep. If slow eccentric or high-volume, move to Control / Resilience.'
+  notes = 'Low-dose calf/Achilles prep. If slow eccentric or high-volume, move to Resilience.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'calf_achilles_prep' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'calf-raise-to-heel-drop';
 
@@ -345,7 +345,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use when athletes need better foot awareness, toe control, and arch readiness.',
   athlete_language = 'Lift the big toe without the little toes, then lift the little toes without the big toe.',
   movement_family = 'Foot activation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'activate',
   primary_order_slot = 'foot_activation',
   default_sets = 1,
@@ -373,7 +373,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'Excellent daily foot-control drill. Expect beginners to struggle; assist with hands if needed.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'foot_activation' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'toe-yoga';
 
@@ -406,7 +406,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before balance, landing, sprint, agility, and lower-body strength when the athlete needs better arch/foot control.',
   athlete_language = 'Pull the ball of your big toe toward your heel without curling your toes.',
   movement_family = 'Foot activation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'activate',
   primary_order_slot = 'foot_activation',
   default_sets = 1,
@@ -434,7 +434,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'High value foot-control drill. Best when paired with balance or weight-shift integration.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'foot_activation' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'short-foot-drill';
 
@@ -467,7 +467,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use after toe yoga or short-foot to integrate foot control into standing balance and lower-body prep.',
   athlete_language = 'Feel heel, big toe mound, and little toe mound. Shift without losing those three points.',
   movement_family = 'Foot balance prep',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'integrate',
   primary_order_slot = 'foot_balance_prep',
   default_sets = 1,
@@ -495,7 +495,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'low',
   notes = 'Excellent bridge from foot activation into standing movement.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'foot_balance_prep' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'foot-tripod-weight-shifts';
 
@@ -528,7 +528,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use as a low-dose elastic bridge, not a plyometric workout. Move it to Output if intensity or intent becomes high.',
   athlete_language = 'Bounce lightly on the balls of your feet like a spring.',
   movement_family = 'Elastic prep',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'potentiate_bridge',
   primary_order_slot = 'elastic_prep',
   default_sets = 1,
@@ -554,9 +554,9 @@ UPDATE coaching.exercise_phase_profile p SET
   technical_complexity = 3,
   impact_level = 2,
   intensity_ceiling = 'moderate',
-  notes = 'Prepare / Access only when low amplitude and low volume. High-quality pogos belong in Output.'
+  notes = 'Prepare & Access only when low amplitude and low volume. High-quality pogos belong in Output.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'elastic_prep' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'low-pogos';
 
@@ -589,7 +589,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use as a short raise/potentiate bridge when the athlete has rope skill and lower-leg tolerance. Do not turn it into HIIT before Output.',
   athlete_language = 'Small jumps, soft contacts, wrists turn the rope, stay relaxed.',
   movement_family = 'Rhythm warm-up',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'raise',
   primary_order_slot = 'rhythm_warmup',
   default_sets = 1,
@@ -600,7 +600,7 @@ UPDATE coaching.exercise SET
   movement_requirements = '{"primary_joint_actions":["ankle_plantarflexion"],"primary_tissues":[],"breathing_demand":"nasal","balance_demand":"stable","impact_level":2}'::jsonb,
   coaching_execution = '{"movement_description":"Turn rope with wrists. Small quiet two-foot bounces on balls of feet. Tall relaxed posture.","setup":["Rope sized appropriately.","Tall posture.","Elbows close to body.","Hands slightly in front of hips.","Feet under hips."],"execution_steps":["Turn rope with wrists, not big arm swings.","Jump just high enough to clear rope.","Land softly on balls of feet.","Keep rhythm relaxed.","Stop before breathing or calf fatigue rises too high."],"breathing_cues":["Breathe rhythmically.","Stay relaxed in shoulders and jaw."],"coach_cues":["Small jumps.","Quiet feet.","Wrists turn the rope.","Stay tall.","This is not conditioning right now."],"athlete_cues":["Tiny jumps.","Relax your shoulders.","Find the rhythm."],"common_faults":["Jumping too high.","Loud heavy landings.","Swinging arms instead of wrists.","Shoulders shrugging.","Turning warm-up into fatigue."],"stop_signs":["Achilles pain.","Shin pain.","Knee pain.","Heel pain.","Athlete cannot coordinate rope without frustration or collisions."]}'::jsonb,
   pairing_logic = '{"pairs_well_before":["A-March","Low Pogos","Agility prep","Landing prep","Sprint mechanics"],"pairs_well_after":["Ankle CARs","Tibialis Raises","Calf Raise to Controlled Heel Drop","Foot Tripod Weight Shifts"],"good_for_sessions":["general_warmup","sprint_prep","landing_prep"],"avoid_before":["Max speed if jump rope volume creates calf fatigue","High-output plyos if contacts become loud or sloppy","Advanced tumbling if lower legs are fatigued"],"avoid_after":[],"do_not_use_when":["Achilles pain","Shin splints flare","Heel pain","Pelvic-floor symptoms with jumping","Poor landing tolerance"]}'::jsonb,
-  media_library = '{"demo_video_sources":[],"coaching_articles":[],"clinical_or_sport_science_references":["Crossrope jump-rope warm-up article","ACE jump-rope progression cautions","Prehab Guys jump-rope archive"],"internal_notes":["Keep Vortex Prepare / Access card limited to easy bounce rhythm, not conditioning intervals."]}'::jsonb,
+  media_library = '{"demo_video_sources":[],"coaching_articles":[],"clinical_or_sport_science_references":["Crossrope jump-rope warm-up article","ACE jump-rope progression cautions","Prehab Guys jump-rope archive"],"internal_notes":["Keep Vortex Prepare & Access card limited to easy bounce rhythm, not conditioning intervals."]}'::jsonb,
   updated_at = now()
 WHERE slug = 'jump-rope-easy-bounce';
 
@@ -615,9 +615,9 @@ UPDATE coaching.exercise_phase_profile p SET
   technical_complexity = 3,
   impact_level = 2,
   intensity_ceiling = 'moderate',
-  notes = 'Great warm-up if low dose and technically easy. If performed hard, long, or interval-style, it becomes Fitness / Repeatability.'
+  notes = 'Great warm-up if low dose and technically easy. If performed hard, long, or interval-style, it becomes Sustained Capacity.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'rhythm_warmup' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'jump-rope-easy-bounce';
 
@@ -1166,7 +1166,7 @@ FROM (VALUES
   ('half-kneeling-ankle-dorsiflexion-pulse', 'The half-kneeling setup gives more stability than a standing rocker and allows clean observation of foot tripod, arch control, heel contact, and knee tracking. E3 Rehab notes dorsiflexion can be trained from half-kneeling by driving the knee over the toes while keeping the heel on the ground.', 'Belongs in Mobilize (ankle_mobility) — stable dorsiflexion prep option.', 'When athletes need a more stable ankle mobility setup than standing knee-to-wall rockers.', 'Do not use before hard plyometrics if the ankle pinches.', 'Scale by symptoms, foot structure, and movement demand.'),
   ('ankle-cars', 'Ankle CARs use active joint rotation to explore available range and improve awareness/control. The Prehab Guys describe ankle CARs as large circles clockwise and counterclockwise while keeping the thigh still, with calf and ankle muscles controlling the motion.', 'Belongs in Mobilize (ankle_cars) — daily ankle scan and control drill.', 'As a quick ankle scan before lower-body prep, especially after ankle stiffness, sprains, or poor foot control.', 'Do not use fast sloppy circles before high-speed cutting if painful or uncontrolled.', 'Scale by control and symptom response.'),
   ('tibialis-raises', 'Tibialis raises train active dorsiflexion and anterior shin control. The Prehab Guys wall-supported standing ankle dorsiflexion drill cues heels on the ground and raising the toes; E3 Rehab includes dorsiflexion strengthening in its foot/ankle strength framework.', 'Belongs in Activate (shin_activation) — low-dose anterior shin prep.', 'Low dose before sprinting, jumping, landing, agility, or lower-body strength when athletes need shin activation.', 'Do not use high reps that create shin fatigue before max sprint or jumping work.', 'Scale by shin capacity, running/jumping load, and soreness.'),
-  ('calf-raise-to-heel-drop', 'Calf raises prepare the ankle plantarflexors and Achilles for takeoff and landing. Eccentric heel drops use controlled lowering to strengthen the calf/Achilles system; in Prepare / Access keep volume low and smooth.', 'Belongs in Activate (calf_achilles_prep) — low-dose calf/Achilles readiness.', 'Before jumping, sprinting, tumbling, or agility when the athlete needs calf/Achilles prep without fatigue.', 'Do not use high volume before jumping or sprinting if calves become fatigued.', 'Scale by calf/Achilles history, body mass, jumping load, and soreness.'),
+  ('calf-raise-to-heel-drop', 'Calf raises prepare the ankle plantarflexors and Achilles for takeoff and landing. Eccentric heel drops use controlled lowering to strengthen the calf/Achilles system; in Prepare & Access keep volume low and smooth.', 'Belongs in Activate (calf_achilles_prep) — low-dose calf/Achilles readiness.', 'Before jumping, sprinting, tumbling, or agility when the athlete needs calf/Achilles prep without fatigue.', 'Do not use high volume before jumping or sprinting if calves become fatigued.', 'Scale by calf/Achilles history, body mass, jumping load, and soreness.'),
   ('toe-yoga', 'Toe yoga improves toe dissociation and intrinsic-foot coordination. PhysioPedia describes lifting the big toe while keeping other toes down, then reversing. The Prehab Guys note foot exercises can be difficult at first due to weak neurological connection but improve with practice.', 'Belongs in Activate (foot_activation) — toe independence and intrinsic control.', 'When athletes need better foot awareness, toe control, and arch readiness.', 'Do not use before high-speed footwork if foot cramps heavily.', 'Scale by toe mobility, foot structure, and motor control.'),
   ('short-foot-drill', 'The short-foot drill teaches arch doming without curling the toes. The Prehab Guys cue bringing the base of the big toe and heel together by arching the foot while keeping toes flat.', 'Belongs in Activate (foot_activation) — arch control and foot tripod.', 'Before balance, landing, sprint, agility, and lower-body strength when the athlete needs better arch/foot control.', 'Do not use before hard jumping if foot cramps or toes claw aggressively.', 'Scale by foot control, arch behavior, and sport demand.'),
   ('foot-tripod-weight-shifts', 'Foot tripod control teaches weight distribution through heel, base of big toe, and base of little toe. Physitrack and Feetology describe the tripod as sharing load to support weight and improve steadiness.', 'Belongs in Integrate (foot_balance_prep) — bridges foot activation into standing movement.', 'After toe yoga or short-foot to integrate foot control into standing balance and lower-body prep.', 'Do not use before fast agility if athlete cannot control basic foot pressure.', 'Scale by balance, foot structure, and control.'),
@@ -1194,10 +1194,10 @@ VALUES (
   'validation_rule',
   'prepare_lower_leg_readiness',
   NULL,
-  'Prepare / Access lower-leg readiness without pre-fatigue',
+  'Prepare & Access lower-leg readiness without pre-fatigue',
   'Foot/ankle readiness drills should prepare lower-body output without becoming conditioning or high-impact fatigue.',
   'Foot/ankle readiness drills should prepare the athlete for lower-body output, not become conditioning or high-impact fatigue before sprinting, jumping, tumbling, or agility.',
-  'Landing, sprinting, jumping, agility, and tumbling takeoffs require fresh ankle spring and foot control. High-dose pogos, jump rope, or calf burnouts in Prepare / Access steal output readiness.',
+  'Landing, sprinting, jumping, agility, and tumbling takeoffs require fresh ankle spring and foot control. High-dose pogos, jump rope, or calf burnouts in Prepare & Access steal output readiness.',
   'Keep pogos under ~40 contacts, jump rope under ~90 seconds at low RPE, and calf raises at warm-up dose (≤15 reps). Sequence Mobilize → Activate → Integrate → Potentiate Bridge without visible lower-leg fatigue.',
   'Do not turn ankle prep into HIIT, high-volume eccentrics, or loud plyometric circuits before Output or Skill phases.'
 )

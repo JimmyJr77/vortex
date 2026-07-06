@@ -1,5 +1,5 @@
 /**
- * Generates backend/migrations/100_coaching_prepare_access_upper_body_cards.sql
+ * Generates backend/migrations/100_coaching_prepare_and_access_upper_body_cards.sql
  * Run: node scripts/generate-100-upper-body-cards.mjs
  */
 import fs from 'fs'
@@ -45,13 +45,13 @@ const COHORT_KEYS = [
 ]
 
 const VALIDATION_EDU = {
-  title: 'Prepare / Access upper-body access without pre-fatigue',
+  title: 'Prepare & Access upper-body access without pre-fatigue',
   short_summary:
     'Upper-body access drills should prepare hand support without pre-fatiguing wrists, shoulders, grip, or trunk.',
   what_it_is:
     'Upper-body access drills should prepare the athlete for hand support, not pre-fatigue the wrists, shoulders, grip, or trunk before tumbling, gymnastics, ninja, or overhead work.',
   why_it_matters:
-    'Tumbling, gymnastics, ninja, crawling, handstands, bars, rings, and overhead lifting require fresh wrist and shoulder control. Fatigue circuits in Prepare / Access steal output readiness.',
+    'Tumbling, gymnastics, ninja, crawling, handstands, bars, rings, and overhead lifting require fresh wrist and shoulder control. Fatigue circuits in Prepare & Access steal output readiness.',
   programming_guidance:
     'Keep wrist rockers, finger pulses, scapular push-ups, and integration flows at low dose (fatigue_cost 1–2). Sequence Mobilize → Activate → Integrate. Do not stack high-rep scapular or bear-crawl work before skill.',
   common_misuse:
@@ -79,7 +79,7 @@ CROSS JOIN (VALUES
   ('hip_mobility', 'Hip Mobility', 'Hip switches, 90/90, and hip CARs.', 131, 1, 'mobilize'),
   ('squat_access', 'Squat Access', 'Squat patterning and depth access work.', 132, 1, 'mobilize')
 ) AS v(key, name, description, order_index, freshness_sensitivity, subrole_key)
-WHERE sp.key = 'prepare_access'
+WHERE sp.key = 'prepare_and_access'
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -118,7 +118,7 @@ UPDATE coaching.exercise SET
   coach_language = ${sqlStr(card.coachLanguage)},
   athlete_language = ${sqlStr(card.athleteLanguage)},
   movement_family = ${sqlStr(card.family)},
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = ${sqlStr(card.subrole)},
   primary_order_slot = ${sqlStr(card.slot)},
   default_sets = ${d.default_sets},
@@ -145,7 +145,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = ${sqlStr(pp.intensity_ceiling)},
   notes = ${sqlStr(pp.notes)}
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = ${sqlStr(card.slot)} AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = ${sqlStr(card.slug)};
 
@@ -297,6 +297,6 @@ ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
   updated_at = now();
 `
 
-const outPath = path.join(__dirname, '../backend/migrations/100_coaching_prepare_access_upper_body_cards.sql')
+const outPath = path.join(__dirname, '../backend/migrations/100_coaching_prepare_and_access_upper_body_cards.sql')
 fs.writeFileSync(outPath, sql)
 console.log('Wrote', outPath, '—', UPPER_BODY_CARDS.length, 'upper-body cards')

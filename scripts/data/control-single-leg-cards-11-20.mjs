@@ -1,5 +1,5 @@
 /**
- * Rich card v2 content for Control / Resilience Single-Leg Balance cards 11–20.
+ * Rich card v2 content for Resilience Single-Leg Balance cards 11–20.
  * Consumed by scripts/generate-control-rich.mjs (migration 131).
  */
 
@@ -97,7 +97,7 @@ export const CONTROL_SINGLE_LEG_CARDS = [
       'Static single-leg balance teaches the athlete to organize the foot, ankle, knee, hip, and trunk over one support leg before adding reach, rotation, perturbation, or load.',
     whyItGoesHere: 'Belongs in single_leg_static_balance (521) — the baseline single-leg control slot before dynamic reach and step-down work.',
     bestPlacement:
-      'Use early in Control / Resilience blocks, after foot tripod or lower-leg prep and before dynamic reach, hinge, step-down, hop-to-stick, or loaded single-leg work.',
+      'Use early in Resilience blocks, after foot tripod or lower-leg prep and before dynamic reach, hinge, step-down, hop-to-stick, or loaded single-leg work.',
     movementRequirements: {
       primary_joint_actions: ['ankle_stabilization', 'knee_tracking', 'hip_stabilization', 'trunk_bracing'],
       primary_tissues: ['foot_intrinsics', 'calves', 'glutes', 'core'],

@@ -23,7 +23,7 @@ export const TRAINING_PHILOSOPHY_TAXONOMY = {
     {
       name: 'Methodologies',
       role: 'How we train — the loading strategy (plyometrics, isometrics, HIIT, etc.).',
-      connects: 'Methodologies have primary phase homes. Plyometrics belong in Output; HIIT belongs late in Fitness / Repeatability.',
+      connects: 'Methodologies have primary phase homes. Plyometrics belong in Output; HIIT belongs late in Sustained Capacity.',
     },
     {
       name: 'Physiological Emphasis',
@@ -60,28 +60,28 @@ export const TRAINING_PHILOSOPHY_TAXONOMY = {
     step: i + 1,
     phaseKey: key,
     label:
-      key === 'prepare_access'
-        ? 'Prepare / Access'
-        : key === 'skill_movement_intelligence'
-          ? 'Skill / Movement Intelligence'
-          : key === 'control_resilience'
-            ? 'Control / Resilience'
-            : key === 'fitness_repeatability'
-              ? 'Fitness / Repeatability'
+      key === 'prepare_and_access'
+        ? 'Prepare & Access'
+        : key === 'movement_intelligence'
+          ? 'Movement Intelligence'
+          : key === 'resilience'
+            ? 'Resilience'
+            : key === 'sustained_capacity'
+              ? 'Sustained Capacity'
               : key.charAt(0).toUpperCase() + key.slice(1),
   })),
 } as const
 
 export const SESSION_PHASES_HUB = {
   title: 'Session Phases — macro session intent',
-  intro: `Session phases are the backbone of every Athleticism Accelerator workout. Each phase has a distinct job, fatigue profile, and placement rule. Sensitive qualities — coordination, speed, elastic power — need a fresh nervous system. Strength tolerates more fatigue. Conditioning creates fatigue on purpose. Restore downshifts the athlete. The canonical order is Prepare / Access → Skill / Movement Intelligence → Output → Capacity → Control / Resilience → Fitness / Repeatability → Restore.`,
+  intro: `Session phases are the backbone of every Athleticism Accelerator workout. Each phase has a distinct job, fatigue profile, and placement rule. Sensitive qualities — coordination, speed, elastic power — need a fresh nervous system. Strength tolerates more fatigue. Conditioning creates fatigue on purpose. Restore downshifts the athlete. The canonical order is Prepare & Access → Movement Intelligence → Output → Capacity → Resilience → Sustained Capacity → Restore.`,
   principles: [
-    'Prepare / Access raises readiness without meaningful fatigue — access before intensity.',
-    'Skill / Movement Intelligence teaches patterns while the brain and body can still learn.',
+    'Prepare & Access raises readiness without meaningful fatigue — access before intensity.',
+    'Movement Intelligence teaches patterns while the brain and body can still learn.',
     'Output expresses speed, power, and elasticity while intent and landing quality are high.',
     'Capacity builds force and tissue tolerance after quality speed/power work.',
-    'Control / Resilience trains brakes, stabilizers, and eccentric tolerance.',
-    'Fitness / Repeatability intentionally accumulates fatigue — almost always late.',
+    'Resilience trains brakes, stabilizers, and eccentric tolerance.',
+    'Sustained Capacity intentionally accumulates fatigue — almost always late.',
     'Restore cools down, breathes, and assigns flexibility homework — never new stress.',
   ],
   misuse: `The most expensive mistake is treating phases as interchangeable blocks. HIIT before skill destroys learning. Heavy strength before output reduces jump height and sprint quality. Advanced tumbling after conditioning increases landing risk. Static flexibility before power reduces stiffness. Session phases exist so coaches do not have to re-learn sports science every time they build a workout.`,
@@ -98,7 +98,7 @@ export const TENETS_HUB = {
     'Flexibility/Mobility is usable range — dynamic early, long static late.',
     'Balance is base-of-support control — low level in Prepare; hard balance when fatiguing stabilizers is later.',
     'Coordination is multi-part timing — Skill phase with rhythm, tumbling, and pattern drills.',
-    'Body Control is spatial ownership — Skill for shapes; Control / Resilience for fatiguing stability.',
+    'Body Control is spatial ownership — Skill for shapes; Resilience for fatiguing stability.',
   ],
   misuse: `Tagging everything as “explosiveness” because it feels hard, or programming strength circuits and calling them “plyometrics,” blurs intent. Tenets keep programming honest: a heavy squat builds strength; a countermovement jump with full rest builds explosiveness; a fatigued box-jump circuit builds conditioning — different tenets, different phases.`,
 } as const
@@ -110,12 +110,12 @@ export const METHODOLOGIES_HUB = {
     { methodology: 'Resistance & Calisthenics', primary: 'Capacity', secondary: 'Control, Skill (technical calisthenics)' },
     { methodology: 'Plyometrics', primary: 'Output', secondary: 'Prepare (low elastic prep), Skill (landing mechanics)' },
     { methodology: 'Isometrics', primary: 'Prepare (light), Skill, Capacity, Control', secondary: 'Activation and yielding holds' },
-    { methodology: 'Eccentric/Negative', primary: 'Control / Resilience', secondary: 'Capacity' },
+    { methodology: 'Eccentric/Negative', primary: 'Resilience', secondary: 'Capacity' },
     { methodology: 'Neural', primary: 'Prepare, Skill, Output', secondary: 'High-intent coordination and speed' },
     { methodology: 'Balance & Stability', primary: 'Control, Skill', secondary: 'Prepare (low level)' },
     { methodology: 'Mobility & Flexibility', primary: 'Prepare (dynamic), Restore (static)', secondary: 'Never long static before power' },
     { methodology: 'Core & Body Control', primary: 'Control, Skill', secondary: 'Prepare activation' },
-    { methodology: 'HIIT', primary: 'Fitness / Repeatability', secondary: 'Almost never before skill or output' },
+    { methodology: 'HIIT', primary: 'Sustained Capacity', secondary: 'Almost never before skill or output' },
   ],
   misuse: `Using plyometrics as a finisher after leg day, isometric burnout before tumbling, or HIIT as a “warm-up” are methodology–phase mismatches. The taxonomy keeps the tool aligned with the phase intent.`,
 } as const
@@ -154,7 +154,7 @@ export const PHYSIOLOGY_HUB = {
 
 export const ORDER_SLOTS_HUB = {
   title: 'Order Slots — fine progression within a phase',
-  intro: `Order slots are the micro-sequence inside a session phase. Prepare / Access slots follow the RAMP-derived subroles (Raise → Mobilize → Activate → Integrate → Potentiate Bridge). Skill slots group shape, tumbling, sprint mechanics, balance, and perception clusters. Output slots progress acceleration → max velocity → elastic rudiments → jump/throw power → deceleration → COD → reactive agility. Each slot has an order index and freshness sensitivity so related exercises sort correctly in the library and builder.`,
+  intro: `Order slots are the micro-sequence inside a session phase. Prepare & Access slots follow the RAMP-derived subroles (Raise → Mobilize → Activate → Integrate → Potentiate Bridge). Skill slots group shape, tumbling, sprint mechanics, balance, and perception clusters. Output slots progress acceleration → max velocity → elastic rudiments → jump/throw power → deceleration → COD → reactive agility. Each slot has an order index and freshness sensitivity so related exercises sort correctly in the library and builder.`,
   concepts: [
     'Subroles are the coarse bands; order slots are the fine lanes within each band.',
     'Freshness sensitivity (1–5) signals how quickly quality drops when the athlete is tired.',
@@ -162,8 +162,8 @@ export const ORDER_SLOTS_HUB = {
     'Slots make the library searchable and make validation cluster-aware (acceleration, elastic, jump power).',
   ],
   phaseGroups: [
-    { phase: 'Prepare / Access', subroles: 'Raise, Mobilize, Activate, Integrate, Potentiate Bridge', examples: 'breathing_reset, hip_rotation, glute_activation, crawl_progressions, elastic_prep' },
-    { phase: 'Skill / Movement Intelligence', subroles: 'Shape, Tumbling, Sprint mechanics, Balance, Perception–action', examples: 'shape_holds, tumbling_foundation, sprint_mechanics, balance_coordination, reactive_agility' },
+    { phase: 'Prepare & Access', subroles: 'Raise, Mobilize, Activate, Integrate, Potentiate Bridge', examples: 'breathing_reset, hip_rotation, glute_activation, crawl_progressions, elastic_prep' },
+    { phase: 'Movement Intelligence', subroles: 'Shape, Tumbling, Sprint mechanics, Balance, Perception–action', examples: 'shape_holds, tumbling_foundation, sprint_mechanics, balance_coordination, reactive_agility' },
     { phase: 'Output', subroles: 'Acceleration, Max velocity, Elastic, Jump/throw power, Decel, COD, Reactive agility', examples: 'acceleration_start_speed, max_velocity_exposure, elastic_ankle, vertical_jump_power, decel_foundation' },
     { phase: 'Capacity / Control / Fitness / Restore', subroles: 'Phase-level slots for strength, isometrics, conditioning, cooldown', examples: 'main_strength, eccentric_control, conditioning_intervals, post_workout_flexibility' },
   ],
@@ -196,13 +196,13 @@ export const SESSION_MODELS_HUB = {
     },
     {
       key: 'session_120_fitness_addon',
-      name: '120-Minute Tumbling First + Fitness Add-On',
-      summary: 'Sensitive work first; ~30 min fitness add-on placed late after capacity and control.',
+      name: '120-Minute Tumbling First + Sustained Capacity Add-On',
+      summary: 'Sensitive work first; ~30 min Sustained Capacity add-on placed late after capacity and control.',
     },
   ],
   placementRules: [
     'Speed add-ons belong early after prepare and tumbling reset — neural output decays with fatigue.',
-    'Fitness add-ons belong late — conditioning intentionally compromises freshness for repeatability.',
+    'Sustained Capacity add-ons belong late — conditioning intentionally compromises freshness for repeatability.',
     'Tumbling-first models protect landing quality; tumbling-end models require stronger prepare and output discipline.',
   ],
   misuse: `Stretching a 60-minute template into 90 minutes by adding random circuits, or placing a fitness add-on before output “to get it done,” defeats the model’s purpose.`,
@@ -217,7 +217,7 @@ export const VALIDATION_RULES_HUB = {
       examples: 'phase_order_violation, freshness_required_after_fatigue, hiit_before_skill_output, static_flex_before_output',
     },
     {
-      name: 'Prepare / Access cluster rules',
+      name: 'Prepare & Access cluster rules',
       examples: 'prepare_subrole_sequence, prepare_pogos_output_dose, prepare_lower_leg_readiness',
     },
     {

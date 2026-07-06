@@ -1,5 +1,5 @@
 /**
- * Rich card v2 content for Skill / Movement Intelligence tumbling cards 11–24.
+ * Rich card v2 content for Movement Intelligence tumbling cards 11–24.
  * Consumed by scripts/generate-107-skill-tumbling-cards.mjs
  * UPDATE-only on slugs seeded in migration 105.
  */
@@ -896,7 +896,7 @@ export const SKILL_TUMBLING_CARDS = [
     whyItWorks:
       'Develops inversion confidence, shoulder elevation, hand pressure, body-line awareness, and handstand-specific trunk control with wall support.',
     whyItGoesHere: 'Belongs in handstand_line (227) — line drill before kick-up entry work.',
-    commonMisuse: `${CLUSTER_MISUSE} Long holds shift to Control / Resilience. Cap holds at ~20s in Skill phase.`,
+    commonMisuse: `${CLUSTER_MISUSE} Long holds shift to Resilience. Cap holds at ~20s in Skill phase.`,
     scalingGuidance: 'Regress to down-dog L-shape, box pike hold, or lower feet on wall.',
     movementRequirements: {
       primary_joint_actions: ['shoulder_flexion', 'wrist_extension'],
@@ -964,7 +964,7 @@ export const SKILL_TUMBLING_CARDS = [
       impact_level: 0,
       intensity_ceiling: 'moderate',
       daily_ok: false,
-      notes: 'Skill line drill. Long holds shift to Control / Resilience. Cap at ~20s in Skill.',
+      notes: 'Skill line drill. Long holds shift to Resilience. Cap at ~20s in Skill.',
     },
     scalingOverrides: {
       youth_beginner: 'Youth need clear stop points and supervision. Adults often require wrist/shoulder prep and fear management.',

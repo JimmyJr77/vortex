@@ -1,4 +1,4 @@
--- Prepare / Access content support: foot body_region + validation rule education.
+-- Prepare & Access content support: foot body_region + validation rule education.
 -- IDEMPOTENT.
 
 INSERT INTO coaching.body_region (key, name, sort_order) VALUES
@@ -24,12 +24,12 @@ SELECT
   'validation_rule',
   'prepare_readiness_stealing',
   NULL,
-  'Prepare / Access readiness without stealing output',
+  'Prepare & Access readiness without stealing output',
   'Warm-up blocks should increase readiness, not fatigue athletes before Skill or Output.',
-  'Prepare / Access should increase readiness without stealing output from later phases.',
+  'Prepare & Access should increase readiness without stealing output from later phases.',
   'High fatigue cost, long isometric holds, conditioning circuits, and repeated high-impact contacts in warm-up reduce quality in Skill and Output.',
-  'Keep Prepare / Access mostly fatigue_cost 1–2, impact 0–1, and low intensity ceiling. Use Raise/Mobilize/Activate for access; reserve Potentiate Bridge for brief elastic/rhythm prep only.',
-  'Do not program HIIT, core burnouts, deep loaded mobility, or max-range aggressive stretching in Prepare / Access.'
+  'Keep Prepare & Access mostly fatigue_cost 1–2, impact 0–1, and low intensity ceiling. Use Raise/Mobilize/Activate for access; reserve Potentiate Bridge for brief elastic/rhythm prep only.',
+  'Do not program HIIT, core burnouts, deep loaded mobility, or max-range aggressive stretching in Prepare & Access.'
 ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
   title = EXCLUDED.title,
   short_summary = EXCLUDED.short_summary,

@@ -561,7 +561,7 @@ export const OUTPUT_DECEL_COD_CARDS = [
       'The 5-10-5, also called the pro-agility shuttle, includes rapid directional changes in a linear plane with three cones spaced 5 yards apart. It requires acceleration, deceleration, direction change, and re-acceleration. Science for Sport notes the Pro-Agility 5-10-5 is better treated as change-of-direction speed rather than true reactive agility because it is pre-planned.',
     whyItGoesHere:
       'Belongs in cod_power (353) — structured pre-planned COD rep after linear deceleration competency; not reactive agility without external cue.',
-    commonMisuse: `${CLUSTER_MISUSE} Short rest turns this into Fitness / Repeatability. Do not label as reactive agility without an external cue.`,
+    commonMisuse: `${CLUSTER_MISUSE} Short rest turns this into Sustained Capacity. Do not label as reactive agility without an external cue.`,
     scalingGuidance:
       'Regress to 3-6-3 or walk-through version; use half-speed plant practice before max rep. Require plant alignment and trunk control.',
     movementRequirements: {

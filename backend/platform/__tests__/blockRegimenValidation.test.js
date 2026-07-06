@@ -33,7 +33,7 @@ describe('validateRegimenDraft', () => {
       weeks: 4,
       sessions_per_week: 3,
       phase_distributions: [
-        { phase_key: 'prepare_access', default_minutes: 5 },
+        { phase_key: 'prepare_and_access', default_minutes: 5 },
         { phase_key: 'capacity', default_minutes: 80 },
       ],
     })

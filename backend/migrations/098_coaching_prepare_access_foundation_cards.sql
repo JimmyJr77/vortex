@@ -5,7 +5,7 @@
 INSERT INTO coaching.phase_order_slot (key, name, description, phase_id, order_index, freshness_sensitivity, subrole_key)
 SELECT 'hip_rotation', 'Hip Rotation', '90/90 switches and seated hip IR/ER access.', sp.id, 119, 1, 'mobilize'
 FROM coaching.session_phase sp
-WHERE sp.key = 'prepare_access'
+WHERE sp.key = 'prepare_and_access'
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -22,7 +22,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Primary subrole: Mobilize. Secondary intent: Activate trunk stabilizers. Use as a low-threat reset before higher-intent work.',
   athlete_language = 'Breathe low and wide; long exhale while reaching long.',
   movement_family = 'Breathing reset',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'breathing_reset',
   default_sets = 1,
@@ -41,7 +41,7 @@ UPDATE coaching.exercise_phase_profile p SET
   order_slot = 'breathing_reset',
   order_index = pos.order_index
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'breathing_reset' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = '9090-breathing-with-reach';
 
@@ -65,7 +65,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Primary subrole: Mobilize. Secondary intent: Activate. Floor feedback teaches posterior expansion.',
   athlete_language = 'Push the floor with your belly on each inhale; stay relaxed in shoulders and neck.',
   movement_family = 'Breathing reset',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'breathing_reset',
   default_sets = 1,
@@ -84,7 +84,7 @@ UPDATE coaching.exercise_phase_profile p SET
   order_slot = 'breathing_reset',
   order_index = pos.order_index
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'breathing_reset' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'crocodile-breathing';
 
@@ -108,7 +108,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use as a readiness scan — not a workout. Slow, owned range only.',
   athlete_language = 'Move each joint slowly like you are drawing circles in honey.',
   movement_family = 'Joint scan',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'joint_scan',
   default_sets = 1,
@@ -127,7 +127,7 @@ UPDATE coaching.exercise_phase_profile p SET
   order_slot = 'joint_scan',
   order_index = pos.order_index
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'joint_scan' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'full-body-joint-cars-flow';
 
@@ -151,7 +151,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Initiate from pelvis; link breath to spine motion.',
   athlete_language = 'Round your back like an angry cat, then lift your chest like a happy cow.',
   movement_family = 'Spinal mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'spinal_mobility',
   default_sets = 1,
@@ -170,7 +170,7 @@ UPDATE coaching.exercise_phase_profile p SET
   order_slot = 'spinal_mobility',
   order_index = pos.order_index
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'spinal_mobility' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'cat-cow';
 
@@ -194,7 +194,7 @@ UPDATE coaching.exercise SET
   coach_language = '3D spine motion — slow circles, not head wagging.',
   athlete_language = 'Draw a smooth circle with your back.',
   movement_family = 'Spinal mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'spinal_mobility',
   default_sets = 1,
@@ -213,7 +213,7 @@ UPDATE coaching.exercise_phase_profile p SET
   order_slot = 'spinal_mobility',
   order_index = pos.order_index
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'spinal_mobility' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'quadruped-spinal-circles';
 
@@ -237,7 +237,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Rotate through ribs and T-spine; keep hips quiet.',
   athlete_language = 'Thread your arm under, then open to the sky and follow your hand.',
   movement_family = 'Thoracic rotation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'thoracic_rotation',
   default_sets = 1,
@@ -256,7 +256,7 @@ UPDATE coaching.exercise_phase_profile p SET
   order_slot = 'thoracic_rotation',
   order_index = pos.order_index
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'thoracic_rotation' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'quadruped-thread-the-needle';
 
@@ -280,7 +280,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Knees stacked; rotate through ribs, not lumbar spine.',
   athlete_language = 'Open your top arm like a book and follow your hand with your eyes.',
   movement_family = 'Thoracic rotation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'thoracic_rotation',
   default_sets = 1,
@@ -299,7 +299,7 @@ UPDATE coaching.exercise_phase_profile p SET
   order_slot = 'thoracic_rotation',
   order_index = pos.order_index
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'thoracic_rotation' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'side-lying-open-book';
 
@@ -323,7 +323,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Tall spine; rotate from hips. Both IR and ER in one drill.',
   athlete_language = 'Switch your legs like a windshield wiper — stay tall and control the landing.',
   movement_family = 'Hip rotation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'mobilize',
   primary_order_slot = 'hip_rotation',
   default_sets = 1,
@@ -342,7 +342,7 @@ UPDATE coaching.exercise_phase_profile p SET
   order_slot = 'hip_rotation',
   order_index = pos.order_index
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'hip_rotation' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = '9090-hip-switch';
 
@@ -366,7 +366,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Dynamic flow — front foot flat, rotate through chest, control the lunge.',
   athlete_language = 'Lunge long, rotate open to the sky, then shift back to stretch the hamstring.',
   movement_family = 'Integrated mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'integrate',
   primary_order_slot = 'integrated_mobility',
   default_sets = 1,
@@ -385,7 +385,7 @@ UPDATE coaching.exercise_phase_profile p SET
   order_slot = 'integrated_mobility',
   order_index = pos.order_index
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'integrated_mobility' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'worlds-greatest-stretch';
 
@@ -409,7 +409,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Bridge to integrated control — hinge, plank line, then return.',
   athlete_language = 'Reach down, walk out to a strong plank, walk back, stand tall.',
   movement_family = 'Integrated mobility',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'integrate',
   primary_order_slot = 'integrated_mobility',
   default_sets = 1,
@@ -428,7 +428,7 @@ UPDATE coaching.exercise_phase_profile p SET
   order_slot = 'integrated_mobility',
   order_index = pos.order_index
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'integrated_mobility' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'inchworm-walkout';
 
@@ -945,7 +945,7 @@ FROM (VALUES
   ('side-lying-open-book', 'The side-lying setup reduces lower-body demand and lets the coach focus on thoracic/rib rotation. This is useful for athletes who over-rotate through the pelvis or low back during standing rotation drills. The Prehab Guys emphasize that thoracic mobility matters for neck, shoulder, low-back, and functional movement, and their thoracic rotation guidance stresses controlling compensation and using breath through rotation.', 'Belongs in Mobilize (thoracic_rotation) — supported T-spine rotation with minimal hip demand.', 'Before tumbling, overhead training, rotational skill, throwing, pressing, crawling, and sprint mechanics.', 'Do not force shoulder to floor or let top knee lift.', 'Support head with pillow; pad between knees for hip control.'),
   ('9090-hip-switch', 'Athletic hips need both external and internal rotation. The 90/90 hip switch exposes both sides in one drill and teaches the athlete to move through hip rotation without collapsing posture. The Prehab Guys describe beginning in a seated 90/90 position, hinging toward the front knee, then rotating the legs to the other side while keeping heels on the ground.', 'Belongs in Mobilize (hip_rotation) — seated IR/ER access before squat, lunge, or sprint prep.', 'Before squatting, lunging, tumbling, sprint mechanics, lateral movement, or rotational training.', 'Do not use momentum to flop between sides or force pinching ranges.', 'Elevate hips on block; widen knee angles for youth.'),
   ('worlds-greatest-stretch', 'This drill is valuable because it integrates several high-need athletic positions: deep lunge, hip extension, hamstring length, thoracic rotation, and shoulder reach. NASM''s dynamic stretching examples include multiplanar lunges with reach as functional flexibility progressions, and Squat University describes the World''s Greatest Stretch as a way to open the hips and thoracic spine.', 'Belongs in Integrate (integrated_mobility) — multi-joint flow after isolated mobility.', 'After basic joint mobility, before sprint mechanics, plyometrics, agility, strength, or tumbling.', 'Do not hold static stretches or rush through positions before power work.', 'Elevate hands on bench; break into lunge reach + hamstring shift for beginners.'),
-  ('inchworm-walkout', 'The inchworm is a bridge between mobility and integrated body control. It exposes the hamstrings through a hinge, then asks the athlete to organize shoulders, wrists, ribs, pelvis, and trunk in a plank. The Prehab Guys describe the walking inchworm as reaching toward the floor, walking hands to a high plank, stepping feet toward the hands, and standing back up; they note hamstring stretch and shoulder work as key sensations.', 'Belongs in Integrate (integrated_mobility) — late Prepare/Access bridge before higher-intent work.', 'Late Prepare / Access, after basic spine/hip/shoulder access, before Skill, Output, or Capacity.', 'Do not use before grip/wrist-heavy tumbling if athlete is already fatigued or cannot hold plank.', 'Elevated surface or wall walkout for limited hamstring/wrist tolerance.')
+  ('inchworm-walkout', 'The inchworm is a bridge between mobility and integrated body control. It exposes the hamstrings through a hinge, then asks the athlete to organize shoulders, wrists, ribs, pelvis, and trunk in a plank. The Prehab Guys describe the walking inchworm as reaching toward the floor, walking hands to a high plank, stepping feet toward the hands, and standing back up; they note hamstring stretch and shoulder work as key sensations.', 'Belongs in Integrate (integrated_mobility) — late Prepare/Access bridge before higher-intent work.', 'Late Prepare & Access, after basic spine/hip/shoulder access, before Skill, Output, or Capacity.', 'Do not use before grip/wrist-heavy tumbling if athlete is already fatigued or cannot hold plank.', 'Elevated surface or wall walkout for limited hamstring/wrist tolerance.')
 ) AS v(slug, why_works, why_here, best_placement, misuse, scale_guidance)
 JOIN coaching.exercise e ON e.slug = v.slug
 ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET

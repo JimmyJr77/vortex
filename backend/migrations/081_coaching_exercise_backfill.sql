@@ -44,7 +44,7 @@ SELECT DISTINCT ON (e.id, sp.id)
       JOIN coaching.methodology m ON m.id = t.facet_id AND t.facet_type = 'methodology'
       WHERE t.exercise_id = e.id AND m.key IN ('plyometrics', 'neural')
     ) THEN 5
-    WHEN sp.key = 'fitness_repeatability' AND EXISTS (
+    WHEN sp.key = 'sustained_capacity' AND EXISTS (
       SELECT 1 FROM coaching.exercise_tag t
       JOIN coaching.methodology m ON m.id = t.facet_id AND t.facet_type = 'methodology'
       WHERE t.exercise_id = e.id AND m.key = 'hiit'
@@ -54,17 +54,17 @@ SELECT DISTINCT ON (e.id, sp.id)
       JOIN coaching.exercise_intent i ON i.id = t.facet_id AND t.facet_type = 'intent'
       WHERE t.exercise_id = e.id AND i.key = 'main'
     ) THEN 4
-    WHEN sp.key = 'skill_movement_intelligence' AND EXISTS (
+    WHEN sp.key = 'movement_intelligence' AND EXISTS (
       SELECT 1 FROM coaching.exercise_tag t
       JOIN coaching.exercise_intent i ON i.id = t.facet_id AND t.facet_type = 'intent'
       WHERE t.exercise_id = e.id AND i.key = 'skill'
     ) THEN 5
-    WHEN sp.key = 'prepare_access' AND EXISTS (
+    WHEN sp.key = 'prepare_and_access' AND EXISTS (
       SELECT 1 FROM coaching.exercise_tag t
       JOIN coaching.exercise_intent i ON i.id = t.facet_id AND t.facet_type = 'intent'
       WHERE t.exercise_id = e.id AND i.key IN ('warmup', 'activation')
     ) THEN 4
-    WHEN sp.key = 'control_resilience' AND EXISTS (
+    WHEN sp.key = 'resilience' AND EXISTS (
       SELECT 1 FROM coaching.exercise_tag t
       JOIN coaching.methodology m ON m.id = t.facet_id AND t.facet_type = 'methodology'
       WHERE t.exercise_id = e.id AND m.key IN ('isometrics', 'eccentric_negative', 'core_body_control', 'balance_stability')
@@ -81,11 +81,11 @@ SELECT DISTINCT ON (e.id, sp.id)
       SELECT 1 FROM coaching.exercise_tag t JOIN coaching.methodology m ON m.id = t.facet_id AND t.facet_type = 'methodology'
       WHERE t.exercise_id = e.id AND m.key = 'plyometrics'
     ) THEN 'primary'
-    WHEN sp.key = 'fitness_repeatability' AND EXISTS (
+    WHEN sp.key = 'sustained_capacity' AND EXISTS (
       SELECT 1 FROM coaching.exercise_tag t JOIN coaching.methodology m ON m.id = t.facet_id AND t.facet_type = 'methodology'
       WHERE t.exercise_id = e.id AND m.key = 'hiit'
     ) THEN 'primary'
-    WHEN sp.key = 'skill_movement_intelligence' AND EXISTS (
+    WHEN sp.key = 'movement_intelligence' AND EXISTS (
       SELECT 1 FROM coaching.exercise_tag t JOIN coaching.exercise_intent i ON i.id = t.facet_id AND t.facet_type = 'intent'
       WHERE t.exercise_id = e.id AND i.key = 'skill'
     ) THEN 'primary'
@@ -93,11 +93,11 @@ SELECT DISTINCT ON (e.id, sp.id)
       SELECT 1 FROM coaching.exercise_tag t JOIN coaching.exercise_intent i ON i.id = t.facet_id AND t.facet_type = 'intent'
       WHERE t.exercise_id = e.id AND i.key = 'main'
     ) THEN 'primary'
-    WHEN sp.key = 'prepare_access' AND EXISTS (
+    WHEN sp.key = 'prepare_and_access' AND EXISTS (
       SELECT 1 FROM coaching.exercise_tag t JOIN coaching.exercise_intent i ON i.id = t.facet_id AND t.facet_type = 'intent'
       WHERE t.exercise_id = e.id AND i.key = 'warmup'
     ) THEN 'primary'
-    WHEN sp.key = 'control_resilience' AND EXISTS (
+    WHEN sp.key = 'resilience' AND EXISTS (
       SELECT 1 FROM coaching.exercise_tag t JOIN coaching.exercise_intent i ON i.id = t.facet_id AND t.facet_type = 'intent'
       WHERE t.exercise_id = e.id AND i.key = 'accessory'
     ) THEN 'secondary'
@@ -106,15 +106,15 @@ SELECT DISTINCT ON (e.id, sp.id)
   CASE
     WHEN sp.key = 'output' AND e.slug = 'box-jump' THEN 'main_plyometric'
     WHEN sp.key = 'output' AND e.slug IN ('10-yard-sprint', 'lateral-bound', 'depth-jump') THEN 'speed_acceleration'
-    WHEN sp.key = 'skill_movement_intelligence' AND e.slug IN ('cartwheel', 'round-off', 'handstand-hold', 'hollow-body-hold') THEN 'tumbling'
+    WHEN sp.key = 'movement_intelligence' AND e.slug IN ('cartwheel', 'round-off', 'handstand-hold', 'hollow-body-hold') THEN 'tumbling'
     WHEN sp.key = 'capacity' AND e.slug IN ('back-squat', 'pull-up', 'kettlebell-swing') THEN 'primary_strength'
-    WHEN sp.key = 'prepare_access' AND e.slug = 'worlds-greatest-stretch' THEN 'mobility_access'
-    WHEN sp.key = 'control_resilience' AND e.slug IN ('plank-hold', 'dead-bug', 'nordic-hamstring-curl') THEN 'core_body_control'
+    WHEN sp.key = 'prepare_and_access' AND e.slug = 'worlds-greatest-stretch' THEN 'mobility_access'
+    WHEN sp.key = 'resilience' AND e.slug IN ('plank-hold', 'dead-bug', 'nordic-hamstring-curl') THEN 'core_body_control'
     ELSE NULL
   END AS order_slot,
   sp.freshness_required,
-  CASE WHEN sp.key IN ('output', 'skill_movement_intelligence') THEN 4 ELSE 3 END,
-  CASE WHEN sp.key = 'fitness_repeatability' THEN 4 WHEN sp.key = 'output' THEN 3 ELSE 2 END,
+  CASE WHEN sp.key IN ('output', 'movement_intelligence') THEN 4 ELSE 3 END,
+  CASE WHEN sp.key = 'sustained_capacity' THEN 4 WHEN sp.key = 'output' THEN 3 ELSE 2 END,
   CASE WHEN e.slug IN ('cartwheel', 'round-off', 'lache-swing', 'depth-jump') THEN 4 ELSE 2 END,
   CASE WHEN e.slug IN ('box-jump', 'depth-jump', 'lateral-bound', 'precision-jump') THEN 4 ELSE 1 END,
   CASE WHEN sp.key = 'output' THEN 'high' WHEN sp.key = 'capacity' THEN 'high' ELSE 'moderate' END
@@ -132,22 +132,22 @@ WHERE e.archived = FALSE
       JOIN coaching.exercise_intent i ON i.id = t.facet_id AND t.facet_type = 'intent'
       WHERE t.exercise_id = e.id AND i.key IN ('main', 'accessory')
     ))
-    OR (sp.key = 'skill_movement_intelligence' AND EXISTS (
+    OR (sp.key = 'movement_intelligence' AND EXISTS (
       SELECT 1 FROM coaching.exercise_tag t
       JOIN coaching.exercise_intent i ON i.id = t.facet_id AND t.facet_type = 'intent'
       WHERE t.exercise_id = e.id AND i.key = 'skill'
     ))
-    OR (sp.key = 'prepare_access' AND EXISTS (
+    OR (sp.key = 'prepare_and_access' AND EXISTS (
       SELECT 1 FROM coaching.exercise_tag t
       JOIN coaching.exercise_intent i ON i.id = t.facet_id AND t.facet_type = 'intent'
       WHERE t.exercise_id = e.id AND i.key IN ('warmup', 'activation')
     ))
-    OR (sp.key = 'control_resilience' AND EXISTS (
+    OR (sp.key = 'resilience' AND EXISTS (
       SELECT 1 FROM coaching.exercise_tag t
       JOIN coaching.methodology m ON m.id = t.facet_id AND t.facet_type = 'methodology'
       WHERE t.exercise_id = e.id AND m.key IN ('isometrics', 'eccentric_negative', 'core_body_control', 'balance_stability')
     ))
-    OR (sp.key = 'fitness_repeatability' AND EXISTS (
+    OR (sp.key = 'sustained_capacity' AND EXISTS (
       SELECT 1 FROM coaching.exercise_tag t
       JOIN coaching.exercise_intent i ON i.id = t.facet_id AND t.facet_type = 'intent'
       WHERE t.exercise_id = e.id AND i.key = 'conditioning'

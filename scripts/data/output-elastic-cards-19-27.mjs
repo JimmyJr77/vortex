@@ -14,7 +14,7 @@ const CLUSTER_MISUSE =
   'Elastic stiffness / plyometric rudiments belong in Output while the athlete is fresh — crisp contacts, short ground time, generous rest, quiet springy landings. Elastic drills should make the athlete springier, not tired. Do not use as conditioning finishers, high-volume bounce circuits, or fatigue work when contacts get loud or slow.'
 
 const SCALING_BASE = {
-  youth_beginner: 'Use Prepare / Access regressions or supported elastic drills until bilateral contacts are quiet and springy.',
+  youth_beginner: 'Use Prepare & Access regressions or supported elastic drills until bilateral contacts are quiet and springy.',
   youth_intermediate: 'Low volume with full reset between sets; stop when contacts slow or get loud.',
   teen: 'Progress contact count only when calf/Achilles tolerance and landing quality are solid.',
   adult_beginner: 'Start at the lower end of contact ranges; prioritize alignment over speed.',
@@ -83,10 +83,10 @@ export const OUTPUT_ELASTIC_CARDS = [
     whyItWorks:
       'Pogos are one of the simplest ways to teach lower-leg stiffness and quick elastic contacts. The Prehab Guys\' sagittal pogo reference cues bouncing on the balls of the feet, thinking of the body like a spring-loaded coil, and maintaining a stiff foot/ankle and relatively stiff legs. Fast low pogos belong early in the plyometric progression because they expose the athlete to short contact times without the larger hip/knee displacement of bigger jumps. Sportsmith describes low-amplitude plyometrics as lower-force jumping variations with low jump height, relatively quick contacts, and less knee/hip range of motion.',
     whyItGoesHere:
-      'Belongs in elastic_ankle (331) — primary Output ankle stiffness entry after Prepare / Access low pogos and before directional pogo progressions.',
+      'Belongs in elastic_ankle (331) — primary Output ankle stiffness entry after Prepare & Access low pogos and before directional pogo progressions.',
     commonMisuse: `${CLUSTER_MISUSE} Do not squat the bounce or turn into a conditioning circuit. Stop when rhythm slows or contacts get loud.`,
     scalingGuidance:
-      'Regress to Prepare / Access low pogos or supported ankle bounces; progress to forward/back pogos when vertical contacts stay quiet and springy.',
+      'Regress to Prepare & Access low pogos or supported ankle bounces; progress to forward/back pogos when vertical contacts stay quiet and springy.',
     movementRequirements: {
       primary_joint_actions: ['ankle_plantarflexion', 'ankle_dorsiflexion'],
       primary_tissues: ['calves', 'achilles', 'feet'],
@@ -159,10 +159,10 @@ export const OUTPUT_ELASTIC_CARDS = [
       intensity_ceiling: 'high',
       daily_ok: false,
       requires_supervision: 'recommended',
-      notes: 'Output version is faster and more intentional than Prepare / Access low pogos. Stop if contacts get loud or slow.',
+      notes: 'Output version is faster and more intentional than Prepare & Access low pogos. Stop if contacts get loud or slow.',
     },
     scalingOverrides: {
-      youth_beginner: 'Use Prepare / Access low pogos or supported ankle bounces.',
+      youth_beginner: 'Use Prepare & Access low pogos or supported ankle bounces.',
       youth_intermediate: '2 × 10–15 contacts, quiet and springy.',
       teen: 'Start at 10–20 contacts total and increase only if calf/Achilles tolerance is good.',
       adult_beginner: 'Start at 10–20 contacts total and increase only if calf/Achilles tolerance is good.',

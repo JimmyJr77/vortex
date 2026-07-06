@@ -1,4 +1,4 @@
--- Control / Resilience phase infrastructure: subroles, fine order slots, validation education.
+-- Resilience phase infrastructure: subroles, fine order slots, validation education.
 -- IDEMPOTENT.
 
 ALTER TABLE coaching.exercise DROP CONSTRAINT IF EXISTS exercise_phase_subrole_check;
@@ -77,7 +77,7 @@ CROSS JOIN (VALUES
    'Meaningful tissue stress — hard work usually 1–3×/week with recovery between exposures.',
    'Regress to supported split squat ISO or bridge hold when knee collapse, groin pain, or sharp hamstring pain appears.')
 ) AS v(key, name, description, order_index, why_it_exists, what_belongs_here, what_to_avoid, fatigue_guidance, coach_guidance)
-WHERE sp.key = 'control_resilience'
+WHERE sp.key = 'resilience'
 ON CONFLICT (phase_id, key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -98,7 +98,7 @@ FROM coaching.session_phase sp,
   ('core_body_control', 'trunk_pelvis_anti_movement_control'),
   ('tissue_capacity', 'slow_eccentric_isometric_joint_resilience')
 ) AS v(slot_key, subrole_key)
-WHERE sp.key = 'control_resilience'
+WHERE sp.key = 'resilience'
   AND pos.phase_id = sp.id
   AND pos.key = v.slot_key;
 
@@ -157,7 +157,7 @@ CROSS JOIN (VALUES
   ('tibialis_isometric_control', 'Tibialis Isometric Control', 'Shin/dorsiflexor control.', 559, 2, 'slow_eccentric_isometric_joint_resilience'),
   ('hamstring_isometric_resilience', 'Hamstring Isometric Resilience', 'High-level hamstring position tolerance.', 560, 3, 'slow_eccentric_isometric_joint_resilience')
 ) AS v(key, name, description, order_index, freshness_sensitivity, subrole_key)
-WHERE sp.key = 'control_resilience'
+WHERE sp.key = 'resilience'
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -173,7 +173,7 @@ SELECT
   'phase_subrole', ps.key, ps.id, ps.name, ps.description,
   ps.what_belongs_here, ps.why_it_exists, ps.coach_guidance, ps.what_to_avoid
 FROM coaching.phase_subrole ps
-JOIN coaching.session_phase sp ON sp.id = ps.phase_id AND sp.key = 'control_resilience'
+JOIN coaching.session_phase sp ON sp.id = ps.phase_id AND sp.key = 'resilience'
 ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
   title = EXCLUDED.title,
   short_summary = EXCLUDED.short_summary,
@@ -191,12 +191,12 @@ VALUES (
   'validation_rule',
   'control_resilience_readiness',
   NULL,
-  'Control / Resilience without mistaking precision for conditioning or Fitness',
+  'Resilience without mistaking precision for conditioning or Fitness',
   'Control teaches position ownership and force absorption after Output and Capacity — quality and alignment under low-to-moderate stress, not fatiguing circuits.',
-  'Control / Resilience is where athletes own positions, absorb force, resist unwanted motion, stabilize joints, control speed slowly, and maintain alignment under low-to-moderate stress. Capacity builds force and tissue reserve; Control organizes that force safely before Fitness tests repeatability under fatigue.',
+  'Resilience is where athletes own positions, absorb force, resist unwanted motion, stabilize joints, control speed slowly, and maintain alignment under low-to-moderate stress. Capacity builds force and tissue reserve; Control organizes that force safely before Fitness tests repeatability under fatigue.',
   'Landing control, single-leg stability, trunk anti-motion, scapular/wrist support, and slow eccentric/isometric resilience buffer injury risk and support performance. Hard control work belongs after Output and usually after main Capacity; low-intensity control can appear earlier as readiness.',
   'Progress with longer holds, slower eccentrics, better alignment, smaller base of support, single-leg demand, perturbation, or slightly higher approach speed — not random burnout volume. Use full rest between quality reps. Many trunk and balance drills can be daily at low intensity; hard tissue and hand-support work needs recovery.',
-  'Do not program high-density short-rest Control circuits — that is Fitness / Repeatability. Do not place hard landing sticks, decels, or lower-leg isometrics before Output when elastic quality matters. Do not chase volume when alignment, landing quality, or pain flags degrade.'
+  'Do not program high-density short-rest Control circuits — that is Sustained Capacity. Do not place hard landing sticks, decels, or lower-leg isometrics before Output when elastic quality matters. Do not chase volume when alignment, landing quality, or pain flags degrade.'
 )
 ON CONFLICT (entity_type, entity_key) WHERE entity_id IS NULL DO UPDATE SET
   title = EXCLUDED.title,

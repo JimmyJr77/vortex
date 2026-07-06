@@ -1,4 +1,4 @@
-import { loadSubroleMapForPhase, PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE, OUTPUT, CAPACITY, CONTROL_RESILIENCE } from './phaseSubrole.js'
+import { loadSubroleMapForPhase, PREPARE_AND_ACCESS, MOVEMENT_INTELLIGENCE, OUTPUT, CAPACITY, CONTROL_RESILIENCE } from './phaseSubrole.js'
 import {
   analyzeControlResilienceReadiness,
   analyzeControlLandingReadiness,
@@ -17,12 +17,12 @@ const SUBROLE_ORDER = {
 }
 
 const PHASE_ORDER = [
-  'prepare_access',
-  'skill_movement_intelligence',
+  'prepare_and_access',
+  'movement_intelligence',
   'output',
   'capacity',
-  'control_resilience',
-  'fitness_repeatability',
+  'resilience',
+  'sustained_capacity',
   'restore',
 ]
 
@@ -49,7 +49,7 @@ function computePriorFatigue(blockMeta, blockIndex, profileByExercisePhase, regi
   let priorFatigue = 0
   for (let j = 0; j < blockIndex; j++) {
     const priorPhase = blockMeta[j].phaseKey
-    if (priorPhase === 'fitness_repeatability') priorFatigue = Math.max(priorFatigue, 4)
+    if (priorPhase === 'sustained_capacity') priorFatigue = Math.max(priorFatigue, 4)
     if (priorPhase === 'capacity') priorFatigue = Math.max(priorFatigue, 3)
     for (const pi of blockMeta[j].block.items ?? []) {
       const exerciseId = Number(pi.exercise_id ?? pi.exerciseId)
@@ -122,13 +122,13 @@ function computeTimeSummary(blockMeta, budgetMinutes) {
   }
 }
 
-/** Analyze Prepare / Access block for drills that steal output readiness. Pure helper for tests. */
+/** Analyze Prepare & Access block for drills that steal output readiness. Pure helper for tests. */
 function analyzePrepareAccessDrain(items, ctx) {
   const {
     profileByExercisePhase,
     methodologyKeysByExercise,
     dosageByExercise,
-    phaseKey = PREPARE_ACCESS,
+    phaseKey = PREPARE_AND_ACCESS,
   } = ctx
 
   const counts = {
@@ -231,18 +231,18 @@ function hasLowerLegSymptomFlags(draft) {
 function hasLaterOutputPhase(blockMeta, prepareBlockIndex) {
   for (let j = prepareBlockIndex + 1; j < blockMeta.length; j++) {
     const key = blockMeta[j].phaseKey
-    if (key === 'output' || key === 'skill_movement_intelligence') return true
+    if (key === 'output' || key === 'movement_intelligence') return true
   }
   return false
 }
 
-/** Lower-leg Prepare / Access dose and symptom checks. Pure helper for tests. */
+/** Lower-leg Prepare & Access dose and symptom checks. Pure helper for tests. */
 function analyzePrepareLowerLegReadiness(items, ctx) {
   const {
     slugByExercise,
     profileByExercisePhase,
     dosageByExercise,
-    phaseKey = PREPARE_ACCESS,
+    phaseKey = PREPARE_AND_ACCESS,
     blockMeta = [],
     prepareBlockIndex = 0,
     draft = {},
@@ -291,7 +291,7 @@ function analyzePrepareLowerLegReadiness(items, ctx) {
       } else if (rpe > 4) {
         findings.push({
           rule_key: 'prepare_jump_rope_fitness_dose',
-          message: `${name}: jump rope RPE (${rpe}) is high for Prepare / Access before Output.`,
+          message: `${name}: jump rope RPE (${rpe}) is high for Prepare & Access before Output.`,
           affected_items: [name],
           meta: { rpe, slug },
         })
@@ -339,7 +339,7 @@ function analyzePrepareLowerLegReadiness(items, ctx) {
   ) {
     findings.push({
       rule_key: 'prepare_lower_leg_spring_check',
-      message: 'Prepare / Access lower-leg spring volume may reduce Output readiness.',
+      message: 'Prepare & Access lower-leg spring volume may reduce Output readiness.',
       affected_items: [],
       meta: { high_impact_count: highImpactCount, total_elastic_contacts: totalElasticContacts },
     })
@@ -381,14 +381,14 @@ function hasGroinSymptomFlags(draft) {
   return sources.some((s) => GROIN_SYMPTOM_PATTERN.test(String(s)))
 }
 
-/** Hip/pelvis Prepare / Access dose and symptom checks. Pure helper for tests. */
+/** Hip/pelvis Prepare & Access dose and symptom checks. Pure helper for tests. */
 function analyzePrepareHipAccessReadiness(items, ctx) {
   const {
     slugByExercise,
     profileByExercisePhase,
     dosageByExercise,
     methodologyKeysByExercise,
-    phaseKey = PREPARE_ACCESS,
+    phaseKey = PREPARE_AND_ACCESS,
     blockMeta = [],
     prepareBlockIndex = 0,
     draft = {},
@@ -490,7 +490,7 @@ function analyzePrepareHipAccessReadiness(items, ctx) {
   ) {
     findings.push({
       rule_key: 'prepare_hip_heaviness_before_output',
-      message: 'Prepare / Access hip/pelvis volume may create leg heaviness before Output.',
+      message: 'Prepare & Access hip/pelvis volume may create leg heaviness before Output.',
       affected_items: [],
       meta: { high_fatigue_hip_count: highFatigueHipCount, hip_cluster_reps: hipClusterReps },
     })
@@ -518,7 +518,7 @@ const PELVIC_SYMPTOM_PATTERN = /postpartum|pelvic\s*floor|pelvic\s*symptom|diast
 function hasPriorConditioningPhase(blockMeta, blockIndex) {
   for (let j = 0; j < blockIndex; j++) {
     const key = blockMeta[j].phaseKey
-    if (key === 'fitness_repeatability' || key === 'capacity_resilience') return true
+    if (key === 'sustained_capacity' || key === 'capacity_resilience') return true
   }
   return false
 }
@@ -534,7 +534,7 @@ function hasPelvicSymptomFlags(draft) {
   return sources.some((s) => PELVIC_SYMPTOM_PATTERN.test(String(s)))
 }
 
-/** Activation / integration Prepare / Access dose and symptom checks. Pure helper for tests. */
+/** Activation / integration Prepare & Access dose and symptom checks. Pure helper for tests. */
 function analyzePrepareActivationReadiness(items, ctx) {
   const {
     slugByExercise,
@@ -562,7 +562,7 @@ function analyzePrepareActivationReadiness(items, ctx) {
       if (totalReps > 15 || workSeconds > 30) {
         findings.push({
           rule_key: 'prepare_glute_bridge_dose',
-          message: `${name}: glute bridge volume (${totalReps} reps${workSeconds > 30 ? `, ${workSeconds}s work` : ''}) may become Capacity or Control / Resilience before Output.`,
+          message: `${name}: glute bridge volume (${totalReps} reps${workSeconds > 30 ? `, ${workSeconds}s work` : ''}) may become Capacity or Resilience before Output.`,
           affected_items: [name],
           meta: { total_reps: totalReps, work_seconds: workSeconds, slug },
         })
@@ -591,7 +591,7 @@ function analyzePrepareActivationReadiness(items, ctx) {
       if (rpe > 4) {
         findings.push({
           rule_key: 'prepare_amarch_skill_phase',
-          message: `${name}: high RPE (${rpe}) suggests Skill / Movement Intelligence, not Prepare / Access.`,
+          message: `${name}: high RPE (${rpe}) suggests Movement Intelligence, not Prepare & Access.`,
           affected_items: [name],
           meta: { rpe, slug },
         })
@@ -655,18 +655,18 @@ const SHAPE_HOLD_SLUGS = new Set([
 function hasPriorFatiguePhase(blockMeta, blockIndex) {
   for (let j = 0; j < blockIndex; j++) {
     const key = blockMeta[j].phaseKey
-    if (key === 'fitness_repeatability' || key === 'capacity_resilience') return true
+    if (key === 'sustained_capacity' || key === 'capacity_resilience') return true
   }
   return false
 }
 
-/** Skill / Movement Intelligence dose and placement checks. Pure helper for tests. */
+/** Movement Intelligence dose and placement checks. Pure helper for tests. */
 function analyzeSkillMovementIntelligenceReadiness(items, ctx) {
   const {
     slugByExercise,
     profileByExercisePhase,
     dosageByExercise,
-    phaseKey = SKILL_MOVEMENT_INTELLIGENCE,
+    phaseKey = MOVEMENT_INTELLIGENCE,
     blockMeta = [],
     skillBlockIndex = 0,
   } = ctx
@@ -729,7 +729,7 @@ function analyzeSkillMovementIntelligenceReadiness(items, ctx) {
       if (totalPasses > 4 || (reps > 4 && sets >= 1)) {
         findings.push({
           rule_key: 'skill_ladder_pass_volume',
-          message: `${name}: ladder passes (${totalPasses}) exceed Skill dose (~4 per pattern) — may belong in Fitness / Repeatability.`,
+          message: `${name}: ladder passes (${totalPasses}) exceed Skill dose (~4 per pattern) — may belong in Sustained Capacity.`,
           affected_items: [name],
           meta: { total_passes: totalPasses, sets, reps, slug },
         })
@@ -759,7 +759,7 @@ function analyzeSkillMovementIntelligenceReadiness(items, ctx) {
       if (workSeconds > 30) {
         findings.push({
           rule_key: 'skill_shape_hold_duration',
-          message: `${name}: shape hold (${workSeconds}s) may belong in Control / Resilience, not Skill.`,
+          message: `${name}: shape hold (${workSeconds}s) may belong in Resilience, not Skill.`,
           affected_items: [name],
           meta: { work_seconds: workSeconds, slug },
         })
@@ -771,7 +771,7 @@ function analyzeSkillMovementIntelligenceReadiness(items, ctx) {
   if (avgRpe > 6 || totalFatigueCost >= 8) {
     findings.push({
       rule_key: 'skill_block_fatigue',
-      message: `Skill / Movement Intelligence block may be fatigue-based (avg RPE ${avgRpe.toFixed(1)}, fatigue sum ${totalFatigueCost}).`,
+      message: `Movement Intelligence block may be fatigue-based (avg RPE ${avgRpe.toFixed(1)}, fatigue sum ${totalFatigueCost}).`,
       affected_items: [],
       meta: { avg_rpe: avgRpe, total_fatigue_cost: totalFatigueCost },
     })
@@ -980,7 +980,7 @@ function analyzeSkillTumblingReadiness(items, ctx) {
         findings.push({
           rule_key: 'skill_handstand_endurance',
           severity: 'warning',
-          message: `${name}: handstand hold (${workSeconds}s) may belong in Control / Resilience — reduce hold time if the goal is skill quality.`,
+          message: `${name}: handstand hold (${workSeconds}s) may belong in Resilience — reduce hold time if the goal is skill quality.`,
           affected_items: [name],
           meta: { work_seconds: workSeconds, slug },
         })
@@ -1027,7 +1027,7 @@ function parseDistanceYards(item, dosage) {
 function analyzeSprintPrepBeforeOutput(blockMeta, slugByExercise) {
   let sawSprintMechanics = false
   for (const meta of blockMeta ?? []) {
-    if (meta.phaseKey === SKILL_MOVEMENT_INTELLIGENCE) {
+    if (meta.phaseKey === MOVEMENT_INTELLIGENCE) {
       for (const item of meta.block?.items ?? []) {
         const slug = exerciseSlug(item, slugByExercise)
         if (SPRINT_MECHANICS_SKILL_SLUGS.has(slug ?? '')) sawSprintMechanics = true
@@ -1149,11 +1149,11 @@ function analyzeOutputMaxVelocityReadiness(items, ctx) {
 
   for (let j = 0; j < outputBlockIndex; j++) {
     const priorKey = blockMeta[j]?.phaseKey
-    if (priorKey === 'fitness_repeatability') {
+    if (priorKey === 'sustained_capacity') {
       findings.push({
         rule_key: 'output_max_velocity_after_fitness',
         severity: 'error',
-        message: 'Max-velocity sprinting requires freshness — move before Fitness / Repeatability conditioning.',
+        message: 'Max-velocity sprinting requires freshness — move before Sustained Capacity conditioning.',
         affected_items: ordered.map((o) => o.name),
         meta: { prior_phase: priorKey },
       })
@@ -1239,7 +1239,7 @@ function analyzeOutputMaxVelocityReadiness(items, ctx) {
       findings.push({
         rule_key: 'output_max_velocity_short_rest',
         severity: 'warning',
-        message: `${name}: rest (${restSeconds}s) is likely too short for true max-velocity Output — increase rest or classify as Fitness / Repeatability.`,
+        message: `${name}: rest (${restSeconds}s) is likely too short for true max-velocity Output — increase rest or classify as Sustained Capacity.`,
         affected_items: [name],
         meta: { rest_seconds: restSeconds, slug },
       })
@@ -1381,11 +1381,11 @@ function analyzeOutputElasticReadiness(items, ctx) {
 
   for (let j = 0; j < outputBlockIndex; j++) {
     const priorKey = blockMeta[j]?.phaseKey
-    if (priorKey === 'fitness_repeatability') {
+    if (priorKey === 'sustained_capacity') {
       findings.push({
         rule_key: 'output_elastic_after_fitness',
         severity: 'error',
-        message: 'Elastic Output requires freshness — move before Fitness / Repeatability conditioning.',
+        message: 'Elastic Output requires freshness — move before Sustained Capacity conditioning.',
         affected_items: ordered.map((o) => o.name),
         meta: { prior_phase: priorKey },
       })
@@ -1520,7 +1520,7 @@ function analyzeOutputElasticReadiness(items, ctx) {
     findings.push({
       rule_key: 'output_elastic_short_rest',
       severity: 'warning',
-      message: 'High contact volume with short rest is drifting toward Fitness / Repeatability — increase rest or reduce contacts.',
+      message: 'High contact volume with short rest is drifting toward Sustained Capacity — increase rest or reduce contacts.',
       affected_items: ordered.map((o) => o.name),
       meta: {},
     })
@@ -1643,7 +1643,7 @@ function analyzeOutputJumpPowerReadiness(items, ctx) {
 
   for (let j = 0; j < outputBlockIndex; j++) {
     const priorKey = blockMeta[j]?.phaseKey
-    if (priorKey === 'fitness_repeatability') {
+    if (priorKey === 'sustained_capacity') {
       findings.push({
         rule_key: 'output_jump_power_after_fitness',
         severity: 'warning',
@@ -1887,11 +1887,11 @@ function analyzeOutputDecelCodReadiness(items, ctx) {
 
   for (let j = 0; j < outputBlockIndex; j++) {
     const priorKey = blockMeta[j]?.phaseKey
-    if (priorKey === 'fitness_repeatability') {
+    if (priorKey === 'sustained_capacity') {
       findings.push({
         rule_key: 'output_decel_cod_after_fitness',
         severity: 'warning',
-        message: 'COD Output requires freshness — move before Fitness / Repeatability conditioning.',
+        message: 'COD Output requires freshness — move before Sustained Capacity conditioning.',
         affected_items: ordered.map((o) => o.name),
         meta: { prior_phase: priorKey },
       })
@@ -1922,7 +1922,7 @@ function analyzeOutputDecelCodReadiness(items, ctx) {
     findings.push({
       rule_key: 'output_decel_cod_tissue_warning',
       severity: 'recommendation',
-      message: 'Knee, ankle, hip, or back warning signs — end COD Output and regress to lower-speed mechanics or Control / Resilience.',
+      message: 'Knee, ankle, hip, or back warning signs — end COD Output and regress to lower-speed mechanics or Resilience.',
       affected_items: ordered.map((o) => o.name),
       meta: { symptom_flags: true },
     })
@@ -1999,7 +1999,7 @@ function analyzeOutputDecelCodReadiness(items, ctx) {
         findings.push({
           rule_key: 'output_decel_cod_pro_agility_short_rest',
           severity: 'warning',
-          message: `${name}: rest (${restSeconds}s) is becoming conditioning — increase rest or classify as Fitness / Repeatability.`,
+          message: `${name}: rest (${restSeconds}s) is becoming conditioning — increase rest or classify as Sustained Capacity.`,
           affected_items: [name],
           meta: { rest_seconds: restSeconds, slug },
         })
@@ -2144,11 +2144,11 @@ function analyzeOutputReactiveTumblingReadiness(items, ctx) {
 
   for (let j = 0; j < outputBlockIndex; j++) {
     const priorKey = blockMeta[j]?.phaseKey
-    if (priorKey === 'fitness_repeatability') {
+    if (priorKey === 'sustained_capacity') {
       findings.push({
         rule_key: 'output_reactive_tumbling_after_fitness',
         severity: 'warning',
-        message: 'Reactive and tumbling Output require freshness — move before Fitness / Repeatability conditioning.',
+        message: 'Reactive and tumbling Output require freshness — move before Sustained Capacity conditioning.',
         affected_items: ordered.map((o) => o.name),
         meta: { prior_phase: priorKey },
       })
@@ -2359,7 +2359,7 @@ function analyzeOutputReactiveTumblingReadiness(items, ctx) {
         findings.push({
           rule_key: 'output_reactive_tumbling_fear_stop',
           severity: 'warning',
-          message: `${name}: stop Output tumbling and regress to Skill / Movement Intelligence when fear or hesitation appears.`,
+          message: `${name}: stop Output tumbling and regress to Movement Intelligence when fear or hesitation appears.`,
           affected_items: [name],
           meta: { slug, symptom_flags: true },
         })
@@ -2453,11 +2453,11 @@ function analyzeOutputAccelerationReadiness(items, ctx) {
 
   for (let j = 0; j < outputBlockIndex; j++) {
     const priorKey = blockMeta[j]?.phaseKey
-    if (priorKey === 'fitness_repeatability') {
+    if (priorKey === 'sustained_capacity') {
       findings.push({
         rule_key: 'output_acceleration_after_fitness',
         severity: 'error',
-        message: 'Acceleration Output requires freshness — move before Fitness / Repeatability conditioning.',
+        message: 'Acceleration Output requires freshness — move before Sustained Capacity conditioning.',
         affected_items: ordered.map((o) => o.name),
         meta: { prior_phase: priorKey },
       })
@@ -2621,7 +2621,7 @@ function analyzeOutputAccelerationReadiness(items, ctx) {
       findings.push({
         rule_key: 'output_acceleration_short_rest',
         severity: 'warning',
-        message: `${name}: rest (${restSeconds}s) may be too short for Output acceleration — increase rest or classify as Fitness / Repeatability.`,
+        message: `${name}: rest (${restSeconds}s) may be too short for Output acceleration — increase rest or classify as Sustained Capacity.`,
         affected_items: [name],
         meta: { rest_seconds: restSeconds, rpe, slug },
       })
@@ -2902,7 +2902,7 @@ function analyzeCapacitySquatReadiness(items, ctx) {
         findings.push({
           rule_key: 'capacity_squat_sled_fitness_suggest',
           severity: 'recommendation',
-          message: `${name}: long-duration or short-rest sled work may belong in Fitness / Repeatability.`,
+          message: `${name}: long-duration or short-rest sled work may belong in Sustained Capacity.`,
           affected_items: [name],
           meta: { slug, rest_seconds: restSeconds, symptom_flags: true },
         })
@@ -3165,7 +3165,7 @@ function analyzeCapacityHingeReadiness(items, ctx) {
     findings.push({
       rule_key: 'capacity_hinge_short_rest_density',
       severity: 'warning',
-      message: 'This may be Fitness / Repeatability rather than Capacity. Confirm intent — hinge strength needs full rest between sets.',
+      message: 'This may be Sustained Capacity rather than Capacity. Confirm intent — hinge strength needs full rest between sets.',
       affected_items: ordered.map((o) => o.name),
       meta: {},
     })
@@ -3248,7 +3248,7 @@ function analyzeCapacityPushReadiness(items, ctx) {
   let handSupportAfterCapacity = false
   for (let j = capacityBlockIndex + 1; j < blockMeta.length; j++) {
     const key = blockMeta[j]?.phaseKey
-    if (key !== SKILL_MOVEMENT_INTELLIGENCE && key !== OUTPUT) continue
+    if (key !== MOVEMENT_INTELLIGENCE && key !== OUTPUT) continue
     for (const blockItem of blockMeta[j]?.block?.items ?? []) {
       const slug = exerciseSlug(blockItem, slugByExercise)
       if (slug && HAND_SUPPORT_AFTER_PUSH_CAPACITY_SLUGS.has(slug)) {
@@ -3439,7 +3439,7 @@ function analyzeCapacityPushReadiness(items, ctx) {
     findings.push({
       rule_key: 'capacity_push_short_rest_density',
       severity: 'warning',
-      message: 'This may be Fitness / Repeatability rather than Capacity. Confirm intent — push strength needs full rest between sets.',
+      message: 'This may be Sustained Capacity rather than Capacity. Confirm intent — push strength needs full rest between sets.',
       affected_items: ordered.map((o) => o.name),
       meta: {},
     })
@@ -3524,7 +3524,7 @@ function analyzeCapacityPullReadiness(items, ctx) {
 
   let skillAfterCapacity = false
   for (let j = capacityBlockIndex + 1; j < blockMeta.length; j++) {
-    if (blockMeta[j]?.phaseKey === SKILL_MOVEMENT_INTELLIGENCE) {
+    if (blockMeta[j]?.phaseKey === MOVEMENT_INTELLIGENCE) {
       skillAfterCapacity = true
       break
     }
@@ -3757,7 +3757,7 @@ function analyzeCapacityPullReadiness(items, ctx) {
     findings.push({
       rule_key: 'capacity_pull_short_rest_density',
       severity: 'warning',
-      message: 'This may be Fitness / Repeatability rather than Capacity. Confirm intent — pull strength needs full rest between sets.',
+      message: 'This may be Sustained Capacity rather than Capacity. Confirm intent — pull strength needs full rest between sets.',
       affected_items: ordered.map((o) => o.name),
       meta: {},
     })
@@ -3852,7 +3852,7 @@ function analyzeCapacityCarryReadiness(items, ctx) {
   let skillAfterCapacity = false
   for (let j = capacityBlockIndex + 1; j < blockMeta.length; j++) {
     const key = blockMeta[j]?.phaseKey
-    if (key === SKILL_MOVEMENT_INTELLIGENCE || key === OUTPUT) {
+    if (key === MOVEMENT_INTELLIGENCE || key === OUTPUT) {
       for (const blockItem of blockMeta[j]?.block?.items ?? []) {
         const slug = exerciseSlug(blockItem, slugByExercise) ?? ''
         const name = String(blockItem.exercise_name ?? blockItem.exerciseName ?? '')
@@ -3942,7 +3942,7 @@ function analyzeCapacityCarryReadiness(items, ctx) {
       findings.push({
         rule_key: 'capacity_carry_fitness_distance',
         severity: 'recommendation',
-        message: `${name}: long distance or timed carry with short rest may be Fitness / Repeatability rather than Capacity. Confirm intent.`,
+        message: `${name}: long distance or timed carry with short rest may be Sustained Capacity rather than Capacity. Confirm intent.`,
         affected_items: [name],
         meta: { slug, total_yards: totalYards, work_seconds: workSeconds, rest_seconds: restSeconds },
       })
@@ -4066,7 +4066,7 @@ function analyzeCapacityCarryReadiness(items, ctx) {
     findings.push({
       rule_key: 'capacity_carry_short_rest_density',
       severity: 'warning',
-      message: 'This may be Fitness / Repeatability rather than Capacity. Confirm intent — loaded bracing needs full rest between sets.',
+      message: 'This may be Sustained Capacity rather than Capacity. Confirm intent — loaded bracing needs full rest between sets.',
       affected_items: ordered.map((o) => o.name),
       meta: {},
     })
@@ -4143,7 +4143,7 @@ function analyzeCapacityTissueReadiness(items, ctx) {
   for (let j = capacityBlockIndex + 1; j < blockMeta.length; j++) {
     const key = blockMeta[j]?.phaseKey
     if (key === OUTPUT) outputAfterCapacity = true
-    if (key === SKILL_MOVEMENT_INTELLIGENCE || key === OUTPUT) {
+    if (key === MOVEMENT_INTELLIGENCE || key === OUTPUT) {
       for (const blockItem of blockMeta[j]?.block?.items ?? []) {
         const slug = exerciseSlug(blockItem, slugByExercise) ?? ''
         const itemName = String(blockItem.exercise_name ?? blockItem.exerciseName ?? '')
@@ -4520,7 +4520,7 @@ function analyzeCapacityReadiness(items, ctx) {
     findings.push({
       rule_key: 'capacity_short_rest_density',
       severity: 'warning',
-      message: 'This may be Fitness / Repeatability rather than Capacity. Confirm intent — strength work needs full rest between sets.',
+      message: 'This may be Sustained Capacity rather than Capacity. Confirm intent — strength work needs full rest between sets.',
       affected_items: ordered.map((o) => o.name),
       meta: {},
     })
@@ -4549,11 +4549,11 @@ function analyzeOutputReadiness(items, ctx) {
 
   for (let j = 0; j < outputBlockIndex; j++) {
     const priorKey = blockMeta[j]?.phaseKey
-    if (priorKey === 'fitness_repeatability') {
+    if (priorKey === 'sustained_capacity') {
       findings.push({
         rule_key: 'output_after_fitness',
         severity: 'error',
-        message: 'Output is fatigue-sensitive — move before Fitness / Repeatability conditioning.',
+        message: 'Output is fatigue-sensitive — move before Sustained Capacity conditioning.',
         affected_items: [],
         meta: { prior_phase: priorKey },
       })
@@ -4592,7 +4592,7 @@ function analyzeOutputReadiness(items, ctx) {
       findings.push({
         rule_key: 'output_high_rpe_short_rest',
         severity: 'warning',
-        message: `${name}: RPE ${rpe} with ${restSeconds}s rest may become Fitness / Repeatability — increase rest or move to conditioning.`,
+        message: `${name}: RPE ${rpe} with ${restSeconds}s rest may become Sustained Capacity — increase rest or move to conditioning.`,
         affected_items: [name],
         meta: { rpe, rest_seconds: restSeconds, slug },
       })
@@ -4751,7 +4751,7 @@ function analyzeSkillSprintReadiness(items, ctx) {
   let sprintFatigueCost = 0
   for (const { item, exerciseId, name, slug } of ordered) {
     const dosage = dosageByExercise.get(String(exerciseId))
-    const profile = profileByExercisePhase.get(`${exerciseId}:${SKILL_MOVEMENT_INTELLIGENCE}`)
+    const profile = profileByExercisePhase.get(`${exerciseId}:${MOVEMENT_INTELLIGENCE}`)
     const rpe = itemRpe(item, dosage)
     const impact = Number(profile?.impact_level) || 0
 
@@ -4852,7 +4852,7 @@ function analyzeSkillSprintReadiness(items, ctx) {
 
   const nextMeta = blockMeta[skillBlockIndex + 1]
   if (
-    nextMeta?.phaseKey === SKILL_MOVEMENT_INTELLIGENCE
+    nextMeta?.phaseKey === MOVEMENT_INTELLIGENCE
     && hasSprintInBlock
     && (nextMeta.block?.items ?? []).some((item) => TUMBLING_SKILL_SLUGS.has(exerciseSlug(item, slugByExercise) ?? ''))
   ) {
@@ -5158,7 +5158,7 @@ export async function validateWorkoutDraft(pool, draft) {
           rule_key: 'hiit_in_output_phase',
           message: `${item.exercise_name ?? 'Exercise'} is tagged HIIT but placed in Output.`,
           why: 'HIIT trains repeatability under fatigue, not maximal speed or power.',
-          recommendation: 'Move to Fitness / Repeatability near the end of the session.',
+          recommendation: 'Move to Sustained Capacity near the end of the session.',
           affected_items: [item.exercise_name ?? String(exerciseId)],
           related_phase: meta.phaseKey,
           can_override: true,
@@ -5167,10 +5167,10 @@ export async function validateWorkoutDraft(pool, draft) {
     }
   }
 
-  // Prepare / Access subrole sequence within blocks
+  // Prepare & Access subrole sequence within blocks
   let slotSubroleMap = new Map()
   try {
-    slotSubroleMap = await loadSubroleMapForPhase(pool, PREPARE_ACCESS)
+    slotSubroleMap = await loadSubroleMapForPhase(pool, PREPARE_AND_ACCESS)
   } catch {
     slotSubroleMap = new Map()
   }
@@ -5186,14 +5186,14 @@ export async function validateWorkoutDraft(pool, draft) {
   }
 
   for (const meta of blockMeta) {
-    if (meta.phaseKey !== PREPARE_ACCESS) continue
+    if (meta.phaseKey !== PREPARE_AND_ACCESS) continue
     const items = meta.block.items ?? []
     let lastSubroleOrder = -1
     const subrolesSeen = new Set()
     for (const item of items) {
       const exerciseId = Number(item.exercise_id ?? item.exerciseId)
       if (!exerciseId) continue
-      const phaseProfile = profileByExercisePhase.get(`${exerciseId}:${PREPARE_ACCESS}`)
+      const phaseProfile = profileByExercisePhase.get(`${exerciseId}:${PREPARE_AND_ACCESS}`)
       const exRow = exerciseSubroleCache.get(String(exerciseId))
       const orderSlot = phaseProfile?.order_slot ?? exRow?.primary_order_slot
       let subroleKey = orderSlot ? slotSubroleMap.get(orderSlot) : null
@@ -5206,10 +5206,10 @@ export async function validateWorkoutDraft(pool, draft) {
           severity: 'warning',
           rule_key: 'prepare_subrole_sequence',
           message: `${item.exercise_name ?? 'Exercise'} (${subroleKey.replace(/_/g, ' ')}) appears before an earlier Prepare subrole in this block.`,
-          why: 'Prepare / Access should follow Raise → Mobilize → Activate → Integrate → Potentiate Bridge.',
-          recommendation: 'Reorder exercises to follow the RAMP subrole sequence within Prepare / Access.',
+          why: 'Prepare & Access should follow Raise → Mobilize → Activate → Integrate → Potentiate Bridge.',
+          recommendation: 'Reorder exercises to follow the RAMP subrole sequence within Prepare & Access.',
           affected_items: [item.exercise_name ?? String(exerciseId)],
-          related_phase: PREPARE_ACCESS,
+          related_phase: PREPARE_AND_ACCESS,
           can_override: true,
         })
       }
@@ -5220,11 +5220,11 @@ export async function validateWorkoutDraft(pool, draft) {
       recommendations.push({
         severity: 'recommendation',
         rule_key: 'prepare_subrole_coverage',
-        message: 'Prepare / Access block uses fewer than 3 subroles for a longer warm-up.',
-        why: 'A full Prepare / Access sequence typically spans Raise through Potentiate Bridge.',
+        message: 'Prepare & Access block uses fewer than 3 subroles for a longer warm-up.',
+        why: 'A full Prepare & Access sequence typically spans Raise through Potentiate Bridge.',
         recommendation: 'Consider adding mobility, activation, or bridge drills across more subroles.',
         affected_items: [],
-        related_phase: PREPARE_ACCESS,
+        related_phase: PREPARE_AND_ACCESS,
         can_override: true,
       })
     }
@@ -5233,7 +5233,7 @@ export async function validateWorkoutDraft(pool, draft) {
       profileByExercisePhase,
       methodologyKeysByExercise,
       dosageByExercise,
-      phaseKey: PREPARE_ACCESS,
+      phaseKey: PREPARE_AND_ACCESS,
     })
     if (drain.stealsOutput) {
       const edu = await pool.query(
@@ -5243,12 +5243,12 @@ export async function validateWorkoutDraft(pool, draft) {
       warnings.push({
         severity: 'warning',
         rule_key: 'prepare_readiness_stealing',
-        message: 'Prepare / Access block may steal readiness from Skill or Output.',
-        why: edu.rows[0]?.why_it_matters ?? 'Prepare / Access should increase readiness without stealing output.',
+        message: 'Prepare & Access block may steal readiness from Skill or Output.',
+        why: edu.rows[0]?.why_it_matters ?? 'Prepare & Access should increase readiness without stealing output.',
         recommendation: edu.rows[0]?.programming_guidance
           ?? 'Reduce high fatigue-cost drills, long isometric holds, conditioning work, and repeated high-impact contacts in the warm-up.',
         affected_items: [...new Set(affected)],
-        related_phase: PREPARE_ACCESS,
+        related_phase: PREPARE_AND_ACCESS,
         can_override: true,
         override_requires_reason: true,
         meta: { prepare_drain_counts: drain.counts },
@@ -5259,7 +5259,7 @@ export async function validateWorkoutDraft(pool, draft) {
       slugByExercise,
       profileByExercisePhase,
       dosageByExercise,
-      phaseKey: PREPARE_ACCESS,
+      phaseKey: PREPARE_AND_ACCESS,
       blockMeta,
       prepareBlockIndex: i,
       draft,
@@ -5278,7 +5278,7 @@ export async function validateWorkoutDraft(pool, draft) {
           recommendation: edu.rows[0]?.programming_guidance
             ?? 'Keep pogos under ~40 contacts, jump rope under ~90 seconds at low RPE, and calf raises at warm-up dose.',
           affected_items: finding.affected_items ?? [],
-          related_phase: PREPARE_ACCESS,
+          related_phase: PREPARE_AND_ACCESS,
           can_override: true,
           meta: finding.meta,
         })
@@ -5290,7 +5290,7 @@ export async function validateWorkoutDraft(pool, draft) {
       profileByExercisePhase,
       dosageByExercise,
       methodologyKeysByExercise,
-      phaseKey: PREPARE_ACCESS,
+      phaseKey: PREPARE_AND_ACCESS,
       blockMeta,
       prepareBlockIndex: i,
       draft,
@@ -5309,7 +5309,7 @@ export async function validateWorkoutDraft(pool, draft) {
           recommendation: edu.rows[0]?.programming_guidance
             ?? 'Keep squat pry under ~60s, frontal-plane prep moderate, and leg swings controlled.',
           affected_items: finding.affected_items ?? [],
-          related_phase: PREPARE_ACCESS,
+          related_phase: PREPARE_AND_ACCESS,
           can_override: true,
           meta: finding.meta,
         })
@@ -5337,7 +5337,7 @@ export async function validateWorkoutDraft(pool, draft) {
           recommendation: edu.rows[0]?.programming_guidance
             ?? 'Keep bridges under ~15 reps, lateral walks under ~12 steps per direction, and A-March slow and technical before speed work.',
           affected_items: finding.affected_items ?? [],
-          related_phase: PREPARE_ACCESS,
+          related_phase: PREPARE_AND_ACCESS,
           can_override: true,
           meta: finding.meta,
         })
@@ -5347,19 +5347,19 @@ export async function validateWorkoutDraft(pool, draft) {
 
   for (let i = 0; i < blockMeta.length; i++) {
     const meta = blockMeta[i]
-    if (meta.phaseKey !== SKILL_MOVEMENT_INTELLIGENCE) continue
+    if (meta.phaseKey !== MOVEMENT_INTELLIGENCE) continue
     const items = meta.block.items ?? []
     const skillFindings = analyzeSkillMovementIntelligenceReadiness(items, {
       slugByExercise,
       profileByExercisePhase,
       dosageByExercise,
-      phaseKey: SKILL_MOVEMENT_INTELLIGENCE,
+      phaseKey: MOVEMENT_INTELLIGENCE,
       blockMeta,
       skillBlockIndex: i,
     })
     if (skillFindings.length > 0) {
       const edu = await pool.query(
-        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'skill_movement_intelligence_readiness' LIMIT 1`,
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'movement_intelligence_readiness' LIMIT 1`,
       )
       for (const finding of skillFindings) {
         warnings.push({
@@ -5371,7 +5371,7 @@ export async function validateWorkoutDraft(pool, draft) {
           recommendation: edu.rows[0]?.programming_guidance
             ?? 'Keep block RPE ≤6, place tumbling before Fitness, use crisp ladder rhythm with rest, and move max-speed sprint work to Output.',
           affected_items: finding.affected_items ?? [],
-          related_phase: SKILL_MOVEMENT_INTELLIGENCE,
+          related_phase: MOVEMENT_INTELLIGENCE,
           can_override: true,
           meta: finding.meta,
         })
@@ -5398,7 +5398,7 @@ export async function validateWorkoutDraft(pool, draft) {
           recommendation: tumblingEdu.rows[0]?.programming_guidance
             ?? 'Use mats for rolls, cap handstand holds at ~20s in Skill, and stop on dizziness or neck symptoms.',
           affected_items: finding.affected_items ?? [],
-          related_phase: SKILL_MOVEMENT_INTELLIGENCE,
+          related_phase: MOVEMENT_INTELLIGENCE,
           can_override: finding.severity !== 'error',
           meta: finding.meta,
         }
@@ -5430,7 +5430,7 @@ export async function validateWorkoutDraft(pool, draft) {
           recommendation: sprintEdu.rows[0]?.programming_guidance
             ?? 'Keep wall ISO holds short, regress when posture breaks, and move max-intent work to Output.',
           affected_items: finding.affected_items ?? [],
-          related_phase: SKILL_MOVEMENT_INTELLIGENCE,
+          related_phase: MOVEMENT_INTELLIGENCE,
           can_override: finding.severity !== 'error',
           meta: finding.meta,
         }
@@ -5461,7 +5461,7 @@ export async function validateWorkoutDraft(pool, draft) {
           recommendation: perceptionEdu.rows[0]?.programming_guidance
             ?? 'Keep mirror/tag rounds short, require shuffle prep before mirror work, and move max sprints to Output.',
           affected_items: finding.affected_items ?? [],
-          related_phase: SKILL_MOVEMENT_INTELLIGENCE,
+          related_phase: MOVEMENT_INTELLIGENCE,
           can_override: finding.severity !== 'error',
           meta: finding.meta,
         }
@@ -5474,7 +5474,7 @@ export async function validateWorkoutDraft(pool, draft) {
 
   const skillSlugsInWorkout = new Set()
   for (const meta of blockMeta) {
-    if (meta.phaseKey !== SKILL_MOVEMENT_INTELLIGENCE) continue
+    if (meta.phaseKey !== MOVEMENT_INTELLIGENCE) continue
     for (const item of meta.block.items ?? []) {
       const slug = exerciseSlug(item, slugByExercise)
       if (slug) skillSlugsInWorkout.add(slug)
@@ -5815,7 +5815,7 @@ export async function validateWorkoutDraft(pool, draft) {
           rule_key: finding.rule_key,
           message: finding.message,
           why: edu?.why_it_matters
-            ?? 'Control / Resilience builds precision, landing quality, balance, trunk stiffness, and tissue tolerance — not speed, power, or fatiguing circuits.',
+            ?? 'Resilience builds precision, landing quality, balance, trunk stiffness, and tissue tolerance — not speed, power, or fatiguing circuits.',
           recommendation: edu?.programming_guidance
             ?? 'Use low volume, full rest, clean shapes, and regress on valgus, rib flare, balance flail, or pain. Place after Output and Capacity for hard work; light daily-safe drills can appear elsewhere.',
           affected_items: finding.affected_items ?? [],
@@ -5845,15 +5845,15 @@ export async function validateWorkoutDraft(pool, draft) {
       recommendation: sprintEdu.rows[0]?.programming_guidance
         ?? 'Add A-March, wall march, ankling, or two-point walk-in before speed Output.',
       affected_items: sprintPrepFinding.affected_items ?? [],
-      related_phase: SKILL_MOVEMENT_INTELLIGENCE,
+      related_phase: MOVEMENT_INTELLIGENCE,
       can_override: true,
       meta: sprintPrepFinding.meta,
     })
   }
 
   // HIIT before skill/output (phase-level)
-  const fitnessIdx = blockMeta.findIndex((m) => m.phaseKey === 'fitness_repeatability')
-  const earlySensitive = blockMeta.findIndex((m) => ['skill_movement_intelligence', 'output'].includes(m.phaseKey))
+  const fitnessIdx = blockMeta.findIndex((m) => m.phaseKey === 'sustained_capacity')
+  const earlySensitive = blockMeta.findIndex((m) => ['movement_intelligence', 'output'].includes(m.phaseKey))
   if (fitnessIdx >= 0 && earlySensitive >= 0 && fitnessIdx < earlySensitive) {
     const edu = await pool.query(
       `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'hiit_before_skill_output' LIMIT 1`,
@@ -5874,7 +5874,7 @@ export async function validateWorkoutDraft(pool, draft) {
   if (fitnessIdx >= 0) {
     for (let i = fitnessIdx + 1; i < blockMeta.length; i++) {
       const meta = blockMeta[i]
-      if (!['output', 'skill_movement_intelligence'].includes(meta.phaseKey)) continue
+      if (!['output', 'movement_intelligence'].includes(meta.phaseKey)) continue
       for (const item of meta.block.items ?? []) {
         const exerciseId = Number(item.exercise_id ?? item.exerciseId)
         const methods = methodologyKeysByExercise.get(String(exerciseId)) ?? []

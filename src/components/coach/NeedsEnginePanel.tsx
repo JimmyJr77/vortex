@@ -32,10 +32,10 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
   const [excludeBodyRegionIds, setExcludeBodyRegionIds] = useState<number[]>([])
   const [targets, setTargets] = useState<TargetRow[]>([{ facetType: 'tenet', facetId: '', weight: 4 }])
   const [blocks, setBlocks] = useState<BlockRow[]>([
-    { label: 'Prepare / Access', phaseKey: 'prepare_access', minutes: 10 },
-    { label: 'Skill & Movement', phaseKey: 'skill_movement_intelligence', minutes: 15 },
+    { label: 'Prepare & Access', phaseKey: 'prepare_and_access', minutes: 10 },
+    { label: 'Skill & Movement', phaseKey: 'movement_intelligence', minutes: 15 },
     { label: 'Capacity', phaseKey: 'capacity', minutes: 25 },
-    { label: 'Fitness', phaseKey: 'fitness_repeatability', minutes: 10 },
+    { label: 'Sustained Capacity', phaseKey: 'sustained_capacity', minutes: 10 },
   ])
   const [result, setResult] = useState<PrescriptionResult | null>(null)
   const [loading, setLoading] = useState(false)

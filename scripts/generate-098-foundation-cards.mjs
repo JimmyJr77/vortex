@@ -1,5 +1,5 @@
 /**
- * Generates backend/migrations/098_coaching_prepare_access_foundation_cards.sql
+ * Generates backend/migrations/098_coaching_prepare_and_access_foundation_cards.sql
  * Run: node scripts/generate-098-foundation-cards.mjs
  */
 import fs from 'fs'
@@ -38,7 +38,7 @@ let sql = `-- Foundation Prepare/Access cards 1–10 (rich card v2 content).
 INSERT INTO coaching.phase_order_slot (key, name, description, phase_id, order_index, freshness_sensitivity, subrole_key)
 SELECT 'hip_rotation', 'Hip Rotation', '90/90 switches and seated hip IR/ER access.', sp.id, 119, 1, 'mobilize'
 FROM coaching.session_phase sp
-WHERE sp.key = 'prepare_access'
+WHERE sp.key = 'prepare_and_access'
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -73,7 +73,7 @@ UPDATE coaching.exercise SET
   coach_language = ${sqlStr(card.coachLanguage)},
   athlete_language = ${sqlStr(card.athleteLanguage)},
   movement_family = ${sqlStr(card.family)},
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = ${sqlStr(card.subrole)},
   primary_order_slot = ${sqlStr(card.slot)},
   default_sets = ${card.dosage.default_sets},
@@ -92,7 +92,7 @@ UPDATE coaching.exercise_phase_profile p SET
   order_slot = ${sqlStr(card.slot)},
   order_index = pos.order_index
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = ${sqlStr(card.slot)} AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = ${sqlStr(card.slug)};
 
@@ -228,6 +228,6 @@ ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
   updated_at = now();
 `
 
-const outPath = path.join(__dirname, '../backend/migrations/098_coaching_prepare_access_foundation_cards.sql')
+const outPath = path.join(__dirname, '../backend/migrations/098_coaching_prepare_and_access_foundation_cards.sql')
 fs.writeFileSync(outPath, sql)
 console.log('Wrote', outPath, '—', FOUNDATION_CARDS.length, 'foundation cards')

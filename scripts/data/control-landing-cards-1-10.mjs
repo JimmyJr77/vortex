@@ -1,5 +1,5 @@
 /**
- * Rich card v2 content for Control / Resilience Landing & Braking cards 1–10.
+ * Rich card v2 content for Resilience Landing & Braking cards 1–10.
  * Consumed by scripts/generate-control-rich.mjs (migration 130).
  */
 

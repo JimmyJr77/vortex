@@ -111,7 +111,7 @@ export default function ExerciseLibrary() {
     }
   }
 
-  const preparePhaseId = taxonomy?.sessionPhases?.find((p) => p.key === 'prepare_access')?.id
+  const preparePhaseId = taxonomy?.sessionPhases?.find((p) => p.key === 'prepare_and_access')?.id
   const outputPhaseId = taxonomy?.sessionPhases?.find((p) => p.key === 'output')?.id
   const isPrepareFiltered = filters.phase === preparePhaseId
   const isOutputFiltered = filters.phase === outputPhaseId
@@ -120,7 +120,7 @@ export default function ExerciseLibrary() {
     : isPrepareFiltered
       ? prepareAccessSubroleSequence(taxonomy)
       : []
-  const activePhaseKey = isOutputFiltered ? 'output' : isPrepareFiltered ? 'prepare_access' : null
+  const activePhaseKey = isOutputFiltered ? 'output' : isPrepareFiltered ? 'prepare_and_access' : null
   const slotOptions = filters.subrole && activePhaseKey
     ? orderSlotsForSubrole(taxonomy, activePhaseKey, filters.subrole)
     : activePhaseKey

@@ -262,7 +262,7 @@ export default function FrameworkPanel() {
     const rampOpen = openKey === 'ramp:philosophy'
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-bold text-gray-900">Prepare / Access sequence</h3>
+        <h3 className="text-lg font-bold text-gray-900">Prepare & Access sequence</h3>
 
         <div className="border border-violet-200 rounded-lg overflow-hidden bg-violet-50/40">
           <button
@@ -298,7 +298,7 @@ export default function FrameworkPanel() {
               <div>
                 <p className="font-semibold text-gray-900 mb-2">Vortex session progression</p>
                 <p className="text-gray-600 mb-2">
-                  Prepare / Access uses five subroles, then the main session phases express performance intent:
+                  Prepare & Access uses five subroles, then the main session phases express performance intent:
                 </p>
                 <ol className="space-y-3">
                   {VORTEX_SESSION_PROGRESSION.map((step, i) => (

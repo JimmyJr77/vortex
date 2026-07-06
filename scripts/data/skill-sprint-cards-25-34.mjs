@@ -1,5 +1,5 @@
 /**
- * Rich card v2 content for Skill / Movement Intelligence sprint mechanics cards 25–34.
+ * Rich card v2 content for Movement Intelligence sprint mechanics cards 25–34.
  * Consumed by scripts/generate-108-skill-sprint-cards.mjs
  * UPDATE-only on slugs seeded in migration 105.
  */
@@ -11,7 +11,7 @@ const SUBROLE = 'locomotion_sprint_mechanics'
 const FAMILY = 'Locomotion & sprint mechanics'
 
 const CLUSTER_MISUSE =
-  'Sprint mechanics drills should sharpen posture, rhythm, foot strike, and acceleration shapes while the athlete is fresh enough to think, react, and stay organized. Do not become max-speed sprinting, repeated explosive starts, conditioning circuits, or fitness repeatability work in Skill phase — those belong in Output or Fitness / Repeatability.'
+  'Sprint mechanics drills should sharpen posture, rhythm, foot strike, and acceleration shapes while the athlete is fresh enough to think, react, and stay organized. Do not become max-speed sprinting, repeated explosive starts, conditioning circuits, or sustained capacity work in Skill phase — those belong in Output or Sustained Capacity.'
 
 const SCALING_BASE = {
   youth_beginner: 'Use short distances, simple cues, wall support, and clear shape goals.',
@@ -151,7 +151,7 @@ export const SKILL_SPRINT_CARDS = [
       impact_level: 0,
       intensity_ceiling: 'low',
       daily_ok: true,
-      notes: 'Static posture drill. Long isometric holds shift to Control / Resilience. Supervision helpful for beginners learning lean angle.',
+      notes: 'Static posture drill. Long isometric holds shift to Resilience. Supervision helpful for beginners learning lean angle.',
     },
     scalingOverrides: {
       youth_beginner: 'Excellent first wall drill. Use shorter holds and less lean until athlete finds the line.',
@@ -401,7 +401,7 @@ export const SKILL_SPRINT_CARDS = [
     cardSummary:
       'Upright technical march that teaches sprint posture, knee lift, dorsiflexion, arm action, and foot strike under the hip at controlled speed.',
     bestPlacement:
-      'After wall drills or Prepare / Access A-March bridge when athlete needs coached upright sprint mechanics in Skill phase.',
+      'After wall drills or Prepare & Access A-March bridge when athlete needs coached upright sprint mechanics in Skill phase.',
     description:
       'March forward slowly with tall posture. Lift one knee to roughly hip height, pull the toe up, coordinate opposite arm swing, and step down directly under the hip. Repeat with rhythm and control — not speed.',
     coachLanguage:
@@ -442,7 +442,7 @@ export const SKILL_SPRINT_CARDS = [
     whyItWorks:
       'The A-March isolates upright sprint posture, knee lift, recovery mechanics, dorsiflexion, and arm-leg coordination without the speed demand of A-skip or sprinting. It is the standard bridge from wall drills to rhythmic upright work.',
     whyItGoesHere:
-      'Belongs in technical_march (235) — coached upright march in Skill phase; Prepare / Access uses the same slug with marching_mechanics intent at lower RPE.',
+      'Belongs in technical_march (235) — coached upright march in Skill phase; Prepare & Access uses the same slug with marching_mechanics intent at lower RPE.',
     commonMisuse: `${CLUSTER_MISUSE} Do not march fast for conditioning. Skill A-March is technical, fresh, and slow-to-moderate tempo.`,
     scalingGuidance: 'Regress to march-in-place or wall march; progress to A-skip once rhythm and foot strike are clean.',
     movementRequirements: {
@@ -508,7 +508,7 @@ export const SKILL_SPRINT_CARDS = [
       pregnancy_postpartum: 'Often useful low-impact alternative to skipping; scale knee height and pace to symptoms.',
     },
     pairsWellBefore: ['A-Skip', 'Ankling / Dribble March', 'Arm Action Drill', 'Two-Point Start Walk-In'],
-    pairsWellAfter: ['Wall Drill March', 'Wall Body-Line Drill', 'Prepare / Access A-March'],
+    pairsWellAfter: ['Wall Drill March', 'Wall Body-Line Drill', 'Prepare & Access A-March'],
     avoidBefore: ['Max sprinting if posture or dorsiflexion are poor', 'A-skip if march rhythm is sloppy'],
     doNotUseWhen: ['Hip flexor pain worsens', 'Balance unsafe', 'Athlete cannot coordinate march without breakdown'],
     mediaReferences: ['SimpliFaster A-March Coaching Cues', 'Parisi School A-March / A-Skip / A-Run Progression'],
@@ -619,7 +619,7 @@ export const SKILL_SPRINT_CARDS = [
       impact_level: 1,
       intensity_ceiling: 'low_to_moderate',
       daily_ok: true,
-      notes: 'Rhythm and stiffness drill. Long-distance A-skip conditioning belongs in Fitness / Repeatability.',
+      notes: 'Rhythm and stiffness drill. Long-distance A-skip conditioning belongs in Sustained Capacity.',
     },
     scalingOverrides: {
       youth_beginner: 'Use slow skip rhythm games over 5–10 yards.',
@@ -734,7 +734,7 @@ export const SKILL_SPRINT_CARDS = [
       impact_level: 1,
       intensity_ceiling: 'low',
       daily_ok: true,
-      notes: 'Foot-strike skill drill. High-volume ankling for shin conditioning belongs in Control / Resilience.',
+      notes: 'Foot-strike skill drill. High-volume ankling for shin conditioning belongs in Resilience.',
     },
     scalingOverrides: {
       youth_beginner: 'Stationary ankling or 5-yard dribbles before full 10 yards.',
@@ -1200,7 +1200,7 @@ export const SKILL_SPRINT_CARDS = [
       impact_level: 0,
       intensity_ceiling: 'low',
       daily_ok: true,
-      notes: 'Isolated coordination drill. Band-resisted or high-rep arm endurance belongs in Control / Resilience or Fitness.',
+      notes: 'Isolated coordination drill. Band-resisted or high-rep arm endurance belongs in Resilience or Fitness.',
     },
     scalingOverrides: {
       youth_beginner: 'Seated drill with "cheek to pocket" call-and-response works well.',

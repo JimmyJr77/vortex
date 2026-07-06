@@ -1,13 +1,13 @@
-const PREPARE_ACCESS = 'prepare_access'
-const SKILL_MOVEMENT_INTELLIGENCE = 'skill_movement_intelligence'
+const PREPARE_AND_ACCESS = 'prepare_and_access'
+const MOVEMENT_INTELLIGENCE = 'movement_intelligence'
 
 const OUTPUT = 'output'
 
 const CAPACITY = 'capacity'
 
-const CONTROL_RESILIENCE = 'control_resilience'
+const CONTROL_RESILIENCE = 'resilience'
 
-const SUBROLE_PHASES = new Set([PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE, OUTPUT, CAPACITY, CONTROL_RESILIENCE])
+const SUBROLE_PHASES = new Set([PREPARE_AND_ACCESS, MOVEMENT_INTELLIGENCE, OUTPUT, CAPACITY, CONTROL_RESILIENCE])
 
 let slotMapCache = new Map()
 let slotMapCacheAt = new Map()
@@ -19,7 +19,7 @@ const CACHE_MS = 60_000
  * @param {string} phaseKey
  * @returns {Promise<Map<string, string>>}
  */
-export async function loadSubroleMapForPhase(db, phaseKey = PREPARE_ACCESS) {
+export async function loadSubroleMapForPhase(db, phaseKey = PREPARE_AND_ACCESS) {
   const now = Date.now()
   const cached = slotMapCache.get(phaseKey)
   const cachedAt = slotMapCacheAt.get(phaseKey) ?? 0
@@ -76,4 +76,4 @@ export async function deriveExerciseSubrole(db, primaryProfile, subroleOverride,
   return resolveSubroleFromOrderSlot(db, phaseKey, orderSlot)
 }
 
-export { PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE, OUTPUT, CAPACITY, CONTROL_RESILIENCE }
+export { PREPARE_AND_ACCESS, MOVEMENT_INTELLIGENCE, OUTPUT, CAPACITY, CONTROL_RESILIENCE }

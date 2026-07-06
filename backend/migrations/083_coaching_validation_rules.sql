@@ -20,7 +20,7 @@ INSERT INTO coaching.education_content (entity_type, entity_key, entity_id, titl
    'Placing box jumps, sprints, or max plyometrics after HIIT or heavy eccentrics.'),
   ('validation_rule', 'hiit_before_skill_output', NULL, 'HIIT Before Skill or Output',
    'Conditioning fatigue reduces skill learning, speed, power, and landing quality.',
-   'Place HIIT and hard conditioning in Fitness/Repeatability near the end of the session.',
+   'Place HIIT and hard conditioning in Sustained Capacity near the end of the session.',
    'Starting sessions with HIIT before skill or output work.'),
   ('validation_rule', 'static_flex_before_output', NULL, 'Static Flexibility Before Output',
    'Long passive stretching before power or speed can reduce readiness and elastic stiffness.',
@@ -49,7 +49,7 @@ INSERT INTO coaching.validation_rule (key, severity, message_template, education
     'warning',
     'Conditioning appears before Skill or Output phases.',
     (SELECT id FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'hiit_before_skill_output' LIMIT 1),
-    '{"type":"phase_before","blocked_prior_phases":["fitness_repeatability"],"protected_phases":["skill_movement_intelligence","output"]}'::jsonb,
+    '{"type":"phase_before","blocked_prior_phases":["sustained_capacity"],"protected_phases":["movement_intelligence","output"]}'::jsonb,
     TRUE
   ),
   (

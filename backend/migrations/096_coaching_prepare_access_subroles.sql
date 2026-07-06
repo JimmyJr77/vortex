@@ -1,4 +1,4 @@
--- Prepare / Access subrole hierarchy: phase_subrole table, subrole_key on order slots, fine slots.
+-- Prepare & Access subrole hierarchy: phase_subrole table, subrole_key on order slots, fine slots.
 -- IDEMPOTENT.
 
 -- Extend education_content entity_type for phase_subrole rows.
@@ -33,7 +33,7 @@ CREATE INDEX IF NOT EXISTS idx_coaching_phase_subrole_phase ON coaching.phase_su
 
 ALTER TABLE coaching.phase_order_slot ADD COLUMN IF NOT EXISTS subrole_key TEXT;
 
--- Seed Prepare / Access subroles (RAMP-aligned sequence).
+-- Seed Prepare & Access subroles (RAMP-aligned sequence).
 INSERT INTO coaching.phase_subrole (
   phase_id, key, name, description, order_index,
   why_it_exists, what_belongs_here, what_to_avoid, fatigue_guidance, coach_guidance
@@ -82,7 +82,7 @@ CROSS JOIN (VALUES
    'Low volume, high quality, full recovery between reps. Stop before athletes feel taxed.',
    'This is the last step before Skill or Output — stiffness and intent without exhaustion.')
 ) AS v(key, name, description, order_index, why_it_exists, what_belongs_here, what_to_avoid, fatigue_guidance, coach_guidance)
-WHERE sp.key = 'prepare_access'
+WHERE sp.key = 'prepare_and_access'
 ON CONFLICT (phase_id, key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -94,7 +94,7 @@ ON CONFLICT (phase_id, key) DO UPDATE SET
   coach_guidance = EXCLUDED.coach_guidance,
   updated_at = now();
 
--- Fine-grained Prepare / Access order slots (legacy keys preserved; new slots added).
+-- Fine-grained Prepare & Access order slots (legacy keys preserved; new slots added).
 INSERT INTO coaching.phase_order_slot (key, name, description, phase_id, order_index, freshness_sensitivity, subrole_key)
 SELECT v.key, v.name, v.description, sp.id, v.order_index, v.freshness_sensitivity, v.subrole_key
 FROM coaching.session_phase sp
@@ -130,7 +130,7 @@ CROSS JOIN (VALUES
   ('sprint_posture_prep', 'Sprint Posture Prep', 'Wall drills and acceleration posture work.', 143, 2, 'potentiate_bridge'),
   ('elastic_prep_prepare', 'Elastic Prep (Prepare)', 'Prepare-phase elastic stiffness bridge — not main output plyos.', 144, 2, 'potentiate_bridge')
 ) AS v(key, name, description, order_index, freshness_sensitivity, subrole_key)
-WHERE sp.key = 'prepare_access'
+WHERE sp.key = 'prepare_and_access'
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -139,11 +139,11 @@ ON CONFLICT (key) DO UPDATE SET
   freshness_sensitivity = EXCLUDED.freshness_sensitivity,
   subrole_key = EXCLUDED.subrole_key;
 
--- Backfill exercise phase_subrole from primary prepare_access order slot.
+-- Backfill exercise phase_subrole from primary prepare_and_access order slot.
 UPDATE coaching.exercise e SET phase_subrole = pos.subrole_key
 FROM coaching.exercise_phase_profile p
 JOIN coaching.phase_order_slot pos ON pos.key = p.order_slot
-JOIN coaching.session_phase sp ON sp.id = pos.phase_id AND sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.id = pos.phase_id AND sp.key = 'prepare_and_access'
 WHERE p.exercise_id = e.id
   AND p.role = 'primary'
   AND pos.subrole_key IS NOT NULL
@@ -152,10 +152,10 @@ WHERE p.exercise_id = e.id
 -- Also derive from primary_order_slot when set.
 UPDATE coaching.exercise e SET phase_subrole = pos.subrole_key
 FROM coaching.phase_order_slot pos
-JOIN coaching.session_phase sp ON sp.id = pos.phase_id AND sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.id = pos.phase_id AND sp.key = 'prepare_and_access'
 WHERE e.primary_order_slot = pos.key
   AND pos.subrole_key IS NOT NULL
-  AND e.primary_phase_key = 'prepare_access'
+  AND e.primary_phase_key = 'prepare_and_access'
   AND (e.phase_subrole IS NULL OR e.phase_subrole = '');
 
 -- Mirror subrole teaching into education_content for Framework panel.
@@ -176,7 +176,7 @@ SELECT
   ps.fatigue_guidance,
   ps.order_index
 FROM coaching.phase_subrole ps
-JOIN coaching.session_phase sp ON sp.id = ps.phase_id AND sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.id = ps.phase_id AND sp.key = 'prepare_and_access'
 ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
   title = EXCLUDED.title,
   short_summary = EXCLUDED.short_summary,

@@ -1,5 +1,5 @@
 /**
- * Control / Resilience cluster validation helpers.
+ * Resilience cluster validation helpers.
  * Imported by workoutValidation.js
  */
 
@@ -239,12 +239,12 @@ export function analyzeControlLandingReadiness(items, ctx) {
 
   let fitnessBeforeControl = false
   for (let j = 0; j < controlBlockIndex; j++) {
-    if (blockMeta[j]?.phaseKey === 'fitness_repeatability') fitnessBeforeControl = true
+    if (blockMeta[j]?.phaseKey === 'sustained_capacity') fitnessBeforeControl = true
   }
 
   const slugsInWorkout = new Set(ordered.map((o) => o.slug))
   for (const meta of blockMeta ?? []) {
-    if (meta.phaseKey !== 'control_resilience') continue
+    if (meta.phaseKey !== 'resilience') continue
     for (const blockItem of meta.block?.items ?? []) {
       const slug = exerciseSlug(blockItem, slugByExercise)
       if (slug && CONTROL_LANDING_SLUGS.has(slug)) slugsInWorkout.add(slug)
@@ -413,7 +413,7 @@ export function analyzeControlLandingReadiness(items, ctx) {
       findings.push({
         rule_key: 'control_resilience_decel_short_rest',
         severity: 'recommendation',
-        message: `${name}: repeated landing/braking sticks with short rest may be Fitness / Repeatability rather than Control / Resilience.`,
+        message: `${name}: repeated landing/braking sticks with short rest may be Sustained Capacity rather than Resilience.`,
         affected_items: [name],
         meta: { slug, rest_seconds: restSeconds },
       })
@@ -600,7 +600,7 @@ export function analyzeControlSingleLegReadiness(items, ctx) {
       findings.push({
         rule_key: 'control_resilience_sl_fatigue_circuit',
         severity: 'warning',
-        message: `${name}: this may be Fitness / Repeatability rather than Control / Resilience. Confirm intent and preserve balance quality.`,
+        message: `${name}: this may be Sustained Capacity rather than Resilience. Confirm intent and preserve balance quality.`,
         affected_items: [name],
         meta: { slug, rest_seconds: restSeconds, volume, rpe },
       })
@@ -778,7 +778,7 @@ export function analyzeControlTrunkReadiness(items, ctx) {
       findings.push({
         rule_key: 'control_resilience_trunk_fitness_density',
         severity: 'warning',
-        message: `${name}: this may be Fitness / Repeatability, not Control / Resilience. Confirm intent and preserve trunk quality.`,
+        message: `${name}: this may be Sustained Capacity, not Resilience. Confirm intent and preserve trunk quality.`,
         affected_items: [name],
         meta: { slug, rest_seconds: restSeconds, volume, rpe },
       })
@@ -1014,7 +1014,7 @@ export function analyzeControlSlowEccentricReadiness(items, ctx) {
       findings.push({
         rule_key: 'control_resilience_slow_ecc_fitness_density',
         severity: 'warning',
-        message: `${name}: this may be Fitness / Repeatability, not Control / Resilience. Confirm intent and preserve joint position quality.`,
+        message: `${name}: this may be Sustained Capacity, not Resilience. Confirm intent and preserve joint position quality.`,
         affected_items: [name],
         meta: { slug, rest_seconds: restSeconds, volume, rpe },
       })
@@ -1066,13 +1066,13 @@ export function analyzeControlHandSupportReadiness(items, ctx) {
 
   let skillAfterControl = false
   for (let j = controlBlockIndex + 1; j < blockMeta.length; j++) {
-    if (blockMeta[j]?.phaseKey === 'skill_movement_intelligence') skillAfterControl = true
+    if (blockMeta[j]?.phaseKey === 'movement_intelligence') skillAfterControl = true
   }
   if (skillAfterControl) {
     findings.push({
       rule_key: 'control_resilience_hs_before_skill',
       severity: 'warning',
-      message: 'Hand-support Control / Resilience work before Skill may reduce handstand, support, and tumbling quality. Confirm fatigue intent or move Skill earlier.',
+      message: 'Hand-support Resilience work before Skill may reduce handstand, support, and tumbling quality. Confirm fatigue intent or move Skill earlier.',
       affected_items: ordered.map((o) => o.name),
       meta: { before_skill: true },
     })
@@ -1122,7 +1122,7 @@ export function analyzeControlHandSupportReadiness(items, ctx) {
       findings.push({
         rule_key: 'control_resilience_hs_bear_crawl_fitness',
         severity: 'warning',
-        message: `${name}: this may be Fitness / Repeatability, not Control / Resilience. Use slow tempo, full rest, and short distance.`,
+        message: `${name}: this may be Sustained Capacity, not Resilience. Use slow tempo, full rest, and short distance.`,
         affected_items: [name],
         meta: { slug, rest_seconds: restSeconds, volume, rpe, symptom_flags: CONTROL_HS_BEAR_CRAWL_FAST_PATTERN.test(watchText) },
       })
@@ -1237,7 +1237,7 @@ export function analyzeControlHandSupportReadiness(items, ctx) {
   return findings
 }
 
-/** Control / Resilience cluster checks. Pure helper for tests. */
+/** Resilience cluster checks. Pure helper for tests. */
 export function analyzeControlResilienceReadiness(items, ctx) {
   const {
     slugByExercise,
@@ -1285,7 +1285,7 @@ export function analyzeControlResilienceReadiness(items, ctx) {
       findings.push({
         rule_key: 'control_resilience_before_output',
         severity: 'warning',
-        message: 'Hard Control / Resilience work before Output may reduce speed and power quality. Confirm low-intensity readiness intent or move later.',
+        message: 'Hard Resilience work before Output may reduce speed and power quality. Confirm low-intensity readiness intent or move later.',
         affected_items: hardSlugs.map((o) => o.name),
         meta: { before_output: true },
       })
@@ -1421,7 +1421,7 @@ export function analyzeControlResilienceReadiness(items, ctx) {
     findings.push({
       rule_key: 'control_resilience_short_rest_density',
       severity: 'warning',
-      message: 'This may be Fitness / Repeatability rather than Control / Resilience. Confirm intent — precision work needs full rest between sets.',
+      message: 'This may be Sustained Capacity rather than Resilience. Confirm intent — precision work needs full rest between sets.',
       affected_items: ordered.map((o) => o.name),
       meta: {},
     })

@@ -15,7 +15,7 @@ CROSS JOIN (VALUES
   ('cross_body_core', 'Cross-Body Core', 'Bird dog and contralateral trunk integration.', 151, 2, 'integrate'),
   ('marching_mechanics', 'Marching Mechanics', 'A-march, B-march, and sprint posture drills.', 160, 2, 'potentiate_bridge')
 ) AS v(key, name, description, order_index, freshness_sensitivity, subrole_key)
-WHERE sp.key = 'prepare_access'
+WHERE sp.key = 'prepare_and_access'
 ON CONFLICT (key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
@@ -32,7 +32,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before sprinting, jumping, squatting, lunging, tumbling takeoffs, and lower-body strength when the athlete needs hip-extension readiness.',
   athlete_language = 'Drive through your heels, squeeze your glutes, and lift your hips without arching your back.',
   movement_family = 'Glute activation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'activate',
   primary_order_slot = 'glute_activation',
   default_sets = 1,
@@ -58,9 +58,9 @@ UPDATE coaching.exercise_phase_profile p SET
   technical_complexity = 2,
   impact_level = 0,
   intensity_ceiling = 'moderate',
-  notes = 'Use as glute activation and hip-extension access. If loaded, long-held, or high-volume, shift to Capacity or Control / Resilience.'
+  notes = 'Use as glute activation and hip-extension access. If loaded, long-held, or high-volume, shift to Capacity or Resilience.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'glute_activation' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'glute-bridge';
 
@@ -93,7 +93,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Dual activate/integrate intent: use after a clean glute bridge when the athlete needs pelvic control before sprinting, tumbling, jumping, or single-leg work.',
   athlete_language = 'Hold your bridge, keep your hips level, and slowly march one foot at a time.',
   movement_family = 'Glute activation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'activate',
   primary_order_slot = 'glute_core_integration',
   default_sets = 1,
@@ -119,9 +119,9 @@ UPDATE coaching.exercise_phase_profile p SET
   technical_complexity = 4,
   impact_level = 0,
   intensity_ceiling = 'moderate',
-  notes = 'Use only after athlete owns a clean bridge. Low-volume primer in Prepare / Access; higher-volume version belongs in Control / Resilience.'
+  notes = 'Use only after athlete owns a clean bridge. Low-volume primer in Prepare & Access; higher-volume version belongs in Resilience.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'glute_core_integration' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'glute-bridge-march';
 
@@ -154,7 +154,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before sprinting, tumbling, jumping, lifting, or hand-support work when athletes need anterior-core control without fatigue.',
   athlete_language = 'Keep your low back quiet, breathe out, and tap your heel without letting your ribs pop up.',
   movement_family = 'Core activation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'activate',
   primary_order_slot = 'core_activation',
   default_sets = 1,
@@ -180,9 +180,9 @@ UPDATE coaching.exercise_phase_profile p SET
   technical_complexity = 3,
   impact_level = 0,
   intensity_ceiling = 'moderate',
-  notes = 'Use as activation, not a core burnout. If fatigue-based, move to Control / Resilience.'
+  notes = 'Use as activation, not a core burnout. If fatigue-based, move to Resilience.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'core_activation' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'dead-bug-heel-tap';
 
@@ -215,7 +215,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before crawling, tumbling, sprint mechanics, lifting, or single-leg work when the athlete needs cross-body trunk control.',
   athlete_language = 'Reach opposite arm and leg long while keeping your back and hips still.',
   movement_family = 'Core activation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'integrate',
   primary_order_slot = 'cross_body_core',
   default_sets = 1,
@@ -241,9 +241,9 @@ UPDATE coaching.exercise_phase_profile p SET
   technical_complexity = 4,
   impact_level = 0,
   intensity_ceiling = 'moderate',
-  notes = 'Excellent cross-body integration drill. Keep reps crisp; high-volume or advanced variations belong in Control / Resilience.'
+  notes = 'Excellent cross-body integration drill. Keep reps crisp; high-volume or advanced variations belong in Resilience.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'cross_body_core' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'bird-dog';
 
@@ -276,7 +276,7 @@ UPDATE coaching.exercise SET
   coach_language = 'Use before lateral movement, agility, landing, squatting, lunging, cutting, or single-leg work when the athlete needs glute medius activation.',
   athlete_language = 'Keep the band tight, toes forward, hips level, and step side to side without letting your knees cave.',
   movement_family = 'Glute activation',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'activate',
   primary_order_slot = 'lateral_hip_activation',
   default_sets = 1,
@@ -304,7 +304,7 @@ UPDATE coaching.exercise_phase_profile p SET
   intensity_ceiling = 'moderate',
   notes = 'Useful activation drill, but commonly overdosed. Keep low volume before Output or agility.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'lateral_hip_activation' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'mini-band-lateral-walk';
 
@@ -334,10 +334,10 @@ UPDATE coaching.exercise SET
   name = 'A-March / Marching Mechanics',
   description = 'March forward slowly with tall posture. Lift one knee to roughly hip height, keep the toe pulled up, coordinate opposite arm swing, and step down under the hip with control. Repeat rhythmically.',
   card_summary = 'Low-intensity sprint-mechanics primer that teaches posture, knee lift, dorsiflexion, rhythm, and ground contact before speed or movement skill.',
-  coach_language = 'Use as the final bridge from Prepare / Access into Skill / Movement Intelligence or Output on speed, agility, tumbling, or general athletic days.',
+  coach_language = 'Use as the final bridge from Prepare & Access into Movement Intelligence or Output on speed, agility, tumbling, or general athletic days.',
   athlete_language = 'Stand tall, knee up, toe up, step down under your hip with rhythm.',
   movement_family = 'Sprint posture prep',
-  primary_phase_key = 'prepare_access',
+  primary_phase_key = 'prepare_and_access',
   phase_subrole = 'potentiate_bridge',
   primary_order_slot = 'marching_mechanics',
   default_sets = 1,
@@ -363,9 +363,9 @@ UPDATE coaching.exercise_phase_profile p SET
   technical_complexity = 4,
   impact_level = 1,
   intensity_ceiling = 'moderate',
-  notes = 'Prepare / Access version is slow and technical. Faster, more coached versions belong in Skill / Movement Intelligence.'
+  notes = 'Prepare & Access version is slow and technical. Faster, more coached versions belong in Movement Intelligence.'
 FROM coaching.exercise e
-JOIN coaching.session_phase sp ON sp.key = 'prepare_access'
+JOIN coaching.session_phase sp ON sp.key = 'prepare_and_access'
 JOIN coaching.phase_order_slot pos ON pos.key = 'marching_mechanics' AND pos.phase_id = sp.id
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'a-march';
 
@@ -803,12 +803,12 @@ SELECT
   v.misuse,
   v.scale_guidance
 FROM (VALUES
-  ('glute-bridge', 'The glute bridge introduces hip extension in a low-threat position and helps athletes use the glutes without compensating through the low back, hamstrings, adductors, or quads. The Prehab Guys describe bridging as a foundational drill for learning glute activation, using the glutes as the primary mover, and coordinating abdominal control while the hip joint moves.', 'Belongs in Activate (glute_activation) — low-dose hip-extension and glute priming before integrated or power work.', 'After hip/spine access and before sprint, jump, squat, lunge, tumbling takeoff, or lower-body strength when hip-extension readiness is needed.', 'Do not use as a high-volume finisher, long isometric hold, or loaded strength set before Output; that belongs in Capacity or Control / Resilience.', 'Scale by hip-extension control, trunk strategy, hamstring dominance, pregnancy/postpartum considerations, and symptoms.'),
-  ('glute-bridge-march', 'The bridge march keeps the athlete in hip extension while alternating single-leg support, which forces pelvic control and trunk stability. The Prehab Guys cue tightening the stomach and glutes first, driving the heels down, lifting into a straight knee-hip-shoulder line, shifting weight onto one leg, and marching slowly with control.', 'Belongs in Activate (glute_core_integration) — pelvic-control primer linking glute activation to single-leg readiness.', 'After a clean glute bridge when the athlete needs pelvic control before sprinting, tumbling, jumping, or single-leg work.', 'Do not march before the athlete owns a level double-leg bridge, or use high volume before Output; that belongs in Control / Resilience.', 'Scale by trunk control, pelvic control, hip-extension quality, and postpartum/pelvic-floor symptoms when relevant.'),
-  ('dead-bug-heel-tap', 'Dead bugs train trunk control while the limbs move, which is exactly what athletes need before sprinting, tumbling, jumping, crawling, and lifting. The Prehab Guys describe the dead bug as a core-stabilization exercise requiring control from the entire core, and they specifically warn that athletes often compensate by over-arching the low back, which shifts demand away from the core.', 'Belongs in Activate (core_activation) — low-dose anti-extension and rib-pelvis organization before integrated movement.', 'After breathing reset when athletes need anterior-core control without fatigue before sprint, tumbling, jump, lift, or hand-support work.', 'Do not use as a core burnout or high-volume finisher before Output; that belongs in Control / Resilience.', 'Scale by trunk control, breathing, pressure management, and ability to keep the spine organized.'),
-  ('bird-dog', 'The bird dog asks the athlete to control the trunk while moving the opposite arm and leg, making it useful for anti-rotation, cross-body coordination, and spine/hip/shoulder integration. The Prehab Guys describe the bird dog as balancing on opposite arm and leg, with a wider base making it easier and a narrower base more challenging; they also list variations that target anti-rotation musculature such as the obliques and multifidus.', 'Belongs in Integrate (cross_body_core) — contralateral trunk control linking upper and lower body before crawl or power work.', 'Before crawling, tumbling, sprint mechanics, lifting, or single-leg work when the athlete needs cross-body trunk control.', 'Do not rush reps, use high volume, or load heavily before Output; advanced variations belong in Control / Resilience or Skill.', 'Scale by trunk control, shoulder/wrist tolerance, and cross-body coordination.'),
+  ('glute-bridge', 'The glute bridge introduces hip extension in a low-threat position and helps athletes use the glutes without compensating through the low back, hamstrings, adductors, or quads. The Prehab Guys describe bridging as a foundational drill for learning glute activation, using the glutes as the primary mover, and coordinating abdominal control while the hip joint moves.', 'Belongs in Activate (glute_activation) — low-dose hip-extension and glute priming before integrated or power work.', 'After hip/spine access and before sprint, jump, squat, lunge, tumbling takeoff, or lower-body strength when hip-extension readiness is needed.', 'Do not use as a high-volume finisher, long isometric hold, or loaded strength set before Output; that belongs in Capacity or Resilience.', 'Scale by hip-extension control, trunk strategy, hamstring dominance, pregnancy/postpartum considerations, and symptoms.'),
+  ('glute-bridge-march', 'The bridge march keeps the athlete in hip extension while alternating single-leg support, which forces pelvic control and trunk stability. The Prehab Guys cue tightening the stomach and glutes first, driving the heels down, lifting into a straight knee-hip-shoulder line, shifting weight onto one leg, and marching slowly with control.', 'Belongs in Activate (glute_core_integration) — pelvic-control primer linking glute activation to single-leg readiness.', 'After a clean glute bridge when the athlete needs pelvic control before sprinting, tumbling, jumping, or single-leg work.', 'Do not march before the athlete owns a level double-leg bridge, or use high volume before Output; that belongs in Resilience.', 'Scale by trunk control, pelvic control, hip-extension quality, and postpartum/pelvic-floor symptoms when relevant.'),
+  ('dead-bug-heel-tap', 'Dead bugs train trunk control while the limbs move, which is exactly what athletes need before sprinting, tumbling, jumping, crawling, and lifting. The Prehab Guys describe the dead bug as a core-stabilization exercise requiring control from the entire core, and they specifically warn that athletes often compensate by over-arching the low back, which shifts demand away from the core.', 'Belongs in Activate (core_activation) — low-dose anti-extension and rib-pelvis organization before integrated movement.', 'After breathing reset when athletes need anterior-core control without fatigue before sprint, tumbling, jump, lift, or hand-support work.', 'Do not use as a core burnout or high-volume finisher before Output; that belongs in Resilience.', 'Scale by trunk control, breathing, pressure management, and ability to keep the spine organized.'),
+  ('bird-dog', 'The bird dog asks the athlete to control the trunk while moving the opposite arm and leg, making it useful for anti-rotation, cross-body coordination, and spine/hip/shoulder integration. The Prehab Guys describe the bird dog as balancing on opposite arm and leg, with a wider base making it easier and a narrower base more challenging; they also list variations that target anti-rotation musculature such as the obliques and multifidus.', 'Belongs in Integrate (cross_body_core) — contralateral trunk control linking upper and lower body before crawl or power work.', 'Before crawling, tumbling, sprint mechanics, lifting, or single-leg work when the athlete needs cross-body trunk control.', 'Do not rush reps, use high volume, or load heavily before Output; advanced variations belong in Resilience or Skill.', 'Scale by trunk control, shoulder/wrist tolerance, and cross-body coordination.'),
   ('mini-band-lateral-walk', 'Mini-band lateral walks are commonly used to retrain lateral hip control and neuromuscular movement patterns, but they are often misused as high-volume "burn" work. The Prehab Guys note that banded side steps can be useful for retraining movement patterns and neuromuscular control, while also warning that the drill is often performed incorrectly and should maintain band tension; Verywell Fit similarly describes the lateral band walk as targeting hip abductors/gluteus medius and supporting hip/knee stability when done correctly.', 'Belongs in Activate (lateral_hip_activation) — low-volume glute-med and knee-tracking primer before frontal-plane work.', 'Before lateral movement, agility, landing, squatting, lunging, cutting, or single-leg work when glute medius activation is needed.', 'Do not prescribe high step counts or heavy band tension before agility or Output; that becomes Capacity / Control fatigue work.', 'Scale by knee tracking, hip control, strength level, and sport demands rather than gender alone.'),
-  ('a-march', 'The A-March is a sprint-mechanics bridge: it teaches upright posture, knee lift, recovery mechanics, dorsiflexion, rhythm, and forceful but controlled ground contact. SimpliFaster describes the A-March as a fundamental drill for teaching sprint mechanics, including a straight postural line, knee up, heel under knee, and dorsiflexed toe; Parisi School describes the A-March as the entry point before A-skip and A-run because it isolates knee lift and recovery.', 'Belongs in Potentiate Bridge (marching_mechanics) — slow technical sprint-posture primer before Skill or Output.', 'Final bridge from Prepare / Access into Skill / Movement Intelligence or Output on speed, agility, tumbling, or general athletic days.', 'Do not march fast, use high coaching detail, or place after conditioning if the goal is sprint-mechanics prep; faster versions belong in Skill / Movement Intelligence.', 'Scale by coordination, sprint skill, balance, hip-flexor comfort, and pelvic-floor/load tolerance when relevant.')
+  ('a-march', 'The A-March is a sprint-mechanics bridge: it teaches upright posture, knee lift, recovery mechanics, dorsiflexion, rhythm, and forceful but controlled ground contact. SimpliFaster describes the A-March as a fundamental drill for teaching sprint mechanics, including a straight postural line, knee up, heel under knee, and dorsiflexed toe; Parisi School describes the A-March as the entry point before A-skip and A-run because it isolates knee lift and recovery.', 'Belongs in Potentiate Bridge (marching_mechanics) — slow technical sprint-posture primer before Skill or Output.', 'Final bridge from Prepare & Access into Movement Intelligence or Output on speed, agility, tumbling, or general athletic days.', 'Do not march fast, use high coaching detail, or place after conditioning if the goal is sprint-mechanics prep; faster versions belong in Movement Intelligence.', 'Scale by coordination, sprint skill, balance, hip-flexor comfort, and pelvic-floor/load tolerance when relevant.')
 ) AS v(slug, why_works, why_here, best_placement, misuse, scale_guidance)
 JOIN coaching.exercise e ON e.slug = v.slug
 ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
@@ -831,10 +831,10 @@ VALUES (
   'validation_rule',
   'prepare_activation_readiness',
   NULL,
-  'Prepare / Access activation without pre-fatigue',
+  'Prepare & Access activation without pre-fatigue',
   'Activation and integration drills should improve position and readiness without creating trunk, hip, or shoulder fatigue before Skill or Output.',
   'Activation and integration drills should improve position, awareness, and readiness without creating trunk, hip, calf, or shoulder fatigue before Skill, Output, tumbling, or strength.',
-  'Cards 45–50 bridge mobility/access into coordinated movement. High-volume bridges, band walks, or core burnouts in Prepare / Access steal output readiness.',
+  'Cards 45–50 bridge mobility/access into coordinated movement. High-volume bridges, band walks, or core burnouts in Prepare & Access steal output readiness.',
   'Keep glute bridges ≤15 reps, band walks ≤12 steps per direction, dead bug/bird dog at warm-up dose, and A-March slow and technical before Skill or Output.',
   'Do not turn activation into Capacity or Control work — reduce volume if sprinting, jumping, tumbling, or lower-body Output follows.'
 )

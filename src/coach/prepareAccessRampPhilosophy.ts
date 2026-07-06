@@ -40,7 +40,7 @@ export const VORTEX_SESSION_PROGRESSION = [
   {
     stage: 'Performance Work',
     goal: 'Express skill, speed, power, strength, or conditioning at session intent.',
-    examples: 'Skill / Movement Intelligence, Output (sprinting, jumping, tumbling), Capacity, Control / Resilience, Fitness / Repeatability — then Restore.',
+    examples: 'Movement Intelligence, Output (sprinting, jumping, tumbling), Capacity, Resilience, Sustained Capacity — then Restore.',
   },
 ] as const
 
@@ -71,7 +71,7 @@ export const ORIGINAL_RAMP_PHASES = [
   },
 ] as const
 
-/** Short intro shown above the Prepare / Access subrole list in Philosophy. */
+/** Short intro shown above the Prepare & Access subrole list in Philosophy. */
 export const RAMP_PHILOSOPHY_INTRO = `RAMP is a widely accepted warm-up framework developed by Ian Jeffreys and used across collegiate athletics, professional sports, military performance, and elite strength & conditioning. The original acronym is Raise → Activate → Mobilize → Potentiate — note that Activate comes before Mobilize in Jeffreys' model.`
 
 /** Why Vortex reorders Mobilize before Activate. */

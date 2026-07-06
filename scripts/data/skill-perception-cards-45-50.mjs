@@ -1,5 +1,5 @@
 /**
- * Rich card v2 content for Skill / Movement Intelligence perception cards 45–50.
+ * Rich card v2 content for Movement Intelligence perception cards 45–50.
  * Consumed by scripts/generate-110-skill-perception-cards.mjs
  * UPDATE-only on slugs seeded in migration 105.
  */
@@ -878,7 +878,7 @@ export const SKILL_PERCEPTION_CARDS = [
     avoidBefore: ['Max acceleration if athlete guesses or false-steps', 'High-speed reactive races if deceleration is poor'],
     doNotUseWhen: ['No safe run-out', 'Athlete cannot stop safely', 'Crowded group layout', 'Cue system is unclear'],
     mediaReferences: ['NSCA reaction drills for visual cueing and first-step quickness'],
-    mediaInternalNotes: ['Final Skill / Movement Intelligence card — bridge to Output acceleration.'],
+    mediaInternalNotes: ['Final Movement Intelligence card — bridge to Output acceleration.'],
   }),
 ]
 

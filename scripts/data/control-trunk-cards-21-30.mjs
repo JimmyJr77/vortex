@@ -1,5 +1,5 @@
 /**
- * Rich card v2 content for Control / Resilience Trunk / Pelvis cards 21–30.
+ * Rich card v2 content for Resilience Trunk / Pelvis cards 21–30.
  * Consumed by scripts/generate-control-rich.mjs (migration 132).
  */
 

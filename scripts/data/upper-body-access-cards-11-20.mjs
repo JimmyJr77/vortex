@@ -17,7 +17,7 @@ export const UPPER_BODY_CARDS = [
     cardSummary:
       'Quadruped wrist-extension mobility drill that prepares the hands and wrists for tumbling, crawling, push-ups, planks, and hand support.',
     bestPlacement:
-      'Early in Prepare / Access before hand-support work — tumbling, crawling, bars, ninja, push-ups, planks, or handstands.',
+      'Early in Prepare & Access before hand-support work — tumbling, crawling, bars, ninja, push-ups, planks, or handstands.',
     description:
       'Start in quadruped with hands under or slightly in front of shoulders, fingers spread, palms flat, and elbow pits gently facing forward. Shift the shoulders forward over the wrists until a mild stretch/load is felt, then rock back.',
     coachLanguage:
@@ -122,7 +122,7 @@ export const UPPER_BODY_CARDS = [
       technical_complexity: 2,
       impact_level: 0,
       intensity_ceiling: 'low',
-      notes: 'Best early in Prepare / Access before hand-support work.',
+      notes: 'Best early in Prepare & Access before hand-support work.',
     },
     scaling: {
       youth_beginner: 'Hands closer to knees; small rocks; use animal cue: "bear paws."',
@@ -1190,11 +1190,11 @@ export const UPPER_BODY_CARDS = [
     cardSummary:
       'Full-body upper-body access flow connecting shoulder flexion, scapular protraction, trunk control, hamstring/calf access, and plank alignment.',
     bestPlacement:
-      'Late in Prepare / Access as a bridge from mobility into skill, crawling, tumbling, or upper-body loading.',
+      'Late in Prepare & Access as a bridge from mobility into skill, crawling, tumbling, or upper-body loading.',
     description:
       'Start in high plank. Push the floor away and shift hips up and back into down dog. Then wave or shift forward into plank, stacking shoulders over wrists and controlling ribs/pelvis.',
     coachLanguage:
-      'Use late in Prepare / Access as a bridge from mobility into skill, crawling, tumbling, or upper-body loading.',
+      'Use late in Prepare & Access as a bridge from mobility into skill, crawling, tumbling, or upper-body loading.',
     athleteLanguage: 'Push back into an upside-down V, then wave forward into a strong plank.',
     tenets: [
       { key: 'flexibility', weight: 4 },
@@ -1234,7 +1234,7 @@ export const UPPER_BODY_CARDS = [
     ],
     whyItWorks:
       'This flow connects upper-body support, scapular protraction, trunk line, hip hinge, and posterior-chain access. The Prehab Guys downward-dog-to-upward-dog page cues pushing through the arms and protracting the scapula to drive into down dog rather than simply moving the hips.',
-    whyItGoesHere: 'Belongs in Integrate (full_body_flow) — late Prepare / Access bridge into skill work.',
+    whyItGoesHere: 'Belongs in Integrate (full_body_flow) — late Prepare & Access bridge into skill work.',
     commonMisuse: 'Do not use high volume before wrist-heavy or shoulder-heavy tumbling.',
     scalingGuidance: 'Scale by shoulder/wrist load tolerance and trunk control.',
     movementRequirements: {

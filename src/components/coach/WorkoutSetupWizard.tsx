@@ -57,11 +57,11 @@ function buildPlanFromWizard(
 
   if (format.tumbling_minutes && format.tumbling_minutes > 0) {
     plan = plan.map((p) =>
-      p.phaseKey === 'skill_movement_intelligence'
+      p.phaseKey === 'movement_intelligence'
         ? { ...p, minutes: format.tumbling_minutes!, contains_tumbling: true, label: 'Skill / Tumbling' }
         : p,
     )
-    const skillIdx = plan.findIndex((p) => p.phaseKey === 'skill_movement_intelligence')
+    const skillIdx = plan.findIndex((p) => p.phaseKey === 'movement_intelligence')
     const overflow = plan.reduce((s, p) => s + p.minutes, 0) - duration
     if (overflow > 0 && skillIdx >= 0) {
       const capIdx = plan.findIndex((p) => p.phaseKey === 'capacity')
@@ -114,7 +114,7 @@ export default function WorkoutSetupWizard({ workout, onApply, onComplete, onClo
         session_why: templateKey
           ? (templates.find((t) => t.key === templateKey)?.summary ?? undefined)
           : `${objectiveLabel} session using the Athleticism Accelerator phase model.`,
-        order_why: 'Phases follow Prepare → Skill → Output → Capacity → Control → Fitness → Restore so sensitive work stays fresh.',
+        order_why: 'Phases follow Prepare → Skill → Output → Capacity → Control → Sustained Capacity → Restore so sensitive work stays fresh.',
       } satisfies WorkoutCoachRationale,
     })
   }
@@ -171,7 +171,7 @@ export default function WorkoutSetupWizard({ workout, onApply, onComplete, onClo
                   <option value="agility">Agility (after skill)</option>
                   <option value="strength">Strength (after output)</option>
                   <option value="calisthenics">Calisthenics (after output)</option>
-                  <option value="fitness">Fitness / conditioning (late)</option>
+                  <option value="fitness">Sustained Capacity / conditioning (late)</option>
                   <option value="mobility">Mobility (prepare + restore)</option>
                 </select>
               </label>

@@ -18,8 +18,8 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN
   ALTER TABLE coaching.exercise ADD CONSTRAINT exercise_primary_phase_key_check
     CHECK (primary_phase_key IS NULL OR primary_phase_key IN (
-      'prepare_access', 'skill_movement_intelligence', 'output', 'capacity',
-      'control_resilience', 'fitness_repeatability', 'restore'
+      'prepare_and_access', 'movement_intelligence', 'output', 'capacity',
+      'resilience', 'sustained_capacity', 'restore'
     ));
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 

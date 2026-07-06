@@ -42,83 +42,83 @@ export function normalizePhasePlan(raw: unknown): PhasePlanRow[] {
 
 const OBJECTIVE_TEMPLATES_60: Record<SessionObjective, PhasePlanRow[]> = {
   general_athletic_development: [
-    { phaseKey: 'prepare_access', minutes: 8 },
-    { phaseKey: 'skill_movement_intelligence', minutes: 8 },
+    { phaseKey: 'prepare_and_access', minutes: 8 },
+    { phaseKey: 'movement_intelligence', minutes: 8 },
     { phaseKey: 'output', minutes: 15 },
     { phaseKey: 'capacity', minutes: 18 },
-    { phaseKey: 'control_resilience', minutes: 7 },
-    { phaseKey: 'fitness_repeatability', minutes: 3 },
+    { phaseKey: 'resilience', minutes: 7 },
+    { phaseKey: 'sustained_capacity', minutes: 3 },
     { phaseKey: 'restore', minutes: 1 },
   ],
   speed_priority: [
-    { phaseKey: 'prepare_access', minutes: 8 },
-    { phaseKey: 'skill_movement_intelligence', minutes: 6 },
+    { phaseKey: 'prepare_and_access', minutes: 8 },
+    { phaseKey: 'movement_intelligence', minutes: 6 },
     { phaseKey: 'output', minutes: 22 },
     { phaseKey: 'capacity', minutes: 14 },
-    { phaseKey: 'control_resilience', minutes: 6 },
-    { phaseKey: 'fitness_repeatability', minutes: 2 },
+    { phaseKey: 'resilience', minutes: 6 },
+    { phaseKey: 'sustained_capacity', minutes: 2 },
     { phaseKey: 'restore', minutes: 2 },
   ],
   explosiveness_power_priority: [
-    { phaseKey: 'prepare_access', minutes: 8 },
-    { phaseKey: 'skill_movement_intelligence', minutes: 6 },
+    { phaseKey: 'prepare_and_access', minutes: 8 },
+    { phaseKey: 'movement_intelligence', minutes: 6 },
     { phaseKey: 'output', minutes: 20 },
     { phaseKey: 'capacity', minutes: 16 },
-    { phaseKey: 'control_resilience', minutes: 7 },
-    { phaseKey: 'fitness_repeatability', minutes: 2 },
+    { phaseKey: 'resilience', minutes: 7 },
+    { phaseKey: 'sustained_capacity', minutes: 2 },
     { phaseKey: 'restore', minutes: 1 },
   ],
   strength_priority: [
-    { phaseKey: 'prepare_access', minutes: 8 },
-    { phaseKey: 'skill_movement_intelligence', minutes: 5 },
+    { phaseKey: 'prepare_and_access', minutes: 8 },
+    { phaseKey: 'movement_intelligence', minutes: 5 },
     { phaseKey: 'output', minutes: 8 },
     { phaseKey: 'capacity', minutes: 28 },
-    { phaseKey: 'control_resilience', minutes: 8 },
-    { phaseKey: 'fitness_repeatability', minutes: 2 },
+    { phaseKey: 'resilience', minutes: 8 },
+    { phaseKey: 'sustained_capacity', minutes: 2 },
     { phaseKey: 'restore', minutes: 1 },
   ],
   agility_priority: [
-    { phaseKey: 'prepare_access', minutes: 8 },
-    { phaseKey: 'skill_movement_intelligence', minutes: 10 },
+    { phaseKey: 'prepare_and_access', minutes: 8 },
+    { phaseKey: 'movement_intelligence', minutes: 10 },
     { phaseKey: 'output', minutes: 18 },
     { phaseKey: 'capacity', minutes: 14 },
-    { phaseKey: 'control_resilience', minutes: 7 },
-    { phaseKey: 'fitness_repeatability', minutes: 2 },
+    { phaseKey: 'resilience', minutes: 7 },
+    { phaseKey: 'sustained_capacity', minutes: 2 },
     { phaseKey: 'restore', minutes: 1 },
   ],
   skill_tumbling_priority: [
-    { phaseKey: 'prepare_access', minutes: 8 },
-    { phaseKey: 'skill_movement_intelligence', minutes: 22, contains_tumbling: true },
+    { phaseKey: 'prepare_and_access', minutes: 8 },
+    { phaseKey: 'movement_intelligence', minutes: 22, contains_tumbling: true },
     { phaseKey: 'output', minutes: 10 },
     { phaseKey: 'capacity', minutes: 12 },
-    { phaseKey: 'control_resilience', minutes: 6 },
+    { phaseKey: 'resilience', minutes: 6 },
     { phaseKey: 'restore', minutes: 2 },
   ],
   mobility_control_priority: [
-    { phaseKey: 'prepare_access', minutes: 12 },
-    { phaseKey: 'skill_movement_intelligence', minutes: 8 },
+    { phaseKey: 'prepare_and_access', minutes: 12 },
+    { phaseKey: 'movement_intelligence', minutes: 8 },
     { phaseKey: 'output', minutes: 8 },
     { phaseKey: 'capacity', minutes: 12 },
-    { phaseKey: 'control_resilience', minutes: 16 },
-    { phaseKey: 'fitness_repeatability', minutes: 2 },
+    { phaseKey: 'resilience', minutes: 16 },
+    { phaseKey: 'sustained_capacity', minutes: 2 },
     { phaseKey: 'restore', minutes: 2 },
   ],
   fitness_priority: [
-    { phaseKey: 'prepare_access', minutes: 8 },
-    { phaseKey: 'skill_movement_intelligence', minutes: 6 },
+    { phaseKey: 'prepare_and_access', minutes: 8 },
+    { phaseKey: 'movement_intelligence', minutes: 6 },
     { phaseKey: 'output', minutes: 10 },
     { phaseKey: 'capacity', minutes: 14 },
-    { phaseKey: 'control_resilience', minutes: 6 },
-    { phaseKey: 'fitness_repeatability', minutes: 14 },
+    { phaseKey: 'resilience', minutes: 6 },
+    { phaseKey: 'sustained_capacity', minutes: 14 },
     { phaseKey: 'restore', minutes: 2 },
   ],
   recovery_low_intensity: [
-    { phaseKey: 'prepare_access', minutes: 12 },
-    { phaseKey: 'skill_movement_intelligence', minutes: 10 },
+    { phaseKey: 'prepare_and_access', minutes: 12 },
+    { phaseKey: 'movement_intelligence', minutes: 10 },
     { phaseKey: 'output', minutes: 5 },
     { phaseKey: 'capacity', minutes: 10 },
-    { phaseKey: 'control_resilience', minutes: 12 },
-    { phaseKey: 'fitness_repeatability', minutes: 0 },
+    { phaseKey: 'resilience', minutes: 12 },
+    { phaseKey: 'sustained_capacity', minutes: 0 },
     { phaseKey: 'restore', minutes: 11 },
   ],
 }
@@ -156,7 +156,7 @@ export function applyAddOnToPlan(plan: PhasePlanRow[], addOnFocus: string, addOn
   }
 
   if (focus === 'speed' || focus === 'explosiveness' || focus === 'explosiveness_power' || focus === 'agility') {
-    insertAfterPhase('skill_movement_intelligence', {
+    insertAfterPhase('movement_intelligence', {
       phaseKey: 'output',
       minutes: addOnMinutes,
       label: `${focus} add-on`,
@@ -170,19 +170,19 @@ export function applyAddOnToPlan(plan: PhasePlanRow[], addOnFocus: string, addOn
       add_on_focus: focus,
     })
   } else if (focus === 'fitness' || focus === 'fitness_conditioning' || focus === 'conditioning') {
-    const fitnessIdx = rows.findIndex((r) => r.phaseKey === 'fitness_repeatability')
+    const fitnessIdx = rows.findIndex((r) => r.phaseKey === 'sustained_capacity')
     if (fitnessIdx >= 0) {
       rows[fitnessIdx] = {
         ...rows[fitnessIdx],
         minutes: rows[fitnessIdx].minutes + addOnMinutes,
         add_on_focus: focus,
-        label: rows[fitnessIdx].label ?? 'Fitness add-on',
+        label: rows[fitnessIdx].label ?? 'Sustained Capacity add-on',
       }
     } else {
-      insertAfterPhase('control_resilience', {
-        phaseKey: 'fitness_repeatability',
+      insertAfterPhase('resilience', {
+        phaseKey: 'sustained_capacity',
         minutes: addOnMinutes,
-        label: 'Fitness add-on',
+        label: 'Sustained Capacity add-on',
         add_on_focus: focus,
       })
     }
@@ -193,8 +193,8 @@ export function applyAddOnToPlan(plan: PhasePlanRow[], addOnFocus: string, addOn
       rows[restoreIdx] = { ...rows[restoreIdx], minutes: rows[restoreIdx].minutes + Math.ceil(addOnMinutes / 2) }
     }
   } else {
-    insertAfterPhase('control_resilience', {
-      phaseKey: 'control_resilience',
+    insertAfterPhase('resilience', {
+      phaseKey: 'resilience',
       minutes: addOnMinutes,
       label: `${focus} add-on`,
       add_on_focus: focus,
@@ -220,6 +220,6 @@ export const SESSION_OBJECTIVE_OPTIONS: Array<{ value: SessionObjective; label: 
   { value: 'agility_priority', label: 'Agility priority' },
   { value: 'skill_tumbling_priority', label: 'Skill / tumbling priority' },
   { value: 'mobility_control_priority', label: 'Mobility / control priority' },
-  { value: 'fitness_priority', label: 'Fitness priority' },
+  { value: 'fitness_priority', label: 'Sustained Capacity priority' },
   { value: 'recovery_low_intensity', label: 'Recovery / low intensity' },
 ]

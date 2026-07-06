@@ -1,4 +1,4 @@
-/** Canonical session_need keys for Prepare / Access pairing_logic.good_for_sessions */
+/** Canonical session_need keys for Prepare & Access pairing_logic.good_for_sessions */
 export const PREPARE_SESSION_NEED_OPTIONS = [
   { key: 'tumbling_prep', label: 'Tumbling prep' },
   { key: 'sprint_prep', label: 'Sprint prep' },

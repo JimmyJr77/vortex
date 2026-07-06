@@ -406,7 +406,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         params.push(maxFatigue)
         where.push(`EXISTS (
           SELECT 1 FROM coaching.exercise_phase_profile p
-          JOIN coaching.session_phase sp ON sp.id = p.phase_id AND sp.key = 'prepare_access'
+          JOIN coaching.session_phase sp ON sp.id = p.phase_id AND sp.key = 'prepare_and_access'
           WHERE p.exercise_id = e.id AND p.fatigue_cost <= $${params.length}
         )`)
       }
@@ -3197,17 +3197,17 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const sport = sports.rows.find((r) => lower.includes(String(r.name).toLowerCase()))
       const matchedPhase = sessionPhases.rows.find((r) => lower.includes(String(r.name).toLowerCase()))
       const PHASE_KEYWORDS = {
-        warmup: 'prepare_access',
-        activation: 'prepare_access',
-        prepare: 'prepare_access',
+        warmup: 'prepare_and_access',
+        activation: 'prepare_and_access',
+        prepare: 'prepare_and_access',
         cooldown: 'restore',
         restore: 'restore',
-        skill: 'skill_movement_intelligence',
+        skill: 'movement_intelligence',
         output: 'output',
         capacity: 'capacity',
-        control: 'control_resilience',
-        fitness: 'fitness_repeatability',
-        conditioning: 'fitness_repeatability',
+        control: 'resilience',
+        fitness: 'sustained_capacity',
+        conditioning: 'sustained_capacity',
         main: 'capacity',
       }
       let phaseKey = matchedPhase?.key ?? null

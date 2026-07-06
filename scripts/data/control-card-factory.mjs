@@ -1,5 +1,5 @@
 /**
- * Rich card v2 factory for Control / Resilience phase movement cards.
+ * Rich card v2 factory for Resilience phase movement cards.
  * Consumed by scripts/data/control-*-cards-*.mjs seed generators.
  */
 
@@ -451,7 +451,7 @@ function focusName(name) {
 }
 
 /**
- * Build a full Control / Resilience rich card from a movement row and optional overrides.
+ * Build a full Resilience rich card from a movement row and optional overrides.
  *
  * @param {{ number: number, name: string, slug: string, subrole: string, slot: string, family?: string }} row
  * @param {Record<string, unknown>} [extra]
@@ -468,7 +468,7 @@ export function buildControlCard(row, extra = {}) {
   const dailyOk = DAILY_OK_SLUGS.has(slug)
 
   const baseCoachingExecution = {
-    movement_description: `Control / Resilience drill: ${name}. Own positions, maintain alignment, and finish each rep or hold with precision — not speed or volume.`,
+    movement_description: `Resilience drill: ${name}. Own positions, maintain alignment, and finish each rep or hold with precision — not speed or volume.`,
     setup: [
       'Clear space and explain the control goal',
       'Confirm pain-free range and appropriate supervision for youth',
@@ -492,9 +492,9 @@ export function buildControlCard(row, extra = {}) {
     slot,
     subrole,
     family,
-    cardSummary: `${focus} — Control / Resilience drill for ${family.toLowerCase()} with precision, alignment, and low-to-moderate stress.`,
+    cardSummary: `${focus} — Resilience drill for ${family.toLowerCase()} with precision, alignment, and low-to-moderate stress.`,
     description: `The athlete performs ${name} with controlled tempo, clean alignment, and a quiet finish. Control phase intent is position ownership and resilience — not force production or conditioning volume.`,
-    coachLanguage: `Use as Control / Resilience work in ${slot}. Precision and alignment with full rest — ${CLUSTER_MISUSE}`,
+    coachLanguage: `Use as Resilience work in ${slot}. Precision and alignment with full rest — ${CLUSTER_MISUSE}`,
     athleteLanguage: `Move slow, stay aligned, and own the finish for ${focus}.`,
     tenets: cfg.tenets,
     methodologies: cfg.methodologies,
@@ -503,7 +503,7 @@ export function buildControlCard(row, extra = {}) {
     equipment,
     body_regions: cfg.body_regions,
     whyItWorks: `${focus} trains controlled absorption, joint alignment, and trunk organization under low-to-moderate demand — building the resilience layer between Prepare access work and Capacity force loading.`,
-    whyItGoesHere: `Belongs in ${slot} (${row.number}) — ${family} cluster for Control / Resilience phase programming.`,
+    whyItGoesHere: `Belongs in ${slot} (${row.number}) — ${family} cluster for Resilience phase programming.`,
     commonMisuse: `${CLUSTER_MISUSE} Do not chase volume, speed, or load when alignment breaks down.`,
     scalingGuidance: cfg.scalingGuidance,
     movementRequirements: { ...cfg.movementRequirements },
@@ -522,7 +522,7 @@ export function buildControlCard(row, extra = {}) {
     doNotUseWhen: [...cfg.doNotUseWhen],
     genderSpecificNotes: GENDER_DEFAULT,
     goodForSessions: [...cfg.goodForSessions],
-    mediaReferences: [`Control / Resilience programming — ${family}`, `${focus} coaching progressions`],
+    mediaReferences: [`Resilience programming — ${family}`, `${focus} coaching progressions`],
     mediaInternalNotes: [`Control card #${row.number} — validator should flag alignment loss and rushed reps on ${slug}.`],
   }
 

@@ -38,17 +38,17 @@ function GroupedOrderSlotSelect({
   taxonomy: ReturnType<typeof useTaxonomy>['taxonomy']
   className?: string
 }) {
-  if (phaseKey === 'prepare_access' || phaseKey === 'skill_movement_intelligence' || phaseKey === 'capacity' || phaseKey === 'output') {
-    const subroles = phaseKey === 'prepare_access'
+  if (phaseKey === 'prepare_and_access' || phaseKey === 'movement_intelligence' || phaseKey === 'capacity' || phaseKey === 'output') {
+    const subroles = phaseKey === 'prepare_and_access'
       ? prepareAccessSubroleSequence(taxonomy)
-      : phaseKey === 'skill_movement_intelligence'
+      : phaseKey === 'movement_intelligence'
         ? skillMovementSubroleSequence(taxonomy)
         : phaseKey === 'capacity'
           ? capacitySubroleSequence(taxonomy)
           : outputSubroleSequence(taxonomy)
-    const hint = phaseKey === 'prepare_access'
+    const hint = phaseKey === 'prepare_and_access'
       ? 'RAMP sequence: Raise → Mobilize → Activate → Integrate → Potentiate Bridge.'
-      : phaseKey === 'skill_movement_intelligence'
+      : phaseKey === 'movement_intelligence'
         ? 'Shape → Rotation → Locomotion → Balance → Perception-Action.'
         : phaseKey === 'capacity'
           ? 'Squat → Hinge → Push → Pull/Hang → Carry/Trunk → Tissue capacity.'
@@ -392,14 +392,14 @@ export default function ExerciseEditor({
     { type: 'body_region', label: 'Body Regions', items: taxonomy?.bodyRegions },
   ]
 
-  const derivedSubrole = (primaryPhaseKey === 'prepare_access' || primaryPhaseKey === 'skill_movement_intelligence' || primaryPhaseKey === 'capacity' || primaryPhaseKey === 'output') && primaryOrderSlot
+  const derivedSubrole = (primaryPhaseKey === 'prepare_and_access' || primaryPhaseKey === 'movement_intelligence' || primaryPhaseKey === 'capacity' || primaryPhaseKey === 'output') && primaryOrderSlot
     ? subroleForOrderSlot(taxonomy, primaryPhaseKey, primaryOrderSlot)
     : null
   const displayedSubrole = subroleOverride ? phaseSubrole : (derivedSubrole ?? phaseSubrole)
 
   const handlePrimaryOrderSlotChange = (slotKey: string) => {
     setPrimaryOrderSlot(slotKey)
-    if (!subroleOverride && (primaryPhaseKey === 'prepare_access' || primaryPhaseKey === 'skill_movement_intelligence' || primaryPhaseKey === 'capacity' || primaryPhaseKey === 'output') && slotKey) {
+    if (!subroleOverride && (primaryPhaseKey === 'prepare_and_access' || primaryPhaseKey === 'movement_intelligence' || primaryPhaseKey === 'capacity' || primaryPhaseKey === 'output') && slotKey) {
       const derived = subroleForOrderSlot(taxonomy, primaryPhaseKey, slotKey)
       if (derived) setPhaseSubrole(derived as PhaseSubrole)
     }
@@ -457,7 +457,7 @@ export default function ExerciseEditor({
                   {(taxonomy?.sessionPhases ?? []).map((p) => <option key={p.id} value={p.key}>{p.name}</option>)}
                 </select>
               </label>
-              {(primaryPhaseKey === 'prepare_access' || primaryPhaseKey === 'skill_movement_intelligence') && (
+              {(primaryPhaseKey === 'prepare_and_access' || primaryPhaseKey === 'movement_intelligence') && (
                 <>
                   <label className="md:col-span-2"><span className="font-semibold text-gray-700">Order slot (fine programming layer)</span>
                     <GroupedOrderSlotSelect
@@ -468,7 +468,7 @@ export default function ExerciseEditor({
                       className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2"
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      {primaryPhaseKey === 'prepare_access'
+                      {primaryPhaseKey === 'prepare_and_access'
                         ? 'RAMP sequence: Raise → Mobilize → Activate → Integrate → Potentiate Bridge. Pick the fine slot; subrole is derived automatically.'
                         : 'Skill sequence: Shape → Rotation → Locomotion → Balance → Perception-Action. Pick the fine slot; subrole is derived automatically.'}
                     </p>
@@ -493,7 +493,7 @@ export default function ExerciseEditor({
                   )}
                 </>
               )}
-              {primaryPhaseKey && primaryPhaseKey !== 'prepare_access' && primaryPhaseKey !== 'skill_movement_intelligence' && (
+              {primaryPhaseKey && primaryPhaseKey !== 'prepare_and_access' && primaryPhaseKey !== 'movement_intelligence' && (
                 <label className="md:col-span-2"><span className="font-semibold text-gray-700">Order slot</span>
                   <GroupedOrderSlotSelect
                     phaseKey={primaryPhaseKey}

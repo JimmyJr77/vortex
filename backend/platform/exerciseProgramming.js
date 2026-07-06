@@ -478,9 +478,9 @@ export async function saveExerciseProgramming(client, exerciseId, slug, body) {
     )
   } else if (body.movement_identity?.order_slot || body.primary_order_slot) {
     const orderSlot = body.movement_identity?.order_slot ?? body.primary_order_slot
-    const phaseKey = body.movement_identity?.phase_key ?? body.primary_phase_key ?? 'prepare_access'
+    const phaseKey = body.movement_identity?.phase_key ?? body.primary_phase_key ?? 'prepare_and_access'
     const subroleOverride = Boolean(body.subrole_override ?? body.movement_identity?.subrole_override)
-    if (!subroleOverride && phaseKey === 'prepare_access' && orderSlot) {
+    if (!subroleOverride && phaseKey === 'prepare_and_access' && orderSlot) {
       const derived = await resolveSubroleFromOrderSlot(client, phaseKey, orderSlot)
       if (derived) {
         await client.query(

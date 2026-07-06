@@ -1,5 +1,5 @@
 /**
- * Rich card v2 content for Skill / Movement Intelligence balance cards 35–44.
+ * Rich card v2 content for Movement Intelligence balance cards 35–44.
  * Consumed by scripts/generate-109-skill-balance-cards.mjs
  * UPDATE-only on slugs seeded in migration 105.
  */
@@ -253,7 +253,7 @@ export const SKILL_BALANCE_CARDS = [
     bestPlacement:
       'After foot tripod prep when athletes need single-leg control before landing, cutting, or lower-body skill.',
     commonMisuse:
-      'Do not turn reaches into max-distance tests or high-volume loaded work — that shifts to Control / Resilience. Reduce reach if stance knee collapses.',
+      'Do not turn reaches into max-distance tests or high-volume loaded work — that shifts to Resilience. Reduce reach if stance knee collapses.',
     scalingGuidance:
       'Scale by reach distance, support, and knee tracking; hypermobility athletes need active arch and knee control.',
     tenets: [
@@ -356,7 +356,7 @@ export const SKILL_BALANCE_CARDS = [
       technical_complexity: 4,
       impact_level: 0,
       intensity_ceiling: 'moderate',
-      notes: 'Skill version prioritizes clean reach and return. High-volume or loaded versions shift to Control / Resilience.',
+      notes: 'Skill version prioritizes clean reach and return. High-volume or loaded versions shift to Resilience.',
     },
     scaling: {
       youth_beginner: 'Use 3 directions only: front, side, back. Allow hand support.',
@@ -995,7 +995,7 @@ export const SKILL_BALANCE_CARDS = [
     whyItWorks:
       'The in-in-out-out pattern teaches four-count rhythm and foot sequencing. It trains foot rhythm and agility literacy — it does not replace sprinting, cutting, or reactive agility.',
     whyItGoesHere:
-      'Belongs in Balance / Coordination / Rhythm (footwork_rhythm). Long ladder circuits belong in Fitness / Repeatability.',
+      'Belongs in Balance / Coordination / Rhythm (footwork_rhythm). Long ladder circuits belong in Sustained Capacity.',
     bestPlacement: 'After simpler locomotion drills when athletes need foot sequencing before complex ladder patterns.',
     commonMisuse:
       'Do not exceed ~4 passes per pattern or use short rest that creates sloppy reps — that is Fitness, not Skill. Classify as footwork rhythm, not reactive agility, without perception cues.',
@@ -1086,7 +1086,7 @@ export const SKILL_BALANCE_CARDS = [
       technical_complexity: 3,
       impact_level: 1,
       intensity_ceiling: 'moderate',
-      notes: 'Skill version is rhythm and sequencing. Long ladder circuits belong in Fitness / Repeatability.',
+      notes: 'Skill version is rhythm and sequencing. Long ladder circuits belong in Sustained Capacity.',
     },
     scaling: {
       youth_beginner: 'Walk the pattern; say the rhythm out loud.',
