@@ -1,5 +1,18 @@
 /** Load coach-facing education / "Why Layer" content. */
 
+/** Deduplicate education rows (framework keys with NULL entity_id can multiply on re-seed). */
+export function dedupeEducationRows(rows) {
+  const map = new Map()
+  for (const row of rows ?? []) {
+    const key = `${row.entity_type}:${row.entity_key}:${row.entity_id ?? 'null'}`
+    const existing = map.get(key)
+    if (!existing || Number(row.id) < Number(existing.id)) {
+      map.set(key, row)
+    }
+  }
+  return [...map.values()]
+}
+
 export async function loadEducationByEntity(pool, entityType, entityKey, entityId = null) {
   const params = [entityType, entityKey ?? '']
   let sql = `SELECT * FROM coaching.education_content WHERE entity_type = $1 AND entity_key = $2`
@@ -9,7 +22,7 @@ export async function loadEducationByEntity(pool, entityType, entityKey, entityI
   } else {
     sql += ` AND entity_id IS NULL`
   }
-  sql += ` AND is_published = TRUE LIMIT 1`
+  sql += ` AND is_published = TRUE ORDER BY id LIMIT 1`
   const result = await pool.query(sql, params)
   return result.rows[0] ?? null
 }
@@ -17,16 +30,16 @@ export async function loadEducationByEntity(pool, entityType, entityKey, entityI
 export async function loadEducationMap(pool, entityType, keys = []) {
   if (keys.length === 0) {
     const result = await pool.query(
-      `SELECT * FROM coaching.education_content WHERE entity_type = $1 AND is_published = TRUE ORDER BY sort_order, id`,
+      `SELECT * FROM coaching.education_content WHERE entity_type = $1 AND is_published = TRUE ORDER BY entity_key, id`,
       [entityType],
     )
-    return result.rows
+    return dedupeEducationRows(result.rows)
   }
   const result = await pool.query(
-    `SELECT * FROM coaching.education_content WHERE entity_type = $1 AND entity_key = ANY($2::text[]) AND is_published = TRUE`,
+    `SELECT * FROM coaching.education_content WHERE entity_type = $1 AND entity_key = ANY($2::text[]) AND is_published = TRUE ORDER BY entity_key, id`,
     [entityType, keys],
   )
-  return result.rows
+  return dedupeEducationRows(result.rows)
 }
 
 export async function loadEducationForExercise(pool, exerciseId, slug = null) {

@@ -5,12 +5,20 @@ import { useTaxonomy } from './useTaxonomy'
 import type { EducationContent } from '../../coach/types'
 import { SESSION_PHASE_ORDER } from '../../coach/taxonomy'
 import { prepareAccessSubroleSequence } from '../../coach/taxonomy'
+import {
+  ORIGINAL_RAMP_PHASES,
+  POTENTIATE_BRIDGE_AUDIENCE,
+  RAMP_PHILOSOPHY_INTRO,
+  RAMP_VARIANTS_NOTE,
+  VORTEX_ORDER_RATIONALE,
+  VORTEX_SESSION_PROGRESSION,
+} from '../../coach/prepareAccessRampPhilosophy'
 
 export default function FrameworkPanel() {
   const { taxonomy } = useTaxonomy()
   const [education, setEducation] = useState<EducationContent[]>([])
   const [loading, setLoading] = useState(true)
-  const [openKey, setOpenKey] = useState<string | null>('session_phase:prepare_access')
+  const [openKey, setOpenKey] = useState<string | null>('ramp:philosophy')
 
   useEffect(() => {
     coachFetch<EducationContent[]>('/api/coach/education')
@@ -39,10 +47,20 @@ export default function FrameworkPanel() {
   const eduFor = (entityType: string, entityKey: string) =>
     (byType.get(entityType) ?? []).find((e) => e.entity_key === entityKey)
 
+  const dedupeEducation = (rows: EducationContent[]) => {
+    const map = new Map<string, EducationContent>()
+    for (const row of rows) {
+      const k = `${row.entity_type}:${row.entity_key}:${row.entity_id ?? 'null'}`
+      const existing = map.get(k)
+      if (!existing || Number(row.id) < Number(existing.id)) map.set(k, row)
+    }
+    return [...map.values()]
+  }
+
   const Section = ({ title, entityType, keys }: { title: string; entityType: string; keys?: string[] }) => {
     const rows = keys
       ? keys.map((k) => eduFor(entityType, k)).filter(Boolean) as EducationContent[]
-      : byType.get(entityType) ?? []
+      : dedupeEducation(byType.get(entityType) ?? [])
     if (rows.length === 0) return null
     return (
       <div className="space-y-2">
@@ -76,10 +94,73 @@ export default function FrameworkPanel() {
 
   const SubroleSection = () => {
     if (prepareSubroles.length === 0) return null
+    const rampOpen = openKey === 'ramp:philosophy'
     return (
-      <div className="space-y-2">
+      <div className="space-y-4">
         <h3 className="text-lg font-bold text-gray-900">Prepare / Access sequence</h3>
-        <p className="text-sm text-gray-500">RAMP-aligned subroles — the coach-facing sequence layer. Fine order slots map to each subrole in the exercise library.</p>
+
+        <div className="border border-violet-200 rounded-lg overflow-hidden bg-violet-50/40">
+          <button
+            type="button"
+            onClick={() => setOpenKey(rampOpen ? null : 'ramp:philosophy')}
+            className="w-full flex items-center justify-between px-4 py-3 text-left"
+          >
+            <span className="font-semibold text-gray-900">RAMP framework &amp; Vortex progression</span>
+            {rampOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+          </button>
+          {rampOpen && (
+            <div className="px-4 pb-4 text-sm text-gray-700 space-y-4 border-t border-violet-100">
+              <p>{RAMP_PHILOSOPHY_INTRO}</p>
+
+              <div>
+                <p className="font-semibold text-gray-900 mb-2">Original RAMP sequence (Jeffreys)</p>
+                <ol className="list-decimal list-inside space-y-2">
+                  {ORIGINAL_RAMP_PHASES.map((phase) => (
+                    <li key={phase.name}>
+                      <span className="font-medium">{phase.name}</span>
+                      {' — '}
+                      {phase.goal}
+                      <span className="block text-gray-600 ml-5 mt-0.5">Examples: {phase.examples}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <p>{RAMP_VARIANTS_NOTE}</p>
+              <p>{VORTEX_ORDER_RATIONALE}</p>
+              <p className="text-gray-600 italic">{POTENTIATE_BRIDGE_AUDIENCE}</p>
+
+              <div>
+                <p className="font-semibold text-gray-900 mb-2">Vortex session progression</p>
+                <p className="text-gray-600 mb-2">
+                  Prepare / Access uses five subroles, then the main session phases express performance intent:
+                </p>
+                <ol className="space-y-3">
+                  {VORTEX_SESSION_PROGRESSION.map((step, i) => (
+                    <li key={step.stage} className="flex gap-3">
+                      <span className="shrink-0 w-6 h-6 rounded-full bg-vortex-red text-white text-xs font-bold flex items-center justify-center">
+                        {i + 1}
+                      </span>
+                      <div>
+                        <span className="font-semibold text-gray-900">{step.stage}</span>
+                        <span className="text-gray-600"> — {step.goal}</span>
+                        <p className="text-gray-600 mt-0.5">Examples: {step.examples}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <p className="text-sm text-gray-500">
+          Coach-facing subroles follow{' '}
+          <span className="font-medium text-gray-700">Raise → Mobilize → Activate → Integrate → Potentiate Bridge</span>
+          {' '}— then{' '}
+          <span className="font-medium text-gray-700">Performance Work</span>
+          {' '}(Skill, Output, Capacity, and beyond). Fine order slots map to each subrole in the exercise library.
+        </p>
         {prepareSubroles.map((sr) => {
           const key = `phase_subrole:${sr.key}`
           const open = openKey === key

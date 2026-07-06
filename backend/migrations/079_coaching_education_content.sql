@@ -36,6 +36,11 @@ CREATE TABLE IF NOT EXISTS coaching.education_content (
 
 CREATE INDEX IF NOT EXISTS idx_coaching_education_entity ON coaching.education_content(entity_type, entity_key);
 
+-- Framework rows use entity_id NULL; PostgreSQL UNIQUE treats each NULL as distinct unless indexed separately.
+CREATE UNIQUE INDEX IF NOT EXISTS coaching_education_framework_uniq
+  ON coaching.education_content (entity_type, entity_key)
+  WHERE entity_id IS NULL;
+
 -- Session phase education (condensed from Athleticism Accelerator spec)
 INSERT INTO coaching.education_content (entity_type, entity_key, entity_id, title, short_summary, what_it_is, why_it_matters, why_it_goes_here, why_this_order, fatigue_logic, programming_guidance, common_misuse, daily_or_weekly_guidance) VALUES
   ('session_phase', 'prepare_access', NULL, 'Prepare / Access',
@@ -108,7 +113,7 @@ INSERT INTO coaching.education_content (entity_type, entity_key, entity_id, titl
    'Reduce intensity; do not add stress. Assign flexibility homework when appropriate.',
    'HIIT, new skill learning, max strength, or competitive burnout finishers in restore.',
    'Restore habits can happen every session.')
-ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
+ON CONFLICT (entity_type, entity_key) WHERE entity_id IS NULL DO UPDATE SET
   title = EXCLUDED.title,
   short_summary = EXCLUDED.short_summary,
   what_it_is = EXCLUDED.what_it_is,
@@ -131,7 +136,7 @@ INSERT INTO coaching.education_content (entity_type, entity_key, entity_id, titl
   ('tenet', 'balance', NULL, 'Balance', 'Low-level balance can prepare; hard balance belongs later if fatiguing.', 'Manage posture, base of support, and center of mass.'),
   ('tenet', 'coordination', NULL, 'Coordination', 'Train early or in low-fatigue contexts with rhythm and tumbling drills.', 'Organize multiple body parts with timing and precision.'),
   ('tenet', 'body_control', NULL, 'Body Control', 'Technical body control in Skill; fatiguing control in Control/Resilience.', 'Own shapes, positions, transitions, and spatial orientation.')
-ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
+ON CONFLICT (entity_type, entity_key) WHERE entity_id IS NULL DO UPDATE SET
   title = EXCLUDED.title,
   programming_guidance = EXCLUDED.programming_guidance,
   why_it_matters = EXCLUDED.why_it_matters,
@@ -148,7 +153,7 @@ INSERT INTO coaching.education_content (entity_type, entity_key, entity_id, titl
   ('methodology', 'mobility_flexibility', NULL, 'Mobility & Flexibility Drills', 'Joint range and usable mobility.', 'Primary: Prepare (dynamic), Restore (long static).', 'Long static stretching before power or speed.', 'Dynamic mobility prepares; long static belongs late.'),
   ('methodology', 'core_body_control', NULL, 'Core & Body Control Work', 'Trunk control, bracing, hollow/arch, anti-rotation.', 'Primary: Control, Skill. Secondary: Prepare (activation).', 'Core burnout before tumbling, sprinting, or jumping.', 'Technical control early; burnout late.'),
   ('methodology', 'hiit', NULL, 'HIIT', 'High-intensity intervals for conditioning and repeatability.', 'Primary: Fitness/Repeatability.', 'HIIT before skill, speed, plyometrics, or advanced tumbling.', 'Creates fatigue on purpose; almost always late.')
-ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
+ON CONFLICT (entity_type, entity_key) WHERE entity_id IS NULL DO UPDATE SET
   title = EXCLUDED.title,
   what_it_is = EXCLUDED.what_it_is,
   programming_guidance = EXCLUDED.programming_guidance,
@@ -164,7 +169,7 @@ INSERT INTO coaching.education_content (entity_type, entity_key, entity_id, titl
   ('physiology', 'control_stability', NULL, 'Control & Stability', 'Own positions and stabilize under load or speed.', 'Balance, core, isometrics, eccentrics, carries; low control early, fatiguing control later.'),
   ('physiology', 'perception_action_skill', NULL, 'Perception–Action Skill', 'Perceive, decide, and coordinate movement in response to environment.', 'Reaction drills, tumbling, rhythm while athlete can focus—usually Skill phase.'),
   ('physiology', 'energy_systems_repeatability', NULL, 'Energy Systems & Repeatability', 'Sustain effort and recover between bouts.', 'Hard conditioning late or in separate sessions; do not destroy speed/power quality.')
-ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
+ON CONFLICT (entity_type, entity_key) WHERE entity_id IS NULL DO UPDATE SET
   title = EXCLUDED.title,
   what_it_is = EXCLUDED.what_it_is,
   programming_guidance = EXCLUDED.programming_guidance,
@@ -176,7 +181,7 @@ INSERT INTO coaching.education_content (entity_type, entity_key, entity_id, titl
    'Access → Intelligence → Output → Capacity → Control → Repeatability → Restore',
    'Sensitive qualities (skill, speed, power) must be trained before fatigue accumulates. Strength tolerates more fatigue than speed. Conditioning creates fatigue on purpose and belongs late.',
    'Coaches should progress through phases in order unless the session objective intentionally prioritizes one quality (e.g. strength day reduces output minutes).')
-ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
+ON CONFLICT (entity_type, entity_key) WHERE entity_id IS NULL DO UPDATE SET
   title = EXCLUDED.title,
   short_summary = EXCLUDED.short_summary,
   why_this_order = EXCLUDED.why_this_order,

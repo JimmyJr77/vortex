@@ -17,6 +17,9 @@ import {
   analyzeSkillPerceptionReadiness,
   analyzeSprintPrepBeforeOutput,
   analyzeOutputReadiness,
+  analyzeOutputMaxVelocityReadiness,
+  analyzeOutputElasticReadiness,
+  analyzeOutputAccelerationReadiness,
 } from '../workoutValidation.js'
 
 describe('workoutValidation helpers', () => {
@@ -658,5 +661,206 @@ describe('analyzeOutputReadiness', () => {
       },
     )
     assert.ok(findings.some((f) => f.rule_key === 'output_roundoff_rebound_prerequisite' && f.severity === 'error'))
+  })
+})
+
+describe('analyzeOutputAccelerationReadiness', () => {
+  const slugByExercise = new Map([
+    ['1', 'falling-start-to-5-10-yard-sprint'],
+    ['2', 'three-point-start-acceleration'],
+    ['3', 'push-up-prone-start-sprint'],
+  ])
+  const dosageByExercise = new Map([
+    ['1', { default_rpe_max: 9, default_rest_seconds: 60, default_distance: 8 }],
+    ['2', { default_rpe_max: 9, default_rest_seconds: 75 }],
+    ['3', { default_rpe_max: 9, default_rest_seconds: 75 }],
+  ])
+
+  it('errors when acceleration Output follows Fitness', () => {
+    const blockMeta = [
+      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'output', block: {} },
+    ]
+    const findings = analyzeOutputAccelerationReadiness(
+      [{ exercise_id: 1, exercise_name: 'Falling Start Sprint' }],
+      { slugByExercise, dosageByExercise, blockMeta, outputBlockIndex: 1 },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_acceleration_after_fitness' && f.severity === 'error'))
+  })
+
+  it('warns on three-point start for beginner athletes', () => {
+    const exerciseSkillLevelById = new Map([['2', 'BEGINNER']])
+    const findings = analyzeOutputAccelerationReadiness(
+      [{ exercise_id: 2, exercise_name: 'Three-Point Start' }],
+      { slugByExercise, dosageByExercise, blockMeta: [], outputBlockIndex: 0, exerciseSkillLevelById },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_three_point_beginner'))
+  })
+
+  it('recommends prone start substitution with wrist symptoms', () => {
+    const findings = analyzeOutputAccelerationReadiness(
+      [{ exercise_id: 3, exercise_name: 'Prone Start' }],
+      {
+        slugByExercise,
+        dosageByExercise,
+        blockMeta: [],
+        outputBlockIndex: 0,
+        draft: { watch_points: ['wrist pain on push-up position'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_prone_start_substitution'))
+  })
+
+  it('warns on short rest for high-intent acceleration', () => {
+    const findings = analyzeOutputAccelerationReadiness(
+      [{ exercise_id: 1, exercise_name: 'Falling Start Sprint', rpe: 8, rest_seconds: 30 }],
+      { slugByExercise, dosageByExercise, blockMeta: [], outputBlockIndex: 0 },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_acceleration_short_rest'))
+  })
+})
+
+describe('analyzeOutputMaxVelocityReadiness', () => {
+  it('errors when max-velocity Output follows Fitness', () => {
+    const blockMeta = [
+      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'output', block: {} },
+    ]
+    const findings = analyzeOutputMaxVelocityReadiness(
+      [{ exercise_id: 1, exercise_name: 'Flying 10' }],
+      {
+        slugByExercise: new Map([['1', 'flying-10']]),
+        dosageByExercise: new Map(),
+        blockMeta,
+        outputBlockIndex: 1,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_max_velocity_after_fitness' && f.severity === 'error'))
+  })
+
+  it('warns when Flying 20 is scheduled without Flying 10', () => {
+    const findings = analyzeOutputMaxVelocityReadiness(
+      [{ exercise_id: 2, exercise_name: 'Flying 20' }],
+      {
+        slugByExercise: new Map([['2', 'flying-20']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'output', block: {} }],
+        outputBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_max_velocity_flying20_prerequisite'))
+  })
+
+  it('warns when fly sprint rest is under 2 minutes', () => {
+    const findings = analyzeOutputMaxVelocityReadiness(
+      [{ exercise_id: 3, exercise_name: 'Flying 10', rest_seconds: 90 }],
+      {
+        slugByExercise: new Map([['3', 'flying-10']]),
+        dosageByExercise: new Map([['3', { default_rest_seconds: 180 }]]),
+        blockMeta: [],
+        outputBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_max_velocity_short_rest'))
+  })
+
+  it('recommends Build-Up first for beginners on advanced max-velocity drills', () => {
+    const findings = analyzeOutputMaxVelocityReadiness(
+      [{ exercise_id: 4, exercise_name: 'Flying 10' }],
+      {
+        slugByExercise: new Map([['4', 'flying-10']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        outputBlockIndex: 0,
+        exerciseSkillLevelById: new Map([['4', 'BEGINNER']]),
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_max_velocity_beginner_advanced'))
+  })
+
+  it('warns when speed-change distance exceeds 80 yards', () => {
+    const findings = analyzeOutputMaxVelocityReadiness(
+      [{ exercise_id: 5, exercise_name: 'Sprint-Float-Sprint', distance: '30 yard sprint + 30 yard float + 30 yard sprint' }],
+      {
+        slugByExercise: new Map([['5', 'sprint-float-sprint']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        outputBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_max_velocity_speed_endurance'))
+  })
+})
+
+describe('analyzeOutputElasticReadiness', () => {
+  it('errors when elastic Output follows Fitness', () => {
+    const blockMeta = [
+      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'output', block: {} },
+    ]
+    const findings = analyzeOutputElasticReadiness(
+      [{ exercise_id: 1, exercise_name: 'Fast Low Pogos' }],
+      {
+        slugByExercise: new Map([['1', 'fast-low-pogos']]),
+        dosageByExercise: new Map([['1', { volume_unit: 'contacts', default_sets: 2, default_reps: 15 }]]),
+        blockMeta,
+        outputBlockIndex: 1,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_elastic_after_fitness' && f.severity === 'error'))
+  })
+
+  it('errors when Snap-Down to Rebound lacks Snap-Down to Stick', () => {
+    const findings = analyzeOutputElasticReadiness(
+      [{ exercise_id: 2, exercise_name: 'Snap-Down to Rebound' }],
+      {
+        slugByExercise: new Map([['2', 'snap-down-to-rebound']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'output', block: {} }],
+        outputBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_elastic_snap_rebound_prerequisite' && f.severity === 'error'))
+  })
+
+  it('warns when contact volume exceeds limit', () => {
+    const findings = analyzeOutputElasticReadiness(
+      [{ exercise_id: 3, exercise_name: 'Fast Low Pogos', sets: 5, reps: 20 }],
+      {
+        slugByExercise: new Map([['3', 'fast-low-pogos']]),
+        dosageByExercise: new Map([['3', { volume_unit: 'contacts', default_sets: 2, default_reps: 15 }]]),
+        blockMeta: [],
+        outputBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_elastic_contact_volume'))
+  })
+
+  it('warns on depth rebound for beginners', () => {
+    const findings = analyzeOutputElasticReadiness(
+      [{ exercise_id: 4, exercise_name: 'Depth Drop to Rebound' }],
+      {
+        slugByExercise: new Map([['4', 'depth-drop-to-rebound']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        outputBlockIndex: 0,
+        exerciseSkillLevelById: new Map([['4', 'BEGINNER']]),
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_elastic_depth_rebound_beginner'))
+  })
+
+  it('warns when single-leg pogo lacks prerequisites', () => {
+    const findings = analyzeOutputElasticReadiness(
+      [{ exercise_id: 5, exercise_name: 'Single-Leg Pogo Hold-to-Hop' }],
+      {
+        slugByExercise: new Map([['5', 'single-leg-pogo-hold-to-hop']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        outputBlockIndex: 0,
+        skillSlugsInWorkout: new Set(),
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_elastic_single_leg_prerequisite'))
   })
 })

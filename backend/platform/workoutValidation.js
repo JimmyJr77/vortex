@@ -1071,6 +1071,723 @@ const TUMBLING_OUTPUT_SLUGS = new Set([
 const ROUND_OFF_REBOUND_SLUG = 'round-off-rebound-snap-down-to-stick'
 const TUMBLING_SKILL_PREREQ_SLUGS = new Set(['cartwheel', 'cartwheel-step-over', 'round-off', 'handstand-kick-up-wall', 'wall-walk-handstand-line'])
 
+const MAX_VELOCITY_OUTPUT_SLUGS = new Set([
+  'build-up-sprint-stride-out', 'flying-10', 'flying-20', 'sprint-float-sprint',
+  'ins-and-outs', 'wicket-runs', 'mini-hurdle-sprint-rhythm', 'curved-sprint-arc-run',
+])
+const ADVANCED_MAX_VELOCITY_SLUGS = new Set([
+  'flying-10', 'flying-20', 'sprint-float-sprint', 'ins-and-outs', 'wicket-runs',
+])
+const FLYING_SPRINT_OUTPUT_SLUGS = new Set(['flying-10', 'flying-20'])
+const SPEED_CHANGE_OUTPUT_SLUGS = new Set(['sprint-float-sprint', 'ins-and-outs'])
+const WICKET_RHYTHM_OUTPUT_SLUGS = new Set(['wicket-runs', 'mini-hurdle-sprint-rhythm'])
+const BUILD_UP_SPRINT_SLUG = 'build-up-sprint-stride-out'
+const FLYING_10_SLUG = 'flying-10'
+const FLYING_20_SLUG = 'flying-20'
+const MAX_VELOCITY_SYMPTOM_PATTERN = /hamstring|calf|achilles|shin|hip\s*pain|low\s*back|lumbar/i
+const MAX_VELOCITY_FLOAT_CONFUSION_PATTERN = /cannot\s*(float|explain)|float\s*concept|doesn['']t\s*understand/i
+const MAX_VELOCITY_QUALITY_DROP_PATTERN = /speed\s*drop|posture\s*drop|rhythm\s*drop|quality\s*drop|speed\s*declin/i
+const MAX_VELOCITY_WICKET_CLIP_PATTERN = /clip(s|ping)?\s*(wicket|hurdle)|trips?\s*(wicket|hurdle)|clips?\s*more\s*than\s*twice/i
+const MAX_VELOCITY_CURVE_UNSAFE_PATTERN = /slip(ping)?|curve\s*too\s*tight|unsafe\s*surface|drift\s*wide|cannot\s*stay\s*on\s*arc/i
+const MAX_VELOCITY_CONSECUTIVE_PATTERN = /consecutive|back\s*to\s*back|yesterday|prior\s*day|hard\s*day\s*before/i
+const FLY_SPRINT_MIN_REST_SECONDS = 120
+
+function parseTotalDistanceYards(item, dosage) {
+  const raw = String(item.distance ?? item.default_distance ?? dosage?.default_distance ?? '')
+  const nums = [...raw.matchAll(/(\d+)/g)].map((m) => Number(m[1]))
+  if (nums.length === 0) return 0
+  if (raw.includes('+') || /sprint|float|zone/i.test(raw)) {
+    return nums.reduce((sum, n) => sum + n, 0)
+  }
+  if (raw.includes('-') && nums.length >= 2) return Math.max(...nums)
+  return Math.max(...nums)
+}
+
+/** Max-velocity Output cluster checks. Pure helper for tests. */
+function analyzeOutputMaxVelocityReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    blockMeta = [],
+    outputBlockIndex = 0,
+    exerciseSkillLevelById = new Map(),
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const ordered = []
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug || !MAX_VELOCITY_OUTPUT_SLUGS.has(slug)) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  if (ordered.length === 0) return findings
+
+  const slugsInBlock = new Set(ordered.map((o) => o.slug))
+  const slugsInWorkout = new Set(slugsInBlock)
+  for (const meta of blockMeta ?? []) {
+    if (meta.phaseKey !== OUTPUT) continue
+    for (const item of meta.block?.items ?? []) {
+      const slug = exerciseSlug(item, slugByExercise)
+      if (slug && MAX_VELOCITY_OUTPUT_SLUGS.has(slug)) slugsInWorkout.add(slug)
+    }
+  }
+
+  for (let j = 0; j < outputBlockIndex; j++) {
+    const priorKey = blockMeta[j]?.phaseKey
+    if (priorKey === 'fitness_repeatability') {
+      findings.push({
+        rule_key: 'output_max_velocity_after_fitness',
+        severity: 'error',
+        message: 'Max-velocity sprinting requires freshness — move before Fitness / Repeatability conditioning.',
+        affected_items: ordered.map((o) => o.name),
+        meta: { prior_phase: priorKey },
+      })
+    }
+    if (priorKey === 'capacity') {
+      findings.push({
+        rule_key: 'output_max_velocity_after_capacity',
+        severity: 'warning',
+        message:
+          'Hamstring, calf, Achilles, and sprint mechanics may be compromised after heavy lower-body Capacity or eccentric work.',
+        affected_items: ordered.map((o) => o.name),
+        meta: { prior_phase: priorKey },
+      })
+    }
+  }
+
+  const isBeginnerAthlete = ordered.some(({ exerciseId }) => {
+    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    return level === 'EARLY_STAGE' || level === 'BEGINNER'
+  })
+
+  if (
+    isBeginnerAthlete
+    && [...ADVANCED_MAX_VELOCITY_SLUGS].some((slug) => slugsInBlock.has(slug))
+    && !slugsInBlock.has(BUILD_UP_SPRINT_SLUG)
+  ) {
+    findings.push({
+      rule_key: 'output_max_velocity_beginner_advanced',
+      severity: 'recommendation',
+      message: 'Use Build-Up Sprint / Stride-Out first before Flying 10, Flying 20, speed-change, or wicket max-velocity work.',
+      affected_items: ordered.filter((o) => ADVANCED_MAX_VELOCITY_SLUGS.has(o.slug)).map((o) => o.name),
+      meta: { beginner: true },
+    })
+  }
+
+  if (slugsInBlock.has(FLYING_20_SLUG) && !slugsInWorkout.has(FLYING_10_SLUG)) {
+    findings.push({
+      rule_key: 'output_max_velocity_flying20_prerequisite',
+      severity: 'warning',
+      message: 'Flying 20 is a longer max-velocity exposure — use Flying 10 first or confirm prior competency.',
+      affected_items: ordered.filter((o) => o.slug === FLYING_20_SLUG).map((o) => o.name),
+      meta: { missing_prereq: FLYING_10_SLUG },
+    })
+  }
+
+  if (MAX_VELOCITY_SYMPTOM_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_max_velocity_tissue_warning',
+      severity: 'recommendation',
+      message:
+        'Hamstring, calf, Achilles, shin, hip, or low-back warning signs — substitute Build-Up at lower intensity, sprint mechanics drills, or skip max-velocity exposure today.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (MAX_VELOCITY_QUALITY_DROP_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_max_velocity_quality_stop',
+      severity: 'warning',
+      message: 'Speed, posture, or rhythm is dropping — end max-velocity exposure or increase rest before continuing.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (MAX_VELOCITY_CONSECUTIVE_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_max_velocity_consecutive_days',
+      severity: 'warning',
+      message:
+        'High-speed sprinting generally needs substantial recovery — consider spacing hard max-velocity exposures by 48–72+ hours.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
+
+    if (FLYING_SPRINT_OUTPUT_SLUGS.has(slug) && restSeconds > 0 && restSeconds < FLY_SPRINT_MIN_REST_SECONDS) {
+      findings.push({
+        rule_key: 'output_max_velocity_short_rest',
+        severity: 'warning',
+        message: `${name}: rest (${restSeconds}s) is likely too short for true max-velocity Output — increase rest or classify as Fitness / Repeatability.`,
+        affected_items: [name],
+        meta: { rest_seconds: restSeconds, slug },
+      })
+    }
+
+    if (SPEED_CHANGE_OUTPUT_SLUGS.has(slug)) {
+      const totalYards = parseTotalDistanceYards(item, dosage)
+      if (totalYards > 80) {
+        findings.push({
+          rule_key: 'output_max_velocity_speed_endurance',
+          severity: 'warning',
+          message: `${name}: ${totalYards} yards/meters total may shift toward speed endurance — confirm intent and recovery.`,
+          affected_items: [name],
+          meta: { total_yards: totalYards, slug },
+        })
+      }
+      if (MAX_VELOCITY_FLOAT_CONFUSION_PATTERN.test(watchText)) {
+        findings.push({
+          rule_key: 'output_max_velocity_float_confusion',
+          severity: 'recommendation',
+          message: `${name}: athlete cannot perform the float concept — use Build-Up Sprint or Flying 10 instead.`,
+          affected_items: [name],
+          meta: { slug, symptom_flags: true },
+        })
+      }
+    }
+
+    if (WICKET_RHYTHM_OUTPUT_SLUGS.has(slug)) {
+      findings.push({
+        rule_key: 'output_max_velocity_wicket_spacing',
+        severity: 'recommendation',
+        message: `${name}: confirm wicket/hurdle spacing matches athlete size and speed, athlete runs tall without jumping, and contacts stay clean.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+      if (MAX_VELOCITY_WICKET_CLIP_PATTERN.test(watchText)) {
+        findings.push({
+          rule_key: 'output_max_velocity_wicket_clips',
+          severity: 'warning',
+          message: `${name}: repeated wicket/hurdle clips — reduce speed, adjust spacing, or regress to lower markers.`,
+          affected_items: [name],
+          meta: { slug, symptom_flags: true },
+        })
+      }
+    }
+
+    if (slug === 'curved-sprint-arc-run') {
+      findings.push({
+        rule_key: 'output_max_velocity_curve_safety',
+        severity: 'recommendation',
+        message: `${name}: confirm safe surface, lane is clear, curve radius is not too tight, and a deceleration zone exists.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+      if (MAX_VELOCITY_CURVE_UNSAFE_PATTERN.test(watchText)) {
+        findings.push({
+          rule_key: 'output_max_velocity_curve_unsafe',
+          severity: 'warning',
+          message: `${name}: curve control or surface safety is compromised — widen radius, reduce speed, or stop curved sprinting.`,
+          affected_items: [name],
+          meta: { slug, symptom_flags: true },
+        })
+      }
+    }
+  }
+
+  return findings
+}
+
+const ELASTIC_OUTPUT_SLUGS = new Set([
+  'fast-low-pogos', 'forward-backward-pogos', 'lateral-line-hops', 'single-leg-pogo-hold-to-hop',
+  'snap-down-to-stick', 'snap-down-to-rebound', 'drop-landing-to-stick', 'depth-drop-to-rebound',
+  'hurdle-hop-series-low-hurdles',
+])
+const POGO_ELASTIC_SLUGS = new Set(['fast-low-pogos', 'forward-backward-pogos'])
+const BILATERAL_POGO_SLUGS = new Set(['fast-low-pogos', 'forward-backward-pogos'])
+const SNAP_DOWN_STICK_SLUG = 'snap-down-to-stick'
+const SNAP_DOWN_REBOUND_SLUG = 'snap-down-to-rebound'
+const DROP_LANDING_SLUG = 'drop-landing-to-stick'
+const DEPTH_REBOUND_SLUG = 'depth-drop-to-rebound'
+const SINGLE_LEG_POGO_SLUG = 'single-leg-pogo-hold-to-hop'
+const LATERAL_LINE_HOPS_SLUG = 'lateral-line-hops'
+const HURDLE_HOP_ELASTIC_SLUG = 'hurdle-hop-series-low-hurdles'
+const SINGLE_LEG_BALANCE_SKILL_SLUGS = new Set([
+  'single-leg-balance-clock', 'foot-tripod-weight-shifts', 'beam-walk', 'cross-crawl-march',
+])
+const ELASTIC_SYMPTOM_PATTERN = /achilles|calf|shin|heel|knee|hip|low\s*back|lumbar/i
+const ELASTIC_LOUD_SLOW_PATTERN = /loud|slow\s*contact|contacts?\s*(get|are|become)\s*(loud|slow)|rhythm\s*slow/i
+const ELASTIC_KNEE_VALGUS_PATTERN = /knee\s*collapse|valgus|knees?\s*cav(e|ing)/i
+const ELASTIC_HURDLE_CLIP_PATTERN = /clip(s|ping)?\s*hurdle|clips?\s*hurdles|clips?\s*repeatedly/i
+const ELASTIC_LANDING_FAIL_PATTERN = /landing\s*(fail|poor|quality\s*fail)|cannot\s*stick|landing\s*twice/i
+const ELASTIC_HIGH_BOX_PATTERN = /box\s*too\s*high|height\s*too\s*high|drop\s*too\s*high/i
+const ELASTIC_CONTACT_LIMIT_BEGINNER = 60
+const ELASTIC_CONTACT_LIMIT_DEFAULT = 80
+const ELASTIC_SHORT_REST_SECONDS = 30
+
+function countElasticVolume(item, dosage) {
+  const sets = Number(item.sets ?? dosage?.default_sets) || 1
+  const reps = Number(item.reps ?? item.contacts ?? dosage?.default_reps) || 1
+  return sets * reps
+}
+
+/** Elastic stiffness / plyometric rudiments cluster checks. Pure helper for tests. */
+function analyzeOutputElasticReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    blockMeta = [],
+    outputBlockIndex = 0,
+    exerciseSkillLevelById = new Map(),
+    skillSlugsInWorkout = new Set(),
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const ordered = []
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug || !ELASTIC_OUTPUT_SLUGS.has(slug)) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  if (ordered.length === 0) return findings
+
+  const slugsInBlock = new Set(ordered.map((o) => o.slug))
+  const slugsInWorkout = new Set(slugsInBlock)
+  for (const meta of blockMeta ?? []) {
+    if (meta.phaseKey !== OUTPUT) continue
+    for (const item of meta.block?.items ?? []) {
+      const slug = exerciseSlug(item, slugByExercise)
+      if (slug && ELASTIC_OUTPUT_SLUGS.has(slug)) slugsInWorkout.add(slug)
+    }
+  }
+
+  for (let j = 0; j < outputBlockIndex; j++) {
+    const priorKey = blockMeta[j]?.phaseKey
+    if (priorKey === 'fitness_repeatability') {
+      findings.push({
+        rule_key: 'output_elastic_after_fitness',
+        severity: 'error',
+        message: 'Elastic Output requires freshness — move before Fitness / Repeatability conditioning.',
+        affected_items: ordered.map((o) => o.name),
+        meta: { prior_phase: priorKey },
+      })
+    }
+    if (priorKey === 'capacity') {
+      findings.push({
+        rule_key: 'output_elastic_after_capacity',
+        severity: 'warning',
+        message:
+          'Lower-leg stiffness, landing quality, and tendon tolerance may be compromised after heavy lower-body Capacity or eccentric work.',
+        affected_items: ordered.map((o) => o.name),
+        meta: { prior_phase: priorKey },
+      })
+    }
+  }
+
+  let totalContacts = 0
+  let hasHighContactShortRest = false
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const volume = countElasticVolume(item, dosage)
+    const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
+    const unit = String(dosage?.volume_unit ?? item.volume_unit ?? '')
+
+    if (unit === 'contacts' || slug.includes('pogo') || slug.includes('hop')) {
+      totalContacts += volume
+    }
+
+    if ((unit === 'contacts' || POGO_ELASTIC_SLUGS.has(slug)) && restSeconds > 0 && restSeconds < ELASTIC_SHORT_REST_SECONDS && volume >= 10) {
+      hasHighContactShortRest = true
+    }
+
+    if (POGO_ELASTIC_SLUGS.has(slug) && ELASTIC_LOUD_SLOW_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'output_elastic_pogo_quality_stop',
+        severity: 'warning',
+        message: `${name}: contacts are loud or slow — end the set. Elastic quality has dropped.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === LATERAL_LINE_HOPS_SLUG && ELASTIC_KNEE_VALGUS_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'output_elastic_lateral_knee_valgus',
+        severity: 'recommendation',
+        message: `${name}: knee collapse on lateral hops — regress to lateral step, lunge shift, or mini-band lateral walk.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === SINGLE_LEG_POGO_SLUG) {
+      const hasBilateralPogo = [...BILATERAL_POGO_SLUGS].some((s) => slugsInWorkout.has(s))
+      const hasBalanceSkill = [...SINGLE_LEG_BALANCE_SKILL_SLUGS].some((s) => skillSlugsInWorkout.has(s))
+      if (!hasBilateralPogo || !hasBalanceSkill) {
+        findings.push({
+          rule_key: 'output_elastic_single_leg_prerequisite',
+          severity: 'warning',
+          message: `${name}: single-leg elastic work requires bilateral pogo competency and single-leg balance skill earlier in the session.`,
+          affected_items: [name],
+          meta: { missing_bilateral_pogo: !hasBilateralPogo, missing_balance_skill: !hasBalanceSkill, slug },
+        })
+      }
+    }
+
+    if (slug === SNAP_DOWN_REBOUND_SLUG && !slugsInWorkout.has(SNAP_DOWN_STICK_SLUG)) {
+      findings.push({
+        rule_key: 'output_elastic_snap_rebound_prerequisite',
+        severity: 'error',
+        message: `${name}: rebound requires Snap-Down to Stick landing-stick competency first.`,
+        affected_items: [name],
+        meta: { missing_prereq: SNAP_DOWN_STICK_SLUG, slug },
+      })
+    }
+
+    if (slug === DROP_LANDING_SLUG && ELASTIC_HIGH_BOX_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'output_elastic_drop_box_height',
+        severity: 'warning',
+        message: `${name}: lower the box — landing quality matters more than drop height.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === DEPTH_REBOUND_SLUG) {
+      const isBeginner = ordered.some(({ exerciseId: eid }) => {
+        const level = String(exerciseSkillLevelById.get(String(eid)) ?? '').toUpperCase()
+        return level === 'EARLY_STAGE' || level === 'BEGINNER'
+      })
+      if (isBeginner) {
+        findings.push({
+          rule_key: 'output_elastic_depth_rebound_beginner',
+          severity: 'warning',
+          message: `${name}: depth rebound is advanced — use snap-downs and drop landings first.`,
+          affected_items: [name],
+          meta: { beginner: true, slug },
+        })
+      }
+    }
+
+    if (slug === HURDLE_HOP_ELASTIC_SLUG && ELASTIC_HURDLE_CLIP_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'output_elastic_hurdle_clips',
+        severity: 'warning',
+        message: `${name}: repeated hurdle clips — lower hurdle height, reduce speed, or regress to line hops.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+  }
+
+  const contactLimit = ordered.some(({ exerciseId }) => {
+    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    return level === 'EARLY_STAGE' || level === 'BEGINNER'
+  })
+    ? ELASTIC_CONTACT_LIMIT_BEGINNER
+    : ELASTIC_CONTACT_LIMIT_DEFAULT
+
+  if (totalContacts > contactLimit) {
+    findings.push({
+      rule_key: 'output_elastic_contact_volume',
+      severity: 'warning',
+      message: `Elastic block contacts (~${totalContacts}) exceed recommended limit (~${contactLimit}) — reduce contacts or split across sessions.`,
+      affected_items: ordered.filter(({ slug }) => slug.includes('pogo') || slug.includes('hop')).map((o) => o.name),
+      meta: { total_contacts: totalContacts, contact_limit: contactLimit },
+    })
+  }
+
+  if (hasHighContactShortRest) {
+    findings.push({
+      rule_key: 'output_elastic_short_rest',
+      severity: 'warning',
+      message: 'High contact volume with short rest is drifting toward Fitness / Repeatability — increase rest or reduce contacts.',
+      affected_items: ordered.map((o) => o.name),
+      meta: {},
+    })
+  }
+
+  if (ELASTIC_SYMPTOM_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_elastic_tissue_warning',
+      severity: 'recommendation',
+      message:
+        'Achilles, calf, shin, knee, hip, or back warning signs — substitute marching/calf raises, lateral step, single-leg balance hold, snap-down stick only, low step-down, or low hurdle step-over.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (ELASTIC_LANDING_FAIL_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_elastic_landing_quality_stop',
+      severity: 'warning',
+      message: 'Landing quality has failed — end elastic Output for that drill and regress to landing mechanics.',
+      affected_items: ordered.filter(({ slug }) =>
+        slug === SNAP_DOWN_REBOUND_SLUG || slug === DROP_LANDING_SLUG || slug === DEPTH_REBOUND_SLUG || slug === HURDLE_HOP_ELASTIC_SLUG,
+      ).map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  return findings
+}
+
+const ACCELERATION_OUTPUT_SLUGS = new Set([
+  'falling-start-to-5-10-yard-sprint',
+  'two-point-start-to-5-10-yard-sprint',
+  'three-point-start-acceleration',
+  'half-kneeling-start-sprint',
+  'push-up-prone-start-sprint',
+  'lateral-start-to-sprint-breakout',
+  'backpedal-to-sprint-turn',
+  'partner-chase-acceleration',
+  'light-sled-sprint-band-resisted-acceleration',
+  'low-incline-hill-sprint-acceleration',
+])
+const THREE_POINT_START_SLUG = 'three-point-start-acceleration'
+const PRONE_START_SLUG = 'push-up-prone-start-sprint'
+const HALF_KNEELING_START_SLUG = 'half-kneeling-start-sprint'
+const PARTNER_CHASE_SLUG = 'partner-chase-acceleration'
+const RESISTED_ACCEL_SLUG = 'light-sled-sprint-band-resisted-acceleration'
+const HILL_ACCEL_SLUG = 'low-incline-hill-sprint-acceleration'
+const ACCEL_MIN_REST_SECONDS = 45
+const ACCEL_MAX_DISTANCE_YARDS = 15
+const WRIST_SHOULDER_SYMPTOM_PATTERN = /wrist|shoulder/i
+const LOW_BACK_SYMPTOM_PATTERN = /low\s*back|lumbar/i
+const PREGNANCY_FLAG_PATTERN = /pregnan|postpartum/i
+const KNEE_RESTRICTION_PATTERN = /knee\s*pain|kneeling|patell|knee\s*irrit/i
+const LARGE_GROUP_PATTERN = /large\s*group|big\s*group|\b(6|8|10|12)\+?\s*(athletes|kids|players)\b/i
+const HILL_SURFACE_PATTERN = /slip(ping)?|unsafe\s*(hill|surface|incline)|achilles|calf/i
+const RESISTED_GRIND_PATTERN = /grind(ing)?|posture\s*break|choppy|heavy\s*(sled|band|resist)/i
+
+/** Acceleration & Start Speed Output cluster checks. Pure helper for tests. */
+function analyzeOutputAccelerationReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    blockMeta = [],
+    outputBlockIndex = 0,
+    exerciseSkillLevelById = new Map(),
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const ordered = []
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug || !ACCELERATION_OUTPUT_SLUGS.has(slug)) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  if (ordered.length === 0) return findings
+
+  const slugsInBlock = new Set(ordered.map((o) => o.slug))
+  let hasDecelInOutput = false
+  for (const meta of blockMeta ?? []) {
+    if (meta.phaseKey !== OUTPUT) continue
+    for (const item of meta.block?.items ?? []) {
+      const slug = exerciseSlug(item, slugByExercise)
+      if (slug && DECEL_FOUNDATION_OUTPUT_SLUGS.has(slug)) hasDecelInOutput = true
+    }
+  }
+
+  for (let j = 0; j < outputBlockIndex; j++) {
+    const priorKey = blockMeta[j]?.phaseKey
+    if (priorKey === 'fitness_repeatability') {
+      findings.push({
+        rule_key: 'output_acceleration_after_fitness',
+        severity: 'error',
+        message: 'Acceleration Output requires freshness — move before Fitness / Repeatability conditioning.',
+        affected_items: ordered.map((o) => o.name),
+        meta: { prior_phase: priorKey },
+      })
+    }
+    if (priorKey === 'capacity') {
+      findings.push({
+        rule_key: 'output_acceleration_after_capacity',
+        severity: 'warning',
+        message:
+          'Lower-body fatigue may reduce sprint quality and increase risk — move acceleration Output earlier in the session.',
+        affected_items: ordered.map((o) => o.name),
+        meta: { prior_phase: priorKey },
+      })
+    }
+  }
+
+  if (!hasDecelInOutput) {
+    findings.push({
+      rule_key: 'output_acceleration_decel_prerequisite',
+      severity: 'recommendation',
+      message:
+        'High-intent acceleration is scheduled without a deceleration foundation drill — add Sprint-to-Stick or 5-Yard Accel-to-Decel Stick first if stopping control is uncertain.',
+      affected_items: ordered.map((o) => o.name),
+      meta: {},
+    })
+  }
+
+  if (MAX_VELOCITY_QUALITY_DROP_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_acceleration_quality_stop',
+      severity: 'warning',
+      message: 'Sprint quality is dropping — end Output acceleration reps or extend rest before continuing.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  const isBeginnerAthlete = ordered.some(({ exerciseId }) => {
+    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    return level === 'EARLY_STAGE' || level === 'BEGINNER'
+  })
+
+  if (isBeginnerAthlete && slugsInBlock.has(THREE_POINT_START_SLUG)) {
+    findings.push({
+      rule_key: 'output_three_point_beginner',
+      severity: 'warning',
+      message: 'Three-point starts are advanced — use falling start or two-point start first for beginner athletes.',
+      affected_items: ordered.filter((o) => o.slug === THREE_POINT_START_SLUG).map((o) => o.name),
+      meta: { skill_level: 'BEGINNER', slug: THREE_POINT_START_SLUG },
+    })
+  }
+
+  const hasUpperBodyRestriction =
+    WRIST_SHOULDER_SYMPTOM_PATTERN.test(watchText)
+    || LOW_BACK_SYMPTOM_PATTERN.test(watchText)
+    || PREGNANCY_FLAG_PATTERN.test(watchText)
+    || PELVIC_SYMPTOM_PATTERN.test(watchText)
+
+  if (slugsInBlock.has(PRONE_START_SLUG) && hasUpperBodyRestriction) {
+    findings.push({
+      rule_key: 'output_prone_start_substitution',
+      severity: 'recommendation',
+      message:
+        'Push-Up / Prone Start may be inappropriate with wrist, shoulder, low-back, or pregnancy/postpartum flags — use two-point start, falling start, or step-out start.',
+      affected_items: ordered.filter((o) => o.slug === PRONE_START_SLUG).map((o) => o.name),
+      meta: { symptom_flags: true, slug: PRONE_START_SLUG },
+    })
+  }
+
+  if (slugsInBlock.has(HALF_KNEELING_START_SLUG) && KNEE_RESTRICTION_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_half_kneeling_substitution',
+      severity: 'recommendation',
+      message:
+        'Half-Kneeling Start may be inappropriate with knee pain or kneeling restriction — use two-point start or falling start.',
+      affected_items: ordered.filter((o) => o.slug === HALF_KNEELING_START_SLUG).map((o) => o.name),
+      meta: { symptom_flags: true, slug: HALF_KNEELING_START_SLUG },
+    })
+  }
+
+  if (slugsInBlock.has(PARTNER_CHASE_SLUG)) {
+    findings.push({
+      rule_key: 'output_partner_chase_group',
+      severity: 'recommendation',
+      message:
+        'Partner Chase Acceleration requires clear lanes, no-contact rules, and pairing by speed, size, and maturity.',
+      affected_items: ordered.filter((o) => o.slug === PARTNER_CHASE_SLUG).map((o) => o.name),
+      meta: { slug: PARTNER_CHASE_SLUG },
+    })
+    if (LARGE_GROUP_PATTERN.test(watchText) || UNSAFE_TAG_CONTACT_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'output_partner_chase_unsafe',
+        severity: 'warning',
+        message:
+          'Large-group or unsafe-contact context reported — widen lanes, enforce no-contact, or substitute point-and-go acceleration.',
+        affected_items: ordered.filter((o) => o.slug === PARTNER_CHASE_SLUG).map((o) => o.name),
+        meta: { slug: PARTNER_CHASE_SLUG, symptom_flags: true },
+      })
+    }
+  }
+
+  if (slugsInBlock.has(RESISTED_ACCEL_SLUG)) {
+    findings.push({
+      rule_key: 'output_resisted_load_check',
+      severity: 'recommendation',
+      message:
+        'Resisted acceleration requires unloaded sprint competency — resistance must not destroy posture, cause grinding, or break sprint rhythm.',
+      affected_items: ordered.filter((o) => o.slug === RESISTED_ACCEL_SLUG).map((o) => o.name),
+      meta: { slug: RESISTED_ACCEL_SLUG },
+    })
+    if (RESISTED_GRIND_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'output_resisted_mechanics_break',
+        severity: 'warning',
+        message:
+          'Resisted sprint mechanics appear compromised — reduce load, shorten distance, or return to unresisted acceleration.',
+        affected_items: ordered.filter((o) => o.slug === RESISTED_ACCEL_SLUG).map((o) => o.name),
+        meta: { slug: RESISTED_ACCEL_SLUG, symptom_flags: true },
+      })
+    }
+  }
+
+  if (slugsInBlock.has(HILL_ACCEL_SLUG)) {
+    findings.push({
+      rule_key: 'output_hill_surface_check',
+      severity: 'recommendation',
+      message:
+        'Hill sprint requires a safe low incline, no slipping, clear run-out, and pain-free calves/Achilles.',
+      affected_items: ordered.filter((o) => o.slug === HILL_ACCEL_SLUG).map((o) => o.name),
+      meta: { slug: HILL_ACCEL_SLUG },
+    })
+    if (HILL_SURFACE_PATTERN.test(watchText) || LOWER_LEG_SYMPTOM_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'output_hill_surface_unsafe',
+        severity: 'warning',
+        message:
+          'Hill surface or lower-leg warning signs reported — check traction, reduce incline, or substitute flat acceleration.',
+        affected_items: ordered.filter((o) => o.slug === HILL_ACCEL_SLUG).map((o) => o.name),
+        meta: { slug: HILL_ACCEL_SLUG, symptom_flags: true },
+      })
+    }
+  }
+
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const rpe = itemRpe(item, dosage)
+    const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
+    const totalYards = parseTotalDistanceYards(item, dosage)
+
+    if (totalYards > ACCEL_MAX_DISTANCE_YARDS) {
+      findings.push({
+        rule_key: 'output_acceleration_distance',
+        severity: 'recommendation',
+        message: `${name}: ${totalYards} yards may shift from acceleration start work toward longer acceleration or max-velocity exposure.`,
+        affected_items: [name],
+        meta: { total_yards: totalYards, slug },
+      })
+    }
+
+    if (rpe >= 7 && restSeconds > 0 && restSeconds < ACCEL_MIN_REST_SECONDS) {
+      findings.push({
+        rule_key: 'output_acceleration_short_rest',
+        severity: 'warning',
+        message: `${name}: rest (${restSeconds}s) may be too short for Output acceleration — increase rest or classify as Fitness / Repeatability.`,
+        affected_items: [name],
+        meta: { rest_seconds: restSeconds, rpe, slug },
+      })
+    }
+  }
+
+  return findings
+}
+
 /** Output phase dose, placement, and prerequisite checks. Pure helper for tests. */
 function analyzeOutputReadiness(items, ctx) {
   const {
@@ -2037,19 +2754,83 @@ export async function validateWorkoutDraft(pool, draft) {
       exerciseSkillLevelById,
       phaseKey: OUTPUT,
     })
-    if (outputFindings.length > 0) {
+    const maxVelocityFindings = analyzeOutputMaxVelocityReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      outputBlockIndex: i,
+      exerciseSkillLevelById,
+      draft,
+    })
+    const accelerationFindings = analyzeOutputAccelerationReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      outputBlockIndex: i,
+      exerciseSkillLevelById,
+      draft,
+    })
+    const elasticFindings = analyzeOutputElasticReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      outputBlockIndex: i,
+      exerciseSkillLevelById,
+      skillSlugsInWorkout,
+      draft,
+    })
+    const allOutputFindings = [...outputFindings, ...maxVelocityFindings, ...accelerationFindings, ...elasticFindings]
+    if (allOutputFindings.length > 0) {
       const outputEdu = await pool.query(
         `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'output_readiness' LIMIT 1`,
       )
-      for (const finding of outputFindings) {
+      const maxVelocityEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'output_max_velocity_readiness' LIMIT 1`,
+      )
+      const accelerationEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'output_acceleration_readiness' LIMIT 1`,
+      )
+      const elasticEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'output_elastic_readiness' LIMIT 1`,
+      )
+      for (const finding of allOutputFindings) {
+        const ruleKey = String(finding.rule_key ?? '')
+        const isMaxVelocityRule = ruleKey.startsWith('output_max_velocity_')
+        const isElasticRule = ruleKey.startsWith('output_elastic_')
+        const isAccelerationRule = ruleKey.startsWith('output_acceleration_')
+          || ruleKey.startsWith('output_three_point_')
+          || ruleKey.startsWith('output_prone_start_')
+          || ruleKey.startsWith('output_half_kneeling_')
+          || ruleKey.startsWith('output_partner_chase_')
+          || ruleKey.startsWith('output_resisted_')
+          || ruleKey.startsWith('output_hill_')
+        const edu = isMaxVelocityRule
+          ? maxVelocityEdu.rows[0]
+          : isElasticRule
+            ? elasticEdu.rows[0]
+            : isAccelerationRule
+              ? accelerationEdu.rows[0]
+              : outputEdu.rows[0]
         const payload = {
           severity: finding.severity ?? 'warning',
           rule_key: finding.rule_key,
           message: finding.message,
-          why: outputEdu.rows[0]?.why_it_matters
-            ?? 'Output expresses speed and power while fresh — not after conditioning or high-volume strength.',
-          recommendation: outputEdu.rows[0]?.programming_guidance
-            ?? 'Use low reps, full rest, and stop when quality drops. Place Output after Prepare and Skill, before Capacity and Fitness.',
+          why: edu?.why_it_matters
+            ?? (isMaxVelocityRule
+              ? 'Max-velocity sprinting is high neural and tissue stress — quality, freshness, and full rest are non-negotiable.'
+              : isElasticRule
+                ? 'Elastic Output should make the athlete springier, not tired — crisp contacts and clean landings require freshness.'
+                : isAccelerationRule
+                  ? 'Acceleration Output expresses speed while fresh — not after conditioning or with short rest.'
+                  : 'Output expresses speed and power while fresh — not after conditioning or high-volume strength.'),
+          recommendation: edu?.programming_guidance
+            ?? (isMaxVelocityRule
+              ? 'Use Build-Up first for beginners, Flying 10 before Flying 20, 2+ minute rest on fly sprints, and stop when speed drops.'
+              : isElasticRule
+                ? 'Use bilateral pogos before single-leg work, Snap-Down to Stick before rebound, cap contacts, and stop when contacts get loud.'
+                : isAccelerationRule
+                  ? 'Keep distance short, reps low, rest generous, and stop when speed or first-step quality drops.'
+                  : 'Use low reps, full rest, and stop when quality drops. Place Output after Prepare and Skill, before Capacity and Fitness.'),
           affected_items: finding.affected_items ?? [],
           related_phase: OUTPUT,
           can_override: finding.severity !== 'error',
@@ -2164,4 +2945,7 @@ export {
   analyzeSkillPerceptionReadiness,
   analyzeSprintPrepBeforeOutput,
   analyzeOutputReadiness,
+  analyzeOutputMaxVelocityReadiness,
+  analyzeOutputElasticReadiness,
+  analyzeOutputAccelerationReadiness,
 }

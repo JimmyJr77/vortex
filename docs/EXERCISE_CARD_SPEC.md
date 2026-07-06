@@ -35,7 +35,36 @@ Each exercise card is assembled from `coaching.exercise` plus related profile ta
 - **Order slot:** Fine-grained key from `coaching.phase_order_slot` (e.g. `breathing_reset`, `hip_rotation`)
 - **Dual subroles** (e.g. “Mobilize / Activate”): Store the **primary** subrole on `phase_subrole` (first listed / dominant intent). Record secondary intent in `coach_language` or card summary.
 
-### Best placement
+### RAMP framework & Vortex Prepare / Access sequence
+
+**RAMP** (Ian Jeffreys) is a widely accepted strength-and-conditioning warm-up model used in collegiate athletics, professional sports, military performance, and elite programs. The **original** acronym and order:
+
+| Step | Goal | Examples |
+|------|------|----------|
+| **Raise** | Increase heart rate, temperature, blood flow, respiration, nervous system activity | Light jog, jump rope, bike, skipping, carioca, marches |
+| **Activate** | Wake up muscles that need to contribute (often inhibited stabilizers) | Glute bridge, mini-band walks, dead bug, bird dog, scapular push-up, plank |
+| **Mobilize** | Usable range through required joints — **dynamic** mobility, not long static stretching | World's Greatest Stretch, leg swings, hip openers, T-spine rotation, squat pry |
+| **Potentiate** | Ramp nervous system toward explosive / sport-specific work | Accelerations, jumps, med ball throws, bounds, short sprints, Oly derivatives |
+
+In Jeffreys' model, **Activate comes before Mobilize**. Many modern coaches expand the framework because activation and mobility often overlap. Common adaptations include **Integrate** (“can the body use the mobility and activation you just created?” — crawls, balance reaches, skip progressions, sprint patterning) and reorderings such as Raise → Mobilize → Activate → Integrate → Potentiate, or Raise → Release → Activate → Mobilize → Potentiate.
+
+**Vortex deliberately uses:**
+
+Raise → Mobilize → Activate → Integrate → **Potentiate Bridge** → **Performance Work**
+
+| Stage | Role |
+|-------|------|
+| Raise | Elevate heart rate and body temperature |
+| Mobilize | Dynamic access through ankles, hips, T-spine, shoulders, wrists |
+| Activate | Prime glutes, core, scapular stabilizers, feet, posterior chain |
+| Integrate | Locomotion, coordination, balance, sprint mechanics — whole-body patterning |
+| Potentiate Bridge | Low-stress elastic / reactive ramp (pogos, snap-down prep, bounds, build-ups) before maximal output |
+| **Performance Work** | Main session intent: **Skill / Movement Intelligence**, **Output**, Capacity, Control / Resilience, Fitness / Repeatability — then Restore |
+
+Mobilize before Activate fits Vortex's blend of athletic development, tumbling, and Ninja-style movement: open usable ranges before asking stabilizers to fire in integrated positions. **Potentiate Bridge** closes the gap between warm-up and max effort — especially valuable for Ninja, sprinting, gymnastics, football, tactical athletes, parkour, and high-performance youth.
+
+Coach UI copy lives in [prepareAccessRampPhilosophy.ts](../src/coach/prepareAccessRampPhilosophy.ts); Philosophy tab renders it in [FrameworkPanel.tsx](../src/components/coach/FrameworkPanel.tsx). Workout validation enforces subrole order within Prepare / Access blocks (`prepare_subrole_sequence`).
+
 
 There is no dedicated `best_placement` column. Store session placement guidance in:
 
@@ -688,4 +717,16 @@ Migration 110 resequences perception slots to band **280–285** (after balance 
 
 **Validation rule:** `output_readiness` — implemented in `analyzeOutputReadiness` ([workoutValidation.js](../backend/platform/workoutValidation.js)). Key rules: `output_after_fitness` (error), `output_after_capacity`, `output_high_rpe_short_rest`, `output_plyo_contact_volume`, `output_advanced_plyo_prerequisite`, `output_tumbling_missing_skill_prereq`, `output_roundoff_rebound_prerequisite`, `output_cod_missing_decel_prerequisite`.
 
-**Seed library:** [112](../backend/migrations/112_coaching_output_seed.sql) — 50 thin card v2 rows; rich content passes can follow the Skill cluster pattern (cards 1–10 acceleration first).
+**Seed library:** [112](../backend/migrations/112_coaching_output_seed.sql) — 50 published Output exercises. Generator: [scripts/generate-111-output-seed.mjs](../scripts/generate-111-output-seed.mjs).
+
+### 10.1 Acceleration & Start Speed (cards 1–10)
+
+Rich pass in [113](../backend/migrations/113_coaching_output_acceleration_cards.sql) — Falling Start through Low-Incline Hill Sprint (`acceleration_start_speed`, slots 311–316). Equipment taxonomy: `incline_surface`, `harness`. Validation education: `output_acceleration_readiness`; validator `analyzeOutputAccelerationReadiness`. Key rules: `output_acceleration_after_fitness`, `output_acceleration_after_capacity`, `output_acceleration_distance`, `output_acceleration_short_rest`, `output_three_point_beginner`, `output_prone_start_substitution`, `output_half_kneeling_substitution`, `output_partner_chase_group`, `output_resisted_load_check`, `output_hill_surface_check`, `output_acceleration_decel_prerequisite`, `output_acceleration_quality_stop`. Generator: [scripts/generate-113-output-acceleration-cards.mjs](../scripts/generate-113-output-acceleration-cards.mjs). Data: [scripts/data/output-acceleration-cards-1-10.mjs](../scripts/data/output-acceleration-cards-1-10.mjs).
+
+### 10.2 Max-Velocity Exposure (cards 11–18)
+
+Rich pass in [114](../backend/migrations/114_coaching_output_max_velocity_cards.sql) — Build-Up Sprint through Curved Sprint / Arc Run (`max_velocity_exposure`, slots 321–325). Equipment taxonomy: `wickets`, `timing_gates`. Validation education: `output_max_velocity_readiness`; validator `analyzeOutputMaxVelocityReadiness`. Generator: [scripts/generate-114-output-max-velocity-cards.mjs](../scripts/generate-114-output-max-velocity-cards.mjs). Data: [scripts/data/output-max-velocity-cards-11-18.mjs](../scripts/data/output-max-velocity-cards-11-18.mjs).
+
+### 10.3 Elastic Stiffness / Plyometric Rudiments (cards 19–27)
+
+Rich pass in [115](../backend/migrations/115_coaching_output_elastic_cards.sql) — Fast Low Pogos through Hurdle Hop Series (`elastic_stiffness_plyometric_rudiments`, slots 331–337: `elastic_ankle`, `lateral_elastic`, `single_leg_elastic`, `landing_to_output`, `drop_landing`, `drop_rebound`, `repeated_elastic_hop`). Equipment taxonomy: `line_tape`, `low_hurdles`, `box`. Validation education: `output_elastic_readiness`; validator `analyzeOutputElasticReadiness`. Key rules: `output_elastic_after_fitness`, `output_elastic_after_capacity`, `output_elastic_contact_volume`, `output_elastic_pogo_quality_stop`, `output_elastic_lateral_knee_valgus`, `output_elastic_single_leg_prerequisite`, `output_elastic_snap_rebound_prerequisite`, `output_elastic_drop_box_height`, `output_elastic_depth_rebound_beginner`, `output_elastic_hurdle_clips`, `output_elastic_short_rest`, `output_elastic_landing_quality_stop`. Generator: [scripts/generate-115-output-elastic-cards.mjs](../scripts/generate-115-output-elastic-cards.mjs). Data: [scripts/data/output-elastic-cards-19-27.mjs](../scripts/data/output-elastic-cards-19-27.mjs).

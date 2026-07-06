@@ -74,7 +74,7 @@ import {
   messageThreadFavoriteSelectSql,
   messageThreadInboxHideFilterSql,
 } from './messageThreads.js'
-import { loadEducationMap, loadEducationForExercise, educationToWhyResponse } from './educationContent.js'
+import { loadEducationMap, loadEducationForExercise, educationToWhyResponse, dedupeEducationRows } from './educationContent.js'
 import {
   loadExerciseProgrammingBundle,
   attachProgrammingToExercise,
@@ -296,9 +296,9 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         return ok(res, rows.map((r) => ({ ...r, why: educationToWhyResponse(r) })))
       }
       const rows = await pool.query(
-        `SELECT * FROM coaching.education_content WHERE is_published = TRUE ORDER BY entity_type, sort_order, id LIMIT 500`,
+        `SELECT * FROM coaching.education_content WHERE is_published = TRUE ORDER BY entity_type, entity_key, id LIMIT 500`,
       )
-      ok(res, rows.rows.map((r) => ({ ...r, why: educationToWhyResponse(r) })))
+      ok(res, dedupeEducationRows(rows.rows).map((r) => ({ ...r, why: educationToWhyResponse(r) })))
     } catch (error) {
       bad(res, error.message, 500)
     }
