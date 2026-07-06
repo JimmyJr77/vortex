@@ -1092,10 +1092,12 @@ export default function MemberDashboard({
         setMemberNavLayout(
           Array.isArray(json.data?.navLayout) && json.data.navLayout.length > 0
             ? json.data.navLayout
-            : (Array.isArray(json.data?.tabOrder) ? json.data.tabOrder : NAV.map((item) => item.tab)).map((key) => ({
-                type: 'tab',
-                key,
-              })),
+            : (Array.isArray(json.data?.tabOrder) ? (json.data.tabOrder as MemberTab[]) : NAV.map((item) => item.tab)).map(
+                (key: MemberTab) => ({
+                  type: 'tab' as const,
+                  key,
+                }),
+              ),
         )
       } catch {
         if (!cancelled) setHiddenMemberTabs([])
