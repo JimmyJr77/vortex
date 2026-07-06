@@ -105,7 +105,7 @@ function ProseBlock({ title, children }: { title?: string; children: ReactNode }
   )
 }
 
-function TextList({ items }: { items: string[] }) {
+function TextList({ items }: { items: readonly string[] }) {
   return (
     <ul className="space-y-1.5 text-gray-600">
       {items.map((item) => (
