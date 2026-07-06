@@ -45,7 +45,7 @@ const pool = new Pool({
 | Schema | Contents |
 |--------|----------|
 | `public` (default) | Identity/RBAC, members/families, programs/classes, scheduling, billing, waivers, analytics, schools, notes, events, highlights, inquiries |
-| `coaching` | Coach portal: taxonomy, exercise library, workouts, training programs, challenges, assessments, assignments, sessions, periodization/load |
+| `coaching` | Coach portal: taxonomy, exercise library, **skill library** (`093`), workouts, training programs, challenges, assessments, assignments, sessions, periodization/load |
 
 - `coaching` is created in `011_coaching_schema_taxonomy_permissions.sql` (`CREATE SCHEMA IF NOT EXISTS coaching;`).
 - **`search_path` is never overridden.** `public` tables are referenced unqualified; **coaching objects are always qualified `coaching.*`**. Cross-schema references use explicit qualifiers (e.g. `REFERENCES public.facility(id)`, `public.skill_level`).
@@ -488,11 +488,13 @@ adjust §4 relationship diagrams (e.g. remove `class_iteration` from the ER char
 
 | Object | Status | Replacement | Notes |
 |--------|--------|-------------|-------|
-| `coaching.exercise_intent` + `exercise_tag.facet_type = 'intent'` | Active (legacy) | `coaching.session_phase` + `coaching.exercise_phase_profile` | UI label remains "Phase/Intent" for backward compatibility; Needs Engine and library still accept intent tags. Canonical session order uses seven `session_phase` keys (migration `078`). Pre-drop: verify all published exercises have ≥1 `exercise_phase_profile` and no UI filters depend solely on intent. |
-| Block labels without `workout_block.phase_id` | Active (legacy) | Phase-linked blocks (`078`/`082`) | Legacy workouts infer phase on first edit or show migration banner in builder. Pre-drop: `SELECT COUNT(*) FROM coaching.workout_block WHERE phase_id IS NULL AND workout_id IN (SELECT id FROM coaching.workout WHERE archived = FALSE);` |
+| `coaching.exercise_intent` + `exercise_tag.facet_type = 'intent'` | Active (legacy) | `coaching.session_phase` + `coaching.exercise_phase_profile` | Coach portal UI no longer surfaces Phase/Intent (taxonomy returns empty `intents`; tags/autotag/prescription use session phases only). DB rows remain for historical tags. Pre-drop: verify zero `exercise_tag` rows with `facet_type = 'intent'` on published exercises. |
+| `GET /api/coach/skill-tree` (exercise nodes) | Active (legacy) | `coaching.skill` + `skill_prerequisite` ([093](../backend/migrations/093_coaching_skill_library.sql)) | Skill tree UI still loads `coaching.exercise` nodes; canonical skill progression lives in Skill Library. Pre-drop: repoint skill-tree to `coaching.skill` and optionally link `athlete_skill_progress.skill_id`. |
 | Inline `runPrescription()` tag-only scoring | Removed | `phaseAwarePrescription.js` | Replaced by phase-aware scoring + education rationales in `/api/coach/needs-engine/prescribe`. |
 
 **Why Layer tables (migrations `078`–`086`, registered in [initTables.js](../backend/platform/initTables.js)):** `session_phase`, `phase_order_slot`, `education_content`, `exercise_phase_profile`, `exercise_dosage_profile`, `exercise_scaling_profile`, `exercise_safety_profile`, `exercise_regimen_rule`, `validation_rule`, `training_block_template` (+ session/rule), `regimen_template` (+ phase distribution/session/progression), workout metadata columns on `workout` / `workout_block`.
+
+**Skill library ([093](../backend/migrations/093_coaching_skill_library.sql)):** `coaching.skill` (discrete skills, timed holds, combo metadata), `coaching.skill_component` (ordered combo parts), `coaching.skill_prerequisite` (progression graph). Coach portal Library tab **Skill Library** via `GET/POST/PUT/DELETE /api/coach/skills`.
 
 ### 10.7 Agent recording protocol (mandatory)
 

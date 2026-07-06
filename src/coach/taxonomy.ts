@@ -17,6 +17,7 @@ export type FacetType =
   | 'pattern'
   | 'equipment'
   | 'sport'
+  /** @deprecated Legacy exercise_tag facet; use exercise_phase_profile instead */
   | 'intent'
   | 'body_region'
 
@@ -59,6 +60,7 @@ export interface Taxonomy {
   patterns: TaxonomyItem[]
   equipment: TaxonomyItem[]
   sports: TaxonomyItem[]
+  /** @deprecated Empty; session placement uses sessionPhases + exercise_phase_profile */
   intents: TaxonomyItem[]
   bodyRegions: TaxonomyItem[]
   sessionPhases?: SessionPhaseTaxonomyItem[]
@@ -151,6 +153,6 @@ export const FACET_LABELS: Record<FacetType, string> = {
   pattern: 'Movement Pattern',
   equipment: 'Equipment',
   sport: 'Sport',
-  intent: 'Phase/Intent',
+  intent: 'Legacy intent',
   body_region: 'Body Region',
 }

@@ -5,7 +5,7 @@ import { useTaxonomy } from './useTaxonomy'
 import { useCoachBuilderStore, blockSeconds, workoutSeconds } from '../../coach/useCoachBuilderStore'
 import WorkoutSetupWizard from './WorkoutSetupWizard'
 import { validationStatusLabel, allValidationIssues } from '../../coach/validationMessages'
-import { phaseFitBadge } from '../../coach/exerciseCard'
+import { exerciseDosageLabel, exerciseFitnessGoal, exerciseTenetLabels, phaseFitBadge } from '../../coach/exerciseCard'
 import type { BlockFormat, Exercise, ValidationResult, Workout, WorkoutType } from '../../coach/types'
 
 function fmt(seconds: number) {
@@ -322,7 +322,7 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
                     <p><span className="font-semibold">Programming:</span> {phaseEducation.get(block.phase_key)?.programming_guidance}</p>
                   )}
                   {!phaseEducation.get(block.phase_key) && (
-                    <p>{workout.coach_rationale_json?.order_why ?? `Exercises in ${phaseName.get(block.phase_key) ?? block.phase_key} should match freshness and intent for this slot in the session.`}</p>
+                    <p>{workout.coach_rationale_json?.order_why ?? `Exercises in ${phaseName.get(block.phase_key) ?? block.phase_key} should match freshness and phase fit for this slot in the session.`}</p>
                   )}
                 </div>
               )}
@@ -572,6 +572,14 @@ function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | nul
   const [results, setResults] = useState<Exercise[]>([])
   const [loading, setLoading] = useState(false)
   const [mode, setMode] = useState<'ideal' | 'all'>('ideal')
+  const { taxonomy } = useTaxonomy()
+  const tenetName = useMemo(() => {
+    const map = new Map<number, string>()
+    taxonomy?.tenets.forEach((t) => {
+      if (t.id != null) map.set(Number(t.id), t.name)
+    })
+    return map
+  }, [taxonomy])
 
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -614,6 +622,7 @@ function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | nul
           {loading && <div className="flex items-center gap-2 text-gray-500 text-sm p-3"><Loader2 className="w-4 h-4 animate-spin" /> Searching...</div>}
           {results.map((ex) => {
             const fit = phaseKey ? phaseFitBadge(ex, phaseKey) : null
+            const tenets = exerciseTenetLabels(ex, tenetName)
             return (
               <button key={ex.id} type="button" onClick={() => onPick(ex)} className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50">
                 <div className="flex items-center justify-between gap-2">
@@ -624,10 +633,11 @@ function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | nul
                     </span>
                   )}
                 </div>
-                <div className="text-xs text-gray-500">{ex.sport_name ?? 'Universal'} · {ex.est_seconds_per_set}s/set</div>
-                {ex.why?.phase_rationale && fit && fit !== 'strong' && (
-                  <div className="text-[11px] text-gray-500 mt-1 line-clamp-2">{ex.why.phase_rationale}</div>
-                )}
+                <div className="text-xs text-gray-700 mt-1 line-clamp-2">{exerciseFitnessGoal(ex, tenetName)}</div>
+                <div className="text-[11px] text-gray-500 mt-1">
+                  {ex.sport_name ?? 'Universal'} · {exerciseDosageLabel(ex)}
+                  {tenets.length > 0 ? ` · ${tenets.slice(0, 2).join(', ')}` : ''}
+                </div>
               </button>
             )
           })}

@@ -112,6 +112,41 @@ export interface ExerciseProgrammingLogic {
   recommended_followed_by?: string[]
 }
 
+export interface SkillComponentRow {
+  component_skill_id: number
+  name?: string
+  sort_order?: number
+}
+
+export interface SkillPrerequisiteRow {
+  prerequisite_skill_id: number
+  name?: string
+  note?: string | null
+}
+
+export type SkillKind = 'skill' | 'combo' | 'hold'
+
+export interface Skill {
+  id: number
+  name: string
+  slug?: string
+  description?: string | null
+  instructions?: string | null
+  sport_id?: number | null
+  sport_name?: string | null
+  skill_level?: string | null
+  age_min?: number | null
+  age_max?: number | null
+  skill_kind: SkillKind
+  min_hold_seconds?: number | null
+  default_hold_seconds?: number | null
+  assistance_note?: string | null
+  is_published?: boolean
+  visibility?: 'facility' | 'private'
+  components?: SkillComponentRow[]
+  prerequisites?: SkillPrerequisiteRow[]
+}
+
 export interface Exercise {
   id: number
   name: string
@@ -312,7 +347,6 @@ export interface PrescribedBlock {
   label: string
   phase_key?: string | null
   phase_id?: number | null
-  intentId?: number | null
   target_minutes: number
   estimated_minutes: number
   items: Array<{

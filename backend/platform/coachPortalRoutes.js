@@ -171,7 +171,7 @@ function canMutateRow(row, userId) {
   return row.visibility !== 'private' || Number(row.created_by) === Number(userId)
 }
 
-const FACET_TYPES = ['tenet', 'methodology', 'physiology', 'pattern', 'equipment', 'sport', 'intent', 'body_region']
+const FACET_TYPES = ['tenet', 'methodology', 'physiology', 'pattern', 'equipment', 'sport', 'body_region']
 
 // Estimate seconds for a single workout item.
 function itemSeconds(item, exerciseEst) {
@@ -205,14 +205,13 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   // ==========================================================
   app.get('/api/coach/taxonomy', ...can('library.view'), async (_req, res) => {
     try {
-      const [tenets, methodologies, physiology, patterns, equipment, sports, intents, bodyRegions] = await Promise.all([
+      const [tenets, methodologies, physiology, patterns, equipment, sports, bodyRegions] = await Promise.all([
         pool.query(`SELECT id, key, name, description, detail, sort_order FROM coaching.tenet ORDER BY sort_order`),
         pool.query(`SELECT id, key, name, description, sort_order FROM coaching.methodology ORDER BY sort_order`),
         pool.query(`SELECT id, key, name, systems, purpose, outcomes, is_optional, sort_order FROM coaching.physiological_emphasis ORDER BY sort_order`),
         pool.query(`SELECT id, key, name, sort_order FROM coaching.movement_pattern ORDER BY sort_order`),
         pool.query(`SELECT id, key, name, sort_order FROM coaching.equipment ORDER BY sort_order`),
         pool.query(`SELECT id, key, name, sort_order FROM coaching.sport ORDER BY sort_order`),
-        pool.query(`SELECT id, key, name, sort_order FROM coaching.exercise_intent ORDER BY sort_order`),
         pool.query(`SELECT id, key, name, sort_order FROM coaching.body_region ORDER BY sort_order`),
       ])
 
@@ -234,7 +233,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         patterns: patterns.rows,
         equipment: equipment.rows,
         sports: sports.rows,
-        intents: intents.rows,
+        intents: [],
         bodyRegions: bodyRegions.rows,
         sessionPhases: sessionPhases.rows,
         phaseOrderSlots: phaseOrderSlots.rows,
@@ -387,14 +386,13 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         where.push(`EXISTS (SELECT 1 FROM coaching.exercise_phase_profile p WHERE p.exercise_id = e.id AND p.impact_level >= $${params.length})`)
       }
 
-      // Facet filters: tenet, method->methodology, physio->physiology, pattern, equipment, intent, body_region.
+      // Facet filters: tenet, method->methodology, physio->physiology, pattern, equipment, body_region.
       const facetMap = {
         tenet: req.query.tenet,
         methodology: req.query.method ?? req.query.methodology,
         physiology: req.query.physio ?? req.query.physiology,
         pattern: req.query.pattern,
         equipment: req.query.equipment,
-        intent: req.query.intent,
         body_region: req.query.bodyRegion ?? req.query.body_region,
       }
       for (const [facetType, raw] of Object.entries(facetMap)) {
@@ -644,6 +642,254 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (existing.rows.length === 0) return bad(res, 'Exercise not found.', 404)
       if (!canMutateRow(existing.rows[0], userId)) return bad(res, 'You can only delete private items you created.', 403)
       await pool.query(`UPDATE coaching.exercise SET archived = TRUE, updated_at = now() WHERE id = $1 AND facility_id = $2`, [id, facilityId])
+      ok(res, { id })
+    } catch (error) {
+      bad(res, error.message)
+    }
+  })
+
+  // ==========================================================
+  // SKILL LIBRARY
+  // ==========================================================
+
+  async function loadSkillComponents(skillIds) {
+    if (!skillIds.length) return new Map()
+    const result = await pool.query(
+      `SELECT sc.skill_id, sc.component_skill_id, sc.sort_order, cs.name AS component_name
+       FROM coaching.skill_component sc
+       JOIN coaching.skill cs ON cs.id = sc.component_skill_id
+       WHERE sc.skill_id = ANY($1::bigint[])
+       ORDER BY sc.skill_id, sc.sort_order, sc.component_skill_id`,
+      [skillIds],
+    )
+    const map = new Map()
+    for (const row of result.rows) {
+      const list = map.get(String(row.skill_id)) ?? []
+      list.push({
+        component_skill_id: Number(row.component_skill_id),
+        name: row.component_name,
+        sort_order: Number(row.sort_order),
+      })
+      map.set(String(row.skill_id), list)
+    }
+    return map
+  }
+
+  async function loadSkillPrerequisites(skillIds) {
+    if (!skillIds.length) return new Map()
+    const result = await pool.query(
+      `SELECT sp.skill_id, sp.prerequisite_skill_id, sp.note, ps.name AS prerequisite_name
+       FROM coaching.skill_prerequisite sp
+       JOIN coaching.skill ps ON ps.id = sp.prerequisite_skill_id
+       WHERE sp.skill_id = ANY($1::bigint[])
+       ORDER BY ps.name`,
+      [skillIds],
+    )
+    const map = new Map()
+    for (const row of result.rows) {
+      const list = map.get(String(row.skill_id)) ?? []
+      list.push({
+        prerequisite_skill_id: Number(row.prerequisite_skill_id),
+        name: row.prerequisite_name,
+        note: row.note,
+      })
+      map.set(String(row.skill_id), list)
+    }
+    return map
+  }
+
+  async function writeSkillRelations(client, skillId, body) {
+    if (Array.isArray(body.components)) {
+      await client.query(`DELETE FROM coaching.skill_component WHERE skill_id = $1`, [skillId])
+      let i = 0
+      for (const c of body.components) {
+        const cid = num(c.component_skill_id ?? c.id)
+        if (cid == null || cid === skillId) continue
+        await client.query(
+          `INSERT INTO coaching.skill_component (skill_id, component_skill_id, sort_order) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`,
+          [skillId, cid, num(c.sort_order) ?? i++],
+        )
+      }
+    }
+    if (Array.isArray(body.prerequisites)) {
+      await client.query(`DELETE FROM coaching.skill_prerequisite WHERE skill_id = $1`, [skillId])
+      for (const p of body.prerequisites) {
+        const pid = num(p.prerequisite_skill_id ?? p.id)
+        if (pid == null || pid === skillId) continue
+        await client.query(
+          `INSERT INTO coaching.skill_prerequisite (skill_id, prerequisite_skill_id, note) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`,
+          [skillId, pid, p.note || null],
+        )
+      }
+    }
+  }
+
+  app.get('/api/coach/skills', ...can('library.view'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const userId = Number(req.platformAuth.user.id)
+      const params = [facilityId, userId]
+      const where = [
+        `sk.facility_id = $1`,
+        `sk.archived = FALSE`,
+        `((sk.visibility = 'facility' AND sk.is_published = TRUE) OR sk.created_by = $2)`,
+      ]
+
+      const q = req.query.q ? String(req.query.q).trim() : null
+      if (q) {
+        params.push(`%${q}%`)
+        where.push(`(sk.name ILIKE $${params.length} OR sk.description ILIKE $${params.length})`)
+      }
+
+      const sportId = num(req.query.sport)
+      if (sportId) {
+        params.push(sportId)
+        where.push(`(sk.sport_id = $${params.length} OR sk.sport_id IS NULL)`)
+      }
+
+      if (req.query.kind) {
+        params.push(String(req.query.kind))
+        where.push(`sk.skill_kind = $${params.length}`)
+      }
+
+      if (req.query.level) {
+        params.push(String(req.query.level))
+        where.push(`sk.skill_level = $${params.length}::public.skill_level`)
+      }
+
+      const result = await pool.query(
+        `SELECT sk.*, s.name AS sport_name
+         FROM coaching.skill sk
+         LEFT JOIN coaching.sport s ON s.id = sk.sport_id
+         WHERE ${where.join(' AND ')}
+         ORDER BY sk.skill_kind, sk.name
+         LIMIT 500`,
+        params,
+      )
+      const ids = result.rows.map((r) => Number(r.id))
+      const [componentMap, prereqMap] = await Promise.all([loadSkillComponents(ids), loadSkillPrerequisites(ids)])
+      ok(res, result.rows.map((r) => ({
+        ...r,
+        components: componentMap.get(String(r.id)) ?? [],
+        prerequisites: prereqMap.get(String(r.id)) ?? [],
+      })))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/skills/:id', ...can('library.view'), async (req, res) => {
+    try {
+      const id = num(req.params.id)
+      const facilityId = req.platformAuth.user.facility_id
+      const skill = await pool.query(
+        `SELECT sk.*, s.name AS sport_name FROM coaching.skill sk LEFT JOIN coaching.sport s ON s.id = sk.sport_id WHERE sk.id = $1 AND sk.facility_id = $2`,
+        [id, facilityId],
+      )
+      if (skill.rows.length === 0) return bad(res, 'Skill not found.', 404)
+      const [componentMap, prereqMap] = await Promise.all([loadSkillComponents([id]), loadSkillPrerequisites([id])])
+      ok(res, {
+        ...skill.rows[0],
+        components: componentMap.get(String(id)) ?? [],
+        prerequisites: prereqMap.get(String(id)) ?? [],
+      })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/coach/skills', ...can('library.manage'), async (req, res) => {
+    const facilityId = req.platformAuth.user.facility_id
+    const userId = Number(req.platformAuth.user.id)
+    const name = String(req.body?.name || '').trim()
+    if (!name) return bad(res, 'Skill name is required.')
+    const skillKind = ['skill', 'combo', 'hold'].includes(req.body?.skill_kind) ? req.body.skill_kind : 'skill'
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      const created = await client.query(
+        `INSERT INTO coaching.skill (
+          facility_id, name, slug, description, instructions, sport_id, skill_level,
+          age_min, age_max, skill_kind, min_hold_seconds, default_hold_seconds, assistance_note,
+          created_by, is_published, visibility
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7::public.skill_level, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+        RETURNING id`,
+        [
+          facilityId, name, slugify(name) || `skill-${Date.now()}`, req.body?.description || null,
+          req.body?.instructions || null, num(req.body?.sport_id), req.body?.skill_level || null,
+          num(req.body?.age_min), num(req.body?.age_max), skillKind,
+          num(req.body?.min_hold_seconds), num(req.body?.default_hold_seconds), req.body?.assistance_note || null,
+          userId, req.body?.is_published !== false, req.body?.visibility === 'private' ? 'private' : 'facility',
+        ],
+      )
+      const id = Number(created.rows[0].id)
+      await writeSkillRelations(client, id, req.body || {})
+      await client.query('COMMIT')
+      ok(res, { id })
+    } catch (error) {
+      await client.query('ROLLBACK')
+      bad(res, error.message)
+    } finally {
+      client.release()
+    }
+  })
+
+  app.put('/api/coach/skills/:id', ...can('library.manage'), async (req, res) => {
+    const id = num(req.params.id)
+    const facilityId = req.platformAuth.user.facility_id
+    const userId = Number(req.platformAuth.user.id)
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      const existing = await client.query(`SELECT id, created_by, visibility FROM coaching.skill WHERE id = $1 AND facility_id = $2`, [id, facilityId])
+      if (existing.rows.length === 0) {
+        await client.query('ROLLBACK')
+        return bad(res, 'Skill not found.', 404)
+      }
+      if (!canMutateRow(existing.rows[0], userId)) {
+        await client.query('ROLLBACK')
+        return bad(res, 'You can only edit private items you created.', 403)
+      }
+      const skillKind = ['skill', 'combo', 'hold'].includes(req.body?.skill_kind) ? req.body.skill_kind : null
+      await client.query(
+        `UPDATE coaching.skill SET
+          name = COALESCE($2, name),
+          description = $3, instructions = $4, sport_id = $5, skill_level = $6::public.skill_level,
+          age_min = $7, age_max = $8,
+          skill_kind = COALESCE($9, skill_kind),
+          min_hold_seconds = $10, default_hold_seconds = $11, assistance_note = $12,
+          is_published = COALESCE($13, is_published), visibility = COALESCE($14, visibility),
+          updated_at = now()
+        WHERE id = $1`,
+        [
+          id, req.body?.name ? String(req.body.name).trim() : null, req.body?.description || null,
+          req.body?.instructions || null, num(req.body?.sport_id), req.body?.skill_level || null,
+          num(req.body?.age_min), num(req.body?.age_max), skillKind,
+          num(req.body?.min_hold_seconds), num(req.body?.default_hold_seconds), req.body?.assistance_note || null,
+          typeof req.body?.is_published === 'boolean' ? req.body.is_published : null,
+          req.body?.visibility === 'private' ? 'private' : req.body?.visibility === 'facility' ? 'facility' : null,
+        ],
+      )
+      await writeSkillRelations(client, id, req.body || {})
+      await client.query('COMMIT')
+      ok(res, { id })
+    } catch (error) {
+      await client.query('ROLLBACK')
+      bad(res, error.message)
+    } finally {
+      client.release()
+    }
+  })
+
+  app.delete('/api/coach/skills/:id', ...can('library.manage'), async (req, res) => {
+    try {
+      const id = num(req.params.id)
+      const facilityId = req.platformAuth.user.facility_id
+      const userId = Number(req.platformAuth.user.id)
+      const existing = await pool.query(`SELECT id, created_by, visibility FROM coaching.skill WHERE id = $1 AND facility_id = $2`, [id, facilityId])
+      if (existing.rows.length === 0) return bad(res, 'Skill not found.', 404)
+      if (!canMutateRow(existing.rows[0], userId)) return bad(res, 'You can only delete private items you created.', 403)
+      await pool.query(`UPDATE coaching.skill SET archived = TRUE, updated_at = now() WHERE id = $1 AND facility_id = $2`, [id, facilityId])
       ok(res, { id })
     } catch (error) {
       bad(res, error.message)
@@ -2772,13 +3018,13 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (!prompt) return bad(res, 'A prompt is required.')
       const lower = prompt.toLowerCase()
 
-      const [tenets, methodologies, physiology, sports, equipment, intents] = await Promise.all([
+      const [tenets, methodologies, physiology, sports, equipment, sessionPhases] = await Promise.all([
         pool.query(`SELECT id, name FROM coaching.tenet`),
         pool.query(`SELECT id, name FROM coaching.methodology`),
         pool.query(`SELECT id, name FROM coaching.physiological_emphasis`),
         pool.query(`SELECT id, name FROM coaching.sport`),
         pool.query(`SELECT id, name FROM coaching.equipment`),
-        pool.query(`SELECT id, name FROM coaching.exercise_intent`),
+        pool.query(`SELECT id, key, name FROM coaching.session_phase ORDER BY order_index`),
       ])
 
       const matchFacet = (rows, facetType, weight) =>
@@ -2793,7 +3039,32 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       ]
       const equipmentIds = equipment.rows.filter((r) => lower.includes(String(r.name).toLowerCase())).map((r) => Number(r.id))
       const sport = sports.rows.find((r) => lower.includes(String(r.name).toLowerCase()))
-      const intent = intents.rows.find((r) => lower.includes(String(r.name).toLowerCase()))
+      const matchedPhase = sessionPhases.rows.find((r) => lower.includes(String(r.name).toLowerCase()))
+      const PHASE_KEYWORDS = {
+        warmup: 'prepare_access',
+        activation: 'prepare_access',
+        prepare: 'prepare_access',
+        cooldown: 'restore',
+        restore: 'restore',
+        skill: 'skill_movement_intelligence',
+        output: 'output',
+        capacity: 'capacity',
+        control: 'control_resilience',
+        fitness: 'fitness_repeatability',
+        conditioning: 'fitness_repeatability',
+        main: 'capacity',
+      }
+      let phaseKey = matchedPhase?.key ?? null
+      if (!phaseKey) {
+        for (const [keyword, key] of Object.entries(PHASE_KEYWORDS)) {
+          if (lower.includes(keyword)) {
+            phaseKey = key
+            break
+          }
+        }
+      }
+      if (!phaseKey) phaseKey = 'capacity'
+      const phaseName = matchedPhase?.name ?? sessionPhases.rows.find((r) => r.key === phaseKey)?.name ?? 'Main Work'
 
       const minutesMatch = lower.match(/(\d{1,3})\s*(?:min|minute|minutes|mins)/)
       const minutes = minutesMatch ? Math.min(180, Math.max(5, Number(minutesMatch[1]))) : 30
@@ -2809,7 +3080,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         skillLevel,
         equipmentIds,
         targets,
-        blocks: [{ label: 'Main Work', intentId: intent ? Number(intent.id) : null, minutes }],
+        blocks: [{ label: phaseName, phaseKey, minutes }],
       }
 
       const prescription = await runPrescription(facilityId, parsed)
@@ -2969,13 +3240,12 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const text = `${req.body?.name || ''} ${req.body?.description || ''} ${Array.isArray(req.body?.cues) ? req.body.cues.map((c) => c.body || c).join(' ') : ''}`.toLowerCase()
       if (!text.trim()) return ok(res, { suggestions: [] })
 
-      const [tenets, methodologies, physiology, patterns, equipment, intents] = await Promise.all([
+      const [tenets, methodologies, physiology, patterns, equipment] = await Promise.all([
         pool.query(`SELECT id, name FROM coaching.tenet`),
         pool.query(`SELECT id, name FROM coaching.methodology`),
         pool.query(`SELECT id, name FROM coaching.physiological_emphasis`),
         pool.query(`SELECT id, name FROM coaching.movement_pattern`),
         pool.query(`SELECT id, name FROM coaching.equipment`),
-        pool.query(`SELECT id, name FROM coaching.exercise_intent`),
       ])
 
       // Keyword heuristics map common training language onto taxonomy facets.
@@ -3002,11 +3272,9 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         kettlebell: { equipment: ['kettlebell'] },
         bodyweight: { equipment: ['bodyweight'] },
         band: { equipment: ['band'] },
-        warmup: { intent: ['warmup', 'activation'] },
-        skill: { intent: ['skill'] },
       }
 
-      const facetRows = { tenet: tenets.rows, methodology: methodologies.rows, physiology: physiology.rows, pattern: patterns.rows, equipment: equipment.rows, intent: intents.rows }
+      const facetRows = { tenet: tenets.rows, methodology: methodologies.rows, physiology: physiology.rows, pattern: patterns.rows, equipment: equipment.rows }
       const suggestions = []
       const seen = new Set()
       const addByName = (facetType, namePart) => {
@@ -3867,6 +4135,41 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  app.get('/api/admin/messages/recipient-options', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      ok(res, await queryAdminRecipientOptions(pool, facilityId))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/admin/messages/enrollment-groups', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      ok(res, await queryStaffMessageEnrollmentGroups(pool, facilityId))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/admin/messages/group-members', auth, async (req, res) => {
+    try {
+      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+      const facilityId = req.platformAuth.user.facility_id
+      const groupType = String(req.query.type || '')
+      const groupId = num(req.query.id)
+      if (!groupId || !['primary_sport', 'program', 'scheduling_class'].includes(groupType)) {
+        return bad(res, 'Valid type and id are required.')
+      }
+      ok(res, await resolveMessageEnrollmentGroupMembers(pool, { facilityId, groupType, groupId }))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
   app.get('/api/admin/messages/:threadId', auth, async (req, res) => {
     try {
       if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
@@ -3926,41 +4229,6 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         [subject, subjectLocked, threadId],
       )
       ok(res, updated.rows[0])
-    } catch (error) {
-      bad(res, error.message, 500)
-    }
-  })
-
-  app.get('/api/admin/messages/recipient-options', auth, async (req, res) => {
-    try {
-      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
-      const facilityId = req.platformAuth.user.facility_id
-      ok(res, await queryAdminRecipientOptions(pool, facilityId))
-    } catch (error) {
-      bad(res, error.message, 500)
-    }
-  })
-
-  app.get('/api/admin/messages/enrollment-groups', auth, async (req, res) => {
-    try {
-      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
-      const facilityId = req.platformAuth.user.facility_id
-      ok(res, await queryStaffMessageEnrollmentGroups(pool, facilityId))
-    } catch (error) {
-      bad(res, error.message, 500)
-    }
-  })
-
-  app.get('/api/admin/messages/group-members', auth, async (req, res) => {
-    try {
-      if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
-      const facilityId = req.platformAuth.user.facility_id
-      const groupType = String(req.query.type || '')
-      const groupId = num(req.query.id)
-      if (!groupId || !['primary_sport', 'program', 'scheduling_class'].includes(groupType)) {
-        return bad(res, 'Valid type and id are required.')
-      }
-      ok(res, await resolveMessageEnrollmentGroupMembers(pool, { facilityId, groupType, groupId }))
     } catch (error) {
       bad(res, error.message, 500)
     }

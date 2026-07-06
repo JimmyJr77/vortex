@@ -68,7 +68,7 @@ test('POST /api/coach/needs-engine/prescribe returns time-packed blocks', { skip
       body: JSON.stringify({
         skillLevel: null,
         targets: [],
-        blocks: [{ label: 'Main', intentId: null, minutes: 10 }],
+        blocks: [{ label: 'Main', phaseKey: 'capacity', minutes: 10 }],
       }),
     },
     coachJwt,

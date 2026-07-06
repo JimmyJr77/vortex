@@ -97,7 +97,6 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     const phaseKey = block.phaseKey ?? block.phase_key ?? block.phase
     const phase = phaseByKey.get(phaseKey)
     const budgetSeconds = (Number(block.minutes) || 20) * 60
-    const intentId = block.intentId != null ? Number(block.intentId) : (block.intent_id != null ? Number(block.intent_id) : null)
     const edu = phase
       ? await pool.query(
           `SELECT * FROM coaching.education_content WHERE entity_type = 'session_phase' AND entity_key = $1 LIMIT 1`,
@@ -115,10 +114,6 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       .map((c) => {
         const profile = c.profiles.find((p) => p.phaseKey === phaseKey && p.role !== 'avoid')
         if (!profile) return null
-        if (intentId) {
-          const intentMatch = c.tags.some((t) => t.facetType === 'intent' && t.facetId === intentId)
-          if (!intentMatch) return null
-        }
         let phaseFit = profile.fitWeight * 2
         if (profile.role === 'primary') phaseFit += 6
         else if (profile.role === 'secondary') phaseFit += 2
@@ -164,7 +159,6 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       label: block.label || phase?.name || 'Block',
       phase_key: phaseKey,
       phase_id: phase?.id ?? null,
-      intentId: block.intentId ?? null,
       target_minutes: Number(block.minutes) || 20,
       estimated_minutes: Math.round(usedSeconds / 60),
       items,
