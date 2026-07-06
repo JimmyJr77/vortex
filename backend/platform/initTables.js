@@ -109,6 +109,7 @@ export async function initPlatformTables(pool) {
     '114_coaching_output_max_velocity_cards.sql',
     '115_coaching_output_elastic_cards.sql',
     '116_coaching_education_dedupe_framework.sql',
+    '117_coaching_output_jump_power_cards.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

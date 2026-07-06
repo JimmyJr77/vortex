@@ -1,6 +1,6 @@
 /**
  * Rich card v2 content for Output phase Jump, Throw & Explosive Power cards 28–38.
- * Consumed by scripts/generate-116-output-jump-power-cards.mjs (or equivalent)
+ * Consumed by scripts/generate-117-output-jump-power-cards.mjs
  * UPDATE-only on slugs seeded in migration 112.
  */
 

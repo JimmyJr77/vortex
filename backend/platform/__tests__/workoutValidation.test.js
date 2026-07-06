@@ -19,6 +19,7 @@ import {
   analyzeOutputReadiness,
   analyzeOutputMaxVelocityReadiness,
   analyzeOutputElasticReadiness,
+  analyzeOutputJumpPowerReadiness,
   analyzeOutputAccelerationReadiness,
 } from '../workoutValidation.js'
 
@@ -862,5 +863,77 @@ describe('analyzeOutputElasticReadiness', () => {
       },
     )
     assert.ok(findings.some((f) => f.rule_key === 'output_elastic_single_leg_prerequisite'))
+  })
+})
+
+describe('analyzeOutputJumpPowerReadiness', () => {
+  it('warns when jump/throw Output follows Fitness', () => {
+    const blockMeta = [
+      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'output', block: {} },
+    ]
+    const findings = analyzeOutputJumpPowerReadiness(
+      [{ exercise_id: 1, exercise_name: 'Countermovement Vertical Jump' }],
+      {
+        slugByExercise: new Map([['1', 'countermovement-vertical-jump']]),
+        dosageByExercise: new Map(),
+        blockMeta,
+        outputBlockIndex: 1,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_jump_power_after_fitness'))
+  })
+
+  it('errors when broad jump rebound lacks stick prerequisite', () => {
+    const findings = analyzeOutputJumpPowerReadiness(
+      [{ exercise_id: 2, exercise_name: 'Single Broad Jump to Rebound' }],
+      {
+        slugByExercise: new Map([['2', 'single-broad-jump-to-rebound']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'output', block: {} }],
+        outputBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_jump_power_broad_rebound_prerequisite' && f.severity === 'error'))
+  })
+
+  it('warns when skater bound lacks lateral stick competency', () => {
+    const findings = analyzeOutputJumpPowerReadiness(
+      [{ exercise_id: 3, exercise_name: 'Skater Bound Continuous' }],
+      {
+        slugByExercise: new Map([['3', 'skater-bound-continuous']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'output', block: {} }],
+        outputBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_jump_power_skater_prerequisite'))
+  })
+
+  it('warns when CMJ volume exceeds 15 jumps', () => {
+    const findings = analyzeOutputJumpPowerReadiness(
+      [{ exercise_id: 4, exercise_name: 'Countermovement Vertical Jump', sets: 6, reps: 3 }],
+      {
+        slugByExercise: new Map([['4', 'countermovement-vertical-jump']]),
+        dosageByExercise: new Map([['4', { default_sets: 3, default_reps: 3 }]]),
+        blockMeta: [{ phaseKey: 'output', block: {} }],
+        outputBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_jump_power_cmj_volume'))
+  })
+
+  it('warns when power quality drops in watch notes', () => {
+    const findings = analyzeOutputJumpPowerReadiness(
+      [{ exercise_id: 5, exercise_name: 'Medicine Ball Chest Pass' }],
+      {
+        slugByExercise: new Map([['5', 'medicine-ball-chest-pass']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'output', block: {} }],
+        outputBlockIndex: 0,
+        draft: { watch_points: ['throw speed drop on last set'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_jump_power_quality_stop'))
   })
 })

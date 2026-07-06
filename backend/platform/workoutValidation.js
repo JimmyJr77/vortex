@@ -1544,6 +1544,274 @@ function analyzeOutputElasticReadiness(items, ctx) {
   return findings
 }
 
+const JUMP_POWER_OUTPUT_SLUGS = new Set([
+  'countermovement-vertical-jump',
+  'squat-jump',
+  'broad-jump-to-stick',
+  'single-broad-jump-to-rebound',
+  'lateral-bound-to-stick',
+  'skater-bound-continuous',
+  'split-jump-scissor-jump',
+  'medicine-ball-chest-pass',
+  'medicine-ball-overhead-slam',
+  'medicine-ball-rotational-scoop-toss',
+  'medicine-ball-shot-put-throw',
+])
+const CMJ_SLUG = 'countermovement-vertical-jump'
+const SQUAT_JUMP_SLUG = 'squat-jump'
+const BROAD_JUMP_STICK_SLUG = 'broad-jump-to-stick'
+const BROAD_JUMP_REBOUND_SLUG = 'single-broad-jump-to-rebound'
+const LATERAL_BOUND_STICK_SLUG = 'lateral-bound-to-stick'
+const SKATER_BOUND_SLUG = 'skater-bound-continuous'
+const SPLIT_JUMP_SLUG = 'split-jump-scissor-jump'
+const OVERHEAD_SLAM_SLUG = 'medicine-ball-overhead-slam'
+const MED_BALL_JUMP_POWER_SLUGS = new Set([
+  'medicine-ball-chest-pass',
+  'medicine-ball-overhead-slam',
+  'medicine-ball-rotational-scoop-toss',
+  'medicine-ball-shot-put-throw',
+])
+const ROTATIONAL_MED_BALL_SLUGS = new Set([
+  'medicine-ball-rotational-scoop-toss',
+  'medicine-ball-shot-put-throw',
+])
+const CMJ_MAX_JUMPS = 15
+const JUMP_POWER_QUALITY_DROP_PATTERN =
+  /height\s*drop|distance\s*drop|velocity\s*drop|throw\s*speed\s*drop|jump\s*height\s*drop|jump\s*distance\s*drop|power\s*quality\s*drop|quality\s*drop/i
+const JUMP_LANDING_FAULT_PATTERN =
+  /knee\s*valgus|valgus|knees?\s*cav(e|ing)|loud\s*land|extra\s*step|balance\s*loss|cannot\s*stick/i
+const SQUAT_JUMP_DIP_PATTERN = /dip(s)?\s*again|bounce(s)?\s*before|countermovement\s*before/i
+const BROAD_JUMP_STICK_FAIL_PATTERN = /cannot\s*stick|stick\s*fail|extra\s*step|landing\s*uncontrolled/i
+const JUMP_POWER_LATERAL_KNEE_PATTERN = /knee\s*collapse|valgus|knees?\s*cav(e|ing)/i
+const SPLIT_LANDING_FAIL_PATTERN = /cannot\s*land.*split|split\s*stance\s*fail|landing\s*instability/i
+const MED_BALL_SLOW_PATTERN = /ball\s*too\s*heavy|throw\s*slow|slow\s*throw|heavy\s*ball/i
+const SLAM_RIB_FLARE_PATTERN = /rib\s*flare|low\s*back\s*ext(en(sion)?)?|lumbar\s*ext/i
+const ROTATIONAL_LOW_BACK_PATTERN = /low\s*back\s*pain|lumbar\s*pain|back\s*pain.*rotat/i
+const UNSAFE_THROW_AREA_PATTERN =
+  /unsafe\s*(wall|throw|area|lane|rebound)|no\s*safe\s*(wall|partner|throw)|rebound\s*unsafe/i
+const YOUTH_ATHLETE_PATTERN = /youth|kids?|child|teen\s*beginner/i
+
+function countJumpPowerVolume(item, dosage) {
+  const sets = Number(item.sets ?? dosage?.default_sets) || 1
+  const reps = Number(item.reps ?? dosage?.default_reps) || 1
+  return sets * reps
+}
+
+/** Jump, Throw & Explosive Power Output cluster checks. Pure helper for tests. */
+function analyzeOutputJumpPowerReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    blockMeta = [],
+    outputBlockIndex = 0,
+    exerciseSkillLevelById = new Map(),
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const ordered = []
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug || !JUMP_POWER_OUTPUT_SLUGS.has(slug)) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  if (ordered.length === 0) return findings
+
+  const slugsInBlock = new Set(ordered.map((o) => o.slug))
+  const slugsInWorkout = new Set(slugsInBlock)
+  for (const meta of blockMeta ?? []) {
+    if (meta.phaseKey !== OUTPUT) continue
+    for (const item of meta.block?.items ?? []) {
+      const slug = exerciseSlug(item, slugByExercise)
+      if (slug && JUMP_POWER_OUTPUT_SLUGS.has(slug)) slugsInWorkout.add(slug)
+    }
+  }
+
+  for (let j = 0; j < outputBlockIndex; j++) {
+    const priorKey = blockMeta[j]?.phaseKey
+    if (priorKey === 'fitness_repeatability') {
+      findings.push({
+        rule_key: 'output_jump_power_after_fitness',
+        severity: 'warning',
+        message: 'Power output is fatigue-sensitive. Move before conditioning.',
+        affected_items: ordered.map((o) => o.name),
+        meta: { prior_phase: priorKey },
+      })
+    }
+    if (priorKey === 'capacity') {
+      findings.push({
+        rule_key: 'output_jump_power_after_capacity',
+        severity: 'warning',
+        message:
+          'Lower-body fatigue may reduce jump height, distance, and landing quality — move jump/throw Output earlier in the session.',
+        affected_items: ordered.map((o) => o.name),
+        meta: { prior_phase: priorKey },
+      })
+    }
+  }
+
+  if (JUMP_POWER_QUALITY_DROP_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_jump_power_quality_stop',
+      severity: 'warning',
+      message: 'End set or increase rest. Power quality has dropped.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  const jumpItems = ordered.filter(({ slug }) => !MED_BALL_JUMP_POWER_SLUGS.has(slug))
+  if (jumpItems.length > 0 && JUMP_LANDING_FAULT_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_jump_power_landing_regress',
+      severity: 'recommendation',
+      message: 'Regress to Snap-Down to Stick, Drop Landing to Stick, or lower jump intensity.',
+      affected_items: jumpItems.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const volume = countJumpPowerVolume(item, dosage)
+
+    if (slug === CMJ_SLUG && volume > CMJ_MAX_JUMPS) {
+      findings.push({
+        rule_key: 'output_jump_power_cmj_volume',
+        severity: 'warning',
+        message: 'High jump volume may shift toward fatigue. Reduce reps or split across sessions.',
+        affected_items: [name],
+        meta: { total_jumps: volume, jump_limit: CMJ_MAX_JUMPS, slug },
+      })
+    }
+
+    if (slug === SQUAT_JUMP_SLUG && SQUAT_JUMP_DIP_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'output_jump_power_squat_jump_dip',
+        severity: 'warning',
+        message: 'This is no longer a squat jump. Add a clear pause or classify as countermovement jump.',
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === BROAD_JUMP_STICK_SLUG && BROAD_JUMP_STICK_FAIL_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'output_jump_power_broad_stick_fail',
+        severity: 'warning',
+        message: 'Do not progress to Broad Jump Rebound or COD power until horizontal landing is controlled.',
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+  }
+
+  if (slugsInBlock.has(BROAD_JUMP_REBOUND_SLUG) && !slugsInWorkout.has(BROAD_JUMP_STICK_SLUG)) {
+    findings.push({
+      rule_key: 'output_jump_power_broad_rebound_prerequisite',
+      severity: 'error',
+      message: 'Rebound requires horizontal landing competency.',
+      affected_items: ordered.filter((o) => o.slug === BROAD_JUMP_REBOUND_SLUG).map((o) => o.name),
+      meta: { slug: BROAD_JUMP_REBOUND_SLUG },
+    })
+  }
+
+  if (slugsInBlock.has(LATERAL_BOUND_STICK_SLUG) && JUMP_POWER_LATERAL_KNEE_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_jump_power_lateral_knee_regress',
+      severity: 'recommendation',
+      message: 'Regress to lateral line hops, lateral lunge shift, or single-leg balance reach.',
+      affected_items: ordered.filter((o) => o.slug === LATERAL_BOUND_STICK_SLUG).map((o) => o.name),
+      meta: { slug: LATERAL_BOUND_STICK_SLUG, symptom_flags: true },
+    })
+  }
+
+  if (slugsInBlock.has(SKATER_BOUND_SLUG) && !slugsInWorkout.has(LATERAL_BOUND_STICK_SLUG)) {
+    findings.push({
+      rule_key: 'output_jump_power_skater_prerequisite',
+      severity: 'warning',
+      message: 'Continuous lateral bounds require stick competency first.',
+      affected_items: ordered.filter((o) => o.slug === SKATER_BOUND_SLUG).map((o) => o.name),
+      meta: { slug: SKATER_BOUND_SLUG },
+    })
+  }
+
+  if (slugsInBlock.has(SPLIT_JUMP_SLUG) && SPLIT_LANDING_FAIL_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_jump_power_split_landing_regress',
+      severity: 'recommendation',
+      message: 'Use split squat, split squat jump low depth, or lunge-to-stick first.',
+      affected_items: ordered.filter((o) => o.slug === SPLIT_JUMP_SLUG).map((o) => o.name),
+      meta: { slug: SPLIT_JUMP_SLUG, symptom_flags: true },
+    })
+  }
+
+  const medBallItems = ordered.filter(({ slug }) => MED_BALL_JUMP_POWER_SLUGS.has(slug))
+  if (medBallItems.length > 0 && MED_BALL_SLOW_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_jump_power_med_ball_slow',
+      severity: 'warning',
+      message: 'This is no longer Output. Use a lighter ball or classify as Capacity.',
+      affected_items: medBallItems.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (slugsInBlock.has(OVERHEAD_SLAM_SLUG) && SLAM_RIB_FLARE_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_jump_power_slam_rib_flare',
+      severity: 'recommendation',
+      message: 'Reduce load, reduce overhead range, or use chest pass.',
+      affected_items: ordered.filter((o) => o.slug === OVERHEAD_SLAM_SLUG).map((o) => o.name),
+      meta: { slug: OVERHEAD_SLAM_SLUG, symptom_flags: true },
+    })
+  }
+
+  const rotMedBallItems = ordered.filter(({ slug }) => ROTATIONAL_MED_BALL_SLUGS.has(slug))
+  if (rotMedBallItems.length > 0 && ROTATIONAL_LOW_BACK_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_jump_power_rotational_low_back_stop',
+      severity: 'warning',
+      message: 'Stop rotational throws and regress to anti-rotation, half-kneeling, or thoracic/hip prep.',
+      affected_items: rotMedBallItems.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (medBallItems.length > 0 && UNSAFE_THROW_AREA_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'output_jump_power_unsafe_throw_area',
+      severity: 'error',
+      message: 'Medicine ball throws require safe wall, partner, lane, and rebound control.',
+      affected_items: medBallItems.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  const isYouthAthlete = ordered.some(({ exerciseId }) => {
+    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    return level === 'EARLY_STAGE' || level === 'BEGINNER'
+  })
+  if (medBallItems.length > 0 && (isYouthAthlete || YOUTH_ATHLETE_PATTERN.test(watchText))) {
+    findings.push({
+      rule_key: 'output_jump_power_youth_med_ball_confirm',
+      severity: 'recommendation',
+      message:
+        'Youth medicine-ball throws require coach confirmation: light ball, low reps, clear throw area, and speed/coordination emphasis — not max load.',
+      affected_items: medBallItems.map((o) => o.name),
+      meta: { youth_flags: true },
+    })
+  }
+
+  return findings
+}
+
 const ACCELERATION_OUTPUT_SLUGS = new Set([
   'falling-start-to-5-10-yard-sprint',
   'two-point-start-to-5-10-yard-sprint',
@@ -2779,7 +3047,21 @@ export async function validateWorkoutDraft(pool, draft) {
       skillSlugsInWorkout,
       draft,
     })
-    const allOutputFindings = [...outputFindings, ...maxVelocityFindings, ...accelerationFindings, ...elasticFindings]
+    const jumpPowerFindings = analyzeOutputJumpPowerReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      outputBlockIndex: i,
+      exerciseSkillLevelById,
+      draft,
+    })
+    const allOutputFindings = [
+      ...outputFindings,
+      ...maxVelocityFindings,
+      ...accelerationFindings,
+      ...elasticFindings,
+      ...jumpPowerFindings,
+    ]
     if (allOutputFindings.length > 0) {
       const outputEdu = await pool.query(
         `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'output_readiness' LIMIT 1`,
@@ -2793,10 +3075,14 @@ export async function validateWorkoutDraft(pool, draft) {
       const elasticEdu = await pool.query(
         `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'output_elastic_readiness' LIMIT 1`,
       )
+      const jumpPowerEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'output_jump_power_readiness' LIMIT 1`,
+      )
       for (const finding of allOutputFindings) {
         const ruleKey = String(finding.rule_key ?? '')
         const isMaxVelocityRule = ruleKey.startsWith('output_max_velocity_')
         const isElasticRule = ruleKey.startsWith('output_elastic_')
+        const isJumpPowerRule = ruleKey.startsWith('output_jump_power_')
         const isAccelerationRule = ruleKey.startsWith('output_acceleration_')
           || ruleKey.startsWith('output_three_point_')
           || ruleKey.startsWith('output_prone_start_')
@@ -2808,9 +3094,11 @@ export async function validateWorkoutDraft(pool, draft) {
           ? maxVelocityEdu.rows[0]
           : isElasticRule
             ? elasticEdu.rows[0]
-            : isAccelerationRule
-              ? accelerationEdu.rows[0]
-              : outputEdu.rows[0]
+            : isJumpPowerRule
+              ? jumpPowerEdu.rows[0]
+              : isAccelerationRule
+                ? accelerationEdu.rows[0]
+                : outputEdu.rows[0]
         const payload = {
           severity: finding.severity ?? 'warning',
           rule_key: finding.rule_key,
@@ -2820,17 +3108,21 @@ export async function validateWorkoutDraft(pool, draft) {
               ? 'Max-velocity sprinting is high neural and tissue stress — quality, freshness, and full rest are non-negotiable.'
               : isElasticRule
                 ? 'Elastic Output should make the athlete springier, not tired — crisp contacts and clean landings require freshness.'
-                : isAccelerationRule
-                  ? 'Acceleration Output expresses speed while fresh — not after conditioning or with short rest.'
-                  : 'Output expresses speed and power while fresh — not after conditioning or high-volume strength.'),
+                : isJumpPowerRule
+                  ? 'Jump and throw Output expresses power while fresh — not after conditioning or when height, distance, or throw speed drops.'
+                  : isAccelerationRule
+                    ? 'Acceleration Output expresses speed while fresh — not after conditioning or with short rest.'
+                    : 'Output expresses speed and power while fresh — not after conditioning or high-volume strength.'),
           recommendation: edu?.programming_guidance
             ?? (isMaxVelocityRule
               ? 'Use Build-Up first for beginners, Flying 10 before Flying 20, 2+ minute rest on fly sprints, and stop when speed drops.'
               : isElasticRule
                 ? 'Use bilateral pogos before single-leg work, Snap-Down to Stick before rebound, cap contacts, and stop when contacts get loud.'
-                : isAccelerationRule
-                  ? 'Keep distance short, reps low, rest generous, and stop when speed or first-step quality drops.'
-                  : 'Use low reps, full rest, and stop when quality drops. Place Output after Prepare and Skill, before Capacity and Fitness.'),
+                : isJumpPowerRule
+                  ? 'Keep reps low, rest generous, landings clean, throws fast, and stop when power quality drops.'
+                  : isAccelerationRule
+                    ? 'Keep distance short, reps low, rest generous, and stop when speed or first-step quality drops.'
+                    : 'Use low reps, full rest, and stop when quality drops. Place Output after Prepare and Skill, before Capacity and Fitness.'),
           affected_items: finding.affected_items ?? [],
           related_phase: OUTPUT,
           can_override: finding.severity !== 'error',
@@ -2947,5 +3239,6 @@ export {
   analyzeOutputReadiness,
   analyzeOutputMaxVelocityReadiness,
   analyzeOutputElasticReadiness,
+  analyzeOutputJumpPowerReadiness,
   analyzeOutputAccelerationReadiness,
 }
