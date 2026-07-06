@@ -1,0 +1,13423 @@
+# Top 50 Balance Exercise Cards
+
+Primary source used: exercise_card_details_for_llm.md, which defines the Vortex Card v2 authoring workflow, canonical session phases, taxonomy tags, publish gates, authoring JSON format, dosage/scaling/safety fields, and common authoring mistakes to avoid. Purpose.txt was requested but was not located in the File Library search results available in this session, so the exercise selection is grounded in the available Card v2 guide plus the user's stated balance purpose: sideline contact control, beam-level body control, and wrestling center-of-gravity control.
+
+# Batch 01-10 Balance Exercise Cards
+Primary source used: exercise_card_details_for_llm.md, which defines the Vortex Card v2 authoring workflow, canonical session phases, taxonomy tags, publish gates, authoring JSON format, dosage/scaling/safety fields, and common authoring mistakes to avoid. Purpose.txt was requested but was not located in the File Library search results available in this session, so the exercise selection is grounded in the available Card v2 guide plus the user's stated balance purpose: sideline contact control, beam-level body control, and wrestling center-of-gravity control.
+## Category Focus
+- **Foundational Static Balance & Sensory Control:** Low-impact drills that teach the athlete to own the foot tripod, visual/vestibular input, breathing, and trunk-pelvis organization before adding speed or contact.
+
+## Cursor-Ready JSON
+```json
+{
+  "cluster": {
+    "focus": "balance",
+    "batch": "01-10",
+    "categories": [
+      "Foundational Static Balance & Sensory Control"
+    ],
+    "card_count": 10,
+    "primary_authoring_format": "camelCase Card v2"
+  },
+  "cards": [
+    {
+      "slug": "single-leg-tripod-balance",
+      "name": "Single-Leg Tripod Balance",
+      "family": "Foot tripod balance",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "stabilize",
+      "slot": "balance_control",
+      "cardSummary": "Single-Leg Tripod Balance is a balance-focused drill for builds the first layer of sideline balance: big toe, little toe, and heel pressure without clawing or wobbling. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Prepare & Access or early Movement Intelligence after temperature is raised. Keep it low fatigue so later sprint, skill, strength, or sport work stays sharp.",
+      "description": "Stand on one foot and maintain a clear foot tripod while the pelvis and ribcage stay stacked.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Single-Leg Tripod Balance as balance skill plus control under the specific constraint: Builds the first layer of sideline balance: big toe, little toe, and heel pressure without clawing or wobbling. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Find your foot pressure, breathe, and make the body quiet.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Single-Leg Tripod Balance removes speed and fatigue so the athlete can feel the base of support, joint alignment, and breathing strategy. That creates a stable reference point before the same balance demand is challenged by motion, contact, or a narrower surface.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: balance_control.",
+      "commonMisuse": "Do not make this a long boredom hold or use unstable gimmicks before the athlete owns simple floor balance. Stop when breathing, posture, or foot pressure degrades.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stability",
+          "hip_stabilization",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "foot_intrinsics",
+          "calves",
+          "gluteus_medius",
+          "deep_core"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "stacked_static_balance_position",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "static_single_leg_tandem_or_sensory_balance",
+        "coordination_demand": "maintain_alignment_breathing_and_visual_or_vestibular_control",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Stand on one foot and maintain a clear foot tripod while the pelvis and ribcage stay stacked.",
+        "setup": [
+          "Stand tall with one hand near a wall or rack for safety.",
+          "Lift one foot just off the floor without hiking the hip.",
+          "Spread pressure through the big toe, little toe, and heel of the stance foot."
+        ],
+        "execution_steps": [
+          "Hold the stance quietly while breathing through the nose.",
+          "Keep the arch active without curling the toes.",
+          "Reset if the pelvis shifts or the toes claw.",
+          "Switch sides after the prescribed hold."
+        ],
+        "coach_cues": [
+          "Foot owns the floor.",
+          "Tripod, not toe claws.",
+          "Ribs over pelvis.",
+          "Quiet ankle."
+        ],
+        "athlete_cues": [
+          "Foot owns the floor.",
+          "Tripod, not toe claws.",
+          "Ribs over pelvis."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Toes grip hard and arch cramps.",
+          "Hip drops or hikes.",
+          "Athlete holds breath.",
+          "Knee collapses inside the big toe."
+        ],
+        "quality_gate": [
+          "Athlete can hold 20 seconds per side with calm breathing and no more than one touch-down."
+        ],
+        "stop_signs": [
+          "Pain in foot, ankle, knee, or hip.",
+          "Repeated loss of balance despite support.",
+          "Dizziness or inability to breathe normally."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 20,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 2,
+        "default_rpe_max": 4
+      },
+      "scaling": {
+        "youth_beginner": "For Single-Leg Tripod Balance, use the simplest version with support nearby and short 8-15 second exposures. Use support and shorter holds before narrowing the base or reducing visual input. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Single-Leg Tripod Balance playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Single-Leg Tripod Balance toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Single-Leg Tripod Balance with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Single-Leg Tripod Balance as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Single-Leg Tripod Balance. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Single-Leg Tripod Balance, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Tandem Line Balance Hold",
+        "Clock Reach Balance",
+        "Sprint Foot Tripod ISO"
+      ],
+      "pairsWellBefore": [
+        "Clock Reach Balance",
+        "Step-Down to Stick",
+        "Balance Beam Walk"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "sprint_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Single-Leg Tripod Balance front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Supported Single-Leg Balance",
+          "Staggered-Stance Tripod Hold"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": true,
+        "weekly_max_frequency": 6,
+        "minimum_hours_between_hard_exposures": 0,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 1,
+        "fatigue_sensitivity": 2,
+        "technical_complexity": 2,
+        "impact_level": 0,
+        "intensity_ceiling": "low"
+      }
+    },
+    {
+      "slug": "tandem-line-balance-hold",
+      "name": "Tandem Line Balance Hold",
+      "family": "Narrow-base stance",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "stabilize",
+      "slot": "balance_control",
+      "cardSummary": "Tandem Line Balance Hold is a balance-focused drill for creates beam-style narrow-base control while keeping the task simple enough for beginners and groups. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Prepare & Access or early Movement Intelligence after temperature is raised. Keep it low fatigue so later sprint, skill, strength, or sport work stays sharp.",
+      "description": "Stand heel-to-toe on a line and hold posture while the base of support is narrowed.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Tandem Line Balance Hold as balance skill plus control under the specific constraint: Creates beam-style narrow-base control while keeping the task simple enough for beginners and groups. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Find your foot pressure, breathe, and make the body quiet.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "line",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Tandem Line Balance Hold removes speed and fatigue so the athlete can feel the base of support, joint alignment, and breathing strategy. That creates a stable reference point before the same balance demand is challenged by motion, contact, or a narrower surface.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: balance_control.",
+      "commonMisuse": "Do not make this a long boredom hold or use unstable gimmicks before the athlete owns simple floor balance. Stop when breathing, posture, or foot pressure degrades.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stability",
+          "hip_stabilization",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "foot_intrinsics",
+          "calves",
+          "gluteus_medius",
+          "obliques"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "stacked_static_balance_position",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "static_single_leg_tandem_or_sensory_balance",
+        "coordination_demand": "maintain_alignment_breathing_and_visual_or_vestibular_control",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Stand heel-to-toe on a line and hold posture while the base of support is narrowed.",
+        "setup": [
+          "Mark a straight floor line with tape or use an existing court line.",
+          "Place one foot directly in front of the other, heel near toe.",
+          "Stand tall with eyes forward and arms relaxed or out for balance."
+        ],
+        "execution_steps": [
+          "Hold the line without letting the feet separate.",
+          "Breathe quietly and keep the ribs stacked.",
+          "Switch lead foot at the halfway mark.",
+          "Progress by narrowing arm position or adding a slow head turn."
+        ],
+        "coach_cues": [
+          "Railroad line feet.",
+          "Tall spine.",
+          "Eyes steady.",
+          "Small corrections."
+        ],
+        "athlete_cues": [
+          "Railroad line feet.",
+          "Tall spine.",
+          "Eyes steady."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Feet drift off line.",
+          "Athlete rushes through the hold.",
+          "Arms flail instead of making small corrections.",
+          "Knees lock hard."
+        ],
+        "quality_gate": [
+          "Athlete can hold both lead positions for the full time with controlled, small corrections."
+        ],
+        "stop_signs": [
+          "Unsafe wobbling without a nearby support.",
+          "Knee or ankle pain.",
+          "Vertigo symptoms with narrow stance."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 20,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 2,
+        "default_rpe_max": 4
+      },
+      "scaling": {
+        "youth_beginner": "For Tandem Line Balance Hold, use the simplest version with support nearby and short 8-15 second exposures. Use support and shorter holds before narrowing the base or reducing visual input. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Tandem Line Balance Hold playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Tandem Line Balance Hold toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Tandem Line Balance Hold with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Tandem Line Balance Hold as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Tandem Line Balance Hold. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Tandem Line Balance Hold, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Balance Beam Walk",
+        "Head-Turn Single-Leg Balance",
+        "Warrior III Reach Hold"
+      ],
+      "pairsWellBefore": [
+        "Clock Reach Balance",
+        "Step-Down to Stick",
+        "Balance Beam Walk"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "sprint_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Tandem Line Balance Hold front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Staggered-Stance Hold",
+          "Wide Tandem Hold Near Wall"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": true,
+        "weekly_max_frequency": 6,
+        "minimum_hours_between_hard_exposures": 0,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 1,
+        "fatigue_sensitivity": 2,
+        "technical_complexity": 2,
+        "impact_level": 0,
+        "intensity_ceiling": "low"
+      }
+    },
+    {
+      "slug": "eyes-closed-single-leg-balance",
+      "name": "Eyes-Closed Single-Leg Balance",
+      "family": "Visual-vestibular balance",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "stabilize",
+      "slot": "balance_control",
+      "cardSummary": "Eyes-Closed Single-Leg Balance is a balance-focused drill for forces the athlete to balance without relying on vision, improving proprioceptive control for contact and chaotic sport moments. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Prepare & Access or early Movement Intelligence after temperature is raised. Keep it low fatigue so later sprint, skill, strength, or sport work stays sharp.",
+      "description": "Balance on one foot with eyes closed for short, safe holds near support.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Eyes-Closed Single-Leg Balance as balance skill plus control under the specific constraint: Forces the athlete to balance without relying on vision, improving proprioceptive control for contact and chaotic sport moments. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Find your foot pressure, breathe, and make the body quiet.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Eyes-Closed Single-Leg Balance removes speed and fatigue so the athlete can feel the base of support, joint alignment, and breathing strategy. That creates a stable reference point before the same balance demand is challenged by motion, contact, or a narrower surface.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: balance_control.",
+      "commonMisuse": "Do not make this a long boredom hold or use unstable gimmicks before the athlete owns simple floor balance. Stop when breathing, posture, or foot pressure degrades.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stability",
+          "hip_stabilization",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "foot_intrinsics",
+          "calves",
+          "gluteus_medius",
+          "vestibular_system"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "vestibular_or_visual_input_management"
+        ],
+        "postural_shape": "stacked_static_balance_position",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "static_single_leg_tandem_or_sensory_balance",
+        "coordination_demand": "maintain_alignment_breathing_and_visual_or_vestibular_control",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Balance on one foot with eyes closed for short, safe holds near support.",
+        "setup": [
+          "Stand close enough to a wall or rack to catch balance immediately.",
+          "Set one-foot tripod pressure before closing the eyes.",
+          "Lift the free foot only a few inches from the floor."
+        ],
+        "execution_steps": [
+          "Close the eyes after the stance is stable.",
+          "Hold for a short window without grabbing unless needed.",
+          "Open the eyes and reset before the next rep.",
+          "Switch sides after each clean hold."
+        ],
+        "coach_cues": [
+          "Find the floor before closing the eyes.",
+          "Soft knee, quiet hip.",
+          "Touch support early, not late.",
+          "Short clean holds."
+        ],
+        "athlete_cues": [
+          "Find the floor before closing the eyes.",
+          "Soft knee, quiet hip.",
+          "Touch support early, not late."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Closing eyes before foot pressure is organized.",
+          "Trying to save a lost rep too long.",
+          "Holding the breath.",
+          "Free hip hikes or turns open."
+        ],
+        "quality_gate": [
+          "Athlete can perform repeated 8-12 second holds with safe touch-downs and no panic response."
+        ],
+        "stop_signs": [
+          "Active vertigo, concussion symptoms, nausea, or unsafe space.",
+          "Athlete cannot touch support quickly.",
+          "Pain or repeated twisting at the ankle."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 20,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 2,
+        "default_rpe_max": 4
+      },
+      "scaling": {
+        "youth_beginner": "For Eyes-Closed Single-Leg Balance, use the simplest version with support nearby and short 8-15 second exposures. Use support and shorter holds before narrowing the base or reducing visual input. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Eyes-Closed Single-Leg Balance playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Eyes-Closed Single-Leg Balance toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Eyes-Closed Single-Leg Balance with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Eyes-Closed Single-Leg Balance as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Eyes-Closed Single-Leg Balance. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Eyes-Closed Single-Leg Balance, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Single-Leg Tripod Balance",
+        "Head-Turn Single-Leg Balance",
+        "Clock Reach Balance"
+      ],
+      "pairsWellBefore": [
+        "Clock Reach Balance",
+        "Step-Down to Stick",
+        "Balance Beam Walk"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "sprint_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Eyes-Closed Single-Leg Balance front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Active vertigo, nausea, headache, or concussion symptoms without medical clearance.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Eyes-Open Single-Leg Balance",
+          "Tandem Eyes-Closed Hold Near Wall"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 6,
+        "minimum_hours_between_hard_exposures": 0,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 1,
+        "fatigue_sensitivity": 2,
+        "technical_complexity": 2,
+        "impact_level": 0,
+        "intensity_ceiling": "low"
+      }
+    },
+    {
+      "slug": "head-turn-single-leg-balance",
+      "name": "Head-Turn Single-Leg Balance",
+      "family": "Vestibular balance",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "stabilize",
+      "slot": "balance_control",
+      "cardSummary": "Head-Turn Single-Leg Balance is a balance-focused drill for teaches balance while the head and eyes move, like tracking the ball, scanning the sideline, or reacting to a changing opponent. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Prepare & Access or early Movement Intelligence after temperature is raised. Keep it low fatigue so later sprint, skill, strength, or sport work stays sharp.",
+      "description": "Balance on one foot while slowly turning the head without losing foot pressure or trunk stack.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Head-Turn Single-Leg Balance as balance skill plus control under the specific constraint: Teaches balance while the head and eyes move, like tracking the ball, scanning the sideline, or reacting to a changing opponent. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Find your foot pressure, breathe, and make the body quiet.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        },
+        {
+          "key": "rotate",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Head-Turn Single-Leg Balance removes speed and fatigue so the athlete can feel the base of support, joint alignment, and breathing strategy. That creates a stable reference point before the same balance demand is challenged by motion, contact, or a narrower surface.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: balance_control.",
+      "commonMisuse": "Do not make this a long boredom hold or use unstable gimmicks before the athlete owns simple floor balance. Stop when breathing, posture, or foot pressure degrades.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "cervical_rotation",
+          "ankle_stability",
+          "hip_stabilization",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "foot_intrinsics",
+          "calves",
+          "gluteus_medius",
+          "neck_stabilizers"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "vestibular_or_visual_input_management"
+        ],
+        "postural_shape": "stacked_static_balance_position",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "static_single_leg_tandem_or_sensory_balance",
+        "coordination_demand": "maintain_alignment_breathing_and_visual_or_vestibular_control",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Balance on one foot while slowly turning the head without losing foot pressure or trunk stack.",
+        "setup": [
+          "Stand on one foot near a support.",
+          "Set the stance foot tripod and soften the knee.",
+          "Look straight ahead before beginning head movement."
+        ],
+        "execution_steps": [
+          "Turn the head slowly left and right while the chest stays square.",
+          "Keep breathing and avoid rushing the scan.",
+          "Pause if the foot loses pressure or the pelvis shifts.",
+          "Switch sides and repeat."
+        ],
+        "coach_cues": [
+          "Eyes move, body stays quiet.",
+          "Slow scan.",
+          "Foot still owns the floor.",
+          "Breathe through the turn."
+        ],
+        "athlete_cues": [
+          "Eyes move, body stays quiet.",
+          "Slow scan.",
+          "Foot still owns the floor."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Whole torso rotates with the head.",
+          "Athlete moves too fast and chases wobble.",
+          "Knee collapses inward.",
+          "Breath-holding during the turn."
+        ],
+        "quality_gate": [
+          "Athlete completes 4-6 controlled head turns each side without touch-down or trunk rotation."
+        ],
+        "stop_signs": [
+          "Dizziness, nausea, headache, or concussion symptoms.",
+          "Unsafe wobble without support.",
+          "Neck pain with rotation."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 20,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 2,
+        "default_rpe_max": 4
+      },
+      "scaling": {
+        "youth_beginner": "For Head-Turn Single-Leg Balance, use the simplest version with support nearby and short 8-15 second exposures. Use support and shorter holds before narrowing the base or reducing visual input. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Head-Turn Single-Leg Balance playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Head-Turn Single-Leg Balance toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Head-Turn Single-Leg Balance with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Head-Turn Single-Leg Balance as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Head-Turn Single-Leg Balance. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Head-Turn Single-Leg Balance, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Eyes-Closed Single-Leg Balance",
+        "Single-Leg Med Ball Catch",
+        "Tandem Walk"
+      ],
+      "pairsWellBefore": [
+        "Clock Reach Balance",
+        "Step-Down to Stick",
+        "Balance Beam Walk"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "sprint_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Head-Turn Single-Leg Balance front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Active vertigo, nausea, headache, or concussion symptoms without medical clearance.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Tandem Head-Turn Balance",
+          "Seated Head-Turn Eye Tracking"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 6,
+        "minimum_hours_between_hard_exposures": 0,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 1,
+        "fatigue_sensitivity": 2,
+        "technical_complexity": 2,
+        "impact_level": 0,
+        "intensity_ceiling": "low"
+      }
+    },
+    {
+      "slug": "tree-pose-athletic-hold",
+      "name": "Tree Pose Athletic Hold",
+      "family": "Hip-open stance balance",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "stabilize",
+      "slot": "balance_control",
+      "cardSummary": "Tree Pose Athletic Hold is a balance-focused drill for develops calm single-leg hip control and the ability to keep the center of mass over a small base. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Prepare & Access or early Movement Intelligence after temperature is raised. Keep it low fatigue so later sprint, skill, strength, or sport work stays sharp.",
+      "description": "Hold a modified tree-pose position with athletic foot pressure, level pelvis, and controlled breathing.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Tree Pose Athletic Hold as balance skill plus control under the specific constraint: Develops calm single-leg hip control and the ability to keep the center of mass over a small base. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Find your foot pressure, breathe, and make the body quiet.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Tree Pose Athletic Hold removes speed and fatigue so the athlete can feel the base of support, joint alignment, and breathing strategy. That creates a stable reference point before the same balance demand is challenged by motion, contact, or a narrower surface.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: balance_control.",
+      "commonMisuse": "Do not make this a long boredom hold or use unstable gimmicks before the athlete owns simple floor balance. Stop when breathing, posture, or foot pressure degrades.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_external_rotation",
+          "ankle_stability",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "foot_intrinsics",
+          "gluteus_medius",
+          "adductors",
+          "obliques"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "stacked_static_balance_position",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "static_single_leg_tandem_or_sensory_balance",
+        "coordination_demand": "maintain_alignment_breathing_and_visual_or_vestibular_control",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Hold a modified tree-pose position with athletic foot pressure, level pelvis, and controlled breathing.",
+        "setup": [
+          "Stand tall on one leg near support.",
+          "Place the non-stance foot at ankle, calf, or inner thigh without pressing into the knee.",
+          "Set ribs over pelvis and keep the stance knee soft."
+        ],
+        "execution_steps": [
+          "Hold the position without letting the pelvis rotate open excessively.",
+          "Keep stance-foot pressure even.",
+          "Use the arms only as much as needed.",
+          "Switch sides after a clean hold."
+        ],
+        "coach_cues": [
+          "Root the stance foot.",
+          "Level hips.",
+          "Tall, not stiff.",
+          "Soft eyes."
+        ],
+        "athlete_cues": [
+          "Root the stance foot.",
+          "Level hips.",
+          "Tall, not stiff."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Foot presses into the knee joint.",
+          "Pelvis opens so far the low back arches.",
+          "Stance knee locks.",
+          "Athlete chases a yoga shape instead of athletic control."
+        ],
+        "quality_gate": [
+          "Athlete can hold without knee discomfort and can step out under control."
+        ],
+        "stop_signs": [
+          "Medial knee pain from foot placement.",
+          "Athlete feels unsafe without support.",
+          "Hip pinch or low-back discomfort."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 20,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 2,
+        "default_rpe_max": 4
+      },
+      "scaling": {
+        "youth_beginner": "For Tree Pose Athletic Hold, use the simplest version with support nearby and short 8-15 second exposures. Use support and shorter holds before narrowing the base or reducing visual input. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Tree Pose Athletic Hold playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Tree Pose Athletic Hold toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Tree Pose Athletic Hold with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Tree Pose Athletic Hold as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Tree Pose Athletic Hold. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Tree Pose Athletic Hold, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Tandem Line Balance Hold",
+        "Warrior III Reach Hold",
+        "Clock Reach Balance"
+      ],
+      "pairsWellBefore": [
+        "Clock Reach Balance",
+        "Step-Down to Stick",
+        "Balance Beam Walk"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "sprint_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Tree Pose Athletic Hold front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Kickstand Tree Hold",
+          "Supported Figure-Four Balance"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": true,
+        "weekly_max_frequency": 6,
+        "minimum_hours_between_hard_exposures": 0,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 1,
+        "fatigue_sensitivity": 2,
+        "technical_complexity": 2,
+        "impact_level": 0,
+        "intensity_ceiling": "low"
+      }
+    },
+    {
+      "slug": "warrior-iii-reach-hold",
+      "name": "Warrior III Reach Hold",
+      "family": "Hinge balance",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "stabilize",
+      "slot": "balance_control",
+      "cardSummary": "Warrior III Reach Hold is a balance-focused drill for links beam balance, sprint posture, and wrestling hinge control by making the athlete stay long without tipping. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Prepare & Access or early Movement Intelligence after temperature is raised. Keep it low fatigue so later sprint, skill, strength, or sport work stays sharp.",
+      "description": "Hinge on one leg into a long T-shape with the arms reaching forward and the back leg reaching behind.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Warrior III Reach Hold as balance skill plus control under the specific constraint: Links beam balance, sprint posture, and wrestling hinge control by making the athlete stay long without tipping. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Find your foot pressure, breathe, and make the body quiet.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "hinge",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Warrior III Reach Hold removes speed and fatigue so the athlete can feel the base of support, joint alignment, and breathing strategy. That creates a stable reference point before the same balance demand is challenged by motion, contact, or a narrower surface.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: balance_control.",
+      "commonMisuse": "Do not make this a long boredom hold or use unstable gimmicks before the athlete owns simple floor balance. Stop when breathing, posture, or foot pressure degrades.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_hinge",
+          "shoulder_flexion",
+          "ankle_stability",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "hamstrings",
+          "gluteus_maximus",
+          "lats",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "stacked_static_balance_position",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "static_single_leg_tandem_or_sensory_balance",
+        "coordination_demand": "maintain_alignment_breathing_and_visual_or_vestibular_control",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Hinge on one leg into a long T-shape with the arms reaching forward and the back leg reaching behind.",
+        "setup": [
+          "Stand on one leg with arms overhead or reaching forward.",
+          "Soften the stance knee and set foot tripod pressure.",
+          "Stack ribs before hinging."
+        ],
+        "execution_steps": [
+          "Hinge forward as the back heel reaches long behind.",
+          "Keep hips square and neck neutral.",
+          "Hold the long line for the prescribed time.",
+          "Return smoothly to standing without hopping."
+        ],
+        "coach_cues": [
+          "Long, not high.",
+          "Ribs stacked.",
+          "Back heel reaches away.",
+          "Stance foot owns the floor."
+        ],
+        "athlete_cues": [
+          "Long, not high.",
+          "Ribs stacked.",
+          "Back heel reaches away."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Back leg lifts by arching the low back.",
+          "Hips rotate open.",
+          "Stance foot collapses.",
+          "Athlete rushes out of the hold."
+        ],
+        "quality_gate": [
+          "Athlete can pause, breathe, and return to standing without a hop or hip turn."
+        ],
+        "stop_signs": [
+          "Hamstring pain or nerve symptoms.",
+          "Repeated hopping on the stance foot.",
+          "Low-back extension replaces the hinge."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 20,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 2,
+        "default_rpe_max": 4
+      },
+      "scaling": {
+        "youth_beginner": "For Warrior III Reach Hold, use the simplest version with support nearby and short 8-15 second exposures. Use support and shorter holds before narrowing the base or reducing visual input. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Warrior III Reach Hold playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Warrior III Reach Hold toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Warrior III Reach Hold with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Warrior III Reach Hold as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Warrior III Reach Hold. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Warrior III Reach Hold, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Single-Leg RDL Reach",
+        "Clock Reach Balance",
+        "Balance Beam Single-Leg Quarter Squat"
+      ],
+      "pairsWellBefore": [
+        "Clock Reach Balance",
+        "Step-Down to Stick",
+        "Balance Beam Walk"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "sprint_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Warrior III Reach Hold front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Kickstand Hinge Hold",
+          "Supported Warrior III Reach"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 6,
+        "minimum_hours_between_hard_exposures": 0,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 1,
+        "fatigue_sensitivity": 2,
+        "technical_complexity": 2,
+        "impact_level": 0,
+        "intensity_ceiling": "low"
+      }
+    },
+    {
+      "slug": "single-leg-glute-bridge-hold",
+      "name": "Single-Leg Glute Bridge Hold",
+      "family": "Supine hip balance",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "stabilize",
+      "slot": "balance_control",
+      "cardSummary": "Single-Leg Glute Bridge Hold is a balance-focused drill for teaches one hip to extend while the pelvis stays quiet, supporting sprint stance and single-leg landing balance. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Prepare & Access or early Movement Intelligence after temperature is raised. Keep it low fatigue so later sprint, skill, strength, or sport work stays sharp.",
+      "description": "Bridge on one leg and hold the pelvis level without cramping the hamstring or arching the low back.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Single-Leg Glute Bridge Hold as balance skill plus control under the specific constraint: Teaches one hip to extend while the pelvis stays quiet, supporting sprint stance and single-leg landing balance. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Find your foot pressure, breathe, and make the body quiet.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "mat",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 5
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Single-Leg Glute Bridge Hold removes speed and fatigue so the athlete can feel the base of support, joint alignment, and breathing strategy. That creates a stable reference point before the same balance demand is challenged by motion, contact, or a narrower surface.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: balance_control.",
+      "commonMisuse": "Do not make this a long boredom hold or use unstable gimmicks before the athlete owns simple floor balance. Stop when breathing, posture, or foot pressure degrades.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_extension",
+          "pelvic_stabilization",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "gluteus_maximus",
+          "hamstrings",
+          "deep_core",
+          "hip_flexors"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "stacked_static_balance_position",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "static_single_leg_tandem_or_sensory_balance",
+        "coordination_demand": "maintain_alignment_breathing_and_visual_or_vestibular_control",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Bridge on one leg and hold the pelvis level without cramping the hamstring or arching the low back.",
+        "setup": [
+          "Lie on the back with knees bent and feet flat.",
+          "Set ribs down and gently brace.",
+          "Lift one knee toward the chest or keep the free foot hovering."
+        ],
+        "execution_steps": [
+          "Drive through the stance heel and lift the hips.",
+          "Hold the pelvis level without rotating.",
+          "Breathe quietly at the top.",
+          "Lower with control and switch sides."
+        ],
+        "coach_cues": [
+          "Heel drives, hips level.",
+          "No rib flare.",
+          "Glute, not hamstring cramp.",
+          "Quiet pelvis."
+        ],
+        "athlete_cues": [
+          "Heel drives, hips level.",
+          "No rib flare.",
+          "Glute, not hamstring cramp."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Low back arches at the top.",
+          "Hamstring cramps from overreaching.",
+          "Pelvis drops or rotates.",
+          "Athlete pushes through the toes."
+        ],
+        "quality_gate": [
+          "Athlete can hold 15-25 seconds with level pelvis and no hamstring cramp."
+        ],
+        "stop_signs": [
+          "Back pain, hamstring cramp, or hip pinch.",
+          "Pelvis cannot stay level.",
+          "Breath-holding or dizziness in supine."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 20,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 2,
+        "default_rpe_max": 4
+      },
+      "scaling": {
+        "youth_beginner": "For Single-Leg Glute Bridge Hold, use the simplest version with support nearby and short 8-15 second exposures. Use support and shorter holds before narrowing the base or reducing visual input. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Single-Leg Glute Bridge Hold playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Single-Leg Glute Bridge Hold toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Single-Leg Glute Bridge Hold with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Single-Leg Glute Bridge Hold as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Single-Leg Glute Bridge Hold. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Single-Leg Glute Bridge Hold, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Dead Bug",
+        "Single-Leg Tripod Balance",
+        "Step-Down to Stick"
+      ],
+      "pairsWellBefore": [
+        "Clock Reach Balance",
+        "Step-Down to Stick",
+        "Balance Beam Walk"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "sprint_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Single-Leg Glute Bridge Hold front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Double-Leg Glute Bridge Hold",
+          "Bridge March"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": true,
+        "weekly_max_frequency": 6,
+        "minimum_hours_between_hard_exposures": 0,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 1,
+        "fatigue_sensitivity": 2,
+        "technical_complexity": 2,
+        "impact_level": 0,
+        "intensity_ceiling": "low"
+      }
+    },
+    {
+      "slug": "half-kneeling-narrow-base-hold",
+      "name": "Half-Kneeling Narrow-Base Hold",
+      "family": "Kneeling base balance",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "stabilize",
+      "slot": "balance_control",
+      "cardSummary": "Half-Kneeling Narrow-Base Hold is a balance-focused drill for trains pelvic stack and base control from a wrestling-relevant transitional position before adding reach or contact. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Prepare & Access or early Movement Intelligence after temperature is raised. Keep it low fatigue so later sprint, skill, strength, or sport work stays sharp.",
+      "description": "Hold a narrow half-kneeling stance while maintaining vertical posture and even pressure through the front foot.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Half-Kneeling Narrow-Base Hold as balance skill plus control under the specific constraint: Trains pelvic stack and base control from a wrestling-relevant transitional position before adding reach or contact. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Find your foot pressure, breathe, and make the body quiet.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "mat",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 5
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Half-Kneeling Narrow-Base Hold removes speed and fatigue so the athlete can feel the base of support, joint alignment, and breathing strategy. That creates a stable reference point before the same balance demand is challenged by motion, contact, or a narrower surface.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: balance_control.",
+      "commonMisuse": "Do not make this a long boredom hold or use unstable gimmicks before the athlete owns simple floor balance. Stop when breathing, posture, or foot pressure degrades.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_stabilization",
+          "pelvic_stabilization",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "gluteus_medius",
+          "adductors",
+          "obliques",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "stacked_static_balance_position",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "static_single_leg_tandem_or_sensory_balance",
+        "coordination_demand": "maintain_alignment_breathing_and_visual_or_vestibular_control",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Hold a narrow half-kneeling stance while maintaining vertical posture and even pressure through the front foot.",
+        "setup": [
+          "Set one knee down on a mat and the other foot forward.",
+          "Narrow the stance just enough to challenge balance without pain.",
+          "Stack ribs over pelvis and keep the front foot flat."
+        ],
+        "execution_steps": [
+          "Hold tall without leaning into the front hip.",
+          "Breathe and maintain light glute pressure on the down-knee side.",
+          "Add a small arm reach only after the base is stable.",
+          "Switch legs."
+        ],
+        "coach_cues": [
+          "Tall zipper.",
+          "Front foot flat.",
+          "Back glute lightly on.",
+          "Do not lean to survive."
+        ],
+        "athlete_cues": [
+          "Tall zipper.",
+          "Front foot flat.",
+          "Back glute lightly on."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Front foot rolls in or out.",
+          "Low back arches.",
+          "Athlete leans onto the front thigh.",
+          "Down knee discomfort from poor padding."
+        ],
+        "quality_gate": [
+          "Athlete can hold 20-30 seconds with no foot lift, hip shift, or breath-hold."
+        ],
+        "stop_signs": [
+          "Knee pain on the pad.",
+          "Hip pinch in half kneeling.",
+          "Cannot hold position without grabbing support."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 20,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 2,
+        "default_rpe_max": 4
+      },
+      "scaling": {
+        "youth_beginner": "For Half-Kneeling Narrow-Base Hold, use the simplest version with support nearby and short 8-15 second exposures. Use support and shorter holds before narrowing the base or reducing visual input. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Half-Kneeling Narrow-Base Hold playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Half-Kneeling Narrow-Base Hold toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Half-Kneeling Narrow-Base Hold with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Half-Kneeling Narrow-Base Hold as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Half-Kneeling Narrow-Base Hold. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Half-Kneeling Narrow-Base Hold, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Tall-Kneeling Pallof Press Hold",
+        "Wrestler Stance Push-Pull Balance",
+        "Split Squat ISO with Perturbation"
+      ],
+      "pairsWellBefore": [
+        "Clock Reach Balance",
+        "Step-Down to Stick",
+        "Balance Beam Walk"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "sprint_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Half-Kneeling Narrow-Base Hold front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Wide Half-Kneeling Hold",
+          "Tall-Kneeling Stack Hold"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": true,
+        "weekly_max_frequency": 6,
+        "minimum_hours_between_hard_exposures": 0,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 1,
+        "fatigue_sensitivity": 2,
+        "technical_complexity": 2,
+        "impact_level": 0,
+        "intensity_ceiling": "low"
+      }
+    },
+    {
+      "slug": "bear-plank-shoulder-tap-balance",
+      "name": "Bear Plank Shoulder Tap Balance",
+      "family": "Quadruped balance",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "stabilize",
+      "slot": "balance_control",
+      "cardSummary": "Bear Plank Shoulder Tap Balance is a balance-focused drill for develops four-point balance, anti-rotation, and hand support that support gymnastics, wrestling scrambles, and contact recovery. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Prepare & Access or early Movement Intelligence after temperature is raised. Keep it low fatigue so later sprint, skill, strength, or sport work stays sharp.",
+      "description": "Hold a bear plank and tap one shoulder at a time while the trunk and pelvis stay square.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Bear Plank Shoulder Tap Balance as balance skill plus control under the specific constraint: Develops four-point balance, anti-rotation, and hand support that support gymnastics, wrestling scrambles, and contact recovery. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Find your foot pressure, breathe, and make the body quiet.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "mat",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "core",
+          "weight": 5
+        },
+        {
+          "key": "shoulder",
+          "weight": 5
+        },
+        {
+          "key": "wrist",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Bear Plank Shoulder Tap Balance removes speed and fatigue so the athlete can feel the base of support, joint alignment, and breathing strategy. That creates a stable reference point before the same balance demand is challenged by motion, contact, or a narrower surface.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: balance_control.",
+      "commonMisuse": "Do not make this a long boredom hold or use unstable gimmicks before the athlete owns simple floor balance. Stop when breathing, posture, or foot pressure degrades.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "shoulder_stabilization",
+          "wrist_extension",
+          "spine_anti_rotation",
+          "hip_stabilization"
+        ],
+        "primary_tissues": [
+          "serratus_anterior",
+          "obliques",
+          "transverse_abdominis",
+          "gluteals"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "stacked_static_balance_position",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "static_single_leg_tandem_or_sensory_balance",
+        "coordination_demand": "maintain_alignment_breathing_and_visual_or_vestibular_control",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Hold a bear plank and tap one shoulder at a time while the trunk and pelvis stay square.",
+        "setup": [
+          "Set hands under shoulders and knees under hips on a mat.",
+          "Hover knees one to two inches off the floor.",
+          "Widen feet slightly for the first set if needed."
+        ],
+        "execution_steps": [
+          "Shift as little as possible and tap one shoulder.",
+          "Return the hand quietly to the floor.",
+          "Alternate sides without rocking the hips.",
+          "Stop before the low back sags."
+        ],
+        "coach_cues": [
+          "Quiet hips.",
+          "Push the floor away.",
+          "Tap, do not twist.",
+          "Breathe behind the brace."
+        ],
+        "athlete_cues": [
+          "Quiet hips.",
+          "Push the floor away.",
+          "Tap, do not twist."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Pelvis rotates with each tap.",
+          "Shoulders collapse toward ears.",
+          "Knees rise too high and turn it into a pike.",
+          "Wrists hurt from poor hand placement."
+        ],
+        "quality_gate": [
+          "Athlete completes 8-12 taps with steady pelvis and quiet hand returns."
+        ],
+        "stop_signs": [
+          "Wrist, shoulder, or low-back pain.",
+          "Hips swing side to side each rep.",
+          "Athlete cannot hold knees hovered safely."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 20,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 2,
+        "default_rpe_max": 4
+      },
+      "scaling": {
+        "youth_beginner": "For Bear Plank Shoulder Tap Balance, use the simplest version with support nearby and short 8-15 second exposures. Use support and shorter holds before narrowing the base or reducing visual input. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Bear Plank Shoulder Tap Balance playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Bear Plank Shoulder Tap Balance toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Bear Plank Shoulder Tap Balance with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Bear Plank Shoulder Tap Balance as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Bear Plank Shoulder Tap Balance. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Bear Plank Shoulder Tap Balance, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Dead Bug",
+        "Low Beam Bear Crawl",
+        "Bear Crawl Partner Tap Balance"
+      ],
+      "pairsWellBefore": [
+        "Clock Reach Balance",
+        "Step-Down to Stick",
+        "Balance Beam Walk"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "sprint_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Bear Plank Shoulder Tap Balance front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Quadruped Shoulder Tap",
+          "Bear Plank Hold"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 6,
+        "minimum_hours_between_hard_exposures": 0,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 1,
+        "fatigue_sensitivity": 2,
+        "technical_complexity": 2,
+        "impact_level": 0,
+        "intensity_ceiling": "low"
+      }
+    },
+    {
+      "slug": "hollow-body-rock-to-freeze",
+      "name": "Hollow Body Rock to Freeze",
+      "family": "Gymnastics shape balance",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "stabilize",
+      "slot": "balance_control",
+      "cardSummary": "Hollow Body Rock to Freeze is a balance-focused drill for trains body-shape ownership and the ability to stop motion on command, a key beam and tumbling balance skill. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Prepare & Access or early Movement Intelligence after temperature is raised. Keep it low fatigue so later sprint, skill, strength, or sport work stays sharp.",
+      "description": "Rock in a hollow-body shape and freeze without losing rib, pelvis, or leg position.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Hollow Body Rock to Freeze as balance skill plus control under the specific constraint: Trains body-shape ownership and the ability to stop motion on command, a key beam and tumbling balance skill. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Find your foot pressure, breathe, and make the body quiet.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "mat",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "core",
+          "weight": 5
+        },
+        {
+          "key": "spine",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Hollow Body Rock to Freeze removes speed and fatigue so the athlete can feel the base of support, joint alignment, and breathing strategy. That creates a stable reference point before the same balance demand is challenged by motion, contact, or a narrower surface.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: balance_control.",
+      "commonMisuse": "Do not make this a long boredom hold or use unstable gimmicks before the athlete owns simple floor balance. Stop when breathing, posture, or foot pressure degrades.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "spine_flexion_control",
+          "hip_flexion",
+          "shoulder_flexion"
+        ],
+        "primary_tissues": [
+          "rectus_abdominis",
+          "obliques",
+          "hip_flexors",
+          "lats"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "stacked_static_balance_position",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "static_single_leg_tandem_or_sensory_balance",
+        "coordination_demand": "maintain_alignment_breathing_and_visual_or_vestibular_control",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Rock in a hollow-body shape and freeze without losing rib, pelvis, or leg position.",
+        "setup": [
+          "Lie on the back and set a hollow shape that the athlete can own.",
+          "Choose tuck, one-leg, or full hollow based on control.",
+          "Keep the low back gently connected to the mat."
+        ],
+        "execution_steps": [
+          "Begin small controlled rocks.",
+          "On the cue, freeze the body shape immediately.",
+          "Hold the freeze for two breaths.",
+          "Reset shape quality before the next rock."
+        ],
+        "coach_cues": [
+          "One piece.",
+          "Small rock, sharp freeze.",
+          "Ribs down.",
+          "Stop without flopping."
+        ],
+        "athlete_cues": [
+          "One piece.",
+          "Small rock, sharp freeze.",
+          "Ribs down."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Low back pops off the mat.",
+          "Neck strains forward.",
+          "Rocking becomes momentum instead of control.",
+          "Athlete chases fatigue reps."
+        ],
+        "quality_gate": [
+          "Athlete can freeze within one beat while keeping the chosen hollow shape."
+        ],
+        "stop_signs": [
+          "Low-back pain, neck strain, or breath-holding.",
+          "Shape cannot be maintained at the chosen leverage.",
+          "Fatigue turns the drill sloppy."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 20,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 2,
+        "default_rpe_max": 4
+      },
+      "scaling": {
+        "youth_beginner": "For Hollow Body Rock to Freeze, use the simplest version with support nearby and short 8-15 second exposures. Use support and shorter holds before narrowing the base or reducing visual input. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Hollow Body Rock to Freeze playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Hollow Body Rock to Freeze toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Hollow Body Rock to Freeze with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Hollow Body Rock to Freeze as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Hollow Body Rock to Freeze. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Hollow Body Rock to Freeze, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Low Beam Bear Crawl",
+        "Beam Mount/Dismount Stick",
+        "Bear Plank Shoulder Tap Balance"
+      ],
+      "pairsWellBefore": [
+        "Clock Reach Balance",
+        "Step-Down to Stick",
+        "Balance Beam Walk"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "sprint_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Hollow Body Rock to Freeze front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Dead Bug Freeze",
+          "Tuck Hollow Hold"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 6,
+        "minimum_hours_between_hard_exposures": 0,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 1,
+        "fatigue_sensitivity": 2,
+        "technical_complexity": 2,
+        "impact_level": 0,
+        "intensity_ceiling": "low"
+      }
+    }
+  ]
+}
+```
+
+
+# Batch 11-20 Balance Exercise Cards
+Primary source used: exercise_card_details_for_llm.md, which defines the Vortex Card v2 authoring workflow, canonical session phases, taxonomy tags, publish gates, authoring JSON format, dosage/scaling/safety fields, and common authoring mistakes to avoid. Purpose.txt was requested but was not located in the File Library search results available in this session, so the exercise selection is grounded in the available Card v2 guide plus the user's stated balance purpose: sideline contact control, beam-level body control, and wrestling center-of-gravity control.
+## Category Focus
+- **Foot/Ankle/Hip Control and Single-Leg Strength:** Progressive single-leg drills that connect foot pressure, ankle stiffness, knee tracking, hip control, and trunk position under longer leverage or greater local demand.
+
+## Cursor-Ready JSON
+```json
+{
+  "cluster": {
+    "focus": "balance",
+    "batch": "11-20",
+    "categories": [
+      "Foot/Ankle/Hip Control and Single-Leg Strength"
+    ],
+    "card_count": 10,
+    "primary_authoring_format": "camelCase Card v2"
+  },
+  "cards": [
+    {
+      "slug": "clock-reach-balance",
+      "name": "Clock Reach Balance",
+      "family": "Reach-based single-leg control",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "single_leg_balance_foot_ankle_hip_control",
+      "subroleSecondary": "slow_eccentric_isometric_joint_resilience",
+      "slot": "single_leg_balance_control",
+      "cardSummary": "Clock Reach Balance is a balance-focused drill for builds controlled reach in multiple directions, preparing the athlete to stay inbounds while the body is pulled off center. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after general warm-up and before faster cutting, landing, lower-body strength, or contact balance work. It can also fit after Capacity as a resilience accessory.",
+      "description": "Stand on one leg and reach the free foot to clock positions while the stance leg maintains alignment.",
+      "coachLanguage": "Primary subrole: single_leg_balance_foot_ankle_hip_control. Coach Clock Reach Balance as balance skill plus control under the specific constraint: Builds controlled reach in multiple directions, preparing the athlete to stay inbounds while the body is pulled off center. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Move slowly enough that the stance foot, knee, and hip stay in control.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        },
+        {
+          "key": "resistance_calisthenics",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "squat",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Clock Reach Balance links foot pressure, ankle stiffness, knee tracking, hip control, and trunk position. This is the hardware of balance: the athlete learns to keep the center of mass over a single-leg or split-stance base while force changes direction.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: single_leg_balance_control.",
+      "commonMisuse": "Do not chase depth, distance, or shaking fatigue. The adaptation is controlled alignment and recovery; reduce range before accepting sloppy reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_dorsiflexion",
+          "knee_flexion_control",
+          "hip_stabilization",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "foot_intrinsics",
+          "quadriceps",
+          "gluteus_medius",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "single_leg_or_split_stance_control",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "single_leg_or_lateral_weight_shift_balance",
+        "coordination_demand": "coordinate_reach_depth_alignment_and_return_to_center",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Stand on one leg and reach the free foot to clock positions while the stance leg maintains alignment.",
+        "setup": [
+          "Stand in the center of an imaginary clock or cone circle.",
+          "Set the stance foot tripod.",
+          "Keep hands at hips or in athletic running arms."
+        ],
+        "execution_steps": [
+          "Reach the free foot lightly to the target direction.",
+          "Return to center without hopping.",
+          "Move through front, side, diagonal, and back reaches.",
+          "Switch stance legs."
+        ],
+        "coach_cues": [
+          "Reach light, stance strong.",
+          "Knee tracks over laces.",
+          "Own center before the next reach.",
+          "No hop reset."
+        ],
+        "athlete_cues": [
+          "Reach light, stance strong.",
+          "Knee tracks over laces.",
+          "Own center before the next reach."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Reach foot takes body weight.",
+          "Stance knee caves inward.",
+          "Athlete speeds up before control is earned.",
+          "Trunk bends to fake range."
+        ],
+        "quality_gate": [
+          "Athlete can touch 5-8 positions per side with no hop and consistent knee tracking."
+        ],
+        "stop_signs": [
+          "Pain or sharp pinch with a reach direction.",
+          "Repeated loss of stance-foot pressure.",
+          "Knee collapse that cannot be corrected."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 5,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Clock Reach Balance, use the simplest version with support nearby and short 8-15 second exposures. Use hand support, shorter range, and slower tempo before increasing reach, depth, or load. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Clock Reach Balance playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Clock Reach Balance toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Clock Reach Balance with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Clock Reach Balance as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Clock Reach Balance. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Clock Reach Balance, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Single-Leg Tripod Balance",
+        "Star Excursion Reach",
+        "Lateral Step-Down Balance"
+      ],
+      "pairsWellBefore": [
+        "Lateral Bound to Stick",
+        "Curved Run Sideline Stick",
+        "Wrestler Stance Push-Pull Balance"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "squat_prep",
+        "deceleration",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Clock Reach Balance front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Three-Point Reach",
+          "Supported Clock Reach"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "star-excursion-reach",
+      "name": "Star Excursion Reach",
+      "family": "Multi-direction reach balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "single_leg_balance_foot_ankle_hip_control",
+      "subroleSecondary": "slow_eccentric_isometric_joint_resilience",
+      "slot": "single_leg_balance_control",
+      "cardSummary": "Star Excursion Reach is a balance-focused drill for a more demanding reach matrix for foot, ankle, knee, and hip control in unpredictable sport positions. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after general warm-up and before faster cutting, landing, lower-body strength, or contact balance work. It can also fit after Capacity as a resilience accessory.",
+      "description": "Reach along star lines with the free foot while the stance leg controls depth, pelvis, and return to center.",
+      "coachLanguage": "Primary subrole: single_leg_balance_foot_ankle_hip_control. Coach Star Excursion Reach as balance skill plus control under the specific constraint: A more demanding reach matrix for foot, ankle, knee, and hip control in unpredictable sport positions. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Move slowly enough that the stance foot, knee, and hip stay in control.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        },
+        {
+          "key": "resistance_calisthenics",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "squat",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "tape_line",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Star Excursion Reach links foot pressure, ankle stiffness, knee tracking, hip control, and trunk position. This is the hardware of balance: the athlete learns to keep the center of mass over a single-leg or split-stance base while force changes direction.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: single_leg_balance_control.",
+      "commonMisuse": "Do not chase depth, distance, or shaking fatigue. The adaptation is controlled alignment and recovery; reduce range before accepting sloppy reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_dorsiflexion",
+          "hip_flexion",
+          "hip_abduction_control",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "foot_intrinsics",
+          "quadriceps",
+          "gluteus_medius",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "single_leg_or_split_stance_control",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "single_leg_or_lateral_weight_shift_balance",
+        "coordination_demand": "coordinate_reach_depth_alignment_and_return_to_center",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Reach along star lines with the free foot while the stance leg controls depth, pelvis, and return to center.",
+        "setup": [
+          "Tape three to eight reach lines on the floor.",
+          "Stand barefoot or in training shoes at the center.",
+          "Choose a range the athlete can reach without shifting all weight to the free foot."
+        ],
+        "execution_steps": [
+          "Reach the free foot lightly along one line.",
+          "Return to center and pause before the next line.",
+          "Keep the stance heel down when appropriate.",
+          "Complete both sides with equal standards."
+        ],
+        "coach_cues": [
+          "Trace the line, do not fall to it.",
+          "Center after every reach.",
+          "Heel heavy, knee clean.",
+          "Pelvis stays level."
+        ],
+        "athlete_cues": [
+          "Trace the line, do not fall to it.",
+          "Center after every reach.",
+          "Heel heavy, knee clean."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Reach toe drags body weight.",
+          "Stance heel lifts too early.",
+          "Pelvis dumps or rotates.",
+          "The athlete chases distance over control."
+        ],
+        "quality_gate": [
+          "Reach distance only counts when the athlete returns to center without hopping or collapsing."
+        ],
+        "stop_signs": [
+          "Knee valgus or pain in any direction.",
+          "Ankle pain with dorsiflexion.",
+          "Loss of balance causes unsafe stepping."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 5,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Star Excursion Reach, use the simplest version with support nearby and short 8-15 second exposures. Use hand support, shorter range, and slower tempo before increasing reach, depth, or load. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Star Excursion Reach playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Star Excursion Reach toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Star Excursion Reach with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Star Excursion Reach as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Star Excursion Reach. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Star Excursion Reach, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Clock Reach Balance",
+        "Single-Leg RDL Reach",
+        "Step-Down to Stick"
+      ],
+      "pairsWellBefore": [
+        "Lateral Bound to Stick",
+        "Curved Run Sideline Stick",
+        "Wrestler Stance Push-Pull Balance"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "squat_prep",
+        "deceleration",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Star Excursion Reach front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Clock Reach Balance",
+          "Supported Star Reach"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "single-leg-rdl-reach",
+      "name": "Single-Leg RDL Reach",
+      "family": "Hinge reach balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "single_leg_balance_foot_ankle_hip_control",
+      "subroleSecondary": "slow_eccentric_isometric_joint_resilience",
+      "slot": "single_leg_balance_control",
+      "cardSummary": "Single-Leg RDL Reach is a balance-focused drill for connects posterior-chain control with single-leg balance for running, wrestling level changes, and landing recovery. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after general warm-up and before faster cutting, landing, lower-body strength, or contact balance work. It can also fit after Capacity as a resilience accessory.",
+      "description": "Hinge on one leg and reach the hands or opposite hand forward while the back leg counterbalances.",
+      "coachLanguage": "Primary subrole: single_leg_balance_foot_ankle_hip_control. Coach Single-Leg RDL Reach as balance skill plus control under the specific constraint: Connects posterior-chain control with single-leg balance for running, wrestling level changes, and landing recovery. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Move slowly enough that the stance foot, knee, and hip stay in control.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        },
+        {
+          "key": "resistance_calisthenics",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "hinge",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Single-Leg RDL Reach links foot pressure, ankle stiffness, knee tracking, hip control, and trunk position. This is the hardware of balance: the athlete learns to keep the center of mass over a single-leg or split-stance base while force changes direction.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: single_leg_balance_control.",
+      "commonMisuse": "Do not chase depth, distance, or shaking fatigue. The adaptation is controlled alignment and recovery; reduce range before accepting sloppy reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_hinge",
+          "ankle_stability",
+          "spine_stabilization",
+          "shoulder_reach"
+        ],
+        "primary_tissues": [
+          "hamstrings",
+          "gluteus_maximus",
+          "foot_intrinsics",
+          "erectors"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "single_leg_or_split_stance_control",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "single_leg_or_lateral_weight_shift_balance",
+        "coordination_demand": "coordinate_reach_depth_alignment_and_return_to_center",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Hinge on one leg and reach the hands or opposite hand forward while the back leg counterbalances.",
+        "setup": [
+          "Stand on one leg with a soft knee.",
+          "Set foot tripod pressure.",
+          "Choose hands-on-hips, two-arm reach, or opposite-hand reach."
+        ],
+        "execution_steps": [
+          "Hinge from the hip while the back heel reaches long.",
+          "Reach only as far as the spine and pelvis stay organized.",
+          "Pause at end range.",
+          "Return to tall stance without touching down."
+        ],
+        "coach_cues": [
+          "Hinge, don't bow.",
+          "Back heel long.",
+          "Square hips.",
+          "Stand up through the floor."
+        ],
+        "athlete_cues": [
+          "Hinge, don't bow.",
+          "Back heel long.",
+          "Square hips."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Lumbar rounding or arching replaces hip hinge.",
+          "Hips rotate open.",
+          "Reach becomes a fall.",
+          "Knee locks or wobbles."
+        ],
+        "quality_gate": [
+          "Athlete can pause at reach depth for one breath and return without a hop."
+        ],
+        "stop_signs": [
+          "Hamstring strain sensation, back pain, or repeated loss of balance.",
+          "Cannot keep hips square at reduced range."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 5,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Single-Leg RDL Reach, use the simplest version with support nearby and short 8-15 second exposures. Use hand support, shorter range, and slower tempo before increasing reach, depth, or load. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Single-Leg RDL Reach playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Single-Leg RDL Reach toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Single-Leg RDL Reach with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Single-Leg RDL Reach as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Single-Leg RDL Reach. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Single-Leg RDL Reach, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Warrior III Reach Hold",
+        "Clock Reach Balance",
+        "Skater Squat Box Tap"
+      ],
+      "pairsWellBefore": [
+        "Lateral Bound to Stick",
+        "Curved Run Sideline Stick",
+        "Wrestler Stance Push-Pull Balance"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "squat_prep",
+        "deceleration",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Single-Leg RDL Reach front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Kickstand RDL Reach",
+          "Supported Single-Leg RDL Reach"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "toe-yoga-tripod-balance",
+      "name": "Toe-Yoga Tripod Balance",
+      "family": "Foot intrinsic balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "single_leg_balance_foot_ankle_hip_control",
+      "subroleSecondary": "slow_eccentric_isometric_joint_resilience",
+      "slot": "single_leg_balance_control",
+      "cardSummary": "Toe-Yoga Tripod Balance is a balance-focused drill for improves the athlete's ability to organize the foot under bodyweight instead of losing balance through toe clawing or arch collapse. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after general warm-up and before faster cutting, landing, lower-body strength, or contact balance work. It can also fit after Capacity as a resilience accessory.",
+      "description": "Hold standing tripod pressure while independently lifting or pressing toes without losing arch position.",
+      "coachLanguage": "Primary subrole: single_leg_balance_foot_ankle_hip_control. Coach Toe-Yoga Tripod Balance as balance skill plus control under the specific constraint: Improves the athlete's ability to organize the foot under bodyweight instead of losing balance through toe clawing or arch collapse. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Move slowly enough that the stance foot, knee, and hip stay in control.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        },
+        {
+          "key": "resistance_calisthenics",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        }
+      ],
+      "whyItWorks": "Toe-Yoga Tripod Balance links foot pressure, ankle stiffness, knee tracking, hip control, and trunk position. This is the hardware of balance: the athlete learns to keep the center of mass over a single-leg or split-stance base while force changes direction.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: single_leg_balance_control.",
+      "commonMisuse": "Do not chase depth, distance, or shaking fatigue. The adaptation is controlled alignment and recovery; reduce range before accepting sloppy reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "toe_extension_control",
+          "arch_control",
+          "ankle_stability"
+        ],
+        "primary_tissues": [
+          "foot_intrinsics",
+          "plantar_fascia",
+          "calves"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "single_leg_or_split_stance_control",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "single_leg_or_lateral_weight_shift_balance",
+        "coordination_demand": "coordinate_reach_depth_alignment_and_return_to_center",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Hold standing tripod pressure while independently lifting or pressing toes without losing arch position.",
+        "setup": [
+          "Stand barefoot or in thin shoes if appropriate.",
+          "Set equal pressure through big toe, little toe, and heel.",
+          "Use a wall for balance if needed."
+        ],
+        "execution_steps": [
+          "Lift the big toe while other toes stay long.",
+          "Press the big toe down and lift the lesser toes.",
+          "Maintain arch height without rolling the ankle.",
+          "Repeat slowly on both feet."
+        ],
+        "coach_cues": [
+          "Toes long.",
+          "Arch alive.",
+          "Move the toes, not the whole leg.",
+          "Small precise reps."
+        ],
+        "athlete_cues": [
+          "Toes long.",
+          "Arch alive.",
+          "Move the toes, not the whole leg."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Toe clawing.",
+          "Foot rolls to the outside edge.",
+          "Athlete forces range and cramps.",
+          "Knee twists with the toe action."
+        ],
+        "quality_gate": [
+          "Athlete can move toes independently while maintaining tripod pressure and calm breathing."
+        ],
+        "stop_signs": [
+          "Foot cramping that does not resolve with rest.",
+          "Pain under the arch or toe joints.",
+          "Loss of balance without support."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 60,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Toe-Yoga Tripod Balance, use the simplest version with support nearby and short 8-15 second exposures. Use hand support, shorter range, and slower tempo before increasing reach, depth, or load. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Toe-Yoga Tripod Balance playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Toe-Yoga Tripod Balance toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Toe-Yoga Tripod Balance with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Toe-Yoga Tripod Balance as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Toe-Yoga Tripod Balance. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Toe-Yoga Tripod Balance, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Single-Leg Tripod Balance",
+        "Calf Raise ISO with Single-Leg Hold",
+        "Sprint Foot Tripod ISO"
+      ],
+      "pairsWellBefore": [
+        "Lateral Bound to Stick",
+        "Curved Run Sideline Stick",
+        "Wrestler Stance Push-Pull Balance"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "squat_prep",
+        "deceleration",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Toe-Yoga Tripod Balance front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Seated Toe Yoga",
+          "Supported Tripod Hold"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "calf-raise-iso-with-single-leg-hold",
+      "name": "Calf Raise ISO with Single-Leg Hold",
+      "family": "Ankle stiffness balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "single_leg_balance_foot_ankle_hip_control",
+      "subroleSecondary": "slow_eccentric_isometric_joint_resilience",
+      "slot": "single_leg_balance_control",
+      "cardSummary": "Calf Raise ISO with Single-Leg Hold is a balance-focused drill for builds ankle stiffness and tall-posture balance needed for sprinting, cutting, and recovering from contact without collapsing. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after general warm-up and before faster cutting, landing, lower-body strength, or contact balance work. It can also fit after Capacity as a resilience accessory.",
+      "description": "Rise onto one forefoot and hold the top calf-raise position with tall posture and even pressure.",
+      "coachLanguage": "Primary subrole: single_leg_balance_foot_ankle_hip_control. Coach Calf Raise ISO with Single-Leg Hold as balance skill plus control under the specific constraint: Builds ankle stiffness and tall-posture balance needed for sprinting, cutting, and recovering from contact without collapsing. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Move slowly enough that the stance foot, knee, and hip stay in control.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        },
+        {
+          "key": "resistance_calisthenics",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "wall",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Calf Raise ISO with Single-Leg Hold links foot pressure, ankle stiffness, knee tracking, hip control, and trunk position. This is the hardware of balance: the athlete learns to keep the center of mass over a single-leg or split-stance base while force changes direction.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: single_leg_balance_control.",
+      "commonMisuse": "Do not chase depth, distance, or shaking fatigue. The adaptation is controlled alignment and recovery; reduce range before accepting sloppy reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_plantarflexion",
+          "ankle_stability",
+          "hip_stabilization"
+        ],
+        "primary_tissues": [
+          "calves",
+          "achilles_tendon",
+          "foot_intrinsics",
+          "gluteus_medius"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "single_leg_or_split_stance_control",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "single_leg_or_lateral_weight_shift_balance",
+        "coordination_demand": "coordinate_reach_depth_alignment_and_return_to_center",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Rise onto one forefoot and hold the top calf-raise position with tall posture and even pressure.",
+        "setup": [
+          "Stand near a wall or rack with fingertips for light support.",
+          "Shift to one leg and set the foot straight.",
+          "Lift the heel high enough to challenge the calf without curling toes."
+        ],
+        "execution_steps": [
+          "Rise smoothly to the ball of the foot.",
+          "Hold the top position with the knee facing forward.",
+          "Lower slowly after the hold.",
+          "Repeat both sides with equal height and control."
+        ],
+        "coach_cues": [
+          "Tall ankle.",
+          "Big toe stays down.",
+          "Knee points forward.",
+          "Lower like an elevator."
+        ],
+        "athlete_cues": [
+          "Tall ankle.",
+          "Big toe stays down.",
+          "Knee points forward."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Ankle rolls out.",
+          "Toe clawing creates cramps.",
+          "Knee bends excessively to survive.",
+          "Athlete bounces instead of holding."
+        ],
+        "quality_gate": [
+          "Athlete holds 10-20 seconds at a consistent heel height without ankle roll or toe cramp."
+        ],
+        "stop_signs": [
+          "Achilles pain, calf strain sensation, or foot cramping.",
+          "Ankle rolls repeatedly despite support."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 60,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Calf Raise ISO with Single-Leg Hold, use the simplest version with support nearby and short 8-15 second exposures. Use hand support, shorter range, and slower tempo before increasing reach, depth, or load. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Calf Raise ISO with Single-Leg Hold playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Calf Raise ISO with Single-Leg Hold toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Calf Raise ISO with Single-Leg Hold with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Calf Raise ISO with Single-Leg Hold as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Calf Raise ISO with Single-Leg Hold. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Calf Raise ISO with Single-Leg Hold, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Toe-Yoga Tripod Balance",
+        "Ankle Pogo in Place",
+        "Step-Down to Stick"
+      ],
+      "pairsWellBefore": [
+        "Lateral Bound to Stick",
+        "Curved Run Sideline Stick",
+        "Wrestler Stance Push-Pull Balance"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "squat_prep",
+        "deceleration",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Calf Raise ISO with Single-Leg Hold front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Double-Leg Calf Raise ISO",
+          "Supported Seated Calf ISO"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "step-down-to-stick",
+      "name": "Step-Down to Stick",
+      "family": "Eccentric step balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "single_leg_balance_foot_ankle_hip_control",
+      "subroleSecondary": "slow_eccentric_isometric_joint_resilience",
+      "slot": "single_leg_balance_control",
+      "cardSummary": "Step-Down to Stick is a balance-focused drill for teaches controlled lowering and a clean stick, directly supporting landing, sideline toe control, and deceleration mechanics. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after general warm-up and before faster cutting, landing, lower-body strength, or contact balance work. It can also fit after Capacity as a resilience accessory.",
+      "description": "Step down from a low box and stick the bottom position without the knee or pelvis collapsing.",
+      "coachLanguage": "Primary subrole: single_leg_balance_foot_ankle_hip_control. Coach Step-Down to Stick as balance skill plus control under the specific constraint: Teaches controlled lowering and a clean stick, directly supporting landing, sideline toe control, and deceleration mechanics. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Move slowly enough that the stance foot, knee, and hip stay in control.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        },
+        {
+          "key": "resistance_calisthenics",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Step-Down to Stick links foot pressure, ankle stiffness, knee tracking, hip control, and trunk position. This is the hardware of balance: the athlete learns to keep the center of mass over a single-leg or split-stance base while force changes direction.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: single_leg_balance_control.",
+      "commonMisuse": "Do not chase depth, distance, or shaking fatigue. The adaptation is controlled alignment and recovery; reduce range before accepting sloppy reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "knee_flexion_control",
+          "ankle_dorsiflexion",
+          "hip_stabilization",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "quadriceps",
+          "gluteus_medius",
+          "calves",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "single_leg_or_split_stance_control",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "single_leg_or_lateral_weight_shift_balance",
+        "coordination_demand": "coordinate_reach_depth_alignment_and_return_to_center",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "Step down from a low box and stick the bottom position without the knee or pelvis collapsing.",
+        "setup": [
+          "Stand on a low box or step.",
+          "Set the stance foot fully on the box.",
+          "Keep the free heel slightly in front of the box edge."
+        ],
+        "execution_steps": [
+          "Lower slowly until the free heel lightly taps the floor.",
+          "Keep the stance knee tracking over the middle toes.",
+          "Pause in control before standing back up.",
+          "Complete all reps before switching sides."
+        ],
+        "coach_cues": [
+          "Lower slow, stick quiet.",
+          "Knee over laces.",
+          "Heel taps, not stomps.",
+          "Pelvis level."
+        ],
+        "athlete_cues": [
+          "Lower slow, stick quiet.",
+          "Knee over laces.",
+          "Heel taps, not stomps."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Free foot crashes to the floor.",
+          "Stance knee collapses inward.",
+          "Hip drops on the free side.",
+          "Athlete uses momentum to stand."
+        ],
+        "quality_gate": [
+          "Athlete can perform 5 controlled reps per side with quiet floor contact and stable knee tracking."
+        ],
+        "stop_signs": [
+          "Anterior knee pain, sharp ankle pain, or uncontrolled knee collapse.",
+          "Box height is too high to control."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 5,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Step-Down to Stick, use the simplest version with support nearby and short 8-15 second exposures. Use hand support, shorter range, and slower tempo before increasing reach, depth, or load. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Step-Down to Stick playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Step-Down to Stick toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Step-Down to Stick with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Step-Down to Stick as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Step-Down to Stick. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Step-Down to Stick, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Star Excursion Reach",
+        "Lateral Step-Down Balance",
+        "Snap-Down to Stick"
+      ],
+      "pairsWellBefore": [
+        "Lateral Bound to Stick",
+        "Curved Run Sideline Stick",
+        "Wrestler Stance Push-Pull Balance"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "squat_prep",
+        "deceleration",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Step-Down to Stick front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Lower Box Step-Down",
+          "Supported Step-Down"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 3,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "lateral-step-down-balance",
+      "name": "Lateral Step-Down Balance",
+      "family": "Frontal-plane step balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "single_leg_balance_foot_ankle_hip_control",
+      "subroleSecondary": "slow_eccentric_isometric_joint_resilience",
+      "slot": "single_leg_balance_control",
+      "cardSummary": "Lateral Step-Down Balance is a balance-focused drill for trains frontal-plane control for boundary plays, lateral cuts, and wrestling pressure where the body is pushed side-to-side. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after general warm-up and before faster cutting, landing, lower-body strength, or contact balance work. It can also fit after Capacity as a resilience accessory.",
+      "description": "Step down to the side from a low box while keeping the stance hip, knee, and foot aligned.",
+      "coachLanguage": "Primary subrole: single_leg_balance_foot_ankle_hip_control. Coach Lateral Step-Down Balance as balance skill plus control under the specific constraint: Trains frontal-plane control for boundary plays, lateral cuts, and wrestling pressure where the body is pushed side-to-side. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Move slowly enough that the stance foot, knee, and hip stay in control.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        },
+        {
+          "key": "resistance_calisthenics",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Lateral Step-Down Balance links foot pressure, ankle stiffness, knee tracking, hip control, and trunk position. This is the hardware of balance: the athlete learns to keep the center of mass over a single-leg or split-stance base while force changes direction.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: single_leg_balance_control.",
+      "commonMisuse": "Do not chase depth, distance, or shaking fatigue. The adaptation is controlled alignment and recovery; reduce range before accepting sloppy reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_abduction_control",
+          "knee_flexion_control",
+          "ankle_dorsiflexion",
+          "pelvic_stabilization"
+        ],
+        "primary_tissues": [
+          "gluteus_medius",
+          "quadriceps",
+          "adductors",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "single_leg_or_split_stance_control",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "single_leg_or_lateral_weight_shift_balance",
+        "coordination_demand": "coordinate_reach_depth_alignment_and_return_to_center",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "Step down to the side from a low box while keeping the stance hip, knee, and foot aligned.",
+        "setup": [
+          "Stand sideways on a low box or step.",
+          "Keep the stance foot fully on the box.",
+          "Let the free leg hover off the side."
+        ],
+        "execution_steps": [
+          "Lower the free heel toward the floor beside the box.",
+          "Pause before any weight transfers to the free foot.",
+          "Drive through the stance foot to return.",
+          "Switch sides after the set."
+        ],
+        "coach_cues": [
+          "Side control.",
+          "Hip stays level.",
+          "Knee tracks forward.",
+          "Tap light."
+        ],
+        "athlete_cues": [
+          "Side control.",
+          "Hip stays level.",
+          "Knee tracks forward."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Pelvis drops sharply.",
+          "Knee dives inward.",
+          "Free foot takes too much weight.",
+          "Trunk leans to counterbalance."
+        ],
+        "quality_gate": [
+          "Athlete maintains level pelvis and knee tracking for all prescribed reps."
+        ],
+        "stop_signs": [
+          "Lateral knee pain, hip pinch, or uncontrolled collapse.",
+          "Athlete cannot tap lightly at a lower height."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 5,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Lateral Step-Down Balance, use the simplest version with support nearby and short 8-15 second exposures. Use hand support, shorter range, and slower tempo before increasing reach, depth, or load. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Lateral Step-Down Balance playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Lateral Step-Down Balance toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Lateral Step-Down Balance with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Lateral Step-Down Balance as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Lateral Step-Down Balance. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Lateral Step-Down Balance, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Clock Reach Balance",
+        "Lateral Bound to Stick",
+        "Cossack Squat Shift to Stick"
+      ],
+      "pairsWellBefore": [
+        "Lateral Bound to Stick",
+        "Curved Run Sideline Stick",
+        "Wrestler Stance Push-Pull Balance"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "squat_prep",
+        "deceleration",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Lateral Step-Down Balance front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Supported Lateral Step-Down",
+          "Floor Lateral Weight Shift"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 3,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "split-squat-iso-with-perturbation",
+      "name": "Split Squat ISO with Perturbation",
+      "family": "Split-stance perturbation",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "single_leg_balance_foot_ankle_hip_control",
+      "subroleSecondary": "slow_eccentric_isometric_joint_resilience",
+      "slot": "single_leg_balance_control",
+      "cardSummary": "Split Squat ISO with Perturbation is a balance-focused drill for bridges strength-position ownership and live balance by adding controlled nudges to a split stance. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after general warm-up and before faster cutting, landing, lower-body strength, or contact balance work. It can also fit after Capacity as a resilience accessory.",
+      "description": "Hold the lower portion of a split squat while a partner gives light, predictable perturbations to the shoulders or hips.",
+      "coachLanguage": "Primary subrole: single_leg_balance_foot_ankle_hip_control. Coach Split Squat ISO with Perturbation as balance skill plus control under the specific constraint: Bridges strength-position ownership and live balance by adding controlled nudges to a split stance. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Move slowly enough that the stance foot, knee, and hip stay in control.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        },
+        {
+          "key": "resistance_calisthenics",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "squat",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "partner",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Split Squat ISO with Perturbation links foot pressure, ankle stiffness, knee tracking, hip control, and trunk position. This is the hardware of balance: the athlete learns to keep the center of mass over a single-leg or split-stance base while force changes direction.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: single_leg_balance_control.",
+      "commonMisuse": "Do not chase depth, distance, or shaking fatigue. The adaptation is controlled alignment and recovery; reduce range before accepting sloppy reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "knee_flexion_control",
+          "hip_stabilization",
+          "spine_anti_rotation",
+          "ankle_stability"
+        ],
+        "primary_tissues": [
+          "quadriceps",
+          "glutes",
+          "adductors",
+          "obliques"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "single_leg_or_split_stance_control",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "single_leg_or_lateral_weight_shift_balance",
+        "coordination_demand": "coordinate_reach_depth_alignment_and_return_to_center",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Hold the lower portion of a split squat while a partner gives light, predictable perturbations to the shoulders or hips.",
+        "setup": [
+          "Set a long split stance with both feet facing forward.",
+          "Lower to a comfortable split-squat depth.",
+          "Partner stands beside the athlete and agrees on light push locations."
+        ],
+        "execution_steps": [
+          "Athlete holds the split squat position.",
+          "Partner applies small taps or pressure to shoulders or hips.",
+          "Athlete resists without changing knee tracking or trunk stack.",
+          "Reset and switch legs."
+        ],
+        "coach_cues": [
+          "Own the lane.",
+          "Knee over laces.",
+          "Absorb, don't fight tall.",
+          "Small corrections."
+        ],
+        "athlete_cues": [
+          "Own the lane.",
+          "Knee over laces.",
+          "Absorb, don't fight tall."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Partner pushes too hard.",
+          "Athlete stiffens and holds breath.",
+          "Front knee caves in.",
+          "Back foot turns out to widen the base."
+        ],
+        "quality_gate": [
+          "Athlete can absorb partner taps for 15-20 seconds without stepping or losing knee alignment."
+        ],
+        "stop_signs": [
+          "Pain, surprise contact, excessive partner force, or inability to understand the perturbation rules."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 60,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Split Squat ISO with Perturbation, use the simplest version with support nearby and short 8-15 second exposures. Use hand support, shorter range, and slower tempo before increasing reach, depth, or load. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Split Squat ISO with Perturbation playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Split Squat ISO with Perturbation toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Split Squat ISO with Perturbation with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Split Squat ISO with Perturbation as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Split Squat ISO with Perturbation. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Split Squat ISO with Perturbation, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Half-Kneeling Narrow-Base Hold",
+        "Wrestler Stance Push-Pull Balance",
+        "Partner Shoulder Bump Balance"
+      ],
+      "pairsWellBefore": [
+        "Lateral Bound to Stick",
+        "Curved Run Sideline Stick",
+        "Wrestler Stance Push-Pull Balance"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "squat_prep",
+        "deceleration",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Split Squat ISO with Perturbation front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Split Squat ISO Hold",
+          "Supported Split Squat Hold"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "cossack-squat-shift-to-stick",
+      "name": "Cossack Squat Shift to Stick",
+      "family": "Lateral hip shift balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "single_leg_balance_foot_ankle_hip_control",
+      "subroleSecondary": "slow_eccentric_isometric_joint_resilience",
+      "slot": "single_leg_balance_control",
+      "cardSummary": "Cossack Squat Shift to Stick is a balance-focused drill for builds wide-base center-of-gravity control for wrestlers and lateral recoveries where one leg must accept force while the other lengthens. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after general warm-up and before faster cutting, landing, lower-body strength, or contact balance work. It can also fit after Capacity as a resilience accessory.",
+      "description": "Shift into a lateral squat position and stick the end range before returning through the center.",
+      "coachLanguage": "Primary subrole: single_leg_balance_foot_ankle_hip_control. Coach Cossack Squat Shift to Stick as balance skill plus control under the specific constraint: Builds wide-base center-of-gravity control for wrestlers and lateral recoveries where one leg must accept force while the other lengthens. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Move slowly enough that the stance foot, knee, and hip stay in control.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        },
+        {
+          "key": "resistance_calisthenics",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "squat",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Cossack Squat Shift to Stick links foot pressure, ankle stiffness, knee tracking, hip control, and trunk position. This is the hardware of balance: the athlete learns to keep the center of mass over a single-leg or split-stance base while force changes direction.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: single_leg_balance_control.",
+      "commonMisuse": "Do not chase depth, distance, or shaking fatigue. The adaptation is controlled alignment and recovery; reduce range before accepting sloppy reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_abduction_adduction",
+          "ankle_dorsiflexion",
+          "knee_flexion_control",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "adductors",
+          "glutes",
+          "quadriceps",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "single_leg_or_split_stance_control",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "single_leg_or_lateral_weight_shift_balance",
+        "coordination_demand": "coordinate_reach_depth_alignment_and_return_to_center",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Shift into a lateral squat position and stick the end range before returning through the center.",
+        "setup": [
+          "Stand wide with feet slightly turned out as needed.",
+          "Keep chest organized and hands forward for counterbalance.",
+          "Choose a range with no groin pinch."
+        ],
+        "execution_steps": [
+          "Shift hips toward one side while the opposite leg lengthens.",
+          "Keep the working foot fully connected to the floor.",
+          "Pause and breathe at the controlled end range.",
+          "Return through center and shift to the other side."
+        ],
+        "coach_cues": [
+          "Shift, don't collapse.",
+          "Whole foot down.",
+          "Long opposite leg.",
+          "Pause before return."
+        ],
+        "athlete_cues": [
+          "Shift, don't collapse.",
+          "Whole foot down.",
+          "Long opposite leg."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Heel lifts off the working side.",
+          "Chest collapses to chase depth.",
+          "Knee caves inward.",
+          "Groin discomfort is ignored."
+        ],
+        "quality_gate": [
+          "Athlete can pause on each side with the working foot down and no groin pain."
+        ],
+        "stop_signs": [
+          "Sharp adductor pain, hip pinch, knee pain, or loss of foot contact."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 5,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Cossack Squat Shift to Stick, use the simplest version with support nearby and short 8-15 second exposures. Use hand support, shorter range, and slower tempo before increasing reach, depth, or load. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Cossack Squat Shift to Stick playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Cossack Squat Shift to Stick toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Cossack Squat Shift to Stick with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Cossack Squat Shift to Stick as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Cossack Squat Shift to Stick. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Cossack Squat Shift to Stick, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Lateral Step-Down Balance",
+        "Lateral Bound to Stick",
+        "Wrestler Stance Push-Pull Balance"
+      ],
+      "pairsWellBefore": [
+        "Lateral Bound to Stick",
+        "Curved Run Sideline Stick",
+        "Wrestler Stance Push-Pull Balance"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "squat_prep",
+        "deceleration",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Cossack Squat Shift to Stick front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Lateral Weight Shift",
+          "Supported Cossack Squat"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "skater-squat-box-tap",
+      "name": "Skater Squat Box Tap",
+      "family": "Single-leg squat balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "single_leg_balance_foot_ankle_hip_control",
+      "subroleSecondary": "slow_eccentric_isometric_joint_resilience",
+      "slot": "single_leg_balance_control",
+      "cardSummary": "Skater Squat Box Tap is a balance-focused drill for develops deep single-leg center-of-mass control without needing speed, useful for advanced decel and sideline recovery. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after general warm-up and before faster cutting, landing, lower-body strength, or contact balance work. It can also fit after Capacity as a resilience accessory.",
+      "description": "Lower on one leg until the trailing knee or shin lightly taps a box behind the athlete, then return to standing.",
+      "coachLanguage": "Primary subrole: single_leg_balance_foot_ankle_hip_control. Coach Skater Squat Box Tap as balance skill plus control under the specific constraint: Develops deep single-leg center-of-mass control without needing speed, useful for advanced decel and sideline recovery. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Move slowly enough that the stance foot, knee, and hip stay in control.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        },
+        {
+          "key": "resistance_calisthenics",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "squat",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Skater Squat Box Tap links foot pressure, ankle stiffness, knee tracking, hip control, and trunk position. This is the hardware of balance: the athlete learns to keep the center of mass over a single-leg or split-stance base while force changes direction.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: single_leg_balance_control.",
+      "commonMisuse": "Do not chase depth, distance, or shaking fatigue. The adaptation is controlled alignment and recovery; reduce range before accepting sloppy reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "knee_flexion_control",
+          "hip_flexion",
+          "ankle_dorsiflexion",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "quadriceps",
+          "gluteus_medius",
+          "foot_intrinsics",
+          "calves"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery"
+        ],
+        "postural_shape": "single_leg_or_split_stance_control",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "single_leg_or_lateral_weight_shift_balance",
+        "coordination_demand": "coordinate_reach_depth_alignment_and_return_to_center",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Lower on one leg until the trailing knee or shin lightly taps a box behind the athlete, then return to standing.",
+        "setup": [
+          "Place a pad or box behind the athlete at a height they can control.",
+          "Stand on one leg with the free leg bent behind.",
+          "Reach arms forward for counterbalance."
+        ],
+        "execution_steps": [
+          "Lower slowly toward the box without rotating the pelvis.",
+          "Tap lightly and pause.",
+          "Drive through the stance foot to stand.",
+          "Reset between reps instead of bouncing."
+        ],
+        "coach_cues": [
+          "Tap, don't drop.",
+          "Knee owns the middle.",
+          "Reach forward, hips back.",
+          "Stand without twist."
+        ],
+        "athlete_cues": [
+          "Tap, don't drop.",
+          "Knee owns the middle.",
+          "Reach forward, hips back."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Crashing into the box.",
+          "Knee collapse or foot roll-in.",
+          "Pelvis spins open.",
+          "Using momentum instead of control."
+        ],
+        "quality_gate": [
+          "Athlete can tap the target softly and stand without hand support or knee collapse."
+        ],
+        "stop_signs": [
+          "Knee pain, inability to control descent, or repeated twisting through the stance leg."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 5,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Skater Squat Box Tap, use the simplest version with support nearby and short 8-15 second exposures. Use hand support, shorter range, and slower tempo before increasing reach, depth, or load. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Skater Squat Box Tap playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Skater Squat Box Tap toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Skater Squat Box Tap with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Skater Squat Box Tap as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Skater Squat Box Tap. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Skater Squat Box Tap, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Single-Leg RDL Reach",
+        "Step-Down to Stick",
+        "Single-Leg Lateral Hop to Stick"
+      ],
+      "pairsWellBefore": [
+        "Lateral Bound to Stick",
+        "Curved Run Sideline Stick",
+        "Wrestler Stance Push-Pull Balance"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "squat_prep",
+        "deceleration",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Skater Squat Box Tap front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Assisted Skater Squat Tap",
+          "Step-Down to Stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    }
+  ]
+}
+```
+
+
+# Batch 21-30 Balance Exercise Cards
+Primary source used: exercise_card_details_for_llm.md, which defines the Vortex Card v2 authoring workflow, canonical session phases, taxonomy tags, publish gates, authoring JSON format, dosage/scaling/safety fields, and common authoring mistakes to avoid. Purpose.txt was requested but was not located in the File Library search results available in this session, so the exercise selection is grounded in the available Card v2 guide plus the user's stated balance purpose: sideline contact control, beam-level body control, and wrestling center-of-gravity control.
+## Category Focus
+- **Beam / Narrow-Base Gymnastics Balance:** Line, beam, and narrow-surface drills that train precision, body shape, foot placement, turn control, and confidence on a reduced base of support.
+
+## Cursor-Ready JSON
+```json
+{
+  "cluster": {
+    "focus": "balance",
+    "batch": "21-30",
+    "categories": [
+      "Beam / Narrow-Base Gymnastics Balance"
+    ],
+    "card_count": 10,
+    "primary_authoring_format": "camelCase Card v2"
+  },
+  "cards": [
+    {
+      "slug": "balance-beam-walk",
+      "name": "Balance Beam Walk",
+      "family": "Beam locomotion",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "shape_control",
+      "slot": "beam_balance",
+      "cardSummary": "Balance Beam Walk is a balance-focused drill for directly trains beam-level foot placement and the calm corrections needed when the base is extremely narrow. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Movement Intelligence while the athlete is fresh and attentive. Place before tumbling, jumping, or fatigue blocks; do not use raised/narrow surfaces when tired.",
+      "description": "Walk forward along a low beam or taped line with deliberate foot placement and posture.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Balance Beam Walk as balance skill plus control under the specific constraint: Directly trains beam-level foot placement and the calm corrections needed when the base is extremely narrow. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Place each foot with purpose, stay tall, and stick the finish.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 4
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 1
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "low_beam",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Balance Beam Walk narrows the base of support and raises the precision demand without needing heavy load. The athlete must regulate visual focus, foot placement, rhythm, and posture the way a gymnast does on a beam.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: beam_balance.",
+      "commonMisuse": "Do not use raised beams, complex turns, or hopping when the athlete is tired or fearful. Beam balance is precision practice, not a conditioning station.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stability",
+          "hip_stabilization",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "foot_intrinsics",
+          "calves",
+          "gluteus_medius",
+          "obliques"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "narrow_surface_precision",
+          "visual_focus"
+        ],
+        "postural_shape": "tall_narrow_base_or_controlled_beam_shape",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "narrow_base_beam_or_line_balance",
+        "coordination_demand": "precise_foot_placement_and_body_shape_on_reduced_base",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Walk forward along a low beam or taped line with deliberate foot placement and posture.",
+        "setup": [
+          "Use a low beam, floor beam, or taped line.",
+          "Stand at one end with arms out or in a chosen athletic position.",
+          "Start with eyes forward and slow pace."
+        ],
+        "execution_steps": [
+          "Step heel-to-toe along the beam or line.",
+          "Pause briefly after each foot placement.",
+          "Keep shoulders and hips square.",
+          "Step off under control at the end."
+        ],
+        "coach_cues": [
+          "Place, pause, breathe.",
+          "Eyes forward.",
+          "Quiet feet.",
+          "Small corrections."
+        ],
+        "athlete_cues": [
+          "Place, pause, breathe.",
+          "Eyes forward.",
+          "Quiet feet."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Looking down every step.",
+          "Rushing to survive.",
+          "Arms flail wildly.",
+          "Feet turn off the line."
+        ],
+        "quality_gate": [
+          "Athlete can cross the beam with deliberate steps and no uncontrolled dismount."
+        ],
+        "stop_signs": [
+          "Fear causes unsafe stepping.",
+          "Beam height is too high for current skill.",
+          "Ankle or knee pain on narrow surface."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "distance",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 2,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Balance Beam Walk, use the simplest version with support nearby and short 8-15 second exposures. Use a floor line or wider low beam before any raised beam exposure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Balance Beam Walk playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Balance Beam Walk toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Balance Beam Walk with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Balance Beam Walk as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Balance Beam Walk. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Balance Beam Walk, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Tandem Line Balance Hold",
+        "Beam Pivot Turn Stick",
+        "Beam Lateral Walk"
+      ],
+      "pairsWellBefore": [
+        "Beam Hop to Stick",
+        "Beam Mount/Dismount Stick",
+        "Dynamic sideline balance drills"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Athlete is fatigued, fearful, or not yet competent on a floor line."
+      ],
+      "goodForSessions": [
+        "tumbling_prep",
+        "general_warmup",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Balance Beam Walk front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Beam or line height and width match the athlete's current confidence and control."
+        ],
+        "contraindications": [
+          "Unsafe beam height for current skill.",
+          "Fear response that causes uncontrolled stepping or jumping off.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Taped Line Walk",
+          "Wide Floor Beam Walk"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "balance-beam-lateral-walk",
+      "name": "Balance Beam Lateral Walk",
+      "family": "Lateral beam locomotion",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "shape_control",
+      "slot": "beam_balance",
+      "cardSummary": "Balance Beam Lateral Walk is a balance-focused drill for develops lateral narrow-base balance for beam movement, sideline shuffling, and defensive movement control. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Movement Intelligence while the athlete is fresh and attentive. Place before tumbling, jumping, or fatigue blocks; do not use raised/narrow surfaces when tired.",
+      "description": "Side-step along a low beam or line while keeping hips level and feet quiet.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Balance Beam Lateral Walk as balance skill plus control under the specific constraint: Develops lateral narrow-base balance for beam movement, sideline shuffling, and defensive movement control. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Place each foot with purpose, stay tall, and stick the finish.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 4
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 1
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "low_beam",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Balance Beam Lateral Walk narrows the base of support and raises the precision demand without needing heavy load. The athlete must regulate visual focus, foot placement, rhythm, and posture the way a gymnast does on a beam.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: beam_balance.",
+      "commonMisuse": "Do not use raised beams, complex turns, or hopping when the athlete is tired or fearful. Beam balance is precision practice, not a conditioning station.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_abduction_control",
+          "ankle_stability",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "gluteus_medius",
+          "adductors",
+          "foot_intrinsics",
+          "calves"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "narrow_surface_precision",
+          "visual_focus"
+        ],
+        "postural_shape": "tall_narrow_base_or_controlled_beam_shape",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "narrow_base_beam_or_line_balance",
+        "coordination_demand": "precise_foot_placement_and_body_shape_on_reduced_base",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Side-step along a low beam or line while keeping hips level and feet quiet.",
+        "setup": [
+          "Use a low beam or taped line.",
+          "Stand sideways with both feet on the beam or line.",
+          "Set arms out for balance before the first step."
+        ],
+        "execution_steps": [
+          "Step sideways without crossing feet at first.",
+          "Bring the trail foot to a stable position before the next step.",
+          "Keep the trunk tall and hips level.",
+          "Repeat both directions."
+        ],
+        "coach_cues": [
+          "Side step, quiet land.",
+          "Do not rush the trail foot.",
+          "Tall hips.",
+          "Eyes steady."
+        ],
+        "athlete_cues": [
+          "Side step, quiet land.",
+          "Do not rush the trail foot.",
+          "Tall hips."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Feet slap or scrape.",
+          "Hips sway side to side.",
+          "Athlete looks down continuously.",
+          "Steps get too large for the beam."
+        ],
+        "quality_gate": [
+          "Athlete moves both directions without stepping off or losing hip control."
+        ],
+        "stop_signs": [
+          "Unsafe fear response or repeated uncontrolled step-offs.",
+          "Hip or ankle pain."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "distance",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 2,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Balance Beam Lateral Walk, use the simplest version with support nearby and short 8-15 second exposures. Use a floor line or wider low beam before any raised beam exposure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Balance Beam Lateral Walk playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Balance Beam Lateral Walk toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Balance Beam Lateral Walk with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Balance Beam Lateral Walk as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Balance Beam Lateral Walk. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Balance Beam Lateral Walk, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Balance Beam Walk",
+        "Beam Carioca Walk",
+        "Lateral Step-Down Balance"
+      ],
+      "pairsWellBefore": [
+        "Beam Hop to Stick",
+        "Beam Mount/Dismount Stick",
+        "Dynamic sideline balance drills"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Athlete is fatigued, fearful, or not yet competent on a floor line."
+      ],
+      "goodForSessions": [
+        "tumbling_prep",
+        "general_warmup",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Balance Beam Lateral Walk front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Beam or line height and width match the athlete's current confidence and control."
+        ],
+        "contraindications": [
+          "Unsafe beam height for current skill.",
+          "Fear response that causes uncontrolled stepping or jumping off.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Line Lateral Walk",
+          "Low Beam Side-Step with Support"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "beam-pivot-turn-stick",
+      "name": "Beam Pivot Turn Stick",
+      "family": "Beam turn control",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "shape_control",
+      "slot": "beam_balance",
+      "cardSummary": "Beam Pivot Turn Stick is a balance-focused drill for trains rotating on a narrow base and sticking the finish, a key beam and sport reorientation skill. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Movement Intelligence while the athlete is fresh and attentive. Place before tumbling, jumping, or fatigue blocks; do not use raised/narrow surfaces when tired.",
+      "description": "Perform a controlled quarter- or half-turn on a low beam or line, then stick the landing position.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Beam Pivot Turn Stick as balance skill plus control under the specific constraint: Trains rotating on a narrow base and sticking the finish, a key beam and sport reorientation skill. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Place each foot with purpose, stay tall, and stick the finish.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 4
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 1
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "rotate",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "low_beam",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Beam Pivot Turn Stick narrows the base of support and raises the precision demand without needing heavy load. The athlete must regulate visual focus, foot placement, rhythm, and posture the way a gymnast does on a beam.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: beam_balance.",
+      "commonMisuse": "Do not use raised beams, complex turns, or hopping when the athlete is tired or fearful. Beam balance is precision practice, not a conditioning station.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "spine_rotation_control",
+          "hip_rotation_control",
+          "ankle_stability"
+        ],
+        "primary_tissues": [
+          "foot_intrinsics",
+          "calves",
+          "obliques",
+          "gluteals"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "narrow_surface_precision",
+          "visual_focus"
+        ],
+        "postural_shape": "tall_narrow_base_or_controlled_beam_shape",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "narrow_base_beam_or_line_balance",
+        "coordination_demand": "precise_foot_placement_and_body_shape_on_reduced_base",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Perform a controlled quarter- or half-turn on a low beam or line, then stick the landing position.",
+        "setup": [
+          "Stand on a low beam or line with feet in a stable stance.",
+          "Choose quarter-turns before half-turns.",
+          "Keep a support nearby for beginners."
+        ],
+        "execution_steps": [
+          "Rise slightly through the feet if needed.",
+          "Turn with the whole body organized, not by twisting the knee.",
+          "Stick the new facing direction.",
+          "Reset before the next turn."
+        ],
+        "coach_cues": [
+          "Turn tall.",
+          "Foot and hip turn together.",
+          "Stick before celebrating.",
+          "Eyes find the finish."
+        ],
+        "athlete_cues": [
+          "Turn tall.",
+          "Foot and hip turn together.",
+          "Stick before celebrating."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Twisting through the knee.",
+          "Turning too fast for control.",
+          "Arms whip the body off line.",
+          "Athlete lands and immediately steps off."
+        ],
+        "quality_gate": [
+          "Athlete can complete controlled quarter-turn sticks both directions with safe knee alignment."
+        ],
+        "stop_signs": [
+          "Knee twisting, dizziness, or unsafe step-offs.",
+          "Beam height exceeds current ability."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "distance",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 2,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Beam Pivot Turn Stick, use the simplest version with support nearby and short 8-15 second exposures. Use a floor line or wider low beam before any raised beam exposure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Beam Pivot Turn Stick playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Beam Pivot Turn Stick toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Beam Pivot Turn Stick with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Beam Pivot Turn Stick as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Beam Pivot Turn Stick. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Beam Pivot Turn Stick, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Tandem Line Balance Hold",
+        "Spin Turn to Stick",
+        "Beam Mount/Dismount Stick"
+      ],
+      "pairsWellBefore": [
+        "Beam Hop to Stick",
+        "Beam Mount/Dismount Stick",
+        "Dynamic sideline balance drills"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Athlete is fatigued, fearful, or not yet competent on a floor line."
+      ],
+      "goodForSessions": [
+        "tumbling_prep",
+        "general_warmup",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Beam Pivot Turn Stick front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Beam or line height and width match the athlete's current confidence and control."
+        ],
+        "contraindications": [
+          "Unsafe beam height for current skill.",
+          "Fear response that causes uncontrolled stepping or jumping off.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Floor Line Pivot Turn",
+          "Supported Beam Quarter Turn"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "beam-single-leg-quarter-squat",
+      "name": "Beam Single-Leg Quarter Squat",
+      "family": "Beam single-leg control",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "shape_control",
+      "slot": "beam_balance",
+      "cardSummary": "Beam Single-Leg Quarter Squat is a balance-focused drill for challenges knee tracking and center-of-mass control on a narrow support, matching advanced beam and sideline balance demands. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Movement Intelligence while the athlete is fresh and attentive. Place before tumbling, jumping, or fatigue blocks; do not use raised/narrow surfaces when tired.",
+      "description": "Stand on one leg on a low beam or line and perform a small controlled quarter squat.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Beam Single-Leg Quarter Squat as balance skill plus control under the specific constraint: Challenges knee tracking and center-of-mass control on a narrow support, matching advanced beam and sideline balance demands. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Place each foot with purpose, stay tall, and stick the finish.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 4
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 1
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "squat",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "low_beam",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Beam Single-Leg Quarter Squat narrows the base of support and raises the precision demand without needing heavy load. The athlete must regulate visual focus, foot placement, rhythm, and posture the way a gymnast does on a beam.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: beam_balance.",
+      "commonMisuse": "Do not use raised beams, complex turns, or hopping when the athlete is tired or fearful. Beam balance is precision practice, not a conditioning station.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "knee_flexion_control",
+          "ankle_dorsiflexion",
+          "hip_stabilization"
+        ],
+        "primary_tissues": [
+          "quadriceps",
+          "gluteus_medius",
+          "foot_intrinsics",
+          "calves"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "narrow_surface_precision",
+          "visual_focus"
+        ],
+        "postural_shape": "tall_narrow_base_or_controlled_beam_shape",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "narrow_base_beam_or_line_balance",
+        "coordination_demand": "precise_foot_placement_and_body_shape_on_reduced_base",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Stand on one leg on a low beam or line and perform a small controlled quarter squat.",
+        "setup": [
+          "Use a low beam or taped line, not a high beam for early learning.",
+          "Stand on one foot with a support nearby.",
+          "Set the stance foot straight and knee soft."
+        ],
+        "execution_steps": [
+          "Lower into a small single-leg squat.",
+          "Pause before the knee drifts or foot rolls.",
+          "Stand back up under control.",
+          "Switch legs after the set."
+        ],
+        "coach_cues": [
+          "Small range, perfect line.",
+          "Knee over middle toes.",
+          "Quiet foot.",
+          "Stand tall to finish."
+        ],
+        "athlete_cues": [
+          "Small range, perfect line.",
+          "Knee over middle toes.",
+          "Quiet foot."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Depth is too large for the beam.",
+          "Foot rolls off edge.",
+          "Knee collapses inward.",
+          "Athlete rushes reps to avoid balance."
+        ],
+        "quality_gate": [
+          "Athlete completes controlled reps without stepping off or losing knee alignment."
+        ],
+        "stop_signs": [
+          "Knee pain, ankle roll, or uncontrolled dismount.",
+          "Cannot control on a floor line first."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "distance",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 2,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Beam Single-Leg Quarter Squat, use the simplest version with support nearby and short 8-15 second exposures. Use a floor line or wider low beam before any raised beam exposure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Beam Single-Leg Quarter Squat playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Beam Single-Leg Quarter Squat toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Beam Single-Leg Quarter Squat with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Beam Single-Leg Quarter Squat as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Beam Single-Leg Quarter Squat. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Beam Single-Leg Quarter Squat, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Balance Beam Walk",
+        "Step-Down to Stick",
+        "Beam Hop to Stick"
+      ],
+      "pairsWellBefore": [
+        "Beam Hop to Stick",
+        "Beam Mount/Dismount Stick",
+        "Dynamic sideline balance drills"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Athlete is fatigued, fearful, or not yet competent on a floor line."
+      ],
+      "goodForSessions": [
+        "tumbling_prep",
+        "general_warmup",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Beam Single-Leg Quarter Squat front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 0,
+        "requires_spotting": true,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Beam or line height and width match the athlete's current confidence and control."
+        ],
+        "contraindications": [
+          "Unsafe beam height for current skill.",
+          "Fear response that causes uncontrolled stepping or jumping off.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Floor Line Single-Leg Quarter Squat",
+          "Supported Beam Squat Hold"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "beam-hop-to-stick",
+      "name": "Beam Hop to Stick",
+      "family": "Beam landing control",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "shape_control",
+      "slot": "beam_balance",
+      "cardSummary": "Beam Hop to Stick is a balance-focused drill for adds a small airborne challenge to narrow-base landing, building confidence for beam dismounts and sideline sticks. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Movement Intelligence while the athlete is fresh and attentive. Place before tumbling, jumping, or fatigue blocks; do not use raised/narrow surfaces when tired.",
+      "description": "Perform a tiny hop on or to a low beam/line and stick the landing before stepping off.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Beam Hop to Stick as balance skill plus control under the specific constraint: Adds a small airborne challenge to narrow-base landing, building confidence for beam dismounts and sideline sticks. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Place each foot with purpose, stay tall, and stick the finish.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 4
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 1
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "low_beam",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Beam Hop to Stick narrows the base of support and raises the precision demand without needing heavy load. The athlete must regulate visual focus, foot placement, rhythm, and posture the way a gymnast does on a beam.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: beam_balance.",
+      "commonMisuse": "Do not use raised beams, complex turns, or hopping when the athlete is tired or fearful. Beam balance is precision practice, not a conditioning station.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stability",
+          "knee_flexion_control",
+          "hip_stabilization",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "glutes",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "narrow_surface_precision",
+          "visual_focus"
+        ],
+        "postural_shape": "tall_narrow_base_or_controlled_beam_shape",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "narrow_base_beam_or_line_balance",
+        "coordination_demand": "precise_foot_placement_and_body_shape_on_reduced_base",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Perform a tiny hop on or to a low beam/line and stick the landing before stepping off.",
+        "setup": [
+          "Use a floor line or very low beam first.",
+          "Start with two-foot hops before single-leg hops.",
+          "Clear the surrounding area."
+        ],
+        "execution_steps": [
+          "Hop the smallest useful distance or height.",
+          "Land quietly with knees tracking and trunk stacked.",
+          "Hold the stick for two seconds.",
+          "Reset before the next attempt."
+        ],
+        "coach_cues": [
+          "Tiny hop, perfect stick.",
+          "Land quiet.",
+          "Freeze the shape.",
+          "Reset every rep."
+        ],
+        "athlete_cues": [
+          "Tiny hop, perfect stick.",
+          "Land quiet.",
+          "Freeze the shape."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Hopping too high or far.",
+          "Landing stiff or loud.",
+          "Arms flail after landing.",
+          "Counting reps that do not stick."
+        ],
+        "quality_gate": [
+          "Only reps held for two seconds with quiet feet and safe alignment count."
+        ],
+        "stop_signs": [
+          "Pain with impact, repeated loud landings, or fear response on the beam."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 2,
+        "default_reps": 4,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 40,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Beam Hop to Stick, use the simplest version with support nearby and short 8-15 second exposures. Use a floor line or wider low beam before any raised beam exposure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Beam Hop to Stick playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Beam Hop to Stick toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Beam Hop to Stick with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Beam Hop to Stick as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Beam Hop to Stick. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Beam Hop to Stick, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Beam Single-Leg Quarter Squat",
+        "Snap-Down to Stick",
+        "Beam Mount/Dismount Stick"
+      ],
+      "pairsWellBefore": [
+        "Beam Hop to Stick",
+        "Beam Mount/Dismount Stick",
+        "Dynamic sideline balance drills"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Athlete is fatigued, fearful, or not yet competent on a floor line.",
+        "Athlete cannot land quietly at a lower-impact progression."
+      ],
+      "goodForSessions": [
+        "tumbling_prep",
+        "general_warmup",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Beam Hop to Stick front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 2,
+        "requires_spotting": true,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression.",
+          "Beam or line height and width match the athlete's current confidence and control."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Unsafe beam height for current skill.",
+          "Fear response that causes uncontrolled stepping or jumping off.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Line Hop to Stick",
+          "Two-Foot Floor Hop to Stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "low-beam-bear-crawl",
+      "name": "Low Beam Bear Crawl",
+      "family": "Beam quadruped control",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "shape_control",
+      "slot": "beam_balance",
+      "cardSummary": "Low Beam Bear Crawl is a balance-focused drill for develops hand-foot balance and trunk control for gymnastics, wrestling scrambles, and ground-to-standing recovery. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Movement Intelligence while the athlete is fresh and attentive. Place before tumbling, jumping, or fatigue blocks; do not use raised/narrow surfaces when tired.",
+      "description": "Crawl slowly along a low beam or line while keeping hand and foot placements precise.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Low Beam Bear Crawl as balance skill plus control under the specific constraint: Develops hand-foot balance and trunk control for gymnastics, wrestling scrambles, and ground-to-standing recovery. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Place each foot with purpose, stay tall, and stick the finish.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 4
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 1
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "low_beam",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "shoulder",
+          "weight": 5
+        },
+        {
+          "key": "wrist",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Low Beam Bear Crawl narrows the base of support and raises the precision demand without needing heavy load. The athlete must regulate visual focus, foot placement, rhythm, and posture the way a gymnast does on a beam.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: beam_balance.",
+      "commonMisuse": "Do not use raised beams, complex turns, or hopping when the athlete is tired or fearful. Beam balance is precision practice, not a conditioning station.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "shoulder_stabilization",
+          "wrist_extension",
+          "spine_anti_rotation",
+          "hip_stabilization"
+        ],
+        "primary_tissues": [
+          "serratus_anterior",
+          "obliques",
+          "gluteals",
+          "forearms"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "narrow_surface_precision",
+          "visual_focus"
+        ],
+        "postural_shape": "tall_narrow_base_or_controlled_beam_shape",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "narrow_base_beam_or_line_balance",
+        "coordination_demand": "precise_foot_placement_and_body_shape_on_reduced_base",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Crawl slowly along a low beam or line while keeping hand and foot placements precise.",
+        "setup": [
+          "Use a low beam, padded beam, or taped line.",
+          "Set hands and feet on the beam/line in a bear position.",
+          "Keep knees hovering low if appropriate."
+        ],
+        "execution_steps": [
+          "Move one hand or foot at a time.",
+          "Pause after each placement.",
+          "Keep hips low and square.",
+          "Step off safely at the end."
+        ],
+        "coach_cues": [
+          "Place with purpose.",
+          "Quiet hips.",
+          "Hands grip the line.",
+          "Slow is strong."
+        ],
+        "athlete_cues": [
+          "Place with purpose.",
+          "Quiet hips.",
+          "Hands grip the line."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Rushing and slapping the hands.",
+          "Hips rotate side to side.",
+          "Shoulders collapse.",
+          "Beam is too narrow or high for control."
+        ],
+        "quality_gate": [
+          "Athlete can cross with deliberate placements and no shoulder collapse or uncontrolled dismount."
+        ],
+        "stop_signs": [
+          "Wrist, shoulder, or back pain.",
+          "Cannot control on a floor line first.",
+          "Unsafe beam height."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "distance",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 2,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Low Beam Bear Crawl, use the simplest version with support nearby and short 8-15 second exposures. Use a floor line or wider low beam before any raised beam exposure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Low Beam Bear Crawl playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Low Beam Bear Crawl toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Low Beam Bear Crawl with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Low Beam Bear Crawl as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Low Beam Bear Crawl. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Low Beam Bear Crawl, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Bear Plank Shoulder Tap Balance",
+        "Beam Walk",
+        "Bear Crawl Partner Tap Balance"
+      ],
+      "pairsWellBefore": [
+        "Beam Hop to Stick",
+        "Beam Mount/Dismount Stick",
+        "Dynamic sideline balance drills"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Athlete is fatigued, fearful, or not yet competent on a floor line."
+      ],
+      "goodForSessions": [
+        "tumbling_prep",
+        "general_warmup",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Low Beam Bear Crawl front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Beam or line height and width match the athlete's current confidence and control."
+        ],
+        "contraindications": [
+          "Unsafe beam height for current skill.",
+          "Fear response that causes uncontrolled stepping or jumping off.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Line Bear Crawl",
+          "Quadruped Crawl on Floor"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "beam-split-stance-reach",
+      "name": "Beam Split-Stance Reach",
+      "family": "Beam reach control",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "shape_control",
+      "slot": "beam_balance",
+      "cardSummary": "Beam Split-Stance Reach is a balance-focused drill for combines narrow-base stance with reach, teaching athletes to move the upper body without losing the base. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Movement Intelligence while the athlete is fresh and attentive. Place before tumbling, jumping, or fatigue blocks; do not use raised/narrow surfaces when tired.",
+      "description": "Hold a split stance on a low beam or line and reach the arms forward, sideways, or overhead without stepping off.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Beam Split-Stance Reach as balance skill plus control under the specific constraint: Combines narrow-base stance with reach, teaching athletes to move the upper body without losing the base. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Place each foot with purpose, stay tall, and stick the finish.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 4
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 1
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "low_beam",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Beam Split-Stance Reach narrows the base of support and raises the precision demand without needing heavy load. The athlete must regulate visual focus, foot placement, rhythm, and posture the way a gymnast does on a beam.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: beam_balance.",
+      "commonMisuse": "Do not use raised beams, complex turns, or hopping when the athlete is tired or fearful. Beam balance is precision practice, not a conditioning station.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stability",
+          "hip_stabilization",
+          "shoulder_reach",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "foot_intrinsics",
+          "gluteus_medius",
+          "obliques",
+          "lats"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "narrow_surface_precision",
+          "visual_focus"
+        ],
+        "postural_shape": "tall_narrow_base_or_controlled_beam_shape",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "narrow_base_beam_or_line_balance",
+        "coordination_demand": "precise_foot_placement_and_body_shape_on_reduced_base",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Hold a split stance on a low beam or line and reach the arms forward, sideways, or overhead without stepping off.",
+        "setup": [
+          "Set a split stance on a line or low beam.",
+          "Keep feet facing mostly forward.",
+          "Choose a reach direction that fits the athlete's control."
+        ],
+        "execution_steps": [
+          "Reach slowly while keeping both feet connected.",
+          "Return hands to center and pause.",
+          "Try forward, diagonal, and overhead reaches.",
+          "Switch lead foot."
+        ],
+        "coach_cues": [
+          "Feet stay glued.",
+          "Reach from a stacked trunk.",
+          "Return to center.",
+          "No panic step."
+        ],
+        "athlete_cues": [
+          "Feet stay glued.",
+          "Reach from a stacked trunk.",
+          "Return to center."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Reach pulls the athlete off the beam.",
+          "Back foot turns out to widen support.",
+          "Rib flare replaces shoulder reach.",
+          "Knees lock."
+        ],
+        "quality_gate": [
+          "Athlete completes multiple reach directions without stepping off or changing foot position."
+        ],
+        "stop_signs": [
+          "Loss of safe foot placement, shoulder pain with reach, or dizziness."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "distance",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 2,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Beam Split-Stance Reach, use the simplest version with support nearby and short 8-15 second exposures. Use a floor line or wider low beam before any raised beam exposure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Beam Split-Stance Reach playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Beam Split-Stance Reach toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Beam Split-Stance Reach with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Beam Split-Stance Reach as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Beam Split-Stance Reach. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Beam Split-Stance Reach, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Beam Walk",
+        "Warrior III Reach Hold",
+        "Partner Shoulder Bump Balance"
+      ],
+      "pairsWellBefore": [
+        "Beam Hop to Stick",
+        "Beam Mount/Dismount Stick",
+        "Dynamic sideline balance drills"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Athlete is fatigued, fearful, or not yet competent on a floor line."
+      ],
+      "goodForSessions": [
+        "tumbling_prep",
+        "general_warmup",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Beam Split-Stance Reach front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Beam or line height and width match the athlete's current confidence and control."
+        ],
+        "contraindications": [
+          "Unsafe beam height for current skill.",
+          "Fear response that causes uncontrolled stepping or jumping off.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Floor Line Split-Stance Reach",
+          "Supported Split-Stance Reach"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "beam-carioca-walk",
+      "name": "Beam Carioca Walk",
+      "family": "Beam crossing coordination",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "shape_control",
+      "slot": "beam_balance",
+      "cardSummary": "Beam Carioca Walk is a balance-focused drill for builds crossing-step coordination and trunk-pelvis separation on a narrow base for advanced beam and field movement. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Movement Intelligence while the athlete is fresh and attentive. Place before tumbling, jumping, or fatigue blocks; do not use raised/narrow surfaces when tired.",
+      "description": "Perform slow carioca-style crossing steps along a floor line or very low beam with a clean pause between steps.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Beam Carioca Walk as balance skill plus control under the specific constraint: Builds crossing-step coordination and trunk-pelvis separation on a narrow base for advanced beam and field movement. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Place each foot with purpose, stay tall, and stick the finish.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 4
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 1
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "line",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Beam Carioca Walk narrows the base of support and raises the precision demand without needing heavy load. The athlete must regulate visual focus, foot placement, rhythm, and posture the way a gymnast does on a beam.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: beam_balance.",
+      "commonMisuse": "Do not use raised beams, complex turns, or hopping when the athlete is tired or fearful. Beam balance is precision practice, not a conditioning station.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_rotation_control",
+          "spine_rotation_control",
+          "ankle_stability"
+        ],
+        "primary_tissues": [
+          "adductors",
+          "gluteus_medius",
+          "obliques",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "narrow_surface_precision",
+          "visual_focus"
+        ],
+        "postural_shape": "tall_narrow_base_or_controlled_beam_shape",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "narrow_base_beam_or_line_balance",
+        "coordination_demand": "precise_foot_placement_and_body_shape_on_reduced_base",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Perform slow carioca-style crossing steps along a floor line or very low beam with a clean pause between steps.",
+        "setup": [
+          "Start on a floor line before using a low beam.",
+          "Face sideways along the line.",
+          "Keep arms out for balance."
+        ],
+        "execution_steps": [
+          "Cross one foot in front, pause, then step the other foot along the line.",
+          "Cross behind on the next sequence if control is ready.",
+          "Keep the trunk tall and eyes steady.",
+          "Repeat both directions."
+        ],
+        "coach_cues": [
+          "Cross slow.",
+          "Foot finds line.",
+          "Hips turn, trunk stays tall.",
+          "Pause each step."
+        ],
+        "athlete_cues": [
+          "Cross slow.",
+          "Foot finds line.",
+          "Hips turn, trunk stays tall."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Rushing the crossing pattern.",
+          "Feet miss the line repeatedly.",
+          "Knees twist while the foot is planted.",
+          "Athlete cannot explain the step sequence."
+        ],
+        "quality_gate": [
+          "Athlete completes the sequence both directions with no knee twist or uncontrolled step-off."
+        ],
+        "stop_signs": [
+          "Knee discomfort with crossing, dizziness from rotation, or pattern confusion that creates unsafe steps."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "distance",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 2,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Beam Carioca Walk, use the simplest version with support nearby and short 8-15 second exposures. Use a floor line or wider low beam before any raised beam exposure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Beam Carioca Walk playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Beam Carioca Walk toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Beam Carioca Walk with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Beam Carioca Walk as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Beam Carioca Walk. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Beam Carioca Walk, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Balance Beam Lateral Walk",
+        "Spin Turn to Stick",
+        "Curved Run Sideline Stick"
+      ],
+      "pairsWellBefore": [
+        "Beam Hop to Stick",
+        "Beam Mount/Dismount Stick",
+        "Dynamic sideline balance drills"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Athlete is fatigued, fearful, or not yet competent on a floor line."
+      ],
+      "goodForSessions": [
+        "tumbling_prep",
+        "general_warmup",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Beam Carioca Walk front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 0,
+        "requires_spotting": true,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Beam or line height and width match the athlete's current confidence and control."
+        ],
+        "contraindications": [
+          "Unsafe beam height for current skill.",
+          "Fear response that causes uncontrolled stepping or jumping off.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Floor Carioca Pattern",
+          "Lateral Line Walk"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "narrow-line-backward-walk",
+      "name": "Narrow-Line Backward Walk",
+      "family": "Backward narrow-base control",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "shape_control",
+      "slot": "beam_balance",
+      "cardSummary": "Narrow-Line Backward Walk is a balance-focused drill for trains balance while moving without full visual confirmation of each step, relevant to defensive retreating and beam control. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Movement Intelligence while the athlete is fresh and attentive. Place before tumbling, jumping, or fatigue blocks; do not use raised/narrow surfaces when tired.",
+      "description": "Walk backward heel-to-toe along a line or low beam with slow, deliberate foot placement.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Narrow-Line Backward Walk as balance skill plus control under the specific constraint: Trains balance while moving without full visual confirmation of each step, relevant to defensive retreating and beam control. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Place each foot with purpose, stay tall, and stick the finish.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 4
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 1
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "line",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Narrow-Line Backward Walk narrows the base of support and raises the precision demand without needing heavy load. The athlete must regulate visual focus, foot placement, rhythm, and posture the way a gymnast does on a beam.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: beam_balance.",
+      "commonMisuse": "Do not use raised beams, complex turns, or hopping when the athlete is tired or fearful. Beam balance is precision practice, not a conditioning station.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stability",
+          "hip_extension_control",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "foot_intrinsics",
+          "calves",
+          "hamstrings",
+          "gluteals"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "narrow_surface_precision",
+          "visual_focus"
+        ],
+        "postural_shape": "tall_narrow_base_or_controlled_beam_shape",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "narrow_base_beam_or_line_balance",
+        "coordination_demand": "precise_foot_placement_and_body_shape_on_reduced_base",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Walk backward heel-to-toe along a line or low beam with slow, deliberate foot placement.",
+        "setup": [
+          "Use a floor line or low beam with clear space behind.",
+          "Stand at one end and visually check the path before starting.",
+          "Keep arms ready for balance."
+        ],
+        "execution_steps": [
+          "Reach the foot backward to the line.",
+          "Place quietly before transferring weight.",
+          "Pause after each step.",
+          "Stop at the end and step off safely."
+        ],
+        "coach_cues": [
+          "Check path first.",
+          "Reach, place, shift.",
+          "Slow backward steps.",
+          "Tall posture."
+        ],
+        "athlete_cues": [
+          "Check path first.",
+          "Reach, place, shift.",
+          "Slow backward steps."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Blind stepping too fast.",
+          "Feet turn out to widen support.",
+          "Athlete looks down and rounds forward.",
+          "Arms flail after each step."
+        ],
+        "quality_gate": [
+          "Athlete can complete the line backward with no missed steps and controlled posture."
+        ],
+        "stop_signs": [
+          "Unsafe space behind the athlete, repeated missteps, or fear response."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "distance",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 30,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 2,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Narrow-Line Backward Walk, use the simplest version with support nearby and short 8-15 second exposures. Use a floor line or wider low beam before any raised beam exposure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Narrow-Line Backward Walk playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Narrow-Line Backward Walk toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Narrow-Line Backward Walk with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Narrow-Line Backward Walk as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Narrow-Line Backward Walk. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Narrow-Line Backward Walk, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Balance Beam Walk",
+        "Backpedal-to-Sprint-to-Stick",
+        "Tandem Line Balance Hold"
+      ],
+      "pairsWellBefore": [
+        "Beam Hop to Stick",
+        "Beam Mount/Dismount Stick",
+        "Dynamic sideline balance drills"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Athlete is fatigued, fearful, or not yet competent on a floor line."
+      ],
+      "goodForSessions": [
+        "tumbling_prep",
+        "general_warmup",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Narrow-Line Backward Walk front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Beam or line height and width match the athlete's current confidence and control."
+        ],
+        "contraindications": [
+          "Unsafe beam height for current skill.",
+          "Fear response that causes uncontrolled stepping or jumping off.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Backward Wide-Line Walk",
+          "Supported Backward Walk"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "beam-mount-dismount-stick",
+      "name": "Beam Mount/Dismount Stick",
+      "family": "Beam transition control",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "coordinate",
+      "subroleSecondary": "shape_control",
+      "slot": "beam_balance",
+      "cardSummary": "Beam Mount/Dismount Stick is a balance-focused drill for teaches the athlete to enter and exit a narrow base with control instead of relying on momentum. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Movement Intelligence while the athlete is fresh and attentive. Place before tumbling, jumping, or fatigue blocks; do not use raised/narrow surfaces when tired.",
+      "description": "Step or small-hop onto and off a low beam or line, holding each start and finish position.",
+      "coachLanguage": "Primary subrole: coordinate. Coach Beam Mount/Dismount Stick as balance skill plus control under the specific constraint: Teaches the athlete to enter and exit a narrow base with control instead of relying on momentum. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Place each foot with purpose, stay tall, and stick the finish.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 4
+        },
+        {
+          "key": "flexibility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 1
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "low_beam",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Beam Mount/Dismount Stick narrows the base of support and raises the precision demand without needing heavy load. The athlete must regulate visual focus, foot placement, rhythm, and posture the way a gymnast does on a beam.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the main adaptation is learning and controlling balance positions while fresh, not accumulating fatigue. Slot: beam_balance.",
+      "commonMisuse": "Do not use raised beams, complex turns, or hopping when the athlete is tired or fearful. Beam balance is precision practice, not a conditioning station.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stability",
+          "knee_flexion_control",
+          "hip_stabilization",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "gluteals",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "narrow_surface_precision",
+          "visual_focus"
+        ],
+        "postural_shape": "tall_narrow_base_or_controlled_beam_shape",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "narrow_base_beam_or_line_balance",
+        "coordination_demand": "precise_foot_placement_and_body_shape_on_reduced_base",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "Step or small-hop onto and off a low beam or line, holding each start and finish position.",
+        "setup": [
+          "Use a low beam or taped line with clear landing space.",
+          "Choose step-on/step-off before hop-on/hop-off.",
+          "Set a two-second stick standard."
+        ],
+        "execution_steps": [
+          "Mount the beam and stick the position.",
+          "Walk or hold briefly on top.",
+          "Dismount to the floor and stick the landing.",
+          "Reset before the next attempt."
+        ],
+        "coach_cues": [
+          "Enter with control.",
+          "Stick on top, stick off.",
+          "Quiet landing.",
+          "No rushed dismount."
+        ],
+        "athlete_cues": [
+          "Enter with control.",
+          "Stick on top, stick off.",
+          "Quiet landing."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Jumping too far from the beam.",
+          "Landing loud or stiff.",
+          "Skipping the stick on top.",
+          "Beam height too high for ability."
+        ],
+        "quality_gate": [
+          "Athlete sticks both mount and dismount for two seconds with quiet feet."
+        ],
+        "stop_signs": [
+          "Impact pain, unsafe landing mechanics, or excessive fear on the beam."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 2,
+        "default_reps": 4,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 40,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Beam Mount/Dismount Stick, use the simplest version with support nearby and short 8-15 second exposures. Use a floor line or wider low beam before any raised beam exposure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Beam Mount/Dismount Stick playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Beam Mount/Dismount Stick toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Beam Mount/Dismount Stick with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Beam Mount/Dismount Stick as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Beam Mount/Dismount Stick. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Beam Mount/Dismount Stick, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Balance Beam Walk",
+        "Beam Hop to Stick",
+        "Snap-Down to Stick"
+      ],
+      "pairsWellBefore": [
+        "Beam Hop to Stick",
+        "Beam Mount/Dismount Stick",
+        "Dynamic sideline balance drills"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Athlete is fatigued, fearful, or not yet competent on a floor line."
+      ],
+      "goodForSessions": [
+        "tumbling_prep",
+        "general_warmup",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Beam Mount/Dismount Stick front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression.",
+          "Beam or line height and width match the athlete's current confidence and control."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Unsafe beam height for current skill.",
+          "Fear response that causes uncontrolled stepping or jumping off.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Floor Line Step-On/Step-Off",
+          "Low Step Mount/Dismount Stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    }
+  ]
+}
+```
+
+
+# Batch 31-40 Balance Exercise Cards
+Primary source used: exercise_card_details_for_llm.md, which defines the Vortex Card v2 authoring workflow, canonical session phases, taxonomy tags, publish gates, authoring JSON format, dosage/scaling/safety fields, and common authoring mistakes to avoid. Purpose.txt was requested but was not located in the File Library search results available in this session, so the exercise selection is grounded in the available Card v2 guide plus the user's stated balance purpose: sideline contact control, beam-level body control, and wrestling center-of-gravity control.
+## Category Focus
+- **Dynamic Landing, Braking, and Sideline Control:** Landing, cutting, sprint-braking, and boundary-control drills that teach athletes to regain posture after speed, direction change, and off-axis momentum.
+
+## Cursor-Ready JSON
+```json
+{
+  "cluster": {
+    "focus": "balance",
+    "batch": "31-40",
+    "categories": [
+      "Dynamic Landing, Braking, and Sideline Control"
+    ],
+    "card_count": 10,
+    "primary_authoring_format": "camelCase Card v2"
+  },
+  "cards": [
+    {
+      "slug": "snap-down-to-stick",
+      "name": "Snap-Down to Stick",
+      "family": "Landing and braking control",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "landing_braking_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "deceleration_balance_control",
+      "cardSummary": "Snap-Down to Stick is a balance-focused drill for teaches the athlete to rapidly organize from tall posture into an athletic base and freeze, a foundation for stopping after contact. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after warm-up, foot/ankle prep, and basic landing control. Place before conditioning and before fatigue makes braking, boundary, or contact control sloppy.",
+      "description": "Move quickly from a tall reach to an athletic landing position and stick the finish.",
+      "coachLanguage": "Primary subrole: landing_braking_control. Coach Snap-Down to Stick as balance skill plus control under the specific constraint: Teaches the athlete to rapidly organize from tall posture into an athletic base and freeze, a foundation for stopping after contact. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Own the line, absorb the force, and finish balanced before the next rep.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "plyometrics",
+          "weight": 2
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 2
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Snap-Down to Stick adds speed, deceleration, or off-axis momentum to balance practice. The athlete learns to brake and recover before momentum carries the body outside the base or across a boundary.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: deceleration_balance_control.",
+      "commonMisuse": "Do not make the approach speed or contact bigger than the stick quality. Balance transfer comes from stopping cleanly, not from surviving chaotic reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_dorsiflexion",
+          "knee_flexion_control",
+          "hip_flexion",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "quadriceps",
+          "glutes",
+          "calves",
+          "deep_core"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "deceleration_timing",
+          "boundary_awareness"
+        ],
+        "postural_shape": "athletic_stance_or_single_leg_stick",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "dynamic_deceleration_boundary_or_landing_balance",
+        "coordination_demand": "time_braking_steps_and_freeze_position_after_momentum",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Move quickly from a tall reach to an athletic landing position and stick the finish.",
+        "setup": [
+          "Stand tall with arms overhead or at chest height.",
+          "Feet start hip-width.",
+          "Clear space and define the stick position."
+        ],
+        "execution_steps": [
+          "Rise tall, then snap arms down while dropping into an athletic stance.",
+          "Land with whole-foot pressure and knees tracking.",
+          "Freeze for two seconds.",
+          "Stand and reset before the next rep."
+        ],
+        "coach_cues": [
+          "Tall to strong.",
+          "Hit the brakes.",
+          "Land quiet.",
+          "Freeze the picture."
+        ],
+        "athlete_cues": [
+          "Tall to strong.",
+          "Hit the brakes.",
+          "Land quiet."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Landing loud or on toes only.",
+          "Knees collapse inward.",
+          "Chest drops too low.",
+          "Athlete rebounds instead of sticking."
+        ],
+        "quality_gate": [
+          "Every rep ends in a two-second quiet stick with clean knee and trunk position."
+        ],
+        "stop_signs": [
+          "Pain with landing, repeated loud contacts, or inability to freeze."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 4,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 90,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "For Snap-Down to Stick, use the simplest version with support nearby and short 8-15 second exposures. Use walk-through or half-speed approaches before adding speed, contact, or boundary pressure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Snap-Down to Stick playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Snap-Down to Stick toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Snap-Down to Stick with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Snap-Down to Stick as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Snap-Down to Stick. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Snap-Down to Stick, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Step-Down to Stick",
+        "Lateral Bound to Stick",
+        "Beam Mount/Dismount Stick"
+      ],
+      "pairsWellBefore": [
+        "Sideline Contact Lean Recovery",
+        "Partner Shoulder Bump Balance",
+        "Sport-specific cutting practice"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Surface is slippery or speed/contact exceeds the athlete's ability to stick safely.",
+        "Athlete cannot land quietly at a lower-impact progression."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "deceleration",
+        "control_landing"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Snap-Down to Stick front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Athletic Stance Drop to Hold",
+          "Low Step-Off to Stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "lateral-bound-to-stick",
+      "name": "Lateral Bound to Stick",
+      "family": "Frontal-plane landing control",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "landing_braking_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "deceleration_balance_control",
+      "cardSummary": "Lateral Bound to Stick is a balance-focused drill for builds the ability to absorb lateral momentum and hold the line, similar to staying inbounds after a sideline bump. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after warm-up, foot/ankle prep, and basic landing control. Place before conditioning and before fatigue makes braking, boundary, or contact control sloppy.",
+      "description": "Bound laterally from one foot to the other and stick the landing without letting momentum carry the athlete away.",
+      "coachLanguage": "Primary subrole: landing_braking_control. Coach Lateral Bound to Stick as balance skill plus control under the specific constraint: Builds the ability to absorb lateral momentum and hold the line, similar to staying inbounds after a sideline bump. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Own the line, absorb the force, and finish balanced before the next rep.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "plyometrics",
+          "weight": 2
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 2
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Lateral Bound to Stick adds speed, deceleration, or off-axis momentum to balance practice. The athlete learns to brake and recover before momentum carries the body outside the base or across a boundary.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: deceleration_balance_control.",
+      "commonMisuse": "Do not make the approach speed or contact bigger than the stick quality. Balance transfer comes from stopping cleanly, not from surviving chaotic reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_abduction_control",
+          "knee_flexion_control",
+          "ankle_stability",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "gluteus_medius",
+          "quadriceps",
+          "calves",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "deceleration_timing",
+          "boundary_awareness"
+        ],
+        "postural_shape": "athletic_stance_or_single_leg_stick",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "dynamic_deceleration_boundary_or_landing_balance",
+        "coordination_demand": "time_braking_steps_and_freeze_position_after_momentum",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Bound laterally from one foot to the other and stick the landing without letting momentum carry the athlete away.",
+        "setup": [
+          "Stand on one foot with clear side space.",
+          "Mark a conservative lateral distance.",
+          "Start with hands ready for balance."
+        ],
+        "execution_steps": [
+          "Push laterally and land on the opposite foot.",
+          "Absorb through hip, knee, and ankle.",
+          "Stick the landing for two seconds.",
+          "Reset before bounding back."
+        ],
+        "coach_cues": [
+          "Push, land, own it.",
+          "Knee over foot.",
+          "Stop the drift.",
+          "Quiet landing."
+        ],
+        "athlete_cues": [
+          "Push, land, own it.",
+          "Knee over foot.",
+          "Stop the drift."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Distance too large for control.",
+          "Landing knee collapses inward.",
+          "Second foot taps immediately.",
+          "Trunk leans outside the base."
+        ],
+        "quality_gate": [
+          "Athlete lands and holds without extra hops or second-foot touch-down."
+        ],
+        "stop_signs": [
+          "Pain with landing, uncontrolled knee collapse, or repeated inability to hold the stick."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 4,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 90,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "For Lateral Bound to Stick, use the simplest version with support nearby and short 8-15 second exposures. Use walk-through or half-speed approaches before adding speed, contact, or boundary pressure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Lateral Bound to Stick playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Lateral Bound to Stick toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Lateral Bound to Stick with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Lateral Bound to Stick as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Lateral Bound to Stick. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Lateral Bound to Stick, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Lateral Step-Down Balance",
+        "Single-Leg Lateral Hop to Stick",
+        "Sideline Contact Lean Recovery"
+      ],
+      "pairsWellBefore": [
+        "Sideline Contact Lean Recovery",
+        "Partner Shoulder Bump Balance",
+        "Sport-specific cutting practice"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Surface is slippery or speed/contact exceeds the athlete's ability to stick safely.",
+        "Athlete cannot land quietly at a lower-impact progression."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "deceleration",
+        "control_landing"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Lateral Bound to Stick front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Lateral Step to Stick",
+          "Low Skater Step"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "single-leg-lateral-hop-to-stick",
+      "name": "Single-Leg Lateral Hop to Stick",
+      "family": "Single-leg lateral landing",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "landing_braking_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "deceleration_balance_control",
+      "cardSummary": "Single-Leg Lateral Hop to Stick is a balance-focused drill for advanced progression for holding balance after a fast lateral hop or boundary recovery step. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after warm-up, foot/ankle prep, and basic landing control. Place before conditioning and before fatigue makes braking, boundary, or contact control sloppy.",
+      "description": "Hop laterally on the same leg or from one leg to the same-leg landing and hold the stick.",
+      "coachLanguage": "Primary subrole: landing_braking_control. Coach Single-Leg Lateral Hop to Stick as balance skill plus control under the specific constraint: Advanced progression for holding balance after a fast lateral hop or boundary recovery step. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Own the line, absorb the force, and finish balanced before the next rep.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "plyometrics",
+          "weight": 2
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 2
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Single-Leg Lateral Hop to Stick adds speed, deceleration, or off-axis momentum to balance practice. The athlete learns to brake and recover before momentum carries the body outside the base or across a boundary.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: deceleration_balance_control.",
+      "commonMisuse": "Do not make the approach speed or contact bigger than the stick quality. Balance transfer comes from stopping cleanly, not from surviving chaotic reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stability",
+          "knee_flexion_control",
+          "hip_stabilization",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "gluteus_medius",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "deceleration_timing",
+          "boundary_awareness"
+        ],
+        "postural_shape": "athletic_stance_or_single_leg_stick",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "dynamic_deceleration_boundary_or_landing_balance",
+        "coordination_demand": "time_braking_steps_and_freeze_position_after_momentum",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "Hop laterally on the same leg or from one leg to the same-leg landing and hold the stick.",
+        "setup": [
+          "Mark a very small lateral target distance.",
+          "Begin on one foot with the knee soft.",
+          "Use a floor line to define the boundary."
+        ],
+        "execution_steps": [
+          "Hop laterally with low amplitude.",
+          "Land on the same foot and absorb quietly.",
+          "Stick for two seconds without the free foot touching.",
+          "Reset before the next attempt."
+        ],
+        "coach_cues": [
+          "Small hop, big control.",
+          "Land under the hip.",
+          "Foot, knee, hip line.",
+          "No extra hop."
+        ],
+        "athlete_cues": [
+          "Small hop, big control.",
+          "Land under the hip.",
+          "Foot, knee, hip line."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Hopping too far.",
+          "Landing stiff or loud.",
+          "Free foot taps instantly.",
+          "Pelvis spins on landing."
+        ],
+        "quality_gate": [
+          "Only quiet, two-second single-leg sticks count."
+        ],
+        "stop_signs": [
+          "Pain with impact, repeated loud landings, or knee collapse at lower progressions."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 4,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 90,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "For Single-Leg Lateral Hop to Stick, use the simplest version with support nearby and short 8-15 second exposures. Use walk-through or half-speed approaches before adding speed, contact, or boundary pressure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Single-Leg Lateral Hop to Stick playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Single-Leg Lateral Hop to Stick toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Single-Leg Lateral Hop to Stick with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Single-Leg Lateral Hop to Stick as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Single-Leg Lateral Hop to Stick. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Single-Leg Lateral Hop to Stick, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Lateral Bound to Stick",
+        "Skater Squat Box Tap",
+        "Beam Hop to Stick"
+      ],
+      "pairsWellBefore": [
+        "Sideline Contact Lean Recovery",
+        "Partner Shoulder Bump Balance",
+        "Sport-specific cutting practice"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Surface is slippery or speed/contact exceeds the athlete's ability to stick safely.",
+        "Athlete cannot land quietly at a lower-impact progression."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "deceleration",
+        "control_landing"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Single-Leg Lateral Hop to Stick front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Lateral Bound to Stick",
+          "Lateral Step to Stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 3,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "curved-run-sideline-stick",
+      "name": "Curved Run Sideline Stick",
+      "family": "Curved approach boundary control",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "landing_braking_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "deceleration_balance_control",
+      "cardSummary": "Curved Run Sideline Stick is a balance-focused drill for matches the sideline problem directly: approach on a curve, control the outside edge, and stop without crossing the boundary. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after warm-up, foot/ankle prep, and basic landing control. Place before conditioning and before fatigue makes braking, boundary, or contact control sloppy.",
+      "description": "Run a controlled curve toward a sideline marker and stick on the inside foot without stepping over the line.",
+      "coachLanguage": "Primary subrole: landing_braking_control. Coach Curved Run Sideline Stick as balance skill plus control under the specific constraint: Matches the sideline problem directly: approach on a curve, control the outside edge, and stop without crossing the boundary. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Own the line, absorb the force, and finish balanced before the next rep.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "plyometrics",
+          "weight": 2
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 2
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        },
+        {
+          "key": "line",
+          "weight": 3
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Curved Run Sideline Stick adds speed, deceleration, or off-axis momentum to balance practice. The athlete learns to brake and recover before momentum carries the body outside the base or across a boundary.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: deceleration_balance_control.",
+      "commonMisuse": "Do not make the approach speed or contact bigger than the stick quality. Balance transfer comes from stopping cleanly, not from surviving chaotic reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stability",
+          "hip_rotation_control",
+          "knee_flexion_control",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "calves",
+          "gluteus_medius",
+          "adductors",
+          "obliques"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "deceleration_timing",
+          "boundary_awareness"
+        ],
+        "postural_shape": "athletic_stance_or_single_leg_stick",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "dynamic_deceleration_boundary_or_landing_balance",
+        "coordination_demand": "time_braking_steps_and_freeze_position_after_momentum",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Run a controlled curve toward a sideline marker and stick on the inside foot without stepping over the line.",
+        "setup": [
+          "Set cones in a gentle curve toward a boundary line.",
+          "Start at 50-70 percent speed until control is consistent.",
+          "Define a legal inbounds stick zone."
+        ],
+        "execution_steps": [
+          "Run the curve with eyes up and hips under control.",
+          "Decelerate into the stick zone.",
+          "Land and hold without crossing the boundary.",
+          "Walk back and reset."
+        ],
+        "coach_cues": [
+          "Own the line.",
+          "Brake before the boundary.",
+          "Inside edge strong.",
+          "Eyes up."
+        ],
+        "athlete_cues": [
+          "Own the line.",
+          "Brake before the boundary.",
+          "Inside edge strong."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Approach speed too high for control.",
+          "Last step crosses the line.",
+          "Athlete leans outside the base.",
+          "Stopping with a stiff knee."
+        ],
+        "quality_gate": [
+          "Athlete holds the stick for two seconds inbounds after a curved approach."
+        ],
+        "stop_signs": [
+          "Cannot decelerate before the line, pain with cutting, or slippery surface."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 4,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 90,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "For Curved Run Sideline Stick, use the simplest version with support nearby and short 8-15 second exposures. Use walk-through or half-speed approaches before adding speed, contact, or boundary pressure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Curved Run Sideline Stick playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Curved Run Sideline Stick toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Curved Run Sideline Stick with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Curved Run Sideline Stick as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Curved Run Sideline Stick. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Curved Run Sideline Stick, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Sprint-to-Balance Deceleration",
+        "Boundary Toe-Tap Balance",
+        "Lateral Bound to Stick"
+      ],
+      "pairsWellBefore": [
+        "Sideline Contact Lean Recovery",
+        "Partner Shoulder Bump Balance",
+        "Sport-specific cutting practice"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Surface is slippery or speed/contact exceeds the athlete's ability to stick safely.",
+        "Athlete cannot land quietly at a lower-impact progression."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "deceleration",
+        "control_landing"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Curved Run Sideline Stick front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Walk Curve to Stick",
+          "Jog Curve to Stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "sprint-to-balance-deceleration",
+      "name": "Sprint-to-Balance Deceleration",
+      "family": "Linear braking balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "landing_braking_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "deceleration_balance_control",
+      "cardSummary": "Sprint-to-Balance Deceleration is a balance-focused drill for trains the athlete to turn speed into balance, not drift, after a fast approach. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after warm-up, foot/ankle prep, and basic landing control. Place before conditioning and before fatigue makes braking, boundary, or contact control sloppy.",
+      "description": "Accelerate for a short distance, decelerate under control, and finish in a balanced athletic stick.",
+      "coachLanguage": "Primary subrole: landing_braking_control. Coach Sprint-to-Balance Deceleration as balance skill plus control under the specific constraint: Trains the athlete to turn speed into balance, not drift, after a fast approach. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Own the line, absorb the force, and finish balanced before the next rep.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "plyometrics",
+          "weight": 2
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 2
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Sprint-to-Balance Deceleration adds speed, deceleration, or off-axis momentum to balance practice. The athlete learns to brake and recover before momentum carries the body outside the base or across a boundary.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: deceleration_balance_control.",
+      "commonMisuse": "Do not make the approach speed or contact bigger than the stick quality. Balance transfer comes from stopping cleanly, not from surviving chaotic reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_dorsiflexion",
+          "knee_flexion_control",
+          "hip_flexion",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "quadriceps",
+          "glutes",
+          "calves",
+          "hamstrings"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "deceleration_timing",
+          "boundary_awareness"
+        ],
+        "postural_shape": "athletic_stance_or_single_leg_stick",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "dynamic_deceleration_boundary_or_landing_balance",
+        "coordination_demand": "time_braking_steps_and_freeze_position_after_momentum",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Accelerate for a short distance, decelerate under control, and finish in a balanced athletic stick.",
+        "setup": [
+          "Set a 5-15 yard approach and a finish cone.",
+          "Use 50-70 percent speed before true sprint speed.",
+          "Define a two-second stick standard."
+        ],
+        "execution_steps": [
+          "Accelerate smoothly toward the finish zone.",
+          "Begin braking early enough to avoid a hard last-step crash.",
+          "Finish in an athletic stance or single-leg stick.",
+          "Walk back with full recovery."
+        ],
+        "coach_cues": [
+          "Speed into control.",
+          "Brake with steps, not one crash.",
+          "Stick the finish.",
+          "Chest over base."
+        ],
+        "athlete_cues": [
+          "Speed into control.",
+          "Brake with steps, not one crash.",
+          "Stick the finish."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Stopping in one loud step.",
+          "Drifting past the finish zone.",
+          "Knees collapse during braking.",
+          "Turning it into conditioning."
+        ],
+        "quality_gate": [
+          "Athlete stops inside the zone with quiet steps and a held finish."
+        ],
+        "stop_signs": [
+          "Pain while sprinting or braking, surface slipping, or mechanics degrade with fatigue."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 4,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 90,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "For Sprint-to-Balance Deceleration, use the simplest version with support nearby and short 8-15 second exposures. Use walk-through or half-speed approaches before adding speed, contact, or boundary pressure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Sprint-to-Balance Deceleration playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Sprint-to-Balance Deceleration toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Sprint-to-Balance Deceleration with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Sprint-to-Balance Deceleration as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Sprint-to-Balance Deceleration. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Sprint-to-Balance Deceleration, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Snap-Down to Stick",
+        "Curved Run Sideline Stick",
+        "Shuffle-to-Stick"
+      ],
+      "pairsWellBefore": [
+        "Sideline Contact Lean Recovery",
+        "Partner Shoulder Bump Balance",
+        "Sport-specific cutting practice"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Surface is slippery or speed/contact exceeds the athlete's ability to stick safely.",
+        "Athlete cannot land quietly at a lower-impact progression."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "deceleration",
+        "control_landing"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Sprint-to-Balance Deceleration front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Jog-to-Stick",
+          "March-to-Stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "sideline-contact-lean-recovery",
+      "name": "Sideline Contact Lean Recovery",
+      "family": "Boundary contact balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "landing_braking_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "deceleration_balance_control",
+      "cardSummary": "Sideline Contact Lean Recovery is a balance-focused drill for directly trains absorbing a controlled bump while staying inside a boundary line. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after warm-up, foot/ankle prep, and basic landing control. Place before conditioning and before fatigue makes braking, boundary, or contact control sloppy.",
+      "description": "Athlete stands or jogs near a line while a partner with a pad gives a controlled shoulder/body lean; the athlete recovers without stepping out.",
+      "coachLanguage": "Primary subrole: landing_braking_control. Coach Sideline Contact Lean Recovery as balance skill plus control under the specific constraint: Directly trains absorbing a controlled bump while staying inside a boundary line. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Own the line, absorb the force, and finish balanced before the next rep.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "plyometrics",
+          "weight": 1
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 1
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "partner",
+          "weight": 5
+        },
+        {
+          "key": "pad",
+          "weight": 3
+        },
+        {
+          "key": "line",
+          "weight": 3
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Sideline Contact Lean Recovery adds speed, deceleration, or off-axis momentum to balance practice. The athlete learns to brake and recover before momentum carries the body outside the base or across a boundary.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: deceleration_balance_control.",
+      "commonMisuse": "Do not make the approach speed or contact bigger than the stick quality. Balance transfer comes from stopping cleanly, not from surviving chaotic reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "spine_anti_lateral_flexion",
+          "hip_stabilization",
+          "ankle_stability",
+          "shoulder_bracing"
+        ],
+        "primary_tissues": [
+          "obliques",
+          "gluteus_medius",
+          "adductors",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "deceleration_timing",
+          "boundary_awareness"
+        ],
+        "postural_shape": "athletic_stance_or_single_leg_stick",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "dynamic_deceleration_boundary_or_landing_balance",
+        "coordination_demand": "time_braking_steps_and_freeze_position_after_momentum",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "Athlete stands or jogs near a line while a partner with a pad gives a controlled shoulder/body lean; the athlete recovers without stepping out.",
+        "setup": [
+          "Mark a sideline and a safe inbounds zone.",
+          "Partner uses a soft pad and agrees on contact direction and intensity.",
+          "Start from a static or slow-walk position before jogging."
+        ],
+        "execution_steps": [
+          "Athlete moves or holds near the boundary.",
+          "Partner applies light contact toward the line.",
+          "Athlete absorbs, widens pressure through the feet, and recovers inbounds.",
+          "Reset after each contact."
+        ],
+        "coach_cues": [
+          "Absorb and recover.",
+          "Feet find the line.",
+          "Shoulder strong, hips under you.",
+          "Stay inbounds."
+        ],
+        "athlete_cues": [
+          "Absorb and recover.",
+          "Feet find the line.",
+          "Shoulder strong, hips under you."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Partner hits too hard or unpredictably.",
+          "Athlete crosses the line before contact.",
+          "Athlete stiffens and tips.",
+          "Contact turns competitive."
+        ],
+        "quality_gate": [
+          "Athlete absorbs light contact and regains posture without stepping over the boundary."
+        ],
+        "stop_signs": [
+          "Any unsafe contact, head/neck involvement, pain, or athlete anxiety with contact."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 2,
+        "default_reps": 4,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 90,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "For Sideline Contact Lean Recovery, use the simplest version with support nearby and short 8-15 second exposures. Use walk-through or half-speed approaches before adding speed, contact, or boundary pressure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Sideline Contact Lean Recovery playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Sideline Contact Lean Recovery toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Sideline Contact Lean Recovery with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Sideline Contact Lean Recovery as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Sideline Contact Lean Recovery. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Sideline Contact Lean Recovery, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Curved Run Sideline Stick",
+        "Partner Shoulder Bump Balance",
+        "Boundary Toe-Tap Balance"
+      ],
+      "pairsWellBefore": [
+        "Sideline Contact Lean Recovery",
+        "Partner Shoulder Bump Balance",
+        "Sport-specific cutting practice"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Surface is slippery or speed/contact exceeds the athlete's ability to stick safely."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "deceleration",
+        "control_landing"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Sideline Contact Lean Recovery front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression.",
+          "Partner contact or perturbation intensity is agreed, controlled, and never directed at the head or neck."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Band Lean Recovery",
+          "Static Boundary Lean Hold"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "boundary-toe-tap-balance",
+      "name": "Boundary Toe-Tap Balance",
+      "family": "Boundary foot placement",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "landing_braking_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "deceleration_balance_control",
+      "cardSummary": "Boundary Toe-Tap Balance is a balance-focused drill for sharpens the exact foot placement skill of touching close to a sideline without losing body position. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after warm-up, foot/ankle prep, and basic landing control. Place before conditioning and before fatigue makes braking, boundary, or contact control sloppy.",
+      "description": "Balance on one leg while the free foot taps just inside, on, and away from a boundary line without shifting weight.",
+      "coachLanguage": "Primary subrole: landing_braking_control. Coach Boundary Toe-Tap Balance as balance skill plus control under the specific constraint: Sharpens the exact foot placement skill of touching close to a sideline without losing body position. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Own the line, absorb the force, and finish balanced before the next rep.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "plyometrics",
+          "weight": 1
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 1
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "line",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Boundary Toe-Tap Balance adds speed, deceleration, or off-axis momentum to balance practice. The athlete learns to brake and recover before momentum carries the body outside the base or across a boundary.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: deceleration_balance_control.",
+      "commonMisuse": "Do not make the approach speed or contact bigger than the stick quality. Balance transfer comes from stopping cleanly, not from surviving chaotic reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stability",
+          "hip_flexion",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "foot_intrinsics",
+          "calves",
+          "hip_flexors",
+          "obliques"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "deceleration_timing",
+          "boundary_awareness"
+        ],
+        "postural_shape": "athletic_stance_or_single_leg_stick",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "dynamic_deceleration_boundary_or_landing_balance",
+        "coordination_demand": "time_braking_steps_and_freeze_position_after_momentum",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Balance on one leg while the free foot taps just inside, on, and away from a boundary line without shifting weight.",
+        "setup": [
+          "Use a painted sideline or tape line.",
+          "Stand on the inbounds leg with the free foot near the line.",
+          "Choose slow taps before faster rhythm."
+        ],
+        "execution_steps": [
+          "Tap the free foot to a target near the line.",
+          "Return the free foot without leaning out of bounds.",
+          "Vary front, side, and diagonal taps.",
+          "Switch stance legs."
+        ],
+        "coach_cues": [
+          "Tap light.",
+          "Body stays inbounds.",
+          "Stance foot strong.",
+          "Toe finds the line."
+        ],
+        "athlete_cues": [
+          "Tap light.",
+          "Body stays inbounds.",
+          "Stance foot strong."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Free foot takes body weight.",
+          "Athlete leans past the stance foot.",
+          "Taps become sloppy and loud.",
+          "Looking down the whole set."
+        ],
+        "quality_gate": [
+          "Athlete can tap all targets without shifting bodyweight onto the free foot."
+        ],
+        "stop_signs": [
+          "Loss of balance toward the line, ankle pain, or inability to tap lightly."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 2,
+        "default_reps": 4,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 90,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "For Boundary Toe-Tap Balance, use the simplest version with support nearby and short 8-15 second exposures. Use walk-through or half-speed approaches before adding speed, contact, or boundary pressure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Boundary Toe-Tap Balance playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Boundary Toe-Tap Balance toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Boundary Toe-Tap Balance with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Boundary Toe-Tap Balance as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Boundary Toe-Tap Balance. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Boundary Toe-Tap Balance, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Curved Run Sideline Stick",
+        "Single-Leg Tripod Balance",
+        "Clock Reach Balance"
+      ],
+      "pairsWellBefore": [
+        "Sideline Contact Lean Recovery",
+        "Partner Shoulder Bump Balance",
+        "Sport-specific cutting practice"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Surface is slippery or speed/contact exceeds the athlete's ability to stick safely."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "deceleration",
+        "control_landing"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Boundary Toe-Tap Balance front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Supported Toe Tap Balance",
+          "Seated Foot Placement Drill"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "shuffle-to-stick",
+      "name": "Shuffle-to-Stick",
+      "family": "Lateral deceleration",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "landing_braking_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "deceleration_balance_control",
+      "cardSummary": "Shuffle-to-Stick is a balance-focused drill for trains lateral movement into a controlled stop, which supports defensive balance, field boundaries, and wrestling stance recovery. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after warm-up, foot/ankle prep, and basic landing control. Place before conditioning and before fatigue makes braking, boundary, or contact control sloppy.",
+      "description": "Shuffle a short distance and finish with a balanced athletic stick.",
+      "coachLanguage": "Primary subrole: landing_braking_control. Coach Shuffle-to-Stick as balance skill plus control under the specific constraint: Trains lateral movement into a controlled stop, which supports defensive balance, field boundaries, and wrestling stance recovery. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Own the line, absorb the force, and finish balanced before the next rep.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "plyometrics",
+          "weight": 1
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 1
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Shuffle-to-Stick adds speed, deceleration, or off-axis momentum to balance practice. The athlete learns to brake and recover before momentum carries the body outside the base or across a boundary.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: deceleration_balance_control.",
+      "commonMisuse": "Do not make the approach speed or contact bigger than the stick quality. Balance transfer comes from stopping cleanly, not from surviving chaotic reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_abduction_control",
+          "knee_flexion_control",
+          "ankle_stability",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "gluteus_medius",
+          "adductors",
+          "quadriceps",
+          "calves"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "deceleration_timing",
+          "boundary_awareness"
+        ],
+        "postural_shape": "athletic_stance_or_single_leg_stick",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "dynamic_deceleration_boundary_or_landing_balance",
+        "coordination_demand": "time_braking_steps_and_freeze_position_after_momentum",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "Shuffle a short distance and finish with a balanced athletic stick.",
+        "setup": [
+          "Place two cones 3-8 yards apart.",
+          "Start in an athletic stance.",
+          "Define whether the finish is two-foot or outside-foot stick."
+        ],
+        "execution_steps": [
+          "Shuffle with feet under the hips and eyes up.",
+          "Decelerate before the finish cone.",
+          "Stick the final position for two seconds.",
+          "Reset and repeat both directions."
+        ],
+        "coach_cues": [
+          "Push the floor sideways.",
+          "Do not click heels.",
+          "Brake before the cone.",
+          "Stick square."
+        ],
+        "athlete_cues": [
+          "Push the floor sideways.",
+          "Do not click heels.",
+          "Brake before the cone."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Feet cross unintentionally.",
+          "Athlete drifts past the cone.",
+          "Knees collapse inward.",
+          "Upper body leans outside the base."
+        ],
+        "quality_gate": [
+          "Athlete finishes each direction inside the zone with square hips and quiet feet."
+        ],
+        "stop_signs": [
+          "Surface slipping, groin pain, or repeated loss of posture at the finish."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 2,
+        "default_reps": 4,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 90,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "For Shuffle-to-Stick, use the simplest version with support nearby and short 8-15 second exposures. Use walk-through or half-speed approaches before adding speed, contact, or boundary pressure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Shuffle-to-Stick playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Shuffle-to-Stick toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Shuffle-to-Stick with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Shuffle-to-Stick as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Shuffle-to-Stick. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Shuffle-to-Stick, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Lateral Step-Down Balance",
+        "Lateral Bound to Stick",
+        "Backpedal-to-Sprint-to-Stick"
+      ],
+      "pairsWellBefore": [
+        "Sideline Contact Lean Recovery",
+        "Partner Shoulder Bump Balance",
+        "Sport-specific cutting practice"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Surface is slippery or speed/contact exceeds the athlete's ability to stick safely."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "deceleration",
+        "control_landing"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Shuffle-to-Stick front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Lateral Step-to-Stick",
+          "Short Shuffle Walk-to-Stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "backpedal-to-sprint-to-stick",
+      "name": "Backpedal-to-Sprint-to-Stick",
+      "family": "Transition braking balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "landing_braking_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "deceleration_balance_control",
+      "cardSummary": "Backpedal-to-Sprint-to-Stick is a balance-focused drill for trains reorientation and balance through backward-to-forward transitions common in defensive sport movement. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after warm-up, foot/ankle prep, and basic landing control. Place before conditioning and before fatigue makes braking, boundary, or contact control sloppy.",
+      "description": "Backpedal a short distance, transition into a sprint, and then stick in a balanced finish zone.",
+      "coachLanguage": "Primary subrole: landing_braking_control. Coach Backpedal-to-Sprint-to-Stick as balance skill plus control under the specific constraint: Trains reorientation and balance through backward-to-forward transitions common in defensive sport movement. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Own the line, absorb the force, and finish balanced before the next rep.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "plyometrics",
+          "weight": 2
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 2
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Backpedal-to-Sprint-to-Stick adds speed, deceleration, or off-axis momentum to balance practice. The athlete learns to brake and recover before momentum carries the body outside the base or across a boundary.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: deceleration_balance_control.",
+      "commonMisuse": "Do not make the approach speed or contact bigger than the stick quality. Balance transfer comes from stopping cleanly, not from surviving chaotic reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_transition_control",
+          "ankle_stability",
+          "knee_flexion_control",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "glutes",
+          "hamstrings"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "deceleration_timing",
+          "boundary_awareness"
+        ],
+        "postural_shape": "athletic_stance_or_single_leg_stick",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "dynamic_deceleration_boundary_or_landing_balance",
+        "coordination_demand": "time_braking_steps_and_freeze_position_after_momentum",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Backpedal a short distance, transition into a sprint, and then stick in a balanced finish zone.",
+        "setup": [
+          "Set three cones: backpedal start, transition, and finish.",
+          "Keep distances short and speed submaximal at first.",
+          "Define a two-second finish stick."
+        ],
+        "execution_steps": [
+          "Backpedal under control to the transition cone.",
+          "Open the hips and sprint forward.",
+          "Decelerate into the finish zone.",
+          "Stick and reset."
+        ],
+        "coach_cues": [
+          "Transition clean.",
+          "Eyes up.",
+          "Brake before finish.",
+          "No drift."
+        ],
+        "athlete_cues": [
+          "Transition clean.",
+          "Eyes up.",
+          "Brake before finish."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Feet tangle during transition.",
+          "Athlete spins too tall and loses base.",
+          "Finish zone is overrun.",
+          "Conditioning volume destroys quality."
+        ],
+        "quality_gate": [
+          "Athlete transitions and stops without extra steps, stumbling, or posture collapse."
+        ],
+        "stop_signs": [
+          "Tripping risk, poor surface, pain, or fatigue causing sloppy transitions."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 4,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 90,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "For Backpedal-to-Sprint-to-Stick, use the simplest version with support nearby and short 8-15 second exposures. Use walk-through or half-speed approaches before adding speed, contact, or boundary pressure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Backpedal-to-Sprint-to-Stick playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Backpedal-to-Sprint-to-Stick toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Backpedal-to-Sprint-to-Stick with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Backpedal-to-Sprint-to-Stick as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Backpedal-to-Sprint-to-Stick. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Backpedal-to-Sprint-to-Stick, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Narrow-Line Backward Walk",
+        "Sprint-to-Balance Deceleration",
+        "Spin Turn to Stick"
+      ],
+      "pairsWellBefore": [
+        "Sideline Contact Lean Recovery",
+        "Partner Shoulder Bump Balance",
+        "Sport-specific cutting practice"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Surface is slippery or speed/contact exceeds the athlete's ability to stick safely.",
+        "Athlete cannot land quietly at a lower-impact progression."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "deceleration",
+        "control_landing"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Backpedal-to-Sprint-to-Stick front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Backpedal Walk-to-Stick",
+          "Half-Speed Transition to Stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "spin-turn-to-stick",
+      "name": "Spin Turn to Stick",
+      "family": "Rotational reorientation control",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "landing_braking_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "deceleration_balance_control",
+      "cardSummary": "Spin Turn to Stick is a balance-focused drill for improves the ability to reorient after rotation or contact and recover the center of mass quickly. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use after warm-up, foot/ankle prep, and basic landing control. Place before conditioning and before fatigue makes braking, boundary, or contact control sloppy.",
+      "description": "Rotate 90-180 degrees and stick the landing or stance with the feet, knees, hips, and trunk aligned.",
+      "coachLanguage": "Primary subrole: landing_braking_control. Coach Spin Turn to Stick as balance skill plus control under the specific constraint: Improves the ability to reorient after rotation or contact and recover the center of mass quickly. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Own the line, absorb the force, and finish balanced before the next rep.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "plyometrics",
+          "weight": 1
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 1
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "rotate",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Spin Turn to Stick adds speed, deceleration, or off-axis momentum to balance practice. The athlete learns to brake and recover before momentum carries the body outside the base or across a boundary.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: deceleration_balance_control.",
+      "commonMisuse": "Do not make the approach speed or contact bigger than the stick quality. Balance transfer comes from stopping cleanly, not from surviving chaotic reps.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "spine_rotation_control",
+          "hip_rotation_control",
+          "ankle_stability",
+          "knee_flexion_control"
+        ],
+        "primary_tissues": [
+          "obliques",
+          "glutes",
+          "calves",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "deceleration_timing",
+          "boundary_awareness"
+        ],
+        "postural_shape": "athletic_stance_or_single_leg_stick",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "dynamic_deceleration_boundary_or_landing_balance",
+        "coordination_demand": "time_braking_steps_and_freeze_position_after_momentum",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "Rotate 90-180 degrees and stick the landing or stance with the feet, knees, hips, and trunk aligned.",
+        "setup": [
+          "Start with quarter turns on the floor.",
+          "Use a visual target for the finish direction.",
+          "Keep space clear around the athlete."
+        ],
+        "execution_steps": [
+          "Turn under control to the target direction.",
+          "Land or finish in an athletic stance.",
+          "Hold for two seconds.",
+          "Alternate directions with full reset."
+        ],
+        "coach_cues": [
+          "Find the target.",
+          "Turn then stick.",
+          "Knees follow toes.",
+          "Own the finish."
+        ],
+        "athlete_cues": [
+          "Find the target.",
+          "Turn then stick.",
+          "Knees follow toes."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Twisting through planted knees.",
+          "Over-rotating and stepping out.",
+          "Head whips too fast and causes dizziness.",
+          "Athlete turns it into a race."
+        ],
+        "quality_gate": [
+          "Athlete sticks both turn directions without knee twist, stumble, or dizziness."
+        ],
+        "stop_signs": [
+          "Dizziness, knee twisting, unsafe surfaces, or uncontrolled steps after the turn."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 2,
+        "default_reps": 4,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 90,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "For Spin Turn to Stick, use the simplest version with support nearby and short 8-15 second exposures. Use walk-through or half-speed approaches before adding speed, contact, or boundary pressure. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Spin Turn to Stick playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Spin Turn to Stick toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Spin Turn to Stick with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Spin Turn to Stick as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Spin Turn to Stick. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Spin Turn to Stick, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Beam Pivot Turn Stick",
+        "Backpedal-to-Sprint-to-Stick",
+        "Sideline Contact Lean Recovery"
+      ],
+      "pairsWellBefore": [
+        "Sideline Contact Lean Recovery",
+        "Partner Shoulder Bump Balance",
+        "Sport-specific cutting practice"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Surface is slippery or speed/contact exceeds the athlete's ability to stick safely."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "deceleration",
+        "control_landing"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Spin Turn to Stick front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Active vertigo, nausea, headache, or concussion symptoms without medical clearance.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Quarter-Turn Step to Stick",
+          "Pivot Turn Hold"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    }
+  ]
+}
+```
+
+
+# Batch 41-50 Balance Exercise Cards
+Primary source used: exercise_card_details_for_llm.md, which defines the Vortex Card v2 authoring workflow, canonical session phases, taxonomy tags, publish gates, authoring JSON format, dosage/scaling/safety fields, and common authoring mistakes to avoid. Purpose.txt was requested but was not located in the File Library search results available in this session, so the exercise selection is grounded in the available Card v2 guide plus the user's stated balance purpose: sideline contact control, beam-level body control, and wrestling center-of-gravity control.
+## Category Focus
+- **Perturbation, Contact, Wrestling, and Center-of-Gravity Control:** Partner, band, carry, catch, and stance drills that challenge the athlete to keep the center of mass inside the base of support while resisting pulls, bumps, rotation, and unexpected force.
+
+## Cursor-Ready JSON
+```json
+{
+  "cluster": {
+    "focus": "balance",
+    "batch": "41-50",
+    "categories": [
+      "Perturbation, Contact, Wrestling, and Center-of-Gravity Control"
+    ],
+    "card_count": 10,
+    "primary_authoring_format": "camelCase Card v2"
+  },
+  "cards": [
+    {
+      "slug": "partner-shoulder-bump-balance",
+      "name": "Partner Shoulder Bump Balance",
+      "family": "Contact perturbation",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "trunk_pelvis_anti_movement_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "perturbation_balance_control",
+      "cardSummary": "Partner Shoulder Bump Balance is a balance-focused drill for trains staying balanced when another body contacts the athlete, with controlled exposure instead of chaotic collisions. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Resilience after the athlete has enough warmth and position control. Keep partner/contact work controlled, never as a chaotic finisher.",
+      "description": "Hold an athletic stance while a partner gives light shoulder bumps from agreed directions.",
+      "coachLanguage": "Primary subrole: trunk_pelvis_anti_movement_control. Coach Partner Shoulder Bump Balance as balance skill plus control under the specific constraint: Trains staying balanced when another body contacts the athlete, with controlled exposure instead of chaotic collisions. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Stay centered, feel the floor, and recover your base before you fight the next force.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "agility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 4
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "partner",
+          "weight": 5
+        },
+        {
+          "key": "pad",
+          "weight": 3
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Partner Shoulder Bump Balance exposes the athlete to external force, asymmetrical load, or live perception while maintaining center-of-gravity control. It builds the calm recovery skill needed when an opponent, partner, or object changes the athlete's balance task.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: perturbation_balance_control.",
+      "commonMisuse": "Do not let partner work become a contest. Perturbation should challenge recovery, not create unsafe collisions, joint twists, or ego-driven contact.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "spine_anti_lateral_flexion",
+          "hip_stabilization",
+          "ankle_stability",
+          "shoulder_stabilization"
+        ],
+        "primary_tissues": [
+          "obliques",
+          "gluteus_medius",
+          "adductors",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "perturbation_response",
+          "anti_rotation_control"
+        ],
+        "postural_shape": "athletic_or_wrestling_base_with_stacked_trunk",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "external_perturbation_or_asymmetrical_load_balance",
+        "coordination_demand": "respond_to_external_force_without_losing_center_of_mass",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "Hold an athletic stance while a partner gives light shoulder bumps from agreed directions.",
+        "setup": [
+          "Set an athletic stance with feet under hips.",
+          "Partner uses hands or a pad and agrees on light contact only.",
+          "Start with predictable directions before random cues."
+        ],
+        "execution_steps": [
+          "Athlete holds posture and breathes.",
+          "Partner gives a small bump to shoulder or upper arm.",
+          "Athlete absorbs without stepping unless a step is needed safely.",
+          "Reset the stance after each bump."
+        ],
+        "coach_cues": [
+          "Absorb through the floor.",
+          "Shoulders strong, hips quiet.",
+          "Small correction step if needed.",
+          "Stay organized."
+        ],
+        "athlete_cues": [
+          "Absorb through the floor.",
+          "Shoulders strong, hips quiet.",
+          "Small correction step if needed."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Partner contact is too hard.",
+          "Athlete stiffens and tips over.",
+          "Feet narrow after contact.",
+          "Contact becomes competition."
+        ],
+        "quality_gate": [
+          "Athlete keeps balance through light contact and resets cleanly after each bump."
+        ],
+        "stop_signs": [
+          "Pain, head/neck contact, uncontrolled partner force, or anxiety with contact."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 40,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Partner Shoulder Bump Balance, use the simplest version with support nearby and short 8-15 second exposures. Use predictable, light perturbations and remove competition until posture and safety are consistent. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Partner Shoulder Bump Balance playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Partner Shoulder Bump Balance toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Partner Shoulder Bump Balance with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Partner Shoulder Bump Balance as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Partner Shoulder Bump Balance. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Partner Shoulder Bump Balance, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Split Squat ISO with Perturbation",
+        "Sideline Contact Lean Recovery",
+        "Wrestler Stance Push-Pull Balance"
+      ],
+      "pairsWellBefore": [
+        "Sport-specific contact balance",
+        "Wrestling hand-fighting",
+        "Boundary reaction drill"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Partner cannot keep contact predictable, controlled, and safe."
+      ],
+      "goodForSessions": [
+        "resilience",
+        "deceleration",
+        "court_field_balance"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Partner Shoulder Bump Balance front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression.",
+          "Partner contact or perturbation intensity is agreed, controlled, and never directed at the head or neck."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Uncontrolled partner contact.",
+          "Current concussion symptoms, neck pain, or contact restriction.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Band Perturbation Athletic Stance",
+          "No-Contact Lean Recovery"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "band-perturbation-athletic-stance",
+      "name": "Band-Perturbation Athletic Stance",
+      "family": "External pull balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "trunk_pelvis_anti_movement_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "perturbation_balance_control",
+      "cardSummary": "Band-Perturbation Athletic Stance is a balance-focused drill for uses a band to create safe off-axis pulls so the athlete learns to keep the center of mass inside the base. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Resilience after the athlete has enough warmth and position control. Keep partner/contact work controlled, never as a chaotic finisher.",
+      "description": "Hold an athletic stance while a band pulls from different directions at the waist or shoulders.",
+      "coachLanguage": "Primary subrole: trunk_pelvis_anti_movement_control. Coach Band-Perturbation Athletic Stance as balance skill plus control under the specific constraint: Uses a band to create safe off-axis pulls so the athlete learns to keep the center of mass inside the base. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Stay centered, feel the floor, and recover your base before you fight the next force.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "agility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 4
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "resistance_band",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Band-Perturbation Athletic Stance exposes the athlete to external force, asymmetrical load, or live perception while maintaining center-of-gravity control. It builds the calm recovery skill needed when an opponent, partner, or object changes the athlete's balance task.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: perturbation_balance_control.",
+      "commonMisuse": "Do not let partner work become a contest. Perturbation should challenge recovery, not create unsafe collisions, joint twists, or ego-driven contact.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "spine_anti_rotation",
+          "spine_anti_lateral_flexion",
+          "hip_stabilization",
+          "ankle_stability"
+        ],
+        "primary_tissues": [
+          "obliques",
+          "glutes",
+          "adductors",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "perturbation_response",
+          "anti_rotation_control"
+        ],
+        "postural_shape": "athletic_or_wrestling_base_with_stacked_trunk",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "external_perturbation_or_asymmetrical_load_balance",
+        "coordination_demand": "respond_to_external_force_without_losing_center_of_mass",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Hold an athletic stance while a band pulls from different directions at the waist or shoulders.",
+        "setup": [
+          "Anchor a band at waist or chest height.",
+          "Athlete stands in an athletic stance with slack removed.",
+          "Choose front, side, or diagonal pull based on control."
+        ],
+        "execution_steps": [
+          "Hold the stance while the band applies steady tension.",
+          "Keep feet rooted and trunk quiet.",
+          "Add small pulses or partner-controlled tension only when stable.",
+          "Switch directions."
+        ],
+        "coach_cues": [
+          "Own the pull.",
+          "Feet spread the floor.",
+          "Ribs over hips.",
+          "Breathe under tension."
+        ],
+        "athlete_cues": [
+          "Own the pull.",
+          "Feet spread the floor.",
+          "Ribs over hips."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Band tension too high.",
+          "Athlete leans against the band instead of staying stacked.",
+          "Knees collapse inward.",
+          "Breath-holding to survive."
+        ],
+        "quality_gate": [
+          "Athlete holds 20 seconds with quiet trunk and no foot slide."
+        ],
+        "stop_signs": [
+          "Band anchor unsafe, pain, dizziness, or repeated loss of base."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 40,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Band-Perturbation Athletic Stance, use the simplest version with support nearby and short 8-15 second exposures. Use predictable, light perturbations and remove competition until posture and safety are consistent. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Band-Perturbation Athletic Stance playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Band-Perturbation Athletic Stance toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Band-Perturbation Athletic Stance with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Band-Perturbation Athletic Stance as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Band-Perturbation Athletic Stance. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Band-Perturbation Athletic Stance, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Partner Shoulder Bump Balance",
+        "Tall-Kneeling Pallof Press Hold",
+        "Wrestler Stance Push-Pull Balance"
+      ],
+      "pairsWellBefore": [
+        "Sport-specific contact balance",
+        "Wrestling hand-fighting",
+        "Boundary reaction drill"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Partner cannot keep contact predictable, controlled, and safe."
+      ],
+      "goodForSessions": [
+        "resilience",
+        "deceleration",
+        "court_field_balance"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Band-Perturbation Athletic Stance front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Partner contact or perturbation intensity is agreed, controlled, and never directed at the head or neck."
+        ],
+        "contraindications": [
+          "Uncontrolled partner contact.",
+          "Current concussion symptoms, neck pain, or contact restriction.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Static Athletic Stance Hold",
+          "Cable or Band Pallof Hold"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "partner-band-waist-tug-hold",
+      "name": "Partner Band Waist Tug Hold",
+      "family": "Waist-pull recovery",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "trunk_pelvis_anti_movement_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "perturbation_balance_control",
+      "cardSummary": "Partner Band Waist Tug Hold is a balance-focused drill for mimics a safe version of being pulled off center at the waist, useful for wrestling and contact balance. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Resilience after the athlete has enough warmth and position control. Keep partner/contact work controlled, never as a chaotic finisher.",
+      "description": "A partner gently tugs a band around the athlete's waist while the athlete maintains stance and recovers posture.",
+      "coachLanguage": "Primary subrole: trunk_pelvis_anti_movement_control. Coach Partner Band Waist Tug Hold as balance skill plus control under the specific constraint: Mimics a safe version of being pulled off center at the waist, useful for wrestling and contact balance. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Stay centered, feel the floor, and recover your base before you fight the next force.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "agility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 4
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "resistance_band",
+          "weight": 5
+        },
+        {
+          "key": "partner",
+          "weight": 3
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Partner Band Waist Tug Hold exposes the athlete to external force, asymmetrical load, or live perception while maintaining center-of-gravity control. It builds the calm recovery skill needed when an opponent, partner, or object changes the athlete's balance task.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: perturbation_balance_control.",
+      "commonMisuse": "Do not let partner work become a contest. Perturbation should challenge recovery, not create unsafe collisions, joint twists, or ego-driven contact.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "spine_anti_rotation",
+          "hip_stabilization",
+          "ankle_stability",
+          "knee_alignment_control"
+        ],
+        "primary_tissues": [
+          "obliques",
+          "glutes",
+          "adductors",
+          "calves"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "perturbation_response",
+          "anti_rotation_control"
+        ],
+        "postural_shape": "athletic_or_wrestling_base_with_stacked_trunk",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "external_perturbation_or_asymmetrical_load_balance",
+        "coordination_demand": "respond_to_external_force_without_losing_center_of_mass",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "A partner gently tugs a band around the athlete's waist while the athlete maintains stance and recovers posture.",
+        "setup": [
+          "Loop a band around the athlete's waist with partner holding the ends.",
+          "Athlete sets a wide athletic or wrestling stance.",
+          "Agree on light, smooth tugs only."
+        ],
+        "execution_steps": [
+          "Partner applies a short tug from one side or diagonal.",
+          "Athlete absorbs through the hips and feet.",
+          "Athlete returns to center without overstepping.",
+          "Repeat in both directions."
+        ],
+        "coach_cues": [
+          "Hips under you.",
+          "Do not chase the band.",
+          "Feet grip, ribs stacked.",
+          "Recover center."
+        ],
+        "athlete_cues": [
+          "Hips under you.",
+          "Do not chase the band.",
+          "Feet grip, ribs stacked."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Partner jerks too hard.",
+          "Athlete steps across feet.",
+          "Trunk folds instead of hips absorbing.",
+          "Too many reps without reset."
+        ],
+        "quality_gate": [
+          "Athlete absorbs each tug and returns to a balanced stance in one to two controlled steps."
+        ],
+        "stop_signs": [
+          "Unsafe band setup, pain, partner pulling too hard, or athlete stepping across legs."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 40,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Partner Band Waist Tug Hold, use the simplest version with support nearby and short 8-15 second exposures. Use predictable, light perturbations and remove competition until posture and safety are consistent. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Partner Band Waist Tug Hold playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Partner Band Waist Tug Hold toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Partner Band Waist Tug Hold with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Partner Band Waist Tug Hold as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Partner Band Waist Tug Hold. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Partner Band Waist Tug Hold, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Band-Perturbation Athletic Stance",
+        "Wrestler Stance Push-Pull Balance",
+        "Sideline Contact Lean Recovery"
+      ],
+      "pairsWellBefore": [
+        "Sport-specific contact balance",
+        "Wrestling hand-fighting",
+        "Boundary reaction drill"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Partner cannot keep contact predictable, controlled, and safe."
+      ],
+      "goodForSessions": [
+        "resilience",
+        "deceleration",
+        "court_field_balance"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Partner Band Waist Tug Hold front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Partner contact or perturbation intensity is agreed, controlled, and never directed at the head or neck."
+        ],
+        "contraindications": [
+          "Uncontrolled partner contact.",
+          "Current concussion symptoms, neck pain, or contact restriction.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Anchored Band Waist Hold",
+          "Static Wide-Stance Hold"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "wrestler-stance-push-pull-balance",
+      "name": "Wrestler Stance Push-Pull Balance",
+      "family": "Wrestling center-of-gravity control",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "trunk_pelvis_anti_movement_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "perturbation_balance_control",
+      "cardSummary": "Wrestler Stance Push-Pull Balance is a balance-focused drill for targets the exact wrestler goal: low center of gravity, active feet, hand fighting pressure, and controlled recovery. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Resilience after the athlete has enough warmth and position control. Keep partner/contact work controlled, never as a chaotic finisher.",
+      "description": "Hold a wrestling stance while a partner gives controlled push-pull pressure through the hands, shoulders, or forearms.",
+      "coachLanguage": "Primary subrole: trunk_pelvis_anti_movement_control. Coach Wrestler Stance Push-Pull Balance as balance skill plus control under the specific constraint: Targets the exact wrestler goal: low center of gravity, active feet, hand fighting pressure, and controlled recovery. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Stay centered, feel the floor, and recover your base before you fight the next force.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "agility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 4
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "partner",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Wrestler Stance Push-Pull Balance exposes the athlete to external force, asymmetrical load, or live perception while maintaining center-of-gravity control. It builds the calm recovery skill needed when an opponent, partner, or object changes the athlete's balance task.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: perturbation_balance_control.",
+      "commonMisuse": "Do not let partner work become a contest. Perturbation should challenge recovery, not create unsafe collisions, joint twists, or ego-driven contact.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_hinge",
+          "knee_flexion_control",
+          "spine_anti_rotation",
+          "shoulder_stabilization"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "adductors",
+          "quadriceps",
+          "obliques"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "perturbation_response",
+          "anti_rotation_control"
+        ],
+        "postural_shape": "athletic_or_wrestling_base_with_stacked_trunk",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "external_perturbation_or_asymmetrical_load_balance",
+        "coordination_demand": "respond_to_external_force_without_losing_center_of_mass",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "Hold a wrestling stance while a partner gives controlled push-pull pressure through the hands, shoulders, or forearms.",
+        "setup": [
+          "Athlete sets a low stance with feet active and hips under control.",
+          "Partner faces athlete with hands on forearms or shoulders.",
+          "Agree on controlled push-pull pressure, not takedowns."
+        ],
+        "execution_steps": [
+          "Partner applies light push-pull pressure.",
+          "Athlete shifts weight without crossing feet or standing up.",
+          "Athlete returns to stance after each pressure change.",
+          "Switch partners or directions."
+        ],
+        "coach_cues": [
+          "Hips low, eyes up.",
+          "Feet move before you tip.",
+          "Pressure through the floor.",
+          "Recover stance."
+        ],
+        "athlete_cues": [
+          "Hips low, eyes up.",
+          "Feet move before you tip.",
+          "Pressure through the floor."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Athlete stands tall when pressured.",
+          "Feet cross or click.",
+          "Partner tries to win instead of train.",
+          "Back rounds and breath is held."
+        ],
+        "quality_gate": [
+          "Athlete maintains stance shape and recovers balance through controlled pressure for the full set."
+        ],
+        "stop_signs": [
+          "Uncontrolled partner pressure, joint pain, unsafe hand fighting, or athlete fatigue causing poor posture."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 40,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Wrestler Stance Push-Pull Balance, use the simplest version with support nearby and short 8-15 second exposures. Use predictable, light perturbations and remove competition until posture and safety are consistent. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Wrestler Stance Push-Pull Balance playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Wrestler Stance Push-Pull Balance toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Wrestler Stance Push-Pull Balance with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Wrestler Stance Push-Pull Balance as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Wrestler Stance Push-Pull Balance. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Wrestler Stance Push-Pull Balance, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Cossack Squat Shift to Stick",
+        "Partner Shoulder Bump Balance",
+        "Bear Crawl Partner Tap Balance"
+      ],
+      "pairsWellBefore": [
+        "Sport-specific contact balance",
+        "Wrestling hand-fighting",
+        "Boundary reaction drill"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Partner cannot keep contact predictable, controlled, and safe."
+      ],
+      "goodForSessions": [
+        "resilience",
+        "deceleration",
+        "court_field_balance"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Wrestler Stance Push-Pull Balance front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Athlete can land, step, or decelerate quietly at a lower amplitude before this progression.",
+          "Partner contact or perturbation intensity is agreed, controlled, and never directed at the head or neck."
+        ],
+        "contraindications": [
+          "Pain with landing, hopping, cutting, or deceleration.",
+          "Uncontrolled knee, ankle, or hip collapse at a lower progression.",
+          "Uncontrolled partner contact.",
+          "Current concussion symptoms, neck pain, or contact restriction.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Shadow Wrestling Stance Shifts",
+          "Band-Perturbation Athletic Stance"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "single-leg-med-ball-catch",
+      "name": "Single-Leg Med Ball Catch",
+      "family": "Perception-action balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "trunk_pelvis_anti_movement_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "perturbation_balance_control",
+      "cardSummary": "Single-Leg Med Ball Catch is a balance-focused drill for adds visual tracking and external load changes to single-leg balance, similar to catching or reacting while staying in bounds. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Resilience after the athlete has enough warmth and position control. Keep partner/contact work controlled, never as a chaotic finisher.",
+      "description": "Balance on one leg while receiving and returning light medicine-ball tosses.",
+      "coachLanguage": "Primary subrole: trunk_pelvis_anti_movement_control. Coach Single-Leg Med Ball Catch as balance skill plus control under the specific constraint: Adds visual tracking and external load changes to single-leg balance, similar to catching or reacting while staying in bounds. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Stay centered, feel the floor, and recover your base before you fight the next force.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "agility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 4
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "medicine_ball",
+          "weight": 5
+        },
+        {
+          "key": "partner",
+          "weight": 3
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Single-Leg Med Ball Catch exposes the athlete to external force, asymmetrical load, or live perception while maintaining center-of-gravity control. It builds the calm recovery skill needed when an opponent, partner, or object changes the athlete's balance task.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: perturbation_balance_control.",
+      "commonMisuse": "Do not let partner work become a contest. Perturbation should challenge recovery, not create unsafe collisions, joint twists, or ego-driven contact.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stability",
+          "hip_stabilization",
+          "shoulder_flexion",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "foot_intrinsics",
+          "gluteus_medius",
+          "obliques",
+          "forearms"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "perturbation_response",
+          "anti_rotation_control"
+        ],
+        "postural_shape": "athletic_or_wrestling_base_with_stacked_trunk",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "external_perturbation_or_asymmetrical_load_balance",
+        "coordination_demand": "respond_to_external_force_without_losing_center_of_mass",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Balance on one leg while receiving and returning light medicine-ball tosses.",
+        "setup": [
+          "Athlete stands on one leg near safe space.",
+          "Partner stands 5-8 feet away with a light medicine ball or soft ball.",
+          "Start with straight chest-level tosses."
+        ],
+        "execution_steps": [
+          "Partner tosses gently to the athlete.",
+          "Athlete catches softly while maintaining balance.",
+          "Athlete resets posture before returning the ball.",
+          "Switch legs after the set."
+        ],
+        "coach_cues": [
+          "Catch soft.",
+          "Balance before return.",
+          "Foot stays rooted.",
+          "Eyes track the ball."
+        ],
+        "athlete_cues": [
+          "Catch soft.",
+          "Balance before return.",
+          "Foot stays rooted."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Tosses are too hard or off target.",
+          "Athlete rushes the return throw.",
+          "Free foot taps every catch.",
+          "Holding breath to catch."
+        ],
+        "quality_gate": [
+          "Athlete catches and returns 5-8 tosses per side without repeated touch-downs."
+        ],
+        "stop_signs": [
+          "Unsafe tosses, shoulder pain, dizziness, or repeated stepping to save balance."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 6,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Single-Leg Med Ball Catch, use the simplest version with support nearby and short 8-15 second exposures. Use predictable, light perturbations and remove competition until posture and safety are consistent. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Single-Leg Med Ball Catch playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Single-Leg Med Ball Catch toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Single-Leg Med Ball Catch with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Single-Leg Med Ball Catch as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Single-Leg Med Ball Catch. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Single-Leg Med Ball Catch, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Head-Turn Single-Leg Balance",
+        "Clock Reach Balance",
+        "Partner Shoulder Bump Balance"
+      ],
+      "pairsWellBefore": [
+        "Sport-specific contact balance",
+        "Wrestling hand-fighting",
+        "Boundary reaction drill"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Partner cannot keep contact predictable, controlled, and safe."
+      ],
+      "goodForSessions": [
+        "resilience",
+        "deceleration",
+        "court_field_balance"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Single-Leg Med Ball Catch front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Uncontrolled partner contact.",
+          "Current concussion symptoms, neck pain, or contact restriction.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Balloon Catch Balance",
+          "Two-Foot Narrow-Stance Catch"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "bear-crawl-partner-tap-balance",
+      "name": "Bear Crawl Partner Tap Balance",
+      "family": "Quadruped perturbation",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "trunk_pelvis_anti_movement_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "perturbation_balance_control",
+      "cardSummary": "Bear Crawl Partner Tap Balance is a balance-focused drill for develops balance and anti-rotation in a wrestling/gymnastics support position while reacting to partner taps. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Resilience after the athlete has enough warmth and position control. Keep partner/contact work controlled, never as a chaotic finisher.",
+      "description": "Hold or crawl in bear position while a partner gives light taps to shoulders, hips, or trunk.",
+      "coachLanguage": "Primary subrole: trunk_pelvis_anti_movement_control. Coach Bear Crawl Partner Tap Balance as balance skill plus control under the specific constraint: Develops balance and anti-rotation in a wrestling/gymnastics support position while reacting to partner taps. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Stay centered, feel the floor, and recover your base before you fight the next force.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "agility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 4
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "partner",
+          "weight": 5
+        },
+        {
+          "key": "mat",
+          "weight": 3
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "shoulder",
+          "weight": 5
+        },
+        {
+          "key": "wrist",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Bear Crawl Partner Tap Balance exposes the athlete to external force, asymmetrical load, or live perception while maintaining center-of-gravity control. It builds the calm recovery skill needed when an opponent, partner, or object changes the athlete's balance task.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: perturbation_balance_control.",
+      "commonMisuse": "Do not let partner work become a contest. Perturbation should challenge recovery, not create unsafe collisions, joint twists, or ego-driven contact.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "shoulder_stabilization",
+          "wrist_extension",
+          "spine_anti_rotation",
+          "hip_stabilization"
+        ],
+        "primary_tissues": [
+          "serratus_anterior",
+          "obliques",
+          "forearms",
+          "glutes"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "perturbation_response",
+          "anti_rotation_control"
+        ],
+        "postural_shape": "athletic_or_wrestling_base_with_stacked_trunk",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "external_perturbation_or_asymmetrical_load_balance",
+        "coordination_demand": "respond_to_external_force_without_losing_center_of_mass",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Hold or crawl in bear position while a partner gives light taps to shoulders, hips, or trunk.",
+        "setup": [
+          "Athlete sets a bear plank or slow bear crawl on a mat.",
+          "Partner kneels beside and agrees on light taps only.",
+          "Start with taps to shoulders before hips."
+        ],
+        "execution_steps": [
+          "Athlete holds or crawls slowly.",
+          "Partner gives a light tap from the side.",
+          "Athlete resists rotation and continues controlled movement.",
+          "Reset if hips swing or shoulders collapse."
+        ],
+        "coach_cues": [
+          "Hands and feet grip.",
+          "Hips quiet.",
+          "Tap doesn't turn you.",
+          "Crawl slow."
+        ],
+        "athlete_cues": [
+          "Hands and feet grip.",
+          "Hips quiet.",
+          "Tap doesn't turn you."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Partner taps too hard.",
+          "Athlete rushes the crawl.",
+          "Hips swing dramatically.",
+          "Wrists collapse under load."
+        ],
+        "quality_gate": [
+          "Athlete maintains quiet hips and shoulder support through light partner taps."
+        ],
+        "stop_signs": [
+          "Wrist, shoulder, or back pain; uncontrolled partner taps; or inability to hold bear position."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 40,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Bear Crawl Partner Tap Balance, use the simplest version with support nearby and short 8-15 second exposures. Use predictable, light perturbations and remove competition until posture and safety are consistent. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Bear Crawl Partner Tap Balance playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Bear Crawl Partner Tap Balance toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Bear Crawl Partner Tap Balance with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Bear Crawl Partner Tap Balance as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Bear Crawl Partner Tap Balance. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Bear Crawl Partner Tap Balance, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Bear Plank Shoulder Tap Balance",
+        "Low Beam Bear Crawl",
+        "Wrestler Stance Push-Pull Balance"
+      ],
+      "pairsWellBefore": [
+        "Sport-specific contact balance",
+        "Wrestling hand-fighting",
+        "Boundary reaction drill"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Partner cannot keep contact predictable, controlled, and safe."
+      ],
+      "goodForSessions": [
+        "resilience",
+        "deceleration",
+        "court_field_balance"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Bear Crawl Partner Tap Balance front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Partner contact or perturbation intensity is agreed, controlled, and never directed at the head or neck."
+        ],
+        "contraindications": [
+          "Uncontrolled partner contact.",
+          "Current concussion symptoms, neck pain, or contact restriction.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Bear Plank Shoulder Tap",
+          "Quadruped Partner Tap"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "plank-shoulder-tap-with-partner-perturbation",
+      "name": "Plank Shoulder Tap with Partner Perturbation",
+      "family": "Anti-rotation support balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "trunk_pelvis_anti_movement_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "perturbation_balance_control",
+      "cardSummary": "Plank Shoulder Tap with Partner Perturbation is a balance-focused drill for builds trunk and shoulder stability when one hand is removed and external force tries to rotate the body. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Resilience after the athlete has enough warmth and position control. Keep partner/contact work controlled, never as a chaotic finisher.",
+      "description": "Perform shoulder taps from plank while a partner provides light external perturbation at the hips or shoulders.",
+      "coachLanguage": "Primary subrole: trunk_pelvis_anti_movement_control. Coach Plank Shoulder Tap with Partner Perturbation as balance skill plus control under the specific constraint: Builds trunk and shoulder stability when one hand is removed and external force tries to rotate the body. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Stay centered, feel the floor, and recover your base before you fight the next force.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "agility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 4
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "partner",
+          "weight": 5
+        },
+        {
+          "key": "mat",
+          "weight": 3
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "core",
+          "weight": 5
+        },
+        {
+          "key": "shoulder",
+          "weight": 5
+        },
+        {
+          "key": "wrist",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Plank Shoulder Tap with Partner Perturbation exposes the athlete to external force, asymmetrical load, or live perception while maintaining center-of-gravity control. It builds the calm recovery skill needed when an opponent, partner, or object changes the athlete's balance task.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: perturbation_balance_control.",
+      "commonMisuse": "Do not let partner work become a contest. Perturbation should challenge recovery, not create unsafe collisions, joint twists, or ego-driven contact.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "spine_anti_rotation",
+          "shoulder_stabilization",
+          "wrist_extension",
+          "hip_stabilization"
+        ],
+        "primary_tissues": [
+          "obliques",
+          "serratus_anterior",
+          "transverse_abdominis",
+          "glutes"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "perturbation_response",
+          "anti_rotation_control"
+        ],
+        "postural_shape": "athletic_or_wrestling_base_with_stacked_trunk",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "external_perturbation_or_asymmetrical_load_balance",
+        "coordination_demand": "respond_to_external_force_without_losing_center_of_mass",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Perform shoulder taps from plank while a partner provides light external perturbation at the hips or shoulders.",
+        "setup": [
+          "Set a high plank with feet wider than usual.",
+          "Partner kneels to the side and uses light taps only.",
+          "Choose plank height based on trunk control."
+        ],
+        "execution_steps": [
+          "Athlete taps one shoulder without rotating.",
+          "Partner adds a light tap between reps or during the hold.",
+          "Athlete returns the hand quietly.",
+          "Alternate sides until quality drops."
+        ],
+        "coach_cues": [
+          "Quiet belt buckle.",
+          "Push floor away.",
+          "Tap slow.",
+          "Do not let the tap turn you."
+        ],
+        "athlete_cues": [
+          "Quiet belt buckle.",
+          "Push floor away.",
+          "Tap slow."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Hips sway side to side.",
+          "Partner perturbation is too aggressive.",
+          "Shoulders shrug or collapse.",
+          "Athlete holds breath."
+        ],
+        "quality_gate": [
+          "Athlete completes taps with stable pelvis and shoulder support despite light perturbation."
+        ],
+        "stop_signs": [
+          "Wrist, shoulder, or low-back pain; hips cannot stay controlled; or partner taps are unsafe."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 40,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Plank Shoulder Tap with Partner Perturbation, use the simplest version with support nearby and short 8-15 second exposures. Use predictable, light perturbations and remove competition until posture and safety are consistent. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Plank Shoulder Tap with Partner Perturbation playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Plank Shoulder Tap with Partner Perturbation toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Plank Shoulder Tap with Partner Perturbation with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Plank Shoulder Tap with Partner Perturbation as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Plank Shoulder Tap with Partner Perturbation. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Plank Shoulder Tap with Partner Perturbation, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Bear Plank Shoulder Tap Balance",
+        "Tall-Kneeling Pallof Press Hold",
+        "Single-Leg Med Ball Catch"
+      ],
+      "pairsWellBefore": [
+        "Sport-specific contact balance",
+        "Wrestling hand-fighting",
+        "Boundary reaction drill"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Partner cannot keep contact predictable, controlled, and safe."
+      ],
+      "goodForSessions": [
+        "resilience",
+        "deceleration",
+        "court_field_balance"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Plank Shoulder Tap with Partner Perturbation front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression.",
+          "Partner contact or perturbation intensity is agreed, controlled, and never directed at the head or neck."
+        ],
+        "contraindications": [
+          "Uncontrolled partner contact.",
+          "Current concussion symptoms, neck pain, or contact restriction.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Incline Plank Shoulder Tap",
+          "Plank Hold with No Perturbation"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "tall-kneeling-pallof-press-hold",
+      "name": "Tall-Kneeling Pallof Press Hold",
+      "family": "Anti-rotation balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "trunk_pelvis_anti_movement_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "perturbation_balance_control",
+      "cardSummary": "Tall-Kneeling Pallof Press Hold is a balance-focused drill for improves anti-rotation and stacked posture without foot compensation, creating a clean trunk foundation for contact balance. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Resilience after the athlete has enough warmth and position control. Keep partner/contact work controlled, never as a chaotic finisher.",
+      "description": "Hold a tall-kneeling anti-rotation press while a band pulls from the side.",
+      "coachLanguage": "Primary subrole: trunk_pelvis_anti_movement_control. Coach Tall-Kneeling Pallof Press Hold as balance skill plus control under the specific constraint: Improves anti-rotation and stacked posture without foot compensation, creating a clean trunk foundation for contact balance. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Stay centered, feel the floor, and recover your base before you fight the next force.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "agility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 4
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "resistance_band",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "core",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Tall-Kneeling Pallof Press Hold exposes the athlete to external force, asymmetrical load, or live perception while maintaining center-of-gravity control. It builds the calm recovery skill needed when an opponent, partner, or object changes the athlete's balance task.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: perturbation_balance_control.",
+      "commonMisuse": "Do not let partner work become a contest. Perturbation should challenge recovery, not create unsafe collisions, joint twists, or ego-driven contact.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "spine_anti_rotation",
+          "hip_extension",
+          "shoulder_horizontal_flexion",
+          "pelvic_stabilization"
+        ],
+        "primary_tissues": [
+          "obliques",
+          "transverse_abdominis",
+          "gluteals",
+          "serratus_anterior"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "perturbation_response",
+          "anti_rotation_control"
+        ],
+        "postural_shape": "athletic_or_wrestling_base_with_stacked_trunk",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "external_perturbation_or_asymmetrical_load_balance",
+        "coordination_demand": "respond_to_external_force_without_losing_center_of_mass",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Hold a tall-kneeling anti-rotation press while a band pulls from the side.",
+        "setup": [
+          "Anchor a band at chest height.",
+          "Kneel tall with both knees down and the anchor to one side.",
+          "Stack ribs over pelvis and squeeze glutes lightly."
+        ],
+        "execution_steps": [
+          "Press the handle straight forward until elbows are nearly locked.",
+          "Hold the handle centered on the sternum line.",
+          "Breathe quietly without letting ribs flare.",
+          "Return to chest and switch sides."
+        ],
+        "coach_cues": [
+          "Do not let the band turn you.",
+          "Long spine, quiet hips.",
+          "Press straight.",
+          "Breathe behind the brace."
+        ],
+        "athlete_cues": [
+          "Do not let the band turn you.",
+          "Long spine, quiet hips.",
+          "Press straight."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Torso rotates toward the anchor.",
+          "Low back arches as arms extend.",
+          "Shoulders shrug.",
+          "Athlete uses a band that is too heavy."
+        ],
+        "quality_gate": [
+          "Athlete holds 15-25 seconds per side with no rotation or rib flare."
+        ],
+        "stop_signs": [
+          "Knee discomfort, back pain, shoulder pain, or inability to breathe while bracing."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 40,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Tall-Kneeling Pallof Press Hold, use the simplest version with support nearby and short 8-15 second exposures. Use predictable, light perturbations and remove competition until posture and safety are consistent. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Tall-Kneeling Pallof Press Hold playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Tall-Kneeling Pallof Press Hold toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Tall-Kneeling Pallof Press Hold with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Tall-Kneeling Pallof Press Hold as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Tall-Kneeling Pallof Press Hold. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Tall-Kneeling Pallof Press Hold, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Band-Perturbation Athletic Stance",
+        "Half-Kneeling Narrow-Base Hold",
+        "Suitcase Carry Line Walk"
+      ],
+      "pairsWellBefore": [
+        "Sport-specific contact balance",
+        "Wrestling hand-fighting",
+        "Boundary reaction drill"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Partner cannot keep contact predictable, controlled, and safe."
+      ],
+      "goodForSessions": [
+        "resilience",
+        "deceleration",
+        "court_field_balance"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Tall-Kneeling Pallof Press Hold front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Uncontrolled partner contact.",
+          "Current concussion symptoms, neck pain, or contact restriction.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Half-Kneeling Pallof Hold",
+          "Dead Bug Anti-Rotation Press"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "suitcase-carry-line-walk",
+      "name": "Suitcase Carry Line Walk",
+      "family": "Loaded narrow-base carry",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "trunk_pelvis_anti_movement_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "perturbation_balance_control",
+      "cardSummary": "Suitcase Carry Line Walk is a balance-focused drill for combines load, narrow-base walking, and anti-lateral-flexion control, preparing athletes to stay centered under asymmetrical force. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Resilience after the athlete has enough warmth and position control. Keep partner/contact work controlled, never as a chaotic finisher.",
+      "description": "Walk along a line while holding a load in one hand and resisting side bend or foot drift.",
+      "coachLanguage": "Primary subrole: trunk_pelvis_anti_movement_control. Coach Suitcase Carry Line Walk as balance skill plus control under the specific constraint: Combines load, narrow-base walking, and anti-lateral-flexion control, preparing athletes to stay centered under asymmetrical force. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Stay centered, feel the floor, and recover your base before you fight the next force.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "agility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 4
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "carry",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "dumbbell",
+          "weight": 5
+        },
+        {
+          "key": "kettlebell",
+          "weight": 3
+        },
+        {
+          "key": "line",
+          "weight": 3
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        },
+        {
+          "key": "wrist",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Suitcase Carry Line Walk exposes the athlete to external force, asymmetrical load, or live perception while maintaining center-of-gravity control. It builds the calm recovery skill needed when an opponent, partner, or object changes the athlete's balance task.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: perturbation_balance_control.",
+      "commonMisuse": "Do not let partner work become a contest. Perturbation should challenge recovery, not create unsafe collisions, joint twists, or ego-driven contact.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "spine_anti_lateral_flexion",
+          "hip_stabilization",
+          "ankle_stability",
+          "grip_control"
+        ],
+        "primary_tissues": [
+          "obliques",
+          "quadratus_lumborum",
+          "gluteus_medius",
+          "forearms"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "perturbation_response",
+          "anti_rotation_control"
+        ],
+        "postural_shape": "athletic_or_wrestling_base_with_stacked_trunk",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "external_perturbation_or_asymmetrical_load_balance",
+        "coordination_demand": "respond_to_external_force_without_losing_center_of_mass",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Walk along a line while holding a load in one hand and resisting side bend or foot drift.",
+        "setup": [
+          "Choose a light dumbbell or kettlebell.",
+          "Stand on a floor line with the load at one side.",
+          "Set tall posture and quiet shoulder position."
+        ],
+        "execution_steps": [
+          "Walk slowly along the line without drifting off.",
+          "Keep ribs over pelvis and the load from pulling the torso sideways.",
+          "Turn around under control or switch hands at the end.",
+          "Repeat both sides."
+        ],
+        "coach_cues": [
+          "Tall suitcase.",
+          "Do not lean away.",
+          "Feet find the line.",
+          "Shoulder quiet."
+        ],
+        "athlete_cues": [
+          "Tall suitcase.",
+          "Do not lean away.",
+          "Feet find the line."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Load too heavy and torso leans.",
+          "Feet step wide to compensate.",
+          "Grip fatigue changes posture.",
+          "Athlete rushes the walk."
+        ],
+        "quality_gate": [
+          "Athlete walks the full distance with level shoulders, line foot placement, and no grip failure."
+        ],
+        "stop_signs": [
+          "Back pain, grip failure, shoulder discomfort, or inability to keep the load controlled."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "distance",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 30,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 90,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "For Suitcase Carry Line Walk, use the simplest version with support nearby and short 8-15 second exposures. Use predictable, light perturbations and remove competition until posture and safety are consistent. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Suitcase Carry Line Walk playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Suitcase Carry Line Walk toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Suitcase Carry Line Walk with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Suitcase Carry Line Walk as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Suitcase Carry Line Walk. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Suitcase Carry Line Walk, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Tall-Kneeling Pallof Press Hold",
+        "Tandem Line Balance Hold",
+        "Band-Perturbation Athletic Stance"
+      ],
+      "pairsWellBefore": [
+        "Sport-specific contact balance",
+        "Wrestling hand-fighting",
+        "Boundary reaction drill"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Partner cannot keep contact predictable, controlled, and safe."
+      ],
+      "goodForSessions": [
+        "resilience",
+        "deceleration",
+        "court_field_balance"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Suitcase Carry Line Walk front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Uncontrolled partner contact.",
+          "Current concussion symptoms, neck pain, or contact restriction.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Farmer Carry Line Walk",
+          "Unloaded Line Walk"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "half-kneeling-get-up-to-stand",
+      "name": "Half-Kneeling Get-Up to Stand",
+      "family": "Ground-to-stand balance",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "trunk_pelvis_anti_movement_control",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "perturbation_balance_control",
+      "cardSummary": "Half-Kneeling Get-Up to Stand is a balance-focused drill for teaches the athlete to move from ground to standing while keeping the center of mass over the base, a key wrestling and gymnastics transition skill. Use it when the goal is balance quality, body control, and repeatable recovery rather than fatigue.",
+      "bestPlacement": "Use in Resilience after the athlete has enough warmth and position control. Keep partner/contact work controlled, never as a chaotic finisher.",
+      "description": "Move from half-kneeling to standing and back down with strict foot pressure, hip control, and trunk organization.",
+      "coachLanguage": "Primary subrole: trunk_pelvis_anti_movement_control. Coach Half-Kneeling Get-Up to Stand as balance skill plus control under the specific constraint: Teaches the athlete to move from ground to standing while keeping the center of mass over the base, a key wrestling and gymnastics transition skill. The set ends when posture, breath, foot pressure, or safe recovery breaks.",
+      "athleteLanguage": "Stay centered, feel the floor, and recover your base before you fight the next force.",
+      "tenets": [
+        {
+          "key": "balance",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "agility",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 4
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 3
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        },
+        {
+          "key": "dumbbell",
+          "weight": 3
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Half-Kneeling Get-Up to Stand exposes the athlete to external force, asymmetrical load, or live perception while maintaining center-of-gravity control. It builds the calm recovery skill needed when an opponent, partner, or object changes the athlete's balance task.",
+      "whyItGoesHere": "Belongs in Resilience because the main adaptation is control, braking, single-leg joint ownership, trunk-pelvis stability, and safe recovery under higher challenge. Slot: perturbation_balance_control.",
+      "commonMisuse": "Do not let partner work become a contest. Perturbation should challenge recovery, not create unsafe collisions, joint twists, or ego-driven contact.",
+      "scalingGuidance": "Scale one variable at a time: base width, visual input, range, speed, surface height, perturbation, external load, hold duration, or reset time. Progress only when the athlete can pause, breathe, and repeat the same alignment on both sides.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_transition_control",
+          "knee_extension",
+          "ankle_stability",
+          "shoulder_stabilization",
+          "spine_stabilization"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "quadriceps",
+          "obliques",
+          "shoulder_stabilizers"
+        ],
+        "primary_motor_control_demands": [
+          "base_of_support_control",
+          "center_of_mass_management",
+          "postural_recovery",
+          "perturbation_response",
+          "anti_rotation_control"
+        ],
+        "postural_shape": "athletic_or_wrestling_base_with_stacked_trunk",
+        "breathing_demand": "controlled_nasal_or_quiet_exhale",
+        "balance_demand": "external_perturbation_or_asymmetrical_load_balance",
+        "coordination_demand": "respond_to_external_force_without_losing_center_of_mass",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "Move from half-kneeling to standing and back down with strict foot pressure, hip control, and trunk organization.",
+        "setup": [
+          "Start in a half-kneeling position on a mat.",
+          "Use bodyweight first; advanced athletes may hold a light load in a safe position.",
+          "Set front foot flat and torso tall."
+        ],
+        "execution_steps": [
+          "Drive through the front foot to stand without pushing off the back foot excessively.",
+          "Pause in tall balance at the top.",
+          "Step back to the same half-kneeling position with control.",
+          "Repeat and switch sides."
+        ],
+        "coach_cues": [
+          "Front foot owns the floor.",
+          "Stand through the hip.",
+          "Tall top position.",
+          "Return under control."
+        ],
+        "athlete_cues": [
+          "Front foot owns the floor.",
+          "Stand through the hip.",
+          "Tall top position."
+        ],
+        "breathing_cues": [
+          "Breathe quietly through the hold or reset.",
+          "Exhale during the hardest balance correction instead of holding the breath."
+        ],
+        "common_faults": [
+          "Front knee collapses inward.",
+          "Athlete pushes off hands or back foot too much.",
+          "Torso twists during the stand.",
+          "Load is added before bodyweight control."
+        ],
+        "quality_gate": [
+          "Athlete stands and returns to half-kneeling with no hand support, no knee collapse, and a held top position."
+        ],
+        "stop_signs": [
+          "Knee pain, hip pinch, dizziness when standing, or unstable load control."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "seconds",
+        "default_sets": 2,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 40,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "For Half-Kneeling Get-Up to Stand, use the simplest version with support nearby and short 8-15 second exposures. Use predictable, light perturbations and remove competition until posture and safety are consistent. Make it successful before making it harder.",
+        "youth_intermediate": "Keep Half-Kneeling Get-Up to Stand playful but exact: add one variable at a time such as longer holds, extra reach direction, or a small movement challenge while maintaining clean resets.",
+        "teen": "Progress Half-Kneeling Get-Up to Stand toward sport relevance with stricter quality gates, moderate speed or contact only after the athlete shows repeatable alignment and calm breathing.",
+        "adult_beginner": "Start Half-Kneeling Get-Up to Stand with low amplitude, reduced range, and full reset between reps. Reduce range, speed, contact, and uncertainty until the athlete can finish balanced. Do not chase fatigue or instability.",
+        "adult_advanced": "Use Half-Kneeling Get-Up to Stand as a high-quality balance exposure: increase speed, perturbation, load, or narrow-base challenge only when the athlete owns the finish every rep.",
+        "older_adult": "Use supported, low-impact versions of Half-Kneeling Get-Up to Stand. Avoid surprise perturbations, fast rotations, high beam height, and high-impact hops unless the athlete has clear need and tolerance.",
+        "pregnancy_postpartum": "For Half-Kneeling Get-Up to Stand, avoid breath-holding, aggressive bracing, high-impact landings, and unstable contact. Use support, lower intensity, and symptom-guided range; substitute seated, tall-kneeling, or supported standing versions when needed."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Scale from training age, joint history, pelvic-floor symptoms, footwear, surface, confidence, and current readiness rather than gender alone.",
+      "pairsWellAfter": [
+        "Half-Kneeling Narrow-Base Hold",
+        "Wrestler Stance Push-Pull Balance",
+        "Suitcase Carry Line Walk"
+      ],
+      "pairsWellBefore": [
+        "Sport-specific contact balance",
+        "Wrestling hand-fighting",
+        "Boundary reaction drill"
+      ],
+      "doNotUseWhen": [
+        "Pain appears or the athlete cannot maintain the required position.",
+        "Technique degrades before the set is complete.",
+        "The drill would be used as conditioning instead of balance-control practice.",
+        "Partner cannot keep contact predictable, controlled, and safe."
+      ],
+      "goodForSessions": [
+        "resilience",
+        "deceleration",
+        "court_field_balance"
+      ],
+      "mediaReferences": [
+        "Internal Vortex demo recommended: Half-Kneeling Get-Up to Stand front and side views",
+        "Motor learning principle: low-fatigue, high-quality balance practice",
+        "NSCA-style landing, deceleration, and balance-control coaching reference"
+      ],
+      "mediaInternalNotes": [
+        "Film from front or 45-degree angle when possible.",
+        "Approve progression only when foot pressure, knee tracking, pelvis, trunk, and breathing remain controlled.",
+        "Do not turn balance-control drills into conditioning races."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete can demonstrate the simpler regression without pain.",
+          "Athlete can breathe and brace without dizziness or breath-holding.",
+          "Training surface, spacing, and support options are safe for the selected progression."
+        ],
+        "contraindications": [
+          "Uncontrolled partner contact.",
+          "Current concussion symptoms, neck pain, or contact restriction.",
+          "Sharp pain or joint instability during setup or execution."
+        ],
+        "common_substitutions": [
+          "Assisted Half-Kneeling Stand",
+          "Split-Stance Sit-to-Stand"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 0,
+        "intensity_ceiling": "moderate"
+      }
+    }
+  ]
+}
+```
+

@@ -1,0 +1,13429 @@
+# Plyometrics Exercise Cards 1-50
+
+Complete Cursor/import authoring batch. These are Output-phase plyometric cards using the preferred authoring shape from `exercise_card_details_for_llm.md`.
+
+`Purpose.txt` note: I searched for the requested `Purpose.txt`, but it did not appear in the accessible File Library results. The work below is grounded in the current exercise-card authoring guide and normalized away from older taxonomy keys in prior plyometric files.
+
+```json
+{
+  "cluster": {
+    "phase": "output",
+    "focus": "plyometrics",
+    "card_count": 50,
+    "source_basis": "exercise_card_details_for_llm.md authoring schema, Output phase logic, plyometrics primary phase home, taxonomy rules, dosage guidance, and publish gate requirements. Purpose.txt was not located in accessible File Library searches.",
+    "scoring_rule": "Explosiveness and speed qualities score highly only when contacts are fresh, crisp, quiet, and fully recovered. Tired reps are conditioning, not plyometrics."
+  },
+  "cards": [
+    {
+      "id": 1,
+      "slug": "snap-down-to-stick",
+      "name": "Snap Down to Stick",
+      "family": "Landing mechanics",
+      "primaryPhaseKey": "output",
+      "subrole": "deceleration_cod_power",
+      "subroleSecondary": "landing_braking_control",
+      "slot": "landing_deceleration",
+      "cardSummary": "Foundational landing drill that teaches quick stiffness, force absorption, and a quiet athletic base.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete starts tall, quickly snaps the arms down, drops into an athletic quarter squat, and freezes the landing position.",
+      "coachLanguage": "Primary subrole: deceleration_cod_power. Treat Snap Down to Stick as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "explosiveness",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It creates a low-threat entry point for teaching foot pressure, knee tracking, trunk stiffness, and controlled force absorption before higher-output jumps.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot landing_deceleration keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_flexion",
+          "knee_flexion",
+          "ankle_dorsiflexion",
+          "trunk_bracing"
+        ],
+        "primary_tissues": [
+          "quadriceps",
+          "glutes",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete starts tall, quickly snaps the arms down, drops into an athletic quarter squat, and freezes the landing position.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Snap Down to Stick with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 100,
+        "default_rpe_min": 5,
+        "default_rpe_max": 7
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "control_landing",
+        "deceleration"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Snap Down to Stick from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 1,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 2,
+      "slug": "squat-jump-to-stick",
+      "name": "Squat Jump to Stick",
+      "family": "Vertical jump landing control",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "deceleration_cod_power",
+      "slot": "vertical_power_to_stick",
+      "cardSummary": "Vertical jump with a paused landing that trains takeoff intent and clean force acceptance.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete performs a two-foot squat jump, lands in an athletic base, and holds the stick long enough for the coach to verify position.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Squat Jump to Stick as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "explosiveness",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It connects basic vertical force production to landing ownership, making it an ideal bridge from landing prep to true power work.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot vertical_power_to_stick keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_extension",
+          "knee_extension",
+          "ankle_plantar_flexion",
+          "landing_absorption"
+        ],
+        "primary_tissues": [
+          "quadriceps",
+          "glutes",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete performs a two-foot squat jump, lands in an athletic base, and holds the stick long enough for the coach to verify position.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Squat Jump to Stick with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 100,
+        "default_rpe_min": 5,
+        "default_rpe_max": 7
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "control_landing",
+        "deceleration"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Squat Jump to Stick from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 1,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 3,
+      "slug": "broad-jump-to-stick",
+      "name": "Broad Jump to Stick",
+      "family": "Horizontal jump landing control",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "deceleration_cod_power",
+      "slot": "horizontal_power_to_stick",
+      "cardSummary": "Horizontal jump with a controlled two-foot landing that develops projection and braking.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete loads the hips, swings the arms, jumps forward, and lands quietly in a stable athletic position.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Broad Jump to Stick as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "explosiveness",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "hinge",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It biases horizontal force and acceleration-style projection while requiring the athlete to own the landing instead of simply chasing distance.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot horizontal_power_to_stick keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_extension",
+          "knee_extension",
+          "ankle_plantar_flexion",
+          "horizontal_landing_absorption"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "hamstrings",
+          "quadriceps",
+          "calves"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete loads the hips, swings the arms, jumps forward, and lands quietly in a stable athletic position.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Broad Jump to Stick with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 100,
+        "default_rpe_min": 5,
+        "default_rpe_max": 7
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "control_landing",
+        "deceleration"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Broad Jump to Stick from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 4,
+      "slug": "lateral-hop-to-stick",
+      "name": "Lateral Hop to Stick",
+      "family": "Lateral landing control",
+      "primaryPhaseKey": "output",
+      "subrole": "deceleration_cod_power",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "lateral_landing_deceleration",
+      "cardSummary": "Side-to-side hop with a stick that teaches frontal-plane braking and hip-knee-foot alignment.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete hops laterally from one leg or two legs to a target and holds a quiet landing before resetting.",
+      "coachLanguage": "Primary subrole: deceleration_cod_power. Treat Lateral Hop to Stick as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "explosiveness",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It exposes the braking strategy athletes need for cutting, shuffling, and redirection while keeping speed and distance adjustable.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot lateral_landing_deceleration keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "frontal_plane_push_off",
+          "single_leg_landing_control",
+          "hip_abduction_control",
+          "ankle_stiffness"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "adductors",
+          "calves",
+          "quadriceps"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete hops laterally from one leg or two legs to a target and holds a quiet landing before resetting.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Lateral Hop to Stick with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 100,
+        "default_rpe_min": 5,
+        "default_rpe_max": 7
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "control_landing",
+        "deceleration"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Lateral Hop to Stick from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 5,
+      "slug": "single-leg-hop-to-stick",
+      "name": "Single-Leg Hop to Stick",
+      "family": "Single-leg landing control",
+      "primaryPhaseKey": "output",
+      "subrole": "deceleration_cod_power",
+      "subroleSecondary": "jump_throw_explosive_power",
+      "slot": "single_leg_hop_to_stick",
+      "cardSummary": "Single-leg hop and pause that trains unilateral propulsion, alignment, and braking confidence.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete hops from one leg and lands on the same leg, holding the stick without knee collapse, trunk sway, or extra foot taps.",
+      "coachLanguage": "Primary subrole: deceleration_cod_power. Treat Single-Leg Hop to Stick as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "explosiveness",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It reveals right-left gaps in stiffness and control while training a key quality for sprinting, cutting, and return-to-jump progressions.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot single_leg_hop_to_stick keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "single_leg_takeoff",
+          "single_leg_landing_control",
+          "hip_extension",
+          "ankle_plantar_flexion"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "quadriceps",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete hops from one leg and lands on the same leg, holding the stick without knee collapse, trunk sway, or extra foot taps.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Single-Leg Hop to Stick with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 120,
+        "default_rpe_min": 5,
+        "default_rpe_max": 7
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "control_landing",
+        "deceleration"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Single-Leg Hop to Stick from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 6,
+      "slug": "drop-landing-to-stick",
+      "name": "Drop Landing to Stick",
+      "family": "Box drop landing mechanics",
+      "primaryPhaseKey": "output",
+      "subrole": "deceleration_cod_power",
+      "subroleSecondary": "landing_braking_control",
+      "slot": "drop_landing_deceleration",
+      "cardSummary": "Low-box step-off landing that teaches force acceptance without adding jump takeoff demand.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete steps from a low box, lands on two feet, and freezes the athletic base with quiet feet and stable knees.",
+      "coachLanguage": "Primary subrole: deceleration_cod_power. Treat Drop Landing to Stick as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "explosiveness",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Removing the takeoff lets the coach isolate landing mechanics, braking timing, and foot pressure before adding rebound or greater height.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot drop_landing_deceleration keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "drop_step_off",
+          "landing_absorption",
+          "hip_knee_ankle_flexion",
+          "trunk_bracing"
+        ],
+        "primary_tissues": [
+          "quadriceps",
+          "glutes",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete steps from a low box, lands on two feet, and freezes the athletic base with quiet feet and stable knees.",
+        "setup": [
+          "Choose a stable box height that supports fast, controlled mechanics rather than ego height.",
+          "Place the box on a non-slip surface with clear space to step down or decelerate.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Drop Landing to Stick with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 100,
+        "default_rpe_min": 5,
+        "default_rpe_max": 7
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "control_landing",
+        "deceleration"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Drop Landing to Stick from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 7,
+      "slug": "depth-drop-to-athletic-stick",
+      "name": "Depth Drop to Athletic Stick",
+      "family": "Higher-force landing preparation",
+      "primaryPhaseKey": "output",
+      "subrole": "deceleration_cod_power",
+      "subroleSecondary": "landing_braking_control",
+      "slot": "depth_drop_to_stick",
+      "cardSummary": "Progressed box drop that builds confidence absorbing greater landing forces with clean positions.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete steps from a slightly higher box, lands in an athletic base, and holds the position without bounce or collapse.",
+      "coachLanguage": "Primary subrole: deceleration_cod_power. Treat Depth Drop to Athletic Stick as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "explosiveness",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It introduces greater eccentric demand while still keeping the task coachable and non-reactive.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot depth_drop_to_stick keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "controlled_step_off",
+          "rapid_landing_absorption",
+          "trunk_bracing",
+          "hip_knee_ankle_flexion"
+        ],
+        "primary_tissues": [
+          "quadriceps",
+          "glutes",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete steps from a slightly higher box, lands in an athletic base, and holds the position without bounce or collapse.",
+        "setup": [
+          "Choose a stable box height that supports fast, controlled mechanics rather than ego height.",
+          "Place the box on a non-slip surface with clear space to step down or decelerate.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Depth Drop to Athletic Stick with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 120,
+        "default_rpe_min": 5,
+        "default_rpe_max": 7
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "control_landing",
+        "deceleration"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Depth Drop to Athletic Stick from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 8,
+      "slug": "star-hop-to-stick",
+      "name": "Star Hop to Stick",
+      "family": "Multi-directional landing control",
+      "primaryPhaseKey": "output",
+      "subrole": "deceleration_cod_power",
+      "subroleSecondary": "reactive_agility_tumbling_output",
+      "slot": "multi_directional_landing_deceleration",
+      "cardSummary": "Clock-face hop pattern that trains directional landing control and spatial awareness.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete hops to targets arranged like a star or clock face and sticks each landing before moving to the next target.",
+      "coachLanguage": "Primary subrole: deceleration_cod_power. Treat Star Hop to Stick as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "explosiveness",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "The layout exposes directional gaps while keeping amplitude and speed easy to adjust.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot multi_directional_landing_deceleration keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "multi_directional_push_off",
+          "single_leg_or_two_leg_landing",
+          "hip_reorientation",
+          "ankle_stiffness"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "adductors",
+          "calves",
+          "quadriceps"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete hops to targets arranged like a star or clock face and sticks each landing before moving to the next target.",
+        "setup": [
+          "Place cones or soft markers so the athlete can complete the drill without reaching or twisting to survive the target.",
+          "Keep the lane clear for landing, reset, or sprint exit.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Star Hop to Stick with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 100,
+        "default_rpe_min": 5,
+        "default_rpe_max": 7
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "control_landing",
+        "deceleration"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Star Hop to Stick from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 9,
+      "slug": "180-jump-to-stick",
+      "name": "180 Jump to Stick",
+      "family": "Rotational landing control",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "deceleration_cod_power",
+      "slot": "rotational_jump_to_stick",
+      "cardSummary": "Vertical jump with a half-turn that trains air control, reorientation, and stable landing mechanics.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete jumps vertically, rotates 180 degrees in the air, and lands in a stable athletic base facing the opposite direction.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat 180 Jump to Stick as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "explosiveness",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "rotate",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It layers rotation onto a simple jump so athletes learn to orient and brake without dumping force into the knees or low back.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot rotational_jump_to_stick keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "vertical_takeoff",
+          "trunk_rotation_control",
+          "hip_reorientation",
+          "landing_absorption"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "quadriceps",
+          "calves",
+          "obliques"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete jumps vertically, rotates 180 degrees in the air, and lands in a stable athletic base facing the opposite direction.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for 180 Jump to Stick with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 100,
+        "default_rpe_min": 5,
+        "default_rpe_max": 7
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "control_landing",
+        "deceleration"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film 180 Jump to Stick from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 10,
+      "slug": "skater-hop-to-stick",
+      "name": "Skater Hop to Stick",
+      "family": "Lateral bound landing control",
+      "primaryPhaseKey": "output",
+      "subrole": "deceleration_cod_power",
+      "subroleSecondary": "jump_throw_explosive_power",
+      "slot": "lateral_bound_to_stick",
+      "cardSummary": "Side-to-side skating bound that develops lateral power and single-leg braking quality.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete bounds laterally from one leg to the other and holds each landing before returning or continuing.",
+      "coachLanguage": "Primary subrole: deceleration_cod_power. Treat Skater Hop to Stick as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "explosiveness",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It closely matches field and court redirection demands while giving the coach a clear landing-quality checkpoint.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot lateral_bound_to_stick keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "lateral_push_off",
+          "single_leg_landing_control",
+          "hip_abduction_control",
+          "trunk_bracing"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "adductors",
+          "calves",
+          "quadriceps"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete bounds laterally from one leg to the other and holds each landing before returning or continuing.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Skater Hop to Stick with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 120,
+        "default_rpe_min": 5,
+        "default_rpe_max": 7
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "control_landing",
+        "deceleration"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Skater Hop to Stick from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 11,
+      "slug": "ankle-pogo-in-place",
+      "name": "Ankle Pogo in Place",
+      "family": "Elastic ankle stiffness",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "jump_throw_explosive_power",
+      "slot": "ankle_stiffness_rudiments",
+      "cardSummary": "Low-amplitude two-foot contacts that teach springy ankle stiffness and elastic rebound.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete performs small, quick two-foot bounces from the balls of the feet while staying tall and quiet.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Ankle Pogo in Place as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It teaches useful stiffness and a fast eccentric-to-concentric transition without requiring large jumps or high landing forces.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot ankle_stiffness_rudiments keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_plantar_flexion",
+          "reactive_ground_contact",
+          "knee_stiffness"
+        ],
+        "primary_tissues": [
+          "calves",
+          "achilles_tendon",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete performs small, quick two-foot bounces from the balls of the feet while staying tall and quiet.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Ankle Pogo in Place with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Springy and tall.",
+          "Hit the ground like it is hot.",
+          "Small contacts.",
+          "Quiet rhythm.",
+          "Do not chase burn."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 2,
+        "default_reps": 12,
+        "default_work_seconds": 10,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "general_warmup"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Ankle Pogo in Place from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 1,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 12,
+      "slug": "line-pogo-forward-back",
+      "name": "Line Pogo Forward-Back",
+      "family": "Linear ankle stiffness",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "locomotion_sprint_mechanics",
+      "slot": "linear_pogo_stiffness",
+      "cardSummary": "Forward-back line contacts that build elastic foot and ankle rhythm with small directional change.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete pogos over a line forward and backward with short contacts, tall posture, and quiet feet.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Line Pogo Forward-Back as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It adds a simple directional constraint to ankle stiffness without turning the drill into a conditioning station.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot linear_pogo_stiffness keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_plantar_flexion",
+          "quick_ground_contact",
+          "forward_backward_reorientation"
+        ],
+        "primary_tissues": [
+          "calves",
+          "achilles_tendon",
+          "foot_intrinsics"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete pogos over a line forward and backward with short contacts, tall posture, and quiet feet.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Line Pogo Forward-Back with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Springy and tall.",
+          "Hit the ground like it is hot.",
+          "Small contacts.",
+          "Quiet rhythm.",
+          "Do not chase burn."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 2,
+        "default_reps": 12,
+        "default_work_seconds": 10,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "general_warmup"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Line Pogo Forward-Back from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 13,
+      "slug": "line-pogo-side-to-side",
+      "name": "Line Pogo Side-to-Side",
+      "family": "Lateral ankle stiffness",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "deceleration_cod_power",
+      "slot": "lateral_pogo_stiffness",
+      "cardSummary": "Small lateral contacts over a line that train frontal-plane stiffness and rhythm.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete performs quick side-to-side pogos over a line while keeping the hips level and the contacts short.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Line Pogo Side-to-Side as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It prepares the lower leg and hip for lateral sport contacts with less stress than larger bounds or cuts.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot lateral_pogo_stiffness keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_plantar_flexion",
+          "frontal_plane_rebound",
+          "quick_ground_contact"
+        ],
+        "primary_tissues": [
+          "calves",
+          "achilles_tendon",
+          "peroneals",
+          "glutes"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete performs quick side-to-side pogos over a line while keeping the hips level and the contacts short.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Line Pogo Side-to-Side with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Springy and tall.",
+          "Hit the ground like it is hot.",
+          "Small contacts.",
+          "Quiet rhythm.",
+          "Do not chase burn."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 2,
+        "default_reps": 12,
+        "default_work_seconds": 10,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "general_warmup"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Line Pogo Side-to-Side from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 14,
+      "slug": "split-stance-pogo",
+      "name": "Split-Stance Pogo",
+      "family": "Split stance elastic contacts",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "locomotion_sprint_mechanics",
+      "slot": "split_stance_pogo",
+      "cardSummary": "Alternating split-stance elastic contacts that bridge ankle stiffness to sprint-like posture.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete holds a split stance and performs small, quick bounces, emphasizing tall posture and crisp front/back foot contacts.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Split-Stance Pogo as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It introduces asymmetry and sprint posture while keeping amplitude low enough for early plyometric progressions.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot split_stance_pogo keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "split_stance_rebound",
+          "ankle_plantar_flexion",
+          "hip_extension_positioning"
+        ],
+        "primary_tissues": [
+          "calves",
+          "achilles_tendon",
+          "glutes",
+          "hip_flexors"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete holds a split stance and performs small, quick bounces, emphasizing tall posture and crisp front/back foot contacts.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Split-Stance Pogo with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Springy and tall.",
+          "Hit the ground like it is hot.",
+          "Small contacts.",
+          "Quiet rhythm.",
+          "Do not chase burn."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 2,
+        "default_reps": 12,
+        "default_work_seconds": 10,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "general_warmup"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Split-Stance Pogo from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 15,
+      "slug": "single-leg-pogo-in-place",
+      "name": "Single-Leg Pogo in Place",
+      "family": "Single-leg ankle stiffness",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "single_leg_pogo_stiffness",
+      "cardSummary": "Low-amplitude single-leg contacts that train unilateral ankle stiffness and balance under speed.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete performs small, repeated hops on one foot while staying tall and controlling the pelvis and knee.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Single-Leg Pogo in Place as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It builds single-leg elastic tolerance without needing maximal height or distance.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot single_leg_pogo_stiffness keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "single_leg_rebound",
+          "ankle_plantar_flexion",
+          "hip_stabilization"
+        ],
+        "primary_tissues": [
+          "calves",
+          "achilles_tendon",
+          "foot_intrinsics",
+          "glutes"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete performs small, repeated hops on one foot while staying tall and controlling the pelvis and knee.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Single-Leg Pogo in Place with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Springy and tall.",
+          "Hit the ground like it is hot.",
+          "Small contacts.",
+          "Quiet rhythm.",
+          "Do not chase burn."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 2,
+        "default_reps": 8,
+        "default_work_seconds": 10,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "general_warmup"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Single-Leg Pogo in Place from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 16,
+      "slug": "jump-rope-bounce",
+      "name": "Jump Rope Bounce",
+      "family": "Rhythmic elastic contacts",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "balance_coordination_rhythm",
+      "slot": "jump_rope_elastic_rhythm",
+      "cardSummary": "Rope-based low contacts that develop rhythm, timing, and elastic lower-leg capacity.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete performs relaxed two-foot jump-rope bounces with small contacts, quiet landings, and consistent rope rhythm.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Jump Rope Bounce as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "jump_rope",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "The rope gives instant rhythm feedback while keeping contact height low and repeatable.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot jump_rope_elastic_rhythm keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_plantar_flexion",
+          "rhythmic_ground_contact",
+          "wrist_rotation"
+        ],
+        "primary_tissues": [
+          "calves",
+          "achilles_tendon",
+          "foot_intrinsics",
+          "shoulder_stabilizers"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete performs relaxed two-foot jump-rope bounces with small contacts, quiet landings, and consistent rope rhythm.",
+        "setup": [
+          "Choose a rope length that allows relaxed wrist action and small contacts.",
+          "Use a flat, forgiving surface and give the athlete enough space from others.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Jump Rope Bounce with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Springy and tall.",
+          "Hit the ground like it is hot.",
+          "Small contacts.",
+          "Quiet rhythm.",
+          "Do not chase burn."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 2,
+        "default_reps": 12,
+        "default_work_seconds": 10,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "general_warmup"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Jump Rope Bounce from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 17,
+      "slug": "low-cone-pogo-series",
+      "name": "Low Cone Pogo Series",
+      "family": "Obstacle-guided elastic contacts",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "jump_throw_explosive_power",
+      "slot": "low_cone_pogo_series",
+      "cardSummary": "Quick low-cone contacts that add an external target to elastic pogo mechanics.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete pogos over low cones or soft markers with short ground contacts and consistent posture.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Low Cone Pogo Series as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Soft markers create intent and rhythm without encouraging excessive jump height.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot low_cone_pogo_series keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_plantar_flexion",
+          "reactive_ground_contact",
+          "low_obstacle_clearance"
+        ],
+        "primary_tissues": [
+          "calves",
+          "achilles_tendon",
+          "foot_intrinsics",
+          "quadriceps"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete pogos over low cones or soft markers with short ground contacts and consistent posture.",
+        "setup": [
+          "Place cones or soft markers so the athlete can complete the drill without reaching or twisting to survive the target.",
+          "Keep the lane clear for landing, reset, or sprint exit.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Low Cone Pogo Series with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Springy and tall.",
+          "Hit the ground like it is hot.",
+          "Small contacts.",
+          "Quiet rhythm.",
+          "Do not chase burn."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 2,
+        "default_reps": 8,
+        "default_work_seconds": 10,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "general_warmup"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Low Cone Pogo Series from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 18,
+      "slug": "fast-ankling-pogo-march",
+      "name": "Fast Ankling Pogo March",
+      "family": "Sprint lower-leg mechanics",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "locomotion_sprint_mechanics",
+      "slot": "ankling_pogo_march",
+      "cardSummary": "Moving ankle-pop drill that teaches quick lower-leg contacts in a sprint-like posture.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete advances with small, fast ankle pops while keeping posture tall and the foot contacts underneath the body.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Fast Ankling Pogo March as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It bridges stationary pogos to sprint mechanics by adding gentle forward locomotion and rhythm.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot ankling_pogo_march keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_plantar_flexion",
+          "low_amplitude_march",
+          "stiff_leg_ground_contact"
+        ],
+        "primary_tissues": [
+          "calves",
+          "achilles_tendon",
+          "foot_intrinsics",
+          "hip_flexors"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete advances with small, fast ankle pops while keeping posture tall and the foot contacts underneath the body.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Fast Ankling Pogo March with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Springy and tall.",
+          "Hit the ground like it is hot.",
+          "Small contacts.",
+          "Quiet rhythm.",
+          "Do not chase burn."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 2,
+        "default_reps": 12,
+        "default_work_seconds": 10,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "general_warmup"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Fast Ankling Pogo March from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 19,
+      "slug": "a-skip-pogo-rhythm",
+      "name": "A-Skip Pogo Rhythm",
+      "family": "Sprint rhythm plyometric",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "locomotion_sprint_mechanics",
+      "slot": "a_skip_pogo_rhythm",
+      "cardSummary": "A-skip variation with sharper pogo contacts to connect rhythm, posture, and elastic stiffness.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete performs A-skips with short, crisp ground contacts and coordinated opposite arm action.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat A-Skip Pogo Rhythm as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It connects lower-leg stiffness with sprint rhythm without requiring maximal sprint speed.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot a_skip_pogo_rhythm keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "knee_drive",
+          "ankle_stiffness",
+          "rhythmic_skip_contact"
+        ],
+        "primary_tissues": [
+          "calves",
+          "achilles_tendon",
+          "hip_flexors",
+          "glutes"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete performs A-skips with short, crisp ground contacts and coordinated opposite arm action.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for A-Skip Pogo Rhythm with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Springy and tall.",
+          "Hit the ground like it is hot.",
+          "Small contacts.",
+          "Quiet rhythm.",
+          "Do not chase burn."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 2,
+        "default_reps": 12,
+        "default_work_seconds": 10,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "general_warmup"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film A-Skip Pogo Rhythm from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 20,
+      "slug": "snap-down-to-pogo-rebound",
+      "name": "Snap Down to Pogo Rebound",
+      "family": "Landing-to-rebound transition",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "deceleration_cod_power",
+      "slot": "snap_down_rebound_pogo",
+      "cardSummary": "Snap-down landing followed by small rebounds that links force absorption to elastic response.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete snaps down into an athletic base and immediately performs a short series of low, quick pogos.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Snap Down to Pogo Rebound as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It teaches the athlete to organize stiffness after landing without rushing into high-amplitude reactive jumps.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot snap_down_rebound_pogo keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "rapid_landing_absorption",
+          "ankle_rebound",
+          "trunk_bracing"
+        ],
+        "primary_tissues": [
+          "quadriceps",
+          "glutes",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete snaps down into an athletic base and immediately performs a short series of low, quick pogos.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Snap Down to Pogo Rebound with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Springy and tall.",
+          "Hit the ground like it is hot.",
+          "Small contacts.",
+          "Quiet rhythm.",
+          "Do not chase burn."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 2,
+        "default_reps": 8,
+        "default_work_seconds": 10,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 75,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "landing_prep",
+        "general_warmup"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Snap Down to Pogo Rebound from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "id": 21,
+      "slug": "countermovement-jump",
+      "name": "Countermovement Jump",
+      "family": "Vertical jump power",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "elastic_stiffness_plyometric_rudiments",
+      "slot": "vertical_power",
+      "cardSummary": "Classic vertical plyometric using a quick dip and arm swing to express lower-body power.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete quickly dips, swings the arms, jumps vertically, and lands with control before resetting.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Countermovement Jump as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It is a clean benchmark for lower-body power expression and coordination when performed fresh with full recovery.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot vertical_power keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "countermovement_dip",
+          "hip_extension",
+          "knee_extension",
+          "ankle_plantar_flexion"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "quadriceps",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete quickly dips, swings the arms, jumps vertically, and lands with control before resetting.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Countermovement Jump with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "power_development",
+        "lower_body_strength"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Countermovement Jump from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 22,
+      "slug": "squat-jump",
+      "name": "Squat Jump",
+      "family": "Concentric vertical power",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "elastic_stiffness_plyometric_rudiments",
+      "slot": "vertical_power",
+      "cardSummary": "Vertical jump from a held squat position that emphasizes concentric force without a large countermovement.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete pauses in a quarter-squat, then jumps vertically and lands under control.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Squat Jump as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "The pause limits elastic contribution and helps athletes learn to create force from a stable set position.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot vertical_power keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "static_start_jump",
+          "hip_extension",
+          "knee_extension",
+          "ankle_plantar_flexion"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "quadriceps",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete pauses in a quarter-squat, then jumps vertically and lands under control.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Squat Jump with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "power_development",
+        "lower_body_strength"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Squat Jump from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 23,
+      "slug": "tuck-jump-to-stick",
+      "name": "Tuck Jump to Stick",
+      "family": "Vertical air-control power",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "body_control",
+      "slot": "vertical_power_air_control",
+      "cardSummary": "Explosive vertical jump with a knee-tuck action that challenges air control and clean landing.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete jumps vertically, briefly drives the knees upward, extends the legs back down, and sticks the landing.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Tuck Jump to Stick as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It adds airborne coordination to vertical power and forces the athlete to control pelvis and trunk position before landing.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot vertical_power_air_control keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "vertical_takeoff",
+          "hip_flexion_airborne",
+          "leg_extension_to_land",
+          "landing_absorption"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "quadriceps",
+          "calves",
+          "hip_flexors"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete jumps vertically, briefly drives the knees upward, extends the legs back down, and sticks the landing.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Tuck Jump to Stick with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 120,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "power_development",
+        "lower_body_strength"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Tuck Jump to Stick from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 24,
+      "slug": "box-jump",
+      "name": "Box Jump",
+      "family": "Box-supported vertical power",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "deceleration_cod_power",
+      "slot": "box_jump_power",
+      "cardSummary": "Jump to a box that trains vertical projection while reducing landing impact when the box height is appropriate.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete jumps from the floor to a stable box, lands softly on top, stands tall, and steps down.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Box Jump as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "The box provides a target and can reduce descent impact, but only when height is chosen for power and landing quality rather than ego.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot box_jump_power keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "vertical_takeoff",
+          "hip_knee_ankle_extension",
+          "box_landing_control"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "quadriceps",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete jumps from the floor to a stable box, lands softly on top, stands tall, and steps down.",
+        "setup": [
+          "Choose a stable box height that supports fast, controlled mechanics rather than ego height.",
+          "Place the box on a non-slip surface with clear space to step down or decelerate.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Box Jump with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "power_development",
+        "lower_body_strength"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Box Jump from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 25,
+      "slug": "low-cone-hop-to-stick",
+      "name": "Low Cone Hop to Stick",
+      "family": "Low obstacle jump mechanics",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "deceleration_cod_power",
+      "slot": "low_obstacle_jump_to_stick",
+      "cardSummary": "Two-foot hop over a low marker that trains vertical pop and clean landing over an external target.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete jumps over a low cone or soft marker and sticks the landing on the far side.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Low Cone Hop to Stick as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "The marker creates an external constraint for takeoff while keeping amplitude low enough to prioritize control.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot low_obstacle_jump_to_stick keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "two_foot_takeoff",
+          "low_obstacle_clearance",
+          "landing_absorption"
+        ],
+        "primary_tissues": [
+          "quadriceps",
+          "glutes",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete jumps over a low cone or soft marker and sticks the landing on the far side.",
+        "setup": [
+          "Place cones or soft markers so the athlete can complete the drill without reaching or twisting to survive the target.",
+          "Keep the lane clear for landing, reset, or sprint exit.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Low Cone Hop to Stick with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 100,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "power_development",
+        "lower_body_strength"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Low Cone Hop to Stick from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 26,
+      "slug": "repeated-vertical-jump",
+      "name": "Repeated Vertical Jump",
+      "family": "Repeated vertical power",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "jump_throw_explosive_power",
+      "slot": "repeated_vertical_jump",
+      "cardSummary": "Short series of vertical jumps that trains repeated power while contacts stay crisp and controlled.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete performs a small set of repeated vertical jumps with consistent height, posture, and quiet landings.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Repeated Vertical Jump as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It develops short-burst repeatability of elastic power without turning the drill into conditioning.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot repeated_vertical_jump keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "repeated_countermovement",
+          "reactive_ground_contact",
+          "vertical_takeoff"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "quadriceps",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete performs a small set of repeated vertical jumps with consistent height, posture, and quiet landings.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Repeated Vertical Jump with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 3,
+        "default_reps": 5,
+        "default_work_seconds": 12,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "power_development",
+        "lower_body_strength"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Repeated Vertical Jump from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 27,
+      "slug": "approach-vertical-jump",
+      "name": "Approach Vertical Jump",
+      "family": "Approach jump power",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "locomotion_sprint_mechanics",
+      "slot": "approach_vertical_jump",
+      "cardSummary": "Moving vertical jump that links approach rhythm, penultimate mechanics, and explosive takeoff.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete uses one to three approach steps, converts forward momentum into vertical takeoff, and lands under control.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Approach Vertical Jump as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It transfers vertical power into sport-like approach timing used in basketball, volleyball, and field jumps.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot approach_vertical_jump keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "approach_steps",
+          "penultimate_step",
+          "vertical_takeoff",
+          "landing_absorption"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "quadriceps",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete uses one to three approach steps, converts forward momentum into vertical takeoff, and lands under control.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Approach Vertical Jump with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "power_development",
+        "lower_body_strength"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Approach Vertical Jump from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 4,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 28,
+      "slug": "kneeling-jump-to-stand",
+      "name": "Kneeling Jump to Stand",
+      "family": "Hip-extension power",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "hinge_power",
+      "slot": "kneeling_jump_power",
+      "cardSummary": "Tall-kneeling explosive pop to feet that trains hip extension and trunk stiffness without a traditional jump landing.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete starts tall-kneeling on a mat, explosively extends the hips, and lands in a squat or athletic stance.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Kneeling Jump to Stand as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "hinge",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "mat",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It emphasizes hip extension and body control from an unusual start position, useful for advanced athletes with adequate knee comfort.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot kneeling_jump_power keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_extension",
+          "rapid_trunk_bracing",
+          "knee_drive_to_stand"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "hamstrings",
+          "quadriceps",
+          "hip_flexors"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "organized_power_posture",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete starts tall-kneeling on a mat, explosively extends the hips, and lands in a squat or athletic stance.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Kneeling Jump to Stand with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "power_development",
+        "lower_body_strength"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Kneeling Jump to Stand from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 4,
+        "impact_level": 2,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 29,
+      "slug": "step-up-jump",
+      "name": "Step-Up Jump",
+      "family": "Step-up jump power",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "locomotion_sprint_mechanics",
+      "slot": "step_up_jump_power",
+      "cardSummary": "Single-leg-biased jump from a low box that trains hip extension and opposite-knee drive.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete drives through the foot on a low box, jumps vertically, and lands with control before resetting.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Step-Up Jump as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It gives a sprint-like single-leg drive with a supported start position.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot step_up_jump_power keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "single_leg_drive",
+          "hip_extension",
+          "opposite_knee_drive",
+          "box_contact_control"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "quadriceps",
+          "calves",
+          "hip_flexors"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete drives through the foot on a low box, jumps vertically, and lands with control before resetting.",
+        "setup": [
+          "Choose a stable box height that supports fast, controlled mechanics rather than ego height.",
+          "Place the box on a non-slip surface with clear space to step down or decelerate.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Step-Up Jump with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "power_development",
+        "lower_body_strength"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Step-Up Jump from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 2,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 30,
+      "slug": "switch-step-up-jump",
+      "name": "Switch Step-Up Jump",
+      "family": "Alternating step-up power",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "coordination",
+      "slot": "switch_step_up_jump_power",
+      "cardSummary": "Alternating box step-up jump that develops unilateral drive, foot exchange, and controlled box contact.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete starts with one foot on a low box, jumps up, switches feet in the air, and lands with the opposite foot on the box.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Switch Step-Up Jump as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It adds coordination and speed to step-up power while keeping the jump tied to sprint-like hip drive.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot switch_step_up_jump_power keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "single_leg_drive",
+          "airborne_foot_switch",
+          "box_contact_control"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "quadriceps",
+          "calves",
+          "hip_flexors"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete starts with one foot on a low box, jumps up, switches feet in the air, and lands with the opposite foot on the box.",
+        "setup": [
+          "Choose a stable box height that supports fast, controlled mechanics rather than ego height.",
+          "Place the box on a non-slip surface with clear space to step down or decelerate.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Switch Step-Up Jump with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "landing_prep",
+        "power_development",
+        "lower_body_strength"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Switch Step-Up Jump from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 4,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 31,
+      "slug": "standing-broad-jump",
+      "name": "Standing Broad Jump",
+      "family": "Horizontal jump power",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "deceleration_cod_power",
+      "slot": "horizontal_power",
+      "cardSummary": "Two-foot horizontal power jump that trains projection, arm swing, and landing control.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete loads the hips, jumps forward as far as quality allows, and lands in a stable position.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Standing Broad Jump as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "hinge",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It is one of the clearest bodyweight expressions of horizontal hip power and acceleration projection.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot horizontal_power keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_extension",
+          "horizontal_projection",
+          "two_foot_landing_absorption"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "hamstrings",
+          "quadriceps",
+          "calves"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete loads the hips, jumps forward as far as quality allows, and lands in a stable position.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Standing Broad Jump with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "power_development",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Standing Broad Jump from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 32,
+      "slug": "repeated-broad-jump",
+      "name": "Repeated Broad Jump",
+      "family": "Repeated horizontal power",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "jump_throw_explosive_power",
+      "slot": "repeated_horizontal_jump",
+      "cardSummary": "Short sequence of broad jumps that develops elastic horizontal power and repeatable landing-to-takeoff mechanics.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete performs two or three broad jumps in a row while maintaining posture, projection, and controlled landings.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Repeated Broad Jump as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "hinge",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It trains the ability to reapply force after landing, a key bridge toward bounds and acceleration.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot repeated_horizontal_jump keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "horizontal_projection",
+          "rapid_reloading",
+          "landing_to_takeoff_transition"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "hamstrings",
+          "quadriceps",
+          "calves"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete performs two or three broad jumps in a row while maintaining posture, projection, and controlled landings.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Repeated Broad Jump with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 3,
+        "default_reps": 5,
+        "default_work_seconds": 12,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "power_development",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Repeated Broad Jump from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 4,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 33,
+      "slug": "bound-to-stick",
+      "name": "Bound to Stick",
+      "family": "Unilateral bound control",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "deceleration_cod_power",
+      "slot": "bound_to_stick",
+      "cardSummary": "Single bound with a stick that trains unilateral horizontal projection and braking control.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete bounds from one leg to the other and freezes the landing before resetting.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Bound to Stick as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It exposes single-leg propulsion and landing strategy without the fatigue of continuous bounding.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot bound_to_stick keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "single_leg_horizontal_projection",
+          "opposite_leg_swing",
+          "single_leg_landing_control"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "hamstrings",
+          "calves",
+          "quadriceps"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete bounds from one leg to the other and freezes the landing before resetting.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Bound to Stick with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 120,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "power_development",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Bound to Stick from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 34,
+      "slug": "alternating-bounds",
+      "name": "Alternating Bounds",
+      "family": "Continuous bounding power",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "locomotion_sprint_mechanics",
+      "slot": "alternating_bounds",
+      "cardSummary": "Continuous left-right bounds that train horizontal elastic power and sprint-like projection.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete bounds forward from one leg to the other with tall posture, active arm action, and controlled contacts.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Alternating Bounds as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It is a high-transfer progression for acceleration and field sports when the athlete can maintain rhythm and alignment.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot alternating_bounds keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "alternating_single_leg_projection",
+          "hip_extension",
+          "reactive_ground_contact"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "hamstrings",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 4
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete bounds forward from one leg to the other with tall posture, active arm action, and controlled contacts.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Alternating Bounds with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 12,
+        "default_rest_seconds": 120,
+        "est_seconds_per_set": 140,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Do not use as a default youth drill. Regress to hop-to-stick, low pogos, or submaximal bounds until landing quality is automatic.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "power_development",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Alternating Bounds from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 4,
+        "impact_level": 4,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 5,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 4,
+        "impact_level": 4,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 35,
+      "slug": "single-leg-bounds",
+      "name": "Single-Leg Bounds",
+      "family": "Advanced unilateral bounding",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "jump_throw_explosive_power",
+      "slot": "single_leg_bounds",
+      "cardSummary": "Advanced same-leg bounding that builds unilateral stiffness, propulsion, and landing tolerance.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete performs repeated bounds on the same leg for a short distance, then rests fully before switching sides.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Single-Leg Bounds as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It stresses unilateral elastic capacity and asymmetry control, so it belongs only after strong hop-to-stick mechanics.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot single_leg_bounds keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "same_leg_repeated_projection",
+          "single_leg_rebound",
+          "hip_stabilization"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "hamstrings",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 4
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete performs repeated bounds on the same leg for a short distance, then rests fully before switching sides.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Single-Leg Bounds with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 12,
+        "default_rest_seconds": 120,
+        "est_seconds_per_set": 140,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Do not use as a default youth drill. Regress to hop-to-stick, low pogos, or submaximal bounds until landing quality is automatic.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "power_development",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Single-Leg Bounds from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 4,
+        "impact_level": 4,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 5,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 5,
+        "impact_level": 4,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 36,
+      "slug": "power-skip-for-distance",
+      "name": "Power Skip for Distance",
+      "family": "Sprint plyometric power",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "locomotion_sprint_mechanics",
+      "slot": "sprint_transfer_horizontal_power",
+      "cardSummary": "Skipping variation that emphasizes forward projection, hip extension, and sprint-transfer power.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete skips forward with longer, powerful projections while keeping posture tall and foot strikes controlled.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Power Skip for Distance as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It bridges technical sprint skips and full bounds with a manageable horizontal impulse.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot sprint_transfer_horizontal_power keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "skip_projection",
+          "hip_extension",
+          "opposite_knee_drive",
+          "ankle_stiffness"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "hamstrings",
+          "calves",
+          "hip_flexors"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete skips forward with longer, powerful projections while keeping posture tall and foot strikes controlled.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Power Skip for Distance with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "power_development",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Power Skip for Distance from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 2,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 37,
+      "slug": "three-hop-bound-series",
+      "name": "Three-Hop Bound Series",
+      "family": "Bound sequence power",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "jump_throw_explosive_power",
+      "slot": "three_hop_bound_series",
+      "cardSummary": "Three-contact bound sequence that develops short-burst horizontal power without long fatigue exposure.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete performs exactly three powerful bounds, sticks or decelerates the final contact, then walks back and rests fully.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Three-Hop Bound Series as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Capping the series preserves output quality while still training repeated propulsion.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot three_hop_bound_series keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "multi_contact_projection",
+          "reactive_ground_contact",
+          "landing_reorganization"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "hamstrings",
+          "calves",
+          "achilles_tendon"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 4
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete performs exactly three powerful bounds, sticks or decelerates the final contact, then walks back and rests fully.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Three-Hop Bound Series with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 12,
+        "default_rest_seconds": 120,
+        "est_seconds_per_set": 140,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Do not use as a default youth drill. Regress to hop-to-stick, low pogos, or submaximal bounds until landing quality is automatic.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "power_development",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Three-Hop Bound Series from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 4,
+        "impact_level": 4,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 5,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 4,
+        "impact_level": 4,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 38,
+      "slug": "lateral-bound",
+      "name": "Lateral Bound",
+      "family": "Frontal-plane power",
+      "primaryPhaseKey": "output",
+      "subrole": "deceleration_cod_power",
+      "subroleSecondary": "jump_throw_explosive_power",
+      "slot": "lateral_bound_power",
+      "cardSummary": "Frontal-plane power bound that develops side-to-side projection and controlled receiving mechanics.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete bounds laterally from one leg to the other with a powerful push and stable landing.",
+      "coachLanguage": "Primary subrole: deceleration_cod_power. Treat Lateral Bound as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It develops the lateral force qualities needed for cutting, skating, shuffling, and field-sport redirection.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot lateral_bound_power keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "lateral_push_off",
+          "single_leg_landing_control",
+          "hip_abduction_adduction_control"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "adductors",
+          "calves",
+          "quadriceps"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete bounds laterally from one leg to the other with a powerful push and stable landing.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Lateral Bound with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 120,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "power_development",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Lateral Bound from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 39,
+      "slug": "crossover-bound",
+      "name": "Crossover Bound",
+      "family": "Crossover lateral power",
+      "primaryPhaseKey": "output",
+      "subrole": "deceleration_cod_power",
+      "subroleSecondary": "reactive_agility_tumbling_output",
+      "slot": "crossover_bound_power",
+      "cardSummary": "Crossover-style bound that links lateral projection, hip rotation, and reacceleration mechanics.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete uses a crossover push to bound diagonally or laterally and lands with control in the new direction.",
+      "coachLanguage": "Primary subrole: deceleration_cod_power. Treat Crossover Bound as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "rotate",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It builds the diagonal and rotational force orientation common in sport change-of-direction moments.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot crossover_bound_power keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "crossover_push_off",
+          "hip_reorientation",
+          "single_leg_landing_control"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "adductors",
+          "calves",
+          "obliques"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete uses a crossover push to bound diagonally or laterally and lands with control in the new direction.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Crossover Bound with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 120,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "power_development",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Crossover Bound from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 4,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 40,
+      "slug": "uphill-bound",
+      "name": "Uphill Bound",
+      "family": "Hill-assisted projection power",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "locomotion_sprint_mechanics",
+      "slot": "uphill_bound_power",
+      "cardSummary": "Bounds performed up a gentle hill to emphasize projection and reduce some landing speed.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete bounds uphill for a short distance with powerful hip extension, tall posture, and full recovery between reps.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Uphill Bound as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "The incline encourages horizontal drive while reducing overspeed and some braking demand compared with flat or downhill bounds.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot uphill_bound_power keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_extension",
+          "forward_projection",
+          "single_leg_ground_contact"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "hamstrings",
+          "calves",
+          "quadriceps"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete bounds uphill for a short distance with powerful hip extension, tall posture, and full recovery between reps.",
+        "setup": [
+          "Use a flat, forgiving surface with enough space to land and reset.",
+          "Mark the start or target distance only as far as the athlete can control cleanly.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Uphill Bound with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 120,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "sprint_prep",
+        "power_development",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Uphill Bound from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 4,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 41,
+      "slug": "drop-jump",
+      "name": "Drop Jump",
+      "family": "Reactive jump mechanics",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "jump_throw_explosive_power",
+      "slot": "drop_jump_reactive",
+      "cardSummary": "Low-box step-off into immediate rebound that trains reactive stiffness and short ground contact.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete steps off a low box, contacts the ground briefly, and jumps vertically with minimal ground time.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Drop Jump as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It develops reactive stretch-shortening behavior, but only after the athlete owns landing and low-level pogo mechanics.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot drop_jump_reactive keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "drop_step_off",
+          "rapid_ground_contact",
+          "vertical_rebound"
+        ],
+        "primary_tissues": [
+          "calves",
+          "achilles_tendon",
+          "quadriceps",
+          "glutes"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 4
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete steps off a low box, contacts the ground briefly, and jumps vertically with minimal ground time.",
+        "setup": [
+          "Choose a stable box height that supports fast, controlled mechanics rather than ego height.",
+          "Place the box on a non-slip surface with clear space to step down or decelerate.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Drop Jump with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 12,
+        "default_rest_seconds": 120,
+        "est_seconds_per_set": 140,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Do not use as a default youth drill. Regress to hop-to-stick, low pogos, or submaximal bounds until landing quality is automatic.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "power_development",
+        "deceleration",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Drop Jump from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 4,
+        "impact_level": 4,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 5,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 4,
+        "impact_level": 4,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 42,
+      "slug": "depth-jump",
+      "name": "Depth Jump",
+      "family": "Advanced reactive power",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "jump_throw_explosive_power",
+      "slot": "depth_jump_reactive",
+      "cardSummary": "High-intensity drop-to-rebound jump reserved for prepared athletes with excellent landing and stiffness quality.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete steps from a box, lands, and rebounds explosively into a vertical or target jump with minimal but controlled ground contact.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Depth Jump as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It creates a large stretch-shortening-cycle stimulus and should be used sparingly with full recovery and strict stop rules.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot depth_jump_reactive keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "drop_step_off",
+          "high_force_landing",
+          "rapid_vertical_rebound"
+        ],
+        "primary_tissues": [
+          "calves",
+          "achilles_tendon",
+          "quadriceps",
+          "glutes"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 5
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete steps from a box, lands, and rebounds explosively into a vertical or target jump with minimal but controlled ground contact.",
+        "setup": [
+          "Choose a stable box height that supports fast, controlled mechanics rather than ego height.",
+          "Place the box on a non-slip surface with clear space to step down or decelerate.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Depth Jump with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 12,
+        "default_rest_seconds": 120,
+        "est_seconds_per_set": 140,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Do not use as a default youth drill. Regress to hop-to-stick, low pogos, or submaximal bounds until landing quality is automatic.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "power_development",
+        "deceleration",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Depth Jump from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 5,
+        "impact_level": 5,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 5,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 5,
+        "impact_level": 5,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 43,
+      "slug": "low-box-rebound-jump",
+      "name": "Low Box Rebound Jump",
+      "family": "Accessible reactive rebound",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "jump_throw_explosive_power",
+      "slot": "low_box_rebound_jump",
+      "cardSummary": "Low-height rebound jump that introduces reactive contacts before full depth jumps.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete uses a very low box or pad to step or hop down, rebounds vertically, and then lands under control.",
+      "coachLanguage": "Primary subrole: elastic_stiffness_plyometric_rudiments. Treat Low Box Rebound Jump as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It bridges low pogos and true drop jumps with a safer amplitude and more coachable contact.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot low_box_rebound_jump keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "low_drop_or_jump_off",
+          "reactive_rebound",
+          "landing_absorption"
+        ],
+        "primary_tissues": [
+          "calves",
+          "achilles_tendon",
+          "quadriceps",
+          "glutes"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete uses a very low box or pad to step or hop down, rebounds vertically, and then lands under control.",
+        "setup": [
+          "Choose a stable box height that supports fast, controlled mechanics rather than ego height.",
+          "Place the box on a non-slip surface with clear space to step down or decelerate.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Low Box Rebound Jump with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "contacts",
+        "default_sets": 3,
+        "default_reps": 5,
+        "default_work_seconds": 12,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "power_development",
+        "deceleration",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Low Box Rebound Jump from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 4,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 44,
+      "slug": "lateral-cone-hop-to-sprint",
+      "name": "Lateral Cone Hop to Sprint",
+      "family": "Plyometric change-of-direction transfer",
+      "primaryPhaseKey": "output",
+      "subrole": "reactive_agility_tumbling_output",
+      "subroleSecondary": "deceleration_cod_power",
+      "slot": "lateral_hop_to_sprint",
+      "cardSummary": "Lateral hop over a cone followed by a short sprint to connect frontal-plane stiffness with acceleration.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete performs one or more lateral hops over a low cone, lands ready, then exits into a short sprint lane.",
+      "coachLanguage": "Primary subrole: reactive_agility_tumbling_output. Treat Lateral Cone Hop to Sprint as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It bridges lateral elastic contacts and forward sprint projection, matching many sport moments where athletes hop, gather, and reaccelerate.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot lateral_hop_to_sprint keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "lateral_hop",
+          "hip_reorientation",
+          "acceleration_projection"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "adductors",
+          "calves",
+          "hamstrings"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete performs one or more lateral hops over a low cone, lands ready, then exits into a short sprint lane.",
+        "setup": [
+          "Place cones or soft markers so the athlete can complete the drill without reaching or twisting to survive the target.",
+          "Keep the lane clear for landing, reset, or sprint exit.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Lateral Cone Hop to Sprint with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "power_development",
+        "deceleration",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Lateral Cone Hop to Sprint from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 4,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 45,
+      "slug": "45-degree-cut-bound-to-stick",
+      "name": "45-Degree Cut Bound to Stick",
+      "family": "Angled cut power",
+      "primaryPhaseKey": "output",
+      "subrole": "deceleration_cod_power",
+      "subroleSecondary": "reactive_agility_tumbling_output",
+      "slot": "angled_cut_bound_to_stick",
+      "cardSummary": "Diagonal bound to a controlled stick that trains angled projection and braking for change of direction.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete bounds or hops at a 45-degree angle to a cone target, lands, and holds the position before resetting.",
+      "coachLanguage": "Primary subrole: deceleration_cod_power. Treat 45-Degree Cut Bound to Stick as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It teaches athletes to project and brake on a sport-relevant angle without adding full-speed chaos too early.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot angled_cut_bound_to_stick keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "diagonal_projection",
+          "hip_reorientation",
+          "single_leg_or_two_leg_braking"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "adductors",
+          "calves",
+          "quadriceps"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete bounds or hops at a 45-degree angle to a cone target, lands, and holds the position before resetting.",
+        "setup": [
+          "Place cones or soft markers so the athlete can complete the drill without reaching or twisting to survive the target.",
+          "Keep the lane clear for landing, reset, or sprint exit.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for 45-Degree Cut Bound to Stick with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 120,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "power_development",
+        "deceleration",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film 45-Degree Cut Bound to Stick from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 4,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 46,
+      "slug": "reactive-partner-mirror-hop",
+      "name": "Reactive Partner Mirror Hop",
+      "family": "Reactive plyometric agility",
+      "primaryPhaseKey": "output",
+      "subrole": "reactive_agility_tumbling_output",
+      "subroleSecondary": "deceleration_cod_power",
+      "slot": "reactive_mirror_hop",
+      "cardSummary": "Partner-led hop drill that adds perception-action demand to low-to-moderate plyometric contacts.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "One athlete leads small hops or bounds inside a defined space while the partner mirrors direction and timing.",
+      "coachLanguage": "Primary subrole: reactive_agility_tumbling_output. Treat Reactive Partner Mirror Hop as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "partner",
+          "weight": 5
+        },
+        {
+          "key": "cones",
+          "weight": 3
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It adds decision-making to plyometrics while keeping amplitude and volume limited enough to protect output quality.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot reactive_mirror_hop keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "reactive_lateral_hop",
+          "visual_decision",
+          "single_leg_or_two_leg_landing"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "adductors",
+          "calves",
+          "quadriceps"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "single_leg_or_dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "One athlete leads small hops or bounds inside a defined space while the partner mirrors direction and timing.",
+        "setup": [
+          "Place cones or soft markers so the athlete can complete the drill without reaching or twisting to survive the target.",
+          "Keep the lane clear for landing, reset, or sprint exit.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Reactive Partner Mirror Hop with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use only with athletes who already show quiet landings. Keep contacts very low, shorten distance, and require a full reset.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Landing prep or low-level pogo progression",
+        "Relevant mobility/access work"
+      ],
+      "pairsWellBefore": [
+        "Acceleration or sprint work",
+        "Lower-body strength",
+        "Sport-skill or technical power block"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "power_development",
+        "deceleration",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Reactive Partner Mirror Hop from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 4,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 47,
+      "slug": "incline-plyo-push-up",
+      "name": "Incline Plyo Push-Up",
+      "family": "Upper-body plyometric push",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "upper_body_push_power",
+      "slot": "upper_body_power",
+      "cardSummary": "Reduced-load plyometric push-up that builds fast upper-body push-off and trunk stiffness.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete performs a push-up from an incline and pushes hard enough for the hands to unload slightly while maintaining a plank shape.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Incline Plyo Push-Up as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "strength",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "push",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "shoulder",
+          "weight": 5
+        },
+        {
+          "key": "wrist",
+          "weight": 4
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "The incline lowers the percentage of bodyweight so the athlete can train rapid push-off without grinding.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot upper_body_power keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "explosive_elbow_extension",
+          "shoulder_horizontal_push",
+          "hand_contact_absorption",
+          "trunk_bracing"
+        ],
+        "primary_tissues": [
+          "pectorals",
+          "triceps",
+          "anterior_deltoids",
+          "wrist_flexors"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "athletic_base",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete performs a push-up from an incline and pushes hard enough for the hands to unload slightly while maintaining a plank shape.",
+        "setup": [
+          "Choose a stable box height that supports fast, controlled mechanics rather than ego height.",
+          "Place the box on a non-slip surface with clear space to step down or decelerate.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Incline Plyo Push-Up with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Fast off the floor.",
+          "Quiet feet.",
+          "Own the landing.",
+          "Tall through the crown.",
+          "Stop before sloppy."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing height, distance, or speed after landing quality drops.",
+          "Loud contacts or collapsing into the floor.",
+          "Knees diving inward or feet losing tripod pressure.",
+          "Rib flare, lumbar extension, or trunk folding to survive the rep.",
+          "Turning the drill into conditioning instead of high-quality output."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 3,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 110,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Shoulder and trunk prep",
+        "Scapular or wrist readiness",
+        "Low-fatigue activation"
+      ],
+      "pairsWellBefore": [
+        "Pressing strength",
+        "Throwing skill work",
+        "Sport-skill practice"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "power_development",
+        "deceleration",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Incline Plyo Push-Up from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 1,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 48,
+      "slug": "medicine-ball-chest-pass",
+      "name": "Medicine Ball Chest Pass",
+      "family": "Medicine ball upper-body power",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "upper_body_push_power",
+      "slot": "medicine_ball_power",
+      "cardSummary": "Explosive medicine-ball press throw that develops upper-body power and trunk stiffness with minimal landing stress.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete throws a light medicine ball from the chest into a wall or to a partner, resets, and repeats only while release speed stays high.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Medicine Ball Chest Pass as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "push",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "medicine_ball",
+          "weight": 5
+        },
+        {
+          "key": "wall",
+          "weight": 3
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "shoulder",
+          "weight": 5
+        },
+        {
+          "key": "wrist",
+          "weight": 4
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It gives a clear high-intent power expression for the upper body while keeping lower-body impact extremely low.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot medicine_ball_power keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "rapid_elbow_extension",
+          "shoulder_horizontal_adduction",
+          "trunk_bracing"
+        ],
+        "primary_tissues": [
+          "pectorals",
+          "triceps",
+          "anterior_deltoids",
+          "abdominals"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "organized_power_posture",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete throws a light medicine ball from the chest into a wall or to a partner, resets, and repeats only while release speed stays high.",
+        "setup": [
+          "Choose a light medicine ball that can be thrown fast without trunk leakage.",
+          "Use a safe wall, open lane, or trained partner depending on the throw direction.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Medicine Ball Chest Pass with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Light ball, fast release.",
+          "Throw through the target.",
+          "Hips then hands.",
+          "Brace and finish tall.",
+          "Reset before the next rep."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Using a ball that is too heavy for speed.",
+          "Leaking through the low back or ribs during the throw.",
+          "Rotating or pressing from the arms only instead of using the whole body.",
+          "Standing too close to the wall or throwing into an unsafe lane.",
+          "Rushing reps until release speed fades."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 3,
+        "default_reps": 4,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 95,
+        "default_rpe_min": 6,
+        "default_rpe_max": 8
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Shoulder and trunk prep",
+        "Scapular or wrist readiness",
+        "Low-fatigue activation"
+      ],
+      "pairsWellBefore": [
+        "Pressing strength",
+        "Throwing skill work",
+        "Sport-skill practice"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "power_development",
+        "deceleration",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Medicine Ball Chest Pass from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 0,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 49,
+      "slug": "medicine-ball-scoop-toss",
+      "name": "Medicine Ball Scoop Toss",
+      "family": "Medicine ball hip power",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "hinge_power",
+      "slot": "medicine_ball_power",
+      "cardSummary": "Underhand medicine-ball throw that trains hip extension, trunk stiffness, and horizontal power expression.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete hinges with a light ball between the legs, rapidly extends the hips, and throws the ball forward or upward.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Medicine Ball Scoop Toss as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "hinge",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "medicine_ball",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 4
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It mimics jump-like hip extension intent while keeping landing stress very low.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot medicine_ball_power keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_hinge_load",
+          "rapid_hip_extension",
+          "underhand_release",
+          "trunk_bracing"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "hamstrings",
+          "abdominals",
+          "shoulder_stabilizers"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "organized_power_posture",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete hinges with a light ball between the legs, rapidly extends the hips, and throws the ball forward or upward.",
+        "setup": [
+          "Choose a light medicine ball that can be thrown fast without trunk leakage.",
+          "Use a safe wall, open lane, or trained partner depending on the throw direction.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Medicine Ball Scoop Toss with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Light ball, fast release.",
+          "Throw through the target.",
+          "Hips then hands.",
+          "Brace and finish tall.",
+          "Reset before the next rep."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Using a ball that is too heavy for speed.",
+          "Leaking through the low back or ribs during the throw.",
+          "Rotating or pressing from the arms only instead of using the whole body.",
+          "Standing too close to the wall or throwing into an unsafe lane.",
+          "Rushing reps until release speed fades."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 3,
+        "default_reps": 4,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 95,
+        "default_rpe_min": 6,
+        "default_rpe_max": 8
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Shoulder and trunk prep",
+        "Scapular or wrist readiness",
+        "Low-fatigue activation"
+      ],
+      "pairsWellBefore": [
+        "Pressing strength",
+        "Throwing skill work",
+        "Sport-skill practice"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "power_development",
+        "deceleration",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Medicine Ball Scoop Toss from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 1,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 2,
+        "impact_level": 0,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "id": 50,
+      "slug": "medicine-ball-rotational-shot-put",
+      "name": "Medicine Ball Rotational Shot Put",
+      "family": "Medicine ball rotational power",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "rotational_power",
+      "slot": "medicine_ball_power_rotational",
+      "cardSummary": "Side-on rotational medicine-ball throw that trains ground-up sequencing and transverse-plane power.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work, with enough rest that every contact remains high quality.",
+      "description": "The athlete stands side-on to a wall, loads the back hip, rotates through the hips and trunk, and throws the ball like a shot put.",
+      "coachLanguage": "Primary subrole: jump_throw_explosive_power. Treat Medicine Ball Rotational Shot Put as Output-phase plyometrics: high intent, low volume, full recovery, and strict stop rules. Do not convert it into a fatigue circuit.",
+      "athleteLanguage": "Move fast, land quiet, and reset before the next rep. The rep only counts if you own the position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 4
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "core_body_control",
+          "weight": 2
+        },
+        {
+          "key": "neural",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "rotate",
+          "weight": 5
+        },
+        {
+          "key": "push",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "medicine_ball",
+          "weight": 5
+        },
+        {
+          "key": "wall",
+          "weight": 3
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 4
+        },
+        {
+          "key": "spine",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "It links lower-body drive, trunk rotation, and upper-body release for sports that require throwing, hitting, checking, and rotational acceleration.",
+      "whyItGoesHere": "Belongs in Output because plyometrics primarily express speed, power, elasticity, jumping, throwing, braking, or reactive athleticism while fresh. Slot medicine_ball_power_rotational keeps it sequenced with drills of similar intent and contact demand.",
+      "commonMisuse": "The most common error is chasing fatigue, height, distance, or competition when contact quality has already dropped. Keep volume capped and never place hard plyometrics after conditioning fatigue.",
+      "scalingGuidance": "Scale by reducing amplitude, contacts, approach speed, direction change, surface hardness, external load, or reactive complexity. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "hip_rotation",
+          "trunk_rotation_transfer",
+          "rapid_push_release"
+        ],
+        "primary_tissues": [
+          "glutes",
+          "obliques",
+          "pectorals",
+          "triceps"
+        ],
+        "primary_motor_control_demands": [
+          "postural_stiffness",
+          "landing_or_contact_precision",
+          "reset_between_attempts"
+        ],
+        "postural_shape": "organized_power_posture",
+        "breathing_demand": "braced_exhale",
+        "balance_demand": "dynamic",
+        "coordination_demand": "high_speed_timing",
+        "impact_level": 0
+      },
+      "coachingExecution": {
+        "movement_description": "The athlete stands side-on to a wall, loads the back hip, rotates through the hips and trunk, and throws the ball like a shot put.",
+        "setup": [
+          "Choose a light medicine ball that can be thrown fast without trunk leakage.",
+          "Use a safe wall, open lane, or trained partner depending on the throw direction.",
+          "Confirm the athlete can demonstrate the lower-level landing or contact pattern without pain.",
+          "Set the expectation that quality, not fatigue, decides the set length."
+        ],
+        "execution_steps": [
+          "Start in the position described for Medicine Ball Rotational Shot Put with posture organized and eyes steady.",
+          "Create a sharp but relaxed takeoff or contact, keeping the ribs, pelvis, and foot pressure controlled.",
+          "Land, rebound, throw, or exit exactly as prescribed without adding extra contacts or rushed steps.",
+          "Reset fully before the next rep so every attempt is fast, quiet, and technically repeatable."
+        ],
+        "coach_cues": [
+          "Light ball, fast release.",
+          "Throw through the target.",
+          "Hips then hands.",
+          "Brace and finish tall.",
+          "Reset before the next rep."
+        ],
+        "athlete_cues": [
+          "Move fast, land quiet, and reset.",
+          "The rep only counts if you own the position."
+        ],
+        "breathing_cues": [
+          "Brace before the contact or release.",
+          "Exhale sharply without collapsing posture."
+        ],
+        "common_faults": [
+          "Using a ball that is too heavy for speed.",
+          "Leaking through the low back or ribs during the throw.",
+          "Rotating or pressing from the arms only instead of using the whole body.",
+          "Standing too close to the wall or throwing into an unsafe lane.",
+          "Rushing reps until release speed fades."
+        ],
+        "quality_gate": [
+          "No pain during takeoff, landing, contact, or release.",
+          "Contact sound stays quiet and consistent.",
+          "Alignment is repeatable from the first rep to the last rep.",
+          "Output stays crisp without visible hesitation or fatigue leakage.",
+          "The athlete can stop and reset on command."
+        ],
+        "stop_signs": [
+          "Pain, sharp discomfort, or loss of confidence appears.",
+          "Landing gets louder or uncontrolled for two reps in a row.",
+          "Knee, hip, trunk, shoulder, or wrist position becomes unsafe.",
+          "Output speed, height, distance, or release velocity clearly drops.",
+          "The athlete starts racing the drill or treating it as conditioning."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 3,
+        "default_reps": 4,
+        "default_work_seconds": 15,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 95,
+        "default_rpe_min": 6,
+        "default_rpe_max": 8
+      },
+      "scaling": {
+        "youth_beginner": "Use low amplitude, small targets, and a clear stick after each rep. Keep it playful, brief, and technically clean.",
+        "youth_intermediate": "Use moderate intent with strict landing and posture standards. Add only one variable at a time: distance, height, direction, or reaction cue.",
+        "teen": "Place early in the session after warm-up and landing prep. Cap contacts before fatigue and progress only when speed and alignment repeat.",
+        "adult_beginner": "Start with the lower-amplitude or stick version, extend rest, and stop as soon as contact noise, posture, or confidence changes.",
+        "adult_advanced": "Increase intent, amplitude, approach speed, reactive demand, or sport specificity while keeping volume low enough for max-quality reps.",
+        "older_adult": "Use low-impact substitutions, small ranges, stable surfaces, and longer rest. Replace jumps with fast step patterns, calf-raise pops, or medicine-ball throws when impact tolerance is limited.",
+        "pregnancy_postpartum": "Use only when cleared for impact and symptom-free. Regress to low-impact power, supported step patterns, or medicine-ball options if there is leaking, heaviness, pain, coning, dizziness, or pelvic-floor symptoms."
+      },
+      "genderSpecificNotes": "No default gender adjustment. Individualize by training age, landing control, joint history, pelvic-floor symptoms, footwear, surface, recovery, confidence, and current readiness.",
+      "pairsWellAfter": [
+        "Shoulder and trunk prep",
+        "Scapular or wrist readiness",
+        "Low-fatigue activation"
+      ],
+      "pairsWellBefore": [
+        "Pressing strength",
+        "Throwing skill work",
+        "Sport-skill practice"
+      ],
+      "doNotUseWhen": [
+        "Pain appears with takeoff, landing, contact, bracing, or throw release.",
+        "The athlete cannot control the lower-level progression.",
+        "The surface, footwear, spacing, or equipment setup is unsafe.",
+        "The athlete is already fatigued enough that contacts are slow, loud, or poorly aligned."
+      ],
+      "goodForSessions": [
+        "power_development",
+        "deceleration",
+        "court_field_power"
+      ],
+      "mediaReferences": [
+        "Vortex Exercise Card Authoring Guide: Output phase and plyometric sequencing rules",
+        "NSCA-style plyometric landing, contact-quality, and full-recovery coaching reference",
+        "Internal Vortex demo recommended: front and side views with slow-motion contact review"
+      ],
+      "mediaInternalNotes": [
+        "Film Medicine Ball Rotational Shot Put from front and side when possible.",
+        "Approve progression only when contacts are quiet, posture is repeatable, and the athlete resets without rushing.",
+        "Review local taxonomy/slot keys before database import; authoring keys are normalized to exercise_card_details_for_llm.md."
+      ],
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 0,
+        "requires_spotting": false,
+        "requires_coach_supervision": "optional",
+        "readiness_checks": [
+          "Pain-free warm-up movement pattern.",
+          "Can demonstrate the lower-level landing/contact or throw pattern with control.",
+          "Can brace and breathe without dizziness or breath-holding panic.",
+          "No active ankle, knee, hip, Achilles, shoulder, wrist, or spine flare-up relevant to the drill."
+        ],
+        "contraindications": [
+          "Acute lower-body or upper-body injury affected by the drill.",
+          "Uncontrolled landing mechanics at a lower progression.",
+          "Unsafe surface, unstable box, poor spacing, or no safe throw/rebound lane."
+        ],
+        "common_substitutions": [
+          "Snap Down to Stick",
+          "Ankle Pogo in Place",
+          "Squat Jump to Stick",
+          "Medicine Ball Chest Pass"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 5,
+        "technical_complexity": 3,
+        "impact_level": 0,
+        "intensity_ceiling": "high"
+      }
+    }
+  ]
+}
+```

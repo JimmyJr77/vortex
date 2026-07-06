@@ -1,0 +1,110 @@
+# Loaded Strength Exercise Cards (Barbell + Dumbbell)
+
+Generated 2026-07-06T21:48:18.878Z. 94 inserts, 6 merges.
+
+## barbell_strength (50)
+
+- **High-Bar Back Squat** (`high-bar-back-squat`) — insert
+- **Low-Bar Back Squat** (`low-bar-back-squat`) — insert
+- **Front Squat** (`front-squat`) — insert
+- **Pause Back Squat** (`pause-back-squat`) — insert
+- **Tempo Back Squat** (`tempo-back-squat`) — insert
+- **Pin Squat** (`pin-squat`) — insert
+- **Barbell Box Squat** (`barbell-box-squat`) — insert (from box-squat)
+- **Zercher Squat** (`zercher-squat`) — insert
+- **Anderson Squat** (`anderson-squat`) — insert
+- **Barbell Hack Squat** (`barbell-hack-squat`) — insert
+- **Heels-Elevated Front Squat** (`heels-elevated-front-squat`) — insert
+- **Kang Squat** (`kang-squat`) — insert
+- **Barbell Split Squat** (`barbell-split-squat`) — insert
+- **Barbell Reverse Lunge** (`barbell-reverse-lunge`) — insert
+- **Front-Rack Reverse Lunge** (`front-rack-reverse-lunge`) — insert
+- **Barbell Walking Lunge** (`barbell-walking-lunge`) — insert
+- **Barbell Step-Up** (`barbell-step-up`) — insert
+- **Barbell Bulgarian Split Squat** (`barbell-bulgarian-split-squat`) — insert
+- **Barbell Lateral Lunge** (`barbell-lateral-lunge`) — insert
+- **Barbell Single-Leg Romanian Deadlift** (`barbell-single-leg-romanian-deadlift`) — insert
+- **Conventional Deadlift** (`conventional-deadlift`) — insert
+- **Sumo Deadlift** (`sumo-deadlift`) — insert
+- **Romanian Deadlift** (`romanian-deadlift`) — merge
+- **Stiff-Leg Deadlift** (`stiff-leg-deadlift`) — insert
+- **Deficit Deadlift** (`deficit-deadlift`) — insert
+- **Rack Pull** (`rack-pull`) — insert
+- **Block Pull** (`block-pull`) — insert
+- **Snatch-Grip Deadlift** (`snatch-grip-deadlift`) — insert
+- **Clean-Grip Deadlift** (`clean-grip-deadlift`) — insert
+- **Barbell Good Morning** (`barbell-good-morning`) — insert
+- **Barbell Hip Thrust** (`barbell-hip-thrust`) — insert
+- **Barbell Glute Bridge** (`barbell-glute-bridge`) — insert
+- **Barbell Bench Press** (`barbell-bench-press`) — insert
+- **Paused Bench Press** (`paused-bench-press`) — insert
+- **Close-Grip Bench Press** (`close-grip-bench-press`) — insert
+- **Incline Barbell Bench Press** (`incline-barbell-bench-press`) — insert
+- **Barbell Floor Press** (`barbell-floor-press`) — insert
+- **Bench Pin Press** (`bench-pin-press`) — insert
+- **Strict Overhead Press** (`strict-overhead-press`) — insert
+- **Seated Barbell Overhead Press** (`seated-barbell-overhead-press`) — insert
+- **Barbell Z Press** (`barbell-z-press`) — insert
+- **Bent-Over Barbell Row** (`bent-over-barbell-row`) — insert
+- **Pendlay Row** (`pendlay-row`) — insert
+- **Yates Row** (`yates-row`) — insert
+- **Barbell Seal Row** (`barbell-seal-row`) — insert
+- **Meadows Row** (`meadows-row`) — insert
+- **Barbell T-Bar Row** (`barbell-t-bar-row`) — insert
+- **Barbell Rollout** (`barbell-rollout`) — insert
+- **Zercher Carry** (`zercher-carry`) — merge
+- **Front-Rack Carry** (`front-rack-carry`) — merge
+
+## dumbbell_strength (50)
+
+- **Goblet Squat** (`goblet-squat`) — merge
+- **Double Dumbbell Front Squat** (`double-dumbbell-front-squat`) — insert
+- **Heels-Elevated Goblet Squat** (`heels-elevated-goblet-squat`) — insert
+- **Dumbbell Box Squat** (`dumbbell-box-squat`) — insert
+- **Dumbbell Sumo Squat** (`dumbbell-sumo-squat`) — insert
+- **Dumbbell Split Squat** (`dumbbell-split-squat`) — insert
+- **Front-Foot-Elevated Dumbbell Split Squat** (`front-foot-elevated-dumbbell-split-squat`) — insert
+- **Dumbbell Bulgarian Split Squat** (`dumbbell-bulgarian-split-squat`) — insert
+- **Dumbbell Reverse Lunge** (`dumbbell-reverse-lunge`) — insert
+- **Dumbbell Step-Up** (`dumbbell-step-up`) — insert
+- **Dumbbell Romanian Deadlift** (`dumbbell-romanian-deadlift`) — insert
+- **Staggered-Stance Dumbbell RDL** (`staggered-stance-dumbbell-rdl`) — insert
+- **Single-Leg Dumbbell RDL** (`single-leg-dumbbell-rdl`) — insert
+- **Dumbbell Deadlift from Floor** (`dumbbell-deadlift-from-floor`) — insert
+- **Dumbbell Sumo Deadlift** (`dumbbell-sumo-deadlift`) — insert
+- **Dumbbell Hip Thrust** (`dumbbell-hip-thrust`) — insert
+- **Dumbbell Glute Bridge** (`dumbbell-glute-bridge`) — insert
+- **Dumbbell Hamstring Curl** (`dumbbell-hamstring-curl`) — insert
+- **Standing Dumbbell Calf Raise** (`standing-dumbbell-calf-raise`) — insert
+- **Seated Dumbbell Calf Raise** (`seated-dumbbell-calf-raise`) — insert
+- **Dumbbell Floor Press** (`dumbbell-floor-press`) — insert
+- **Dumbbell Bench Press** (`dumbbell-bench-press`) — merge
+- **Dumbbell Incline Press** (`dumbbell-incline-press`) — insert
+- **Close-Grip Dumbbell Floor Press** (`close-grip-dumbbell-floor-press`) — insert
+- **Dumbbell Squeeze Press** (`dumbbell-squeeze-press`) — insert
+- **Dumbbell Strict Overhead Press** (`dumbbell-strict-overhead-press`) — insert
+- **Seated Dumbbell Overhead Press** (`seated-dumbbell-overhead-press`) — insert
+- **Half-Kneeling Single-Arm Dumbbell Press** (`half-kneeling-single-arm-dumbbell-press`) — insert
+- **Dumbbell Z-Press** (`dumbbell-z-press`) — insert
+- **Dumbbell Skull Crusher** (`dumbbell-skull-crusher`) — insert
+- **One-Arm Dumbbell Row** (`one-arm-dumbbell-row`) — merge
+- **Chest-Supported Dumbbell Row** (`chest-supported-dumbbell-row`) — insert
+- **Dumbbell Bent-Over Row** (`dumbbell-bent-over-row`) — insert
+- **Dumbbell Renegade Row** (`dumbbell-renegade-row`) — insert
+- **Dumbbell Pullover** (`dumbbell-pullover`) — insert
+- **Dumbbell Rear-Delt Row** (`dumbbell-rear-delt-row`) — insert
+- **Dumbbell Shrug** (`dumbbell-shrug`) — insert
+- **Dumbbell Hammer Curl** (`dumbbell-hammer-curl`) — insert
+- **Dumbbell Zottman Curl** (`dumbbell-zottman-curl`) — insert
+- **Dumbbell Reverse Curl** (`dumbbell-reverse-curl`) — insert
+- **Dumbbell Farmer Carry** (`dumbbell-farmer-carry`) — insert
+- **Dumbbell Suitcase Carry** (`dumbbell-suitcase-carry`) — insert
+- **Dumbbell Front-Rack Carry** (`dumbbell-front-rack-carry`) — insert
+- **Dumbbell Waiter Carry** (`dumbbell-waiter-carry`) — insert
+- **Double Dumbbell Overhead Carry** (`double-dumbbell-overhead-carry`) — insert
+- **Dumbbell Dead Bug Pullover** (`dumbbell-dead-bug-pullover`) — insert
+- **Dumbbell Plank Pull-Through** (`dumbbell-plank-pull-through`) — insert
+- **Dumbbell Hollow-Body Pullover Hold** (`dumbbell-hollow-body-pullover-hold`) — insert
+- **Dumbbell Windmill** (`dumbbell-windmill`) — insert
+- **Dumbbell Turkish Get-Up to Tall Sit** (`dumbbell-turkish-get-up-to-tall-sit`) — insert
+
