@@ -11,7 +11,7 @@ INSERT INTO coaching.exercise (
   movement_requirements, coaching_execution
 )
 SELECT
-  (SELECT id FROM public.facility ORDER BY id LIMIT 1),
+  f.id,
   d.name, d.slug, d.description,
   (SELECT id FROM coaching.sport WHERE key = 'fitness'),
   d.skill::public.skill_level,
@@ -70,6 +70,7 @@ FROM (VALUES
   ('Partner Tag / Shadow Tag Boundaries', 'partner-shadow-tag', 'Skill-phase drill: Partner Tag / Shadow Tag Boundaries.', 'BEGINNER', 6, 1, 8, NULL, 20, 30, 'Partner Tag.', 'Use in Skill / Movement Intelligence (perception action reactive movement) while the athlete is fresh.', 'Move with control; this builds full body skill for training.', 'Reactive movement', 'perception_action_reactive_movement', 'movement_game', '{"primary_joint_actions":["multi_joint"],"primary_tissues":[],"breathing_demand":"nasal","balance_demand":"stable","impact_level":0}'::jsonb, '{"movement_description":"Skill-phase drill: Partner Tag / Shadow Tag Boundaries.","setup":["Clear space and explain the skill goal"],"execution_steps":["Set up in the starting position","Execute with control and coach feedback","Reset and repeat for quality"],"coach_cues":["Move with control","Stay in the target shape or rhythm"],"common_faults":["Rushing reps","Losing posture or line"]}'::jsonb),
   ('Gate Reaction Drill', 'gate-reaction-drill', 'Skill-phase drill: Gate Reaction Drill.', 'BEGINNER', 6, 1, 8, NULL, 20, 30, 'Gate Reaction Drill.', 'Use in Skill / Movement Intelligence (perception action reactive movement) while the athlete is fresh.', 'Move with control; this builds full body skill for training.', 'Reactive movement', 'perception_action_reactive_movement', 'reactive_start', '{"primary_joint_actions":["multi_joint"],"primary_tissues":[],"breathing_demand":"nasal","balance_demand":"stable","impact_level":0}'::jsonb, '{"movement_description":"Skill-phase drill: Gate Reaction Drill.","setup":["Clear space and explain the skill goal"],"execution_steps":["Set up in the starting position","Execute with control and coach feedback","Reset and repeat for quality"],"coach_cues":["Move with control","Stay in the target shape or rhythm"],"common_faults":["Rushing reps","Losing posture or line"]}'::jsonb)
 ) AS d(name, slug, description, skill, age_min, sets, reps, work, rest, est, summary, coach_lang, athlete_lang, family, subrole, slot, req, exec)
+CROSS JOIN public.facility f
 ON CONFLICT (facility_id, slug) DO NOTHING;
 
 -- 2) Taxonomy tags

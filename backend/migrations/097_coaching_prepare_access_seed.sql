@@ -11,7 +11,7 @@ INSERT INTO coaching.exercise (
   movement_requirements, coaching_execution
 )
 SELECT
-  (SELECT id FROM public.facility ORDER BY id LIMIT 1),
+  f.id,
   d.name, d.slug, d.description,
   (SELECT id FROM coaching.sport WHERE key = 'fitness'),
   d.skill::public.skill_level,
@@ -72,6 +72,7 @@ FROM (VALUES
   ('Mini-Band Lateral Walk', 'mini-band-lateral-walk', 'Band-resisted lateral steps.', 'BEGINNER', 10, 2, 10, NULL, 25, 35, 'Glute medius, knee tracking.', 'Use in Prepare / Access (activate) before higher-intent work.', 'Move with control; this prepares your hip for training.', 'Glute activation', 'activate', 'glute_activation', '{"primary_joint_actions":["hip_abduction"],"primary_tissues":["glute_med"],"breathing_demand":"nasal","balance_demand":"stable","impact_level":0}'::jsonb, '{"movement_description":"Band-resisted lateral steps.","setup":["Band above knees, quarter squat"],"execution_steps":["Step laterally maintaining tension","No feet together"],"coach_cues":["Knees out"],"common_faults":["Standing up between steps"]}'::jsonb),
   ('A-March', 'a-march', 'Marching mechanics with postural emphasis.', 'BEGINNER', 8, 2, 10, NULL, 30, 40, 'Sprint posture, rhythm, neural readiness.', 'Use in Prepare / Access (potentiate bridge) before higher-intent work.', 'Move with control; this prepares your full body for training.', 'Sprint posture prep', 'potentiate_bridge', 'marching_mechanics', '{"primary_joint_actions":["hip_flexion","ankle_dorsiflexion"],"primary_tissues":[],"breathing_demand":"nasal","balance_demand":"stable","impact_level":0}'::jsonb, '{"movement_description":"Marching mechanics with postural emphasis.","setup":["Stand tall"],"execution_steps":["Drive knee to hip height","Opposite arm swing","Quick ground contact"],"coach_cues":["Tall posture","Toes up"],"common_faults":["Leaning back","Slow lazy steps"]}'::jsonb)
 ) AS d(name, slug, description, skill, age_min, sets, reps, work, rest, est, summary, coach_lang, athlete_lang, family, subrole, slot, req, exec)
+CROSS JOIN public.facility f
 ON CONFLICT (facility_id, slug) DO NOTHING;
 
 -- Fix finger-pulses: wrist_prep slot maps to mobilize (dual subrole — primary mobilize per plan)

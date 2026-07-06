@@ -127,6 +127,7 @@ export async function initPlatformTables(pool) {
     '132_coaching_control_trunk_cards.sql',
     '133_coaching_control_scapular_cards.sql',
     '134_coaching_control_slow_eccentric_cards.sql',
+    '135_coaching_library_facility_backfill.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

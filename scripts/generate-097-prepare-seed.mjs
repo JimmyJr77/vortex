@@ -129,7 +129,7 @@ INSERT INTO coaching.exercise (
   movement_requirements, coaching_execution
 )
 SELECT
-  (SELECT id FROM public.facility ORDER BY id LIMIT 1),
+  f.id,
   d.name, d.slug, d.description,
   (SELECT id FROM coaching.sport WHERE key = 'fitness'),
   d.skill::public.skill_level,
@@ -153,6 +153,7 @@ sql += MOVEMENTS.map((m) => {
 
 sql += `
 ) AS d(name, slug, description, skill, age_min, sets, reps, work, rest, est, summary, coach_lang, athlete_lang, family, subrole, slot, req, exec)
+CROSS JOIN public.facility f
 ON CONFLICT (facility_id, slug) DO NOTHING;
 
 -- Fix finger-pulses: wrist_prep slot maps to mobilize (dual subrole — primary mobilize per plan)
