@@ -4096,6 +4096,19 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  registerMessagePlatformRoutes(app, pool, {
+    ok,
+    bad,
+    num,
+    auth,
+    jwtSecret,
+    isStaffAdmin,
+    createInAppNotification,
+    sendEmail,
+    memberCanAccessMessageThread,
+    coachHasThreadAccess,
+  })
+
   app.get('/api/coach/messages/:threadId', auth, async (req, res) => {
     try {
       const facilityId = req.platformAuth.user.facility_id
@@ -5078,19 +5091,6 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     can,
     createInAppNotification,
     resolveAssignedCoachUserIdsForMember,
-  })
-
-  registerMessagePlatformRoutes(app, pool, {
-    ok,
-    bad,
-    num,
-    auth,
-    jwtSecret,
-    isStaffAdmin,
-    createInAppNotification,
-    sendEmail,
-    memberCanAccessMessageThread,
-    coachHasThreadAccess,
   })
 
   console.log('✅ Coach portal routes registered')

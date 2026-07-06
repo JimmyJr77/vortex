@@ -20,6 +20,7 @@ import AdminFamilyBilling from './AdminFamilyBilling'
 import AdminWaivers from './AdminWaivers'
 import AdminSettings from './admin/AdminSettings'
 import AdminCoaches from './AdminCoaches'
+import AdminClassSetupOverview from './classSetup/AdminClassSetupOverview'
 import AdminEventSignups from './AdminEventSignups'
 import AdminInsurance from './AdminInsurance'
 import AdminMessagesPanel from './admin/AdminMessagesPanel'
@@ -72,7 +73,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
+type TabType = 'users' | 'analytics' | 'membership' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
 
 export type GroupId = 'home' | 'messaging' | 'faqLibrary' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'dataAnalysis' | 'preferences' | 'settings'
 
@@ -90,6 +91,7 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }>
   { id: 'faqs', label: 'FAQ library' },
   { id: 'access', label: 'Access', permission: 'admin_access.manage' },
   { id: 'users', label: 'Inquiries', permission: 'members.view' },
+  { id: 'classSetupOverview', label: 'Class Master', permission: 'classes.view' },
   { id: 'classes', label: 'Classes', permission: 'classes.view' },
   { id: 'coaches', label: 'Coaches', permission: 'classes.manage' },
   { id: 'scheduling', label: 'Scheduling', permission: 'scheduling.view' },
@@ -126,7 +128,7 @@ const GROUPS: GroupDef[] = [
   { id: 'faqLibrary', label: 'FAQ library', icon: CircleHelp, sections: ['faqs'] },
   { id: 'accounts', label: 'Accounts', icon: Users, sections: ['admins', 'membership', 'access'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
-  { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classes', 'coaches', 'scheduling', 'classesEvents'] },
+  { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classSetupOverview', 'classes', 'coaches', 'scheduling', 'classesEvents'] },
   { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'multiClassPasses', 'eventSignups'] },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, sections: ['calendar'] },
   { id: 'pricingBilling', label: 'Pricing & Billing', icon: CreditCard, sections: ['pricing', 'billing'] },
@@ -379,6 +381,16 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
       case 'classes':
         return (
           <AdminClasses
+            onOpenScheduling={(intent) => {
+              setSchedulingIntent(intent)
+              setSchedulingNavKey((key) => key + 1)
+              goToSection('scheduling')
+            }}
+          />
+        )
+      case 'classSetupOverview':
+        return (
+          <AdminClassSetupOverview
             onOpenScheduling={(intent) => {
               setSchedulingIntent(intent)
               setSchedulingNavKey((key) => key + 1)

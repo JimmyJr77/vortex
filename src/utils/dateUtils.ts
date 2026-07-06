@@ -141,6 +141,31 @@ export function formatDateShort(date: string | null | undefined): string {
   })
 }
 
+const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+/** Compact offering date: 2026-01-05 → 05Jan26 */
+export function formatOfferingDateCompact(date: string | null | undefined): string {
+  const parsed = parseDateOnly(date)
+  if (!parsed) return ''
+  const day = String(parsed.getDate()).padStart(2, '0')
+  const month = MONTH_ABBR[parsed.getMonth()] ?? ''
+  const year = String(parsed.getFullYear()).slice(-2)
+  return `${day}${month}${year}`
+}
+
+/** Offering range in DDMMMYY-DDMMMYY format; evergreen → DDMMMYY-Ongoing */
+export function formatOfferingRangeCompact(offering: {
+  startDate: string
+  endDate?: string | null
+  evergreen?: boolean
+}): string {
+  const start = formatOfferingDateCompact(offering.startDate)
+  if (!start) return '—'
+  if (offering.evergreen || !offering.endDate) return `${start}-Ongoing`
+  const end = formatOfferingDateCompact(offering.endDate)
+  return end ? `${start}-${end}` : start
+}
+
 /**
  * Calculate age from date of birth (date-only string)
  * Handles timezone correctly by treating DOB as a calendar date

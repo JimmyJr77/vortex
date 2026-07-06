@@ -52,13 +52,126 @@ const defaultTime = (): TimeRow => ({ startTime: '09:00', endTime: '10:00' })
 
 const normalizeTime = (time: string) => (time.length >= 5 ? time.slice(0, 5) : time)
 
+const lastTimeSessionKey = (formId: number) => `vortex:scheduling:last-timeslot:${formId}`
+
+function readSessionLastTime(formId: number): TimeRow | null {
+  try {
+    const raw = sessionStorage.getItem(lastTimeSessionKey(formId))
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as { startTime?: string; endTime?: string }
+    if (!parsed.startTime || !parsed.endTime) return null
+    return {
+      startTime: normalizeTime(parsed.startTime),
+      endTime: normalizeTime(parsed.endTime),
+    }
+  } catch {
+    return null
+  }
+}
+
+function writeSessionLastTime(formId: number, time: TimeRow) {
+  try {
+    sessionStorage.setItem(lastTimeSessionKey(formId), JSON.stringify(time))
+  } catch {
+    /* ignore quota / private mode */
+  }
+}
+
+function timesEqual(a: TimeRow, b: TimeRow) {
+  return a.startTime === b.startTime && a.endTime === b.endTime
+}
+
+function resolveSeedTime(
+  formId: number,
+  offeringGroups: SchedulingSlotGroup[],
+  preserveTime?: TimeRow,
+): TimeRow {
+  if (preserveTime) return { ...preserveTime }
+  return readSessionLastTime(formId) ?? deriveLastTimeFromOffering(offeringGroups)
+}
+
+function timeRowFromOccurrence(occ: { startTime: string; endTime: string }): TimeRow {
+  return {
+    startTime: normalizeTime(occ.startTime),
+    endTime: normalizeTime(occ.endTime),
+  }
+}
+
+function deriveLastTimeFromOffering(groups: SchedulingSlotGroup[]): TimeRow {
+  const allOccs = groups.flatMap((g) => g.occurrences)
+  if (allOccs.length === 0) return defaultTime()
+  const latest = [...allOccs].sort((a, b) => b.id - a.id)[0]
+  return timeRowFromOccurrence(latest)
+}
+
+function extractLastTimeFromBuilder(
+  weeks: WeekRow[],
+  dateEntries: DateEntry[],
+  scheduleMode: 'day' | 'date',
+): TimeRow {
+  if (scheduleMode === 'day') {
+    for (let wi = weeks.length - 1; wi >= 0; wi -= 1) {
+      for (let di = weeks[wi].days.length - 1; di >= 0; di -= 1) {
+        const day = weeks[wi].days[di]
+        if (day.enabled && day.times.length > 0) {
+          return { ...day.times[day.times.length - 1] }
+        }
+      }
+    }
+  } else {
+    for (let i = dateEntries.length - 1; i >= 0; i -= 1) {
+      const entry = dateEntries[i]
+      if (entry.times.length > 0) {
+        return { ...entry.times[entry.times.length - 1] }
+      }
+    }
+  }
+  return defaultTime()
+}
+
+function syncTimesAcrossDays(
+  weeks: WeekRow[],
+  previousTemplate: TimeRow,
+  newTemplate: TimeRow,
+  edited?: { weekIdx: number; dayIdx: number },
+): WeekRow[] {
+  return weeks.map((week, wi) => ({
+    ...week,
+    days: week.days.map((day, di) => {
+      if (edited && edited.weekIdx === wi && edited.dayIdx === di) return day
+      if (!day.enabled) {
+        return { ...day, times: [{ ...newTemplate }] }
+      }
+      if (day.times.length === 1 && timesEqual(day.times[0], previousTemplate)) {
+        return { ...day, times: [{ ...newTemplate }] }
+      }
+      return day
+    }),
+  }))
+}
+
+function syncDateEntryTimes(
+  entries: DateEntry[],
+  previousTemplate: TimeRow,
+  newTemplate: TimeRow,
+  editedIdx?: number,
+): DateEntry[] {
+  return entries.map((entry, idx) => {
+    if (idx === editedIdx) return entry
+    if (entry.times.length === 1 && timesEqual(entry.times[0], previousTemplate)) {
+      return { ...entry, times: [{ ...newTemplate }] }
+    }
+    return entry
+  })
+}
+
 function formatWeekSetupLabel(weekKey: string, options?: { multipleWeeks?: boolean }): string {
   if (weekKey === '__dates__') return 'Dates'
   if (options?.multipleWeeks !== true) return 'Schedule'
   return `${weekKey} Week`
 }
 
-function createDefaultWeeks(inheritedStart: string, inheritedEnd: string): WeekRow[] {
+function createDefaultWeeks(inheritedStart: string, inheritedEnd: string, time: TimeRow = defaultTime()): WeekRow[] {
   return [
     {
       weekLetter: 'A',
@@ -67,7 +180,7 @@ function createDefaultWeeks(inheritedStart: string, inheritedEnd: string): WeekR
         enabled: false,
         activeStart: inheritedStart,
         activeEnd: inheritedEnd,
-        times: [defaultTime()],
+        times: [{ ...time }],
       })),
     },
   ]
@@ -130,6 +243,9 @@ const AdminSchedulingSlots = ({
   }, [detail.slotGroups, offeringId])
 
   const prevOfferingIdRef = useRef<number | null | undefined>(offeringId)
+  const lastTimeRef = useRef<TimeRow>(
+    readSessionLastTime(formId) ?? defaultTime(),
+  )
 
   const builderRef = useRef<HTMLDivElement>(null)
   const savingRef = useRef(false)
@@ -145,19 +261,24 @@ const AdminSchedulingSlots = ({
   const [weeks, setWeeks] = useState<WeekRow[]>(createDefaultWeeks('', ''))
   const [activeWeekIdx, setActiveWeekIdx] = useState(0)
   const [dateEntries, setDateEntries] = useState<DateEntry[]>([
-    { type: 'single', date: '', startDate: '', endDate: '', times: [defaultTime()] },
+    { type: 'single', date: '', startDate: '', endDate: '', times: [{ ...lastTimeRef.current }] },
   ])
-  const [lastTime, setLastTime] = useState(defaultTime())
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+
+  const commitLastTime = (time: TimeRow) => {
+    lastTimeRef.current = time
+    writeSessionLastTime(formId, time)
+  }
 
   const inheritedDates = () => ({
     start: formatDateForInput(offeringStartDate ?? formStartDate),
     end: formatDateForInput(offeringEndDate ?? formEndDate),
   })
 
-  const resetBuilderForm = () => {
+  const resetBuilderForm = (preserveTime?: TimeRow) => {
     const { start, end } = inheritedDates()
+    const seedTime = resolveSeedTime(formId, offeringScopedSlotGroups, preserveTime)
     setSaveError(null)
     setEditingSlotGroupId(null)
     setActiveDatesMode('inherit')
@@ -165,10 +286,10 @@ const AdminSchedulingSlots = ({
     setActiveEnd(end)
     setScheduleMode('day')
     setMaxParticipants(10)
-    setWeeks(createDefaultWeeks(start, end))
+    setWeeks(createDefaultWeeks(start, end, seedTime))
     setActiveWeekIdx(0)
-    setDateEntries([{ type: 'single', date: '', startDate: '', endDate: '', times: [defaultTime()] }])
-    setLastTime(defaultTime())
+    setDateEntries([{ type: 'single', date: '', startDate: '', endDate: '', times: [{ ...seedTime }] }])
+    commitLastTime(seedTime)
   }
 
   const scrollToBuilder = () => {
@@ -198,10 +319,8 @@ const AdminSchedulingSlots = ({
     if (occurrences.length === 0) return
 
     const firstOcc = occurrences[0]
-    setLastTime({
-      startTime: normalizeTime(firstOcc.startTime),
-      endTime: normalizeTime(firstOcc.endTime),
-    })
+    const latestOcc = [...occurrences].sort((a, b) => b.id - a.id)[0] ?? firstOcc
+    commitLastTime(timeRowFromOccurrence(latestOcc))
 
     if (group.scheduleMode === 'day') {
       const weekLetters = [...new Set(occurrences.map((o) => o.weekLetter || 'A'))].sort()
@@ -343,7 +462,7 @@ const AdminSchedulingSlots = ({
           enabled: false,
           activeStart: activeStart,
           activeEnd: activeEnd,
-          times: [{ ...lastTime }],
+          times: [{ ...lastTimeRef.current }],
         })),
       },
     ])
@@ -354,7 +473,7 @@ const AdminSchedulingSlots = ({
     setWeeks((prev) =>
       updateWeekDay(prev, weekIdx, dayIdx, (day) => ({
         ...day,
-        times: [...day.times, { ...lastTime }],
+        times: [...day.times, { ...lastTimeRef.current }],
       })),
     )
   }
@@ -377,23 +496,26 @@ const AdminSchedulingSlots = ({
     currentEnd: string,
     currentStart: string,
   ) => {
+    const previousCellTime = { startTime: currentStart, endTime: currentEnd }
     const newTime = field === 'startTime'
       ? { startTime: val, endTime: currentEnd }
       : { startTime: currentStart, endTime: val }
-    setLastTime(newTime)
-    setWeeks((prev) =>
-      updateWeekDay(prev, weekIdx, dayIdx, (day) => ({
+    commitLastTime(newTime)
+    setWeeks((prev) => {
+      const withEdit = updateWeekDay(prev, weekIdx, dayIdx, (day) => ({
         ...day,
         times: day.times.map((t, ti) => (ti !== timeIdx ? t : { ...t, [field]: val })),
-      })),
-    )
+      }))
+      return syncTimesAcrossDays(withEdit, previousCellTime, newTime, { weekIdx, dayIdx })
+    })
+    setDateEntries((prev) => syncDateEntryTimes(prev, previousCellTime, newTime))
   }
 
   const addTimeToDateEntry = (entryIdx: number) => {
     setDateEntries((prev) =>
       updateDateEntryAt(prev, entryIdx, (entry) => ({
         ...entry,
-        times: [...entry.times, { ...lastTime }],
+        times: [...entry.times, { ...lastTimeRef.current }],
       })),
     )
   }
@@ -415,16 +537,19 @@ const AdminSchedulingSlots = ({
     currentEnd: string,
     currentStart: string,
   ) => {
+    const previousCellTime = { startTime: currentStart, endTime: currentEnd }
     const newTime = field === 'startTime'
       ? { startTime: val, endTime: currentEnd }
       : { startTime: currentStart, endTime: val }
-    setLastTime(newTime)
-    setDateEntries((prev) =>
-      updateDateEntryAt(prev, entryIdx, (entry) => ({
+    commitLastTime(newTime)
+    setDateEntries((prev) => {
+      const withEdit = updateDateEntryAt(prev, entryIdx, (entry) => ({
         ...entry,
         times: entry.times.map((t, ti) => (ti !== timeIdx ? t : { ...t, [field]: val })),
-      })),
-    )
+      }))
+      return syncDateEntryTimes(withEdit, previousCellTime, newTime, entryIdx)
+    })
+    setWeeks((prev) => syncTimesAcrossDays(prev, previousCellTime, newTime))
   }
 
   const buildPayload = (): SlotBatchPayload | null => {
@@ -505,7 +630,7 @@ const AdminSchedulingSlots = ({
           if (existing && existing.maxParticipants !== maxParticipants) {
             await adminUpdateSlotGroupMax(editingSlotGroupId, maxParticipants)
             await onRefresh()
-            resetBuilderForm()
+            resetBuilderForm(extractLastTimeFromBuilder(weeks, dateEntries, scheduleMode))
             return
           }
           const proceed = confirm(
@@ -518,7 +643,7 @@ const AdminSchedulingSlots = ({
       }
       await adminCreateSlotBatch(formId, payload)
       await onRefresh()
-      resetBuilderForm()
+      resetBuilderForm(extractLastTimeFromBuilder(weeks, dateEntries, scheduleMode))
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : 'Failed to save slot')
     } finally {
@@ -646,7 +771,11 @@ const AdminSchedulingSlots = ({
                         onChange={(e) => {
                           const enabled = e.target.checked
                           setWeeks((prev) =>
-                            updateWeekDay(prev, activeWeekIdx, dayIdx, (d) => ({ ...d, enabled })),
+                            updateWeekDay(prev, activeWeekIdx, dayIdx, (d) => ({
+                              ...d,
+                              enabled,
+                              times: enabled ? [{ ...lastTimeRef.current }] : d.times,
+                            })),
                           )
                         }}
                       />
@@ -809,7 +938,7 @@ const AdminSchedulingSlots = ({
                 </button>
               </div>
             ))}
-            <button type="button" onClick={() => setDateEntries((prev) => [...prev, { type: 'single', date: '', startDate: '', endDate: '', times: [{ ...lastTime }] }])} className="text-sm font-semibold text-gray-700">+ Add date entry</button>
+            <button type="button" onClick={() => setDateEntries((prev) => [...prev, { type: 'single', date: '', startDate: '', endDate: '', times: [{ ...lastTimeRef.current }] }])} className="text-sm font-semibold text-gray-700">+ Add date entry</button>
           </div>
         )}
 
@@ -831,7 +960,7 @@ const AdminSchedulingSlots = ({
           {editingSlotGroupId && (
             <button
               type="button"
-              onClick={resetBuilderForm}
+              onClick={() => resetBuilderForm()}
               className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100"
             >
               Cancel edit

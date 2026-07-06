@@ -542,7 +542,7 @@ function rosterSignupMatchSql({
       )`
 
   return `
-    (
+    AND (
       ($${timeSlotIdx}::bigint IS NOT NULL AND s.time_slot_id = $${timeSlotIdx})
       OR (
         $${timeSlotIdx}::bigint IS NULL
