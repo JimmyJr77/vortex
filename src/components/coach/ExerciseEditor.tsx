@@ -14,10 +14,11 @@ import type {
   ExerciseTag,
   ExerciseWhy,
   ExerciseMediaLibrary,
+  ParticipantStructure,
   PhaseSubrole,
   ScalingCohortKey,
 } from '../../coach/types'
-import { PHASE_SUBROLE_OPTIONS, SCALING_COHORT_KEYS } from '../../coach/types'
+import { PARTICIPANT_STRUCTURE_OPTIONS, PHASE_SUBROLE_OPTIONS, SCALING_COHORT_KEYS } from '../../coach/types'
 import type { FacetType, TaxonomyItem } from '../../coach/taxonomy'
 import { capacitySubroleSequence, orderSlotsForSubrole, outputSubroleSequence, prepareAccessSubroleSequence, skillMovementSubroleSequence, subroleForOrderSlot } from '../../coach/taxonomy'
 import { phaseSubroleLabel } from '../../coach/exerciseCard'
@@ -193,6 +194,7 @@ export default function ExerciseEditor({
   const [sportId, setSportId] = useState<number | ''>(exercise?.sport_id ?? '')
   const [skillLevel, setSkillLevel] = useState(exercise?.skill_level ?? '')
   const [visibility, setVisibility] = useState<'facility' | 'private'>(exercise?.visibility ?? 'facility')
+  const [participantStructure, setParticipantStructure] = useState<ParticipantStructure>(exercise?.participant_structure ?? 'individual')
 
   const [requirements, setRequirements] = useState<ExerciseMovementRequirements>(exercise?.movement_requirements ?? {})
   const [tags, setTags] = useState<ExerciseTag[]>(exercise?.tags ?? [])
@@ -235,6 +237,7 @@ export default function ExerciseEditor({
         setSportId(full.sport_id ?? '')
         setSkillLevel(full.skill_level ?? '')
         setVisibility(full.visibility ?? 'facility')
+        setParticipantStructure(full.participant_structure ?? 'individual')
         setRequirements(full.movement_requirements ?? {})
         setTags((full.tags ?? []).filter((t) => t.facetType !== 'intent'))
         setPhaseProfiles(full.phase_profiles ?? [])
@@ -328,6 +331,7 @@ export default function ExerciseEditor({
         default_rest_seconds: dosage.default_rest_seconds || null,
         est_seconds_per_set: Number(dosage.est_seconds_per_set) || 45,
         visibility,
+        participant_structure: participantStructure,
         card_summary: cardSummary || null,
         coach_language: coachLanguage || null,
         athlete_language: athleteLanguage || null,
@@ -527,6 +531,12 @@ export default function ExerciseEditor({
                   <option value="facility">Facility (shared)</option>
                   <option value="private">Private</option>
                 </select>
+              </label>
+              <label><span className="font-semibold text-gray-700">Participants</span>
+                <select value={participantStructure} onChange={(e) => setParticipantStructure(e.target.value as ParticipantStructure)} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2">
+                  {PARTICIPANT_STRUCTURE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+                <p className="text-xs text-gray-500 mt-1">How many athletes the drill needs. Spotters don't count as pairs.</p>
               </label>
             </div>
           )}

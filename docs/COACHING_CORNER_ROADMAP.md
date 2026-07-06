@@ -463,6 +463,10 @@ noted; ownership tables carry `created_by` + `is_published` + `visibility`.
 - **`137`–`142` — Session phase canonicalization + Programming Library**: simplified 7-phase keys
   (`movement_intelligence`, `resilience`, `sustained_capacity`, …); `programming_method` schema,
   `workout_block` programming columns, 50 seeded format cards. See [PROGRAMMING_CARD_SPEC.md](PROGRAMMING_CARD_SPEC.md).
+- **`179` — participant structure**: `exercise.participant_structure`
+  (`individual` | `pairs` | `group`, default `individual`) — how many athletes a drill needs.
+  One-shot heuristic backfill flips existing partner drills to `pairs`/`group` from names and
+  `coaching_execution` setup/steps; spotters and "coach or partner" cues don't count as pairs.
 
 ```mermaid
 graph LR
@@ -517,7 +521,8 @@ the token's member.
 
 - **Taxonomy/library** (`library.view`/`library.manage`): `/api/coach/taxonomy` (+ `sessionPhases`,
   `phaseOrderSlots`), `/api/coach/education`, `/api/coach/session-templates`,
-  `/api/coach/exercises` (+ phase filter, programming profiles), `/exercises/:id`,
+  `/api/coach/exercises` (+ phase filter, programming profiles, `?paired=true` /
+  `?participant_structure=` participant filters), `/exercises/:id`,
   `/exercises/:id/publish-check`, media upload-signature, autotag;
   `/api/coach/programming-methods` CRUD + `/card`, `/api/coach/programming-taxonomy`,
   `POST /api/coach/workout-builder/validate-programming-block`,
@@ -569,7 +574,10 @@ Multi-portal shell in `src/App.tsx` (website / admin / member / coach). Shared c
 - **Why Layer panels**: `FrameworkPanel` (philosophy browser), tabbed `LibraryPanel` exercise editor
   (Why/Phase/Dosage/Safety/Regimen + publish checklist), `WorkoutSetupWizard` + phase canvas +
   validation UX in `WorkoutBuilder`, rationale cards in `NeedsEnginePanel`, `TrainingBlockBuilder`,
-  `RegimenBuilder`.
+  `RegimenBuilder`. `ExerciseLibrary` filter row includes a "Paired exercises" checkbox (next to
+  Freshness required / Can be daily) backed by `exercise.participant_structure`; the editor's
+  identity tab has a Participants select (Individual/Pairs/Group) and cards/detail modal show a
+  Pairs/Group badge.
 - **Member portal**: `MemberTraining.tsx` — `MemberTrainingTab` (assignments + completion
   logging) and `MemberProgressTab` (assessment trends, skill grades, PRs, daily wellness
   check-in). `NotificationBell` in `MemberDashboard` header.

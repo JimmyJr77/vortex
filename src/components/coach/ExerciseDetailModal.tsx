@@ -6,7 +6,7 @@ import type { Exercise, ExercisePhaseProfile, ExerciseTag } from '../../coach/ty
 import type { FacetType, Taxonomy } from '../../coach/taxonomy'
 import { FACET_LABELS } from '../../coach/taxonomy'
 import { exerciseFitnessGoal, exerciseToCard, phaseSubroleLabel } from '../../coach/exerciseCard'
-import { SCALING_COHORT_KEYS } from '../../coach/types'
+import { participantStructureLabel, SCALING_COHORT_KEYS } from '../../coach/types'
 
 type DetailTab =
   | 'identity'
@@ -224,6 +224,7 @@ export default function ExerciseDetailModal({
                   <ReadOnlyField label="Sport" value={card.movement_identity.sport_name ?? 'Universal'} />
                   <ReadOnlyField label="Skill level" value={card.movement_identity.skill_level?.replace(/_/g, ' ')} />
                   <ReadOnlyField label="Visibility" value={card.movement_identity.visibility === 'private' ? 'Private' : 'Facility (shared)'} />
+                  <ReadOnlyField label="Participants" value={participantStructureLabel(card.movement_identity.participant_structure)} />
                   <ReadOnlyField label="Coach language" value={card.movement_identity.coach_language} />
                   <ReadOnlyField label="Athlete language" value={card.movement_identity.athlete_language} />
                 </div>

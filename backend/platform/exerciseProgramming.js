@@ -205,6 +205,7 @@ export function buildExerciseCard(row, attached, tags = []) {
       sport_name: row.sport_name,
       skill_level: row.skill_level,
       visibility: row.visibility,
+      participant_structure: row.participant_structure ?? 'individual',
     },
     movement_requirements: {
       primary_joint_actions: asStringArray(movementReq.primary_joint_actions),

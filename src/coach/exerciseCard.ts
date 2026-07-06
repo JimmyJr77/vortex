@@ -69,6 +69,7 @@ export function exerciseToCard(exercise: Exercise, taxonomy?: Taxonomy | null): 
       sport_name: exercise.sport_name,
       skill_level: exercise.skill_level,
       visibility: exercise.visibility,
+      participant_structure: exercise.participant_structure ?? 'individual',
     },
     movement_requirements: {
       primary_joint_actions: asStringArray(req.primary_joint_actions),

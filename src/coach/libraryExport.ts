@@ -66,6 +66,7 @@ export function exerciseFullExportRows(exercises: Exercise[], facetName: Map<str
       instructions: ex.instructions ?? '',
       sport: ex.sport_name ?? '',
       skill_level: ex.skill_level ?? '',
+      participant_structure: ex.participant_structure ?? 'individual',
       movement_family: ex.movement_family ?? '',
       coach_language: ex.coach_language ?? '',
       athlete_language: ex.athlete_language ?? '',

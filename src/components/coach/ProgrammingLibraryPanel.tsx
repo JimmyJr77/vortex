@@ -6,6 +6,7 @@ import { phaseDisplayName } from '../../coach/sessionPhaseKeys'
 import LibraryExportControls from './LibraryExportControls'
 import ProgrammingDetailModal from './ProgrammingDetailModal'
 import ProgrammingCreateModal from './ProgrammingCreateModal'
+import LibraryResultCount from './LibraryResultCount'
 
 interface FilterState {
   q: string
@@ -143,6 +144,8 @@ export default function ProgrammingLibraryPanel() {
       </div>
 
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
+
+      <LibraryResultCount count={methods.length} loading={loading} singular="method" plural="methods" />
 
       {loading ? (
         <div className="flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading programming library...</div>

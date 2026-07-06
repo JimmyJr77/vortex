@@ -10,6 +10,7 @@ import SkillDetailModal from './SkillDetailModal'
 import LibraryCardMenu from './LibraryCardMenu'
 import LibraryCard from './LibraryCard'
 import LibraryExportControls from './LibraryExportControls'
+import LibraryResultCount from './LibraryResultCount'
 
 interface FilterState {
   q: string
@@ -153,6 +154,8 @@ export default function SkillLibraryPanel() {
       </div>
 
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
+
+      <LibraryResultCount count={skills.length} loading={loading} />
 
       {loading ? (
         <div className="flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading skills...</div>

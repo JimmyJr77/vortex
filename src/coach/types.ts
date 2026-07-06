@@ -133,6 +133,19 @@ export interface ExerciseMediaLibrary {
   internal_notes?: string[]
 }
 
+/** How many athletes an exercise needs. Spotters/coaches delivering cues don't count. */
+export type ParticipantStructure = 'individual' | 'pairs' | 'group'
+
+export const PARTICIPANT_STRUCTURE_OPTIONS: Array<{ value: ParticipantStructure; label: string }> = [
+  { value: 'individual', label: 'Individual' },
+  { value: 'pairs', label: 'Pairs' },
+  { value: 'group', label: 'Group' },
+]
+
+export function participantStructureLabel(value?: ParticipantStructure | null): string {
+  return PARTICIPANT_STRUCTURE_OPTIONS.find((o) => o.value === value)?.label ?? 'Individual'
+}
+
 export interface ExerciseMovementIdentity {
   name?: string
   slug?: string
@@ -147,6 +160,7 @@ export interface ExerciseMovementIdentity {
   sport_name?: string | null
   skill_level?: string | null
   visibility?: 'facility' | 'private'
+  participant_structure?: ParticipantStructure
 }
 
 export interface ExerciseCardPhaseProfile {
@@ -383,6 +397,7 @@ export interface Exercise {
   primary_phase_key?: string | null
   phase_subrole?: PhaseSubrole | null
   primary_order_slot?: string | null
+  participant_structure?: ParticipantStructure
   movement_requirements?: ExerciseMovementRequirements
   coaching_execution?: ExerciseCoachingExecution
   pairing_logic?: ExercisePairingLogic

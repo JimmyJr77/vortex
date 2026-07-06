@@ -181,6 +181,12 @@ function canMutateRow(row, userId) {
 
 const FACET_TYPES = ['tenet', 'methodology', 'physiology', 'pattern', 'equipment', 'sport', 'body_region']
 
+const PARTICIPANT_STRUCTURES = ['individual', 'pairs', 'group']
+
+function normalizeParticipantStructure(raw) {
+  return PARTICIPANT_STRUCTURES.includes(raw) ? raw : null
+}
+
 // Estimate seconds for a single workout item.
 function itemSeconds(item, exerciseEst) {
   const sets = Number(item.sets) || 1
@@ -412,6 +418,17 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         where.push(`EXISTS (SELECT 1 FROM coaching.exercise_regimen_rule r WHERE r.exercise_id = e.id AND r.can_be_daily = TRUE)`)
       }
 
+      // "Paired exercises" checkbox: anything that needs more than one athlete.
+      if (req.query.paired === 'true') {
+        where.push(`e.participant_structure IN ('pairs', 'group')`)
+      }
+
+      const participantStructure = normalizeParticipantStructure(req.query.participant_structure ? String(req.query.participant_structure).trim() : null)
+      if (participantStructure) {
+        params.push(participantStructure)
+        where.push(`e.participant_structure = $${params.length}`)
+      }
+
       const maxFatigue = num(req.query.max_fatigue_cost ?? req.query.maxFatigueCost)
       if (maxFatigue != null) {
         params.push(maxFatigue)
@@ -611,9 +628,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
             facility_id, name, slug, description, instructions, sport_id, skill_level,
             age_min, age_max, default_sets, default_reps, default_work_seconds,
             default_rest_seconds, tempo, load_note, est_seconds_per_set, created_by,
-            is_published, visibility, card_summary, coach_language, athlete_language, programming_logic, scalable_variables
+            is_published, visibility, card_summary, coach_language, athlete_language, programming_logic, scalable_variables,
+            participant_structure
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7::public.skill_level, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23::jsonb, $24)
+          VALUES ($1, $2, $3, $4, $5, $6, $7::public.skill_level, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23::jsonb, $24, $25)
           RETURNING id
         `,
         [
@@ -625,6 +643,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           req.body?.is_published !== false, req.body?.visibility === 'private' ? 'private' : 'facility',
           req.body?.card_summary || null, req.body?.coach_language || null, req.body?.athlete_language || null,
           JSON.stringify(req.body?.programming_logic ?? {}), req.body?.scalable_variables ?? [],
+          normalizeParticipantStructure(req.body?.participant_structure) ?? 'individual',
         ],
       )
       const id = Number(created.rows[0].id)
@@ -676,6 +695,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
             programming_logic = COALESCE($21::jsonb, programming_logic),
             scalable_variables = COALESCE($22, scalable_variables),
             why_publish_ready = COALESCE($23, why_publish_ready),
+            participant_structure = COALESCE($24, participant_structure),
             updated_at = now()
           WHERE id = $1
         `,
@@ -691,6 +711,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           req.body?.programming_logic != null ? JSON.stringify(req.body.programming_logic) : null,
           req.body?.scalable_variables ?? null,
           typeof req.body?.is_published === 'boolean' ? req.body.is_published : null,
+          normalizeParticipantStructure(req.body?.participant_structure),
         ],
       )
       await writeExerciseRelations(client, id, req.body || {})

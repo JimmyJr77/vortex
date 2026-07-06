@@ -3,8 +3,16 @@ import { Loader2, Plus, Search, Clock } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import type { Exercise } from '../../coach/types'
+import { participantStructureLabel } from '../../coach/types'
 import type { TaxonomyItem } from '../../coach/taxonomy'
-import { orderSlotsForSubrole, outputSubroleSequence, prepareAccessSubroleSequence } from '../../coach/taxonomy'
+import {
+  capacitySubroleSequence,
+  orderSlotsForSubrole,
+  outputSubroleSequence,
+  prepareAccessSubroleSequence,
+  SESSION_PHASE_ORDER,
+  skillMovementSubroleSequence,
+} from '../../coach/taxonomy'
 import { PREPARE_SESSION_NEED_OPTIONS } from '../../coach/prepareAccessFilters'
 import { exerciseDosageLabel, exerciseFacetLabels, exerciseFitnessGoal, exerciseIdentityLine, exerciseRequirementChips, exerciseSessionPhaseHint, exerciseTenetLabels, phaseSubroleLabel, primaryPhaseProfile, whyPreview } from '../../coach/exerciseCard'
 import { exportExercises, type LibraryExportFormat } from '../../coach/libraryExport'
@@ -13,6 +21,7 @@ import ExerciseEditor from './ExerciseEditor'
 import LibraryCardMenu from './LibraryCardMenu'
 import LibraryCard from './LibraryCard'
 import LibraryExportControls from './LibraryExportControls'
+import LibraryResultCount from './LibraryResultCount'
 
 interface FilterState {
   q: string
@@ -28,10 +37,11 @@ interface FilterState {
   maxFatigueCost: number | ''
   freshness: boolean
   canBeDaily: boolean
+  paired: boolean
   minImpact: number | ''
 }
 
-const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, minImpact: '' }
+const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, minImpact: '' }
 
 export default function ExerciseLibrary() {
   const { taxonomy } = useTaxonomy()
@@ -61,6 +71,7 @@ export default function ExerciseLibrary() {
       if (filters.maxFatigueCost !== '') params.set('max_fatigue_cost', String(filters.maxFatigueCost))
       if (filters.freshness) params.set('freshness', 'true')
       if (filters.canBeDaily) params.set('can_be_daily', 'true')
+      if (filters.paired) params.set('paired', 'true')
       if (filters.minImpact !== '') params.set('min_impact', String(filters.minImpact))
       const data = await coachFetch<Exercise[]>(`/api/coach/exercises?${params.toString()}`)
       setExercises(data)
@@ -114,21 +125,38 @@ export default function ExerciseLibrary() {
     }
   }
 
-  const preparePhaseId = taxonomy?.sessionPhases?.find((p) => p.key === 'prepare_and_access')?.id
-  const outputPhaseId = taxonomy?.sessionPhases?.find((p) => p.key === 'output')?.id
-  const isPrepareFiltered = filters.phase === preparePhaseId
-  const isOutputFiltered = filters.phase === outputPhaseId
-  const subroleOptions = isOutputFiltered
+  const selectedPhaseKey = filters.phase
+    ? taxonomy?.sessionPhases?.find((p) => p.id === filters.phase)?.key ?? null
+    : null
+  const isPrepareFiltered = selectedPhaseKey === 'prepare_and_access'
+  const subroleOptions = selectedPhaseKey === 'output'
     ? outputSubroleSequence(taxonomy)
-    : isPrepareFiltered
+    : selectedPhaseKey === 'prepare_and_access'
       ? prepareAccessSubroleSequence(taxonomy)
-      : []
-  const activePhaseKey = isOutputFiltered ? 'output' : isPrepareFiltered ? 'prepare_and_access' : null
-  const slotOptions = filters.subrole && activePhaseKey
-    ? orderSlotsForSubrole(taxonomy, activePhaseKey, filters.subrole)
-    : activePhaseKey
-      ? (taxonomy?.phaseOrderSlots ?? []).filter((s) => s.phase_key === activePhaseKey)
-      : []
+      : selectedPhaseKey === 'movement_intelligence'
+        ? skillMovementSubroleSequence(taxonomy)
+        : selectedPhaseKey === 'capacity'
+          ? capacitySubroleSequence(taxonomy)
+          : []
+  const slotOptions = useMemo(() => {
+    const all = taxonomy?.phaseOrderSlots ?? []
+    if (filters.subrole && selectedPhaseKey) {
+      return orderSlotsForSubrole(taxonomy, selectedPhaseKey, filters.subrole)
+    }
+    if (selectedPhaseKey) {
+      return all.filter((s) => s.phase_key === selectedPhaseKey).sort((a, b) => a.order_index - b.order_index)
+    }
+    return [...all].sort((a, b) => {
+      const phaseOrder = (key: string) => {
+        const idx = SESSION_PHASE_ORDER.indexOf(key as (typeof SESSION_PHASE_ORDER)[number])
+        return idx === -1 ? 999 : idx
+      }
+      const pa = phaseOrder(a.phase_key ?? '')
+      const pb = phaseOrder(b.phase_key ?? '')
+      if (pa !== pb) return pa - pb
+      return a.order_index - b.order_index
+    })
+  }, [taxonomy, filters.subrole, selectedPhaseKey])
 
   return (
     <div className="space-y-5">
@@ -171,9 +199,9 @@ export default function ExerciseLibrary() {
         <FacetSelect label="Methodology" items={taxonomy?.methodologies as TaxonomyItem[] | undefined} value={filters.methodology} onChange={(v) => setFilters((f) => ({ ...f, methodology: v }))} />
         <FacetSelect label="Physiology" items={taxonomy?.physiology as TaxonomyItem[] | undefined} value={filters.physiology} onChange={(v) => setFilters((f) => ({ ...f, physiology: v }))} />
         <FacetSelect label="Session Phase" items={taxonomy?.sessionPhases as TaxonomyItem[] | undefined} value={filters.phase} onChange={(v) => setFilters((f) => ({ ...f, phase: v, subrole: '', orderSlot: '' }))} />
-        {(isPrepareFiltered || isOutputFiltered) && subroleOptions.length > 0 && (
+        {selectedPhaseKey && subroleOptions.length > 0 && (
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1">{isOutputFiltered ? 'Output subrole' : 'Prepare subrole'}</label>
+            <label className="block text-xs font-semibold text-gray-500 mb-1">Phase subrole</label>
             <select value={filters.subrole} onChange={(e) => setFilters((f) => ({ ...f, subrole: e.target.value, orderSlot: '' }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
               <option value="">All subroles</option>
               {subroleOptions.map((s) => <option key={s.key} value={s.key}>{s.name}</option>)}
@@ -205,7 +233,30 @@ export default function ExerciseLibrary() {
           <label className="block text-xs font-semibold text-gray-500 mb-1">Order slot</label>
           <select value={filters.orderSlot} onChange={(e) => setFilters((f) => ({ ...f, orderSlot: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
             <option value="">All</option>
-            {slotOptions.map((s) => <option key={s.key} value={s.key}>{s.name}</option>)}
+            {!selectedPhaseKey ? (
+              SESSION_PHASE_ORDER.map((phaseKey) => {
+                const phase = taxonomy?.sessionPhases?.find((p) => p.key === phaseKey)
+                const slots = slotOptions.filter((s) => s.phase_key === phaseKey)
+                if (slots.length === 0) return null
+                return (
+                  <optgroup key={phaseKey} label={phase?.name ?? phaseKey}>
+                    {slots.map((s) => <option key={s.key} value={s.key}>{s.name}</option>)}
+                  </optgroup>
+                )
+              })
+            ) : filters.subrole || subroleOptions.length === 0 ? (
+              slotOptions.map((s) => <option key={s.key} value={s.key}>{s.name}</option>)
+            ) : (
+              subroleOptions.map((sr) => {
+                const slots = orderSlotsForSubrole(taxonomy, selectedPhaseKey, sr.key)
+                if (slots.length === 0) return null
+                return (
+                  <optgroup key={sr.key} label={sr.name}>
+                    {slots.map((s) => <option key={s.key} value={s.key}>{s.name}</option>)}
+                  </optgroup>
+                )
+              })
+            )}
           </select>
         </div>
         <div>
@@ -223,12 +274,18 @@ export default function ExerciseLibrary() {
           <input type="checkbox" checked={filters.canBeDaily} onChange={(e) => setFilters((f) => ({ ...f, canBeDaily: e.target.checked }))} />
           Can be daily
         </label>
+        <label className="flex items-center gap-2 text-sm self-end pb-2">
+          <input type="checkbox" checked={filters.paired} onChange={(e) => setFilters((f) => ({ ...f, paired: e.target.checked }))} />
+          Paired exercises
+        </label>
         <button type="button" onClick={() => setFilters(emptyFilters)} className="self-end text-sm text-gray-500 hover:text-gray-800 underline">
           Clear filters
         </button>
       </div>
 
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
+
+      <LibraryResultCount count={exercises.length} loading={loading} />
 
       {loading ? (
         <div className="flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading library...</div>
@@ -288,6 +345,9 @@ export default function ExerciseLibrary() {
               )}
               {ex.regimen_rule?.can_be_daily && (
                 <span className="inline-block mt-2 ml-1 text-[11px] bg-green-50 text-green-800 rounded px-2 py-0.5">Daily OK</span>
+              )}
+              {ex.participant_structure && ex.participant_structure !== 'individual' && (
+                <span className="inline-block mt-2 ml-1 text-[11px] bg-sky-50 text-sky-800 rounded px-2 py-0.5">{participantStructureLabel(ex.participant_structure)}</span>
               )}
               {programmingNote && (
                 <p className="text-xs text-gray-500 mt-2 line-clamp-2">{programmingNote}</p>
