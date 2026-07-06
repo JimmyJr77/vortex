@@ -77,7 +77,7 @@ SELECT
   (SELECT id FROM coaching.sport WHERE key = 'fitness'),
   d.skill::public.skill_level,
   d.age_min,
-  d.sets, d.reps, d.work, d.rest, d.est,
+  d.sets::integer, d.reps::integer, d.work::integer, d.rest::integer, d.est::integer,
   TRUE, 'facility',
   d.summary, d.coach_lang, d.athlete_lang,
   d.family, '${PRIMARY_PHASE}', d.subrole, d.slot,
@@ -89,7 +89,7 @@ sql += MOVEMENTS.map((m) => {
   const summary = `${m.focus} — high-intent Output expression while fresh.`
   const reps = m.reps ?? null
   const work = m.work ?? null
-  return `  (${sqlStr(m.name)}, ${sqlStr(m.slug)}, ${sqlStr(m.desc)}, ${sqlStr(m.skill)}, ${m.ageMin}, ${m.sets}, ${reps ?? 'NULL'}, ${work ?? 'NULL'}, ${m.rest}, ${m.est}, ${sqlStr(summary)}, ${sqlStr(coachLangText(m))}, ${sqlStr(athleteLangText(m))}, ${sqlStr(m.family)}, ${sqlStr(m.subrole)}, ${sqlStr(m.slot)}, ${jsonReq(m).replace('::jsonb', '')}::jsonb, ${jsonExec(m).replace('::jsonb', '')}::jsonb)`
+  return `  (${sqlStr(m.name)}, ${sqlStr(m.slug)}, ${sqlStr(m.desc)}, ${sqlStr(m.skill)}, ${m.ageMin}::integer, ${m.sets}::integer, ${reps ?? 'NULL'}::integer, ${work ?? 'NULL'}::integer, ${m.rest}::integer, ${m.est}::integer, ${sqlStr(summary)}, ${sqlStr(coachLangText(m))}, ${sqlStr(athleteLangText(m))}, ${sqlStr(m.family)}, ${sqlStr(m.subrole)}, ${sqlStr(m.slot)}, ${jsonReq(m).replace('::jsonb', '')}::jsonb, ${jsonExec(m).replace('::jsonb', '')}::jsonb)`
 }).join(',\n')
 
 sql += `
@@ -141,9 +141,9 @@ sql += `INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, m.unit, m.sets, m.reps, m.work, m.rest, m.est, 7, 9
+SELECT e.id, 'Default', TRUE, m.unit, m.sets::integer, m.reps::integer, m.work::integer, m.rest::integer, m.est::integer, 7, 9
 FROM (VALUES\n`
-sql += MOVEMENTS.map((m) => `  (${sqlStr(m.slug)}, ${sqlStr(m.unit)}, ${m.sets}, ${m.reps ?? 'NULL'}, ${m.work ?? 'NULL'}, ${m.rest}, ${m.est})`).join(',\n')
+sql += MOVEMENTS.map((m) => `  (${sqlStr(m.slug)}, ${sqlStr(m.unit)}, ${m.sets}::integer, ${m.reps ?? 'NULL'}::integer, ${m.work ?? 'NULL'}::integer, ${m.rest}::integer, ${m.est}::integer)`).join(',\n')
 sql += `
 ) AS m(slug, unit, sets, reps, work, rest, est)
 JOIN coaching.exercise e ON e.slug = m.slug

@@ -417,7 +417,7 @@ export interface WorkoutItem {
   est_seconds_per_set?: number | null
 }
 
-export type BlockFormat = 'straight_sets' | 'circuit' | 'amrap' | 'emom' | 'for_time' | 'stations'
+export type BlockFormat = 'straight_sets' | 'circuit' | 'amrap' | 'emom' | 'for_time' | 'stations' | 'interval' | 'density' | 'tempo' | 'relay' | 'game'
 
 export interface WorkoutBlock {
   id?: number
@@ -434,6 +434,16 @@ export interface WorkoutBlock {
   phase_goal?: string | null
   contains_tumbling?: boolean
   add_on_focus?: string | null
+  programming_method_id?: number | null
+  programming_method_slug?: string | null
+  programming_method_name?: string | null
+  quality_standard?: string | null
+  stop_rules_json?: string[] | null
+  scoring_mode?: string | null
+  station_count?: number | null
+  density_target?: string | null
+  work_seconds?: number | null
+  rest_seconds?: number | null
   items: WorkoutItem[]
 }
 
@@ -655,4 +665,62 @@ export interface RegimenTemplate {
   regimen_rationale_json?: Record<string, unknown>
   phase_distributions?: Array<{ phase_id: number; phase_key?: string; default_minutes?: number; default_percent?: number }>
   session_templates?: Array<{ week_number: number; day_of_week?: number; duration_minutes: number; phase_plan_json?: unknown[] }>
+}
+
+export interface ProgrammingMethodSummary {
+  id: number
+  name: string
+  slug: string
+  category: string
+  definition?: string | null
+  coach_summary?: string | null
+  best_session_phase?: string | null
+  compatible_session_phases?: string[]
+  energy_system_focus?: string[]
+  fatigue_level?: string
+  technical_risk_under_fatigue?: string
+  group_friendly?: boolean
+  requires_timer?: boolean
+  sample_work_rest?: string | null
+  why_preview?: string | null
+}
+
+export interface ProgrammingMethod extends ProgrammingMethodSummary {
+  athlete_summary?: string | null
+  primary_development_goal?: string | null
+  secondary_development_goals?: string[]
+  programming_type?: string
+  incompatible_phases?: string[]
+  fatigue_profile?: Record<string, unknown>
+  supervision_level?: string
+  what_it_is?: string | null
+  why_it_matters?: string | null
+  when_to_use?: string | null
+  when_not_to_use?: string | null
+  common_misuse?: string[]
+  work_rest_structure?: Record<string, unknown>
+  exercise_compatibility?: Record<string, unknown>
+  scaling?: Record<string, unknown>
+  progression_logic?: Record<string, unknown>
+  regression_logic?: Record<string, unknown>
+  workout_builder_rules?: Record<string, unknown>
+  phase_profiles?: Array<{ phaseKey: string; role: string; fitWeight: number; phaseRationale?: string | null }>
+  prescriptions?: Array<Record<string, unknown>>
+  quality_standards?: Array<{ standard: string; severity: string }>
+  stop_rules?: Array<{ stopRule: string; severity: string }>
+  validator_rules?: Array<{ ruleKey: string; message: string; severity: string }>
+  example_implementations?: Array<{ label: string; audience: string; exampleJson: unknown; disclaimer?: string }>
+}
+
+export interface ProgrammingCard {
+  identity: Record<string, unknown>
+  classification: Record<string, unknown>
+  education: Record<string, unknown>
+  workRestStructure?: Record<string, unknown>
+  exerciseCompatibility?: Record<string, unknown>
+  qualityStandards?: Array<{ standard: string; severity: string }>
+  stopRules?: Array<{ stopRule: string; severity: string }>
+  validatorRules?: Array<{ ruleKey: string; message: string; severity: string }>
+  exampleImplementations?: Array<Record<string, unknown>>
+  workoutBuilderRules?: Record<string, unknown>
 }

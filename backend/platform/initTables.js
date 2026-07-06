@@ -88,16 +88,16 @@ export async function initPlatformTables(pool) {
     '093_coaching_skill_library.sql',
     '094_coaching_skill_evaluation.sql',
     '095_coaching_exercise_card_v2.sql',
-    '096_coaching_prepare_and_access_subroles.sql',
-    '097_coaching_prepare_and_access_seed.sql',
-    '098_coaching_prepare_and_access_foundation_cards.sql',
-    '099_coaching_prepare_and_access_content_support.sql',
-    '100_coaching_prepare_and_access_upper_body_cards.sql',
-    '101_coaching_prepare_and_access_lower_leg_cards.sql',
-    '102_coaching_prepare_and_access_hip_access_cards.sql',
-    '103_coaching_prepare_and_access_activation_cards.sql',
+    '096_coaching_prepare_access_subroles.sql',
+    '097_coaching_prepare_access_seed.sql',
+    '098_coaching_prepare_access_foundation_cards.sql',
+    '099_coaching_prepare_access_content_support.sql',
+    '100_coaching_prepare_access_upper_body_cards.sql',
+    '101_coaching_prepare_access_lower_leg_cards.sql',
+    '102_coaching_prepare_access_hip_access_cards.sql',
+    '103_coaching_prepare_access_activation_cards.sql',
     '104_coaching_skill_phase_infrastructure.sql',
-    '105_coaching_movement_intelligence_seed.sql',
+    '105_coaching_skill_movement_intelligence_seed.sql',
     '106_coaching_skill_shape_cards.sql',
     '107_coaching_skill_tumbling_cards.sql',
     '108_coaching_skill_sprint_cards.sql',
@@ -130,10 +130,19 @@ export async function initPlatformTables(pool) {
     '135_coaching_library_facility_backfill.sql',
     '136_rename_fitness_repeatability_to_sustained_capacity.sql',
     '137_rename_session_phase_labels.sql',
+    '138_coaching_programming_library_infrastructure.sql',
+    '139_coaching_workout_block_programming_method.sql',
+    '141_coaching_programming_library_seed.sql',
+    '142_coaching_session_phase_dedupe.sql',
+    '143_coaching_exercise_phase_key_constraint_sync.sql',
   ]
 
   for (const migrationFile of migrationFiles) {
     const migrationPath = path.join(__dirname, '..', 'migrations', migrationFile)
+    if (!fs.existsSync(migrationPath)) {
+      console.error(`[initPlatformTables] Migration file missing (skipped): ${migrationFile}`)
+      continue
+    }
     const sql = fs.readFileSync(migrationPath, 'utf8')
     try {
       await pool.query(sql)

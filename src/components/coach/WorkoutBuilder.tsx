@@ -7,7 +7,9 @@ import WorkoutSetupWizard from './WorkoutSetupWizard'
 import { validationStatusLabel, allValidationIssues } from '../../coach/validationMessages'
 import { exerciseDosageLabel, exerciseFitnessGoal, exerciseSubroleAndSlotLine, exerciseTenetLabels, movementFamilyLabel, phaseFitBadge, phaseSubroleLabel } from '../../coach/exerciseCard'
 import { orderSlotsForSubrole, prepareAccessSubroleSequence } from '../../coach/taxonomy'
-import type { BlockFormat, Exercise, ValidationResult, Workout, WorkoutType } from '../../coach/types'
+import type { BlockFormat, Exercise, ProgrammingMethod, ProgrammingMethodSummary, ValidationResult, Workout, WorkoutType } from '../../coach/types'
+import { applyProgrammingMethodDefaults } from '../../coach/programmingBlockDefaults'
+import { parseExerciseCompatibility, programmingExerciseFit, type ProgrammingExerciseFit } from '../../coach/programmingExerciseCompat'
 
 function fmt(seconds: number) {
   const m = Math.floor(seconds / 60)
@@ -22,6 +24,11 @@ const BLOCK_FORMAT_LABELS: Record<BlockFormat, string> = {
   emom: 'EMOM',
   for_time: 'For Time',
   stations: 'Stations',
+  interval: 'Interval',
+  density: 'Density',
+  tempo: 'Tempo',
+  relay: 'Relay',
+  game: 'Game',
 }
 
 export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultType?: WorkoutType }) {
@@ -40,6 +47,8 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
   const [phaseEducation, setPhaseEducation] = useState<Map<string, { short_summary?: string | null; why_it_matters?: string | null; programming_guidance?: string | null; why_this_order?: string | null }>>(new Map())
   const [overrideReason, setOverrideReason] = useState('')
   const [showOverride, setShowOverride] = useState(false)
+  const [programmingMethods, setProgrammingMethods] = useState<ProgrammingMethodSummary[]>([])
+  const [programmingCompatByBlock, setProgrammingCompatByBlock] = useState<Map<number, ReturnType<typeof parseExerciseCompatibility>>>(new Map())
 
   useEffect(() => {
     if (!workout.title && workout.blocks.length <= 1 && workout.type !== defaultType) {
@@ -77,6 +86,38 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
   }, [taxonomy])
 
   useEffect(() => {
+    coachFetch<ProgrammingMethodSummary[]>('/api/coach/programming-methods')
+      .then(setProgrammingMethods)
+      .catch(() => setProgrammingMethods([]))
+  }, [])
+
+  const methodsForPhase = useCallback((phaseKey?: string | null) => {
+    if (!phaseKey) return programmingMethods
+    return programmingMethods.filter(
+      (m) => m.best_session_phase === phaseKey || m.compatible_session_phases?.includes(phaseKey),
+    )
+  }, [programmingMethods])
+
+  const selectProgrammingMethod = async (blockIndex: number, methodId: number | null) => {
+    if (!methodId) {
+      updateBlock(blockIndex, { programming_method_id: null, programming_method_slug: null, programming_method_name: null })
+      setProgrammingCompatByBlock((prev) => {
+        const next = new Map(prev)
+        next.delete(blockIndex)
+        return next
+      })
+      return
+    }
+    try {
+      const method = await coachFetch<ProgrammingMethod>(`/api/coach/programming-methods/${methodId}`)
+      updateBlock(blockIndex, applyProgrammingMethodDefaults(method, workout.blocks[blockIndex]))
+      setProgrammingCompatByBlock((prev) => new Map(prev).set(blockIndex, parseExerciseCompatibility(method)))
+    } catch {
+      /* non-fatal */
+    }
+  }
+
+  useEffect(() => {
     coachFetch<Array<{ entity_key: string; short_summary?: string | null; why_it_matters?: string | null; programming_guidance?: string | null; why_this_order?: string | null }>>(
       '/api/coach/education?entity_type=session_phase',
     )
@@ -104,6 +145,17 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
             phase_id: b.phase_id,
             rounds: b.rounds,
             rest_between_rounds_seconds: b.rest_between_rounds_seconds,
+            block_format: b.block_format,
+            programming_method_id: b.programming_method_id,
+            programming_method_slug: b.programming_method_slug,
+            quality_standard: b.quality_standard,
+            stop_rules_json: b.stop_rules_json,
+            work_seconds: b.work_seconds,
+            rest_seconds: b.rest_seconds,
+            cap_minutes: b.cap_minutes,
+            station_count: b.station_count,
+            density_target: b.density_target,
+            scoring_mode: b.scoring_mode,
             items: b.items.map((it) => ({
               exercise_id: it.exercise_id,
               exercise_name: it.exercise_name,
@@ -272,6 +324,9 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
                   {block.phase_key && (
                     <span className="text-[11px] bg-gray-100 text-gray-700 rounded px-2 py-0.5">{phaseName.get(block.phase_key) ?? block.phase_key}</span>
                   )}
+                  {block.programming_method_name && (
+                    <span className="text-[11px] bg-indigo-50 text-indigo-800 rounded px-2 py-0.5">{block.programming_method_name}</span>
+                  )}
                   {block.minutes_budget != null && (
                     <span className="text-[11px] text-gray-500">{Math.round(blockSeconds(block) / 60)}m / {block.minutes_budget}m budget</span>
                   )}
@@ -289,7 +344,18 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
                     <option value="">No phase</option>
                     {taxonomy?.sessionPhases?.map((p) => <option key={p.key} value={p.key}>{p.name}</option>)}
                   </select>
-                  <select value={block.block_format} onChange={(e) => updateBlock(bi, { block_format: e.target.value as never })} className="border border-gray-300 rounded px-2 py-1">
+                  <select
+                    value={block.programming_method_id ?? ''}
+                    onChange={(e) => void selectProgrammingMethod(bi, e.target.value ? Number(e.target.value) : null)}
+                    className="border border-gray-300 rounded px-2 py-1 max-w-[160px]"
+                    title="Programming method"
+                  >
+                    <option value="">No format</option>
+                    {methodsForPhase(block.phase_key).map((m) => (
+                      <option key={m.id} value={m.id}>{m.name}</option>
+                    ))}
+                  </select>
+                  <select value={block.block_format} onChange={(e) => updateBlock(bi, { block_format: e.target.value as BlockFormat })} className="border border-gray-300 rounded px-2 py-1">
                     <option value="straight_sets">Straight Sets</option>
                     <option value="circuit">Circuit</option>
                     <option value="amrap">AMRAP</option>
@@ -325,6 +391,18 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
                   {!phaseEducation.get(block.phase_key) && (
                     <p>{workout.coach_rationale_json?.order_why ?? `Exercises in ${phaseName.get(block.phase_key) ?? block.phase_key} should match freshness and phase fit for this slot in the session.`}</p>
                   )}
+                </div>
+              )}
+
+              {(block.work_seconds != null || block.rest_seconds != null || block.quality_standard) && (
+                <div className="mt-2 text-xs text-gray-500 space-y-1">
+                  {(block.work_seconds != null || block.rest_seconds != null) && (
+                    <div>
+                      Work/rest: {block.work_seconds ?? '—'}s / {block.rest_seconds ?? '—'}s
+                      {block.cap_minutes != null ? ` · ${block.cap_minutes}m cap` : ''}
+                    </div>
+                  )}
+                  {block.quality_standard && <div>Quality: {block.quality_standard}</div>}
                 </div>
               )}
 
@@ -411,6 +489,7 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
       {pickerBlock !== null && (
         <ExercisePicker
           phaseKey={workout.blocks[pickerBlock]?.phase_key ?? null}
+          programmingCompat={programmingCompatByBlock.get(pickerBlock) ?? null}
           onClose={() => setPickerBlock(null)}
           onPick={(ex) => {
             addItem(pickerBlock, {
@@ -521,12 +600,24 @@ function WorkoutPreviewModal({
               </div>
               <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
                 <span>{BLOCK_FORMAT_LABELS[block.block_format] ?? block.block_format}</span>
+                {block.programming_method_name && <span>{block.programming_method_name}</span>}
                 <span>{block.rounds} round{block.rounds === 1 ? '' : 's'}</span>
                 {block.rest_between_rounds_seconds > 0 && (
                   <span>{block.rest_between_rounds_seconds}s rest between rounds</span>
                 )}
                 {block.cap_minutes != null && <span>{block.cap_minutes} min cap</span>}
+                {(block.work_seconds != null || block.rest_seconds != null) && (
+                  <span>{block.work_seconds ?? '—'}s work / {block.rest_seconds ?? '—'}s rest</span>
+                )}
               </div>
+              {block.quality_standard && (
+                <p className="text-xs text-gray-600 mt-2">Quality standard: {block.quality_standard}</p>
+              )}
+              {(block.stop_rules_json ?? []).length > 0 && (
+                <ul className="text-xs text-amber-800 mt-1 list-disc pl-4">
+                  {(block.stop_rules_json ?? []).slice(0, 3).map((rule) => <li key={rule}>{rule}</li>)}
+                </ul>
+              )}
               <ul className="mt-3 space-y-2">
                 {block.items.map((item, ii) => (
                   <li key={item.id ?? ii} className="text-sm border-t border-gray-100 first:border-t-0 first:pt-0 pt-2">
@@ -568,11 +659,22 @@ function WorkoutPreviewModal({
   )
 }
 
-function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | null; onClose: () => void; onPick: (ex: Exercise) => void }) {
+function ExercisePicker({
+  phaseKey,
+  programmingCompat,
+  onClose,
+  onPick,
+}: {
+  phaseKey?: string | null
+  programmingCompat?: ReturnType<typeof parseExerciseCompatibility> | null
+  onClose: () => void
+  onPick: (ex: Exercise) => void
+}) {
   const [q, setQ] = useState('')
   const [results, setResults] = useState<Exercise[]>([])
   const [loading, setLoading] = useState(false)
   const [mode, setMode] = useState<'ideal' | 'all'>('ideal')
+  const [progMode, setProgMode] = useState<'compatible' | 'all'>(programmingCompat ? 'compatible' : 'all')
   const [subroleFilter, setSubroleFilter] = useState<string>('')
   const [slotFilter, setSlotFilter] = useState<string>('')
   const { taxonomy } = useTaxonomy()
@@ -602,7 +704,13 @@ function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | nul
               return fit === 'strong' || fit === 'conditional'
             })
           : data
-        setResults(filtered.length > 0 || !phaseKey || mode === 'all' ? filtered : data)
+        const progFiltered = programmingCompat && progMode === 'compatible'
+          ? filtered.filter((ex) => {
+              const fit = programmingExerciseFit(ex, programmingCompat)
+              return fit === 'compatible' || fit === 'conditional'
+            })
+          : filtered
+        setResults(progFiltered.length > 0 || !phaseKey || mode === 'all' ? progFiltered : filtered)
       } catch {
         setResults([])
       } finally {
@@ -610,12 +718,18 @@ function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | nul
       }
     }, 250)
     return () => clearTimeout(timer)
-  }, [q, phaseKey, mode, subroleFilter, slotFilter])
+  }, [q, phaseKey, mode, progMode, programmingCompat, subroleFilter, slotFilter])
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
         <div className="p-4 border-b border-gray-100 space-y-2">
+          {programmingCompat && (
+            <div className="flex gap-2 text-xs">
+              <button type="button" onClick={() => setProgMode('compatible')} className={`rounded-full px-2 py-1 ${progMode === 'compatible' ? 'bg-indigo-600 text-white' : 'border border-gray-200'}`}>Compatible only</button>
+              <button type="button" onClick={() => setProgMode('all')} className={`rounded-full px-2 py-1 ${progMode === 'all' ? 'bg-indigo-600 text-white' : 'border border-gray-200'}`}>All exercises</button>
+            </div>
+          )}
           {phaseKey && (
             <div className="flex gap-2 text-xs">
               <button type="button" onClick={() => setMode('ideal')} className={`rounded-full px-2 py-1 ${mode === 'ideal' ? 'bg-vortex-red text-white' : 'border border-gray-200'}`}>Ideal / conditional</button>
@@ -649,6 +763,7 @@ function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | nul
           {loading && <div className="flex items-center gap-2 text-gray-500 text-sm p-3"><Loader2 className="w-4 h-4 animate-spin" /> Searching...</div>}
           {results.map((ex) => {
             const fit = phaseKey ? phaseFitBadge(ex, phaseKey) : null
+            const progFit: ProgrammingExerciseFit | null = programmingCompat ? programmingExerciseFit(ex, programmingCompat) : null
             const tenets = exerciseTenetLabels(ex, tenetName)
             const identityBits = phaseKey === 'prepare_and_access'
               ? exerciseSubroleAndSlotLine(ex, taxonomy)
@@ -660,6 +775,11 @@ function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | nul
                   {fit && fit !== 'unknown' && (
                     <span className={`text-[10px] rounded px-1.5 py-0.5 ${fit === 'strong' ? 'bg-green-50 text-green-700' : fit === 'avoid' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
                       {fit === 'strong' ? 'Strong fit' : fit === 'avoid' ? 'Poor fit' : 'Conditional'}
+                    </span>
+                  )}
+                  {progFit && progFit !== 'unknown' && (
+                    <span className={`text-[10px] rounded px-1.5 py-0.5 ${progFit === 'compatible' ? 'bg-indigo-50 text-indigo-700' : progFit === 'avoid' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
+                      {progFit === 'compatible' ? 'Format OK' : progFit === 'avoid' ? 'Avoid in format' : 'Format conditional'}
                     </span>
                   )}
                 </div>

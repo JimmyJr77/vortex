@@ -6,6 +6,12 @@ import type { EducationContent } from '../../coach/types'
 import { SESSION_PHASE_ORDER } from '../../coach/taxonomy'
 import { prepareAccessSubroleSequence } from '../../coach/taxonomy'
 import {
+  CANONICAL_PHASE_ORDER,
+  phaseDisplayName,
+  phaseEducationLookupKeys,
+  type CanonicalPhaseKey,
+} from '../../coach/sessionPhaseKeys'
+import {
   ORIGINAL_RAMP_PHASES,
   POTENTIATE_BRIDGE_AUDIENCE,
   RAMP_PHILOSOPHY_INTRO,
@@ -63,7 +69,7 @@ function SessionModelMinutes({ row }: { row: EducationContent }) {
       <ul className="list-disc list-inside text-gray-600 space-y-0.5">
         {plan.map((block: { phase?: string; minutes?: number; contains_tumbling?: boolean; add_on_focus?: string }, i: number) => (
           <li key={`${block.phase}-${i}`}>
-            {block.phase?.replace(/_/g, ' ')} — {block.minutes} min
+            {phaseDisplayName(block.phase) || block.phase?.replace(/_/g, ' ')} — {block.minutes} min
             {block.contains_tumbling ? ' (tumbling block)' : ''}
             {block.add_on_focus ? ` (${block.add_on_focus.replace(/_/g, ' ')})` : ''}
           </li>
@@ -105,6 +111,16 @@ export default function FrameworkPanel() {
 
   const eduFor = (entityType: string, entityKey: string) =>
     (byType.get(entityType) ?? []).find((e) => e.entity_key === entityKey)
+
+  const eduForSessionPhase = (canonicalKey: CanonicalPhaseKey): EducationContent | undefined => {
+    for (const key of phaseEducationLookupKeys(canonicalKey)) {
+      const row = eduFor('session_phase', key)
+      if (row) {
+        return { ...row, title: phaseDisplayName(canonicalKey) }
+      }
+    }
+    return undefined
+  }
 
   const dedupeEducation = (rows: EducationContent[]) => {
     const map = new Map<string, EducationContent>()
@@ -191,6 +207,7 @@ export default function FrameworkPanel() {
     keys,
     itemExtra,
     groupOrderSlots,
+    resolveRow,
   }: {
     title: string
     hubKey: string
@@ -201,9 +218,10 @@ export default function FrameworkPanel() {
     keys?: string[]
     itemExtra?: (row: EducationContent) => ReactNode
     groupOrderSlots?: boolean
+    resolveRow?: (key: string) => EducationContent | undefined
   }) => {
     const rows = keys
-      ? keys.map((k) => eduFor(entityType, k)).filter(Boolean) as EducationContent[]
+      ? keys.map((k) => (resolveRow ? resolveRow(k) : eduFor(entityType, k))).filter(Boolean) as EducationContent[]
       : dedupeEducation(byType.get(entityType) ?? [])
 
     if (rows.length === 0 && !hubContent) return null
@@ -459,7 +477,8 @@ export default function FrameworkPanel() {
               </>
             )}
             entityType="session_phase"
-            keys={orderedPhases.map((p) => p.key)}
+            keys={[...CANONICAL_PHASE_ORDER]}
+            resolveRow={(key) => eduForSessionPhase(key as CanonicalPhaseKey)}
           />
 
           <SubroleSection />

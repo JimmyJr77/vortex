@@ -5,7 +5,8 @@ import { useTaxonomy } from './useTaxonomy'
 import { useCoachBuilderStore } from '../../coach/useCoachBuilderStore'
 import { phasePlanForObjective, SESSION_OBJECTIVE_OPTIONS, type SessionObjective } from '../../coach/phasePlan'
 import type { FacetType } from '../../coach/taxonomy'
-import type { PrescriptionResult, Workout } from '../../coach/types'
+import type { PrescriptionResult, ProgrammingMethod, Workout, WorkoutBlock } from '../../coach/types'
+import { applyProgrammingMethodDefaults } from '../../coach/programmingBlockDefaults'
 
 interface TargetRow {
   facetType: FacetType
@@ -38,6 +39,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     { label: 'Sustained Capacity', phaseKey: 'sustained_capacity', minutes: 10 },
   ])
   const [result, setResult] = useState<PrescriptionResult | null>(null)
+  const [blockProgramming, setBlockProgramming] = useState<(ProgrammingMethod | null)[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [nlPrompt, setNlPrompt] = useState('')
@@ -77,6 +79,27 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       }
       const data = await coachFetch<PrescriptionResult>('/api/coach/needs-engine/prescribe', { method: 'POST', body: JSON.stringify(body) })
       setResult(data)
+      const youth = ageMax !== '' && Number(ageMax) <= 14
+      const progPicks = await Promise.all(
+        blocks.map(async (b) => {
+          try {
+            const pick = await coachFetch<{ selected: ProgrammingMethod | null }>('/api/coach/needs-engine/prescribe-programming-method', {
+              method: 'POST',
+              body: JSON.stringify({
+                phaseKey: b.phaseKey,
+                youth,
+                lowImpact: excludeBodyRegionIds.length > 0,
+                groupSize: 12,
+                desiredAdaptation: sessionObjective,
+              }),
+            })
+            return pick.selected
+          } catch {
+            return null
+          }
+        }),
+      )
+      setBlockProgramming(progPicks)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Prescription failed')
     } finally {
@@ -129,24 +152,28 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
         session_why: SESSION_OBJECTIVE_OPTIONS.find((o) => o.value === sessionObjective)?.label,
         order_why: 'Prescribed via Needs Engine using phase-aware exercise selection.',
       },
-      blocks: result.blocks.map((b) => ({
-        label: b.label,
-        block_format: 'straight_sets',
-        rounds: 1,
-        rest_between_rounds_seconds: 0,
-        phase_key: b.phase_key ?? null,
-        phase_id: b.phase_id ?? null,
-        minutes_budget: b.target_minutes,
-        items: b.items.map((it) => ({
-          exercise_id: it.exercise_id,
-          exercise_name: it.exercise_name,
-          sets: it.sets,
-          reps: it.reps ?? null,
-          rest_seconds: it.rest_seconds ?? 30,
-          work_seconds: it.work_seconds ?? null,
-          est_seconds_per_set: it.est_seconds_per_set,
-        })),
-      })),
+      blocks: result.blocks.map((b, i) => {
+        const base: WorkoutBlock = {
+          label: b.label,
+          block_format: 'straight_sets',
+          rounds: 1,
+          rest_between_rounds_seconds: 0,
+          phase_key: b.phase_key ?? null,
+          phase_id: b.phase_id ?? null,
+          minutes_budget: b.target_minutes,
+          items: b.items.map((it) => ({
+            exercise_id: it.exercise_id,
+            exercise_name: it.exercise_name,
+            sets: it.sets,
+            reps: it.reps ?? null,
+            rest_seconds: it.rest_seconds ?? 30,
+            work_seconds: it.work_seconds ?? null,
+            est_seconds_per_set: it.est_seconds_per_set,
+          })),
+        }
+        const prog = blockProgramming[i]
+        return prog ? { ...base, ...applyProgrammingMethodDefaults(prog, base) } : base
+      }),
     }
     setWorkout(workout)
     applyPhasePlan(plan)
@@ -329,6 +356,11 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                     <span className="font-semibold text-gray-800">{b.label}</span>
                     <span className="text-xs text-gray-500">~{b.estimated_minutes}m / {b.target_minutes}m</span>
                   </div>
+                  {blockProgramming[i] && (
+                    <div className="text-xs text-indigo-700 mt-1">
+                      Format: {blockProgramming[i]?.name}
+                    </div>
+                  )}
                   <ul className="mt-2 space-y-2">
                     {b.items.map((it) => (
                       <li key={it.exercise_id} className="text-sm border-t border-gray-50 first:border-t-0 pt-2 first:pt-0">

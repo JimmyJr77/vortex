@@ -17,17 +17,17 @@ function joinList(values?: string[] | null): string {
   return (values ?? []).filter(Boolean).join('; ')
 }
 
-function tagLabels(ex: Exercise, facetType: FacetType, facetName: Map<number, string>): string {
+function tagLabels(ex: Exercise, facetType: FacetType, facetName: Map<string | number, string>): string {
   return (ex.tags ?? [])
     .filter((t) => t.facetType === facetType)
     .map((t) => {
-      const name = facetName.get(t.facetId) ?? String(t.facetId)
+      const name = facetName.get(`${facetType}:${t.facetId}`) ?? facetName.get(t.facetId) ?? String(t.facetId)
       return t.weight > 1 ? `${name} (×${t.weight})` : name
     })
     .join('; ')
 }
 
-function exerciseDescription(ex: Exercise, facetName: Map<number, string>): string {
+function exerciseDescription(ex: Exercise, facetName: Map<string | number, string>): string {
   return (
     ex.description?.trim()
     || ex.card_summary?.trim()
@@ -36,14 +36,14 @@ function exerciseDescription(ex: Exercise, facetName: Map<number, string>): stri
   )
 }
 
-export function exerciseSimpleExportRows(exercises: Exercise[], facetName: Map<number, string>) {
+export function exerciseSimpleExportRows(exercises: Exercise[], facetName: Map<string | number, string>) {
   return exercises.map((ex) => ({
     name: ex.name,
     description: exerciseDescription(ex, facetName),
   }))
 }
 
-export function exerciseFullExportRows(exercises: Exercise[], facetName: Map<number, string>) {
+export function exerciseFullExportRows(exercises: Exercise[], facetName: Map<string | number, string>) {
   return exercises.map((ex) => {
     const exec = ex.coaching_execution ?? {}
     const req = ex.movement_requirements ?? {}
@@ -187,7 +187,7 @@ export function skillFullExportRows(skills: Skill[]) {
 export function exportExercises(
   exercises: Exercise[],
   format: LibraryExportFormat,
-  facetName: Map<number, string>,
+  facetName: Map<string | number, string>,
   filenameStem: string,
 ): void {
   if (format === 'simple-json') {

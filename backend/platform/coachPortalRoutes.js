@@ -83,10 +83,13 @@ import {
   buildExerciseCard,
 } from './exerciseProgramming.js'
 import { validateWorkoutDraft } from './workoutValidation.js'
+import { analyzeProgrammingPlacement } from './programmingValidation.js'
 import { validateTrainingBlockDraft } from './trainingBlockValidation.js'
 import { validateRegimenDraft } from './regimenValidation.js'
 import { getCoachingSchemaStatus } from './ensureCoachingWhyLayerSchema.js'
+import { dedupeSessionPhases, normalizePhaseKey } from './sessionPhaseKeys.js'
 import { runPhaseAwarePrescription, getSessionPhaseTemplates } from './phaseAwarePrescription.js'
+import { registerProgrammingRoutes } from './coachProgrammingRoutes.js'
 
 function ok(res, data) {
   res.json({ success: true, data })
@@ -205,6 +208,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   const can = (permission) => requirePermission(pool, jwtSecret, permission)
   const canAny = (permissions) => requireAnyPermission(pool, jwtSecret, permissions)
 
+  registerProgrammingRoutes(app, pool, { can, canMutateRow, ok, bad })
+
   // ==========================================================
   // TAXONOMY
   // ==========================================================
@@ -249,9 +254,15 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         sports: sports.rows,
         intents: [],
         bodyRegions: bodyRegions.rows,
-        sessionPhases: sessionPhases.rows,
-        phaseOrderSlots: phaseOrderSlots.rows,
-        phaseSubroles: phaseSubroles.rows,
+        sessionPhases: dedupeSessionPhases(sessionPhases.rows),
+        phaseOrderSlots: phaseOrderSlots.rows.map((slot) => ({
+          ...slot,
+          phase_key: normalizePhaseKey(slot.phase_key) ?? slot.phase_key,
+        })),
+        phaseSubroles: phaseSubroles.rows.map((subrole) => ({
+          ...subrole,
+          phase_key: normalizePhaseKey(subrole.phase_key) ?? subrole.phase_key,
+        })),
       })
     } catch (error) {
       bad(res, error.message, 500)
@@ -1117,19 +1128,30 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         `
           INSERT INTO coaching.workout_block (
             workout_id, sort_order, label, block_format, rounds, rest_between_rounds_seconds, cap_minutes,
-            phase_id, order_slot, phase_order_index, minutes_budget, phase_goal, contains_tumbling, add_on_focus
+            phase_id, order_slot, phase_order_index, minutes_budget, phase_goal, contains_tumbling, add_on_focus,
+            programming_method_id, programming_method_slug, quality_standard, stop_rules_json, scoring_mode,
+            station_count, density_target, work_seconds, rest_seconds
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING id
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18::jsonb, $19, $20, $21, $22, $23) RETURNING id
         `,
         [
           workoutId, blockOrder++, block.label || null,
-          ['straight_sets', 'circuit', 'amrap', 'emom', 'for_time', 'stations'].includes(block.block_format) ? block.block_format : 'straight_sets',
+          ['straight_sets', 'circuit', 'amrap', 'emom', 'for_time', 'stations', 'interval', 'density', 'tempo', 'relay', 'game'].includes(block.block_format) ? block.block_format : 'straight_sets',
           Number(block.rounds) || 1, Number(block.rest_between_rounds_seconds) || 0, num(block.cap_minutes),
           num(block.phase_id ?? block.phaseId), block.order_slot ?? block.orderSlot ?? null,
           num(block.phase_order_index ?? block.phaseOrderIndex), num(block.minutes_budget ?? block.minutesBudget),
           block.phase_goal ?? block.phaseGoal ?? null,
           Boolean(block.contains_tumbling ?? block.containsTumbling),
           block.add_on_focus ?? block.addOnFocus ?? null,
+          num(block.programming_method_id ?? block.programmingMethodId),
+          block.programming_method_slug ?? block.programmingMethodSlug ?? null,
+          block.quality_standard ?? block.qualityStandard ?? null,
+          JSON.stringify(block.stop_rules ?? block.stopRules ?? block.stop_rules_json ?? []),
+          block.scoring_mode ?? block.scoringMode ?? 'none',
+          num(block.station_count ?? block.stationCount),
+          block.density_target ?? block.densityTarget ?? null,
+          num(block.work_seconds ?? block.workSeconds),
+          num(block.rest_seconds ?? block.restSeconds),
         ],
       )
       const blockId = Number(createdBlock.rows[0].id)

@@ -212,19 +212,19 @@ export function phaseFitBadge(exercise: Exercise, phaseKey?: string | null): 'st
 export function exerciseFacetLabels(
   exercise: Exercise,
   facetType: FacetType,
-  facetName: Map<number, string>,
+  facetName: Map<string | number, string>,
   limit = 3,
 ): string[] {
   return (exercise.tags ?? [])
     .filter((t) => t.facetType === facetType)
     .sort((a, b) => (b.weight ?? 0) - (a.weight ?? 0))
     .slice(0, limit)
-    .map((t) => facetName.get(Number(t.facetId)))
+    .map((t) => facetName.get(`${facetType}:${Number(t.facetId)}`) ?? facetName.get(Number(t.facetId)))
     .filter((name): name is string => Boolean(name))
 }
 
 /** Top tenet names for this exercise, highest tag weight first. */
-export function exerciseTenetLabels(exercise: Exercise, tenetName: Map<number, string>): string[] {
+export function exerciseTenetLabels(exercise: Exercise, tenetName: Map<string | number, string>): string[] {
   return exerciseFacetLabels(exercise, 'tenet', tenetName, 3)
 }
 
@@ -232,7 +232,7 @@ export function exerciseTenetLabels(exercise: Exercise, tenetName: Map<number, s
  * Primary card line for exercises: what fitness outcome this movement serves.
  * Skills library handles demonstrated ability; exercises are about training toward tenets/goals.
  */
-export function exerciseFitnessGoal(exercise: Exercise, tenetName?: Map<number, string>): string {
+export function exerciseFitnessGoal(exercise: Exercise, tenetName?: Map<string | number, string>): string {
   if (exercise.card_summary?.trim()) return exercise.card_summary.trim()
   const why = exercise.why
   if (why?.training_purpose?.trim()) return why.training_purpose.trim()

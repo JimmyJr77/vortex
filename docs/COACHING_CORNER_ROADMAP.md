@@ -426,6 +426,9 @@ noted; ownership tables carry `created_by` + `is_published` + `visibility`.
   `education_content`, exercise programming profiles (`exercise_phase_profile`, dosage/scaling/
   safety/regimen), `validation_rule`, workout phase metadata, `training_block_template`,
   `regimen_template`, session allocation templates (60/90/120).
+- **`137`–`142` — Session phase canonicalization + Programming Library**: simplified 7-phase keys
+  (`movement_intelligence`, `resilience`, `sustained_capacity`, …); `programming_method` schema,
+  `workout_block` programming columns, 50 seeded format cards. See [PROGRAMMING_CARD_SPEC.md](PROGRAMMING_CARD_SPEC.md).
 
 ```mermaid
 graph LR
@@ -437,6 +440,9 @@ graph LR
   EPP --> NE["phaseAwarePrescription.js"]
   W2["workout 013 (+metadata 082)"] --> VAL
   W2 --> NE
+  PM["programming_method 138"] --> WB2["workout_block 139"]
+  PM --> VAL
+  PM --> NE
   TB["training_block_template 084"] --> RT["regimen_template 085"]
 ```
 
@@ -478,7 +484,10 @@ the token's member.
 - **Taxonomy/library** (`library.view`/`library.manage`): `/api/coach/taxonomy` (+ `sessionPhases`,
   `phaseOrderSlots`), `/api/coach/education`, `/api/coach/session-templates`,
   `/api/coach/exercises` (+ phase filter, programming profiles), `/exercises/:id`,
-  `/exercises/:id/publish-check`, media upload-signature, autotag.
+  `/exercises/:id/publish-check`, media upload-signature, autotag;
+  `/api/coach/programming-methods` CRUD + `/card`, `/api/coach/programming-taxonomy`,
+  `POST /api/coach/workout-builder/validate-programming-block`,
+  `POST /api/coach/needs-engine/prescribe-programming-method` (see [PROGRAMMING_CARD_SPEC.md](PROGRAMMING_CARD_SPEC.md)).
 - **Workouts** (`workouts.manage`): `/api/coach/workouts` CRUD (phase metadata, rationale JSON),
   `POST /api/coach/workouts/validate`.
 - **Needs Engine** (`library.view`): `/api/coach/needs-engine/prescribe` (`runPhaseAwarePrescription`).

@@ -76,17 +76,20 @@ export default function ExerciseLibrary() {
   }, [load])
 
   const facetName = useMemo(() => {
-    const map = new Map<number, string>()
-    for (const items of [
-      taxonomy?.tenets,
-      taxonomy?.methodologies,
-      taxonomy?.physiology,
-      taxonomy?.patterns,
-      taxonomy?.equipment,
-      taxonomy?.bodyRegions,
-    ]) {
+    const map = new Map<number | string, string>()
+    for (const [facetType, items] of [
+      ['tenet', taxonomy?.tenets],
+      ['methodology', taxonomy?.methodologies],
+      ['physiology', taxonomy?.physiology],
+      ['pattern', taxonomy?.patterns],
+      ['equipment', taxonomy?.equipment],
+      ['body_region', taxonomy?.bodyRegions],
+    ] as const) {
       for (const item of items ?? []) {
-        if (item.id != null) map.set(Number(item.id), item.name)
+        if (item.id != null) {
+          map.set(Number(item.id), item.name)
+          map.set(`${facetType}:${item.id}`, item.name)
+        }
       }
     }
     return map
@@ -138,7 +141,7 @@ export default function ExerciseLibrary() {
           <LibraryExportControls
             disabled={loading || exercises.length === 0}
             filenameStem="exercise-library"
-            onExport={handleExport}
+            onExport={(format) => handleExport(format as LibraryExportFormat)}
           />
           <button
             type="button"

@@ -5911,6 +5911,26 @@ export async function validateWorkoutDraft(pool, draft) {
   const coverage = computeCoverage(blockMeta, tagRows, taxonomyKeys)
   const fatigue = computeFatigueSummary(blockMeta, profileByExercisePhase, regimenByExercise)
 
+  try {
+    const methodIds = [...new Set(blocks.map((b) => Number(b.programming_method_id ?? b.programmingMethodId)).filter(Number.isFinite))]
+    const methodById = new Map()
+    if (methodIds.length > 0) {
+      const pmRows = await pool.query(`SELECT id, programming_type, fatigue_profile, incompatible_phases, workout_builder_rules FROM coaching.programming_method WHERE id = ANY($1::bigint[])`, [methodIds])
+      for (const row of pmRows.rows) methodById.set(String(row.id), row)
+    }
+    for (const finding of analyzeProgrammingPlacement({ blocks }, methodById)) {
+      const target = finding.severity === 'strong_warning' || finding.severity === 'error' ? warnings : recommendations
+      target.push({
+        severity: finding.severity === 'error' ? 'error' : 'warning',
+        rule_key: finding.ruleKey,
+        message: finding.message,
+        can_override: finding.severity !== 'error',
+      })
+    }
+  } catch (progErr) {
+    if (!/does not exist|undefined column/i.test(String(progErr.message))) throw progErr
+  }
+
   const status = errors.length > 0 ? 'error' : warnings.length > 0 ? 'warning' : recommendations.length > 0 ? 'warning' : 'valid'
   return { status, errors, warnings, recommendations, coverage, fatigue, time }
 }

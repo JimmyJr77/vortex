@@ -1,20 +1,30 @@
 -- Rename session phases: display names, keys (where changed), and canonical descriptions.
 -- IDEMPOTENT.
 
+-- 0) Legacy key → canonical key
+UPDATE coaching.session_phase SET key = 'prepare_and_access', updated_at = now()
+WHERE key = 'prepare_access';
+
+UPDATE coaching.session_phase SET key = 'movement_intelligence', updated_at = now()
+WHERE key = 'skill_movement_intelligence';
+
+UPDATE coaching.session_phase SET key = 'resilience', updated_at = now()
+WHERE key = 'control_resilience';
+
 -- 1) Session phase keys + names + descriptions
 UPDATE coaching.session_phase SET
   key = 'prepare_and_access',
   name = 'Prepare & Access',
   description = 'Raise temperature, mobilize joints, activate key tissues, and create access to the positions needed for training.',
   updated_at = now()
-WHERE key IN ('prepare_and_access', 'prepare_and_access');
+WHERE key IN ('prepare_and_access', 'prepare_access');
 
 UPDATE coaching.session_phase SET
   key = 'movement_intelligence',
   name = 'Movement Intelligence',
   description = 'Develop coordination, body shapes, rhythm, mechanics, spatial awareness, and movement literacy before fatigue.',
   updated_at = now()
-WHERE key IN ('movement_intelligence', 'movement_intelligence');
+WHERE key IN ('movement_intelligence', 'skill_movement_intelligence');
 
 UPDATE coaching.session_phase SET
   name = 'Output',
@@ -33,7 +43,7 @@ UPDATE coaching.session_phase SET
   name = 'Resilience',
   description = 'Build control, stability, landing mechanics, braking ability, joint ownership, trunk control, and tissue durability.',
   updated_at = now()
-WHERE key IN ('resilience', 'resilience');
+WHERE key IN ('resilience', 'control_resilience');
 
 UPDATE coaching.session_phase SET
   name = 'Sustained Capacity',
@@ -49,13 +59,16 @@ WHERE key = 'restore';
 
 -- 2) Exercise primary phase keys
 UPDATE coaching.exercise SET primary_phase_key = 'prepare_and_access', updated_at = now()
-WHERE primary_phase_key = 'prepare_and_access';
+WHERE primary_phase_key IN ('prepare_access', 'prepare_and_access');
 
 UPDATE coaching.exercise SET primary_phase_key = 'movement_intelligence', updated_at = now()
-WHERE primary_phase_key = 'movement_intelligence';
+WHERE primary_phase_key IN ('movement_intelligence', 'skill_movement_intelligence');
 
 UPDATE coaching.exercise SET primary_phase_key = 'resilience', updated_at = now()
-WHERE primary_phase_key = 'resilience';
+WHERE primary_phase_key IN ('resilience', 'control_resilience');
+
+UPDATE coaching.exercise SET primary_phase_key = 'sustained_capacity', updated_at = now()
+WHERE primary_phase_key = 'fitness_repeatability';
 
 -- 3) Education framework rows (session_phase entity_key)
 UPDATE coaching.education_content SET

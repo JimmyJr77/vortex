@@ -92,7 +92,7 @@ export default function SkillLibraryPanel() {
           <LibraryExportControls
             disabled={loading || skills.length === 0}
             filenameStem="skill-library"
-            onExport={handleExport}
+            onExport={(format) => handleExport(format as LibraryExportFormat)}
           />
           <button
             type="button"
