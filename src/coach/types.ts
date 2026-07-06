@@ -739,3 +739,80 @@ export interface ProgrammingCard {
   exampleImplementations?: Array<Record<string, unknown>>
   workoutBuilderRules?: Record<string, unknown>
 }
+
+export type GameKind = 'game' | 'competition' | 'both'
+
+export type GameType =
+  | 'tag_and_chase'
+  | 'territory_and_zone'
+  | 'relay_and_race'
+  | 'target_and_accuracy'
+  | 'ball_object_control'
+  | 'reaction_and_decision'
+  | 'balance_body_control'
+  | 'strength_power_play'
+  | 'obstacle_ninja'
+  | 'cooperative_team'
+  | 'flexibility_shape'
+  | 'structured_competition'
+
+export type GameGroupStructure = 'individual' | 'pairs' | 'small_group' | 'large_group' | 'teams'
+
+export type GameAgeBracket =
+  | 'preschool'
+  | 'elementary_young'
+  | 'elementary_older'
+  | 'middle_school'
+  | 'high_school'
+  | 'adult'
+
+export interface GameTag {
+  facet_type: string
+  facet_id: number
+  weight: number
+  name?: string
+  facet_key?: string
+}
+
+export interface Game {
+  id: number
+  name: string
+  slug: string
+  description?: string | null
+  card_summary?: string | null
+  coach_summary?: string | null
+  athlete_summary?: string | null
+  game_kind: GameKind
+  game_kind_label?: string
+  game_type: GameType
+  game_type_label?: string
+  competition_format?: string | null
+  group_structure: GameGroupStructure
+  group_structure_label?: string
+  min_players: number
+  max_players?: number | null
+  ideal_players?: string | null
+  age_brackets: GameAgeBracket[]
+  age_bracket_labels?: string[]
+  age_variations?: Record<string, { rules?: string; guidance?: string; space?: string }>
+  space_requirements?: Record<string, unknown>
+  equipment?: string[]
+  duration_typical_min?: number | null
+  duration_typical_max?: number | null
+  intensity_level: string
+  contact_level: string
+  supervision_level?: string | null
+  rules?: Record<string, unknown>
+  safety?: Record<string, unknown>
+  coaching_notes?: string | null
+  best_session_phase?: string | null
+  compatible_phases?: string[]
+  migrated_from_exercise?: boolean
+  source_exercise_id?: number | null
+  tags?: GameTag[]
+  primary_tenets?: string[]
+  exercise_links?: Array<{ exercise_id: number; role: string; exercise_name?: string; exercise_slug?: string }>
+  is_published?: boolean
+  visibility?: string
+}
+

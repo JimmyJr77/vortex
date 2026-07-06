@@ -1,0 +1,12570 @@
+# All 50 Jumping Athletes (For Height) Exercise Cards
+
+## Source and caveat
+
+Primary source used: `exercise_card_details_for_llm.md` Card v2 authoring guide. It defines phase-first authoring, canonical phase keys, taxonomy key+weight tags, publish gates, dosage, scaling cohorts, safety, regimen, phaseProfile, and the preferred camelCase Authoring JSON shape. `Purpose.txt` was requested and searched for by exact filename and related Purpose/Vortex/Athleticism Accelerator language, but it was not located in the accessible File Library results. This library is therefore grounded in `exercise_card_details_for_llm.md`, relevant Vortex jump/plyometric precedents surfaced in the File Library, the user's jump-height focus, and stable coaching expertise.
+
+## Exercise index by category
+
+### 01-10 - Landing, Braking, and Takeoff-Position Foundations
+Low-to-moderate demand drills that teach athletes to accept force, organize foot-knee-hip-trunk position, and finish each takeoff or landing with control before chasing height.
+
+01. **Snap Down to Stick** - `resilience` / `landing_braking_control` / `snap_down_to_stick`
+02. **Drop Landing to Stick** - `resilience` / `landing_braking_control` / `drop_landing_to_stick`
+03. **Low Box Step-Off to Stick** - `resilience` / `landing_braking_control` / `low_box_step_off_to_stick`
+04. **Squat Jump to Stick** - `output` / `jump_throw_explosive_power` / `squat_jump_to_stick`
+05. **Countermovement Jump to Stick** - `output` / `jump_throw_explosive_power` / `countermovement_jump_to_stick`
+06. **Broad Jump to Stick** - `output` / `jump_throw_explosive_power` / `broad_jump_to_stick`
+07. **Lateral Hop to Stick** - `resilience` / `landing_braking_control` / `lateral_hop_to_stick`
+08. **Single-Leg Hop to Stick** - `resilience` / `single_leg_balance_foot_ankle_hip_control` / `single_leg_hop_to_stick`
+09. **Split-Squat Jump to Stick** - `output` / `jump_throw_explosive_power` / `split_squat_jump_to_stick`
+10. **Approach Jump Penultimate Stick** - `movement_intelligence` / `locomotion_sprint_mechanics` / `approach_jump_penultimate_stick`
+
+### 11-20 - Foot-Ankle Stiffness and Low-Level Elastic Contacts
+Elastic rudiments that build springy foot-ankle behavior, quiet contacts, rhythm, and short amortization without high jump volume.
+
+11. **Ankle Pogo in Place** - `output` / `elastic_stiffness_plyometric_rudiments` / `ankle_pogo_in_place`
+12. **Line Pogo Forward-Back** - `output` / `elastic_stiffness_plyometric_rudiments` / `line_pogo_forward_back`
+13. **Lateral Line Pogo** - `output` / `elastic_stiffness_plyometric_rudiments` / `lateral_line_pogo`
+14. **Split-Stance Pogo** - `output` / `elastic_stiffness_plyometric_rudiments` / `split_stance_pogo`
+15. **Single-Leg Pogo in Place** - `output` / `elastic_stiffness_plyometric_rudiments` / `single_leg_pogo_in_place`
+16. **Jump Rope Low Bounce** - `output` / `elastic_stiffness_plyometric_rudiments` / `jump_rope_low_bounce`
+17. **Low Cone Pogo Series** - `output` / `elastic_stiffness_plyometric_rudiments` / `low_cone_pogo_series`
+18. **Fast Ankling Pogo March** - `movement_intelligence` / `locomotion_sprint_mechanics` / `fast_ankling_pogo_march`
+19. **A-Skip Pogo Rhythm** - `movement_intelligence` / `locomotion_sprint_mechanics` / `a_skip_pogo_rhythm`
+20. **Wall Ankling Pogo** - `output` / `elastic_stiffness_plyometric_rudiments` / `wall_ankling_pogo`
+
+### 21-30 - Vertical Power and Reactive Hurdle/Box Plyometrics
+Fresh high-intent jumps and rebounds that directly express vertical power, stiffness, and reactive takeoff timing.
+
+21. **Squat Jump** - `output` / `jump_throw_explosive_power` / `squat_jump`
+22. **Countermovement Jump** - `output` / `jump_throw_explosive_power` / `countermovement_jump`
+23. **Tuck Jump** - `output` / `jump_throw_explosive_power` / `tuck_jump`
+24. **Repeat Vertical Jump Tall Posture** - `output` / `elastic_stiffness_plyometric_rudiments` / `repeat_vertical_jump_tall_posture`
+25. **Countermovement Jump Rebound** - `output` / `elastic_stiffness_plyometric_rudiments` / `countermovement_jump_rebound`
+26. **Low Hurdle Hop to Stick** - `output` / `elastic_stiffness_plyometric_rudiments` / `low_hurdle_hop_to_stick`
+27. **Low Hurdle Pogo Continuous** - `output` / `elastic_stiffness_plyometric_rudiments` / `low_hurdle_pogo_continuous`
+28. **Continuous Low Hurdle Hop** - `output` / `elastic_stiffness_plyometric_rudiments` / `continuous_low_hurdle_hop`
+29. **Depth Drop to Vertical Rebound** - `output` / `elastic_stiffness_plyometric_rudiments` / `depth_drop_to_vertical_rebound`
+30. **Depth Jump to Rebound** - `output` / `elastic_stiffness_plyometric_rudiments` / `depth_jump_to_rebound`
+
+### 31-40 - Approach, Single-Leg, and Event-Specific Jump Transfer
+Approach rhythm, penultimate-step skill, single-leg elastic control, and sport-specific vertical jump transfer for basketball, volleyball, high jump, and field-sport athletes.
+
+31. **Approach Vertical Jump** - `output` / `jump_throw_explosive_power` / `approach_vertical_jump`
+32. **Penultimate Step Pop-Up** - `movement_intelligence` / `locomotion_sprint_mechanics` / `penultimate_step_pop_up`
+33. **Two-Step Rim Touch** - `output` / `jump_throw_explosive_power` / `two_step_rim_touch`
+34. **Volleyball Block Jump** - `output` / `jump_throw_explosive_power` / `volleyball_block_jump`
+35. **Volleyball Approach Jump** - `output` / `jump_throw_explosive_power` / `volleyball_approach_jump`
+36. **High-Jump Takeoff Pop-Up** - `output` / `jump_throw_explosive_power` / `high_jump_takeoff_pop_up`
+37. **Scissor Jump Takeoff Drill** - `movement_intelligence` / `locomotion_sprint_mechanics` / `scissor_jump_takeoff_drill`
+38. **Single-Leg Rebound Hop** - `output` / `elastic_stiffness_plyometric_rudiments` / `single_leg_rebound_hop`
+39. **Alternating Bounds for Height** - `output` / `elastic_stiffness_plyometric_rudiments` / `alternating_bounds_for_height`
+40. **Acceleration Pogo Run-In to Vertical Jump** - `output` / `acceleration_start_speed` / `acceleration_pogo_run_in_to_vertical_jump`
+
+### 41-50 - Strength, Contrast, and Low-Impact Power Supports
+Loaded power and force-capacity exercises that raise the athlete's force ceiling, tissue reserve, and ability to express height when paired correctly with true Output work.
+
+41. **Trap-Bar Jump** - `output` / `jump_throw_explosive_power` / `trap_bar_jump`
+42. **Loaded Squat Jump** - `output` / `jump_throw_explosive_power` / `loaded_squat_jump`
+43. **Band-Assisted Overspeed Jump** - `output` / `jump_throw_explosive_power` / `band_assisted_overspeed_jump`
+44. **Back Squat** - `capacity` / `squat_knee_dominant_strength` / `back_squat`
+45. **Trap Bar Deadlift** - `capacity` / `hinge_posterior_chain_strength` / `trap_bar_deadlift`
+46. **Front Squat** - `capacity` / `squat_knee_dominant_strength` / `front_squat`
+47. **Rear-Foot-Elevated Split Squat** - `capacity` / `single_leg_lower_body_strength` / `rear_foot_elevated_split_squat`
+48. **Step-Up** - `capacity` / `single_leg_lower_body_strength` / `step_up`
+49. **Barbell Hip Thrust** - `capacity` / `hinge_posterior_chain_strength` / `barbell_hip_thrust`
+50. **Standing Calf Raise Isometric Hold** - `resilience` / `slow_eccentric_isometric_joint_resilience` / `standing_calf_raise_isometric_hold`
+
+## Complete Cursor-ready JSON
+
+```json
+{
+  "cluster": {
+    "title": "Top 50 Jumping Athletes (For Height) Exercise Library",
+    "focus": "jumping_athletes_for_height",
+    "purpose": "Improve vertical jump height through landing ownership, foot-ankle stiffness, vertical power, approach/takeoff skill, and force-capacity supports while preserving freshness and contact quality.",
+    "cardCount": 50,
+    "primaryPhases": [
+      "output",
+      "movement_intelligence",
+      "resilience",
+      "capacity"
+    ],
+    "sourceBasis": [
+      "exercise_card_details_for_llm.md: Card v2 authoring workflow, canonical phase keys, taxonomy key+weight tags, publish gates, dosage/scaling/safety/regimen fields, and camelCase Authoring JSON shape.",
+      "Purpose.txt was requested and searched for by exact filename and related Purpose/Vortex/Athleticism Accelerator language, but it was not located in the accessible File Library results for this session; this caveat is preserved instead of pretending it was read.",
+      "User focus: jumping athletes who need more vertical height; selection emphasizes landing ownership, foot-ankle stiffness, vertical power, approach/takeoff skill, and force-capacity supports without turning jump work into conditioning."
+    ],
+    "authoringFormat": "Card v2 camelCase Authoring JSON with taxonomy tags by key + weight",
+    "programmingRule": "High-intent jump work comes early, uses low volume and full recovery, and stops when height, speed, rhythm, contact quality, or landing control drops. Strength supports are placed after true Output unless an explicit contrast plan is used."
+  },
+  "categories": [
+    {
+      "range": "01-10",
+      "name": "Landing, Braking, and Takeoff-Position Foundations",
+      "focus": "Low-to-moderate demand drills that teach athletes to accept force, organize foot-knee-hip-trunk position, and finish each takeoff or landing with control before chasing height."
+    },
+    {
+      "range": "11-20",
+      "name": "Foot-Ankle Stiffness and Low-Level Elastic Contacts",
+      "focus": "Elastic rudiments that build springy foot-ankle behavior, quiet contacts, rhythm, and short amortization without high jump volume."
+    },
+    {
+      "range": "21-30",
+      "name": "Vertical Power and Reactive Hurdle/Box Plyometrics",
+      "focus": "Fresh high-intent jumps and rebounds that directly express vertical power, stiffness, and reactive takeoff timing."
+    },
+    {
+      "range": "31-40",
+      "name": "Approach, Single-Leg, and Event-Specific Jump Transfer",
+      "focus": "Approach rhythm, penultimate-step skill, single-leg elastic control, and sport-specific vertical jump transfer for basketball, volleyball, high jump, and field-sport athletes."
+    },
+    {
+      "range": "41-50",
+      "name": "Strength, Contrast, and Low-Impact Power Supports",
+      "focus": "Loaded power and force-capacity exercises that raise the athlete's force ceiling, tissue reserve, and ability to express height when paired correctly with true Output work."
+    }
+  ],
+  "cards": [
+    {
+      "id": 1,
+      "slug": "snap-down-to-stick",
+      "name": "Snap Down to Stick",
+      "family": "Landing and braking foundation",
+      "category": "Landing, Braking, and Takeoff-Position Foundations",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "landing_braking_control",
+      "subroleSecondary": "takeoff_position_foundation",
+      "slot": "snap_down_to_stick",
+      "cardSummary": "Snap Down to Stick is a landing and braking foundation exercise for jumping athletes who need more vertical height. It targets creates a low-threat entry point for foot pressure, knee tracking, trunk stiffness, and fast organization before higher-output jumps.",
+      "bestPlacement": "Use after the athlete is warm and before or after Output depending on intensity. Low-level landing education can precede jumps; higher-control work can follow main power work.",
+      "description": "The athlete performs Snap Down to Stick as a quality-first jump-height drill, emphasizing creates a low-threat entry point for foot pressure, knee tracking, trunk stiffness, and fast organization before higher-output jumps.",
+      "coachLanguage": "Primary subrole: landing and braking control. Coach Snap Down to Stick as landing/control support for jump height. The rep counts only when the athlete owns alignment, foot pressure, and breathing.",
+      "athleteLanguage": "Snap tall to athletic, land quiet, and freeze the shape.",
+      "selectionRationale": "Creates a low-threat entry point for foot pressure, knee tracking, trunk stiffness, and fast organization before higher-output jumps.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "balance",
+          "weight": 3
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 4
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "plyometrics",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Creates a low-threat entry point for foot pressure, knee tracking, trunk stiffness, and fast organization before higher-output jumps.",
+      "whyItGoesHere": "Belongs in Resilience because the main stress is landing ownership, braking, joint control, tendon tolerance, or position durability rather than maximal height.",
+      "commonMisuse": "Do not rush the stick, chase distance, or add complexity before the athlete can land quietly and pain free.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "land pattern",
+          "brace pattern",
+          "squat pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Snap tall to athletic, land quiet, and freeze the shape.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Snap tall to athletic, land quiet, and freeze the shape.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "2-4 sets of 2-5 quality reps or sticks",
+        "sets": "2-4",
+        "reps": "2-5",
+        "contacts": "2-10",
+        "duration": "",
+        "restSeconds": "45-90",
+        "intensity": "low to moderate",
+        "stopRule": "Stop if the athlete cannot land quietly, hold the finish, or keep foot-knee-hip alignment."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 1,
+        "impactLevel": 1,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": true,
+        "weeklyMaxFrequency": 4,
+        "minimumHoursBetweenHardExposures": 0,
+        "countsAsHighIntensity": false,
+        "countsAsHighImpact": false,
+        "countsAsNeural": false,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": false,
+        "fatigueCost": 2,
+        "fatigueSensitivity": 3,
+        "technicalComplexity": 3,
+        "impactLevel": 1,
+        "intensityCeiling": "moderate"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 2,
+      "slug": "drop-landing-to-stick",
+      "name": "Drop Landing to Stick",
+      "family": "Landing and braking foundation",
+      "category": "Landing, Braking, and Takeoff-Position Foundations",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "landing_braking_control",
+      "subroleSecondary": "eccentric_landing_capacity",
+      "slot": "drop_landing_to_stick",
+      "cardSummary": "Drop Landing to Stick is a landing and braking foundation exercise for jumping athletes who need more vertical height. It targets removes the takeoff so the coach can isolate landing mechanics, eccentric braking, and alignment under slightly higher force.",
+      "bestPlacement": "Use after the athlete is warm and before or after Output depending on intensity. Low-level landing education can precede jumps; higher-control work can follow main power work.",
+      "description": "The athlete performs Drop Landing to Stick as a quality-first jump-height drill, emphasizing removes the takeoff so the coach can isolate landing mechanics, eccentric braking, and alignment under slightly higher force.",
+      "coachLanguage": "Primary subrole: landing and braking control. Coach Drop Landing to Stick as landing/control support for jump height. The rep counts only when the athlete owns alignment, foot pressure, and breathing.",
+      "athleteLanguage": "Step off, absorb quietly, and own the landing for two counts.",
+      "selectionRationale": "Removes the takeoff so the coach can isolate landing mechanics, eccentric braking, and alignment under slightly higher force.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "balance",
+          "weight": 3
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 4
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "plyometrics",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Removes the takeoff so the coach can isolate landing mechanics, eccentric braking, and alignment under slightly higher force.",
+      "whyItGoesHere": "Belongs in Resilience because the main stress is landing ownership, braking, joint control, tendon tolerance, or position durability rather than maximal height.",
+      "commonMisuse": "Do not rush the stick, chase distance, or add complexity before the athlete can land quietly and pain free.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "land pattern",
+          "brace pattern",
+          "squat pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear box area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Step off, absorb quietly, and own the landing for two counts.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Step off, absorb quietly, and own the landing for two counts.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "2-4 sets of 2-5 quality reps or sticks",
+        "sets": "2-4",
+        "reps": "2-5",
+        "contacts": "2-10",
+        "duration": "",
+        "restSeconds": "45-90",
+        "intensity": "low to moderate",
+        "stopRule": "Stop if the athlete cannot land quietly, hold the finish, or keep foot-knee-hip alignment."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 4,
+        "minimumHoursBetweenHardExposures": 0,
+        "countsAsHighIntensity": false,
+        "countsAsHighImpact": false,
+        "countsAsNeural": false,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": false,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 3,
+        "technicalComplexity": 3,
+        "impactLevel": 2,
+        "intensityCeiling": "moderate"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 3,
+      "slug": "low-box-step-off-to-stick",
+      "name": "Low Box Step-Off to Stick",
+      "family": "Landing and braking foundation",
+      "category": "Landing, Braking, and Takeoff-Position Foundations",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "landing_braking_control",
+      "subroleSecondary": "low_level_depth_landing",
+      "slot": "low_box_step_off_to_stick",
+      "cardSummary": "Low Box Step-Off to Stick is a landing and braking foundation exercise for jumping athletes who need more vertical height. It targets builds confidence and tissue tolerance for vertical landings with a box height low enough to protect quality.",
+      "bestPlacement": "Use after the athlete is warm and before or after Output depending on intensity. Low-level landing education can precede jumps; higher-control work can follow main power work.",
+      "description": "The athlete performs Low Box Step-Off to Stick as a quality-first jump-height drill, emphasizing builds confidence and tissue tolerance for vertical landings with a box height low enough to protect quality.",
+      "coachLanguage": "Primary subrole: landing and braking control. Coach Low Box Step-Off to Stick as landing/control support for jump height. The rep counts only when the athlete owns alignment, foot pressure, and breathing.",
+      "athleteLanguage": "Step, don't jump; meet the floor softly and hold.",
+      "selectionRationale": "Builds confidence and tissue tolerance for vertical landings with a box height low enough to protect quality.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "balance",
+          "weight": 3
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 4
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "plyometrics",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Builds confidence and tissue tolerance for vertical landings with a box height low enough to protect quality.",
+      "whyItGoesHere": "Belongs in Resilience because the main stress is landing ownership, braking, joint control, tendon tolerance, or position durability rather than maximal height.",
+      "commonMisuse": "Do not rush the stick, chase distance, or add complexity before the athlete can land quietly and pain free.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "land pattern",
+          "brace pattern",
+          "squat pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear box area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Step, don't jump; meet the floor softly and hold.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Step, don't jump; meet the floor softly and hold.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "2-4 sets of 2-5 quality reps or sticks",
+        "sets": "2-4",
+        "reps": "2-5",
+        "contacts": "2-10",
+        "duration": "",
+        "restSeconds": "45-90",
+        "intensity": "low to moderate",
+        "stopRule": "Stop if the athlete cannot land quietly, hold the finish, or keep foot-knee-hip alignment."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 4,
+        "minimumHoursBetweenHardExposures": 0,
+        "countsAsHighIntensity": false,
+        "countsAsHighImpact": false,
+        "countsAsNeural": false,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": false,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 3,
+        "technicalComplexity": 3,
+        "impactLevel": 2,
+        "intensityCeiling": "moderate"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 4,
+      "slug": "squat-jump-to-stick",
+      "name": "Squat Jump to Stick",
+      "family": "Vertical projection foundation",
+      "category": "Landing, Braking, and Takeoff-Position Foundations",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "landing_control",
+      "slot": "squat_jump_to_stick",
+      "cardSummary": "Squat Jump to Stick is a vertical projection foundation exercise for jumping athletes who need more vertical height. It targets connects basic vertical force production to landing ownership so athletes do not separate takeoff height from safe finish position.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Squat Jump to Stick as a quality-first jump-height drill, emphasizing connects basic vertical force production to landing ownership so athletes do not separate takeoff height from safe finish position.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach Squat Jump to Stick for jump-height transfer: Jump straight up, land where you started, and stick clean. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Jump straight up, land where you started, and stick clean.",
+      "selectionRationale": "Connects basic vertical force production to landing ownership so athletes do not separate takeoff height from safe finish position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "body_control",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 4
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Connects basic vertical force production to landing ownership so athletes do not separate takeoff height from safe finish position.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "squat pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Jump straight up, land where you started, and stick clean.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Jump straight up, land where you started, and stick clean.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 1-4 reps",
+        "sets": "3-5",
+        "reps": "1-4",
+        "contacts": "3-20",
+        "duration": "",
+        "restSeconds": "90-180",
+        "intensity": "high intent with controlled stick",
+        "stopRule": "Stop if takeoff speed or landing ownership drops."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 3,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 2,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 5,
+      "slug": "countermovement-jump-to-stick",
+      "name": "Countermovement Jump to Stick",
+      "family": "Vertical projection foundation",
+      "category": "Landing, Braking, and Takeoff-Position Foundations",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "landing_control",
+      "slot": "countermovement_jump_to_stick",
+      "cardSummary": "Countermovement Jump to Stick is a vertical projection foundation exercise for jumping athletes who need more vertical height. It targets trains the classic dip-and-drive pattern for vertical height while keeping each rep accountable through a controlled landing.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Countermovement Jump to Stick as a quality-first jump-height drill, emphasizing trains the classic dip-and-drive pattern for vertical height while keeping each rep accountable through a controlled landing.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach Countermovement Jump to Stick for jump-height transfer: Dip fast, punch the floor, and freeze the landing. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Dip fast, punch the floor, and freeze the landing.",
+      "selectionRationale": "Trains the classic dip-and-drive pattern for vertical height while keeping each rep accountable through a controlled landing.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "body_control",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 4
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Trains the classic dip-and-drive pattern for vertical height while keeping each rep accountable through a controlled landing.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Dip fast, punch the floor, and freeze the landing.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Dip fast, punch the floor, and freeze the landing.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 1-4 reps",
+        "sets": "3-5",
+        "reps": "1-4",
+        "contacts": "3-20",
+        "duration": "",
+        "restSeconds": "90-180",
+        "intensity": "high intent with controlled stick",
+        "stopRule": "Stop if takeoff speed or landing ownership drops."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 3,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 6,
+      "slug": "broad-jump-to-stick",
+      "name": "Broad Jump to Stick",
+      "family": "Horizontal projection support",
+      "category": "Landing, Braking, and Takeoff-Position Foundations",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "horizontal_projection_support",
+      "slot": "broad_jump_to_stick",
+      "cardSummary": "Broad Jump to Stick is a horizontal projection support exercise for jumping athletes who need more vertical height. It targets improves hip extension and projection ability that supports approach jumping and aggressive takeoff without only chasing vertical contacts.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Broad Jump to Stick as a quality-first jump-height drill, emphasizing improves hip extension and projection ability that supports approach jumping and aggressive takeoff without only chasing vertical contacts.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach Broad Jump to Stick for jump-height transfer: Push the floor away, land stacked, and control the hips. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Push the floor away, land stacked, and control the hips.",
+      "selectionRationale": "Improves hip extension and projection ability that supports approach jumping and aggressive takeoff without only chasing vertical contacts.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "body_control",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 4
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "hinge",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Improves hip extension and projection ability that supports approach jumping and aggressive takeoff without only chasing vertical contacts.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "hinge pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Push the floor away, land stacked, and control the hips.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Push the floor away, land stacked, and control the hips.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 1-4 reps",
+        "sets": "3-5",
+        "reps": "1-4",
+        "contacts": "3-20",
+        "duration": "",
+        "restSeconds": "90-180",
+        "intensity": "high intent with controlled stick",
+        "stopRule": "Stop if takeoff speed or landing ownership drops."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 3,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 2,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 7,
+      "slug": "lateral-hop-to-stick",
+      "name": "Lateral Hop to Stick",
+      "family": "Frontal-plane landing control",
+      "category": "Landing, Braking, and Takeoff-Position Foundations",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "landing_braking_control",
+      "subroleSecondary": "frontal_plane_jump_control",
+      "slot": "lateral_hop_to_stick",
+      "cardSummary": "Lateral Hop to Stick is a frontal-plane landing control exercise for jumping athletes who need more vertical height. It targets builds side-to-side braking, hip control, and knee tracking needed by jumpers who cut, gather, or land from imperfect positions.",
+      "bestPlacement": "Use after the athlete is warm and before or after Output depending on intensity. Low-level landing education can precede jumps; higher-control work can follow main power work.",
+      "description": "The athlete performs Lateral Hop to Stick as a quality-first jump-height drill, emphasizing builds side-to-side braking, hip control, and knee tracking needed by jumpers who cut, gather, or land from imperfect positions.",
+      "coachLanguage": "Primary subrole: landing and braking control. Coach Lateral Hop to Stick as landing/control support for jump height. The rep counts only when the athlete owns alignment, foot pressure, and breathing.",
+      "athleteLanguage": "Hop, catch the floor, and keep knee over toes.",
+      "selectionRationale": "Builds side-to-side braking, hip control, and knee tracking needed by jumpers who cut, gather, or land from imperfect positions.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "balance",
+          "weight": 3
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 4
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "plyometrics",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Builds side-to-side braking, hip control, and knee tracking needed by jumpers who cut, gather, or land from imperfect positions.",
+      "whyItGoesHere": "Belongs in Resilience because the main stress is landing ownership, braking, joint control, tendon tolerance, or position durability rather than maximal height.",
+      "commonMisuse": "Do not rush the stick, chase distance, or add complexity before the athlete can land quietly and pain free.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "locomote pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear cones area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Hop, catch the floor, and keep knee over toes.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Hop, catch the floor, and keep knee over toes.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "2-4 sets of 2-5 quality reps or sticks",
+        "sets": "2-4",
+        "reps": "2-5",
+        "contacts": "2-10",
+        "duration": "",
+        "restSeconds": "45-90",
+        "intensity": "low to moderate",
+        "stopRule": "Stop if the athlete cannot land quietly, hold the finish, or keep foot-knee-hip alignment."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 4,
+        "minimumHoursBetweenHardExposures": 0,
+        "countsAsHighIntensity": false,
+        "countsAsHighImpact": false,
+        "countsAsNeural": false,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": false,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 3,
+        "technicalComplexity": 3,
+        "impactLevel": 2,
+        "intensityCeiling": "moderate"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 8,
+      "slug": "single-leg-hop-to-stick",
+      "name": "Single-Leg Hop to Stick",
+      "family": "Single-leg landing foundation",
+      "category": "Landing, Braking, and Takeoff-Position Foundations",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "single_leg_balance_foot_ankle_hip_control",
+      "subroleSecondary": "single_leg_jump_landing_control",
+      "slot": "single_leg_hop_to_stick",
+      "cardSummary": "Single-Leg Hop to Stick is a single-leg landing foundation exercise for jumping athletes who need more vertical height. It targets reveals right-left stiffness and control gaps while building the single-leg landing base for approach and unilateral takeoffs.",
+      "bestPlacement": "Use after the athlete is warm and before or after Output depending on intensity. Low-level landing education can precede jumps; higher-control work can follow main power work.",
+      "description": "The athlete performs Single-Leg Hop to Stick as a quality-first jump-height drill, emphasizing reveals right-left stiffness and control gaps while building the single-leg landing base for approach and unilateral takeoffs.",
+      "coachLanguage": "Primary subrole: single-leg foot/ankle/hip control. Coach Single-Leg Hop to Stick as landing/control support for jump height. The rep counts only when the athlete owns alignment, foot pressure, and breathing.",
+      "athleteLanguage": "Hop small, land tall, and hold without wobble.",
+      "selectionRationale": "Reveals right-left stiffness and control gaps while building the single-leg landing base for approach and unilateral takeoffs.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "balance",
+          "weight": 3
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 4
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Reveals right-left stiffness and control gaps while building the single-leg landing base for approach and unilateral takeoffs.",
+      "whyItGoesHere": "Belongs in Resilience because the main stress is landing ownership, braking, joint control, tendon tolerance, or position durability rather than maximal height.",
+      "commonMisuse": "Do not rush the stick, chase distance, or add complexity before the athlete can land quietly and pain free.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Hop small, land tall, and hold without wobble.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Hop small, land tall, and hold without wobble.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "2-4 sets of 2-5 quality reps or sticks",
+        "sets": "2-4",
+        "reps": "2-5",
+        "contacts": "2-10",
+        "duration": "",
+        "restSeconds": "45-90",
+        "intensity": "low to moderate",
+        "stopRule": "Stop if the athlete cannot land quietly, hold the finish, or keep foot-knee-hip alignment."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 4,
+        "minimumHoursBetweenHardExposures": 0,
+        "countsAsHighIntensity": false,
+        "countsAsHighImpact": true,
+        "countsAsNeural": false,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": false,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 3,
+        "technicalComplexity": 3,
+        "impactLevel": 3,
+        "intensityCeiling": "moderate"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 9,
+      "slug": "split-squat-jump-to-stick",
+      "name": "Split-Squat Jump to Stick",
+      "family": "Split-stance vertical foundation",
+      "category": "Landing, Braking, and Takeoff-Position Foundations",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "split_stance_landing_control",
+      "slot": "split_squat_jump_to_stick",
+      "cardSummary": "Split-Squat Jump to Stick is a split-stance vertical foundation exercise for jumping athletes who need more vertical height. It targets links unilateral leg drive to vertical projection while demanding front-leg braking and pelvis control on the finish.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Split-Squat Jump to Stick as a quality-first jump-height drill, emphasizing links unilateral leg drive to vertical projection while demanding front-leg braking and pelvis control on the finish.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach Split-Squat Jump to Stick for jump-height transfer: Drive up, switch or land split, and own the front leg. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Drive up, switch or land split, and own the front leg.",
+      "selectionRationale": "Links unilateral leg drive to vertical projection while demanding front-leg braking and pelvis control on the finish.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "body_control",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 4
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "knee",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Links unilateral leg drive to vertical projection while demanding front-leg braking and pelvis control on the finish.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "squat pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Drive up, switch or land split, and own the front leg.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Drive up, switch or land split, and own the front leg.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 1-4 reps",
+        "sets": "3-5",
+        "reps": "1-4",
+        "contacts": "3-20",
+        "duration": "",
+        "restSeconds": "90-180",
+        "intensity": "high intent with controlled stick",
+        "stopRule": "Stop if takeoff speed or landing ownership drops."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 3,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 10,
+      "slug": "approach-jump-penultimate-stick",
+      "name": "Approach Jump Penultimate Stick",
+      "family": "Approach takeoff foundation",
+      "category": "Landing, Braking, and Takeoff-Position Foundations",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "locomotion_sprint_mechanics",
+      "subroleSecondary": "penultimate_takeoff_skill",
+      "slot": "approach_jump_penultimate_stick",
+      "cardSummary": "Approach Jump Penultimate Stick is a approach takeoff foundation exercise for jumping athletes who need more vertical height. It targets teaches athletes to convert approach speed into a stable penultimate/takeoff shape before adding maximal jump height.",
+      "bestPlacement": "Use after a general warm-up and access work, before true Output or heavy strength. Keep enough freshness for clean rhythm and learning.",
+      "description": "The athlete performs Approach Jump Penultimate Stick as a quality-first jump-height drill, emphasizing teaches athletes to convert approach speed into a stable penultimate/takeoff shape before adding maximal jump height.",
+      "coachLanguage": "Primary subrole: locomotion/sprint mechanics. Coach Approach Jump Penultimate Stick as approach/takeoff skill, not conditioning. Use clear rhythm goals, short reps, and immediate feedback.",
+      "athleteLanguage": "Tall approach, lower on the penultimate, then stick the takeoff shape.",
+      "selectionRationale": "Teaches athletes to convert approach speed into a stable penultimate/takeoff shape before adding maximal jump height.",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        },
+        {
+          "key": "body_control",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "coordination_drills",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "coordination_timing",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Teaches athletes to convert approach speed into a stable penultimate/takeoff shape before adding maximal jump height.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the goal is approach rhythm, body organization, timing, and takeoff skill before fatigue.",
+      "commonMisuse": "Do not turn technical approach work into conditioning. Stop when timing, posture, or takeoff shape gets worse.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "locomote pattern",
+          "jump pattern",
+          "land pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear cones area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Tall approach, lower on the penultimate, then stick the takeoff shape.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Tall approach, lower on the penultimate, then stick the takeoff shape.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 technical reps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-12",
+        "duration": "",
+        "restSeconds": "60-120",
+        "intensity": "moderate; technical quality first",
+        "stopRule": "Stop when rhythm, posture, takeoff timing, or landing control degrades."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": true,
+        "weeklyMaxFrequency": 4,
+        "minimumHoursBetweenHardExposures": 0,
+        "countsAsHighIntensity": false,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 2,
+        "fatigueSensitivity": 4,
+        "technicalComplexity": 3,
+        "impactLevel": 2,
+        "intensityCeiling": "moderate"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 11,
+      "slug": "ankle-pogo-in-place",
+      "name": "Ankle Pogo in Place",
+      "family": "Elastic ankle stiffness",
+      "category": "Foot-Ankle Stiffness and Low-Level Elastic Contacts",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "neural_output_readiness_support",
+      "slot": "ankle_pogo_in_place",
+      "cardSummary": "Ankle Pogo in Place is a elastic ankle stiffness exercise for jumping athletes who need more vertical height. It targets builds low-amplitude springiness and teaches the athlete to return force without sinking into long ground contacts.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Ankle Pogo in Place as a quality-first jump-height drill, emphasizing builds low-amplitude springiness and teaches the athlete to return force without sinking into long ground contacts.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Ankle Pogo in Place for jump-height transfer: Bounce tall, quiet, and quick from the balls of the feet. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Bounce tall, quiet, and quick from the balls of the feet.",
+      "selectionRationale": "Builds low-amplitude springiness and teaches the athlete to return force without sinking into long ground contacts.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Builds low-amplitude springiness and teaches the athlete to return force without sinking into long ground contacts.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Bounce tall, quiet, and quick from the balls of the feet.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Bounce tall, quiet, and quick from the balls of the feet.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "2-4 sets of 8-20 contacts or 5-10 seconds",
+        "sets": "2-4",
+        "reps": "",
+        "contacts": "8-20 per set",
+        "duration": "5-10 seconds",
+        "restSeconds": "60-120",
+        "intensity": "low amplitude, high intent",
+        "stopRule": "Stop when contacts get loud, slow, flat-footed, or rhythm changes."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 1,
+        "impactLevel": 1,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 3,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": false,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 1,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 12,
+      "slug": "line-pogo-forward-back",
+      "name": "Line Pogo Forward-Back",
+      "family": "Linear ankle stiffness",
+      "category": "Foot-Ankle Stiffness and Low-Level Elastic Contacts",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "linear_elastic_control",
+      "slot": "line_pogo_forward_back",
+      "cardSummary": "Line Pogo Forward-Back is a linear ankle stiffness exercise for jumping athletes who need more vertical height. It targets adds small forward-backward displacement so the ankle and trunk stay organized as contact position changes.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Line Pogo Forward-Back as a quality-first jump-height drill, emphasizing adds small forward-backward displacement so the ankle and trunk stay organized as contact position changes.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Line Pogo Forward-Back for jump-height transfer: Hop over the line with fast feet and a still torso. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Hop over the line with fast feet and a still torso.",
+      "selectionRationale": "Adds small forward-backward displacement so the ankle and trunk stay organized as contact position changes.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "line",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Adds small forward-backward displacement so the ankle and trunk stay organized as contact position changes.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "locomote pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear line area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Hop over the line with fast feet and a still torso.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Hop over the line with fast feet and a still torso.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "2-4 sets of 8-20 contacts or 5-10 seconds",
+        "sets": "2-4",
+        "reps": "",
+        "contacts": "8-20 per set",
+        "duration": "5-10 seconds",
+        "restSeconds": "60-120",
+        "intensity": "low amplitude, high intent",
+        "stopRule": "Stop when contacts get loud, slow, flat-footed, or rhythm changes."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 1,
+        "impactLevel": 1,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 3,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": false,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 1,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 13,
+      "slug": "lateral-line-pogo",
+      "name": "Lateral Line Pogo",
+      "family": "Lateral ankle stiffness",
+      "category": "Foot-Ankle Stiffness and Low-Level Elastic Contacts",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "frontal_plane_elastic_control",
+      "slot": "lateral_line_pogo",
+      "cardSummary": "Lateral Line Pogo is a lateral ankle stiffness exercise for jumping athletes who need more vertical height. It targets builds frontal-plane elastic control for athletes who plant, gather, or jump from lateral movement.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Lateral Line Pogo as a quality-first jump-height drill, emphasizing builds frontal-plane elastic control for athletes who plant, gather, or jump from lateral movement.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Lateral Line Pogo for jump-height transfer: Quick side-to-side contacts; stay tall and quiet. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Quick side-to-side contacts; stay tall and quiet.",
+      "selectionRationale": "Builds frontal-plane elastic control for athletes who plant, gather, or jump from lateral movement.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "line",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Builds frontal-plane elastic control for athletes who plant, gather, or jump from lateral movement.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "locomote pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear line area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Quick side-to-side contacts; stay tall and quiet.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Quick side-to-side contacts; stay tall and quiet.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "2-4 sets of 8-20 contacts or 5-10 seconds",
+        "sets": "2-4",
+        "reps": "",
+        "contacts": "8-20 per set",
+        "duration": "5-10 seconds",
+        "restSeconds": "60-120",
+        "intensity": "low amplitude, high intent",
+        "stopRule": "Stop when contacts get loud, slow, flat-footed, or rhythm changes."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 1,
+        "impactLevel": 1,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 3,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": false,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 1,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 14,
+      "slug": "split-stance-pogo",
+      "name": "Split-Stance Pogo",
+      "family": "Split-stance stiffness",
+      "category": "Foot-Ankle Stiffness and Low-Level Elastic Contacts",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "split_stance_elastic_control",
+      "slot": "split_stance_pogo",
+      "cardSummary": "Split-Stance Pogo is a split-stance stiffness exercise for jumping athletes who need more vertical height. It targets introduces asymmetrical lower-body stiffness without the full demand of a single-leg jump.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Split-Stance Pogo as a quality-first jump-height drill, emphasizing introduces asymmetrical lower-body stiffness without the full demand of a single-leg jump.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Split-Stance Pogo for jump-height transfer: Keep the split stance, bounce low, and switch only if quality stays sharp. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Keep the split stance, bounce low, and switch only if quality stays sharp.",
+      "selectionRationale": "Introduces asymmetrical lower-body stiffness without the full demand of a single-leg jump.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Introduces asymmetrical lower-body stiffness without the full demand of a single-leg jump.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Keep the split stance, bounce low, and switch only if quality stays sharp.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Keep the split stance, bounce low, and switch only if quality stays sharp.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "2-4 sets of 8-20 contacts or 5-10 seconds",
+        "sets": "2-4",
+        "reps": "",
+        "contacts": "8-20 per set",
+        "duration": "5-10 seconds",
+        "restSeconds": "60-120",
+        "intensity": "low amplitude, high intent",
+        "stopRule": "Stop when contacts get loud, slow, flat-footed, or rhythm changes."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 1,
+        "impactLevel": 1,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 3,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": false,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 1,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 15,
+      "slug": "single-leg-pogo-in-place",
+      "name": "Single-Leg Pogo in Place",
+      "family": "Single-leg ankle stiffness",
+      "category": "Foot-Ankle Stiffness and Low-Level Elastic Contacts",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "single_leg_elastic_contacts",
+      "slot": "single_leg_pogo_in_place",
+      "cardSummary": "Single-Leg Pogo in Place is a single-leg ankle stiffness exercise for jumping athletes who need more vertical height. It targets develops single-leg stiffness and exposes asymmetries that limit approach takeoffs and repeated jump efforts.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Single-Leg Pogo in Place as a quality-first jump-height drill, emphasizing develops single-leg stiffness and exposes asymmetries that limit approach takeoffs and repeated jump efforts.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Single-Leg Pogo in Place for jump-height transfer: Small spring, tall posture, no heel collapse. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Small spring, tall posture, no heel collapse.",
+      "selectionRationale": "Develops single-leg stiffness and exposes asymmetries that limit approach takeoffs and repeated jump efforts.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Develops single-leg stiffness and exposes asymmetries that limit approach takeoffs and repeated jump efforts.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Small spring, tall posture, no heel collapse.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Small spring, tall posture, no heel collapse.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "2-4 sets of 8-20 contacts or 5-10 seconds",
+        "sets": "2-4",
+        "reps": "",
+        "contacts": "8-20 per set",
+        "duration": "5-10 seconds",
+        "restSeconds": "60-120",
+        "intensity": "low amplitude, high intent",
+        "stopRule": "Stop when contacts get loud, slow, flat-footed, or rhythm changes."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 3,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 2,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 16,
+      "slug": "jump-rope-low-bounce",
+      "name": "Jump Rope Low Bounce",
+      "family": "Elastic rhythm",
+      "category": "Foot-Ankle Stiffness and Low-Level Elastic Contacts",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "jump_rope_elastic_rhythm",
+      "slot": "jump_rope_low_bounce",
+      "cardSummary": "Jump Rope Low Bounce is a elastic rhythm exercise for jumping athletes who need more vertical height. It targets uses rope rhythm to keep contacts short, posture tall, and elastic timing repeatable without high amplitudes.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Jump Rope Low Bounce as a quality-first jump-height drill, emphasizing uses rope rhythm to keep contacts short, posture tall, and elastic timing repeatable without high amplitudes.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Jump Rope Low Bounce for jump-height transfer: Let the rope set the rhythm; bounce low and smooth. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Let the rope set the rhythm; bounce low and smooth.",
+      "selectionRationale": "Uses rope rhythm to keep contacts short, posture tall, and elastic timing repeatable without high amplitudes.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "jump_rope",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Uses rope rhythm to keep contacts short, posture tall, and elastic timing repeatable without high amplitudes.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear jump rope area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Let the rope set the rhythm; bounce low and smooth.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Let the rope set the rhythm; bounce low and smooth.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "2-4 sets of 8-20 contacts or 5-10 seconds",
+        "sets": "2-4",
+        "reps": "",
+        "contacts": "8-20 per set",
+        "duration": "5-10 seconds",
+        "restSeconds": "60-120",
+        "intensity": "low amplitude, high intent",
+        "stopRule": "Stop when contacts get loud, slow, flat-footed, or rhythm changes."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 1,
+        "impactLevel": 1,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 3,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": false,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 1,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 17,
+      "slug": "low-cone-pogo-series",
+      "name": "Low Cone Pogo Series",
+      "family": "Elastic contact series",
+      "category": "Foot-Ankle Stiffness and Low-Level Elastic Contacts",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "elastic_target_control",
+      "slot": "low_cone_pogo_series",
+      "cardSummary": "Low Cone Pogo Series is a elastic contact series exercise for jumping athletes who need more vertical height. It targets adds simple spatial targets while preserving the low-contact quality needed before hurdles or reactive bounds.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Low Cone Pogo Series as a quality-first jump-height drill, emphasizing adds simple spatial targets while preserving the low-contact quality needed before hurdles or reactive bounds.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Low Cone Pogo Series for jump-height transfer: Pop over the cone, land quiet, keep the same rhythm. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Pop over the cone, land quiet, keep the same rhythm.",
+      "selectionRationale": "Adds simple spatial targets while preserving the low-contact quality needed before hurdles or reactive bounds.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Adds simple spatial targets while preserving the low-contact quality needed before hurdles or reactive bounds.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "locomote pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear cones area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Pop over the cone, land quiet, keep the same rhythm.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Pop over the cone, land quiet, keep the same rhythm.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "2-4 sets of 8-20 contacts or 5-10 seconds",
+        "sets": "2-4",
+        "reps": "",
+        "contacts": "8-20 per set",
+        "duration": "5-10 seconds",
+        "restSeconds": "60-120",
+        "intensity": "low amplitude, high intent",
+        "stopRule": "Stop when contacts get loud, slow, flat-footed, or rhythm changes."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 3,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 2,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 18,
+      "slug": "fast-ankling-pogo-march",
+      "name": "Fast Ankling Pogo March",
+      "family": "Sprint-jump ankle timing",
+      "category": "Foot-Ankle Stiffness and Low-Level Elastic Contacts",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "locomotion_sprint_mechanics",
+      "subroleSecondary": "elastic_sprint_rhythm",
+      "slot": "fast_ankling_pogo_march",
+      "cardSummary": "Fast Ankling Pogo March is a sprint-jump ankle timing exercise for jumping athletes who need more vertical height. It targets connects dorsiflexed foot strike, posture, and quick contacts to the rhythm used in approach jumps.",
+      "bestPlacement": "Use after a general warm-up and access work, before true Output or heavy strength. Keep enough freshness for clean rhythm and learning.",
+      "description": "The athlete performs Fast Ankling Pogo March as a quality-first jump-height drill, emphasizing connects dorsiflexed foot strike, posture, and quick contacts to the rhythm used in approach jumps.",
+      "coachLanguage": "Primary subrole: locomotion/sprint mechanics. Coach Fast Ankling Pogo March as approach/takeoff skill, not conditioning. Use clear rhythm goals, short reps, and immediate feedback.",
+      "athleteLanguage": "Toe up, strike down, move forward without reaching.",
+      "selectionRationale": "Connects dorsiflexed foot strike, posture, and quick contacts to the rhythm used in approach jumps.",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        },
+        {
+          "key": "body_control",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "coordination_drills",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "coordination_timing",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Connects dorsiflexed foot strike, posture, and quick contacts to the rhythm used in approach jumps.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the goal is approach rhythm, body organization, timing, and takeoff skill before fatigue.",
+      "commonMisuse": "Do not turn technical approach work into conditioning. Stop when timing, posture, or takeoff shape gets worse.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "locomote pattern",
+          "jump pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear cones area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Toe up, strike down, move forward without reaching.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Toe up, strike down, move forward without reaching.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 technical reps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-12",
+        "duration": "",
+        "restSeconds": "60-120",
+        "intensity": "moderate; technical quality first",
+        "stopRule": "Stop when rhythm, posture, takeoff timing, or landing control degrades."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 1,
+        "impactLevel": 1,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": true,
+        "weeklyMaxFrequency": 4,
+        "minimumHoursBetweenHardExposures": 0,
+        "countsAsHighIntensity": false,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": false,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 2,
+        "fatigueSensitivity": 4,
+        "technicalComplexity": 3,
+        "impactLevel": 1,
+        "intensityCeiling": "moderate"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 19,
+      "slug": "a-skip-pogo-rhythm",
+      "name": "A-Skip Pogo Rhythm",
+      "family": "Front-side rhythm stiffness",
+      "category": "Foot-Ankle Stiffness and Low-Level Elastic Contacts",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "locomotion_sprint_mechanics",
+      "subroleSecondary": "a_skip_elastic_rhythm",
+      "slot": "a_skip_pogo_rhythm",
+      "cardSummary": "A-Skip Pogo Rhythm is a front-side rhythm stiffness exercise for jumping athletes who need more vertical height. It targets links front-side lift, elastic ground contact, and arm-leg rhythm so approach jumps stay coordinated.",
+      "bestPlacement": "Use after a general warm-up and access work, before true Output or heavy strength. Keep enough freshness for clean rhythm and learning.",
+      "description": "The athlete performs A-Skip Pogo Rhythm as a quality-first jump-height drill, emphasizing links front-side lift, elastic ground contact, and arm-leg rhythm so approach jumps stay coordinated.",
+      "coachLanguage": "Primary subrole: locomotion/sprint mechanics. Coach A-Skip Pogo Rhythm as approach/takeoff skill, not conditioning. Use clear rhythm goals, short reps, and immediate feedback.",
+      "athleteLanguage": "Lift, punch down, and keep the skip springy.",
+      "selectionRationale": "Links front-side lift, elastic ground contact, and arm-leg rhythm so approach jumps stay coordinated.",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        },
+        {
+          "key": "body_control",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "coordination_drills",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "coordination_timing",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Links front-side lift, elastic ground contact, and arm-leg rhythm so approach jumps stay coordinated.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the goal is approach rhythm, body organization, timing, and takeoff skill before fatigue.",
+      "commonMisuse": "Do not turn technical approach work into conditioning. Stop when timing, posture, or takeoff shape gets worse.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "locomote pattern",
+          "jump pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Lift, punch down, and keep the skip springy.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Lift, punch down, and keep the skip springy.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 technical reps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-12",
+        "duration": "",
+        "restSeconds": "60-120",
+        "intensity": "moderate; technical quality first",
+        "stopRule": "Stop when rhythm, posture, takeoff timing, or landing control degrades."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 1,
+        "impactLevel": 1,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": true,
+        "weeklyMaxFrequency": 4,
+        "minimumHoursBetweenHardExposures": 0,
+        "countsAsHighIntensity": false,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": false,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 2,
+        "fatigueSensitivity": 4,
+        "technicalComplexity": 3,
+        "impactLevel": 1,
+        "intensityCeiling": "moderate"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 20,
+      "slug": "wall-ankling-pogo",
+      "name": "Wall Ankling Pogo",
+      "family": "Supported sprint stiffness",
+      "category": "Foot-Ankle Stiffness and Low-Level Elastic Contacts",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "wall_supported_elastic_contacts",
+      "slot": "wall_ankling_pogo",
+      "cardSummary": "Wall Ankling Pogo is a supported sprint stiffness exercise for jumping athletes who need more vertical height. It targets the wall support lets athletes feel active foot strike and lower-leg stiffness with less balance noise.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Wall Ankling Pogo as a quality-first jump-height drill, emphasizing the wall support lets athletes feel active foot strike and lower-leg stiffness with less balance noise.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Wall Ankling Pogo for jump-height transfer: Push the wall, strike under the hips, stay stacked. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Push the wall, strike under the hips, stay stacked.",
+      "selectionRationale": "The wall support lets athletes feel active foot strike and lower-leg stiffness with less balance noise.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "wall",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "The wall support lets athletes feel active foot strike and lower-leg stiffness with less balance noise.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear wall area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Push the wall, strike under the hips, stay stacked.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Push the wall, strike under the hips, stay stacked.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "2-4 sets of 8-20 contacts or 5-10 seconds",
+        "sets": "2-4",
+        "reps": "",
+        "contacts": "8-20 per set",
+        "duration": "5-10 seconds",
+        "restSeconds": "60-120",
+        "intensity": "low amplitude, high intent",
+        "stopRule": "Stop when contacts get loud, slow, flat-footed, or rhythm changes."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 1,
+        "impactLevel": 1,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 3,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": false,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 1,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 21,
+      "slug": "squat-jump",
+      "name": "Squat Jump",
+      "family": "Concentric vertical power",
+      "category": "Vertical Power and Reactive Hurdle/Box Plyometrics",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "concentric_force_expression",
+      "slot": "squat_jump",
+      "cardSummary": "Squat Jump is a concentric vertical power exercise for jumping athletes who need more vertical height. It targets limits elastic contribution and teaches athletes to create vertical force from a stable set position.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Squat Jump as a quality-first jump-height drill, emphasizing limits elastic contribution and teaches athletes to create vertical force from a stable set position.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach Squat Jump for jump-height transfer: Pause, stay braced, then jump like the floor is hot. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Pause, stay braced, then jump like the floor is hot.",
+      "selectionRationale": "Limits elastic contribution and teaches athletes to create vertical force from a stable set position.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 4
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Limits elastic contribution and teaches athletes to create vertical force from a stable set position.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "squat pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Pause, stay braced, then jump like the floor is hot.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Pause, stay braced, then jump like the floor is hot.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 reps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-18",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "maximal intent, full recovery",
+        "stopRule": "Stop when jump height, speed, posture, or landing quality drops."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 3,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 2,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 22,
+      "slug": "countermovement-jump",
+      "name": "Countermovement Jump",
+      "family": "Reactive vertical power",
+      "category": "Vertical Power and Reactive Hurdle/Box Plyometrics",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "vertical_power",
+      "slot": "countermovement_jump",
+      "cardSummary": "Countermovement Jump is a reactive vertical power exercise for jumping athletes who need more vertical height. It targets the most direct general drill for expressing dip-and-drive vertical jump power while fresh.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Countermovement Jump as a quality-first jump-height drill, emphasizing the most direct general drill for expressing dip-and-drive vertical jump power while fresh.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach Countermovement Jump for jump-height transfer: Fast dip, violent drive, relaxed arms, quiet finish. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Fast dip, violent drive, relaxed arms, quiet finish.",
+      "selectionRationale": "The most direct general drill for expressing dip-and-drive vertical jump power while fresh.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 4
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "The most direct general drill for expressing dip-and-drive vertical jump power while fresh.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Fast dip, violent drive, relaxed arms, quiet finish.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Fast dip, violent drive, relaxed arms, quiet finish.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 reps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-18",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "maximal intent, full recovery",
+        "stopRule": "Stop when jump height, speed, posture, or landing quality drops."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 3,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 23,
+      "slug": "tuck-jump",
+      "name": "Tuck Jump",
+      "family": "High-output vertical control",
+      "category": "Vertical Power and Reactive Hurdle/Box Plyometrics",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "vertical_power",
+      "slot": "tuck_jump",
+      "cardSummary": "Tuck Jump is a high-output vertical control exercise for jumping athletes who need more vertical height. It targets adds fast hip flexion and landing accountability, useful only after basic vertical jump quality is reliable.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Tuck Jump as a quality-first jump-height drill, emphasizing adds fast hip flexion and landing accountability, useful only after basic vertical jump quality is reliable.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach Tuck Jump for jump-height transfer: Jump tall, snap knees up, land in the same footprint. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Jump tall, snap knees up, land in the same footprint.",
+      "selectionRationale": "Adds fast hip flexion and landing accountability, useful only after basic vertical jump quality is reliable.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 4
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Adds fast hip flexion and landing accountability, useful only after basic vertical jump quality is reliable.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Jump tall, snap knees up, land in the same footprint.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Jump tall, snap knees up, land in the same footprint.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 reps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-18",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "maximal intent, full recovery",
+        "stopRule": "Stop when jump height, speed, posture, or landing quality drops."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 4,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 48,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 4,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 24,
+      "slug": "repeat-vertical-jump-tall-posture",
+      "name": "Repeat Vertical Jump Tall Posture",
+      "family": "Repeat vertical elasticity",
+      "category": "Vertical Power and Reactive Hurdle/Box Plyometrics",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "elastic_vertical_jump",
+      "slot": "repeat_vertical_jump_tall_posture",
+      "cardSummary": "Repeat Vertical Jump Tall Posture is a repeat vertical elasticity exercise for jumping athletes who need more vertical height. It targets trains repeatable vertical rebound without excessive knee bend, improving stiffness for second-jump situations.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Repeat Vertical Jump Tall Posture as a quality-first jump-height drill, emphasizing trains repeatable vertical rebound without excessive knee bend, improving stiffness for second-jump situations.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Repeat Vertical Jump Tall Posture for jump-height transfer: Tall rebounds, shallow dip, same height every contact. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Tall rebounds, shallow dip, same height every contact.",
+      "selectionRationale": "Trains repeatable vertical rebound without excessive knee bend, improving stiffness for second-jump situations.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Trains repeatable vertical rebound without excessive knee bend, improving stiffness for second-jump situations.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Tall rebounds, shallow dip, same height every contact.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Tall rebounds, shallow dip, same height every contact.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 2-5 contacts",
+        "sets": "3-5",
+        "reps": "2-5 contacts",
+        "contacts": "6-25",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "high intent, reactive",
+        "stopRule": "Stop when ground contact lengthens, contacts get loud, or alignment breaks."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 3,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 25,
+      "slug": "countermovement-jump-rebound",
+      "name": "Countermovement Jump Rebound",
+      "family": "Vertical rebound power",
+      "category": "Vertical Power and Reactive Hurdle/Box Plyometrics",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "countermovement_jump_rebound",
+      "slot": "countermovement_jump_rebound",
+      "cardSummary": "Countermovement Jump Rebound is a vertical rebound power exercise for jumping athletes who need more vertical height. It targets connects a strong countermovement jump to a quick second takeoff, bridging max intent and reactive stiffness.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Countermovement Jump Rebound as a quality-first jump-height drill, emphasizing connects a strong countermovement jump to a quick second takeoff, bridging max intent and reactive stiffness.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Countermovement Jump Rebound for jump-height transfer: Jump, meet the ground quickly, rebound without collapsing. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Jump, meet the ground quickly, rebound without collapsing.",
+      "selectionRationale": "Connects a strong countermovement jump to a quick second takeoff, bridging max intent and reactive stiffness.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Connects a strong countermovement jump to a quick second takeoff, bridging max intent and reactive stiffness.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Jump, meet the ground quickly, rebound without collapsing.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Jump, meet the ground quickly, rebound without collapsing.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 2-5 contacts",
+        "sets": "3-5",
+        "reps": "2-5 contacts",
+        "contacts": "6-25",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "high intent, reactive",
+        "stopRule": "Stop when ground contact lengthens, contacts get loud, or alignment breaks."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 3,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 26,
+      "slug": "low-hurdle-hop-to-stick",
+      "name": "Low Hurdle Hop to Stick",
+      "family": "Hurdle landing-to-power bridge",
+      "category": "Vertical Power and Reactive Hurdle/Box Plyometrics",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "low_hurdle_hop_to_stick",
+      "slot": "low_hurdle_hop_to_stick",
+      "cardSummary": "Low Hurdle Hop to Stick is a hurdle landing-to-power bridge exercise for jumping athletes who need more vertical height. It targets adds an external vertical target while still making the athlete prove landing control on each rep.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Low Hurdle Hop to Stick as a quality-first jump-height drill, emphasizing adds an external vertical target while still making the athlete prove landing control on each rep.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Low Hurdle Hop to Stick for jump-height transfer: Clear low, land quiet, hold before the next rep. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Clear low, land quiet, hold before the next rep.",
+      "selectionRationale": "Adds an external vertical target while still making the athlete prove landing control on each rep.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "hurdles",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Adds an external vertical target while still making the athlete prove landing control on each rep.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear hurdles area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Clear low, land quiet, hold before the next rep.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Clear low, land quiet, hold before the next rep.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 2-5 contacts",
+        "sets": "3-5",
+        "reps": "2-5 contacts",
+        "contacts": "6-25",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "high intent, reactive",
+        "stopRule": "Stop when ground contact lengthens, contacts get loud, or alignment breaks."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 3,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 27,
+      "slug": "low-hurdle-pogo-continuous",
+      "name": "Low Hurdle Pogo Continuous",
+      "family": "Low hurdle stiffness",
+      "category": "Vertical Power and Reactive Hurdle/Box Plyometrics",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "low_hurdle_pogo_continuous",
+      "slot": "low_hurdle_pogo_continuous",
+      "cardSummary": "Low Hurdle Pogo Continuous is a low hurdle stiffness exercise for jumping athletes who need more vertical height. It targets teaches fast vertical stiffness over a repeated target while keeping hurdle height low enough to protect contact quality.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Low Hurdle Pogo Continuous as a quality-first jump-height drill, emphasizing teaches fast vertical stiffness over a repeated target while keeping hurdle height low enough to protect contact quality.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Low Hurdle Pogo Continuous for jump-height transfer: Quick over, quick down, don't reach for height. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Quick over, quick down, don't reach for height.",
+      "selectionRationale": "Teaches fast vertical stiffness over a repeated target while keeping hurdle height low enough to protect contact quality.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "hurdles",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Teaches fast vertical stiffness over a repeated target while keeping hurdle height low enough to protect contact quality.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "locomote pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear hurdles area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Quick over, quick down, don't reach for height.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Quick over, quick down, don't reach for height.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 2-5 contacts",
+        "sets": "3-5",
+        "reps": "2-5 contacts",
+        "contacts": "6-25",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "high intent, reactive",
+        "stopRule": "Stop when ground contact lengthens, contacts get loud, or alignment breaks."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 3,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 2,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 28,
+      "slug": "continuous-low-hurdle-hop",
+      "name": "Continuous Low Hurdle Hop",
+      "family": "Reactive hurdle hopping",
+      "category": "Vertical Power and Reactive Hurdle/Box Plyometrics",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "continuous_low_hurdle_hop",
+      "slot": "continuous_low_hurdle_hop",
+      "cardSummary": "Continuous Low Hurdle Hop is a reactive hurdle hopping exercise for jumping athletes who need more vertical height. It targets increases repeated vertical elastic demand for athletes who already own basic pogo and landing shapes.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Continuous Low Hurdle Hop as a quality-first jump-height drill, emphasizing increases repeated vertical elastic demand for athletes who already own basic pogo and landing shapes.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Continuous Low Hurdle Hop for jump-height transfer: Pop over each hurdle with the same posture and rhythm. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Pop over each hurdle with the same posture and rhythm.",
+      "selectionRationale": "Increases repeated vertical elastic demand for athletes who already own basic pogo and landing shapes.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "hurdles",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Increases repeated vertical elastic demand for athletes who already own basic pogo and landing shapes.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "locomote pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear hurdles area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Pop over each hurdle with the same posture and rhythm.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Pop over each hurdle with the same posture and rhythm.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 2-5 contacts",
+        "sets": "3-5",
+        "reps": "2-5 contacts",
+        "contacts": "6-25",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "high intent, reactive",
+        "stopRule": "Stop when ground contact lengthens, contacts get loud, or alignment breaks."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 3,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 29,
+      "slug": "depth-drop-to-vertical-rebound",
+      "name": "Depth Drop to Vertical Rebound",
+      "family": "Drop-to-rebound vertical power",
+      "category": "Vertical Power and Reactive Hurdle/Box Plyometrics",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "depth_drop_vertical_rebound",
+      "slot": "depth_drop_to_vertical_rebound",
+      "cardSummary": "Depth Drop to Vertical Rebound is a drop-to-rebound vertical power exercise for jumping athletes who need more vertical height. It targets trains athletes to receive a drop and immediately reapply force upward without excessive ground time.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Depth Drop to Vertical Rebound as a quality-first jump-height drill, emphasizing trains athletes to receive a drop and immediately reapply force upward without excessive ground time.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Depth Drop to Vertical Rebound for jump-height transfer: Step off, punch the ground, rebound tall. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Step off, punch the ground, rebound tall.",
+      "selectionRationale": "Trains athletes to receive a drop and immediately reapply force upward without excessive ground time.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "body_control",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Trains athletes to receive a drop and immediately reapply force upward without excessive ground time.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear box area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Step off, punch the ground, rebound tall.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Step off, punch the ground, rebound tall.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 1-3 contacts",
+        "sets": "3-5",
+        "reps": "1-3 contacts",
+        "contacts": "3-15",
+        "duration": "",
+        "restSeconds": "180-300",
+        "intensity": "very high; advanced only",
+        "stopRule": "Stop immediately when rebound speed, stiffness, or landing safety fades."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 4,
+        "impactLevel": 4,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 1,
+        "minimumHoursBetweenHardExposures": 48,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 4,
+        "impactLevel": 4,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 30,
+      "slug": "depth-jump-to-rebound",
+      "name": "Depth Jump to Rebound",
+      "family": "Advanced reactive vertical power",
+      "category": "Vertical Power and Reactive Hurdle/Box Plyometrics",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "depth_jump_rebound",
+      "slot": "depth_jump_to_rebound",
+      "cardSummary": "Depth Jump to Rebound is a advanced reactive vertical power exercise for jumping athletes who need more vertical height. It targets advanced method for reactive strength and vertical pop when the athlete has earned landing and low-level contact progressions.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Depth Jump to Rebound as a quality-first jump-height drill, emphasizing advanced method for reactive strength and vertical pop when the athlete has earned landing and low-level contact progressions.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Depth Jump to Rebound for jump-height transfer: Fast off the floor, tall in the air, stop before contacts slow. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Fast off the floor, tall in the air, stop before contacts slow.",
+      "selectionRationale": "Advanced method for reactive strength and vertical pop when the athlete has earned landing and low-level contact progressions.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        },
+        {
+          "key": "body_control",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Advanced method for reactive strength and vertical pop when the athlete has earned landing and low-level contact progressions.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear box area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Fast off the floor, tall in the air, stop before contacts slow.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Fast off the floor, tall in the air, stop before contacts slow.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 1-3 contacts",
+        "sets": "3-5",
+        "reps": "1-3 contacts",
+        "contacts": "3-15",
+        "duration": "",
+        "restSeconds": "180-300",
+        "intensity": "very high; advanced only",
+        "stopRule": "Stop immediately when rebound speed, stiffness, or landing safety fades."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 5,
+        "impactLevel": 5,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 1,
+        "minimumHoursBetweenHardExposures": 48,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 4,
+        "impactLevel": 5,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 31,
+      "slug": "approach-vertical-jump",
+      "name": "Approach Vertical Jump",
+      "family": "Approach jump transfer",
+      "category": "Approach, Single-Leg, and Event-Specific Jump Transfer",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "locomotion_sprint_mechanics",
+      "slot": "approach_vertical_jump",
+      "cardSummary": "Approach Vertical Jump is a approach jump transfer exercise for jumping athletes who need more vertical height. It targets links approach rhythm, penultimate mechanics, arm swing, and explosive takeoff into a sport-like vertical jump.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Approach Vertical Jump as a quality-first jump-height drill, emphasizing links approach rhythm, penultimate mechanics, arm swing, and explosive takeoff into a sport-like vertical jump.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach Approach Vertical Jump for jump-height transfer: Build speed, lower on the penultimate, then rise tall. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Build speed, lower on the penultimate, then rise tall.",
+      "selectionRationale": "Links approach rhythm, penultimate mechanics, arm swing, and explosive takeoff into a sport-like vertical jump.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Links approach rhythm, penultimate mechanics, arm swing, and explosive takeoff into a sport-like vertical jump.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "locomote pattern",
+          "jump pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear cones area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Build speed, lower on the penultimate, then rise tall.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Build speed, lower on the penultimate, then rise tall.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 approach jumps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-18",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "high intent with full reset",
+        "stopRule": "Stop when approach rhythm, plant mechanics, reach, or landing quality drops."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 4,
+        "impactLevel": 3,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 32,
+      "slug": "penultimate-step-pop-up",
+      "name": "Penultimate Step Pop-Up",
+      "family": "Penultimate takeoff skill",
+      "category": "Approach, Single-Leg, and Event-Specific Jump Transfer",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "locomotion_sprint_mechanics",
+      "subroleSecondary": "penultimate_takeoff_skill",
+      "slot": "penultimate_step_pop_up",
+      "cardSummary": "Penultimate Step Pop-Up is a penultimate takeoff skill exercise for jumping athletes who need more vertical height. It targets isolates the second-to-last step so athletes learn to convert horizontal momentum into vertical lift without over-striding.",
+      "bestPlacement": "Use after a general warm-up and access work, before true Output or heavy strength. Keep enough freshness for clean rhythm and learning.",
+      "description": "The athlete performs Penultimate Step Pop-Up as a quality-first jump-height drill, emphasizing isolates the second-to-last step so athletes learn to convert horizontal momentum into vertical lift without over-striding.",
+      "coachLanguage": "Primary subrole: locomotion/sprint mechanics. Coach Penultimate Step Pop-Up as approach/takeoff skill, not conditioning. Use clear rhythm goals, short reps, and immediate feedback.",
+      "athleteLanguage": "Long-low penultimate, quick takeoff, pop up not forward.",
+      "selectionRationale": "Isolates the second-to-last step so athletes learn to convert horizontal momentum into vertical lift without over-striding.",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        },
+        {
+          "key": "body_control",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "coordination_drills",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "coordination_timing",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Isolates the second-to-last step so athletes learn to convert horizontal momentum into vertical lift without over-striding.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the goal is approach rhythm, body organization, timing, and takeoff skill before fatigue.",
+      "commonMisuse": "Do not turn technical approach work into conditioning. Stop when timing, posture, or takeoff shape gets worse.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "locomote pattern",
+          "jump pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear cones area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Long-low penultimate, quick takeoff, pop up not forward.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Long-low penultimate, quick takeoff, pop up not forward.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 technical reps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-12",
+        "duration": "",
+        "restSeconds": "60-120",
+        "intensity": "moderate; technical quality first",
+        "stopRule": "Stop when rhythm, posture, takeoff timing, or landing control degrades."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": true,
+        "weeklyMaxFrequency": 4,
+        "minimumHoursBetweenHardExposures": 0,
+        "countsAsHighIntensity": false,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 2,
+        "fatigueSensitivity": 4,
+        "technicalComplexity": 3,
+        "impactLevel": 2,
+        "intensityCeiling": "moderate"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 33,
+      "slug": "two-step-rim-touch",
+      "name": "Two-Step Rim Touch",
+      "family": "Basketball jump transfer",
+      "category": "Approach, Single-Leg, and Event-Specific Jump Transfer",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "approach_vertical_jump",
+      "slot": "two_step_rim_touch",
+      "cardSummary": "Two-Step Rim Touch is a basketball jump transfer exercise for jumping athletes who need more vertical height. It targets gives basketball athletes a clear height target while limiting approach length enough to maintain technical quality.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Two-Step Rim Touch as a quality-first jump-height drill, emphasizing gives basketball athletes a clear height target while limiting approach length enough to maintain technical quality.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach Two-Step Rim Touch for jump-height transfer: One-two, plant clean, reach high, land under control. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "One-two, plant clean, reach high, land under control.",
+      "selectionRationale": "Gives basketball athletes a clear height target while limiting approach length enough to maintain technical quality.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "reach",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "basketball_hoop",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Gives basketball athletes a clear height target while limiting approach length enough to maintain technical quality.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "locomote pattern",
+          "jump pattern",
+          "reach pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear basketball hoop area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: One-two, plant clean, reach high, land under control.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "One-two, plant clean, reach high, land under control.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 approach jumps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-18",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "high intent with full reset",
+        "stopRule": "Stop when approach rhythm, plant mechanics, reach, or landing quality drops."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 4,
+        "impactLevel": 3,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 34,
+      "slug": "volleyball-block-jump",
+      "name": "Volleyball Block Jump",
+      "family": "Repeated vertical sport transfer",
+      "category": "Approach, Single-Leg, and Event-Specific Jump Transfer",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "sport_specific_vertical_jump",
+      "slot": "volleyball_block_jump",
+      "cardSummary": "Volleyball Block Jump is a repeated vertical sport transfer exercise for jumping athletes who need more vertical height. It targets trains vertical takeoff from a ready stance with arm action and landing control for block-jump demands.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Volleyball Block Jump as a quality-first jump-height drill, emphasizing trains vertical takeoff from a ready stance with arm action and landing control for block-jump demands.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach Volleyball Block Jump for jump-height transfer: Load quick, press the floor, reach over the net, land balanced. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Load quick, press the floor, reach over the net, land balanced.",
+      "selectionRationale": "Trains vertical takeoff from a ready stance with arm action and landing control for block-jump demands.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "reach",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "net",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Trains vertical takeoff from a ready stance with arm action and landing control for block-jump demands.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "reach pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear net area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Load quick, press the floor, reach over the net, land balanced.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Load quick, press the floor, reach over the net, land balanced.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 approach jumps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-18",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "high intent with full reset",
+        "stopRule": "Stop when approach rhythm, plant mechanics, reach, or landing quality drops."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 4,
+        "impactLevel": 3,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 35,
+      "slug": "volleyball-approach-jump",
+      "name": "Volleyball Approach Jump",
+      "family": "Approach jump sport transfer",
+      "category": "Approach, Single-Leg, and Event-Specific Jump Transfer",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "approach_vertical_jump",
+      "slot": "volleyball_approach_jump",
+      "cardSummary": "Volleyball Approach Jump is a approach jump sport transfer exercise for jumping athletes who need more vertical height. It targets blends approach rhythm, arm swing, penultimate timing, and maximal vertical reach in the pattern volleyball athletes need most.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Volleyball Approach Jump as a quality-first jump-height drill, emphasizing blends approach rhythm, arm swing, penultimate timing, and maximal vertical reach in the pattern volleyball athletes need most.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach Volleyball Approach Jump for jump-height transfer: Fast-slow-fast rhythm, big arms, jump through the ceiling. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Fast-slow-fast rhythm, big arms, jump through the ceiling.",
+      "selectionRationale": "Blends approach rhythm, arm swing, penultimate timing, and maximal vertical reach in the pattern volleyball athletes need most.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "reach",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "net",
+          "weight": 5
+        },
+        {
+          "key": "cones",
+          "weight": 3
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "shoulder",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Blends approach rhythm, arm swing, penultimate timing, and maximal vertical reach in the pattern volleyball athletes need most.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "locomote pattern",
+          "jump pattern",
+          "reach pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear net, cones area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Fast-slow-fast rhythm, big arms, jump through the ceiling.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Fast-slow-fast rhythm, big arms, jump through the ceiling.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 approach jumps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-18",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "high intent with full reset",
+        "stopRule": "Stop when approach rhythm, plant mechanics, reach, or landing quality drops."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 4,
+        "impactLevel": 4,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 48,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 4,
+        "impactLevel": 4,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 36,
+      "slug": "high-jump-takeoff-pop-up",
+      "name": "High-Jump Takeoff Pop-Up",
+      "family": "Single-leg vertical takeoff",
+      "category": "Approach, Single-Leg, and Event-Specific Jump Transfer",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "single_leg_takeoff_power",
+      "slot": "high_jump_takeoff_pop_up",
+      "cardSummary": "High-Jump Takeoff Pop-Up is a single-leg vertical takeoff exercise for jumping athletes who need more vertical height. It targets develops single-leg takeoff stiffness, posture, and vertical rise for high-jump and curved-approach athletes.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs High-Jump Takeoff Pop-Up as a quality-first jump-height drill, emphasizing develops single-leg takeoff stiffness, posture, and vertical rise for high-jump and curved-approach athletes.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach High-Jump Takeoff Pop-Up for jump-height transfer: Run tall, plant under you, pop up and away. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Run tall, plant under you, pop up and away.",
+      "selectionRationale": "Develops single-leg takeoff stiffness, posture, and vertical rise for high-jump and curved-approach athletes.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Develops single-leg takeoff stiffness, posture, and vertical rise for high-jump and curved-approach athletes.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "locomote pattern",
+          "jump pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear cones area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Run tall, plant under you, pop up and away.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Run tall, plant under you, pop up and away.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 approach jumps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-18",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "high intent with full reset",
+        "stopRule": "Stop when approach rhythm, plant mechanics, reach, or landing quality drops."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 4,
+        "impactLevel": 4,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 48,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 4,
+        "impactLevel": 4,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 37,
+      "slug": "scissor-jump-takeoff-drill",
+      "name": "Scissor Jump Takeoff Drill",
+      "family": "High-jump rhythm and takeoff",
+      "category": "Approach, Single-Leg, and Event-Specific Jump Transfer",
+      "phaseKey": "movement_intelligence",
+      "primaryPhaseKey": "movement_intelligence",
+      "subrole": "locomotion_sprint_mechanics",
+      "subroleSecondary": "single_leg_takeoff_skill",
+      "slot": "scissor_jump_takeoff_drill",
+      "cardSummary": "Scissor Jump Takeoff Drill is a high-jump rhythm and takeoff exercise for jumping athletes who need more vertical height. It targets provides a safer technical bridge from takeoff rhythm to bar clearance without maximal flop complexity.",
+      "bestPlacement": "Use after a general warm-up and access work, before true Output or heavy strength. Keep enough freshness for clean rhythm and learning.",
+      "description": "The athlete performs Scissor Jump Takeoff Drill as a quality-first jump-height drill, emphasizing provides a safer technical bridge from takeoff rhythm to bar clearance without maximal flop complexity.",
+      "coachLanguage": "Primary subrole: locomotion/sprint mechanics. Coach Scissor Jump Takeoff Drill as approach/takeoff skill, not conditioning. Use clear rhythm goals, short reps, and immediate feedback.",
+      "athleteLanguage": "Tall curve, quick takeoff, scissor through with control.",
+      "selectionRationale": "Provides a safer technical bridge from takeoff rhythm to bar clearance without maximal flop complexity.",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 2
+        },
+        {
+          "key": "body_control",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "coordination_drills",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "coordination_timing",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "mat",
+          "weight": 5
+        },
+        {
+          "key": "bar",
+          "weight": 3
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Provides a safer technical bridge from takeoff rhythm to bar clearance without maximal flop complexity.",
+      "whyItGoesHere": "Belongs in Movement Intelligence because the goal is approach rhythm, body organization, timing, and takeoff skill before fatigue.",
+      "commonMisuse": "Do not turn technical approach work into conditioning. Stop when timing, posture, or takeoff shape gets worse.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "locomote pattern",
+          "jump pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear mat, bar area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Tall curve, quick takeoff, scissor through with control.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Tall curve, quick takeoff, scissor through with control.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 technical reps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-12",
+        "duration": "",
+        "restSeconds": "60-120",
+        "intensity": "moderate; technical quality first",
+        "stopRule": "Stop when rhythm, posture, takeoff timing, or landing control degrades."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": true,
+        "weeklyMaxFrequency": 4,
+        "minimumHoursBetweenHardExposures": 0,
+        "countsAsHighIntensity": false,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 2,
+        "fatigueSensitivity": 4,
+        "technicalComplexity": 3,
+        "impactLevel": 3,
+        "intensityCeiling": "moderate"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 38,
+      "slug": "single-leg-rebound-hop",
+      "name": "Single-Leg Rebound Hop",
+      "family": "Single-leg reactive takeoff",
+      "category": "Approach, Single-Leg, and Event-Specific Jump Transfer",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "single_leg_rebound_hop",
+      "slot": "single_leg_rebound_hop",
+      "cardSummary": "Single-Leg Rebound Hop is a single-leg reactive takeoff exercise for jumping athletes who need more vertical height. It targets builds unilateral rebound stiffness for athletes who jump from one leg or need a fast second jump off one side.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Single-Leg Rebound Hop as a quality-first jump-height drill, emphasizing builds unilateral rebound stiffness for athletes who jump from one leg or need a fast second jump off one side.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Single-Leg Rebound Hop for jump-height transfer: Rebound low and quick; the knee tracks and the torso stays tall. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Rebound low and quick; the knee tracks and the torso stays tall.",
+      "selectionRationale": "Builds unilateral rebound stiffness for athletes who jump from one leg or need a fast second jump off one side.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "none",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Builds unilateral rebound stiffness for athletes who jump from one leg or need a fast second jump off one side.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear open floor area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Rebound low and quick; the knee tracks and the torso stays tall.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Rebound low and quick; the knee tracks and the torso stays tall.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 2-5 contacts",
+        "sets": "3-5",
+        "reps": "2-5 contacts",
+        "contacts": "6-25",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "high intent, reactive",
+        "stopRule": "Stop when ground contact lengthens, contacts get loud, or alignment breaks."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 3,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 39,
+      "slug": "alternating-bounds-for-height",
+      "name": "Alternating Bounds for Height",
+      "family": "Vertical-biased bounding",
+      "category": "Approach, Single-Leg, and Event-Specific Jump Transfer",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "elastic_stiffness_plyometric_rudiments",
+      "subroleSecondary": "alternating_bound_height",
+      "slot": "alternating_bounds_for_height",
+      "cardSummary": "Alternating Bounds for Height is a vertical-biased bounding exercise for jumping athletes who need more vertical height. It targets converts sprint rhythm into repeated single-leg projection with a vertical bias rather than only horizontal distance.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Alternating Bounds for Height as a quality-first jump-height drill, emphasizing converts sprint rhythm into repeated single-leg projection with a vertical bias rather than only horizontal distance.",
+      "coachLanguage": "Primary subrole: elastic stiffness plyometric rudiments. Coach Alternating Bounds for Height for jump-height transfer: Bound up, not just out; punch the ground under the hip. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Bound up, not just out; punch the ground under the hip.",
+      "selectionRationale": "Converts sprint rhythm into repeated single-leg projection with a vertical bias rather than only horizontal distance.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Converts sprint rhythm into repeated single-leg projection with a vertical bias rather than only horizontal distance.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern",
+          "locomote pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear cones area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Bound up, not just out; punch the ground under the hip.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Bound up, not just out; punch the ground under the hip.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 approach jumps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-18",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "high intent with full reset",
+        "stopRule": "Stop when approach rhythm, plant mechanics, reach, or landing quality drops."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 4,
+        "impactLevel": 4,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 48,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 4,
+        "impactLevel": 4,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 40,
+      "slug": "acceleration-pogo-run-in-to-vertical-jump",
+      "name": "Acceleration Pogo Run-In to Vertical Jump",
+      "family": "Elastic-to-takeoff transfer",
+      "category": "Approach, Single-Leg, and Event-Specific Jump Transfer",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "acceleration_start_speed",
+      "subroleSecondary": "vertical_jump_transfer",
+      "slot": "acceleration_pogo_run_in_to_vertical_jump",
+      "cardSummary": "Acceleration Pogo Run-In to Vertical Jump is a elastic-to-takeoff transfer exercise for jumping athletes who need more vertical height. It targets teaches athletes to carry stiffness and posture from quick contacts into an approach-like vertical takeoff.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Acceleration Pogo Run-In to Vertical Jump as a quality-first jump-height drill, emphasizing teaches athletes to carry stiffness and posture from quick contacts into an approach-like vertical takeoff.",
+      "coachLanguage": "Primary subrole: acceleration/start speed. Coach Acceleration Pogo Run-In to Vertical Jump for jump-height transfer: Quick contacts, accelerate smooth, then jump tall off a clean plant. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Quick contacts, accelerate smooth, then jump tall off a clean plant.",
+      "selectionRationale": "Teaches athletes to carry stiffness and posture from quick contacts into an approach-like vertical takeoff.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 5
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "ssc_stiffness",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        },
+        {
+          "key": "jump",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Teaches athletes to carry stiffness and posture from quick contacts into an approach-like vertical takeoff.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "locomote pattern",
+          "jump pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear cones area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Quick contacts, accelerate smooth, then jump tall off a clean plant.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Quick contacts, accelerate smooth, then jump tall off a clean plant.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-6 sets of 1-3 approach jumps",
+        "sets": "3-6",
+        "reps": "1-3",
+        "contacts": "3-18",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "high intent with full reset",
+        "stopRule": "Stop when approach rhythm, plant mechanics, reach, or landing quality drops."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 4,
+        "impactLevel": 3,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 41,
+      "slug": "trap-bar-jump",
+      "name": "Trap-Bar Jump",
+      "family": "Loaded vertical power",
+      "category": "Strength, Contrast, and Low-Impact Power Supports",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "loaded_jump_power",
+      "slot": "trap_bar_jump",
+      "cardSummary": "Trap-Bar Jump is a loaded vertical power exercise for jumping athletes who need more vertical height. It targets allows loaded vertical power with a neutral grip and center-of-mass position that many athletes can express cleanly.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Trap-Bar Jump as a quality-first jump-height drill, emphasizing allows loaded vertical power with a neutral grip and center-of-mass position that many athletes can express cleanly.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach Trap-Bar Jump for jump-height transfer: Load light, jump fast, land soft, reset fully. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Load light, jump fast, land soft, reset fully.",
+      "selectionRationale": "Allows loaded vertical power with a neutral grip and center-of-mass position that many athletes can express cleanly.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 4
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "resistance_training",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "hinge",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "trap_bar",
+          "weight": 5
+        },
+        {
+          "key": "plates",
+          "weight": 3
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Allows loaded vertical power with a neutral grip and center-of-mass position that many athletes can express cleanly.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "hinge pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear trap bar, plates area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Load light, jump fast, land soft, reset fully.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Load light, jump fast, land soft, reset fully.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 2-4 fast reps",
+        "sets": "3-5",
+        "reps": "2-4",
+        "contacts": "6-20",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "light to moderate load moved fast",
+        "stopRule": "Stop when speed slows, landing gets heavy, or the load turns the rep into strength grinding."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 3,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 2,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 42,
+      "slug": "loaded-squat-jump",
+      "name": "Loaded Squat Jump",
+      "family": "Loaded vertical power",
+      "category": "Strength, Contrast, and Low-Impact Power Supports",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "loaded_vertical_power",
+      "slot": "loaded_squat_jump",
+      "cardSummary": "Loaded Squat Jump is a loaded vertical power exercise for jumping athletes who need more vertical height. It targets raises force expression when load is light enough to preserve jump speed and technical stiffness.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Loaded Squat Jump as a quality-first jump-height drill, emphasizing raises force expression when load is light enough to preserve jump speed and technical stiffness.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach Loaded Squat Jump for jump-height transfer: Light load, fast intent, no grinding, full reset. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Light load, fast intent, no grinding, full reset.",
+      "selectionRationale": "Raises force expression when load is light enough to preserve jump speed and technical stiffness.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 4
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "resistance_training",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "squat",
+          "weight": 3
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "barbell_or_dumbbells",
+          "weight": 5
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Raises force expression when load is light enough to preserve jump speed and technical stiffness.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "squat pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear barbell or dumbbells area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Light load, fast intent, no grinding, full reset.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Light load, fast intent, no grinding, full reset.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 2-4 fast reps",
+        "sets": "3-5",
+        "reps": "2-4",
+        "contacts": "6-20",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "light to moderate load moved fast",
+        "stopRule": "Stop when speed slows, landing gets heavy, or the load turns the rep into strength grinding."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 4,
+        "impactLevel": 3,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": true,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 4,
+        "impactLevel": 3,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 43,
+      "slug": "band-assisted-overspeed-jump",
+      "name": "Band-Assisted Overspeed Jump",
+      "family": "Assisted vertical speed",
+      "category": "Strength, Contrast, and Low-Impact Power Supports",
+      "phaseKey": "output",
+      "primaryPhaseKey": "output",
+      "subrole": "jump_throw_explosive_power",
+      "subroleSecondary": "assisted_overspeed_jump",
+      "slot": "band_assisted_overspeed_jump",
+      "cardSummary": "Band-Assisted Overspeed Jump is a assisted vertical speed exercise for jumping athletes who need more vertical height. It targets reduces effective body mass so athletes can feel faster takeoff speed and higher flight while keeping landing exposure controlled.",
+      "bestPlacement": "Use after Prepare & Access and any needed Movement Intelligence, while the nervous system is fresh. Program before heavy strength, conditioning, or high-volume sport work.",
+      "description": "The athlete performs Band-Assisted Overspeed Jump as a quality-first jump-height drill, emphasizing reduces effective body mass so athletes can feel faster takeoff speed and higher flight while keeping landing exposure controlled.",
+      "coachLanguage": "Primary subrole: jump/throw explosive power. Coach Band-Assisted Overspeed Jump for jump-height transfer: Use assistance to move fast, not to get sloppy. Keep the dose small enough that every rep preserves speed, posture, contact quality, and pain-free control.",
+      "athleteLanguage": "Use assistance to move fast, not to get sloppy.",
+      "selectionRationale": "Reduces effective body mass so athletes can feel faster takeoff speed and higher flight while keeping landing exposure controlled.",
+      "tenets": [
+        {
+          "key": "explosiveness",
+          "weight": 5
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "plyometrics",
+          "weight": 4
+        },
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "resistance_training",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 4
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "jump",
+          "weight": 5
+        },
+        {
+          "key": "land",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "bands",
+          "weight": 5
+        },
+        {
+          "key": "rack",
+          "weight": 3
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "ankle",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Reduces effective body mass so athletes can feel faster takeoff speed and higher flight while keeping landing exposure controlled.",
+      "whyItGoesHere": "Belongs in Output because the main stress is fresh speed, power, elasticity, jumping, throwing, or reactive athleticism. Program before heavy strength, conditioning, or long sport blocks.",
+      "commonMisuse": "Do not chase fatigue, height contests, or extra contacts after speed, posture, contact quality, or landing ownership drops. Tired jump reps become conditioning, not jump-height training.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "jump pattern",
+          "land pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear bands, rack area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Use assistance to move fast, not to get sloppy.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Use assistance to move fast, not to get sloppy.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 2-4 fast reps",
+        "sets": "3-5",
+        "reps": "2-4",
+        "contacts": "6-20",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "light to moderate load moved fast",
+        "stopRule": "Stop when speed slows, landing gets heavy, or the load turns the rep into strength grinding."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 2,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 3,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": true,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": true,
+        "fatigueCost": 3,
+        "fatigueSensitivity": 5,
+        "technicalComplexity": 3,
+        "impactLevel": 2,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 44,
+      "slug": "back-squat",
+      "name": "Back Squat",
+      "family": "Lower-body max force support",
+      "category": "Strength, Contrast, and Low-Impact Power Supports",
+      "phaseKey": "capacity",
+      "primaryPhaseKey": "capacity",
+      "subrole": "squat_knee_dominant_strength",
+      "subroleSecondary": "vertical_force_capacity",
+      "slot": "back_squat",
+      "cardSummary": "Back Squat is a lower-body max force support exercise for jumping athletes who need more vertical height. It targets builds the lower-body force ceiling that underpins higher takeoff impulse when programmed away from fresh jump work.",
+      "bestPlacement": "Use after Prepare & Access, Movement Intelligence, and any true Output work. Keep it before hard conditioning and away from maximal jump testing when fatigue would corrupt height.",
+      "description": "The athlete performs Back Squat as a quality-first jump-height drill, emphasizing builds the lower-body force ceiling that underpins higher takeoff impulse when programmed away from fresh jump work.",
+      "coachLanguage": "Primary subrole: squat/knee-dominant strength. Coach Back Squat as force-capacity support for jump height. Load progressively, keep intent crisp, and do not let strength fatigue interfere with fresh jump work.",
+      "athleteLanguage": "Brace, push the floor, and keep reps strong not slow-grinding.",
+      "selectionRationale": "Builds the lower-body force ceiling that underpins higher takeoff impulse when programmed away from fresh jump work.",
+      "tenets": [
+        {
+          "key": "strength",
+          "weight": 5
+        },
+        {
+          "key": "power",
+          "weight": 2
+        },
+        {
+          "key": "body_control",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "resistance_training",
+          "weight": 5
+        },
+        {
+          "key": "strength_training",
+          "weight": 5
+        }
+      ],
+      "physiology": [
+        {
+          "key": "force_tissue_capacity",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        },
+        {
+          "key": "control_stability",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "squat",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "barbell",
+          "weight": 5
+        },
+        {
+          "key": "rack",
+          "weight": 3
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Builds the lower-body force ceiling that underpins higher takeoff impulse when programmed away from fresh jump work.",
+      "whyItGoesHere": "Belongs in Capacity because the main adaptation is force production, progressive loading, tissue tolerance, and structural reserve that supports jump height over time.",
+      "commonMisuse": "Do not place heavy strength before fresh jump-height work unless the session is explicitly a contrast session with low volume and full rest.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "squat pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear barbell, rack area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Brace, push the floor, and keep reps strong not slow-grinding.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Brace, push the floor, and keep reps strong not slow-grinding.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 3-6 strength-quality reps",
+        "sets": "3-5",
+        "reps": "3-6",
+        "contacts": "",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "moderate to heavy but technically crisp",
+        "stopRule": "Stop 1-3 reps before form breakdown; never grind when jump output is the priority."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 0,
+        "requiresSpotting": true,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": false,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": false,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 3,
+        "technicalComplexity": 3,
+        "impactLevel": 0,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 45,
+      "slug": "trap-bar-deadlift",
+      "name": "Trap Bar Deadlift",
+      "family": "Hip/knee force support",
+      "category": "Strength, Contrast, and Low-Impact Power Supports",
+      "phaseKey": "capacity",
+      "primaryPhaseKey": "capacity",
+      "subrole": "hinge_posterior_chain_strength",
+      "subroleSecondary": "vertical_force_capacity",
+      "slot": "trap_bar_deadlift",
+      "cardSummary": "Trap Bar Deadlift is a hip/knee force support exercise for jumping athletes who need more vertical height. It targets develops hip and leg force with a joint-friendly setup that transfers well to loaded jump and takeoff strength.",
+      "bestPlacement": "Use after Prepare & Access, Movement Intelligence, and any true Output work. Keep it before hard conditioning and away from maximal jump testing when fatigue would corrupt height.",
+      "description": "The athlete performs Trap Bar Deadlift as a quality-first jump-height drill, emphasizing develops hip and leg force with a joint-friendly setup that transfers well to loaded jump and takeoff strength.",
+      "coachLanguage": "Primary subrole: hinge/posterior-chain strength. Coach Trap Bar Deadlift as force-capacity support for jump height. Load progressively, keep intent crisp, and do not let strength fatigue interfere with fresh jump work.",
+      "athleteLanguage": "Push through the floor and stand tall without hitching.",
+      "selectionRationale": "Develops hip and leg force with a joint-friendly setup that transfers well to loaded jump and takeoff strength.",
+      "tenets": [
+        {
+          "key": "strength",
+          "weight": 5
+        },
+        {
+          "key": "power",
+          "weight": 2
+        },
+        {
+          "key": "body_control",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "resistance_training",
+          "weight": 5
+        },
+        {
+          "key": "strength_training",
+          "weight": 5
+        }
+      ],
+      "physiology": [
+        {
+          "key": "force_tissue_capacity",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        },
+        {
+          "key": "control_stability",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "hinge",
+          "weight": 5
+        },
+        {
+          "key": "pull",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "trap_bar",
+          "weight": 5
+        },
+        {
+          "key": "plates",
+          "weight": 3
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "hamstrings",
+          "weight": 3
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Develops hip and leg force with a joint-friendly setup that transfers well to loaded jump and takeoff strength.",
+      "whyItGoesHere": "Belongs in Capacity because the main adaptation is force production, progressive loading, tissue tolerance, and structural reserve that supports jump height over time.",
+      "commonMisuse": "Do not place heavy strength before fresh jump-height work unless the session is explicitly a contrast session with low volume and full rest.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "hinge pattern",
+          "pull pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear trap bar, plates area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Push through the floor and stand tall without hitching.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Push through the floor and stand tall without hitching.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 3-6 strength-quality reps",
+        "sets": "3-5",
+        "reps": "3-6",
+        "contacts": "",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "moderate to heavy but technically crisp",
+        "stopRule": "Stop 1-3 reps before form breakdown; never grind when jump output is the priority."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 0,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": false,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": false,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 3,
+        "technicalComplexity": 3,
+        "impactLevel": 0,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 46,
+      "slug": "front-squat",
+      "name": "Front Squat",
+      "family": "Upright squat force support",
+      "category": "Strength, Contrast, and Low-Impact Power Supports",
+      "phaseKey": "capacity",
+      "primaryPhaseKey": "capacity",
+      "subrole": "squat_knee_dominant_strength",
+      "subroleSecondary": "upright_vertical_force_capacity",
+      "slot": "front_squat",
+      "cardSummary": "Front Squat is a upright squat force support exercise for jumping athletes who need more vertical height. It targets loads leg strength with an upright torso, making it useful for athletes who need vertical force without excessive forward collapse.",
+      "bestPlacement": "Use after Prepare & Access, Movement Intelligence, and any true Output work. Keep it before hard conditioning and away from maximal jump testing when fatigue would corrupt height.",
+      "description": "The athlete performs Front Squat as a quality-first jump-height drill, emphasizing loads leg strength with an upright torso, making it useful for athletes who need vertical force without excessive forward collapse.",
+      "coachLanguage": "Primary subrole: squat/knee-dominant strength. Coach Front Squat as force-capacity support for jump height. Load progressively, keep intent crisp, and do not let strength fatigue interfere with fresh jump work.",
+      "athleteLanguage": "Elbows high, ribs stacked, drive straight up.",
+      "selectionRationale": "Loads leg strength with an upright torso, making it useful for athletes who need vertical force without excessive forward collapse.",
+      "tenets": [
+        {
+          "key": "strength",
+          "weight": 5
+        },
+        {
+          "key": "power",
+          "weight": 2
+        },
+        {
+          "key": "body_control",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "resistance_training",
+          "weight": 5
+        },
+        {
+          "key": "strength_training",
+          "weight": 5
+        }
+      ],
+      "physiology": [
+        {
+          "key": "force_tissue_capacity",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        },
+        {
+          "key": "control_stability",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "squat",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "barbell",
+          "weight": 5
+        },
+        {
+          "key": "rack",
+          "weight": 3
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "knee",
+          "weight": 5
+        },
+        {
+          "key": "hip",
+          "weight": 3
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Loads leg strength with an upright torso, making it useful for athletes who need vertical force without excessive forward collapse.",
+      "whyItGoesHere": "Belongs in Capacity because the main adaptation is force production, progressive loading, tissue tolerance, and structural reserve that supports jump height over time.",
+      "commonMisuse": "Do not place heavy strength before fresh jump-height work unless the session is explicitly a contrast session with low volume and full rest.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "squat pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear barbell, rack area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Elbows high, ribs stacked, drive straight up.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Elbows high, ribs stacked, drive straight up.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 3-6 strength-quality reps",
+        "sets": "3-5",
+        "reps": "3-6",
+        "contacts": "",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "moderate to heavy but technically crisp",
+        "stopRule": "Stop 1-3 reps before form breakdown; never grind when jump output is the priority."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 0,
+        "requiresSpotting": true,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": false,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": false,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 3,
+        "technicalComplexity": 3,
+        "impactLevel": 0,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 47,
+      "slug": "rear-foot-elevated-split-squat",
+      "name": "Rear-Foot-Elevated Split Squat",
+      "family": "Unilateral force support",
+      "category": "Strength, Contrast, and Low-Impact Power Supports",
+      "phaseKey": "capacity",
+      "primaryPhaseKey": "capacity",
+      "subrole": "single_leg_lower_body_strength",
+      "subroleSecondary": "single_leg_jump_force_capacity",
+      "slot": "rear_foot_elevated_split_squat",
+      "cardSummary": "Rear-Foot-Elevated Split Squat is a unilateral force support exercise for jumping athletes who need more vertical height. It targets builds single-leg strength, pelvis control, and right-left force capacity for one-leg takeoffs and landing robustness.",
+      "bestPlacement": "Use after Prepare & Access, Movement Intelligence, and any true Output work. Keep it before hard conditioning and away from maximal jump testing when fatigue would corrupt height.",
+      "description": "The athlete performs Rear-Foot-Elevated Split Squat as a quality-first jump-height drill, emphasizing builds single-leg strength, pelvis control, and right-left force capacity for one-leg takeoffs and landing robustness.",
+      "coachLanguage": "Primary subrole: single-leg lower-body strength. Coach Rear-Foot-Elevated Split Squat as force-capacity support for jump height. Load progressively, keep intent crisp, and do not let strength fatigue interfere with fresh jump work.",
+      "athleteLanguage": "Own the front foot, lower under control, drive up tall.",
+      "selectionRationale": "Builds single-leg strength, pelvis control, and right-left force capacity for one-leg takeoffs and landing robustness.",
+      "tenets": [
+        {
+          "key": "strength",
+          "weight": 5
+        },
+        {
+          "key": "power",
+          "weight": 2
+        },
+        {
+          "key": "body_control",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "resistance_training",
+          "weight": 5
+        },
+        {
+          "key": "strength_training",
+          "weight": 5
+        }
+      ],
+      "physiology": [
+        {
+          "key": "force_tissue_capacity",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        },
+        {
+          "key": "control_stability",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "squat",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "bench",
+          "weight": 5
+        },
+        {
+          "key": "dumbbells_optional",
+          "weight": 3
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Builds single-leg strength, pelvis control, and right-left force capacity for one-leg takeoffs and landing robustness.",
+      "whyItGoesHere": "Belongs in Capacity because the main adaptation is force production, progressive loading, tissue tolerance, and structural reserve that supports jump height over time.",
+      "commonMisuse": "Do not place heavy strength before fresh jump-height work unless the session is explicitly a contrast session with low volume and full rest.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "squat pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear bench, dumbbells optional area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Own the front foot, lower under control, drive up tall.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Own the front foot, lower under control, drive up tall.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 3-6 strength-quality reps",
+        "sets": "3-5",
+        "reps": "3-6",
+        "contacts": "",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "moderate to heavy but technically crisp",
+        "stopRule": "Stop 1-3 reps before form breakdown; never grind when jump output is the priority."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 3,
+        "impactLevel": 0,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "recommended",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": false,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": false,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 3,
+        "technicalComplexity": 3,
+        "impactLevel": 0,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 48,
+      "slug": "step-up",
+      "name": "Step-Up",
+      "family": "Unilateral projection strength",
+      "category": "Strength, Contrast, and Low-Impact Power Supports",
+      "phaseKey": "capacity",
+      "primaryPhaseKey": "capacity",
+      "subrole": "single_leg_lower_body_strength",
+      "subroleSecondary": "step_up_vertical_drive",
+      "slot": "step_up",
+      "cardSummary": "Step-Up is a unilateral projection strength exercise for jumping athletes who need more vertical height. It targets rehearses the vertical push through one leg with a clear finish position and controllable range.",
+      "bestPlacement": "Use after Prepare & Access, Movement Intelligence, and any true Output work. Keep it before hard conditioning and away from maximal jump testing when fatigue would corrupt height.",
+      "description": "The athlete performs Step-Up as a quality-first jump-height drill, emphasizing rehearses the vertical push through one leg with a clear finish position and controllable range.",
+      "coachLanguage": "Primary subrole: single-leg lower-body strength. Coach Step-Up as force-capacity support for jump height. Load progressively, keep intent crisp, and do not let strength fatigue interfere with fresh jump work.",
+      "athleteLanguage": "Drive through the box, stand tall, don't launch off the back foot.",
+      "selectionRationale": "Rehearses the vertical push through one leg with a clear finish position and controllable range.",
+      "tenets": [
+        {
+          "key": "strength",
+          "weight": 5
+        },
+        {
+          "key": "power",
+          "weight": 2
+        },
+        {
+          "key": "body_control",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "resistance_training",
+          "weight": 5
+        },
+        {
+          "key": "strength_training",
+          "weight": 5
+        }
+      ],
+      "physiology": [
+        {
+          "key": "force_tissue_capacity",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        },
+        {
+          "key": "control_stability",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "squat",
+          "weight": 5
+        },
+        {
+          "key": "locomote",
+          "weight": 3
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "box",
+          "weight": 5
+        },
+        {
+          "key": "dumbbells_optional",
+          "weight": 3
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "knee",
+          "weight": 3
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Rehearses the vertical push through one leg with a clear finish position and controllable range.",
+      "whyItGoesHere": "Belongs in Capacity because the main adaptation is force production, progressive loading, tissue tolerance, and structural reserve that supports jump height over time.",
+      "commonMisuse": "Do not place heavy strength before fresh jump-height work unless the session is explicitly a contrast session with low volume and full rest.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "squat pattern",
+          "locomote pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear box, dumbbells optional area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Drive through the box, stand tall, don't launch off the back foot.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Drive through the box, stand tall, don't launch off the back foot.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 3-6 strength-quality reps",
+        "sets": "3-5",
+        "reps": "3-6",
+        "contacts": "",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "moderate to heavy but technically crisp",
+        "stopRule": "Stop 1-3 reps before form breakdown; never grind when jump output is the priority."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 0,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": false,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": false,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 3,
+        "technicalComplexity": 3,
+        "impactLevel": 0,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 49,
+      "slug": "barbell-hip-thrust",
+      "name": "Barbell Hip Thrust",
+      "family": "Hip extension force support",
+      "category": "Strength, Contrast, and Low-Impact Power Supports",
+      "phaseKey": "capacity",
+      "primaryPhaseKey": "capacity",
+      "subrole": "hinge_posterior_chain_strength",
+      "subroleSecondary": "hip_extension_strength",
+      "slot": "barbell_hip_thrust",
+      "cardSummary": "Barbell Hip Thrust is a hip extension force support exercise for jumping athletes who need more vertical height. It targets raises hip-extension capacity that supports takeoff power, sprint approach mechanics, and posterior-chain reserve.",
+      "bestPlacement": "Use after Prepare & Access, Movement Intelligence, and any true Output work. Keep it before hard conditioning and away from maximal jump testing when fatigue would corrupt height.",
+      "description": "The athlete performs Barbell Hip Thrust as a quality-first jump-height drill, emphasizing raises hip-extension capacity that supports takeoff power, sprint approach mechanics, and posterior-chain reserve.",
+      "coachLanguage": "Primary subrole: hinge/posterior-chain strength. Coach Barbell Hip Thrust as force-capacity support for jump height. Load progressively, keep intent crisp, and do not let strength fatigue interfere with fresh jump work.",
+      "athleteLanguage": "Ribs down, full hip extension, pause without over-arching.",
+      "selectionRationale": "Raises hip-extension capacity that supports takeoff power, sprint approach mechanics, and posterior-chain reserve.",
+      "tenets": [
+        {
+          "key": "strength",
+          "weight": 5
+        },
+        {
+          "key": "power",
+          "weight": 2
+        },
+        {
+          "key": "body_control",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "resistance_training",
+          "weight": 5
+        },
+        {
+          "key": "strength_training",
+          "weight": 5
+        }
+      ],
+      "physiology": [
+        {
+          "key": "force_tissue_capacity",
+          "weight": 5
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        },
+        {
+          "key": "control_stability",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "hinge",
+          "weight": 5
+        },
+        {
+          "key": "brace",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "barbell",
+          "weight": 5
+        },
+        {
+          "key": "bench",
+          "weight": 3
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "glutes",
+          "weight": 3
+        },
+        {
+          "key": "hamstrings",
+          "weight": 3
+        },
+        {
+          "key": "core",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Raises hip-extension capacity that supports takeoff power, sprint approach mechanics, and posterior-chain reserve.",
+      "whyItGoesHere": "Belongs in Capacity because the main adaptation is force production, progressive loading, tissue tolerance, and structural reserve that supports jump height over time.",
+      "commonMisuse": "Do not place heavy strength before fresh jump-height work unless the session is explicitly a contrast session with low volume and full rest.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "hinge pattern",
+          "brace pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear barbell, bench area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Ribs down, full hip extension, pause without over-arching.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Ribs down, full hip extension, pause without over-arching.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "3-5 sets of 3-6 strength-quality reps",
+        "sets": "3-5",
+        "reps": "3-6",
+        "contacts": "",
+        "duration": "",
+        "restSeconds": "120-240",
+        "intensity": "moderate to heavy but technically crisp",
+        "stopRule": "Stop 1-3 reps before form breakdown; never grind when jump output is the priority."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 0,
+        "requiresSpotting": true,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": false,
+        "weeklyMaxFrequency": 2,
+        "minimumHoursBetweenHardExposures": 24,
+        "countsAsHighIntensity": true,
+        "countsAsHighImpact": false,
+        "countsAsNeural": false,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": false,
+        "fatigueCost": 4,
+        "fatigueSensitivity": 3,
+        "technicalComplexity": 3,
+        "impactLevel": 0,
+        "intensityCeiling": "high"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    },
+    {
+      "id": 50,
+      "slug": "standing-calf-raise-isometric-hold",
+      "name": "Standing Calf Raise Isometric Hold",
+      "family": "Lower-leg tendon and stiffness support",
+      "category": "Strength, Contrast, and Low-Impact Power Supports",
+      "phaseKey": "resilience",
+      "primaryPhaseKey": "resilience",
+      "subrole": "slow_eccentric_isometric_joint_resilience",
+      "subroleSecondary": "ankle_tendon_stiffness_support",
+      "slot": "standing_calf_raise_isometric_hold",
+      "cardSummary": "Standing Calf Raise Isometric Hold is a lower-leg tendon and stiffness support exercise for jumping athletes who need more vertical height. It targets builds calf-achilles tolerance and ankle stiffness support for repeated takeoff contacts without adding jump contacts.",
+      "bestPlacement": "Use after the athlete is warm and before or after Output depending on intensity. Low-level landing education can precede jumps; higher-control work can follow main power work.",
+      "description": "The athlete performs Standing Calf Raise Isometric Hold as a quality-first jump-height drill, emphasizing builds calf-achilles tolerance and ankle stiffness support for repeated takeoff contacts without adding jump contacts.",
+      "coachLanguage": "Primary subrole: slow eccentric/isometric joint resilience. Coach Standing Calf Raise Isometric Hold as landing/control support for jump height. The rep counts only when the athlete owns alignment, foot pressure, and breathing.",
+      "athleteLanguage": "Rise tall, big toe down, hold steady and breathe.",
+      "selectionRationale": "Builds calf-Achilles tolerance and ankle stiffness support for repeated takeoff contacts without adding jump contacts.",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "balance",
+          "weight": 3
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 4
+        },
+        {
+          "key": "core_body_control",
+          "weight": 3
+        },
+        {
+          "key": "isometrics",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        },
+        {
+          "key": "tendon_stiffness",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "brace",
+          "weight": 5
+        },
+        {
+          "key": "isometric",
+          "weight": 3
+        }
+      ],
+      "equipment": [
+        {
+          "key": "rack_or_wall",
+          "weight": 5
+        },
+        {
+          "key": "dumbbells_optional",
+          "weight": 3
+        }
+      ],
+      "bodyRegions": [
+        {
+          "key": "foot",
+          "weight": 5
+        },
+        {
+          "key": "ankle",
+          "weight": 3
+        },
+        {
+          "key": "calf",
+          "weight": 3
+        }
+      ],
+      "whyItWorks": "Builds calf-Achilles tolerance and ankle stiffness support for repeated takeoff contacts without adding jump contacts.",
+      "whyItGoesHere": "Belongs in Resilience because the main stress is landing ownership, braking, joint control, tendon tolerance, or position durability rather than maximal height.",
+      "commonMisuse": "Do not rush the stick, chase distance, or add complexity before the athlete can land quietly and pain free.",
+      "scalingGuidance": "Scale before intensity: reduce amplitude, contacts, approach speed, external load, landing height, reactive complexity, or range. Progress only when contacts stay quiet, alignment holds, and output remains crisp.",
+      "movementRequirements": {
+        "primaryJointActions": [
+          "brace pattern",
+          "isometric pattern"
+        ],
+        "keyPositions": [
+          "stacked ribs and pelvis",
+          "active foot tripod",
+          "knee tracks over toes",
+          "controlled landing or finish"
+        ],
+        "prerequisiteCapacity": [
+          "Pain-free squat/hinge/landing pattern",
+          "Can follow cues and stop on command",
+          "Can keep posture and breathing under the planned speed"
+        ],
+        "contraindicationFlags": [
+          "Current lower-limb pain with jumping",
+          "Recent acute ankle/knee/hip injury without clearance",
+          "Inability to land or brace safely"
+        ],
+        "expressionQuality": "Explosive contacts should look fast, quiet, tall, and repeatable; strength-support reps should look strong and technically consistent."
+      },
+      "coachingExecution": {
+        "setup": "Set up in a clear rack or wall, dumbbells optional area with enough space for safe takeoff and landing. Explain the rep count, finish rule, and stop signal before starting.",
+        "executionSteps": [
+          "Start in the prescribed stance with eyes up, ribs stacked, and feet active.",
+          "Create the intended dip, approach, contact, or load without rushing the setup.",
+          "Execute with the cue: Rise tall, big toe down, hold steady and breathe.",
+          "Land, rebound, or finish exactly as prescribed; reset fully before the next rep.",
+          "End the set as soon as speed, height, rhythm, alignment, or pain-free control degrades."
+        ],
+        "coachingCues": [
+          "Rise tall, big toe down, hold steady and breathe.",
+          "Quiet feet",
+          "Tall posture",
+          "Full reset",
+          "Fast intent without fatigue chasing"
+        ],
+        "repQualityGates": [
+          "No pain or guarding",
+          "Foot, knee, and hip stay aligned",
+          "Contact is quiet and fast for jump work",
+          "Landing or finish is controlled",
+          "Next rep would look as good as the current rep"
+        ],
+        "commonErrors": [
+          "Chasing height after landing quality drops",
+          "Letting knees collapse inward",
+          "Losing trunk position or arm timing",
+          "Turning the drill into a conditioning station"
+        ],
+        "regressions": [
+          "Lower amplitude or box height",
+          "Fewer contacts or reps",
+          "Planned version before reactive version",
+          "Two-leg version before single-leg version"
+        ],
+        "progressions": [
+          "Add approach speed only after shape is owned",
+          "Increase amplitude before adding complexity",
+          "Progress from stick to rebound when landing is reliable",
+          "Use light external load only if speed remains crisp"
+        ]
+      },
+      "dosage": {
+        "prescription": "2-4 sets of 20-45 second holds",
+        "sets": "2-4",
+        "reps": "1 hold",
+        "contacts": "",
+        "duration": "20-45 seconds",
+        "restSeconds": "60-120",
+        "intensity": "moderate; steady tendon load",
+        "stopRule": "Stop if foot cramping, Achilles pain, or position loss appears."
+      },
+      "scaling": {
+        "youth": "Keep the drill playful but low volume. Use lower amplitudes, simple cues, longer rest, and stop before competition overrides landing quality.",
+        "beginners": "Start with the stick, low box, or low-amplitude version. Do not add rebound, approach speed, or load until posture and landing are repeatable.",
+        "masters": "Reduce contacts, use longer rest, and choose softer progressions. Preserve tendon comfort and avoid sudden increases in impact.",
+        "returnToPlay": "Use only when cleared for the pattern. Start with pain-free range, low contacts, controlled sticks, and objective symmetry checks before progressing.",
+        "lowEquipment": "Use open floor, tape lines, cones, or a sturdy low box. Replace specialized equipment with bodyweight or low-amplitude versions.",
+        "elite": "Keep volume very low and intent high. Pair with timing, jump-height tracking, or video review; terminate the set at the first sign of output drop.",
+        "pregnancyPostpartum": "Avoid high-impact or maximal jumping unless specifically cleared. Substitute low-impact strength, balance, breathing, or controlled calf/hip work."
+      },
+      "pairing": {
+        "worksWellWith": [
+          "dynamic warm-up",
+          "approach mechanics",
+          "low-volume strength support"
+        ],
+        "avoidPairingWith": [
+          "fatigue-heavy conditioning",
+          "high-volume jump circuits",
+          "maximal lower-body strength immediately before testing"
+        ],
+        "notes": "For jump-height sessions, pair fresh Output work before Capacity work. Do not bury high-skill jumping after fatigue."
+      },
+      "safety": {
+        "riskLevel": 2,
+        "impactLevel": 0,
+        "requiresSpotting": false,
+        "requiresCoachSupervision": "optional",
+        "readinessChecks": [
+          "Athlete can squat, hinge, brace, and land pain free.",
+          "Athlete can follow the planned cue and stop rule.",
+          "Surface, space, equipment, and footwear are appropriate.",
+          "Previous progression is owned before impact, load, or complexity increases."
+        ],
+        "contraindications": [
+          "Painful jumping, landing, or loaded pattern",
+          "Uncontrolled knee valgus or trunk collapse at the planned speed",
+          "Fatigue that prevents safe takeoff or landing"
+        ],
+        "commonSubstitutions": [
+          "Snap Down to Stick",
+          "Squat Jump to Stick",
+          "Ankle Pogo in Place"
+        ]
+      },
+      "regimen": {
+        "canBeDaily": true,
+        "weeklyMaxFrequency": 4,
+        "minimumHoursBetweenHardExposures": 0,
+        "countsAsHighIntensity": false,
+        "countsAsHighImpact": false,
+        "countsAsNeural": false,
+        "countsAsTissueStress": true,
+        "countsAsConditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fitWeight": 5,
+        "freshnessRequired": false,
+        "fatigueCost": 2,
+        "fatigueSensitivity": 3,
+        "technicalComplexity": 3,
+        "impactLevel": 0,
+        "intensityCeiling": "moderate"
+      },
+      "mediaReferences": [
+        "Film first working set from front and side to confirm foot-knee-hip alignment, trunk position, arm timing, and landing quality."
+      ],
+      "publishChecks": {
+        "slugIsKebabCase": true,
+        "usesCanonicalPhaseKey": true,
+        "hasTaxonomyKeyWeights": true,
+        "hasDistinctScalingCohorts": true,
+        "hasCommonMisuse": true,
+        "hasSafetyAndReadinessChecks": true,
+        "hasRegimenAndPhaseProfile": true
+      }
+    }
+  ]
+}
+```

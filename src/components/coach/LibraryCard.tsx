@@ -14,10 +14,10 @@ export default function LibraryCard({
     <button
       type="button"
       onClick={onClick}
-      className="relative w-full h-full cursor-pointer rounded-xl border border-gray-200 bg-white p-4 text-left transition-shadow hover:border-gray-300 hover:shadow-md"
+      className="relative flex h-full w-full cursor-pointer flex-col items-start rounded-xl border border-gray-200 bg-white p-4 text-left transition-shadow hover:border-gray-300 hover:shadow-md sm:p-5"
     >
-      <div className="absolute right-3 top-3 z-10">{menu}</div>
-      <div className="flex min-w-0 flex-col items-start">{children}</div>
+      <div className="absolute right-3 top-3 z-10 sm:right-4 sm:top-4">{menu}</div>
+      <div className="flex w-full min-w-0 flex-1 flex-col items-start justify-start">{children}</div>
     </button>
   )
 }

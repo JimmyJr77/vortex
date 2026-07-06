@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Loader2, Plus, Search, Clock } from 'lucide-react'
+import { Loader2, Plus, Search } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import type { Exercise } from '../../coach/types'
-import { participantStructureLabel } from '../../coach/types'
 import type { TaxonomyItem } from '../../coach/taxonomy'
 import {
   capacitySubroleSequence,
@@ -14,11 +13,11 @@ import {
   skillMovementSubroleSequence,
 } from '../../coach/taxonomy'
 import { PREPARE_SESSION_NEED_OPTIONS } from '../../coach/prepareAccessFilters'
-import { exerciseDosageLabel, exerciseFacetLabels, exerciseFitnessGoal, exerciseIdentityLine, exerciseRequirementChips, exerciseSessionPhaseHint, exerciseTenetLabels, phaseSubroleLabel, primaryPhaseProfile, whyPreview } from '../../coach/exerciseCard'
 import { exportExercises, type LibraryExportFormat } from '../../coach/libraryExport'
 import ExerciseDetailModal from './ExerciseDetailModal'
 import ExerciseEditor from './ExerciseEditor'
 import LibraryCardMenu from './LibraryCardMenu'
+import ExerciseLibraryCard from './ExerciseLibraryCard'
 import LibraryCard from './LibraryCard'
 import LibraryExportControls from './LibraryExportControls'
 import LibraryResultCount from './LibraryResultCount'
@@ -290,17 +289,8 @@ export default function ExerciseLibrary() {
       {loading ? (
         <div className="flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading library...</div>
       ) : (
-        <div className="grid items-start gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {exercises.map((ex) => {
-            const tenets = exerciseTenetLabels(ex, tenetName)
-            const methodologies = exerciseFacetLabels(ex, 'methodology', facetName, 2)
-            const physiology = exerciseFacetLabels(ex, 'physiology', facetName, 1)
-            const phaseHint = exerciseSessionPhaseHint(ex)
-            const identityLine = exerciseIdentityLine(ex, taxonomy ?? undefined)
-            const reqChips = exerciseRequirementChips(ex)
-            const subrole = phaseSubroleLabel(ex.phase_subrole)
-            const programmingNote = whyPreview(ex.why)
-            return (
+        <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {exercises.map((ex) => (
             <LibraryCard
               key={ex.id}
               onClick={() => setViewing(ex)}
@@ -312,60 +302,14 @@ export default function ExerciseLibrary() {
                 />
               }
             >
-              <h3 className="pr-8 font-bold leading-snug text-gray-900">{ex.name}</h3>
-              {ex.sport_name && <span className="inline-block mt-1 text-xs bg-gray-100 text-gray-600 rounded px-2 py-0.5">{ex.sport_name}</span>}
-              {identityLine && <p className="text-[11px] text-gray-500 mt-1">{identityLine}</p>}
-              {subrole && <span className="inline-block mt-1 mr-1 text-[11px] bg-violet-50 text-violet-800 rounded px-2 py-0.5">{subrole}</span>}
-              <p className="text-sm text-gray-800 mt-2 line-clamp-3 font-medium leading-snug">{exerciseFitnessGoal(ex, tenetName)}</p>
-              {tenets.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {tenets.map((label) => (
-                    <span key={label} className="text-[11px] bg-red-50 text-vortex-red rounded px-2 py-0.5">{label}</span>
-                  ))}
-                </div>
-              )}
-              {phaseHint && (
-                <span className="inline-block mt-2 text-[11px] bg-blue-50 text-blue-800 rounded px-2 py-0.5">{phaseHint}</span>
-              )}
-              {reqChips.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {reqChips.map((chip) => (
-                    <span key={chip} className="text-[11px] bg-slate-50 text-slate-700 rounded px-2 py-0.5">{chip}</span>
-                  ))}
-                </div>
-              )}
-              {primaryPhaseProfile(ex)?.freshnessRequired && (
-                <span className="inline-block mt-2 ml-1 text-[11px] bg-amber-50 text-amber-800 rounded px-2 py-0.5">Freshness</span>
-              )}
-              {(primaryPhaseProfile(ex)?.fatigueCost ?? 0) >= 4 && (
-                <span className="inline-block mt-2 ml-1 text-[11px] bg-orange-50 text-orange-800 rounded px-2 py-0.5">High fatigue</span>
-              )}
-              {(primaryPhaseProfile(ex)?.impactLevel ?? 0) >= 3 && (
-                <span className="inline-block mt-2 ml-1 text-[11px] bg-purple-50 text-purple-800 rounded px-2 py-0.5">High impact</span>
-              )}
-              {ex.regimen_rule?.can_be_daily && (
-                <span className="inline-block mt-2 ml-1 text-[11px] bg-green-50 text-green-800 rounded px-2 py-0.5">Daily OK</span>
-              )}
-              {ex.participant_structure && ex.participant_structure !== 'individual' && (
-                <span className="inline-block mt-2 ml-1 text-[11px] bg-sky-50 text-sky-800 rounded px-2 py-0.5">{participantStructureLabel(ex.participant_structure)}</span>
-              )}
-              {programmingNote && (
-                <p className="text-xs text-gray-500 mt-2 line-clamp-2">{programmingNote}</p>
-              )}
-              <div className="flex items-center gap-3 text-xs text-gray-500 mt-3">
-                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {exerciseDosageLabel(ex)}</span>
-              </div>
-              <div className="flex flex-wrap gap-1 mt-2">
-                {methodologies.map((label) => (
-                  <span key={`m-${label}`} className="text-[11px] bg-gray-100 text-gray-700 rounded px-2 py-0.5">{label}</span>
-                ))}
-                {physiology.map((label) => (
-                  <span key={`p-${label}`} className="text-[11px] bg-indigo-50 text-indigo-800 rounded px-2 py-0.5">{label}</span>
-                ))}
-              </div>
+              <ExerciseLibraryCard
+                exercise={ex}
+                taxonomy={taxonomy}
+                facetName={facetName}
+                tenetName={tenetName}
+              />
             </LibraryCard>
-            )
-          })}
+          ))}
           {exercises.length === 0 && <div className="text-sm text-gray-500">No exercises match these filters.</div>}
         </div>
       )}

@@ -90,6 +90,7 @@ import { getCoachingSchemaStatus } from './ensureCoachingWhyLayerSchema.js'
 import { dedupeSessionPhases, normalizePhaseKey } from './sessionPhaseKeys.js'
 import { runPhaseAwarePrescription, getSessionPhaseTemplates } from './phaseAwarePrescription.js'
 import { registerProgrammingRoutes } from './coachProgrammingRoutes.js'
+import { registerGameRoutes } from './coachGameRoutes.js'
 
 function ok(res, data) {
   res.json({ success: true, data })
@@ -215,6 +216,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   const canAny = (permissions) => requireAnyPermission(pool, jwtSecret, permissions)
 
   registerProgrammingRoutes(app, pool, { can, canMutateRow, ok, bad })
+  registerGameRoutes(app, pool, { can, canMutateRow, ok, bad })
 
   // ==========================================================
   // TAXONOMY
