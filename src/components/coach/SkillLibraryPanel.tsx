@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Loader2, Plus, Search, X, Pencil, Link2 } from 'lucide-react'
+import { Loader2, Plus, Search, X, Link2 } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import type { Exercise, Skill, SkillEvaluationMode, SkillKind, SkillComponentRow, SkillPrerequisiteRow } from '../../coach/types'
 import type { TaxonomyItem } from '../../coach/taxonomy'
+import { exportSkills, type LibraryExportFormat } from '../../coach/libraryExport'
 import { EVALUATION_LABELS, formatSkillMetric } from '../../coach/skillCard'
 import SkillDetailModal from './SkillDetailModal'
+import LibraryCardMenu from './LibraryCardMenu'
+import LibraryExportControls from './LibraryExportControls'
 
 interface FilterState {
   q: string
@@ -60,20 +63,44 @@ export default function SkillLibraryPanel() {
     void load()
   }, [load])
 
+  const handleExport = (format: LibraryExportFormat) => {
+    if (skills.length === 0) return
+    exportSkills(skills, format, 'skill-library')
+  }
+
+  const handleDelete = async (sk: Skill) => {
+    if (!window.confirm(`Delete "${sk.name}"? This cannot be undone.`)) return
+    try {
+      await coachFetch(`/api/coach/skills/${sk.id}`, { method: 'DELETE' })
+      if (viewing?.id === sk.id) setViewing(null)
+      if (editing?.id === sk.id) setEditing(null)
+      void load()
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : 'Failed to delete skill')
+    }
+  }
+
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Skills</h2>
           <p className="text-sm text-gray-500">Demonstrated abilities — evaluated by execution quality, hold duration, or rep count. May link to a related exercise for training.</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setCreating(true)}
-          className="flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
-        >
-          <Plus className="w-4 h-4" /> New Skill
-        </button>
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+          <LibraryExportControls
+            disabled={loading || skills.length === 0}
+            filenameStem="skill-library"
+            onExport={handleExport}
+          />
+          <button
+            type="button"
+            onClick={() => setCreating(true)}
+            className="flex items-center justify-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
+          >
+            <Plus className="w-4 h-4" /> New Skill
+          </button>
+        </div>
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl p-4 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
@@ -141,16 +168,11 @@ export default function SkillLibraryPanel() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-bold text-gray-900">{sk.name}</h3>
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    onClick={(e) => { e.stopPropagation(); setEditing(sk) }}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); setEditing(sk) } }}
-                    className="text-gray-400 hover:text-vortex-red p-0.5 rounded"
-                    aria-label={`Edit ${sk.name}`}
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </span>
+                  <LibraryCardMenu
+                    itemLabel={sk.name}
+                    onEdit={() => setEditing(sk)}
+                    onDelete={() => { void handleDelete(sk) }}
+                  />
                 </div>
                 <div className="flex flex-wrap gap-1 mt-2">
                   <span className={`text-[11px] rounded px-2 py-0.5 ${kindBadgeClass(sk.skill_kind)}`}>

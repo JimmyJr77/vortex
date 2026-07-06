@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Loader2, Plus, Search, Clock, Pencil } from 'lucide-react'
+import { Loader2, Plus, Search, Clock } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import type { Exercise } from '../../coach/types'
@@ -7,8 +7,11 @@ import type { TaxonomyItem } from '../../coach/taxonomy'
 import { orderSlotsForSubrole, outputSubroleSequence, prepareAccessSubroleSequence } from '../../coach/taxonomy'
 import { PREPARE_SESSION_NEED_OPTIONS } from '../../coach/prepareAccessFilters'
 import { exerciseDosageLabel, exerciseFacetLabels, exerciseFitnessGoal, exerciseIdentityLine, exerciseRequirementChips, exerciseSessionPhaseHint, exerciseTenetLabels, phaseSubroleLabel, primaryPhaseProfile, whyPreview } from '../../coach/exerciseCard'
+import { exportExercises, type LibraryExportFormat } from '../../coach/libraryExport'
 import ExerciseDetailModal from './ExerciseDetailModal'
 import ExerciseEditor from './ExerciseEditor'
+import LibraryCardMenu from './LibraryCardMenu'
+import LibraryExportControls from './LibraryExportControls'
 
 interface FilterState {
   q: string
@@ -90,6 +93,23 @@ export default function ExerciseLibrary() {
 
   const tenetName = facetName
 
+  const handleExport = (format: LibraryExportFormat) => {
+    if (exercises.length === 0) return
+    exportExercises(exercises, format, facetName, 'exercise-library')
+  }
+
+  const handleDelete = async (ex: Exercise) => {
+    if (!window.confirm(`Delete "${ex.name}"? This cannot be undone.`)) return
+    try {
+      await coachFetch(`/api/coach/exercises/${ex.id}`, { method: 'DELETE' })
+      if (viewing?.id === ex.id) setViewing(null)
+      if (editing?.id === ex.id) setEditing(null)
+      void load()
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : 'Failed to delete exercise')
+    }
+  }
+
   const preparePhaseId = taxonomy?.sessionPhases?.find((p) => p.key === 'prepare_access')?.id
   const outputPhaseId = taxonomy?.sessionPhases?.find((p) => p.key === 'output')?.id
   const isPrepareFiltered = filters.phase === preparePhaseId
@@ -108,18 +128,25 @@ export default function ExerciseLibrary() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Exercises</h2>
           <p className="text-sm text-gray-500">Movements programmed toward fitness outcomes — tenets, physiology, and session phase — for the Needs Engine and workout builder.</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setCreating(true)}
-          className="flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
-        >
-          <Plus className="w-4 h-4" /> New Exercise
-        </button>
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+          <LibraryExportControls
+            disabled={loading || exercises.length === 0}
+            filenameStem="exercise-library"
+            onExport={handleExport}
+          />
+          <button
+            type="button"
+            onClick={() => setCreating(true)}
+            className="flex items-center justify-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
+          >
+            <Plus className="w-4 h-4" /> New Exercise
+          </button>
+        </div>
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl p-4 grid gap-3 md:grid-cols-3 lg:grid-cols-4">
@@ -221,16 +248,11 @@ export default function ExerciseLibrary() {
             >
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-bold text-gray-900">{ex.name}</h3>
-                <span
-                  role="button"
-                  tabIndex={0}
-                  onClick={(e) => { e.stopPropagation(); setEditing(ex) }}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); setEditing(ex) } }}
-                  className="text-gray-400 hover:text-vortex-red p-0.5 rounded"
-                  aria-label={`Edit ${ex.name}`}
-                >
-                  <Pencil className="w-4 h-4" />
-                </span>
+                <LibraryCardMenu
+                  itemLabel={ex.name}
+                  onEdit={() => setEditing(ex)}
+                  onDelete={() => { void handleDelete(ex) }}
+                />
               </div>
               {ex.sport_name && <span className="inline-block mt-1 text-xs bg-gray-100 text-gray-600 rounded px-2 py-0.5">{ex.sport_name}</span>}
               {identityLine && <p className="text-[11px] text-gray-500 mt-1">{identityLine}</p>}
