@@ -55,3 +55,22 @@ test('normalizePortalConfig preserves custom coach order for all portal tabs', (
   assert.ok(config.coach.tabOrder.includes('programs'))
   assert.ok(config.coach.tabOrder.includes('insights'))
 })
+
+test('normalizePortalConfig preserves nav layout section breaks and tab order', () => {
+  const config = normalizePortalConfig({
+    coach: {
+      navLayout: [
+        { type: 'tab', key: 'home' },
+        { type: 'section', id: 'session-design', label: 'Session Design' },
+        { type: 'tab', key: 'sessions' },
+        { type: 'tab', key: 'workout' },
+        { type: 'section', id: 'athlete-dev', label: 'Athlete Development' },
+        { type: 'tab', key: 'skills' },
+        { type: 'tab', key: 'bogus' },
+      ],
+    },
+  })
+  assert.ok(config.coach.navLayout.some((item) => item.type === 'section' && item.label === 'Session Design'))
+  assert.ok(config.coach.navLayout.some((item) => item.type === 'section' && item.label === 'Athlete Development'))
+  assert.deepEqual(config.coach.tabOrder.slice(0, 4), ['home', 'sessions', 'workout', 'skills'])
+})

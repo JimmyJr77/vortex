@@ -14,7 +14,9 @@ import {
   analyzeSkillMovementIntelligenceReadiness,
   analyzeSkillTumblingReadiness,
   analyzeSkillSprintReadiness,
+  analyzeSkillPerceptionReadiness,
   analyzeSprintPrepBeforeOutput,
+  analyzeOutputReadiness,
 } from '../workoutValidation.js'
 
 describe('workoutValidation helpers', () => {
@@ -234,6 +236,54 @@ describe('workoutValidation helpers', () => {
       { slugByExercise, profileByExercisePhase: new Map(), dosageByExercise: new Map(), blockMeta: [], skillBlockIndex: 0 },
     )
     assert.ok(findings.some((f) => f.rule_key === 'skill_skipping_high_intensity'))
+  })
+})
+
+describe('analyzeSkillPerceptionReadiness', () => {
+  it('recommends lateral shuffle before mirror shuffle in same block', () => {
+    const slugByExercise = new Map([['20', 'mirror-shuffle-drill']])
+    const findings = analyzeSkillPerceptionReadiness(
+      [{ exercise_id: 20, exercise_name: 'Mirror Shuffle' }],
+      { slugByExercise, dosageByExercise: new Map(), blockMeta: [], skillBlockIndex: 0 },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'skill_mirror_shuffle_prerequisite'))
+  })
+
+  it('warns when mirror round exceeds skill duration cap', () => {
+    const slugByExercise = new Map([['21', 'mirror-shuffle-drill']])
+    const findings = analyzeSkillPerceptionReadiness(
+      [{ exercise_id: 21, exercise_name: 'Mirror Shuffle', work_seconds: 20 }],
+      { slugByExercise, dosageByExercise: new Map(), blockMeta: [], skillBlockIndex: 0 },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'skill_mirror_round_duration'))
+  })
+
+  it('errors on diving during ball drop when watch text flags dive', () => {
+    const slugByExercise = new Map([['22', 'ball-drop-reaction']])
+    const findings = analyzeSkillPerceptionReadiness(
+      [{ exercise_id: 22, exercise_name: 'Ball Drop' }],
+      {
+        slugByExercise,
+        dosageByExercise: new Map(),
+        draft: { watch_points: ['athlete diving for ball'] },
+        blockMeta: [],
+        skillBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'skill_ball_drop_diving' && f.severity === 'error'))
+  })
+
+  it('warns reactive drills after fitness block', () => {
+    const slugByExercise = new Map([['23', 'gate-reaction-drill']])
+    const blockMeta = [
+      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'skill_movement_intelligence', block: {} },
+    ]
+    const findings = analyzeSkillPerceptionReadiness(
+      [{ exercise_id: 23, exercise_name: 'Gate Reaction' }],
+      { slugByExercise, dosageByExercise: new Map(), blockMeta, skillBlockIndex: 1 },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'skill_reactive_after_fitness'))
   })
 })
 
@@ -570,5 +620,43 @@ describe('analyzeSprintPrepBeforeOutput', () => {
     const finding = analyzeSprintPrepBeforeOutput(blockMeta, slugByExercise)
     assert.ok(finding)
     assert.equal(finding.rule_key, 'skill_sprint_missing_prep_before_output')
+  })
+})
+
+describe('analyzeOutputReadiness', () => {
+  it('errors when Output follows Fitness', () => {
+    const blockMeta = [
+      { phaseKey: 'fitness_repeatability', block: {} },
+      { phaseKey: 'output', block: {} },
+    ]
+    const findings = analyzeOutputReadiness(
+      [{ exercise_id: 1, exercise_name: 'Flying 10' }],
+      { slugByExercise: new Map(), profileByExercisePhase: new Map(), dosageByExercise: new Map(), blockMeta, outputBlockIndex: 1 },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_after_fitness' && f.severity === 'error'))
+  })
+
+  it('warns on high RPE with short rest in Output', () => {
+    const dosageByExercise = new Map([['2', { default_rpe_max: 9, default_rest_seconds: 20 }]])
+    const findings = analyzeOutputReadiness(
+      [{ exercise_id: 2, exercise_name: 'Countermovement Jump', rpe: 8, rest_seconds: 20 }],
+      { slugByExercise: new Map([['2', 'countermovement-vertical-jump']]), profileByExercisePhase: new Map(), dosageByExercise, blockMeta: [], outputBlockIndex: 0 },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_high_rpe_short_rest'))
+  })
+
+  it('errors on tumbling output without skill prerequisites', () => {
+    const findings = analyzeOutputReadiness(
+      [{ exercise_id: 3, exercise_name: 'Round-Off Rebound' }],
+      {
+        slugByExercise: new Map([['3', 'round-off-rebound-snap-down-to-stick']]),
+        profileByExercisePhase: new Map(),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        outputBlockIndex: 0,
+        skillSlugsInWorkout: new Set(),
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'output_roundoff_rebound_prerequisite' && f.severity === 'error'))
   })
 })

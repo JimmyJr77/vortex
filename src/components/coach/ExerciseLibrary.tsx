@@ -4,7 +4,7 @@ import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import type { Exercise } from '../../coach/types'
 import type { TaxonomyItem } from '../../coach/taxonomy'
-import { orderSlotsForSubrole, prepareAccessSubroleSequence } from '../../coach/taxonomy'
+import { orderSlotsForSubrole, outputSubroleSequence, prepareAccessSubroleSequence } from '../../coach/taxonomy'
 import { PREPARE_SESSION_NEED_OPTIONS } from '../../coach/prepareAccessFilters'
 import { exerciseDosageLabel, exerciseFacetLabels, exerciseFitnessGoal, exerciseIdentityLine, exerciseRequirementChips, exerciseSessionPhaseHint, exerciseTenetLabels, phaseSubroleLabel, primaryPhaseProfile, whyPreview } from '../../coach/exerciseCard'
 import ExerciseDetailModal from './ExerciseDetailModal'
@@ -91,11 +91,20 @@ export default function ExerciseLibrary() {
   const tenetName = facetName
 
   const preparePhaseId = taxonomy?.sessionPhases?.find((p) => p.key === 'prepare_access')?.id
-  const isPrepareFiltered = filters.phase === preparePhaseId || filters.subrole !== ''
-  const subroleOptions = prepareAccessSubroleSequence(taxonomy)
-  const slotOptions = filters.subrole
-    ? orderSlotsForSubrole(taxonomy, 'prepare_access', filters.subrole)
-    : (taxonomy?.phaseOrderSlots ?? []).filter((s) => s.phase_key === 'prepare_access')
+  const outputPhaseId = taxonomy?.sessionPhases?.find((p) => p.key === 'output')?.id
+  const isPrepareFiltered = filters.phase === preparePhaseId
+  const isOutputFiltered = filters.phase === outputPhaseId
+  const subroleOptions = isOutputFiltered
+    ? outputSubroleSequence(taxonomy)
+    : isPrepareFiltered
+      ? prepareAccessSubroleSequence(taxonomy)
+      : []
+  const activePhaseKey = isOutputFiltered ? 'output' : isPrepareFiltered ? 'prepare_access' : null
+  const slotOptions = filters.subrole && activePhaseKey
+    ? orderSlotsForSubrole(taxonomy, activePhaseKey, filters.subrole)
+    : activePhaseKey
+      ? (taxonomy?.phaseOrderSlots ?? []).filter((s) => s.phase_key === activePhaseKey)
+      : []
 
   return (
     <div className="space-y-5">
@@ -131,9 +140,9 @@ export default function ExerciseLibrary() {
         <FacetSelect label="Methodology" items={taxonomy?.methodologies as TaxonomyItem[] | undefined} value={filters.methodology} onChange={(v) => setFilters((f) => ({ ...f, methodology: v }))} />
         <FacetSelect label="Physiology" items={taxonomy?.physiology as TaxonomyItem[] | undefined} value={filters.physiology} onChange={(v) => setFilters((f) => ({ ...f, physiology: v }))} />
         <FacetSelect label="Session Phase" items={taxonomy?.sessionPhases as TaxonomyItem[] | undefined} value={filters.phase} onChange={(v) => setFilters((f) => ({ ...f, phase: v, subrole: '', orderSlot: '' }))} />
-        {isPrepareFiltered && subroleOptions.length > 0 && (
+        {(isPrepareFiltered || isOutputFiltered) && subroleOptions.length > 0 && (
           <div>
-            <label className="block text-xs font-semibold text-gray-500 mb-1">Prepare subrole</label>
+            <label className="block text-xs font-semibold text-gray-500 mb-1">{isOutputFiltered ? 'Output subrole' : 'Prepare subrole'}</label>
             <select value={filters.subrole} onChange={(e) => setFilters((f) => ({ ...f, subrole: e.target.value, orderSlot: '' }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
               <option value="">All subroles</option>
               {subroleOptions.map((s) => <option key={s.key} value={s.key}>{s.name}</option>)}

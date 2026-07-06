@@ -336,11 +336,13 @@ Exercise Library filter by subrole then slot; validation warns when subrole orde
 
 **Exercise card format:** See [EXERCISE_CARD_SPEC.md](EXERCISE_CARD_SPEC.md) for the canonical card v2
 authoring guide (field mapping, publish gate, Prepare/Access conventions, foundation cards 1–10,
-Skill shape cards 1–10, Skill tumbling cards 11–24, Skill sprint cards 25–34).
+Skill shape cards 1–10, Skill tumbling cards 11–24, Skill sprint cards 25–34, Skill balance cards 35–44, Skill perception cards 45–50).
+
+**Output phase content:** Migration `111` adds six Output subroles and 35 fine order slots; `112` seeds 50 Output movements (acceleration through reactive agility / tumbling output) with regimen rules (`can_be_daily = false`, 48h between hard exposures). Validation education: `output_readiness`; validator `analyzeOutputReadiness` in [workoutValidation.js](../backend/platform/workoutValidation.js). Generator: [scripts/generate-111-output-seed.mjs](../scripts/generate-111-output-seed.mjs). Data: [scripts/data/output-movements-top50.mjs](../scripts/data/output-movements-top50.mjs).
 
 **Skill / Movement Intelligence content:** Migration `105` seeds 50 thin skill movements; rich passes
-follow the Prepare cluster pattern — `106` (shape 1–10, complete), `107` (tumbling 11–24, complete),
-`108` (sprint 25–34, complete), `109–110` planned for balance and perception clusters (cards 35–50).
+follow the Prepare cluster pattern — `106` (shape 1–10), `107` (tumbling 11–24), `108` (sprint 25–34),
+`109` (balance 35–44), `110` (perception 45–50). **All 50 Skill cards complete.**
 
 ### Deterministic Needs Engine; AI proposes, the schema disposes
 `runPhaseAwarePrescription()` (extracted from `coachPortalRoutes.js`) is a phase-aware scorer/time-packer
@@ -518,7 +520,9 @@ Multi-portal shell in `src/App.tsx` (website / admin / member / coach). Shared c
 - **Coach portal** ([src/components/coach/CoachLayout.tsx](../src/components/coach/CoachLayout.tsx)):
   tabs `home`, `sessions`, `needs`, `library`, `framework`, `workout`/`warmup`, `programs`,
   `training-blocks`, `regimens`, `challenges`, `assess`, `skills`, `assign`, `messages`,
-  `insights`, `roster`.
+  `insights`, `roster`. Sidebar order/visibility and optional section-break headers come from
+  `facility.portal_config` via `GET /api/coach/portal-config` (configured in Admin → Settings →
+  Coach Portal).
 - **Why Layer panels**: `FrameworkPanel` (philosophy browser), tabbed `LibraryPanel` exercise editor
   (Why/Phase/Dosage/Safety/Regimen + publish checklist), `WorkoutSetupWizard` + phase canvas +
   validation UX in `WorkoutBuilder`, rationale cards in `NeedsEnginePanel`, `TrainingBlockBuilder`,

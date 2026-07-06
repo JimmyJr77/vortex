@@ -138,6 +138,10 @@ export function skillMovementSubroleSequence(taxonomy: Taxonomy | null | undefin
   return subroleSequenceForPhase(taxonomy, SKILL_MOVEMENT_INTELLIGENCE)
 }
 
+export function outputSubroleSequence(taxonomy: Taxonomy | null | undefined): PhaseSubroleTaxonomyItem[] {
+  return subroleSequenceForPhase(taxonomy, 'output')
+}
+
 export function subroleSequenceForPhase(
   taxonomy: Taxonomy | null | undefined,
   phaseKey: string,

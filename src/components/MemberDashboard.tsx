@@ -22,7 +22,7 @@ import PortalPreferencesPanel from './messaging/PortalPreferencesPanel'
 import MemberMasterFaqsPanel from './messaging/MemberMasterFaqsPanel'
 import WaiverSigningBlock, { validateWaiverSigning } from './signup/WaiverSigningBlock'
 import type { PortalId } from '../utils/portalSession'
-import { firstVisiblePortalTab, isPortalTabVisible, orderPortalItems } from '../utils/portalTabConfig'
+import { firstVisiblePortalTab, isPortalTabVisible, buildPortalNavRenderList, type PortalNavLayoutItem } from '../utils/portalTabConfig'
 
 interface MemberDashboardProps {
   member: any
@@ -327,6 +327,7 @@ export default function MemberDashboard({
   const [enrollmentConfirming, setEnrollmentConfirming] = useState(false)
   const [hiddenMemberTabs, setHiddenMemberTabs] = useState<MemberTab[]>([])
   const [memberTabOrder, setMemberTabOrder] = useState<MemberTab[]>(NAV.map((item) => item.tab))
+  const [memberNavLayout, setMemberNavLayout] = useState<PortalNavLayoutItem[]>(NAV.map((item) => ({ type: 'tab', key: item.tab })))
 
   const apiUrl = getApiUrl()
   const token = localStorage.getItem('vortex_member_token')
@@ -1062,12 +1063,17 @@ export default function MemberDashboard({
     }
   }
 
+  const visibleNavEntries = useMemo(
+    () => buildPortalNavRenderList(NAV, memberNavLayout, memberTabOrder, hiddenMemberTabs, (item) => item.tab),
+    [hiddenMemberTabs, memberNavLayout, memberTabOrder],
+  )
+
   const visibleNav = useMemo(
     () =>
-      orderPortalItems(NAV, memberTabOrder, (item) => item.tab).filter((item) =>
-        isPortalTabVisible(item.tab, hiddenMemberTabs),
-      ),
-    [hiddenMemberTabs, memberTabOrder],
+      visibleNavEntries
+        .filter((entry): entry is { type: 'nav'; item: (typeof NAV)[number] } => entry.type === 'nav')
+        .map((entry) => entry.item),
+    [visibleNavEntries],
   )
 
   useEffect(() => {
@@ -1083,6 +1089,14 @@ export default function MemberDashboard({
         if (cancelled) return
         setHiddenMemberTabs(Array.isArray(json.data?.hiddenTabs) ? json.data.hiddenTabs : [])
         setMemberTabOrder(Array.isArray(json.data?.tabOrder) ? json.data.tabOrder : NAV.map((item) => item.tab))
+        setMemberNavLayout(
+          Array.isArray(json.data?.navLayout) && json.data.navLayout.length > 0
+            ? json.data.navLayout
+            : (Array.isArray(json.data?.tabOrder) ? json.data.tabOrder : NAV.map((item) => item.tab)).map((key) => ({
+                type: 'tab',
+                key,
+              })),
+        )
       } catch {
         if (!cancelled) setHiddenMemberTabs([])
       }
@@ -1701,7 +1715,18 @@ export default function MemberDashboard({
       <div className={`${messagingFullscreen ? 'flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden'}`}>
         <nav className={messagingFullscreen ? 'hidden' : navOpen ? 'block' : 'hidden lg:block'}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
-            {visibleNav.map((item) => {
+            {visibleNavEntries.map((entry) => {
+              if (entry.type === 'section') {
+                return (
+                  <div
+                    key={entry.id}
+                    className="px-3 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400"
+                  >
+                    {entry.label}
+                  </div>
+                )
+              }
+              const item = entry.item
               const Icon = item.icon
               const active = activeTab === item.tab
               return (

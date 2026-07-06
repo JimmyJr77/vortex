@@ -103,16 +103,63 @@ function normalizeTabOrder(portal, tabOrder) {
   return [...selected, ...valid.filter((tab) => !selected.includes(tab))]
 }
 
+function normalizeNavLayout(portal, navLayout, tabOrder) {
+  const valid = portal === 'member' ? MEMBER_PORTAL_TAB_KEYS : COACH_PORTAL_TAB_KEYS
+  const fallbackOrder = normalizeTabOrder(portal, tabOrder)
+  if (!Array.isArray(navLayout) || navLayout.length === 0) {
+    return fallbackOrder.map((key) => ({ type: 'tab', key }))
+  }
+
+  const seen = new Set()
+  const result = []
+
+  for (const entry of navLayout) {
+    if (entry && typeof entry === 'object' && entry.type === 'section') {
+      const label = String(entry.label ?? '').trim().slice(0, 60)
+      if (!label) continue
+      const id =
+        typeof entry.id === 'string' && entry.id.trim()
+          ? entry.id.trim().slice(0, 80)
+          : `section-${result.length + 1}`
+      result.push({ type: 'section', id, label })
+      continue
+    }
+
+    const keyRaw =
+      entry && typeof entry === 'object' && entry.type === 'tab'
+        ? entry.key
+        : entry && typeof entry === 'object'
+          ? entry.key
+          : entry
+    const key = String(keyRaw ?? '')
+    if (!valid.includes(key) || seen.has(key)) continue
+    seen.add(key)
+    result.push({ type: 'tab', key })
+  }
+
+  for (const key of fallbackOrder) {
+    if (!seen.has(key)) {
+      result.push({ type: 'tab', key })
+    }
+  }
+
+  return result
+}
+
+function normalizePortalSidebar(portal, raw = {}) {
+  const tabOrder = normalizeTabOrder(portal, raw?.tabOrder)
+  const navLayout = normalizeNavLayout(portal, raw?.navLayout, tabOrder)
+  return {
+    hiddenTabs: normalizeHiddenTabs(portal, raw?.hiddenTabs),
+    tabOrder: navLayout.filter((item) => item.type === 'tab').map((item) => item.key),
+    navLayout,
+  }
+}
+
 export function normalizePortalConfig(raw = {}) {
   return {
-    member: {
-      hiddenTabs: normalizeHiddenTabs('member', raw?.member?.hiddenTabs),
-      tabOrder: normalizeTabOrder('member', raw?.member?.tabOrder),
-    },
-    coach: {
-      hiddenTabs: normalizeHiddenTabs('coach', raw?.coach?.hiddenTabs),
-      tabOrder: normalizeTabOrder('coach', raw?.coach?.tabOrder),
-    },
+    member: normalizePortalSidebar('member', raw?.member),
+    coach: normalizePortalSidebar('coach', raw?.coach),
   }
 }
 

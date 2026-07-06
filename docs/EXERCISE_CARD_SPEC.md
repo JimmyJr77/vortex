@@ -490,7 +490,7 @@ Data: [`scripts/data/activation-access-cards-45-50.mjs`](../scripts/data/activat
 | `rotation_inversion_tumbling_foundations` | 221–232 | Rolling, inversion, hand support, tumbling prerequisites |
 | `locomotion_sprint_mechanics` | 233–240 | Sprint posture, rhythm, foot strike, acceleration shapes |
 | `balance_coordination_rhythm` | 260–268 | Timing, foot placement, balance, sequencing |
-| `perception_action_reactive_movement` | 251–256 | Decision-making coupled with movement |
+| `perception_action_reactive_movement` | 280–285 | Decision-making coupled with movement |
 
 ### 9.1 Phase intent variants (dual profiles)
 
@@ -528,9 +528,9 @@ Thin seed: [105](../backend/migrations/105_coaching_skill_movement_intelligence_
 | Shape reaction game | Low volume, full rest | Fitness if conditioning |
 | Tumbling foundation | Fresh, supervised | Capacity if high volume |
 
-**Validation rules:** `skill_movement_intelligence_readiness` (phase), `skill_shape_readiness` (shape cluster), `skill_tumbling_readiness` (tumbling cluster), `skill_sprint_readiness` (sprint mechanics cluster), `skill_balance_readiness` (balance cluster). Rules: `skill_block_fatigue`, `skill_tumbling_after_fitness`, `skill_balance_after_fitness`, `skill_agility_conditioning_dose`, `skill_ladder_pass_volume`, `skill_skipping_high_intensity`, `skill_sprint_max_speed`, `skill_shape_hold_duration`, plus tumbling cluster rules (`skill_roll_mat_required`, `skill_forward_roll_prerequisite`, `skill_backward_roll_progression`, `skill_backward_roll_neck_stop`, `skill_shoulder_roll_surface`, `skill_handstand_endurance`, `skill_donkey_kick_volume`, `skill_cartwheel_hand_placement`, `skill_cartwheel_finish`, `skill_roundoff_prerequisite`, `skill_hurdle_entry_balance`, `skill_rotational_stop`), plus sprint cluster rules (`skill_sprint_iso_hold_duration`, `skill_sprint_switch_volume`, `skill_sprint_high_intensity_drill`, `skill_sprint_toe_down`, `skill_sprint_backward_lean`, `skill_sprint_hip_projection`, `skill_sprint_falling_hinge`, `skill_sprint_start_overreach`, `skill_sprint_arm_midline`, `skill_sprint_after_fitness`, `skill_sprint_before_tumbling_fatigue`, `skill_sprint_missing_prep_before_output`).
+**Validation rules:** `skill_movement_intelligence_readiness` (phase), `skill_shape_readiness` (shape cluster), `skill_tumbling_readiness` (tumbling cluster), `skill_sprint_readiness` (sprint mechanics cluster), `skill_balance_readiness` (balance cluster), `skill_perception_readiness` (perception cluster). Rules: `skill_block_fatigue`, `skill_tumbling_after_fitness`, `skill_balance_after_fitness`, `skill_reactive_after_fitness`, `skill_agility_conditioning_dose`, `skill_ladder_pass_volume`, `skill_skipping_high_intensity`, `skill_mirror_shuffle_prerequisite`, `skill_mirror_round_duration`, `skill_tag_game_conditioning`, `skill_tag_unsafe_contact`, `skill_ball_drop_diving`, `skill_reactive_output_intent`, `skill_sprint_max_speed`, `skill_shape_hold_duration`, plus tumbling cluster rules (`skill_roll_mat_required`, `skill_forward_roll_prerequisite`, `skill_backward_roll_progression`, `skill_backward_roll_neck_stop`, `skill_shoulder_roll_surface`, `skill_handstand_endurance`, `skill_donkey_kick_volume`, `skill_cartwheel_hand_placement`, `skill_cartwheel_finish`, `skill_roundoff_prerequisite`, `skill_hurdle_entry_balance`, `skill_rotational_stop`), plus sprint cluster rules (`skill_sprint_iso_hold_duration`, `skill_sprint_switch_volume`, `skill_sprint_high_intensity_drill`, `skill_sprint_toe_down`, `skill_sprint_backward_lean`, `skill_sprint_hip_projection`, `skill_sprint_falling_hinge`, `skill_sprint_start_overreach`, `skill_sprint_arm_midline`, `skill_sprint_after_fitness`, `skill_sprint_before_tumbling_fatigue`, `skill_sprint_missing_prep_before_output`).
 
-**Roadmap:** Cards **45–50** (perception cluster) seeded in [105](../backend/migrations/105_coaching_skill_movement_intelligence_seed.sql); rich pass **110** follows Prepare cluster pattern. Balance cards **35–44** complete in [109](../backend/migrations/109_coaching_skill_balance_cards.sql).
+**Roadmap:** All **50** Skill / Movement Intelligence cards have rich passes in migrations **106–110**. Phase complete.
 
 ### 9.3 Rotation / tumbling cards 11–24
 
@@ -634,3 +634,58 @@ Migration 109 resequences balance slots to band **260–268** (after perception 
 | Low hurdle step-over | Clean clearance, slow tempo | Output if hurdle hops |
 
 **Validation rule:** `skill_balance_readiness` — balance, coordination, and rhythm drills should improve movement quality at low fatigue, not become conditioning or reactive agility without perception cues. Implemented in `analyzeSkillMovementIntelligenceReadiness` ([workoutValidation.js](../backend/platform/workoutValidation.js)).
+
+### 9.6 Perception-action / reactive movement cards 45–50
+
+Thin seed: [105](../backend/migrations/105_coaching_skill_movement_intelligence_seed.sql). Rich pass: [110](../backend/migrations/110_coaching_skill_perception_cards.sql). Data: [`scripts/data/skill-perception-cards-45-50.mjs`](../scripts/data/skill-perception-cards-45-50.mjs).
+
+| # | Slug | Slot | session_need tags |
+|---|------|------|-------------------|
+| 45 | `mirror-shuffle-drill` | `mirror_reaction` | general_warmup, sprint_prep, landing_prep |
+| 46 | `coach-point-and-go` | `visual_reaction` | general_warmup, sprint_prep, landing_prep |
+| 47 | `colored-cone-call-out` | `visual_decision` | general_warmup, sprint_prep, landing_prep |
+| 48 | `ball-drop-reaction` | `object_reaction` | general_warmup, sprint_prep, landing_prep |
+| 49 | `partner-shadow-tag` | `movement_game` | general_warmup, sprint_prep, landing_prep |
+| 50 | `gate-reaction-drill` | `reactive_start` | general_warmup, sprint_prep, landing_prep |
+
+Migration 110 resequences perception slots to band **280–285** (after balance 260–268). Completes the 50-card Skill / Movement Intelligence library.
+
+**Equipment taxonomy (110):** `tennis_ball`, `reaction_ball`. Color cone drills tag `cones` with `setup_requirements` for visually distinguishable markers.
+
+**Dose-phase escalation (Perception-Action / Reactive Movement):**
+
+| Drill type | Skill cap | Escalates to |
+|------------|-----------|--------------|
+| Mirror shuffle | ≤15s rounds, shuffle prep first | Output if competitive max speed |
+| Coach point-and-go | 2–4 directions, clean stops | Output if sprint exits |
+| Color cone call-out | Short cues, controlled stops | Fitness if shuttle circuits |
+| Ball drop | No diving, full rest | Output if max accelerations |
+| Partner tag/shadow | ≤12s rounds, clear rules | Fitness if long chaotic rounds |
+| Gate reaction | Cue-read + first step | Output if timed max sprint |
+
+**Validation rule:** `skill_perception_readiness` — reactive drills should improve see-decide-move quality while fresh, not become conditioning games or unsafe contact. Implemented in `analyzeSkillPerceptionReadiness` ([workoutValidation.js](../backend/platform/workoutValidation.js)).
+
+## 10. Output
+
+**Phase goal:** Express speed, explosiveness, elastic stiffness, plyometric power, reactive strength, jump/throw power, deceleration quality, COD power, and high-intensity reactive agility while the athlete is fresh. Skill teaches the pattern; **Output expresses the pattern fast, powerfully, and with intent.**
+
+**Placement:** Prepare / Access → Skill / Movement Intelligence → **Output** → Capacity → Control / Resilience → Fitness / Repeatability → Restore
+
+**Subroles** ([111](../backend/migrations/111_coaching_output_phase_infrastructure.sql)):
+
+| Subrole | order_index band | Cards |
+|---------|------------------|-------|
+| `acceleration_start_speed` | 311–316 | 1–10 |
+| `max_velocity_exposure` | 321–325 | 11–18 |
+| `elastic_stiffness_plyometric_rudiments` | 331–337 | 19–27 |
+| `jump_throw_explosive_power` | 341–347 | 28–38 |
+| `deceleration_cod_power` | 351–354 | 39–45 |
+| `reactive_agility_tumbling_output` | 361–365 | 46–50 |
+
+**Dosing principles:** Low reps, low total volume, high rest, high intent (RPE 7–9). Track plyometric **contacts** where applicable. Regimen: `can_be_daily = false`, `minimum_hours_between_hard_exposures = 48`, `counts_as_neural` and `counts_as_high_intensity = true`.
+
+**Output vs Fitness:** A sprint is Output when distance is short, intent is high, recovery is full, and speed stays high. It becomes Fitness when rest is short, reps accumulate, speed drops, and the goal is repeatability under fatigue.
+
+**Validation rule:** `output_readiness` — implemented in `analyzeOutputReadiness` ([workoutValidation.js](../backend/platform/workoutValidation.js)). Key rules: `output_after_fitness` (error), `output_after_capacity`, `output_high_rpe_short_rest`, `output_plyo_contact_volume`, `output_advanced_plyo_prerequisite`, `output_tumbling_missing_skill_prereq`, `output_roundoff_rebound_prerequisite`, `output_cod_missing_decel_prerequisite`.
+
+**Seed library:** [112](../backend/migrations/112_coaching_output_seed.sql) — 50 thin card v2 rows; rich content passes can follow the Skill cluster pattern (cards 1–10 acceleration first).

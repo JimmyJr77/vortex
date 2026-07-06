@@ -2510,7 +2510,14 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     try {
       const facilityId = req.platformAuth?.user?.facility_id ?? null
       const config = await loadPortalConfig(pool, facilityId)
-      res.json({ success: true, data: { hiddenTabs: config.member.hiddenTabs, tabOrder: config.member.tabOrder } })
+      res.json({
+        success: true,
+        data: {
+          hiddenTabs: config.member.hiddenTabs,
+          tabOrder: config.member.tabOrder,
+          navLayout: config.member.navLayout,
+        },
+      })
     } catch (err) {
       console.error('[members] portal-config:', err)
       res.status(500).json({ success: false, message: 'Failed to load portal config' })
@@ -2521,7 +2528,14 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     try {
       const facilityId = req.platformAuth?.user?.facility_id ?? null
       const config = await loadPortalConfig(pool, facilityId)
-      res.json({ success: true, data: { hiddenTabs: config.coach.hiddenTabs, tabOrder: config.coach.tabOrder } })
+      res.json({
+        success: true,
+        data: {
+          hiddenTabs: config.coach.hiddenTabs,
+          tabOrder: config.coach.tabOrder,
+          navLayout: config.coach.navLayout,
+        },
+      })
     } catch (err) {
       console.error('[coach] portal-config:', err)
       res.status(500).json({ success: false, message: 'Failed to load portal config' })

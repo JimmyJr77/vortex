@@ -116,7 +116,8 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
 
 - **[src/components/MemberDashboard.tsx](../src/components/MemberDashboard.tsx)** — the shell.
   Tabs (`MemberTab`): `profile`, `classes`, `events`, `billing`, `waivers`, `training`,
-  `progress`. Header uses `PortalNavButtons`.
+  `progress`. Header uses `PortalNavButtons`. Sidebar order, visibility, and optional section-break
+  headers load from `GET /api/members/portal-config` (Admin → Settings → Member Portal).
   - **Profile**: `GET /api/members/me`; edit via `PUT /api/members/me` or
     `PUT /api/members/family/:id`; add via `POST /api/members/family`;
     `POST /api/members/change-password`. Family members + payment-history tables; guardian-gated

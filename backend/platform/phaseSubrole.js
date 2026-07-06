@@ -1,7 +1,9 @@
 const PREPARE_ACCESS = 'prepare_access'
 const SKILL_MOVEMENT_INTELLIGENCE = 'skill_movement_intelligence'
 
-const SUBROLE_PHASES = new Set([PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE])
+const OUTPUT = 'output'
+
+const SUBROLE_PHASES = new Set([PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE, OUTPUT])
 
 let slotMapCache = new Map()
 let slotMapCacheAt = new Map()
@@ -70,4 +72,4 @@ export async function deriveExerciseSubrole(db, primaryProfile, subroleOverride,
   return resolveSubroleFromOrderSlot(db, phaseKey, orderSlot)
 }
 
-export { PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE }
+export { PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE, OUTPUT }

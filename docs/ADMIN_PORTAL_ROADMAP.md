@@ -123,7 +123,7 @@ RBAC-filtered from `/api/admin/access/me`. Cross-tab deep-linking (Classes → S
 | Waivers | `AdminWaivers.tsx` | Waiver templates + compliance + per-row/bulk waiver-request emails | `waivers.view` (send needs `waivers.manage`) |
 | Signups | `AdminSignups.tsx` | Roster, archived/orphaned signups, password reset | `scheduling.view` |
 | Multi-Class Passes | `AdminMultiClassPasses.tsx` | Program pass balances (members with remaining credits on programs that offer packages) | `scheduling.view` |
-| Email | `AdminEmail.tsx` | SMTP status (`/api/admin/email/status`) + send test email | `admin_access.manage` (test send is master-admin only) |
+| Email | `admin/AdminSettings.tsx` → `AdminEmail`, `AdminPortalTabSettings`, `AdminStripeCatalogSettings` | SMTP test, coach/member sidebar visibility + order + section breaks, Stripe catalog sync | `admin_access.manage` |
 | Highlights | `AdminHighlights.tsx` | Site highlight popups | `classes.view` |
 | Events | `AdminEvents.tsx` | Facility events + edit log | `classes.view` |
 | DB Queries | `AdminDbQueries.tsx` | Ad-hoc query builder + CSV export | `admin_access.manage` |
@@ -151,6 +151,10 @@ programs → platform → coach portal → dev members. Global guard on `/api/ad
   (+ options, profile, assignments).
 - **Billing & waivers** (registerRoutes.js; `billing.*`/`waivers.*`): family billing accounts,
   charges, payments, statements, status; waiver templates + compliance.
+- **Portal navigation** (`GET/PUT /api/admin/portal-settings`; `admin_access.manage`): persists
+  `facility.portal_config` JSON — per-portal hidden tabs, tab order, and optional `navLayout`
+  section breaks (labels such as “Session Design”) for coach/member sidebars. Consumed by
+  `GET /api/coach/portal-config` and `GET /api/members/portal-config`.
   Waiver-request emails: `POST /api/admin/members/:memberId/waivers/request` (single) and
   `POST /api/admin/waivers/request-all` (bulk, non-compliant members) — both `waivers.manage`,
   best-effort via [backend/email/waiverRequestEmail.js](../backend/email/waiverRequestEmail.js),

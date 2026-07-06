@@ -1,4 +1,4 @@
-import { loadSubroleMapForPhase, PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE } from './phaseSubrole.js'
+import { loadSubroleMapForPhase, PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE, OUTPUT } from './phaseSubrole.js'
 
 const SUBROLE_ORDER = {
   raise: 10,
@@ -627,6 +627,18 @@ const BALANCE_SKILL_SLUGS = new Set([
   'carioca-walkthrough', 'lateral-shuffle-walkthrough', 'backpedal-walkthrough',
   'ladder-in-in-out-out', 'ladder-ickey-shuffle', 'low-hurdle-step-over',
 ])
+const PERCEPTION_SKILL_SLUGS = new Set([
+  'mirror-shuffle-drill', 'coach-point-and-go', 'colored-cone-call-out',
+  'ball-drop-reaction', 'partner-shadow-tag', 'gate-reaction-drill',
+])
+const LATERAL_SHUFFLE_MECHANICS_SLUG = 'lateral-shuffle-walkthrough'
+const MIRROR_SHUFFLE_SLUG = 'mirror-shuffle-drill'
+const TAG_GAME_SLUG = 'partner-shadow-tag'
+const BALL_DROP_SLUG = 'ball-drop-reaction'
+const GATE_REACTION_SLUG = 'gate-reaction-drill'
+const REACTIVE_OUTPUT_SLUGS = new Set([BALL_DROP_SLUG, GATE_REACTION_SLUG])
+const DIVE_CATCH_PATTERN = /dive|diving|fall(?:ing)?\s+catch/i
+const UNSAFE_TAG_CONTACT_PATTERN = /grab|push|collision|unsafe\s+contact|rough\s+tag/i
 const SHAPE_HOLD_SLUGS = new Set([
   'hollow-body-hold', 'arch-body-hold', 'tuck-hold-rock', 'front-support-shape-hold',
   'rear-support-shape-hold',
@@ -1040,6 +1052,182 @@ function analyzeSprintPrepBeforeOutput(blockMeta, slugByExercise) {
   return null
 }
 
+const DEPTH_PLYO_OUTPUT_SLUGS = new Set(['drop-landing-to-stick', 'depth-drop-to-rebound'])
+const HURDLE_HOP_OUTPUT_SLUGS = new Set(['hurdle-hop-series-low-hurdles'])
+const ADVANCED_PLYO_OUTPUT_SLUGS = new Set([...DEPTH_PLYO_OUTPUT_SLUGS, ...HURDLE_HOP_OUTPUT_SLUGS, 'single-leg-pogo-hold-to-hop'])
+const REACTIVE_OUTPUT_MOVEMENT_SLUGS = new Set([
+  'reactive-gate-sprint', 'mirror-shuffle-to-sprint-exit', 'ball-drop-sprint-catch',
+  'power-hurdle-to-cartwheel-round-off-entry', 'round-off-rebound-snap-down-to-stick',
+])
+const PREPLANNED_COD_OUTPUT_SLUGS = new Set([
+  'pro-agility-5-10-5-technical-rep', '90-degree-cut-drill', '180-degree-turn-shuttle-cut', 'curved-run-to-cut',
+])
+const DECEL_FOUNDATION_OUTPUT_SLUGS = new Set([
+  'sprint-to-stick-deceleration', '5-yard-accel-to-decel-stick', 'lateral-bound-to-decel-stick',
+])
+const TUMBLING_OUTPUT_SLUGS = new Set([
+  'power-hurdle-to-cartwheel-round-off-entry', 'round-off-rebound-snap-down-to-stick',
+])
+const ROUND_OFF_REBOUND_SLUG = 'round-off-rebound-snap-down-to-stick'
+const TUMBLING_SKILL_PREREQ_SLUGS = new Set(['cartwheel', 'cartwheel-step-over', 'round-off', 'handstand-kick-up-wall', 'wall-walk-handstand-line'])
+
+/** Output phase dose, placement, and prerequisite checks. Pure helper for tests. */
+function analyzeOutputReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    profileByExercisePhase,
+    dosageByExercise,
+    blockMeta = [],
+    outputBlockIndex = 0,
+    skillSlugsInWorkout = new Set(),
+    exerciseSkillLevelById = new Map(),
+    phaseKey = OUTPUT,
+  } = ctx
+
+  const findings = []
+  let plyoContacts = 0
+  let hasDecelFoundation = false
+  let hasCodWithoutReactiveCue = false
+
+  for (let j = 0; j < outputBlockIndex; j++) {
+    const priorKey = blockMeta[j]?.phaseKey
+    if (priorKey === 'fitness_repeatability') {
+      findings.push({
+        rule_key: 'output_after_fitness',
+        severity: 'error',
+        message: 'Output is fatigue-sensitive — move before Fitness / Repeatability conditioning.',
+        affected_items: [],
+        meta: { prior_phase: priorKey },
+      })
+    }
+    if (priorKey === 'capacity') {
+      findings.push({
+        rule_key: 'output_after_capacity',
+        severity: 'warning',
+        message: 'Speed, jumping, plyometric, COD, and tumbling output may be reduced after high-volume Capacity work.',
+        affected_items: [],
+        meta: { prior_phase: priorKey },
+      })
+    }
+  }
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise) ?? ''
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const profile = profileByExercisePhase.get(`${exerciseId}:${phaseKey}`)
+    const rpe = itemRpe(item, dosage)
+    const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
+    const sets = Number(item.sets ?? dosage?.default_sets) || 1
+    const reps = Number(item.reps ?? dosage?.default_reps) || 1
+    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+
+    if (DECEL_FOUNDATION_OUTPUT_SLUGS.has(slug)) hasDecelFoundation = true
+
+    if (dosage?.volume_unit === 'contacts' || slug.includes('pogo') || slug.includes('hop')) {
+      plyoContacts += sets * reps
+    }
+
+    if (rpe > 7 && restSeconds > 0 && restSeconds < 45) {
+      findings.push({
+        rule_key: 'output_high_rpe_short_rest',
+        severity: 'warning',
+        message: `${name}: RPE ${rpe} with ${restSeconds}s rest may become Fitness / Repeatability — increase rest or move to conditioning.`,
+        affected_items: [name],
+        meta: { rpe, rest_seconds: restSeconds, slug },
+      })
+    }
+
+    if ((skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER') && ADVANCED_PLYO_OUTPUT_SLUGS.has(slug)) {
+      findings.push({
+        rule_key: 'output_advanced_plyo_prerequisite',
+        severity: 'warning',
+        message: `${name}: depth drops, hurdle hops, or single-leg plyos require landing stick, squat pattern, and pain-free hopping progressions.`,
+        affected_items: [name],
+        meta: { skill_level: skillLevel, slug },
+      })
+    }
+
+    if (PREPLANNED_COD_OUTPUT_SLUGS.has(slug) && !REACTIVE_OUTPUT_MOVEMENT_SLUGS.has(slug)) {
+      hasCodWithoutReactiveCue = true
+    }
+
+    if (TUMBLING_OUTPUT_SLUGS.has(slug)) {
+      const missing = [...TUMBLING_SKILL_PREREQ_SLUGS].filter((s) => !skillSlugsInWorkout.has(s))
+      if (missing.length > 0) {
+        findings.push({
+          rule_key: 'output_tumbling_missing_skill_prereq',
+          severity: 'error',
+          message: `${name}: explosive tumbling output requires prerequisite skill cards earlier in the session (cartwheel, handstand line, round-off).`,
+          affected_items: [name],
+          meta: { missing_prereqs: missing, slug },
+        })
+      }
+    }
+
+    if (slug === ROUND_OFF_REBOUND_SLUG) {
+      const needs = ['cartwheel', 'round-off']
+      const missing = needs.filter((s) => !skillSlugsInWorkout.has(s))
+      if (missing.length > 0) {
+        findings.push({
+          rule_key: 'output_roundoff_rebound_prerequisite',
+          severity: 'error',
+          message: `${name}: round-off rebound requires cartwheel and round-off snap-down foundations marked in Skill first.`,
+          affected_items: [name],
+          meta: { missing_prereqs: missing, slug },
+        })
+      }
+    }
+
+    if (Number(profile?.fatigue_cost) >= 4 && Number(profile?.freshness_required)) {
+      findings.push({
+        rule_key: 'output_fatigue_sensitive_dose',
+        severity: 'warning',
+        message: `${name}: stop the set when speed, height, landing, or reaction quality drops — Output is not trained by surviving reps.`,
+        affected_items: [name],
+        meta: { fatigue_cost: profile?.fatigue_cost, slug },
+      })
+    }
+  }
+
+  if (plyoContacts > 80) {
+    findings.push({
+      rule_key: 'output_plyo_contact_volume',
+      severity: 'warning',
+      message: `Output block plyometric contacts (~${plyoContacts}) are high — reduce contacts or split across sessions.`,
+      affected_items: [],
+      meta: { plyo_contacts: plyoContacts },
+    })
+  }
+
+  const hasCod = (items ?? []).some((item) => PREPLANNED_COD_OUTPUT_SLUGS.has(exerciseSlug(item, slugByExercise) ?? ''))
+  if (hasCod && !hasDecelFoundation) {
+    findings.push({
+      rule_key: 'output_cod_missing_decel_prerequisite',
+      severity: 'recommendation',
+      message: 'COD power drills are scheduled without a deceleration foundation drill in this Output block.',
+      affected_items: [],
+      meta: {},
+    })
+  }
+
+  if (hasCodWithoutReactiveCue) {
+    findings.push({
+      rule_key: 'output_cod_not_reactive_agility',
+      severity: 'recommendation',
+      message: 'Pre-planned COD drills are present — add visual, partner, or object cues for true reactive agility output.',
+      affected_items: (items ?? [])
+        .filter((item) => PREPLANNED_COD_OUTPUT_SLUGS.has(exerciseSlug(item, slugByExercise) ?? ''))
+        .map((item) => item.exercise_name ?? item.exerciseName ?? String(item.exercise_id ?? item.exerciseId)),
+      meta: {},
+    })
+  }
+
+  return findings
+}
+
 /** Locomotion / sprint mechanics cluster checks. Pure helper for tests. */
 function analyzeSkillSprintReadiness(items, ctx) {
   const {
@@ -1225,6 +1413,114 @@ function analyzeSkillSprintReadiness(items, ctx) {
   return findings
 }
 
+/** Perception-Action / reactive movement cluster checks. Pure helper for tests. */
+function analyzeSkillPerceptionReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    draft = {},
+    blockMeta = [],
+    skillBlockIndex = 0,
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const priorFatiguePhase = hasPriorFatiguePhase(blockMeta, skillBlockIndex)
+  const hasUnsafeContact = UNSAFE_TAG_CONTACT_PATTERN.test(watchText)
+  const hasDiveCatch = DIVE_CATCH_PATTERN.test(watchText)
+
+  const ordered = []
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug || !PERCEPTION_SKILL_SLUGS.has(slug)) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  if (ordered.length === 0) return findings
+
+  const slugsInBlock = new Set(ordered.map((o) => o.slug))
+  if (slugsInBlock.has(MIRROR_SHUFFLE_SLUG) && !slugsInBlock.has(LATERAL_SHUFFLE_MECHANICS_SLUG)) {
+    findings.push({
+      rule_key: 'skill_mirror_shuffle_prerequisite',
+      severity: 'recommendation',
+      message: 'Mirror shuffle drill selected without lateral shuffle mechanics in the same Skill block — add or regress to Lateral Shuffle Mechanics Walkthrough first.',
+      affected_items: ordered.filter((o) => o.slug === MIRROR_SHUFFLE_SLUG).map((o) => o.name),
+      meta: { slug: MIRROR_SHUFFLE_SLUG },
+    })
+  }
+
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const rpe = itemRpe(item, dosage)
+    const workSeconds = itemWorkSeconds(item, dosage)
+
+    if (priorFatiguePhase) {
+      findings.push({
+        rule_key: 'skill_reactive_after_fitness',
+        severity: 'warning',
+        message: `${name}: reactive decision quality is fatigue-sensitive — move earlier or reduce complexity.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+    }
+
+    if (slug === MIRROR_SHUFFLE_SLUG && workSeconds > 15) {
+      findings.push({
+        rule_key: 'skill_mirror_round_duration',
+        severity: 'warning',
+        message: `${name}: mirror round (${workSeconds}s) may become conditioning — keep reactive skill rounds ≤15s in Skill.`,
+        affected_items: [name],
+        meta: { work_seconds: workSeconds, slug },
+      })
+    }
+
+    if (slug === TAG_GAME_SLUG && (workSeconds > 12 || rpe > 6)) {
+      findings.push({
+        rule_key: 'skill_tag_game_conditioning',
+        severity: 'warning',
+        message: `${name}: tag/shadow round (${workSeconds}s, RPE ${rpe}) may belong in Fitness — shorten rounds or increase rest.`,
+        affected_items: [name],
+        meta: { work_seconds: workSeconds, rpe, slug },
+      })
+    }
+
+    if (slug === TAG_GAME_SLUG && hasUnsafeContact) {
+      findings.push({
+        rule_key: 'skill_tag_unsafe_contact',
+        severity: 'error',
+        message: 'Unsafe partner contact reported — use no-contact shadow version or reset rules.',
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === BALL_DROP_SLUG && hasDiveCatch) {
+      findings.push({
+        rule_key: 'skill_ball_drop_diving',
+        severity: 'error',
+        message: 'Do not allow diving in Skill ball-drop work — reduce distance or allow more bounces.',
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (REACTIVE_OUTPUT_SLUGS.has(slug) && rpe > 6) {
+      findings.push({
+        rule_key: 'skill_reactive_output_intent',
+        severity: 'recommendation',
+        message: `${name}: RPE ${rpe} suggests Output acceleration with reaction cue — Skill version should emphasize see-decide-move quality.`,
+        affected_items: [name],
+        meta: { rpe, slug },
+      })
+    }
+  }
+
+  return findings
+}
+
 export async function validateWorkoutDraft(pool, draft) {
   const errors = []
   const warnings = []
@@ -1251,6 +1547,7 @@ export async function validateWorkoutDraft(pool, draft) {
   const regimenByExercise = new Map()
   const dosageByExercise = new Map()
   const slugByExercise = new Map()
+  const exerciseSkillLevelById = new Map()
   let tagRows = []
   const methodologyKeysByExercise = new Map()
   const equipmentKeysByExercise = new Map()
@@ -1280,11 +1577,12 @@ export async function validateWorkoutDraft(pool, draft) {
          FROM coaching.exercise_dosage_profile WHERE exercise_id = ANY($1::bigint[]) AND profile_name = 'Default'`,
         [exerciseIds],
       ),
-      pool.query(`SELECT id, slug FROM coaching.exercise WHERE id = ANY($1::bigint[])`, [exerciseIds]),
+      pool.query(`SELECT id, slug, skill_level FROM coaching.exercise WHERE id = ANY($1::bigint[])`, [exerciseIds]),
     ])
     tagRows = tags.rows
     for (const ex of exercises.rows) {
       slugByExercise.set(String(ex.id), ex.slug)
+      if (ex.skill_level) exerciseSkillLevelById.set(String(ex.id), ex.skill_level)
     }
     for (const p of profiles.rows) {
       profileByExercisePhase.set(`${p.exercise_id}:${p.phase_key}`, p)
@@ -1683,6 +1981,86 @@ export async function validateWorkoutDraft(pool, draft) {
         else warnings.push(payload)
       }
     }
+
+    const perceptionFindings = analyzeSkillPerceptionReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      draft,
+      blockMeta,
+      skillBlockIndex: i,
+    })
+    if (perceptionFindings.length > 0) {
+      const perceptionEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'skill_perception_readiness' LIMIT 1`,
+      )
+      for (const finding of perceptionFindings) {
+        const payload = {
+          severity: finding.severity ?? 'warning',
+          rule_key: finding.rule_key,
+          message: finding.message,
+          why: perceptionEdu.rows[0]?.why_it_matters
+            ?? 'Reactive drills require fresh athletes, clear cues, and safe spacing for perception-action learning.',
+          recommendation: perceptionEdu.rows[0]?.programming_guidance
+            ?? 'Keep mirror/tag rounds short, require shuffle prep before mirror work, and move max sprints to Output.',
+          affected_items: finding.affected_items ?? [],
+          related_phase: SKILL_MOVEMENT_INTELLIGENCE,
+          can_override: finding.severity !== 'error',
+          meta: finding.meta,
+        }
+        if (finding.severity === 'error') errors.push(payload)
+        else if (finding.severity === 'recommendation') recommendations.push(payload)
+        else warnings.push(payload)
+      }
+    }
+  }
+
+  const skillSlugsInWorkout = new Set()
+  for (const meta of blockMeta) {
+    if (meta.phaseKey !== SKILL_MOVEMENT_INTELLIGENCE) continue
+    for (const item of meta.block.items ?? []) {
+      const slug = exerciseSlug(item, slugByExercise)
+      if (slug) skillSlugsInWorkout.add(slug)
+    }
+  }
+
+  for (let i = 0; i < blockMeta.length; i++) {
+    const meta = blockMeta[i]
+    if (meta.phaseKey !== OUTPUT) continue
+    const items = meta.block.items ?? []
+    const outputFindings = analyzeOutputReadiness(items, {
+      slugByExercise,
+      profileByExercisePhase,
+      dosageByExercise,
+      blockMeta,
+      outputBlockIndex: i,
+      skillSlugsInWorkout,
+      exerciseSkillLevelById,
+      phaseKey: OUTPUT,
+    })
+    if (outputFindings.length > 0) {
+      const outputEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'output_readiness' LIMIT 1`,
+      )
+      for (const finding of outputFindings) {
+        const payload = {
+          severity: finding.severity ?? 'warning',
+          rule_key: finding.rule_key,
+          message: finding.message,
+          why: outputEdu.rows[0]?.why_it_matters
+            ?? 'Output expresses speed and power while fresh — not after conditioning or high-volume strength.',
+          recommendation: outputEdu.rows[0]?.programming_guidance
+            ?? 'Use low reps, full rest, and stop when quality drops. Place Output after Prepare and Skill, before Capacity and Fitness.',
+          affected_items: finding.affected_items ?? [],
+          related_phase: OUTPUT,
+          can_override: finding.severity !== 'error',
+          override_requires_reason: finding.severity === 'error',
+          meta: finding.meta,
+        }
+        if (finding.severity === 'error') errors.push(payload)
+        else if (finding.severity === 'recommendation') recommendations.push(payload)
+        else warnings.push(payload)
+      }
+    }
   }
 
   const sprintPrepFinding = analyzeSprintPrepBeforeOutput(blockMeta, slugByExercise)
@@ -1783,5 +2161,7 @@ export {
   analyzeSkillMovementIntelligenceReadiness,
   analyzeSkillTumblingReadiness,
   analyzeSkillSprintReadiness,
+  analyzeSkillPerceptionReadiness,
   analyzeSprintPrepBeforeOutput,
+  analyzeOutputReadiness,
 }

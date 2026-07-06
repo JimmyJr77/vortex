@@ -102,6 +102,9 @@ export async function initPlatformTables(pool) {
     '107_coaching_skill_tumbling_cards.sql',
     '108_coaching_skill_sprint_cards.sql',
     '109_coaching_skill_balance_cards.sql',
+    '110_coaching_skill_perception_cards.sql',
+    '111_coaching_output_phase_infrastructure.sql',
+    '112_coaching_output_seed.sql',
   ]
 
   for (const migrationFile of migrationFiles) {
