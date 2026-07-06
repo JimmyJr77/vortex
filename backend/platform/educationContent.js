@@ -52,9 +52,10 @@ export async function upsertExerciseEducation(pool, exerciseId, slug, fields) {
         entity_type, entity_key, entity_id, title, short_summary,
         what_it_is, why_it_matters, why_it_goes_here, why_this_order,
         fatigue_logic, programming_guidance, common_misuse, scaling_guidance,
-        age_skill_considerations, safety_considerations, daily_or_weekly_guidance, coach_cues
+        age_skill_considerations, safety_considerations, daily_or_weekly_guidance, coach_cues,
+        why_it_works, physiological_rationale
       ) VALUES (
-        'exercise', $2, $1, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
+        'exercise', $2, $1, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
       )
       ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
         entity_id = EXCLUDED.entity_id,
@@ -72,6 +73,8 @@ export async function upsertExerciseEducation(pool, exerciseId, slug, fields) {
         safety_considerations = EXCLUDED.safety_considerations,
         daily_or_weekly_guidance = EXCLUDED.daily_or_weekly_guidance,
         coach_cues = EXCLUDED.coach_cues,
+        why_it_works = COALESCE(EXCLUDED.why_it_works, coaching.education_content.why_it_works),
+        physiological_rationale = COALESCE(EXCLUDED.physiological_rationale, coaching.education_content.physiological_rationale),
         updated_at = now()
     `,
     [
@@ -91,6 +94,8 @@ export async function upsertExerciseEducation(pool, exerciseId, slug, fields) {
       fields.safety_considerations ?? null,
       fields.daily_or_weekly_guidance ?? fields.regimen_rationale ?? null,
       fields.coach_cues ?? null,
+      fields.why_it_works ?? null,
+      fields.physiological_rationale ?? null,
     ],
   )
 }
@@ -99,9 +104,10 @@ export function educationToWhyResponse(row) {
   if (!row) return null
   return {
     training_purpose: row.what_it_is,
+    why_it_works: row.why_it_works,
     tenet_rationale: row.why_it_matters,
     methodology_rationale: row.programming_guidance,
-    physiological_rationale: row.programming_guidance,
+    physiological_rationale: row.physiological_rationale ?? row.programming_guidance,
     phase_rationale: row.why_it_goes_here,
     order_rationale: row.why_this_order,
     fatigue_rationale: row.fatigue_logic,

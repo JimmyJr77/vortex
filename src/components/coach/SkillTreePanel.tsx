@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { GitBranch, Loader2 } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
+import { EVALUATION_LABELS } from '../../coach/skillCard'
+import SkillDetailModal from './SkillDetailModal'
 import { useTaxonomy } from './useTaxonomy'
 import { useRosterMembers } from './useRosterMembers'
 
@@ -10,10 +12,11 @@ interface SkillNode {
   slug?: string | null
   sport_id?: number | null
   sport_name?: string | null
+  evaluation_mode?: 'execution' | 'duration' | 'repetitions' | null
 }
 interface SkillEdge {
-  exercise_id: number
-  prerequisite_exercise_id: number
+  skill_id: number
+  prerequisite_skill_id: number
 }
 type Mastery = Record<string, { score: number; maxScore: number | null; status: 'mastered' | 'in_progress' }>
 interface SkillTree {
@@ -36,6 +39,7 @@ export default function SkillTreePanel() {
   const [tree, setTree] = useState<SkillTree | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [viewingSkillId, setViewingSkillId] = useState<number | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -56,9 +60,9 @@ export default function SkillTreePanel() {
     const nameById = new Map(tree.nodes.map((n) => [n.id, n.name]))
     const prereqsOf = new Map<number, number[]>()
     for (const e of tree.edges) {
-      const list = prereqsOf.get(e.exercise_id) ?? []
-      list.push(e.prerequisite_exercise_id)
-      prereqsOf.set(e.exercise_id, list)
+      const list = prereqsOf.get(e.skill_id) ?? []
+      list.push(e.prerequisite_skill_id)
+      prereqsOf.set(e.skill_id, list)
     }
     const depthCache = new Map<number, number>()
     const depthOf = (id: number, stack: Set<number>): number => {
@@ -131,7 +135,7 @@ export default function SkillTreePanel() {
       {loading ? (
         <div className="flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading skill tree…</div>
       ) : !tree || tree.nodes.length === 0 ? (
-        <div className="text-sm text-gray-500 py-12 text-center bg-white border border-gray-200 rounded-xl">No exercises yet. Add prerequisites in the Library to grow the tree.</div>
+        <div className="text-sm text-gray-500 py-12 text-center bg-white border border-gray-200 rounded-xl">No skills yet. Add skills and prerequisites in the Skill Library to grow the tree.</div>
       ) : (
         <div className="flex gap-4 overflow-x-auto pb-3">
           {columns.map((col, depth) => (
@@ -145,8 +149,16 @@ export default function SkillTreePanel() {
                   const prereqs = prereqNames.get(node.id) ?? []
                   const grade = tree.mastery[String(node.id)]
                   return (
-                    <div key={node.id} className={`rounded-lg border p-3 ${STATUS_STYLE[status]}`}>
+                    <button
+                      key={node.id}
+                      type="button"
+                      onClick={() => setViewingSkillId(node.id)}
+                      className={`w-full text-left rounded-lg border p-3 transition-shadow hover:shadow-sm ${STATUS_STYLE[status]}`}
+                    >
                       <div className="font-semibold text-sm">{node.name}</div>
+                      {node.evaluation_mode && (
+                        <div className="text-[10px] mt-0.5 opacity-80">{EVALUATION_LABELS[node.evaluation_mode]}</div>
+                      )}
                       {node.sport_name && <div className="text-[11px] opacity-70">{node.sport_name}</div>}
                       {memberId !== '' && grade && (
                         <div className="text-[11px] mt-1 font-medium">
@@ -156,7 +168,7 @@ export default function SkillTreePanel() {
                       {prereqs.length > 0 && (
                         <div className="text-[11px] mt-1.5 opacity-70">After: {prereqs.join(', ')}</div>
                       )}
-                    </div>
+                    </button>
                   )
                 })}
                 {col.length === 0 && <div className="text-xs text-gray-400">—</div>}
@@ -164,6 +176,13 @@ export default function SkillTreePanel() {
             </div>
           ))}
         </div>
+      )}
+
+      {viewingSkillId != null && (
+        <SkillDetailModal
+          skillId={viewingSkillId}
+          onClose={() => setViewingSkillId(null)}
+        />
       )}
     </div>
   )

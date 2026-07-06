@@ -1,3 +1,13 @@
+import { loadSubroleMapForPhase, PREPARE_ACCESS } from './phaseSubrole.js'
+
+const SUBROLE_ORDER = {
+  raise: 10,
+  mobilize: 20,
+  activate: 30,
+  integrate: 40,
+  potentiate_bridge: 50,
+}
+
 const PHASE_ORDER = [
   'prepare_access',
   'skill_movement_intelligence',
@@ -263,6 +273,69 @@ export async function validateWorkoutDraft(pool, draft) {
           can_override: true,
         })
       }
+    }
+  }
+
+  // Prepare / Access subrole sequence within blocks
+  let slotSubroleMap = new Map()
+  try {
+    slotSubroleMap = await loadSubroleMapForPhase(pool, PREPARE_ACCESS)
+  } catch {
+    slotSubroleMap = new Map()
+  }
+  const exerciseSubroleCache = new Map()
+  if (exerciseIds.length > 0) {
+    const exRows = await pool.query(
+      `SELECT id, phase_subrole, primary_order_slot FROM coaching.exercise WHERE id = ANY($1::bigint[])`,
+      [exerciseIds],
+    )
+    for (const row of exRows.rows) {
+      exerciseSubroleCache.set(String(row.id), row)
+    }
+  }
+
+  for (const meta of blockMeta) {
+    if (meta.phaseKey !== PREPARE_ACCESS) continue
+    const items = meta.block.items ?? []
+    let lastSubroleOrder = -1
+    const subrolesSeen = new Set()
+    for (const item of items) {
+      const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+      if (!exerciseId) continue
+      const phaseProfile = profileByExercisePhase.get(`${exerciseId}:${PREPARE_ACCESS}`)
+      const exRow = exerciseSubroleCache.get(String(exerciseId))
+      const orderSlot = phaseProfile?.order_slot ?? exRow?.primary_order_slot
+      let subroleKey = orderSlot ? slotSubroleMap.get(orderSlot) : null
+      if (!subroleKey && exRow?.phase_subrole) subroleKey = exRow.phase_subrole
+      if (!subroleKey) continue
+      subrolesSeen.add(subroleKey)
+      const subroleOrder = SUBROLE_ORDER[subroleKey] ?? 999
+      if (subroleOrder < lastSubroleOrder) {
+        warnings.push({
+          severity: 'warning',
+          rule_key: 'prepare_subrole_sequence',
+          message: `${item.exercise_name ?? 'Exercise'} (${subroleKey.replace(/_/g, ' ')}) appears before an earlier Prepare subrole in this block.`,
+          why: 'Prepare / Access should follow Raise → Mobilize → Activate → Integrate → Potentiate Bridge.',
+          recommendation: 'Reorder exercises to follow the RAMP subrole sequence within Prepare / Access.',
+          affected_items: [item.exercise_name ?? String(exerciseId)],
+          related_phase: PREPARE_ACCESS,
+          can_override: true,
+        })
+      }
+      lastSubroleOrder = Math.max(lastSubroleOrder, subroleOrder)
+    }
+    const budgetMin = Number(meta.block.minutes_budget ?? meta.block.minutesBudget ?? 0)
+    if (budgetMin >= 10 && subrolesSeen.size > 0 && subrolesSeen.size < 3) {
+      recommendations.push({
+        severity: 'recommendation',
+        rule_key: 'prepare_subrole_coverage',
+        message: 'Prepare / Access block uses fewer than 3 subroles for a longer warm-up.',
+        why: 'A full Prepare / Access sequence typically spans Raise through Potentiate Bridge.',
+        recommendation: 'Consider adding mobility, activation, or bridge drills across more subroles.',
+        affected_items: [],
+        related_phase: PREPARE_ACCESS,
+        can_override: true,
+      })
     }
   }
 

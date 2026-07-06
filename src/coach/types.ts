@@ -21,6 +21,7 @@ export interface ExerciseCue {
 
 export interface ExerciseWhy {
   training_purpose?: string | null
+  why_it_works?: string | null
   tenet_rationale?: string | null
   methodology_rationale?: string | null
   physiological_rationale?: string | null
@@ -35,6 +36,162 @@ export interface ExerciseWhy {
 }
 
 export type PhaseRole = 'primary' | 'secondary' | 'conditional' | 'avoid'
+
+export type PhaseSubrole = 'raise' | 'mobilize' | 'activate' | 'integrate' | 'potentiate_bridge'
+
+export type ScalingCohortKey =
+  | 'youth_beginner'
+  | 'youth_intermediate'
+  | 'teen'
+  | 'adult_beginner'
+  | 'adult_advanced'
+  | 'older_adult'
+  | 'pregnancy_postpartum'
+
+export const SCALING_COHORT_KEYS: ScalingCohortKey[] = [
+  'youth_beginner', 'youth_intermediate', 'teen', 'adult_beginner',
+  'adult_advanced', 'older_adult', 'pregnancy_postpartum',
+]
+
+export const PHASE_SUBROLE_OPTIONS: Array<{ value: PhaseSubrole; label: string }> = [
+  { value: 'raise', label: 'Raise' },
+  { value: 'mobilize', label: 'Mobilize' },
+  { value: 'activate', label: 'Activate' },
+  { value: 'integrate', label: 'Integrate' },
+  { value: 'potentiate_bridge', label: 'Potentiate bridge' },
+]
+
+export interface ExerciseMovementRequirements {
+  primary_joint_actions?: string[]
+  primary_tissues?: string[]
+  primary_motor_control_demands?: string[]
+  postural_shape?: string | null
+  breathing_demand?: string | null
+  balance_demand?: string | null
+  coordination_demand?: string | null
+  impact_level?: number | null
+}
+
+export interface ExerciseCoachingExecution {
+  movement_description?: string | null
+  setup?: string[]
+  execution_steps?: string[]
+  breathing_cues?: string[]
+  coach_cues?: string[]
+  athlete_cues?: string[]
+  quality_gate?: string[]
+  common_faults?: string[]
+  stop_signs?: string[]
+}
+
+export interface ExercisePairingLogic {
+  pairs_well_before?: string[]
+  pairs_well_after?: string[]
+  good_for_sessions?: string[]
+  avoid_before?: string[]
+  avoid_after?: string[]
+  do_not_use_when?: string[]
+}
+
+export interface ExerciseMediaLibrary {
+  demo_video_sources?: string[]
+  coaching_articles?: string[]
+  clinical_or_sport_science_references?: string[]
+  internal_notes?: string[]
+}
+
+export interface ExerciseMovementIdentity {
+  name?: string
+  slug?: string
+  card_summary?: string | null
+  coach_language?: string | null
+  athlete_language?: string | null
+  movement_family?: string | null
+  phase_key?: string | null
+  phase_subrole?: PhaseSubrole | null
+  order_slot?: string | null
+  sport_id?: number | null
+  sport_name?: string | null
+  skill_level?: string | null
+  visibility?: 'facility' | 'private'
+}
+
+export interface ExerciseCardPhaseProfile {
+  role?: PhaseRole
+  fit_weight?: number
+  freshness_required?: boolean
+  fatigue_sensitivity?: number
+  fatigue_cost?: number
+  technical_complexity?: number
+  intensity_ceiling?: string | null
+  daily_ok?: boolean
+  notes?: string | null
+}
+
+export interface ExerciseCardDosage {
+  default_sets?: number | null
+  default_reps?: number | null
+  default_work_seconds?: number | null
+  default_rest_seconds?: number | null
+  volume_unit?: string
+  est_seconds_per_set?: number | null
+  rpe_range?: string | null
+  session_volume_min?: number | null
+  session_volume_max?: number | null
+}
+
+export interface ExerciseCohortScaling {
+  cohort_key?: ScalingCohortKey
+  label?: string
+  load_guidance?: string | null
+  complexity_guidance?: string | null
+  coach_notes?: string | null
+  athlete_notes?: string | null
+  requires_medical_clearance?: boolean
+  gender_specific_notes?: string | null
+  sets_min?: number | null
+  sets_max?: number | null
+  reps_min?: number | null
+  reps_max?: number | null
+  work_seconds_min?: number | null
+  work_seconds_max?: number | null
+}
+
+export interface ExerciseCardSafety {
+  risk_level?: number
+  impact_level?: number
+  requires_spotting?: boolean
+  requires_supervision?: string
+  readiness_checks?: string[]
+  contraindications?: string[]
+  substitutions?: string[]
+}
+
+export interface ExerciseCard {
+  movement_identity: ExerciseMovementIdentity
+  movement_requirements: ExerciseMovementRequirements
+  taxonomy: {
+    tenets: ExerciseTag[]
+    methodologies: ExerciseTag[]
+    physiology: ExerciseTag[]
+    patterns: ExerciseTag[]
+    equipment: ExerciseTag[]
+    body_regions: ExerciseTag[]
+  }
+  phase_profile: ExerciseCardPhaseProfile | null
+  phase_profiles?: ExercisePhaseProfile[]
+  why_layer: ExerciseWhy | null
+  coaching_execution: ExerciseCoachingExecution
+  dosage: ExerciseCardDosage
+  scaling: {
+    scalable_variables: string[]
+    gender_specific_notes?: string | null
+    cohorts: Partial<Record<ScalingCohortKey, ExerciseCohortScaling>>
+  }
+  pairing_logic: ExercisePairingLogic
+  safety_profile: ExerciseCardSafety | null
+  media_and_document_library: ExerciseMediaLibrary & { media?: ExerciseMedia[] }
+}
 
 export interface ExercisePhaseProfile {
   phaseId: number
@@ -70,6 +227,7 @@ export interface ExerciseDosageProfile {
 
 export interface ExerciseScalingProfile {
   id?: number
+  cohort_key?: ScalingCohortKey | null
   label: string
   age_min?: number | null
   age_max?: number | null
@@ -78,6 +236,15 @@ export interface ExerciseScalingProfile {
   load_guidance?: string | null
   complexity_guidance?: string | null
   coach_notes?: string | null
+  athlete_notes?: string | null
+  requires_medical_clearance?: boolean
+  gender_specific_notes?: string | null
+  sets_min?: number | null
+  sets_max?: number | null
+  reps_min?: number | null
+  reps_max?: number | null
+  work_seconds_min?: number | null
+  work_seconds_max?: number | null
 }
 
 export interface ExerciseSafetyProfile {
@@ -90,6 +257,7 @@ export interface ExerciseSafetyProfile {
   readiness_checks?: string[]
   stop_signs?: string[]
   common_substitutions?: string[]
+  contraindications?: string[]
 }
 
 export interface ExerciseRegimenRule {
@@ -124,7 +292,8 @@ export interface SkillPrerequisiteRow {
   note?: string | null
 }
 
-export type SkillKind = 'skill' | 'combo' | 'hold'
+export type SkillKind = 'skill' | 'combo'
+export type SkillEvaluationMode = 'execution' | 'duration' | 'repetitions'
 
 export interface Skill {
   id: number
@@ -138,8 +307,15 @@ export interface Skill {
   age_min?: number | null
   age_max?: number | null
   skill_kind: SkillKind
+  evaluation_mode: SkillEvaluationMode
+  exercise_id?: number | null
+  exercise_name?: string | null
   min_hold_seconds?: number | null
   default_hold_seconds?: number | null
+  min_reps?: number | null
+  default_reps?: number | null
+  target_reps?: number | null
+  execution_max_score?: number | null
   assistance_note?: string | null
   is_published?: boolean
   visibility?: 'facility' | 'private'
@@ -170,6 +346,14 @@ export interface Exercise {
   card_summary?: string | null
   coach_language?: string | null
   athlete_language?: string | null
+  movement_family?: string | null
+  primary_phase_key?: string | null
+  phase_subrole?: PhaseSubrole | null
+  primary_order_slot?: string | null
+  movement_requirements?: ExerciseMovementRequirements
+  coaching_execution?: ExerciseCoachingExecution
+  pairing_logic?: ExercisePairingLogic
+  media_library?: ExerciseMediaLibrary
   programming_logic?: ExerciseProgrammingLogic
   scalable_variables?: string[]
   why_publish_ready?: boolean
@@ -287,6 +471,21 @@ export interface PhaseOrderSlot {
   phase_key?: string
   order_index: number
   freshness_sensitivity?: number | null
+  subrole_key?: string | null
+}
+
+export interface PhaseSubroleRow {
+  id: number
+  key: PhaseSubrole
+  name: string
+  description?: string | null
+  phase_key?: string
+  order_index: number
+  why_it_exists?: string | null
+  what_belongs_here?: string | null
+  what_to_avoid?: string | null
+  fatigue_guidance?: string | null
+  coach_guidance?: string | null
 }
 
 export interface EducationContent {

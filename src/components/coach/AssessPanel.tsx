@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ClipboardCheck, Plus, Trash2, Star } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
+import { formatSkillMetric } from '../../coach/skillCard'
+import type { Skill } from '../../coach/types'
 import { useTaxonomy } from './useTaxonomy'
 import { useRosterMembers } from './useRosterMembers'
 
@@ -33,22 +35,35 @@ export default function AssessPanel() {
   const { members } = useRosterMembers()
   const [assessments, setAssessments] = useState<Assessment[]>([])
   const [rubrics, setRubrics] = useState<Rubric[]>([])
+  const [skills, setSkills] = useState<Skill[]>([])
   const [creating, setCreating] = useState(false)
   const [buildingRubric, setBuildingRubric] = useState(false)
   const [form, setForm] = useState({ name: '', assessment_type: 'benchmark', unit: '', tenet_id: '' })
   const [record, setRecord] = useState({ assessmentId: '', memberId: '', value: '', note: '' })
-  const [skill, setSkill] = useState({ memberId: '', rubricId: '', rubric_criterion_id: '', skill_label: '', score: '', max_score: '5', note: '' })
+  const [skill, setSkill] = useState({
+    memberId: '',
+    rubricId: '',
+    rubric_criterion_id: '',
+    skill_id: '',
+    skill_label: '',
+    useCustomLabel: false,
+    score: '',
+    max_score: '5',
+    note: '',
+  })
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     try {
-      const [a, r] = await Promise.all([
+      const [a, r, s] = await Promise.all([
         coachFetch<Assessment[]>('/api/coach/assessments'),
         coachFetch<Rubric[]>('/api/coach/rubrics'),
+        coachFetch<Skill[]>('/api/coach/skills'),
       ])
       setAssessments(a)
       setRubrics(r)
+      setSkills(s)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load assessments')
     }
@@ -85,8 +100,25 @@ export default function AssessPanel() {
     }
   }
 
+  const selectedLibrarySkill = useMemo(
+    () => skills.find((s) => String(s.id) === skill.skill_id) ?? null,
+    [skills, skill.skill_id],
+  )
+
+  const applyLibrarySkill = (skillId: string) => {
+    const picked = skills.find((s) => String(s.id) === skillId)
+    setSkill({
+      ...skill,
+      skill_id: skillId,
+      useCustomLabel: false,
+      skill_label: picked?.name ?? '',
+      max_score: picked?.execution_max_score != null ? String(picked.execution_max_score) : skill.max_score || '5',
+    })
+  }
+
   const gradeSkill = async () => {
-    if (!skill.memberId || (!skill.rubric_criterion_id && !skill.skill_label)) return
+    const hasTarget = skill.rubric_criterion_id || skill.skill_id || skill.skill_label.trim()
+    if (!skill.memberId || !hasTarget) return
     setMessage(null)
     setError(null)
     try {
@@ -94,14 +126,25 @@ export default function AssessPanel() {
         method: 'POST',
         body: JSON.stringify({
           rubric_criterion_id: skill.rubric_criterion_id ? Number(skill.rubric_criterion_id) : null,
-          skill_label: skill.skill_label || null,
+          skill_id: skill.skill_id ? Number(skill.skill_id) : null,
+          skill_label: skill.useCustomLabel ? skill.skill_label.trim() || null : null,
           score: skill.score ? Number(skill.score) : null,
           max_score: skill.max_score ? Number(skill.max_score) : null,
           note: skill.note || null,
         }),
       })
       setMessage('Skill grade saved.')
-      setSkill({ memberId: '', rubricId: '', rubric_criterion_id: '', skill_label: '', score: '', max_score: '5', note: '' })
+      setSkill({
+        memberId: '',
+        rubricId: '',
+        rubric_criterion_id: '',
+        skill_id: '',
+        skill_label: '',
+        useCustomLabel: false,
+        score: '',
+        max_score: '5',
+        note: '',
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save skill grade')
     }
@@ -203,10 +246,23 @@ export default function AssessPanel() {
                   {selectedRubric.criteria.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </label>
+            ) : skill.useCustomLabel ? (
+              <label className="text-sm block">
+                <span className="block text-xs font-semibold text-gray-500 mb-1">Custom skill label</span>
+                <input value={skill.skill_label} onChange={(e) => setSkill({ ...skill, skill_label: e.target.value, skill_id: '' })} placeholder="e.g. Handstand hold" className="w-full border border-gray-300 rounded px-2 py-1.5" />
+                <button type="button" onClick={() => setSkill({ ...skill, useCustomLabel: false, skill_label: '' })} className="text-xs text-vortex-red mt-1">Use skill library instead</button>
+              </label>
             ) : (
               <label className="text-sm block">
-                <span className="block text-xs font-semibold text-gray-500 mb-1">Skill label</span>
-                <input value={skill.skill_label} onChange={(e) => setSkill({ ...skill, skill_label: e.target.value })} placeholder="e.g. Handstand hold" className="w-full border border-gray-300 rounded px-2 py-1.5" />
+                <span className="block text-xs font-semibold text-gray-500 mb-1">Skill (library)</span>
+                <select value={skill.skill_id} onChange={(e) => applyLibrarySkill(e.target.value)} className="w-full border border-gray-300 rounded px-2 py-1.5">
+                  <option value="">Select skill...</option>
+                  {skills.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+                {selectedLibrarySkill && formatSkillMetric(selectedLibrarySkill) && (
+                  <p className="text-xs text-gray-500 mt-1">Metric: {formatSkillMetric(selectedLibrarySkill)}</p>
+                )}
+                <button type="button" onClick={() => setSkill({ ...skill, useCustomLabel: true, skill_id: '', skill_label: '' })} className="text-xs text-gray-500 mt-1 hover:text-vortex-red">Enter custom label instead</button>
               </label>
             )}
             <div className="grid grid-cols-2 gap-2">
@@ -220,7 +276,14 @@ export default function AssessPanel() {
               </label>
             </div>
             <input value={skill.note} onChange={(e) => setSkill({ ...skill, note: e.target.value })} placeholder="Note (optional)" className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm" />
-            <button type="button" onClick={() => void gradeSkill()} disabled={!skill.memberId || (!skill.rubric_criterion_id && !skill.skill_label)} className="w-full bg-gray-900 text-white py-2 rounded-lg text-sm font-semibold disabled:opacity-60">Save Skill Grade</button>
+            <button
+              type="button"
+              onClick={() => void gradeSkill()}
+              disabled={!skill.memberId || (!skill.rubric_criterion_id && !skill.skill_id && !skill.skill_label.trim())}
+              className="w-full bg-gray-900 text-white py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
+            >
+              Save Skill Grade
+            </button>
           </div>
         </div>
       </div>

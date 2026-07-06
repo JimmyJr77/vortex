@@ -2,24 +2,37 @@ import { useEffect, useMemo, useState } from 'react'
 import { Loader2, Pencil, X } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
-import type { Exercise, ExerciseCue, ExercisePhaseProfile, ExerciseTag } from '../../coach/types'
+import type { Exercise, ExercisePhaseProfile, ExerciseTag } from '../../coach/types'
 import type { FacetType, Taxonomy } from '../../coach/taxonomy'
 import { FACET_LABELS } from '../../coach/taxonomy'
-import { exerciseFitnessGoal } from '../../coach/exerciseCard'
+import { exerciseFitnessGoal, exerciseToCard, phaseSubroleLabel } from '../../coach/exerciseCard'
+import { SCALING_COHORT_KEYS } from '../../coach/types'
 
-type DetailTab = 'basics' | 'tags' | 'why' | 'phase' | 'dosage' | 'scaling' | 'logic' | 'safety' | 'regimen' | 'media'
+type DetailTab =
+  | 'identity'
+  | 'requirements'
+  | 'taxonomy'
+  | 'phase'
+  | 'why'
+  | 'execution'
+  | 'dosage'
+  | 'scaling'
+  | 'pairing'
+  | 'safety'
+  | 'media'
 
 const TABS: Array<{ id: DetailTab; label: string }> = [
-  { id: 'basics', label: 'Basics' },
-  { id: 'tags', label: 'Tags' },
+  { id: 'identity', label: 'Identity' },
+  { id: 'requirements', label: 'Requirements' },
+  { id: 'taxonomy', label: 'Taxonomy' },
+  { id: 'phase', label: 'Phase' },
   { id: 'why', label: 'Why' },
-  { id: 'phase', label: 'Session Phase' },
+  { id: 'execution', label: 'Execution' },
   { id: 'dosage', label: 'Dosage' },
   { id: 'scaling', label: 'Scaling' },
-  { id: 'logic', label: 'Programming Logic' },
+  { id: 'pairing', label: 'Pairing' },
   { id: 'safety', label: 'Safety' },
-  { id: 'regimen', label: 'Regimen' },
-  { id: 'media', label: 'Media & Cues' },
+  { id: 'media', label: 'Media & Docs' },
 ]
 
 function facetNameMap(taxonomy: Taxonomy | null): Map<string, string> {
@@ -111,7 +124,7 @@ export default function ExerciseDetailModal({
   const [exercise, setExercise] = useState<Exercise | null>(preview ?? null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [tab, setTab] = useState<DetailTab>('basics')
+  const [tab, setTab] = useState<DetailTab>('identity')
 
   const facetNames = useMemo(() => facetNameMap(taxonomy), [taxonomy])
   const tenetName = useMemo(() => {
@@ -140,10 +153,9 @@ export default function ExerciseDetailModal({
     return grouped
   }, [exercise?.tags])
 
+  const card = useMemo(() => (exercise ? exerciseToCard(exercise, taxonomy) : null), [exercise, taxonomy])
+
   const why = exercise?.why
-  const logic = exercise?.programming_logic
-  const safety = exercise?.safety_profile
-  const regimen = exercise?.regimen_rule
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
@@ -195,41 +207,48 @@ export default function ExerciseDetailModal({
             </div>
 
             <div className="p-5 overflow-y-auto flex-1 space-y-4">
-              {tab === 'basics' && (
+              {card && tab === 'identity' && (
                 <div className="grid gap-4 md:grid-cols-2">
-                  <ReadOnlyField label="Description" value={exercise.description} />
-                  <ReadOnlyField label="Instructions" value={exercise.instructions} />
-                  <ReadOnlyField label="Sport" value={exercise.sport_name ?? 'Universal'} />
-                  <ReadOnlyField label="Skill level" value={exercise.skill_level?.replace(/_/g, ' ')} />
-                  <ReadOnlyField label="Age range" value={
-                    exercise.age_min != null || exercise.age_max != null
-                      ? `${exercise.age_min ?? '—'} – ${exercise.age_max ?? '—'}`
-                      : null
-                  } />
-                  <ReadOnlyField label="Visibility" value={exercise.visibility === 'private' ? 'Private' : 'Facility (shared)'} />
-                  <ReadOnlyField label="Published" value={exercise.is_published ? 'Yes' : 'No'} />
-                  <ReadOnlyField label="Card summary" value={exercise.card_summary} />
-                  <ReadOnlyField label="Coach language" value={exercise.coach_language} />
-                  <ReadOnlyField label="Athlete language" value={exercise.athlete_language} />
-                  <ReadOnlyField label="Tempo" value={exercise.tempo} />
-                  <ReadOnlyField label="Load note" value={exercise.load_note} />
+                  <ReadOnlyField label="Card summary" value={card.movement_identity.card_summary} />
+                  <ReadOnlyField label="Movement family" value={card.movement_identity.movement_family} />
+                  <ReadOnlyField label="Primary phase" value={card.movement_identity.phase_key?.replace(/_/g, ' ')} />
+                  <ReadOnlyField label="Phase subrole" value={phaseSubroleLabel(card.movement_identity.phase_subrole)} />
+                  <ReadOnlyField label="Order slot" value={card.movement_identity.order_slot} />
+                  <ReadOnlyField label="Sport" value={card.movement_identity.sport_name ?? 'Universal'} />
+                  <ReadOnlyField label="Skill level" value={card.movement_identity.skill_level?.replace(/_/g, ' ')} />
+                  <ReadOnlyField label="Visibility" value={card.movement_identity.visibility === 'private' ? 'Private' : 'Facility (shared)'} />
+                  <ReadOnlyField label="Coach language" value={card.movement_identity.coach_language} />
+                  <ReadOnlyField label="Athlete language" value={card.movement_identity.athlete_language} />
                 </div>
               )}
 
-              {tab === 'tags' && (
+              {card && tab === 'requirements' && (
+                <div className="space-y-4">
+                  <ReadOnlyList label="Joint actions" items={card.movement_requirements.primary_joint_actions ?? []} />
+                  <ReadOnlyList label="Tissues" items={card.movement_requirements.primary_tissues ?? []} />
+                  <ReadOnlyList label="Motor control" items={card.movement_requirements.primary_motor_control_demands ?? []} />
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <ReadOnlyField label="Postural shape" value={card.movement_requirements.postural_shape} />
+                    <ReadOnlyField label="Breathing demand" value={card.movement_requirements.breathing_demand} />
+                    <ReadOnlyField label="Balance demand" value={card.movement_requirements.balance_demand} />
+                    <ReadOnlyField label="Coordination demand" value={card.movement_requirements.coordination_demand} />
+                    <ReadOnlyField label="Impact level" value={card.movement_requirements.impact_level} />
+                  </div>
+                </div>
+              )}
+
+              {tab === 'taxonomy' && (
                 <div className="space-y-4">
                   {Array.from(tagsByFacet.entries()).map(([facetType, tags]) => (
                     <div key={facetType}>
                       <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{FACET_LABELS[facetType]}</div>
                       <div className="flex flex-wrap gap-2">
-                        {tags
-                          .sort((a, b) => b.weight - a.weight)
-                          .map((tag) => (
-                            <span key={`${tag.facetType}-${tag.facetId}`} className="text-xs rounded-full border border-vortex-red bg-red-50 text-vortex-red px-2.5 py-1">
-                              {facetNames.get(`${tag.facetType}:${tag.facetId}`) ?? `#${tag.facetId}`}
-                              <span className="text-red-400 ml-1">×{tag.weight}</span>
-                            </span>
-                          ))}
+                        {tags.sort((a, b) => b.weight - a.weight).map((tag) => (
+                          <span key={`${tag.facetType}-${tag.facetId}`} className="text-xs rounded-full border border-vortex-red bg-red-50 text-vortex-red px-2.5 py-1">
+                            {facetNames.get(`${tag.facetType}:${tag.facetId}`) ?? `#${tag.facetId}`}
+                            <span className="text-red-400 ml-1">×{tag.weight}</span>
+                          </span>
+                        ))}
                       </div>
                     </div>
                   ))}
@@ -237,10 +256,28 @@ export default function ExerciseDetailModal({
                 </div>
               )}
 
+              {tab === 'phase' && (
+                <div className="space-y-3">
+                  {card?.phase_profile && (
+                    <div className="border border-vortex-red/30 bg-red-50/40 rounded-lg p-3 text-sm mb-3">
+                      <div className="font-semibold text-gray-900">Primary card profile</div>
+                      <p className="text-xs text-gray-600 mt-1">
+                        Role {card.phase_profile.role} · Fit {card.phase_profile.fit_weight}/5
+                        {card.phase_profile.daily_ok ? ' · Daily OK' : ''}
+                      </p>
+                    </div>
+                  )}
+                  {(exercise.phase_profiles ?? []).length > 0
+                    ? (exercise.phase_profiles ?? []).map((p) => <PhaseProfileView key={p.phaseKey} profile={p} />)
+                    : <p className="text-sm text-gray-500">No session phase profiles.</p>}
+                </div>
+              )}
+
               {tab === 'why' && (
                 <div className="space-y-4">
                   {([
                     ['training_purpose', 'Training purpose'],
+                    ['why_it_works', 'Why it works'],
                     ['tenet_rationale', 'Tenet rationale'],
                     ['methodology_rationale', 'Methodology rationale'],
                     ['physiological_rationale', 'Physiological rationale'],
@@ -248,10 +285,7 @@ export default function ExerciseDetailModal({
                     ['order_rationale', 'Order rationale'],
                     ['fatigue_rationale', 'Fatigue rationale'],
                     ['scaling_rationale', 'Scaling rationale'],
-                    ['regimen_rationale', 'Regimen rationale'],
                     ['common_misuse', 'Common misuse'],
-                    ['short_summary', 'Short summary'],
-                    ['coach_cues', 'Coach cues'],
                   ] as const).map(([key, label]) => (
                     <ReadOnlyField key={key} label={label} value={why?.[key]} />
                   ))}
@@ -259,169 +293,106 @@ export default function ExerciseDetailModal({
                 </div>
               )}
 
-              {tab === 'phase' && (
-                <div className="space-y-3">
-                  {(exercise.phase_profiles ?? []).length > 0
-                    ? (exercise.phase_profiles ?? []).map((p) => <PhaseProfileView key={p.phaseKey} profile={p} />)
-                    : <p className="text-sm text-gray-500">No session phase profiles.</p>}
+              {card && tab === 'execution' && (
+                <div className="space-y-4">
+                  <ReadOnlyField label="Movement description" value={card.coaching_execution.movement_description} />
+                  <ReadOnlyList label="Setup" items={card.coaching_execution.setup ?? []} />
+                  <ReadOnlyList label="Execution steps" items={card.coaching_execution.execution_steps ?? []} />
+                  <ReadOnlyList label="Breathing cues" items={card.coaching_execution.breathing_cues ?? []} />
+                  <ReadOnlyList label="Coach cues" items={card.coaching_execution.coach_cues ?? []} />
+                  <ReadOnlyList label="Athlete cues" items={card.coaching_execution.athlete_cues ?? []} />
+                  <ReadOnlyList label="Quality gates" items={card.coaching_execution.quality_gate ?? []} />
+                  <ReadOnlyList label="Common faults" items={card.coaching_execution.common_faults ?? []} />
+                  <ReadOnlyList label="Stop signs" items={card.coaching_execution.stop_signs ?? []} />
                 </div>
               )}
 
-              {tab === 'dosage' && (
+              {card && tab === 'dosage' && (
                 <div className="grid gap-4 md:grid-cols-2">
-                  <ReadOnlyField label="Default sets" value={exercise.default_sets} />
-                  <ReadOnlyField label="Default reps" value={exercise.default_reps} />
-                  <ReadOnlyField label="Work seconds" value={exercise.default_work_seconds} />
-                  <ReadOnlyField label="Rest seconds" value={exercise.default_rest_seconds} />
-                  <ReadOnlyField label="Est. seconds per set" value={exercise.est_seconds_per_set} />
-                  {(exercise.dosage_profiles ?? []).map((d, i) => (
-                    <div key={i} className="md:col-span-2 border border-gray-100 rounded-lg p-3 space-y-2">
-                      {d.profile_name && <div className="font-semibold text-sm text-gray-800">{d.profile_name}</div>}
-                      <div className="grid md:grid-cols-2 gap-3">
-                        <ReadOnlyField label="Session volume" value={
-                          d.session_volume_min != null || d.session_volume_max != null
-                            ? `${d.session_volume_min ?? '—'} – ${d.session_volume_max ?? '—'}`
-                            : null
-                        } />
-                        <ReadOnlyField label="Weekly volume max" value={d.weekly_volume_max} />
-                        <ReadOnlyField label="RPE range" value={
-                          d.default_rpe_min != null || d.default_rpe_max != null
-                            ? `${d.default_rpe_min ?? '—'} – ${d.default_rpe_max ?? '—'}`
-                            : null
-                        } />
-                      </div>
-                    </div>
-                  ))}
+                  <ReadOnlyField label="Volume unit" value={card.dosage.volume_unit} />
+                  <ReadOnlyField label="Est. seconds per set" value={card.dosage.est_seconds_per_set} />
+                  <ReadOnlyField label="Default sets" value={card.dosage.default_sets} />
+                  <ReadOnlyField label="Default reps" value={card.dosage.default_reps} />
+                  <ReadOnlyField label="Work seconds" value={card.dosage.default_work_seconds} />
+                  <ReadOnlyField label="Rest seconds" value={card.dosage.default_rest_seconds} />
+                  <ReadOnlyField label="RPE range" value={card.dosage.rpe_range} />
+                  <ReadOnlyField label="Session volume" value={
+                    card.dosage.session_volume_min != null || card.dosage.session_volume_max != null
+                      ? `${card.dosage.session_volume_min ?? '—'} – ${card.dosage.session_volume_max ?? '—'}`
+                      : null
+                  } />
                 </div>
               )}
 
-              {tab === 'scaling' && (
+              {card && tab === 'scaling' && (
                 <div className="space-y-3">
-                  {(exercise.scaling_profiles ?? []).length > 0
-                    ? (exercise.scaling_profiles ?? []).map((s, i) => (
-                      <div key={i} className="border border-gray-200 rounded-lg p-3 space-y-2 text-sm">
-                        <div className="font-semibold text-gray-900">{s.label}</div>
-                        {s.scale_direction && <div className="text-xs text-gray-500 capitalize">{s.scale_direction}</div>}
+                  {(card.scaling.scalable_variables?.length ?? 0) > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {card.scaling.scalable_variables.map((v) => (
+                        <span key={v} className="text-xs bg-gray-100 text-gray-700 rounded px-2 py-0.5">{v}</span>
+                      ))}
+                    </div>
+                  )}
+                  <ReadOnlyField label="Gender-specific notes" value={card.scaling.gender_specific_notes} />
+                  {SCALING_COHORT_KEYS.map((key) => {
+                    const s = card.scaling.cohorts[key]
+                    if (!s) return null
+                    return (
+                      <div key={key} className="border border-gray-200 rounded-lg p-3 text-sm">
+                        <div className="font-semibold text-gray-900 capitalize">{key.replace(/_/g, ' ')}</div>
+                        {s.requires_medical_clearance && <p className="text-xs text-amber-700 mt-1">Medical clearance required</p>}
                         <ReadOnlyField label="Load guidance" value={s.load_guidance} />
                         <ReadOnlyField label="Complexity guidance" value={s.complexity_guidance} />
                         <ReadOnlyField label="Coach notes" value={s.coach_notes} />
-                        {(s.age_min != null || s.age_max != null || s.skill_level) && (
-                          <p className="text-xs text-gray-500">
-                            {[s.skill_level?.replace(/_/g, ' '), s.age_min != null ? `ages ${s.age_min}+` : null, s.age_max != null ? `up to ${s.age_max}` : null].filter(Boolean).join(' · ')}
-                          </p>
-                        )}
                       </div>
-                    ))
-                    : <p className="text-sm text-gray-500">No scaling profiles.</p>}
+                    )
+                  })}
                 </div>
               )}
 
-              {tab === 'logic' && (
+              {card && tab === 'pairing' && (
                 <div className="space-y-4">
-                  <ReadOnlyField label="Training effect" value={logic?.training_effect} />
-                  <ReadOnlyList label="Best used for" items={logic?.best_used_for ?? []} />
-                  <ReadOnlyList label="Avoid when" items={logic?.avoid_when ?? []} />
-                  <ReadOnlyList label="Recommended preceded by" items={logic?.recommended_preceded_by ?? []} />
-                  <ReadOnlyList label="Recommended followed by" items={logic?.recommended_followed_by ?? []} />
-                  {(exercise.scalable_variables?.length ?? 0) > 0 && (
-                    <div className="text-sm">
-                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Scalable variables</div>
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {(exercise.scalable_variables ?? []).map((v) => (
-                          <span key={v} className="text-xs bg-gray-100 text-gray-700 rounded px-2 py-0.5">{v}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  <ReadOnlyList label="Pairs well before" items={card.pairing_logic.pairs_well_before ?? []} />
+                  <ReadOnlyList label="Pairs well after" items={card.pairing_logic.pairs_well_after ?? []} />
+                  <ReadOnlyList label="Good for sessions" items={card.pairing_logic.good_for_sessions ?? []} />
+                  <ReadOnlyList label="Avoid before" items={card.pairing_logic.avoid_before ?? []} />
+                  <ReadOnlyList label="Avoid after" items={card.pairing_logic.avoid_after ?? []} />
+                  <ReadOnlyList label="Do not use when" items={card.pairing_logic.do_not_use_when ?? []} />
                 </div>
               )}
 
-              {tab === 'safety' && safety ? (
+              {card && tab === 'safety' && card.safety_profile ? (
                 <div className="space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
-                    <ReadOnlyField label="Risk level" value={safety.risk_level} />
-                    <ReadOnlyField label="Impact level" value={safety.impact_level} />
-                    <ReadOnlyField label="Minimum age" value={safety.minimum_age_recommended} />
-                    <ReadOnlyField label="Minimum skill level" value={safety.minimum_skill_level?.replace(/_/g, ' ')} />
-                    <ReadOnlyField label="Coach supervision" value={safety.requires_coach_supervision} />
+                    <ReadOnlyField label="Risk level" value={card.safety_profile.risk_level} />
+                    <ReadOnlyField label="Impact level" value={card.safety_profile.impact_level} />
+                    <ReadOnlyField label="Supervision" value={card.safety_profile.requires_supervision} />
                   </div>
-                  <BoolRow label="Requires spotting" value={safety.requires_spotting} />
-                  <ReadOnlyList label="Readiness checks" items={safety.readiness_checks ?? []} />
-                  <ReadOnlyList label="Stop signs" items={safety.stop_signs ?? []} />
-                  <ReadOnlyList label="Common substitutions" items={safety.common_substitutions ?? []} />
+                  <BoolRow label="Requires spotting" value={card.safety_profile.requires_spotting} />
+                  <ReadOnlyList label="Readiness checks" items={card.safety_profile.readiness_checks ?? []} />
+                  <ReadOnlyList label="Contraindications" items={card.safety_profile.contraindications ?? []} />
+                  <ReadOnlyList label="Substitutions" items={card.safety_profile.substitutions ?? []} />
                 </div>
               ) : tab === 'safety' ? (
                 <p className="text-sm text-gray-500">No safety profile.</p>
               ) : null}
 
-              {tab === 'regimen' && regimen ? (
-                <div className="space-y-2">
-                  <BoolRow label="Can be daily" value={regimen.can_be_daily} />
-                  <BoolRow label="Counts as high intensity" value={regimen.counts_as_high_intensity} />
-                  <BoolRow label="Counts as high impact" value={regimen.counts_as_high_impact} />
-                  <BoolRow label="Counts as neural" value={regimen.counts_as_neural} />
-                  <BoolRow label="Counts as tissue stress" value={regimen.counts_as_tissue_stress} />
-                  <BoolRow label="Counts as conditioning" value={regimen.counts_as_conditioning} />
-                  <ReadOnlyField label="Weekly max frequency" value={regimen.weekly_max_frequency} />
-                  <ReadOnlyField label="Min hours between hard exposures" value={regimen.minimum_hours_between_hard_exposures} />
-                  <ReadOnlyField label="Recovery notes" value={regimen.recovery_notes} />
-                </div>
-              ) : tab === 'regimen' ? (
-                <p className="text-sm text-gray-500">No regimen rules.</p>
-              ) : null}
-
-              {tab === 'media' && (
-                <div className="space-y-6">
-                  <div>
-                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Media</div>
-                    {(exercise.media ?? []).length > 0 ? (
-                      <ul className="space-y-3">
-                        {(exercise.media ?? []).map((m, i) => (
-                          <li key={m.id ?? i} className="border border-gray-100 rounded-lg p-3 text-sm">
-                            <div className="font-medium text-gray-800 capitalize">{m.kind}</div>
-                            {m.caption && <p className="text-gray-600 mt-1">{m.caption}</p>}
-                            <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-vortex-red text-xs mt-1 inline-block break-all hover:underline">
-                              {m.url}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-sm text-gray-500">No media.</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Coaching cues & faults</div>
-                    {(exercise.cues ?? []).length > 0 ? (
-                      <ul className="space-y-2">
-                        {(exercise.cues ?? []).map((c: ExerciseCue, i) => (
-                          <li key={c.id ?? i} className={`text-sm rounded-lg px-3 py-2 ${c.cue_type === 'fault' ? 'bg-amber-50 text-amber-900' : 'bg-gray-50 text-gray-800'}`}>
-                            <span className="text-[10px] font-semibold uppercase tracking-wide opacity-70">{c.cue_type}</span>
-                            <p className="mt-0.5">{c.body}</p>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-sm text-gray-500">No cues.</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Prerequisites</div>
-                    {(exercise.prerequisites ?? []).length > 0 ? (
-                      <ul className="space-y-2 text-sm">
-                        {(exercise.prerequisites ?? []).map((p) => (
-                          <li key={p.prerequisite_exercise_id} className="border border-gray-100 rounded-lg px-3 py-2">
-                            <span className="font-medium text-gray-800">{p.name}</span>
-                            {p.note && <p className="text-gray-500 text-xs mt-1">{p.note}</p>}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-sm text-gray-500">No prerequisites.</p>
-                    )}
-                  </div>
+              {card && tab === 'media' && (
+                <div className="space-y-4">
+                  <ReadOnlyList label="Demo videos" items={card.media_and_document_library.demo_video_sources ?? []} />
+                  <ReadOnlyList label="Coaching articles" items={card.media_and_document_library.coaching_articles ?? []} />
+                  <ReadOnlyList label="References" items={card.media_and_document_library.clinical_or_sport_science_references ?? []} />
+                  <ReadOnlyList label="Internal notes" items={card.media_and_document_library.internal_notes ?? []} />
+                  {(card.media_and_document_library.media ?? []).length > 0 && (
+                    <ul className="space-y-2">
+                      {(card.media_and_document_library.media ?? []).map((m, i) => (
+                        <li key={m.id ?? i} className="border border-gray-100 rounded-lg p-3 text-sm">
+                          <div className="font-medium capitalize">{m.kind}</div>
+                          <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-vortex-red text-xs break-all hover:underline">{m.url}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               )}
             </div>

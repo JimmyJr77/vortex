@@ -65,6 +65,7 @@ export interface Taxonomy {
   bodyRegions: TaxonomyItem[]
   sessionPhases?: SessionPhaseTaxonomyItem[]
   phaseOrderSlots?: PhaseOrderSlotTaxonomyItem[]
+  phaseSubroles?: PhaseSubroleTaxonomyItem[]
 }
 
 export interface SessionPhaseTaxonomyItem {
@@ -89,6 +90,57 @@ export interface PhaseOrderSlotTaxonomyItem {
   phase_key?: string
   order_index: number
   freshness_sensitivity?: number | null
+  subrole_key?: string | null
+}
+
+export interface PhaseSubroleTaxonomyItem {
+  id: number
+  key: string
+  name: string
+  description?: string | null
+  phase_key?: string
+  order_index: number
+  why_it_exists?: string | null
+  what_belongs_here?: string | null
+  what_to_avoid?: string | null
+  fatigue_guidance?: string | null
+  coach_guidance?: string | null
+}
+
+const PREPARE_ACCESS = 'prepare_access'
+
+export function subroleForOrderSlot(
+  taxonomy: Taxonomy | null | undefined,
+  phaseKey: string | null | undefined,
+  orderSlotKey: string | null | undefined,
+): string | null {
+  if (!taxonomy || !phaseKey || !orderSlotKey) return null
+  const slot = taxonomy.phaseOrderSlots?.find((s) => s.phase_key === phaseKey && s.key === orderSlotKey)
+  return slot?.subrole_key ?? null
+}
+
+export function orderSlotsForSubrole(
+  taxonomy: Taxonomy | null | undefined,
+  phaseKey: string,
+  subroleKey: string,
+): PhaseOrderSlotTaxonomyItem[] {
+  return (taxonomy?.phaseOrderSlots ?? [])
+    .filter((s) => s.phase_key === phaseKey && s.subrole_key === subroleKey)
+    .sort((a, b) => a.order_index - b.order_index)
+}
+
+export function prepareAccessSubroleSequence(taxonomy: Taxonomy | null | undefined): PhaseSubroleTaxonomyItem[] {
+  return (taxonomy?.phaseSubroles ?? [])
+    .filter((s) => s.phase_key === PREPARE_ACCESS)
+    .sort((a, b) => a.order_index - b.order_index)
+}
+
+export function orderSlotLabel(
+  taxonomy: Taxonomy | null | undefined,
+  orderSlotKey: string | null | undefined,
+): string | null {
+  if (!orderSlotKey) return null
+  return taxonomy?.phaseOrderSlots?.find((s) => s.key === orderSlotKey)?.name ?? orderSlotKey.replace(/_/g, ' ')
 }
 
 /** Canonical session phase order enforced in builder + validator. */

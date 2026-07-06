@@ -80,6 +80,7 @@ import {
   attachProgrammingToExercise,
   saveExerciseProgramming,
   validateExercisePublishReady,
+  buildExerciseCard,
 } from './exerciseProgramming.js'
 import { validateWorkoutDraft } from './workoutValidation.js'
 import { validateTrainingBlockDraft } from './trainingBlockValidation.js'
@@ -217,10 +218,19 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
       let sessionPhases = { rows: [] }
       let phaseOrderSlots = { rows: [] }
+      let phaseSubroles = { rows: [] }
       try {
-        ;[sessionPhases, phaseOrderSlots] = await Promise.all([
+        ;[sessionPhases, phaseOrderSlots, phaseSubroles] = await Promise.all([
           pool.query(`SELECT id, key, name, description, order_index, freshness_required, can_be_daily, default_min_percent, default_max_percent, fatigue_sensitivity FROM coaching.session_phase ORDER BY order_index`),
-          pool.query(`SELECT pos.id, pos.key, pos.name, pos.description, pos.phase_id, pos.order_index, pos.freshness_sensitivity, sp.key AS phase_key FROM coaching.phase_order_slot pos JOIN coaching.session_phase sp ON sp.id = pos.phase_id ORDER BY sp.order_index, pos.order_index`),
+          pool.query(`SELECT pos.id, pos.key, pos.name, pos.description, pos.phase_id, pos.order_index, pos.freshness_sensitivity, pos.subrole_key, sp.key AS phase_key FROM coaching.phase_order_slot pos JOIN coaching.session_phase sp ON sp.id = pos.phase_id ORDER BY sp.order_index, pos.order_index`),
+          pool.query(`
+            SELECT ps.id, ps.key, ps.name, ps.description, ps.order_index,
+                   ps.why_it_exists, ps.what_belongs_here, ps.what_to_avoid,
+                   ps.fatigue_guidance, ps.coach_guidance, sp.key AS phase_key
+            FROM coaching.phase_subrole ps
+            JOIN coaching.session_phase sp ON sp.id = ps.phase_id
+            ORDER BY sp.order_index, ps.order_index
+          `),
         ])
       } catch (phaseErr) {
         console.warn('[coach/taxonomy] session_phase tables unavailable:', phaseErr.message)
@@ -237,6 +247,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         bodyRegions: bodyRegions.rows,
         sessionPhases: sessionPhases.rows,
         phaseOrderSlots: phaseOrderSlots.rows,
+        phaseSubroles: phaseSubroles.rows,
       })
     } catch (error) {
       bad(res, error.message, 500)
@@ -372,6 +383,12 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         where.push(`EXISTS (SELECT 1 FROM coaching.exercise_phase_profile p WHERE p.exercise_id = e.id AND p.order_slot = $${params.length})`)
       }
 
+      const subrole = req.query.subrole ? String(req.query.subrole).trim() : null
+      if (subrole) {
+        params.push(subrole)
+        where.push(`e.phase_subrole = $${params.length}`)
+      }
+
       if (req.query.freshness === 'true' || req.query.freshness_required === 'true') {
         where.push(`EXISTS (SELECT 1 FROM coaching.exercise_phase_profile p WHERE p.exercise_id = e.id AND p.freshness_required = TRUE)`)
       }
@@ -460,6 +477,31 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         cues: cues.rows,
         prerequisites: prereqs.rows,
       })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/exercises/:id/card', ...can('library.view'), async (req, res) => {
+    try {
+      const id = num(req.params.id)
+      const facilityId = req.platformAuth.user.facility_id
+      const exercise = await pool.query(
+        `SELECT e.*, s.name as sport_name FROM coaching.exercise e LEFT JOIN coaching.sport s ON s.id = e.sport_id WHERE e.id = $1 AND e.facility_id = $2`,
+        [id, facilityId],
+      )
+      if (exercise.rows.length === 0) return bad(res, 'Exercise not found.', 404)
+      const row = exercise.rows[0]
+      const [tagMap, media, bundle, education] = await Promise.all([
+        loadExerciseTags([id]),
+        pool.query(`SELECT * FROM coaching.exercise_media WHERE exercise_id = $1 ORDER BY sort_order, id`, [id]),
+        loadExerciseProgrammingBundle(pool, [id]),
+        loadEducationForExercise(pool, id, row.slug),
+      ])
+      const attached = attachProgrammingToExercise(row, bundle, education)
+      attached.media = media.rows
+      const tags = tagMap.get(String(id)) ?? []
+      ok(res, buildExerciseCard(row, attached, tags))
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -698,6 +740,31 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     return map
   }
 
+  const SKILL_KINDS = ['skill', 'combo']
+  const SKILL_EVAL_MODES = ['execution', 'duration', 'repetitions']
+
+  function normalizeSkillKind(raw) {
+    return SKILL_KINDS.includes(raw) ? raw : 'skill'
+  }
+
+  function normalizeEvaluationMode(raw) {
+    return SKILL_EVAL_MODES.includes(raw) ? raw : 'execution'
+  }
+
+  function skillMetricFields(body) {
+    const mode = normalizeEvaluationMode(body?.evaluation_mode ?? body?.evaluationMode)
+    return {
+      evaluation_mode: mode,
+      exercise_id: num(body?.exercise_id ?? body?.exerciseId),
+      min_hold_seconds: mode === 'duration' ? num(body?.min_hold_seconds ?? body?.minHoldSeconds) : null,
+      default_hold_seconds: mode === 'duration' ? num(body?.default_hold_seconds ?? body?.defaultHoldSeconds) : null,
+      min_reps: mode === 'repetitions' ? num(body?.min_reps ?? body?.minReps) : null,
+      default_reps: mode === 'repetitions' ? num(body?.default_reps ?? body?.defaultReps) : null,
+      target_reps: mode === 'repetitions' ? num(body?.target_reps ?? body?.targetReps) : null,
+      execution_max_score: mode === 'execution' ? num(body?.execution_max_score ?? body?.executionMaxScore) : null,
+    }
+  }
+
   async function writeSkillRelations(client, skillId, body) {
     if (Array.isArray(body.components)) {
       await client.query(`DELETE FROM coaching.skill_component WHERE skill_id = $1`, [skillId])
@@ -752,17 +819,23 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         where.push(`sk.skill_kind = $${params.length}`)
       }
 
+      if (req.query.evaluation ?? req.query.evaluation_mode) {
+        params.push(String(req.query.evaluation ?? req.query.evaluation_mode))
+        where.push(`sk.evaluation_mode = $${params.length}`)
+      }
+
       if (req.query.level) {
         params.push(String(req.query.level))
         where.push(`sk.skill_level = $${params.length}::public.skill_level`)
       }
 
       const result = await pool.query(
-        `SELECT sk.*, s.name AS sport_name
+        `SELECT sk.*, s.name AS sport_name, e.name AS exercise_name
          FROM coaching.skill sk
          LEFT JOIN coaching.sport s ON s.id = sk.sport_id
+         LEFT JOIN coaching.exercise e ON e.id = sk.exercise_id
          WHERE ${where.join(' AND ')}
-         ORDER BY sk.skill_kind, sk.name
+         ORDER BY sk.skill_kind, sk.evaluation_mode, sk.name
          LIMIT 500`,
         params,
       )
@@ -783,7 +856,11 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const id = num(req.params.id)
       const facilityId = req.platformAuth.user.facility_id
       const skill = await pool.query(
-        `SELECT sk.*, s.name AS sport_name FROM coaching.skill sk LEFT JOIN coaching.sport s ON s.id = sk.sport_id WHERE sk.id = $1 AND sk.facility_id = $2`,
+        `SELECT sk.*, s.name AS sport_name, e.name AS exercise_name
+         FROM coaching.skill sk
+         LEFT JOIN coaching.sport s ON s.id = sk.sport_id
+         LEFT JOIN coaching.exercise e ON e.id = sk.exercise_id
+         WHERE sk.id = $1 AND sk.facility_id = $2`,
         [id, facilityId],
       )
       if (skill.rows.length === 0) return bad(res, 'Skill not found.', 404)
@@ -803,22 +880,25 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     const userId = Number(req.platformAuth.user.id)
     const name = String(req.body?.name || '').trim()
     if (!name) return bad(res, 'Skill name is required.')
-    const skillKind = ['skill', 'combo', 'hold'].includes(req.body?.skill_kind) ? req.body.skill_kind : 'skill'
+    const skillKind = normalizeSkillKind(req.body?.skill_kind)
+    const metrics = skillMetricFields(req.body)
     const client = await pool.connect()
     try {
       await client.query('BEGIN')
       const created = await client.query(
         `INSERT INTO coaching.skill (
           facility_id, name, slug, description, instructions, sport_id, skill_level,
-          age_min, age_max, skill_kind, min_hold_seconds, default_hold_seconds, assistance_note,
-          created_by, is_published, visibility
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7::public.skill_level, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+          age_min, age_max, skill_kind, evaluation_mode, exercise_id,
+          min_hold_seconds, default_hold_seconds, min_reps, default_reps, target_reps, execution_max_score,
+          assistance_note, created_by, is_published, visibility
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7::public.skill_level, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
         RETURNING id`,
         [
           facilityId, name, slugify(name) || `skill-${Date.now()}`, req.body?.description || null,
           req.body?.instructions || null, num(req.body?.sport_id), req.body?.skill_level || null,
-          num(req.body?.age_min), num(req.body?.age_max), skillKind,
-          num(req.body?.min_hold_seconds), num(req.body?.default_hold_seconds), req.body?.assistance_note || null,
+          num(req.body?.age_min), num(req.body?.age_max), skillKind, metrics.evaluation_mode, metrics.exercise_id,
+          metrics.min_hold_seconds, metrics.default_hold_seconds, metrics.min_reps, metrics.default_reps,
+          metrics.target_reps, metrics.execution_max_score, req.body?.assistance_note || null,
           userId, req.body?.is_published !== false, req.body?.visibility === 'private' ? 'private' : 'facility',
         ],
       )
@@ -850,22 +930,30 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         await client.query('ROLLBACK')
         return bad(res, 'You can only edit private items you created.', 403)
       }
-      const skillKind = ['skill', 'combo', 'hold'].includes(req.body?.skill_kind) ? req.body.skill_kind : null
+      const skillKind = SKILL_KINDS.includes(req.body?.skill_kind) ? req.body.skill_kind : null
+      const metrics = skillMetricFields(req.body)
       await client.query(
         `UPDATE coaching.skill SET
           name = COALESCE($2, name),
           description = $3, instructions = $4, sport_id = $5, skill_level = $6::public.skill_level,
           age_min = $7, age_max = $8,
           skill_kind = COALESCE($9, skill_kind),
-          min_hold_seconds = $10, default_hold_seconds = $11, assistance_note = $12,
-          is_published = COALESCE($13, is_published), visibility = COALESCE($14, visibility),
+          evaluation_mode = COALESCE($10, evaluation_mode),
+          exercise_id = $11,
+          min_hold_seconds = $12, default_hold_seconds = $13,
+          min_reps = $14, default_reps = $15, target_reps = $16, execution_max_score = $17,
+          assistance_note = $18,
+          is_published = COALESCE($19, is_published), visibility = COALESCE($20, visibility),
           updated_at = now()
         WHERE id = $1`,
         [
           id, req.body?.name ? String(req.body.name).trim() : null, req.body?.description || null,
           req.body?.instructions || null, num(req.body?.sport_id), req.body?.skill_level || null,
           num(req.body?.age_min), num(req.body?.age_max), skillKind,
-          num(req.body?.min_hold_seconds), num(req.body?.default_hold_seconds), req.body?.assistance_note || null,
+          metrics.evaluation_mode, metrics.exercise_id,
+          metrics.min_hold_seconds, metrics.default_hold_seconds,
+          metrics.min_reps, metrics.default_reps, metrics.target_reps, metrics.execution_max_score,
+          req.body?.assistance_note || null,
           typeof req.body?.is_published === 'boolean' ? req.body.is_published : null,
           req.body?.visibility === 'private' ? 'private' : req.body?.visibility === 'facility' ? 'facility' : null,
         ],
@@ -1993,12 +2081,31 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   app.post('/api/coach/athletes/:memberId/skill-grade', ...can('athlete_grading.manage'), async (req, res) => {
     try {
       const memberId = num(req.params.memberId)
+      const facilityId = req.platformAuth.user.facility_id
+      const userId = Number(req.platformAuth.user.id)
+      let exerciseId = num(req.body?.exercise_id)
+      let skillLabel = req.body?.skill_label || null
+      let maxScore = num(req.body?.max_score)
+      const skillId = num(req.body?.skill_id)
+      if (skillId != null) {
+        const skillRow = await pool.query(
+          `SELECT name, exercise_id, execution_max_score FROM coaching.skill
+           WHERE id = $1 AND facility_id = $2 AND archived = FALSE
+             AND ((visibility = 'facility' AND is_published = TRUE) OR created_by = $3)`,
+          [skillId, facilityId, userId],
+        )
+        if (skillRow.rows.length === 0) return bad(res, 'Skill not found.', 404)
+        const sk = skillRow.rows[0]
+        skillLabel = skillLabel || sk.name
+        if (exerciseId == null) exerciseId = num(sk.exercise_id)
+        if (maxScore == null && sk.execution_max_score != null) maxScore = num(sk.execution_max_score)
+      }
       const created = await pool.query(
         `INSERT INTO coaching.athlete_skill_progress (member_id, exercise_id, rubric_criterion_id, skill_label, score, max_score, graded_at, coach_user_id, note, media_url)
          VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7::timestamptz, now()), $8, $9, $10) RETURNING *`,
         [
-          memberId, num(req.body?.exercise_id), num(req.body?.rubric_criterion_id), req.body?.skill_label || null,
-          num(req.body?.score), num(req.body?.max_score), req.body?.graded_at || null, Number(req.platformAuth.user.id),
+          memberId, exerciseId, num(req.body?.rubric_criterion_id), skillLabel,
+          num(req.body?.score), maxScore, req.body?.graded_at || null, userId,
           req.body?.note || null, req.body?.media_url || null,
         ],
       )
@@ -2027,8 +2134,23 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           [memberId],
         ),
         pool.query(
-          `SELECT sp.*, e.name as exercise_name FROM coaching.athlete_skill_progress sp LEFT JOIN coaching.exercise e ON e.id = sp.exercise_id WHERE sp.member_id = $1 ORDER BY sp.graded_at`,
-          [memberId],
+          `SELECT sp.*, e.name AS exercise_name, sk.id AS skill_id, sk.name AS library_skill_name, sk.evaluation_mode
+           FROM coaching.athlete_skill_progress sp
+           LEFT JOIN coaching.exercise e ON e.id = sp.exercise_id
+           LEFT JOIN LATERAL (
+             SELECT s.id, s.name, s.evaluation_mode
+             FROM coaching.skill s
+             WHERE s.facility_id = $2 AND s.archived = FALSE
+               AND (
+                 (s.exercise_id IS NOT NULL AND s.exercise_id = sp.exercise_id)
+                 OR lower(trim(coalesce(sp.skill_label, ''))) = lower(trim(s.name))
+               )
+             ORDER BY s.id
+             LIMIT 1
+           ) sk ON TRUE
+           WHERE sp.member_id = $1
+           ORDER BY sp.graded_at`,
+          [memberId, req.platformAuth.user.facility_id],
         ),
       ])
       ok(res, { results: results.rows, skills: skills.rows })
@@ -2156,26 +2278,28 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  // Skill tree: exercise nodes + prerequisite edges, with optional per-athlete
-  // mastery overlay from athlete_skill_progress.
+  // Skill tree: coaching.skill nodes + prerequisite edges, with optional per-athlete
+  // mastery overlay from athlete_skill_progress (matched by linked exercise or label).
   app.get('/api/coach/skill-tree', ...can('library.view'), async (req, res) => {
     try {
       const facilityId = req.platformAuth.user.facility_id
+      const userId = Number(req.platformAuth.user.id)
       const sportId = num(req.query.sportId)
       const memberId = num(req.query.memberId)
 
-      const nodeParams = [facilityId]
+      const nodeParams = [facilityId, userId]
       let sportFilter = ''
       if (sportId != null) {
         nodeParams.push(sportId)
-        sportFilter = ` AND (e.sport_id = $${nodeParams.length} OR e.sport_id IS NULL)`
+        sportFilter = ` AND (sk.sport_id = $${nodeParams.length} OR sk.sport_id IS NULL)`
       }
       const nodes = await pool.query(
-        `SELECT e.id, e.name, e.slug, e.sport_id, s.name AS sport_name
-         FROM coaching.exercise e
-         LEFT JOIN coaching.sport s ON s.id = e.sport_id
-         WHERE e.facility_id = $1 AND e.archived = FALSE${sportFilter}
-         ORDER BY e.name`,
+        `SELECT sk.id, sk.name, sk.slug, sk.sport_id, s.name AS sport_name, sk.evaluation_mode, sk.exercise_id
+         FROM coaching.skill sk
+         LEFT JOIN coaching.sport s ON s.id = sk.sport_id
+         WHERE sk.facility_id = $1 AND sk.archived = FALSE
+           AND ((sk.visibility = 'facility' AND sk.is_published = TRUE) OR sk.created_by = $2)${sportFilter}
+         ORDER BY sk.name`,
         nodeParams,
       )
       const nodeIds = nodes.rows.map((n) => Number(n.id))
@@ -2183,9 +2307,9 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       let edges = { rows: [] }
       if (nodeIds.length > 0) {
         edges = await pool.query(
-          `SELECT ep.exercise_id, ep.prerequisite_exercise_id
-           FROM coaching.exercise_prerequisite ep
-           WHERE ep.exercise_id = ANY($1::bigint[]) AND ep.prerequisite_exercise_id = ANY($1::bigint[])`,
+          `SELECT sp.skill_id, sp.prerequisite_skill_id
+           FROM coaching.skill_prerequisite sp
+           WHERE sp.skill_id = ANY($1::bigint[]) AND sp.prerequisite_skill_id = ANY($1::bigint[])`,
           [nodeIds],
         )
       }
@@ -2193,21 +2317,33 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       let mastery = {}
       if (memberId != null && nodeIds.length > 0) {
         const grades = await pool.query(
-          `SELECT exercise_id, MAX(score) AS score, MAX(max_score) AS max_score
-           FROM coaching.athlete_skill_progress
-           WHERE member_id = $1 AND exercise_id = ANY($2::bigint[])
-           GROUP BY exercise_id`,
+          `SELECT sk.id AS skill_id, MAX(sp.score) AS score, MAX(sp.max_score) AS max_score
+           FROM coaching.skill sk
+           JOIN coaching.athlete_skill_progress sp ON sp.member_id = $1
+             AND (
+               (sk.exercise_id IS NOT NULL AND sp.exercise_id = sk.exercise_id)
+               OR lower(trim(coalesce(sp.skill_label, ''))) = lower(trim(sk.name))
+             )
+           WHERE sk.id = ANY($2::bigint[])
+           GROUP BY sk.id`,
           [memberId, nodeIds],
         )
         for (const g of grades.rows) {
           const score = Number(g.score)
           const max = Number(g.max_score) || 0
           const status = max > 0 && score >= max ? 'mastered' : 'in_progress'
-          mastery[String(g.exercise_id)] = { score, maxScore: max || null, status }
+          mastery[String(g.skill_id)] = { score, maxScore: max || null, status }
         }
       }
 
-      ok(res, { nodes: nodes.rows, edges: edges.rows, mastery })
+      ok(res, {
+        nodes: nodes.rows,
+        edges: edges.rows.map((r) => ({
+          skill_id: Number(r.skill_id),
+          prerequisite_skill_id: Number(r.prerequisite_skill_id),
+        })),
+        mastery,
+      })
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -4790,8 +4926,24 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           [memberId],
         ),
         pool.query(
-          `SELECT sp.skill_label, sp.score, sp.max_score, sp.graded_at, e.name as exercise_name
-           FROM coaching.athlete_skill_progress sp LEFT JOIN coaching.exercise e ON e.id = sp.exercise_id WHERE sp.member_id = $1 ORDER BY sp.graded_at`,
+          `SELECT sp.skill_label, sp.score, sp.max_score, sp.graded_at, e.name AS exercise_name,
+                  sk.name AS library_skill_name, sk.evaluation_mode
+           FROM coaching.athlete_skill_progress sp
+           LEFT JOIN coaching.exercise e ON e.id = sp.exercise_id
+           LEFT JOIN public.member m ON m.id = sp.member_id
+           LEFT JOIN LATERAL (
+             SELECT s.name, s.evaluation_mode
+             FROM coaching.skill s
+             WHERE s.facility_id = m.facility_id AND s.archived = FALSE
+               AND (
+                 (s.exercise_id IS NOT NULL AND s.exercise_id = sp.exercise_id)
+                 OR lower(trim(coalesce(sp.skill_label, ''))) = lower(trim(s.name))
+               )
+             ORDER BY s.id
+             LIMIT 1
+           ) sk ON TRUE
+           WHERE sp.member_id = $1
+           ORDER BY sp.graded_at`,
           [memberId],
         ),
         pool.query(

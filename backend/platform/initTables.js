@@ -87,6 +87,8 @@ export async function initPlatformTables(pool) {
     '092_drop_sport_pricing_default.sql',
     '093_coaching_skill_library.sql',
     '094_coaching_skill_evaluation.sql',
+    '095_coaching_exercise_card_v2.sql',
+    '096_coaching_prepare_access_subroles.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

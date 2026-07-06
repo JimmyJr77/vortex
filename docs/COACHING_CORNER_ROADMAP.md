@@ -328,6 +328,12 @@ Fitness/Repeatability → Restore. Workout blocks link via `workout_block.phase_
 (`workoutValidation.js`) and Needs Engine (`phaseAwarePrescription.js`) score exercises using
 `exercise_phase_profile` fit weights and return educational warnings with override flow.
 
+**Prepare / Access subroles (migration `096`):** Within Prepare/Access, five RAMP-aligned subroles
+(Raise → Mobilize → Activate → Integrate → Potentiate Bridge) form the coach-facing sequence layer.
+Fine `phase_order_slot` rows (ankle mobility, landing prep, etc.) map to exactly one subrole;
+exercise cards store `order_slot` and derive `phase_subrole` automatically. Workout Builder and
+Exercise Library filter by subrole then slot; validation warns when subrole order is violated.
+
 ### Deterministic Needs Engine; AI proposes, the schema disposes
 `runPhaseAwarePrescription()` (extracted from `coachPortalRoutes.js`) is a phase-aware scorer/time-packer
 with per-exercise/placement/scaling rationales from `education_content`. The AI layer still only *drafts*

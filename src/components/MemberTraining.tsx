@@ -267,7 +267,7 @@ interface PrRow {
 
 interface ProgressData {
   results: Array<{ assessment_name: string; value_numeric: number | null; unit?: string | null; tested_at: string; tenet_name?: string | null }>
-  skills: Array<{ skill_label?: string | null; exercise_name?: string | null; score: number | null; max_score: number | null; graded_at: string }>
+  skills: Array<{ skill_label?: string | null; exercise_name?: string | null; library_skill_name?: string | null; score: number | null; max_score: number | null; graded_at: string }>
   prs?: PrRow[]
 }
 
@@ -297,7 +297,7 @@ export function MemberProgressTab() {
   if (loading) return <div className="flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading progress...</div>
 
   const trendData = (data?.results ?? []).map((r) => ({ date: new Date(r.tested_at).toLocaleDateString(), [r.assessment_name]: r.value_numeric }))
-  const skillData = (data?.skills ?? []).map((s) => ({ name: s.skill_label || s.exercise_name || 'Skill', score: s.score ?? 0 }))
+  const skillData = (data?.skills ?? []).map((s) => ({ name: s.library_skill_name || s.skill_label || s.exercise_name || 'Skill', score: s.score ?? 0 }))
   const prs = data?.prs ?? []
 
   return (

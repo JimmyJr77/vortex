@@ -5,7 +5,8 @@ import { useTaxonomy } from './useTaxonomy'
 import { useCoachBuilderStore, blockSeconds, workoutSeconds } from '../../coach/useCoachBuilderStore'
 import WorkoutSetupWizard from './WorkoutSetupWizard'
 import { validationStatusLabel, allValidationIssues } from '../../coach/validationMessages'
-import { exerciseDosageLabel, exerciseFitnessGoal, exerciseTenetLabels, phaseFitBadge } from '../../coach/exerciseCard'
+import { exerciseDosageLabel, exerciseFitnessGoal, exerciseSubroleAndSlotLine, exerciseTenetLabels, movementFamilyLabel, phaseFitBadge, phaseSubroleLabel } from '../../coach/exerciseCard'
+import { orderSlotsForSubrole, prepareAccessSubroleSequence } from '../../coach/taxonomy'
 import type { BlockFormat, Exercise, ValidationResult, Workout, WorkoutType } from '../../coach/types'
 
 function fmt(seconds: number) {
@@ -572,7 +573,13 @@ function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | nul
   const [results, setResults] = useState<Exercise[]>([])
   const [loading, setLoading] = useState(false)
   const [mode, setMode] = useState<'ideal' | 'all'>('ideal')
+  const [subroleFilter, setSubroleFilter] = useState<string>('')
+  const [slotFilter, setSlotFilter] = useState<string>('')
   const { taxonomy } = useTaxonomy()
+  const prepareSubroles = phaseKey === 'prepare_access' ? prepareAccessSubroleSequence(taxonomy) : []
+  const slotOptions = phaseKey === 'prepare_access' && subroleFilter
+    ? orderSlotsForSubrole(taxonomy, 'prepare_access', subroleFilter)
+    : []
   const tenetName = useMemo(() => {
     const map = new Map<number, string>()
     taxonomy?.tenets.forEach((t) => {
@@ -586,6 +593,8 @@ function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | nul
       setLoading(true)
       try {
         const params = new URLSearchParams({ q })
+        if (phaseKey === 'prepare_access' && subroleFilter) params.set('subrole', subroleFilter)
+        if (slotFilter) params.set('order_slot', slotFilter)
         const data = await coachFetch<Exercise[]>(`/api/coach/exercises?${params.toString()}`)
         const filtered = phaseKey && mode === 'ideal'
           ? data.filter((ex) => {
@@ -601,7 +610,7 @@ function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | nul
       }
     }, 250)
     return () => clearTimeout(timer)
-  }, [q, phaseKey, mode])
+  }, [q, phaseKey, mode, subroleFilter, slotFilter])
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -611,6 +620,24 @@ function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | nul
             <div className="flex gap-2 text-xs">
               <button type="button" onClick={() => setMode('ideal')} className={`rounded-full px-2 py-1 ${mode === 'ideal' ? 'bg-vortex-red text-white' : 'border border-gray-200'}`}>Ideal / conditional</button>
               <button type="button" onClick={() => setMode('all')} className={`rounded-full px-2 py-1 ${mode === 'all' ? 'bg-vortex-red text-white' : 'border border-gray-200'}`}>All (with warnings)</button>
+            </div>
+          )}
+          {phaseKey === 'prepare_access' && prepareSubroles.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex flex-wrap gap-1">
+                <button type="button" onClick={() => { setSubroleFilter(''); setSlotFilter('') }} className={`rounded-full px-2 py-1 text-xs ${!subroleFilter ? 'bg-vortex-red text-white' : 'border border-gray-200'}`}>All</button>
+                {prepareSubroles.map((sr) => (
+                  <button key={sr.key} type="button" onClick={() => { setSubroleFilter(sr.key); setSlotFilter('') }} className={`rounded-full px-2 py-1 text-xs ${subroleFilter === sr.key ? 'bg-vortex-red text-white' : 'border border-gray-200'}`}>{sr.name}</button>
+                ))}
+              </div>
+              {subroleFilter && slotOptions.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  <button type="button" onClick={() => setSlotFilter('')} className={`rounded-full px-2 py-0.5 text-[10px] ${!slotFilter ? 'bg-gray-800 text-white' : 'border border-gray-200'}`}>All slots</button>
+                  {slotOptions.map((s) => (
+                    <button key={s.key} type="button" onClick={() => setSlotFilter(s.key)} className={`rounded-full px-2 py-0.5 text-[10px] ${slotFilter === s.key ? 'bg-gray-800 text-white' : 'border border-gray-200'}`}>{s.name}</button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           <div className="relative">
@@ -623,6 +650,9 @@ function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | nul
           {results.map((ex) => {
             const fit = phaseKey ? phaseFitBadge(ex, phaseKey) : null
             const tenets = exerciseTenetLabels(ex, tenetName)
+            const identityBits = phaseKey === 'prepare_access'
+              ? exerciseSubroleAndSlotLine(ex, taxonomy)
+              : [movementFamilyLabel(ex.movement_family), phaseSubroleLabel(ex.phase_subrole)].filter(Boolean).join(' · ')
             return (
               <button key={ex.id} type="button" onClick={() => onPick(ex)} className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50">
                 <div className="flex items-center justify-between gap-2">
@@ -634,6 +664,7 @@ function ExercisePicker({ phaseKey, onClose, onPick }: { phaseKey?: string | nul
                   )}
                 </div>
                 <div className="text-xs text-gray-700 mt-1 line-clamp-2">{exerciseFitnessGoal(ex, tenetName)}</div>
+                {identityBits && <div className="text-[10px] text-gray-500 mt-0.5">{identityBits}</div>}
                 <div className="text-[11px] text-gray-500 mt-1">
                   {ex.sport_name ?? 'Universal'} · {exerciseDosageLabel(ex)}
                   {tenets.length > 0 ? ` · ${tenets.slice(0, 2).join(', ')}` : ''}
