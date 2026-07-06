@@ -108,6 +108,7 @@ export interface PhaseSubroleTaxonomyItem {
 }
 
 const PREPARE_ACCESS = 'prepare_access'
+const SKILL_MOVEMENT_INTELLIGENCE = 'skill_movement_intelligence'
 
 export function subroleForOrderSlot(
   taxonomy: Taxonomy | null | undefined,
@@ -130,8 +131,19 @@ export function orderSlotsForSubrole(
 }
 
 export function prepareAccessSubroleSequence(taxonomy: Taxonomy | null | undefined): PhaseSubroleTaxonomyItem[] {
+  return subroleSequenceForPhase(taxonomy, PREPARE_ACCESS)
+}
+
+export function skillMovementSubroleSequence(taxonomy: Taxonomy | null | undefined): PhaseSubroleTaxonomyItem[] {
+  return subroleSequenceForPhase(taxonomy, SKILL_MOVEMENT_INTELLIGENCE)
+}
+
+export function subroleSequenceForPhase(
+  taxonomy: Taxonomy | null | undefined,
+  phaseKey: string,
+): PhaseSubroleTaxonomyItem[] {
   return (taxonomy?.phaseSubroles ?? [])
-    .filter((s) => s.phase_key === PREPARE_ACCESS)
+    .filter((s) => s.phase_key === phaseKey)
     .sort((a, b) => a.order_index - b.order_index)
 }
 

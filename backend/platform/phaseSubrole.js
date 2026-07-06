@@ -1,7 +1,10 @@
 const PREPARE_ACCESS = 'prepare_access'
+const SKILL_MOVEMENT_INTELLIGENCE = 'skill_movement_intelligence'
 
-let slotMapCache = null
-let slotMapCacheAt = 0
+const SUBROLE_PHASES = new Set([PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE])
+
+let slotMapCache = new Map()
+let slotMapCacheAt = new Map()
 const CACHE_MS = 60_000
 
 /**
@@ -12,8 +15,10 @@ const CACHE_MS = 60_000
  */
 export async function loadSubroleMapForPhase(db, phaseKey = PREPARE_ACCESS) {
   const now = Date.now()
-  if (phaseKey === PREPARE_ACCESS && slotMapCache && now - slotMapCacheAt < CACHE_MS) {
-    return slotMapCache
+  const cached = slotMapCache.get(phaseKey)
+  const cachedAt = slotMapCacheAt.get(phaseKey) ?? 0
+  if (cached && now - cachedAt < CACHE_MS) {
+    return cached
   }
   const result = await db.query(
     `
@@ -30,10 +35,8 @@ export async function loadSubroleMapForPhase(db, phaseKey = PREPARE_ACCESS) {
       map.set(row.order_slot_key, row.subrole_key)
     }
   }
-  if (phaseKey === PREPARE_ACCESS) {
-    slotMapCache = map
-    slotMapCacheAt = now
-  }
+  slotMapCache.set(phaseKey, map)
+  slotMapCacheAt.set(phaseKey, now)
   return map
 }
 
@@ -61,10 +64,10 @@ export async function deriveExerciseSubrole(db, primaryProfile, subroleOverride,
   if (subroleOverride && explicitSubrole) return explicitSubrole
   const phaseKey = primaryProfile?.phaseKey ?? primaryProfile?.phase_key
   const orderSlot = primaryProfile?.orderSlot ?? primaryProfile?.order_slot
-  if (phaseKey !== PREPARE_ACCESS || !orderSlot) {
+  if (!SUBROLE_PHASES.has(phaseKey) || !orderSlot) {
     return subroleOverride ? (explicitSubrole ?? null) : null
   }
   return resolveSubroleFromOrderSlot(db, phaseKey, orderSlot)
 }
 
-export { PREPARE_ACCESS }
+export { PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE }

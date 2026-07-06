@@ -37,7 +37,17 @@ export interface ExerciseWhy {
 
 export type PhaseRole = 'primary' | 'secondary' | 'conditional' | 'avoid'
 
-export type PhaseSubrole = 'raise' | 'mobilize' | 'activate' | 'integrate' | 'potentiate_bridge'
+export type PhaseSubrole =
+  | 'raise'
+  | 'mobilize'
+  | 'activate'
+  | 'integrate'
+  | 'potentiate_bridge'
+  | 'shape_position_intelligence'
+  | 'rotation_inversion_tumbling_foundations'
+  | 'locomotion_sprint_mechanics'
+  | 'balance_coordination_rhythm'
+  | 'perception_action_reactive_movement'
 
 export type ScalingCohortKey =
   | 'youth_beginner'
@@ -59,6 +69,11 @@ export const PHASE_SUBROLE_OPTIONS: Array<{ value: PhaseSubrole; label: string }
   { value: 'activate', label: 'Activate' },
   { value: 'integrate', label: 'Integrate' },
   { value: 'potentiate_bridge', label: 'Potentiate bridge' },
+  { value: 'shape_position_intelligence', label: 'Shape & position intelligence' },
+  { value: 'rotation_inversion_tumbling_foundations', label: 'Rotation / tumbling foundations' },
+  { value: 'locomotion_sprint_mechanics', label: 'Locomotion & sprint mechanics' },
+  { value: 'balance_coordination_rhythm', label: 'Balance / coordination / rhythm' },
+  { value: 'perception_action_reactive_movement', label: 'Perception-action / reactive' },
 ]
 
 export interface ExerciseMovementRequirements {

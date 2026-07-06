@@ -24,10 +24,34 @@ test('normalizePortalConfig defaults to empty hidden lists and canonical order',
     'training',
     'progress',
     'messages',
+    'faqs',
     'events',
     'billing',
     'waivers',
     'preferences',
   ])
   assert.deepEqual(config.coach.tabOrder.slice(0, 4), ['home', 'sessions', 'needs', 'library'])
+})
+
+test('normalizePortalConfig preserves custom coach order for all portal tabs', () => {
+  const customOrder = [
+    'home',
+    'sessions',
+    'messages',
+    'roster',
+    'framework',
+    'library',
+    'needs',
+    'workout',
+    'warmup',
+    'assign',
+    'training-blocks',
+    'regimens',
+    'faqs',
+    'preferences',
+  ]
+  const config = normalizePortalConfig({ coach: { tabOrder: customOrder } })
+  assert.deepEqual(config.coach.tabOrder.slice(0, customOrder.length), customOrder)
+  assert.ok(config.coach.tabOrder.includes('programs'))
+  assert.ok(config.coach.tabOrder.includes('insights'))
 })

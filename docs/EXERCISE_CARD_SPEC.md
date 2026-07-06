@@ -475,3 +475,162 @@ Data: [`scripts/data/activation-access-cards-45-50.mjs`](../scripts/data/activat
 **Validation rule:** `prepare_activation_readiness` — activation should improve position and readiness without fatigue before Skill or Output. Rules: `prepare_glute_bridge_dose`, `prepare_mini_band_lateral_dose`, `prepare_amarch_after_conditioning`, `prepare_amarch_skill_phase`, `prepare_activation_pelvic_floor`.
 
 **Prepare / Access library (cards 1–50) is complete.** Principle: athletes should be warmer, sharper, more mobile, and more ready — not tired.
+
+## 9. Skill / Movement Intelligence
+
+**Phase goal:** Teach coordination, perception-action, tumbling foundations, sprint mechanics, landing skill, rhythm, reaction, balance, and body-shape control while the athlete is still fresh. Prepare / Access gives positions; Skill teaches what to do with those positions; Output expresses skills at higher speed and power.
+
+**Placement:** Prepare / Access → **Skill / Movement Intelligence** → Output → Capacity → Control / Resilience → Fitness / Repeatability → Restore
+
+**Subroles** ([104](../backend/migrations/104_coaching_skill_phase_infrastructure.sql)):
+
+| Subrole | order_index band | Purpose |
+|---------|------------------|---------|
+| `shape_position_intelligence` | 211–219 | Body lines, shapes, posture, trunk control |
+| `rotation_inversion_tumbling_foundations` | 221–232 | Rolling, inversion, hand support, tumbling prerequisites |
+| `locomotion_sprint_mechanics` | 233–240 | Sprint posture, rhythm, foot strike, acceleration shapes |
+| `balance_coordination_rhythm` | 260–268 | Timing, foot placement, balance, sequencing |
+| `perception_action_reactive_movement` | 251–256 | Decision-making coupled with movement |
+
+### 9.1 Phase intent variants (dual profiles)
+
+Some drills span phases by intent, not by creating duplicate exercises. Use multiple `exercise_phase_profile` rows on one slug:
+
+| Example slug | Prepare / Access | Skill / Movement Intelligence | Output |
+|--------------|------------------|-------------------------------|--------|
+| `a-march` | `marching_mechanics` / potentiate_bridge, RPE 2–4 | `technical_march` / locomotion_sprint_mechanics, RPE 2–5 | — |
+| `low-pogos` | `low_level_plyo_prep` | — | `elastic_prep` |
+
+Document intent in `phase_profile.notes` and dosage RPE bands. Prepare slot `marching_mechanics` is globally unique; Skill uses `technical_march` ([104](../backend/migrations/104_coaching_skill_phase_infrastructure.sql)).
+
+### 9.2 Shape & position cards 1–10
+
+Thin seed: [105](../backend/migrations/105_coaching_skill_movement_intelligence_seed.sql). Rich pass: [106](../backend/migrations/106_coaching_skill_shape_cards.sql). Data: [`scripts/data/skill-shape-cards-1-10.mjs`](../scripts/data/skill-shape-cards-1-10.mjs).
+
+| # | Slug | Slot | session_need tags |
+|---|------|------|-------------------|
+| 1 | `hollow-body-hold` | `hollow_shape` | tumbling_prep, landing_prep, general_warmup |
+| 2 | `arch-body-hold` | `arch_shape` | tumbling_prep, landing_prep, general_warmup |
+| 3 | `hollow-to-arch-roll` | `shape_transition` | tumbling_prep, general_warmup |
+| 4 | `tuck-hold-rock` | `tuck_shape` | tumbling_prep, landing_prep, general_warmup |
+| 5 | `pike-fold-tall-sit` | `pike_shape` | tumbling_prep, general_warmup |
+| 6 | `straddle-sit-reach-lift` | `straddle_shape` | tumbling_prep, general_warmup |
+| 7 | `front-support-shape-hold` | `support_shape` | tumbling_prep, landing_prep, general_warmup |
+| 8 | `rear-support-shape-hold` | `support_shape` | tumbling_prep, general_warmup |
+| 9 | `wall-body-line-drill` | `line_drill` | tumbling_prep, sprint_prep, general_warmup |
+| 10 | `stick-to-shape-freeze-game` | `shape_reaction` | tumbling_prep, general_warmup |
+
+**Dose-phase escalation (Skill / Movement Intelligence):**
+
+| Drill type | Skill cap | Escalates to |
+|------------|-----------|--------------|
+| Static shape hold | ≤30 seconds | Control / Resilience |
+| Shape reaction game | Low volume, full rest | Fitness if conditioning |
+| Tumbling foundation | Fresh, supervised | Capacity if high volume |
+
+**Validation rules:** `skill_movement_intelligence_readiness` (phase), `skill_shape_readiness` (shape cluster), `skill_tumbling_readiness` (tumbling cluster), `skill_sprint_readiness` (sprint mechanics cluster), `skill_balance_readiness` (balance cluster). Rules: `skill_block_fatigue`, `skill_tumbling_after_fitness`, `skill_balance_after_fitness`, `skill_agility_conditioning_dose`, `skill_ladder_pass_volume`, `skill_skipping_high_intensity`, `skill_sprint_max_speed`, `skill_shape_hold_duration`, plus tumbling cluster rules (`skill_roll_mat_required`, `skill_forward_roll_prerequisite`, `skill_backward_roll_progression`, `skill_backward_roll_neck_stop`, `skill_shoulder_roll_surface`, `skill_handstand_endurance`, `skill_donkey_kick_volume`, `skill_cartwheel_hand_placement`, `skill_cartwheel_finish`, `skill_roundoff_prerequisite`, `skill_hurdle_entry_balance`, `skill_rotational_stop`), plus sprint cluster rules (`skill_sprint_iso_hold_duration`, `skill_sprint_switch_volume`, `skill_sprint_high_intensity_drill`, `skill_sprint_toe_down`, `skill_sprint_backward_lean`, `skill_sprint_hip_projection`, `skill_sprint_falling_hinge`, `skill_sprint_start_overreach`, `skill_sprint_arm_midline`, `skill_sprint_after_fitness`, `skill_sprint_before_tumbling_fatigue`, `skill_sprint_missing_prep_before_output`).
+
+**Roadmap:** Cards **45–50** (perception cluster) seeded in [105](../backend/migrations/105_coaching_skill_movement_intelligence_seed.sql); rich pass **110** follows Prepare cluster pattern. Balance cards **35–44** complete in [109](../backend/migrations/109_coaching_skill_balance_cards.sql).
+
+### 9.3 Rotation / tumbling cards 11–24
+
+Thin seed: [105](../backend/migrations/105_coaching_skill_movement_intelligence_seed.sql). Rich pass: [107](../backend/migrations/107_coaching_skill_tumbling_cards.sql). Data: [`scripts/data/skill-tumbling-cards-11-24.mjs`](../scripts/data/skill-tumbling-cards-11-24.mjs).
+
+| # | Slug | Slot | session_need tags |
+|---|------|------|-------------------|
+| 11 | `log-roll` | `rolling_foundation` | tumbling_prep, landing_prep, general_warmup |
+| 12 | `egg-roll` | `rolling_foundation` | tumbling_prep, landing_prep, general_warmup |
+| 13 | `rock-and-roll-to-stand` | `roll_to_stand` | tumbling_prep, landing_prep, general_warmup |
+| 14 | `forward-roll-progression` | `forward_roll` | tumbling_prep, landing_prep, general_warmup |
+| 15 | `backward-roll-progression` | `backward_roll` | tumbling_prep, landing_prep, general_warmup |
+| 16 | `shoulder-roll-progression` | `shoulder_roll` | tumbling_prep, landing_prep, general_warmup |
+| 17 | `donkey-kick` | `hand_support_inversion` | tumbling_prep, landing_prep, general_warmup |
+| 18 | `wall-walk-handstand-line` | `handstand_line` | tumbling_prep, landing_prep, general_warmup |
+| 19 | `handstand-kick-up-wall` | `handstand_entry` | tumbling_prep, landing_prep, general_warmup |
+| 20 | `cartwheel` | `cartwheel_foundation` | tumbling_prep, landing_prep, general_warmup |
+| 21 | `cartwheel-step-over` | `cartwheel_foundation` | tumbling_prep, landing_prep, general_warmup |
+| 22 | `cartwheel-finish-lunge` | `cartwheel_finish` | tumbling_prep, landing_prep, general_warmup |
+| 23 | `round-off` | `roundoff_foundation` | tumbling_prep, landing_prep, general_warmup |
+| 24 | `hurdle-step-lunge` | `hurdle_entry` | tumbling_prep, landing_prep, general_warmup |
+
+Legacy slugs `cartwheel` and `round-off` are enriched in place (not duplicated). Cards 11–12 share slot `rolling_foundation` (221); cards 20–21 share `cartwheel_foundation` (229).
+
+**Equipment taxonomy (107):** `wedge`, `panel_mat`, `line_tape` added to `coaching.equipment`.
+
+**Dose-phase escalation (Rotation / Tumbling Foundations):**
+
+| Drill type | Skill cap | Escalates to |
+|------------|-----------|--------------|
+| Rolling foundations | Low reps, mat required | Capacity if high volume |
+| Forward/backward roll | Supervised, ≤8 attempts | — |
+| Handstand line/kick-up | ≤20s hold | Control / Resilience |
+| Donkey kick | ≤10 reps/block | Conditioning elsewhere |
+| Round-off snap-down | Technical, not max power | Output |
+
+**Validation rule:** `skill_tumbling_readiness` — tumbling foundations should occur while fresh with gated progressions and safe surfaces. Implemented in `analyzeSkillTumblingReadiness` ([workoutValidation.js](../backend/platform/workoutValidation.js)).
+
+### 9.4 Locomotion / sprint cards 25–34
+
+Thin seed: [105](../backend/migrations/105_coaching_skill_movement_intelligence_seed.sql). Rich pass: [108](../backend/migrations/108_coaching_skill_sprint_cards.sql). Data: [`scripts/data/skill-sprint-cards-25-34.mjs`](../scripts/data/skill-sprint-cards-25-34.mjs).
+
+| # | Slug | Slot | session_need tags |
+|---|------|------|-------------------|
+| 25 | `wall-drill-split-shin-hold` | `sprint_iso` | sprint_prep, general_warmup |
+| 26 | `wall-drill-march` | `sprint_mechanics` | sprint_prep, general_warmup |
+| 27 | `wall-drill-switch` | `sprint_mechanics` | sprint_prep, general_warmup |
+| 28 | `a-march` | `technical_march` | sprint_prep, general_warmup |
+| 29 | `a-skip` | `sprint_rhythm` | sprint_prep, general_warmup |
+| 30 | `ankling-dribble-march` | `foot_strike_skill` | sprint_prep, general_warmup |
+| 31 | `straight-leg-bound-march` | `frontside_mechanics` | sprint_prep, general_warmup |
+| 32 | `falling-start-hold` | `acceleration_position` | sprint_prep, general_warmup |
+| 33 | `two-point-start-walk-in` | `acceleration_entry` | sprint_prep, general_warmup |
+| 34 | `arm-action-drill` | `arm_action` | sprint_prep, general_warmup |
+
+Cards 26–27 share slot `sprint_mechanics` (234). **`a-march` dual profile:** Prepare/Access primary stays `prepare_access` / `marching_mechanics`; Skill profile uses `technical_march` (108 does not overwrite primary phase columns).
+
+**Equipment taxonomy (108):** `mirror` added to `coaching.equipment` (optional arm-action feedback). Wall drills tag `wall` (seeded in Prepare migrations).
+
+**Dose-phase escalation (Locomotion & Sprint Mechanics):**
+
+| Drill type | Skill cap | Escalates to |
+|------------|-----------|--------------|
+| Wall ISO hold | ≤8s per side | Control / Resilience |
+| Wall switch | Crisp, low volume | Output if maximal |
+| A-Skip / straight-leg prep | Rhythm-first, short distance | Output if high intent |
+| Falling start / two-point walk-in | Technical setup | Output if timed or >5 yards |
+| Arm action | Low duration, quiet torso | — |
+
+**Validation rule:** `skill_sprint_readiness` — sprint mechanics should sharpen posture and rhythm while fresh, not become max-speed work or conditioning. Implemented in `analyzeSkillSprintReadiness` and `analyzeSprintPrepBeforeOutput` ([workoutValidation.js](../backend/platform/workoutValidation.js)).
+
+### 9.5 Balance / coordination / rhythm cards 35–44
+
+Thin seed: [105](../backend/migrations/105_coaching_skill_movement_intelligence_seed.sql). Rich pass: [109](../backend/migrations/109_coaching_skill_balance_cards.sql). Data: [`scripts/data/skill-balance-cards-35-44.mjs`](../scripts/data/skill-balance-cards-35-44.mjs).
+
+| # | Slug | Slot | session_need tags |
+|---|------|------|-------------------|
+| 35 | `beam-walk` | `narrow_base_balance` | general_warmup, landing_prep, sprint_prep |
+| 36 | `single-leg-balance-clock` | `single_leg_balance_skill` | general_warmup, landing_prep, sprint_prep |
+| 37 | `cross-crawl-march` | `cross_body_coordination` | general_warmup, landing_prep, sprint_prep |
+| 38 | `skipping-rhythm-drill` | `rhythm_locomotion` | general_warmup, landing_prep, sprint_prep |
+| 39 | `carioca-walkthrough` | `transverse_coordination` | general_warmup, landing_prep, sprint_prep |
+| 40 | `lateral-shuffle-walkthrough` | `lateral_movement_skill` | general_warmup, landing_prep, sprint_prep |
+| 41 | `backpedal-walkthrough` | `backward_locomotion` | general_warmup, landing_prep, sprint_prep |
+| 42 | `ladder-in-in-out-out` | `footwork_rhythm` | general_warmup, landing_prep, sprint_prep |
+| 43 | `ladder-ickey-shuffle` | `footwork_rhythm` | general_warmup, landing_prep, sprint_prep |
+| 44 | `low-hurdle-step-over` | `step_over_coordination` | general_warmup, landing_prep, sprint_prep |
+
+Migration 109 resequences balance slots to band **260–268** (after perception 251–256). Cards 42–43 share slot `footwork_rhythm` (267).
+
+**Equipment taxonomy (109):** `agility_ladder`, `low_hurdles` added to `coaching.equipment` (`line_tape` from 107; `beam` from base taxonomy).
+
+**Dose-phase escalation (Balance / Coordination / Rhythm):**
+
+| Drill type | Skill cap | Escalates to |
+|------------|-----------|--------------|
+| Beam / line walk | Low passes, floor first | Output if speed challenge |
+| Single-leg reach clock | Clean taps, moderate reach | Control if loaded/high volume |
+| Skipping rhythm | RPE ≤5, quiet contacts | Output if power skips |
+| Ladder rhythm | ~4 passes/pattern, full rest | Fitness if circuits |
+| Low hurdle step-over | Clean clearance, slow tempo | Output if hurdle hops |
+
+**Validation rule:** `skill_balance_readiness` — balance, coordination, and rhythm drills should improve movement quality at low fatigue, not become conditioning or reactive agility without perception cues. Implemented in `analyzeSkillMovementIntelligenceReadiness` ([workoutValidation.js](../backend/platform/workoutValidation.js)).

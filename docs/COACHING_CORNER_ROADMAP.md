@@ -335,7 +335,12 @@ exercise cards store `order_slot` and derive `phase_subrole` automatically. Work
 Exercise Library filter by subrole then slot; validation warns when subrole order is violated.
 
 **Exercise card format:** See [EXERCISE_CARD_SPEC.md](EXERCISE_CARD_SPEC.md) for the canonical card v2
-authoring guide (field mapping, publish gate, Prepare/Access conventions, foundation cards 1–10).
+authoring guide (field mapping, publish gate, Prepare/Access conventions, foundation cards 1–10,
+Skill shape cards 1–10, Skill tumbling cards 11–24, Skill sprint cards 25–34).
+
+**Skill / Movement Intelligence content:** Migration `105` seeds 50 thin skill movements; rich passes
+follow the Prepare cluster pattern — `106` (shape 1–10, complete), `107` (tumbling 11–24, complete),
+`108` (sprint 25–34, complete), `109–110` planned for balance and perception clusters (cards 35–50).
 
 ### Deterministic Needs Engine; AI proposes, the schema disposes
 `runPhaseAwarePrescription()` (extracted from `coachPortalRoutes.js`) is a phase-aware scorer/time-packer

@@ -1,4 +1,4 @@
-import { loadSubroleMapForPhase, PREPARE_ACCESS } from './phaseSubrole.js'
+import { loadSubroleMapForPhase, PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE } from './phaseSubrole.js'
 
 const SUBROLE_ORDER = {
   raise: 10,
@@ -610,6 +610,621 @@ function analyzePrepareActivationReadiness(items, ctx) {
   return findings
 }
 
+const TUMBLING_SKILL_SLUGS = new Set([
+  'log-roll', 'egg-roll', 'rock-and-roll-to-stand', 'forward-roll-progression',
+  'backward-roll-progression', 'shoulder-roll-progression', 'donkey-kick',
+  'wall-walk-handstand-line', 'handstand-kick-up-wall', 'handstand-hold', 'cartwheel',
+  'cartwheel-step-over', 'cartwheel-finish-lunge', 'round-off', 'hurdle-step-lunge',
+])
+const SPRINT_MECHANICS_SKILL_SLUGS = new Set([
+  'wall-drill-split-shin-hold', 'wall-drill-march', 'wall-drill-switch', 'a-march',
+  'a-skip', 'ankling-dribble-march', 'straight-leg-bound-march', 'falling-start-hold',
+  'two-point-start-walk-in', 'arm-action-drill',
+])
+const LADDER_SKILL_SLUGS = new Set(['ladder-in-in-out-out', 'ladder-ickey-shuffle'])
+const BALANCE_SKILL_SLUGS = new Set([
+  'beam-walk', 'single-leg-balance-clock', 'cross-crawl-march', 'skipping-rhythm-drill',
+  'carioca-walkthrough', 'lateral-shuffle-walkthrough', 'backpedal-walkthrough',
+  'ladder-in-in-out-out', 'ladder-ickey-shuffle', 'low-hurdle-step-over',
+])
+const SHAPE_HOLD_SLUGS = new Set([
+  'hollow-body-hold', 'arch-body-hold', 'tuck-hold-rock', 'front-support-shape-hold',
+  'rear-support-shape-hold',
+])
+
+function hasPriorFatiguePhase(blockMeta, blockIndex) {
+  for (let j = 0; j < blockIndex; j++) {
+    const key = blockMeta[j].phaseKey
+    if (key === 'fitness_repeatability' || key === 'capacity_resilience') return true
+  }
+  return false
+}
+
+/** Skill / Movement Intelligence dose and placement checks. Pure helper for tests. */
+function analyzeSkillMovementIntelligenceReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    profileByExercisePhase,
+    dosageByExercise,
+    phaseKey = SKILL_MOVEMENT_INTELLIGENCE,
+    blockMeta = [],
+    skillBlockIndex = 0,
+  } = ctx
+
+  const findings = []
+  let totalFatigueCost = 0
+  let rpeSum = 0
+  let rpeCount = 0
+  const priorFatiguePhase = hasPriorFatiguePhase(blockMeta, skillBlockIndex)
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const profile = profileByExercisePhase.get(`${exerciseId}:${phaseKey}`)
+    const fatigueCost = Number(profile?.fatigue_cost) || 1
+    const impact = Number(profile?.impact_level) || 0
+    totalFatigueCost += fatigueCost
+
+    const rpe = itemRpe(item, dosage)
+    if (rpe > 0) {
+      rpeSum += rpe
+      rpeCount += 1
+    }
+
+    if (priorFatiguePhase && TUMBLING_SKILL_SLUGS.has(slug ?? '')) {
+      findings.push({
+        rule_key: 'skill_tumbling_after_fitness',
+        message: `${name}: technical tumbling should usually occur while fresh to protect coordination and safety.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+    }
+
+    if (priorFatiguePhase && BALANCE_SKILL_SLUGS.has(slug ?? '')) {
+      findings.push({
+        rule_key: 'skill_balance_after_fitness',
+        message: `${name}: balance/coordination/rhythm skill quality may be reduced after Fitness — move earlier or reduce complexity.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+    }
+
+    if (LADDER_SKILL_SLUGS.has(slug ?? '')) {
+      const workSeconds = itemWorkSeconds(item, dosage)
+      const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
+      const sets = Number(item.sets ?? item.default_sets ?? dosage?.default_sets) || 1
+      const reps = Number(item.reps ?? item.default_reps ?? dosage?.default_reps) || 1
+      const totalPasses = sets * reps
+      if (workSeconds > 90 || (workSeconds > 45 && restSeconds < 15)) {
+        findings.push({
+          rule_key: 'skill_agility_conditioning_dose',
+          message: `${name}: ladder/footwork volume (${workSeconds}s work) may be conditioning, not skill.`,
+          affected_items: [name],
+          meta: { work_seconds: workSeconds, rest_seconds: restSeconds, slug },
+        })
+      }
+      if (totalPasses > 4 || (reps > 4 && sets >= 1)) {
+        findings.push({
+          rule_key: 'skill_ladder_pass_volume',
+          message: `${name}: ladder passes (${totalPasses}) exceed Skill dose (~4 per pattern) — may belong in Fitness / Repeatability.`,
+          affected_items: [name],
+          meta: { total_passes: totalPasses, sets, reps, slug },
+        })
+      }
+    }
+
+    if (slug === 'skipping-rhythm-drill' && rpe > 5) {
+      findings.push({
+        rule_key: 'skill_skipping_high_intensity',
+        message: `${name}: RPE ${rpe} suggests Output or conditioning — reduce skip height, distance, or intensity for Skill rhythm work.`,
+        affected_items: [name],
+        meta: { rpe, slug },
+      })
+    }
+
+    if (SPRINT_MECHANICS_SKILL_SLUGS.has(slug ?? '') && (rpe > 5 || impact >= 2)) {
+      findings.push({
+        rule_key: 'skill_sprint_max_speed',
+        message: `${name}: high RPE (${rpe}) or impact suggests Output, not Skill-phase sprint mechanics.`,
+        affected_items: [name],
+        meta: { rpe, impact, slug },
+      })
+    }
+
+    if (SHAPE_HOLD_SLUGS.has(slug ?? '')) {
+      const workSeconds = Number(item.work_seconds ?? item.workSeconds ?? dosage?.default_work_seconds) || 0
+      if (workSeconds > 30) {
+        findings.push({
+          rule_key: 'skill_shape_hold_duration',
+          message: `${name}: shape hold (${workSeconds}s) may belong in Control / Resilience, not Skill.`,
+          affected_items: [name],
+          meta: { work_seconds: workSeconds, slug },
+        })
+      }
+    }
+  }
+
+  const avgRpe = rpeCount > 0 ? rpeSum / rpeCount : 0
+  if (avgRpe > 6 || totalFatigueCost >= 8) {
+    findings.push({
+      rule_key: 'skill_block_fatigue',
+      message: `Skill / Movement Intelligence block may be fatigue-based (avg RPE ${avgRpe.toFixed(1)}, fatigue sum ${totalFatigueCost}).`,
+      affected_items: [],
+      meta: { avg_rpe: avgRpe, total_fatigue_cost: totalFatigueCost },
+    })
+  }
+
+  return findings
+}
+
+const ROLL_SLUGS = new Set([
+  'log-roll', 'egg-roll', 'rock-and-roll-to-stand',
+  'forward-roll-progression', 'backward-roll-progression', 'shoulder-roll-progression',
+])
+const HANDSTAND_SKILL_SLUGS = new Set(['wall-walk-handstand-line', 'handstand-kick-up-wall'])
+const CARTWHEEL_SLUGS = new Set(['cartwheel', 'cartwheel-step-over', 'cartwheel-finish-lunge'])
+const FORWARD_ROLL_PREREQ_SLUGS = new Set(['egg-roll', 'rock-and-roll-to-stand', 'tuck-hold-rock'])
+const BACKWARD_ROLL_PROGRESSION_EQUIP = new Set(['wedge', 'panel_mat'])
+const NECK_SYMPTOM_PATTERN = /neck|head\s*pressure|headache|head\s*contact/i
+const ROTATIONAL_STOP_PATTERN = /dizziness|vertigo|neck|fear|panic|disorient|orientation\s*loss/i
+
+function draftWatchText(draft = {}) {
+  return [
+    ...(draft?.readiness_checks ?? []),
+    ...(draft?.watch_points ?? []),
+    ...(draft?.audience_json?.exclusions ?? []),
+    ...(draft?.audience_json?.readiness_checks ?? []),
+    ...(draft?.coach_rationale_json?.watch_points ?? []),
+  ]
+    .map((v) => String(v ?? ''))
+    .join(' ')
+}
+
+function equipmentWeightMap(equipmentKeysByExercise, exerciseId) {
+  return equipmentKeysByExercise.get(String(exerciseId)) ?? new Map()
+}
+
+function hasEquipment(exerciseId, key, equipmentKeysByExercise, minWeight = 1) {
+  const weights = equipmentWeightMap(equipmentKeysByExercise, exerciseId)
+  return (weights.get(key) ?? 0) >= minWeight
+}
+
+function hasAnyEquipment(exerciseId, keys, equipmentKeysByExercise, minWeight = 1) {
+  for (const key of keys) {
+    if (hasEquipment(exerciseId, key, equipmentKeysByExercise, minWeight)) return true
+  }
+  return false
+}
+
+/** Rotation / tumbling foundation cluster checks. Pure helper for tests. */
+function analyzeSkillTumblingReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    equipmentKeysByExercise = new Map(),
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const hasNeckSymptoms = NECK_SYMPTOM_PATTERN.test(watchText)
+  const hasRotationalStop = ROTATIONAL_STOP_PATTERN.test(watchText)
+
+  const ordered = []
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  const slugsInBlock = new Set(ordered.map((o) => o.slug))
+  const slugIndex = (s) => ordered.findIndex((o) => o.slug === s)
+
+  if (hasRotationalStop && ordered.some((o) => TUMBLING_SKILL_SLUGS.has(o.slug))) {
+    findings.push({
+      rule_key: 'skill_rotational_stop',
+      severity: 'error',
+      message: 'Rotational skill attempts should stop for the day — regress to shape drills when dizziness, fear, or orientation loss is present.',
+      affected_items: ordered.filter((o) => TUMBLING_SKILL_SLUGS.has(o.slug)).map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (slugsInBlock.has('round-off')) {
+    const hasCartwheel = [...CARTWHEEL_SLUGS].some((s) => slugsInBlock.has(s))
+    const hasHandstandLine = slugsInBlock.has('wall-walk-handstand-line')
+    if (!hasCartwheel || !hasHandstandLine) {
+      findings.push({
+        rule_key: 'skill_roundoff_prerequisite',
+        severity: 'error',
+        message: 'Round-off foundations require cartwheel and handstand-line prerequisites in the same Skill block.',
+        affected_items: ordered.filter((o) => o.slug === 'round-off').map((o) => o.name),
+        meta: { has_cartwheel: hasCartwheel, has_handstand_line: hasHandstandLine },
+      })
+    }
+  }
+
+  const roundOffIdx = slugIndex('round-off')
+  const cartwheelLineIdx = slugIndex('cartwheel')
+  const cartwheelFinishIdx = slugIndex('cartwheel-finish-lunge')
+  const hurdleIdx = slugIndex('hurdle-step-lunge')
+
+  if (roundOffIdx >= 0 && cartwheelLineIdx >= 0 && roundOffIdx < cartwheelLineIdx) {
+    findings.push({
+      rule_key: 'skill_cartwheel_hand_placement',
+      severity: 'recommendation',
+      message: 'Use Cartwheel Hand-Placement Line Drill before round-off or full step-over progressions.',
+      affected_items: [ordered[roundOffIdx].name],
+      meta: { slug: 'round-off' },
+    })
+  }
+
+  if (roundOffIdx >= 0 && cartwheelFinishIdx >= 0 && roundOffIdx < cartwheelFinishIdx) {
+    findings.push({
+      rule_key: 'skill_cartwheel_finish',
+      severity: 'recommendation',
+      message: 'Add Cartwheel Finish Lunge Drill before round-off entry when finish control is unstable.',
+      affected_items: [ordered[roundOffIdx].name],
+      meta: { slug: 'round-off' },
+    })
+  }
+
+  const stepOverIdx = slugIndex('cartwheel-step-over')
+  if (stepOverIdx >= 0 && cartwheelLineIdx >= 0 && stepOverIdx < cartwheelLineIdx) {
+    findings.push({
+      rule_key: 'skill_cartwheel_hand_placement',
+      severity: 'recommendation',
+      message: 'Use hand-placement line drill before cartwheel step-over when hand order is inconsistent.',
+      affected_items: [ordered[stepOverIdx].name],
+      meta: { slug: 'cartwheel-step-over' },
+    })
+  }
+
+  if (hurdleIdx >= 0 && cartwheelFinishIdx < 0 && (roundOffIdx >= 0 || stepOverIdx >= 0)) {
+    const tumblingIdx = Math.min(
+      roundOffIdx >= 0 ? roundOffIdx : Infinity,
+      stepOverIdx >= 0 ? stepOverIdx : Infinity,
+    )
+    if (tumblingIdx < hurdleIdx) {
+      findings.push({
+        rule_key: 'skill_hurdle_entry_balance',
+        severity: 'recommendation',
+        message: 'Use Step-to-Lunge Freeze or Hurdle-to-Lunge Shape before adding cartwheel or round-off when hurdle entry is off-balance.',
+        affected_items: [ordered[hurdleIdx].name],
+        meta: { slug: 'hurdle-step-lunge' },
+      })
+    }
+  }
+
+  for (let i = 0; i < ordered.length; i++) {
+    const { item, exerciseId, name, slug } = ordered[i]
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const priorSlugs = new Set(ordered.slice(0, i).map((o) => o.slug))
+
+    if (ROLL_SLUGS.has(slug) && !hasEquipment(exerciseId, 'mat', equipmentKeysByExercise, 3)) {
+      findings.push({
+        rule_key: slug === 'shoulder-roll-progression' ? 'skill_shoulder_roll_surface' : 'skill_roll_mat_required',
+        severity: 'error',
+        message:
+          slug === 'shoulder-roll-progression'
+            ? `${name}: safety roll progressions must be mastered on mat before harder surfaces.`
+            : `${name}: rolling and tumbling foundations require a safe mat surface.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+    }
+
+    if (slug === 'forward-roll-progression') {
+      const hasPrereq = [...FORWARD_ROLL_PREREQ_SLUGS].some((s) => priorSlugs.has(s))
+      if (!hasPrereq) {
+        findings.push({
+          rule_key: 'skill_forward_roll_prerequisite',
+          severity: 'warning',
+          message: `${name}: regress to tuck rock, egg roll, or rock-and-roll to stand before forward roll progressions.`,
+          affected_items: [name],
+          meta: { slug },
+        })
+      }
+    }
+
+    if (slug === 'backward-roll-progression') {
+      if (!hasAnyEquipment(exerciseId, BACKWARD_ROLL_PROGRESSION_EQUIP, equipmentKeysByExercise, 2)) {
+        findings.push({
+          rule_key: 'skill_backward_roll_progression',
+          severity: 'warning',
+          message: `${name}: backward roll requires progression support, correct hand placement, and arm push (wedge/panel mat or spotting).`,
+          affected_items: [name],
+          meta: { slug },
+        })
+      }
+      if (hasNeckSymptoms) {
+        findings.push({
+          rule_key: 'skill_backward_roll_neck_stop',
+          severity: 'error',
+          message: `${name}: end backward roll attempts and regress immediately when head/neck loading or neck symptoms are present.`,
+          affected_items: [name],
+          meta: { slug, symptom_flags: true },
+        })
+      }
+    }
+
+    if (HANDSTAND_SKILL_SLUGS.has(slug)) {
+      const workSeconds = Number(item.work_seconds ?? item.workSeconds ?? dosage?.default_work_seconds) || 0
+      if (workSeconds > 20) {
+        findings.push({
+          rule_key: 'skill_handstand_endurance',
+          severity: 'warning',
+          message: `${name}: handstand hold (${workSeconds}s) may belong in Control / Resilience — reduce hold time if the goal is skill quality.`,
+          affected_items: [name],
+          meta: { work_seconds: workSeconds, slug },
+        })
+      }
+    }
+
+    if (slug === 'donkey-kick') {
+      const sets = Number(item.sets ?? dosage?.default_sets) || 1
+      const reps = Number(item.reps ?? dosage?.default_reps) || 0
+      const totalAttempts = sets * reps
+      if (totalAttempts > 10) {
+        findings.push({
+          rule_key: 'skill_donkey_kick_volume',
+          severity: 'warning',
+          message: `${name}: ${totalAttempts} bunny hops may fatigue wrists/shoulders before tumbling — reduce reps or move conditioning elsewhere.`,
+          affected_items: [name],
+          meta: { total_attempts: totalAttempts, slug },
+        })
+      }
+    }
+  }
+
+  return findings
+}
+
+const WALL_DRILL_SLUGS = new Set(['wall-drill-split-shin-hold', 'wall-drill-march', 'wall-drill-switch'])
+const HIGH_INTENT_SPRINT_SKILL_SLUGS = new Set(['a-skip', 'straight-leg-bound-march'])
+const TOE_DOWN_PATTERN = /toe\s*(point|drop)|plantarflex|toe\s*down|toes?\s*point/i
+const BACKWARD_LEAN_PATTERN = /lean(ing)?\s*back|overstrid/i
+const HIP_BEHIND_PATTERN = /hips?\s*(behind|sitting?\s*back|drop(ping)?\s*back)/i
+const WAIST_HINGE_PATTERN = /hing(e|ing)\s*(at\s*)?(the\s*)?waist|fold\s*at\s*waist|bend\s*at\s*waist/i
+const ARM_MIDLINE_PATTERN = /cross(ing)?\s*(the\s*)?midline|torso\s*rotat/i
+const CALF_HIP_FATIGUE_PATTERN = /calf|achilles|hip\s*flexor|shin\s*pain/i
+const TIMED_START_PATTERN = /timed|competitive|race|max\s*start|sprint\s*out/i
+const SPEED_OUTPUT_SLUG_PATTERN = /sprint|acceleration|fly|start|speed|dash/i
+
+function parseDistanceYards(item, dosage) {
+  const raw = item.distance ?? item.default_distance ?? dosage?.default_distance ?? ''
+  const match = String(raw).match(/(\d+)/)
+  return match ? Number(match[1]) : 0
+}
+
+/** Recommend sprint-mechanics prep before Output speed work. Pure helper for tests. */
+function analyzeSprintPrepBeforeOutput(blockMeta, slugByExercise) {
+  let sawSprintMechanics = false
+  for (const meta of blockMeta ?? []) {
+    if (meta.phaseKey === SKILL_MOVEMENT_INTELLIGENCE) {
+      for (const item of meta.block?.items ?? []) {
+        const slug = exerciseSlug(item, slugByExercise)
+        if (SPRINT_MECHANICS_SKILL_SLUGS.has(slug ?? '')) sawSprintMechanics = true
+      }
+    }
+    if (meta.phaseKey === 'output') {
+      const hasSpeedOutput = (meta.block?.items ?? []).some((item) => {
+        const slug = exerciseSlug(item, slugByExercise) ?? ''
+        const name = String(item.exercise_name ?? item.exerciseName ?? '')
+        return SPEED_OUTPUT_SLUG_PATTERN.test(slug) || SPEED_OUTPUT_SLUG_PATTERN.test(name)
+      })
+      if (hasSpeedOutput && !sawSprintMechanics) {
+        return {
+          rule_key: 'skill_sprint_missing_prep_before_output',
+          severity: 'recommendation',
+          message:
+            'Speed Output is scheduled without prior Locomotion / Sprint Mechanics skill work — add A-March, wall march, ankling, or two-point walk-in before max-speed work.',
+          affected_items: (meta.block?.items ?? [])
+            .filter((item) => {
+              const slug = exerciseSlug(item, slugByExercise) ?? ''
+              const name = String(item.exercise_name ?? item.exerciseName ?? '')
+              return SPEED_OUTPUT_SLUG_PATTERN.test(slug) || SPEED_OUTPUT_SLUG_PATTERN.test(name)
+            })
+            .map((item) => item.exercise_name ?? item.exerciseName ?? String(item.exercise_id ?? item.exerciseId)),
+          meta: { output_block: true },
+        }
+      }
+    }
+  }
+  return null
+}
+
+/** Locomotion / sprint mechanics cluster checks. Pure helper for tests. */
+function analyzeSkillSprintReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    profileByExercisePhase = new Map(),
+    draft = {},
+    blockMeta = [],
+    skillBlockIndex = 0,
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const priorFatiguePhase = hasPriorFatiguePhase(blockMeta, skillBlockIndex)
+
+  const ordered = []
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  const hasSprintInBlock = ordered.some((o) => SPRINT_MECHANICS_SKILL_SLUGS.has(o.slug))
+
+  if (hasSprintInBlock && TOE_DOWN_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'skill_sprint_toe_down',
+      severity: 'recommendation',
+      message: 'Toe-down contacts during sprint mechanics — regress to A-March, wall march, tibialis raises, or ankling at lower speed.',
+      affected_items: ordered.filter((o) => SPRINT_MECHANICS_SKILL_SLUGS.has(o.slug)).map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (hasSprintInBlock && BACKWARD_LEAN_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'skill_sprint_backward_lean',
+      severity: 'warning',
+      message:
+        'Leaning back during sprint-mechanics drills reduces effective ground contact and may encourage overstriding — slow down and reduce range.',
+      affected_items: ordered.filter((o) => SPRINT_MECHANICS_SKILL_SLUGS.has(o.slug)).map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (
+    hasSprintInBlock
+    && HIP_BEHIND_PATTERN.test(watchText)
+    && ordered.some((o) => WALL_DRILL_SLUGS.has(o.slug))
+  ) {
+    findings.push({
+      rule_key: 'skill_sprint_hip_projection',
+      severity: 'recommendation',
+      message: 'Wall drills show hips behind the body — return to Wall Drill ISO and cue hip projection before marching or switching.',
+      affected_items: ordered.filter((o) => WALL_DRILL_SLUGS.has(o.slug)).map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  let sprintFatigueCost = 0
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const profile = profileByExercisePhase.get(`${exerciseId}:${SKILL_MOVEMENT_INTELLIGENCE}`)
+    const rpe = itemRpe(item, dosage)
+    const impact = Number(profile?.impact_level) || 0
+
+    if (SPRINT_MECHANICS_SKILL_SLUGS.has(slug)) {
+      sprintFatigueCost += Number(profile?.fatigue_cost) || 1
+    }
+
+    if (priorFatiguePhase && SPRINT_MECHANICS_SKILL_SLUGS.has(slug)) {
+      findings.push({
+        rule_key: 'skill_sprint_after_fitness',
+        severity: 'warning',
+        message: `${name}: sprint mechanics learning is fatigue-sensitive — move earlier in the session or reduce complexity.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+    }
+
+    if (slug === 'wall-drill-split-shin-hold') {
+      const workSeconds = Number(item.work_seconds ?? item.workSeconds ?? dosage?.default_work_seconds) || 0
+      if (workSeconds > 8) {
+        findings.push({
+          rule_key: 'skill_sprint_iso_hold_duration',
+          severity: 'warning',
+          message: `${name}: hold (${workSeconds}s) is becoming an isometric strength/control drill — reduce hold time if the goal is sprint mechanics.`,
+          affected_items: [name],
+          meta: { work_seconds: workSeconds, slug },
+        })
+      }
+    }
+
+    if (slug === 'wall-drill-switch') {
+      const sets = Number(item.sets ?? dosage?.default_sets) || 1
+      const reps = Number(item.reps ?? dosage?.default_reps) || 0
+      if (sets * reps > 8) {
+        findings.push({
+          rule_key: 'skill_sprint_switch_volume',
+          severity: 'warning',
+          message: `${name}: ${sets * reps} switches may become fatigue-based — keep wall switches crisp if the goal is sprint mechanics.`,
+          affected_items: [name],
+          meta: { total_switches: sets * reps, slug },
+        })
+      }
+    }
+
+    if (HIGH_INTENT_SPRINT_SKILL_SLUGS.has(slug) && (rpe > 5 || impact >= 2)) {
+      findings.push({
+        rule_key: 'skill_sprint_high_intensity_drill',
+        severity: 'recommendation',
+        message: `${name}: high RPE (${rpe}) or impact suggests Output — Skill-phase sprint drills should emphasize rhythm and quality.`,
+        affected_items: [name],
+        meta: { rpe, impact, slug },
+      })
+    }
+
+    if (slug === 'falling-start-hold' && WAIST_HINGE_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'skill_sprint_falling_hinge',
+        severity: 'warning',
+        message: `${name}: falling start should be a full-body lean — regress to wall lean or falling-position hold.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === 'two-point-start-walk-in') {
+      const yards = parseDistanceYards(item, dosage)
+      if (yards > 5 || TIMED_START_PATTERN.test(watchText)) {
+        findings.push({
+          rule_key: 'skill_sprint_start_overreach',
+          severity: 'recommendation',
+          message: `${name}: distance or timed/competitive intent suggests Output acceleration — use walk-in to freeze or reduce distance in Skill.`,
+          affected_items: [name],
+          meta: { yards, slug, timed: TIMED_START_PATTERN.test(watchText) },
+        })
+      }
+    }
+
+    if (slug === 'arm-action-drill' && ARM_MIDLINE_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'skill_sprint_arm_midline',
+        severity: 'recommendation',
+        message: `${name}: arm path crosses midline — use seated arm-action drill or mirror feedback before integrating with sprint drills.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (SPRINT_MECHANICS_SKILL_SLUGS.has(slug) && rpe > 6) {
+      findings.push({
+        rule_key: 'skill_sprint_max_speed',
+        severity: 'warning',
+        message: `${name}: RPE ${rpe} is no longer technical skill — move to Output or reduce intensity.`,
+        affected_items: [name],
+        meta: { rpe, slug },
+      })
+    }
+  }
+
+  const nextMeta = blockMeta[skillBlockIndex + 1]
+  if (
+    nextMeta?.phaseKey === SKILL_MOVEMENT_INTELLIGENCE
+    && hasSprintInBlock
+    && (nextMeta.block?.items ?? []).some((item) => TUMBLING_SKILL_SLUGS.has(exerciseSlug(item, slugByExercise) ?? ''))
+  ) {
+    if (sprintFatigueCost >= 6 || CALF_HIP_FATIGUE_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'skill_sprint_before_tumbling_fatigue',
+        severity: 'warning',
+        message:
+          'Sprint mechanics immediately before tumbling may leave calf/hip-flexor fatigue — reduce sprint volume or reorder if advanced tumbling follows.',
+        affected_items: ordered.filter((o) => SPRINT_MECHANICS_SKILL_SLUGS.has(o.slug)).map((o) => o.name),
+        meta: { sprint_fatigue_cost: sprintFatigueCost, symptom_flags: CALF_HIP_FATIGUE_PATTERN.test(watchText) },
+      })
+    }
+  }
+
+  return findings
+}
+
 export async function validateWorkoutDraft(pool, draft) {
   const errors = []
   const warnings = []
@@ -638,6 +1253,7 @@ export async function validateWorkoutDraft(pool, draft) {
   const slugByExercise = new Map()
   let tagRows = []
   const methodologyKeysByExercise = new Map()
+  const equipmentKeysByExercise = new Map()
 
   if (exerciseIds.length > 0) {
     const [profiles, tags, regimens, dosages, exercises] = await Promise.all([
@@ -648,11 +1264,12 @@ export async function validateWorkoutDraft(pool, draft) {
       ),
       pool.query(
         `SELECT t.exercise_id, t.facet_type, t.facet_id, t.weight,
-                COALESCE(ten.key, m.key, pe.key) AS facet_key
+                COALESCE(ten.key, m.key, pe.key, eq.key) AS facet_key
          FROM coaching.exercise_tag t
          LEFT JOIN coaching.tenet ten ON ten.id = t.facet_id AND t.facet_type = 'tenet'
          LEFT JOIN coaching.methodology m ON m.id = t.facet_id AND t.facet_type = 'methodology'
          LEFT JOIN coaching.physiological_emphasis pe ON pe.id = t.facet_id AND t.facet_type = 'physiology'
+         LEFT JOIN coaching.equipment eq ON eq.id = t.facet_id AND t.facet_type = 'equipment'
          WHERE t.exercise_id = ANY($1::bigint[])`,
         [exerciseIds],
       ),
@@ -679,10 +1296,17 @@ export async function validateWorkoutDraft(pool, draft) {
       dosageByExercise.set(String(d.exercise_id), d)
     }
     for (const t of tags.rows) {
-      if (t.facet_type !== 'methodology') continue
-      const list = methodologyKeysByExercise.get(String(t.exercise_id)) ?? []
-      if (t.facet_key) list.push(t.facet_key)
-      methodologyKeysByExercise.set(String(t.exercise_id), list)
+      if (t.facet_type === 'methodology') {
+        const list = methodologyKeysByExercise.get(String(t.exercise_id)) ?? []
+        if (t.facet_key) list.push(t.facet_key)
+        methodologyKeysByExercise.set(String(t.exercise_id), list)
+      }
+      if (t.facet_type === 'equipment' && t.facet_key) {
+        const weights = equipmentKeysByExercise.get(String(t.exercise_id)) ?? new Map()
+        const prev = weights.get(t.facet_key) ?? 0
+        weights.set(t.facet_key, Math.max(prev, Number(t.weight) || 0))
+        equipmentKeysByExercise.set(String(t.exercise_id), weights)
+      }
     }
   }
 
@@ -965,6 +1589,122 @@ export async function validateWorkoutDraft(pool, draft) {
     }
   }
 
+  for (let i = 0; i < blockMeta.length; i++) {
+    const meta = blockMeta[i]
+    if (meta.phaseKey !== SKILL_MOVEMENT_INTELLIGENCE) continue
+    const items = meta.block.items ?? []
+    const skillFindings = analyzeSkillMovementIntelligenceReadiness(items, {
+      slugByExercise,
+      profileByExercisePhase,
+      dosageByExercise,
+      phaseKey: SKILL_MOVEMENT_INTELLIGENCE,
+      blockMeta,
+      skillBlockIndex: i,
+    })
+    if (skillFindings.length > 0) {
+      const edu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'skill_movement_intelligence_readiness' LIMIT 1`,
+      )
+      for (const finding of skillFindings) {
+        warnings.push({
+          severity: 'warning',
+          rule_key: finding.rule_key,
+          message: finding.message,
+          why: edu.rows[0]?.why_it_matters
+            ?? 'Skill training teaches coordination and decision-making while fresh — not conditioning or max output.',
+          recommendation: edu.rows[0]?.programming_guidance
+            ?? 'Keep block RPE ≤6, place tumbling before Fitness, use crisp ladder rhythm with rest, and move max-speed sprint work to Output.',
+          affected_items: finding.affected_items ?? [],
+          related_phase: SKILL_MOVEMENT_INTELLIGENCE,
+          can_override: true,
+          meta: finding.meta,
+        })
+      }
+    }
+
+    const tumblingFindings = analyzeSkillTumblingReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      equipmentKeysByExercise,
+      draft,
+    })
+    if (tumblingFindings.length > 0) {
+      const tumblingEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'skill_tumbling_readiness' LIMIT 1`,
+      )
+      for (const finding of tumblingFindings) {
+        const payload = {
+          severity: finding.severity ?? 'warning',
+          rule_key: finding.rule_key,
+          message: finding.message,
+          why: tumblingEdu.rows[0]?.why_it_matters
+            ?? 'Tumbling foundations require fresh athletes, safe surfaces, and gated progressions.',
+          recommendation: tumblingEdu.rows[0]?.programming_guidance
+            ?? 'Use mats for rolls, cap handstand holds at ~20s in Skill, and stop on dizziness or neck symptoms.',
+          affected_items: finding.affected_items ?? [],
+          related_phase: SKILL_MOVEMENT_INTELLIGENCE,
+          can_override: finding.severity !== 'error',
+          meta: finding.meta,
+        }
+        if (finding.severity === 'error') errors.push(payload)
+        else if (finding.severity === 'recommendation') recommendations.push(payload)
+        else warnings.push(payload)
+      }
+    }
+
+    const sprintFindings = analyzeSkillSprintReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      profileByExercisePhase,
+      draft,
+      blockMeta,
+      skillBlockIndex: i,
+    })
+    if (sprintFindings.length > 0) {
+      const sprintEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'skill_sprint_readiness' LIMIT 1`,
+      )
+      for (const finding of sprintFindings) {
+        const payload = {
+          severity: finding.severity ?? 'warning',
+          rule_key: finding.rule_key,
+          message: finding.message,
+          why: sprintEdu.rows[0]?.why_it_matters
+            ?? 'Sprint mechanics require fresh athletes and technical intent before Output speed work.',
+          recommendation: sprintEdu.rows[0]?.programming_guidance
+            ?? 'Keep wall ISO holds short, regress when posture breaks, and move max-intent work to Output.',
+          affected_items: finding.affected_items ?? [],
+          related_phase: SKILL_MOVEMENT_INTELLIGENCE,
+          can_override: finding.severity !== 'error',
+          meta: finding.meta,
+        }
+        if (finding.severity === 'error') errors.push(payload)
+        else if (finding.severity === 'recommendation') recommendations.push(payload)
+        else warnings.push(payload)
+      }
+    }
+  }
+
+  const sprintPrepFinding = analyzeSprintPrepBeforeOutput(blockMeta, slugByExercise)
+  if (sprintPrepFinding) {
+    const sprintEdu = await pool.query(
+      `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'skill_sprint_readiness' LIMIT 1`,
+    )
+    recommendations.push({
+      severity: 'recommendation',
+      rule_key: sprintPrepFinding.rule_key,
+      message: sprintPrepFinding.message,
+      why: sprintEdu.rows[0]?.why_it_matters
+        ?? 'Sprint mechanics teach the pattern before Output expresses it at speed.',
+      recommendation: sprintEdu.rows[0]?.programming_guidance
+        ?? 'Add A-March, wall march, ankling, or two-point walk-in before speed Output.',
+      affected_items: sprintPrepFinding.affected_items ?? [],
+      related_phase: SKILL_MOVEMENT_INTELLIGENCE,
+      can_override: true,
+      meta: sprintPrepFinding.meta,
+    })
+  }
+
   // HIIT before skill/output (phase-level)
   const fitnessIdx = blockMeta.findIndex((m) => m.phaseKey === 'fitness_repeatability')
   const earlySensitive = blockMeta.findIndex((m) => ['skill_movement_intelligence', 'output'].includes(m.phaseKey))
@@ -1040,4 +1780,8 @@ export {
   analyzePrepareLowerLegReadiness,
   analyzePrepareHipAccessReadiness,
   analyzePrepareActivationReadiness,
+  analyzeSkillMovementIntelligenceReadiness,
+  analyzeSkillTumblingReadiness,
+  analyzeSkillSprintReadiness,
+  analyzeSprintPrepBeforeOutput,
 }
