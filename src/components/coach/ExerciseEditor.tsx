@@ -19,7 +19,7 @@ import type {
 } from '../../coach/types'
 import { PHASE_SUBROLE_OPTIONS, SCALING_COHORT_KEYS } from '../../coach/types'
 import type { FacetType, TaxonomyItem } from '../../coach/taxonomy'
-import { orderSlotsForSubrole, prepareAccessSubroleSequence, skillMovementSubroleSequence, subroleForOrderSlot } from '../../coach/taxonomy'
+import { capacitySubroleSequence, orderSlotsForSubrole, outputSubroleSequence, prepareAccessSubroleSequence, skillMovementSubroleSequence, subroleForOrderSlot } from '../../coach/taxonomy'
 import { phaseSubroleLabel } from '../../coach/exerciseCard'
 import { useTaxonomy } from './useTaxonomy'
 
@@ -38,13 +38,21 @@ function GroupedOrderSlotSelect({
   taxonomy: ReturnType<typeof useTaxonomy>['taxonomy']
   className?: string
 }) {
-  if (phaseKey === 'prepare_access' || phaseKey === 'skill_movement_intelligence') {
+  if (phaseKey === 'prepare_access' || phaseKey === 'skill_movement_intelligence' || phaseKey === 'capacity' || phaseKey === 'output') {
     const subroles = phaseKey === 'prepare_access'
       ? prepareAccessSubroleSequence(taxonomy)
-      : skillMovementSubroleSequence(taxonomy)
+      : phaseKey === 'skill_movement_intelligence'
+        ? skillMovementSubroleSequence(taxonomy)
+        : phaseKey === 'capacity'
+          ? capacitySubroleSequence(taxonomy)
+          : outputSubroleSequence(taxonomy)
     const hint = phaseKey === 'prepare_access'
       ? 'RAMP sequence: Raise → Mobilize → Activate → Integrate → Potentiate Bridge.'
-      : 'Shape → Rotation → Locomotion → Balance → Perception-Action.'
+      : phaseKey === 'skill_movement_intelligence'
+        ? 'Shape → Rotation → Locomotion → Balance → Perception-Action.'
+        : phaseKey === 'capacity'
+          ? 'Squat → Hinge → Push → Pull/Hang → Carry/Trunk → Tissue capacity.'
+          : 'Acceleration → Max velocity → Elastic → Jump/throw → Decel/COD → Reactive.'
     return (
       <select value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)} className={className} title={hint}>
         <option value="">Order slot</option>
@@ -384,14 +392,14 @@ export default function ExerciseEditor({
     { type: 'body_region', label: 'Body Regions', items: taxonomy?.bodyRegions },
   ]
 
-  const derivedSubrole = (primaryPhaseKey === 'prepare_access' || primaryPhaseKey === 'skill_movement_intelligence') && primaryOrderSlot
+  const derivedSubrole = (primaryPhaseKey === 'prepare_access' || primaryPhaseKey === 'skill_movement_intelligence' || primaryPhaseKey === 'capacity' || primaryPhaseKey === 'output') && primaryOrderSlot
     ? subroleForOrderSlot(taxonomy, primaryPhaseKey, primaryOrderSlot)
     : null
   const displayedSubrole = subroleOverride ? phaseSubrole : (derivedSubrole ?? phaseSubrole)
 
   const handlePrimaryOrderSlotChange = (slotKey: string) => {
     setPrimaryOrderSlot(slotKey)
-    if (!subroleOverride && (primaryPhaseKey === 'prepare_access' || primaryPhaseKey === 'skill_movement_intelligence') && slotKey) {
+    if (!subroleOverride && (primaryPhaseKey === 'prepare_access' || primaryPhaseKey === 'skill_movement_intelligence' || primaryPhaseKey === 'capacity' || primaryPhaseKey === 'output') && slotKey) {
       const derived = subroleForOrderSlot(taxonomy, primaryPhaseKey, slotKey)
       if (derived) setPhaseSubrole(derived as PhaseSubrole)
     }

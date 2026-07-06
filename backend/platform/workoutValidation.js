@@ -1,4 +1,4 @@
-import { loadSubroleMapForPhase, PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE, OUTPUT } from './phaseSubrole.js'
+import { loadSubroleMapForPhase, PREPARE_ACCESS, SKILL_MOVEMENT_INTELLIGENCE, OUTPUT, CAPACITY } from './phaseSubrole.js'
 
 const SUBROLE_ORDER = {
   raise: 10,
@@ -2623,6 +2623,762 @@ function analyzeOutputAccelerationReadiness(items, ctx) {
   return findings
 }
 
+const CAPACITY_HEAVY_LOWER_SUBROLES = new Set([
+  'squat_knee_dominant_strength',
+  'hinge_posterior_chain_strength',
+])
+const NORDIC_SLUG = 'nordic-hamstring-eccentric'
+const COPENHAGEN_SLUG = 'copenhagen-plank-short-lever'
+const PULL_UP_SLUG = 'pull-up-chin-up'
+const ASSISTED_PULL_UP_SLUG = 'assisted-pull-up'
+const DEAD_HANG_SLUG = 'dead-hang-active-hang'
+const OVERHEAD_CARRY_SLUG = 'overhead-carry'
+const SLED_PUSH_SLUG = 'heavy-sled-push-sled-drive-march'
+const ECCENTRIC_CAPACITY_SLUGS = new Set([
+  NORDIC_SLUG,
+  'hamstring-slider-curl',
+  'eccentric-pull-up-chin-up-negative',
+  'tempo-eccentric-push-up',
+])
+const TISSUE_CAPACITY_SUBROLE = 'tissue_capacity_isometric_eccentric_accessory'
+const CAPACITY_SHORT_REST_SECONDS = 45
+const CAPACITY_MIN_RPE_STRENGTH = 6
+const HEAVY_LOAD_PATTERN = /heavy\s*load|max\s*lift|1rm|grinding|near\s*max/i
+const YOUTH_ATHLETE_CAPACITY_PATTERN = /youth|kids?|child|teen\s*beginner/i
+const ECCENTRIC_VOLUME_PATTERN = /high\s*volume\s*eccentric|too\s*many\s*eccentric|eccentric\s*volume/i
+const POSTURE_COLLAPSE_PATTERN = /posture\s*collapse|trunk\s*collapse|rounded\s*back|leaning\s*badly/i
+const SHOULDER_PAIN_PATTERN = /shoulder\s*pain|shoulder\s*irrit/i
+const JOINT_PAIN_PATTERN = /knee\s*pain|hip\s*pain|back\s*pain|wrist\s*pain|achilles|elbow\s*pain/i
+const OVERHEAD_MOBILITY_PATTERN = /overhead\s*mobility|shoulder\s*mobility|cannot\s*overhead|overhead\s*restriction/i
+const SLED_GRIND_PATTERN = /sled\s*grind|posture\s*break|choppy\s*push|heavy\s*sled/i
+const LIGHT_LOAD_PATTERN = /too\s*light|no\s*strength\s*stimulus|load\s*too\s*light/i
+
+function countCapacityVolume(item, dosage) {
+  const sets = Number(item.sets ?? dosage?.default_sets) || 1
+  const reps = Number(item.reps ?? dosage?.default_reps) || 1
+  return sets * reps
+}
+
+const CAPACITY_SQUAT_SLUGS = new Set([
+  'goblet-squat',
+  'box-squat',
+  'front-squat-db-kb-barbell',
+  'split-squat',
+  'rear-foot-elevated-split-squat',
+  'reverse-lunge',
+  'step-up',
+  'lateral-lunge-loaded',
+  'loaded-cossack-squat',
+  'heavy-sled-push-sled-drive-march',
+])
+const GOBLET_SQUAT_SLUG = 'goblet-squat'
+const BOX_SQUAT_SLUG = 'box-squat'
+const FRONT_SQUAT_SLUG = 'front-squat-db-kb-barbell'
+const SPLIT_SQUAT_SLUG = 'split-squat'
+const RFESS_SLUG = 'rear-foot-elevated-split-squat'
+const REVERSE_LUNGE_SLUG = 'reverse-lunge'
+const STEP_UP_SLUG = 'step-up'
+const LATERAL_LUNGE_LOADED_SLUG = 'lateral-lunge-loaded'
+const LOADED_COSSACK_SLUG = 'loaded-cossack-squat'
+const HEAVY_SLED_SLUG = 'heavy-sled-push-sled-drive-march'
+
+const CAPACITY_SQUAT_KNEE_VALGUS_PATTERN = /knee\s*valgus|knees?\s*cave|knees?\s*collapse/i
+const CAPACITY_SQUAT_TRUNK_COLLAPSE_PATTERN = /trunk\s*collapse|back\s*round|rounded\s*back|low\s*back\s*round/i
+const CAPACITY_SQUAT_BOX_RELAX_PATTERN = /hard\s*(sit|touch)|rock(ing)?\s*(on\s*)?box|relax(es|ed)?\s*(on\s*)?box|crash(es)?\s*onto\s*box/i
+const CAPACITY_SQUAT_RACK_PAIN_PATTERN = /wrist\s*pain|shoulder\s*pain|rack\s*pain|cannot\s*maintain\s*rack/i
+const CAPACITY_SQUAT_SPLIT_UNSTABLE_PATTERN = /split\s*squat\s*unstable|cannot\s*control\s*split|balance\s*fail/i
+const CAPACITY_SQUAT_MIDLINE_CROSS_PATTERN = /cross(es|ing)?\s*midline|step\s*crosses/i
+const CAPACITY_SQUAT_FLOOR_LEG_PATTERN = /push(es|ing)?\s*off\s*(the\s*)?floor\s*leg|floor\s*leg\s*push/i
+const CAPACITY_SQUAT_GROIN_PAIN_PATTERN = /groin\s*pain|adductor\s*pain|sharp\s*groin/i
+const CAPACITY_SQUAT_SLED_LIGHT_FAST_PATTERN = /light\s*sled|fast\s*sled|sled\s*sprint|resisted\s*acceleration/i
+const CAPACITY_SQUAT_SLED_CONDITIONING_PATTERN = /long\s*duration|short\s*rest|sled\s*circuit|conditioning\s*sled/i
+const CAPACITY_SQUAT_TISSUE_PAIN_PATTERN = /knee\s*pain|hip\s*pain|ankle\s*pain|low\s*back\s*pain|low-back\s*pain/i
+const CAPACITY_SQUAT_YOUTH_LOAD_PATTERN = /external\s*load|loaded|weight\s*added|dumbbell|kettlebell|barbell/i
+const CAPACITY_SQUAT_STEP_HEIGHT_PATTERN = /box\s*too\s*high|cannot\s*control\s*step|step\s*up\s*height/i
+
+/** Squat / knee-dominant Capacity cluster checks. Pure helper for tests. */
+function analyzeCapacitySquatReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    blockMeta = [],
+    capacityBlockIndex = 0,
+    exerciseSkillLevelById = new Map(),
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const ordered = []
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug || !CAPACITY_SQUAT_SLUGS.has(slug)) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  if (ordered.length === 0) return findings
+
+  const slugsInWorkout = new Set(ordered.map((o) => o.slug))
+  for (const meta of blockMeta ?? []) {
+    for (const blockItem of meta.block?.items ?? []) {
+      const slug = exerciseSlug(blockItem, slugByExercise)
+      if (slug) slugsInWorkout.add(slug)
+    }
+  }
+
+  let outputAfterCapacity = false
+  for (let j = capacityBlockIndex + 1; j < blockMeta.length; j++) {
+    if (blockMeta[j]?.phaseKey === OUTPUT) outputAfterCapacity = true
+  }
+
+  if (outputAfterCapacity) {
+    findings.push({
+      rule_key: 'capacity_squat_before_output',
+      severity: 'warning',
+      message: 'Lower-body Capacity may reduce sprint, jump, tumbling, or COD quality. Confirm strength-priority session.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { capacity_before_output: true },
+    })
+  }
+
+  const isYouthAthlete = ordered.some(({ exerciseId }) => {
+    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    return level === 'EARLY_STAGE' || level === 'BEGINNER'
+  })
+
+  if (
+    (isYouthAthlete || YOUTH_ATHLETE_CAPACITY_PATTERN.test(watchText))
+    && (CAPACITY_SQUAT_YOUTH_LOAD_PATTERN.test(watchText) || HEAVY_LOAD_PATTERN.test(watchText))
+  ) {
+    findings.push({
+      rule_key: 'capacity_squat_youth_load_confirm',
+      severity: 'recommendation',
+      message:
+        'Youth external load on squat patterns requires coach confirmation: controlled technique, light-to-moderate load, qualified supervision, no max-lift intent.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { youth_flags: true },
+    })
+  }
+
+  if (CAPACITY_SQUAT_TISSUE_PAIN_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'capacity_squat_tissue_substitution',
+      severity: 'recommendation',
+      message:
+        'Pain warning signs — substitute: goblet→box squat; front squat→goblet; RFESS→split squat or step-up; reverse lunge→split squat; lateral/Cossack→lateral shift; sled→lighter march or squat pattern.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
+    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+
+    if (slug === GOBLET_SQUAT_SLUG && (CAPACITY_SQUAT_KNEE_VALGUS_PATTERN.test(watchText) || CAPACITY_SQUAT_TRUNK_COLLAPSE_PATTERN.test(watchText))) {
+      findings.push({
+        rule_key: 'capacity_squat_goblet_valgus',
+        severity: 'recommendation',
+        message: `${name}: reduce load, use box squat, or regress to bodyweight squat when knee valgus or trunk collapse appears.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === BOX_SQUAT_SLUG && CAPACITY_SQUAT_BOX_RELAX_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_squat_box_relax',
+        severity: 'warning',
+        message: `${name}: box is a target, not a rest — reduce load or coach a controlled soft touch.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === FRONT_SQUAT_SLUG && CAPACITY_SQUAT_RACK_PAIN_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_squat_front_rack_pain',
+        severity: 'recommendation',
+        message: `${name}: use goblet squat, double DB front squat, or box squat when rack position causes wrist/shoulder pain.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === SPLIT_SQUAT_SLUG && CAPACITY_SQUAT_SPLIT_UNSTABLE_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_squat_split_unstable',
+        severity: 'recommendation',
+        message: `${name}: use hand support, shorter range, or split squat isometric hold before loading.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === RFESS_SLUG && !slugsInWorkout.has(SPLIT_SQUAT_SLUG)) {
+      findings.push({
+        rule_key: 'capacity_squat_rfe_ss_prerequisite',
+        severity: 'warning',
+        message: `${name}: RFESS is advanced unilateral loading — use split squat first.`,
+        affected_items: [name],
+        meta: { slug },
+      })
+    }
+
+    if (slug === REVERSE_LUNGE_SLUG && CAPACITY_SQUAT_MIDLINE_CROSS_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_squat_reverse_lunge_midline',
+        severity: 'recommendation',
+        message: `${name}: use split squat or floor markers before loading when step path crosses midline.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === STEP_UP_SLUG && (CAPACITY_SQUAT_STEP_HEIGHT_PATTERN.test(watchText) || CAPACITY_SQUAT_FLOOR_LEG_PATTERN.test(watchText))) {
+      findings.push({
+        rule_key: 'capacity_squat_step_up_height',
+        severity: 'warning',
+        message: `${name}: lower the box — athlete should not push off the floor leg excessively.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if ((slug === LATERAL_LUNGE_LOADED_SLUG || slug === LOADED_COSSACK_SLUG) && CAPACITY_SQUAT_GROIN_PAIN_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_squat_groin_stop',
+        severity: 'warning',
+        message: `${name}: end frontal-plane loaded strength and regress to adductor rockback, lateral shift, or shallow lateral lunge.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === LOADED_COSSACK_SLUG && isBeginner) {
+      findings.push({
+        rule_key: 'capacity_squat_cossack_beginner',
+        severity: 'recommendation',
+        message: `${name}: use Cossack shift, supported Cossack, or lateral lunge before loaded deep range.`,
+        affected_items: [name],
+        meta: { slug, beginner: true },
+      })
+    }
+
+    if (slug === HEAVY_SLED_SLUG) {
+      if (SLED_GRIND_PATTERN.test(watchText) || CAPACITY_SQUAT_TRUNK_COLLAPSE_PATTERN.test(watchText)) {
+        findings.push({
+          rule_key: 'capacity_squat_sled_grind',
+          severity: 'warning',
+          message: `${name}: reduce load or shorten distance — Capacity requires strong posture, not low-back grinding.`,
+          affected_items: [name],
+          meta: { slug, symptom_flags: true },
+        })
+      }
+      if (CAPACITY_SQUAT_SLED_LIGHT_FAST_PATTERN.test(watchText)) {
+        findings.push({
+          rule_key: 'capacity_squat_sled_output_suggest',
+          severity: 'recommendation',
+          message: `${name}: light fast sled with full recovery may belong in Output as resisted acceleration.`,
+          affected_items: [name],
+          meta: { slug, symptom_flags: true },
+        })
+      }
+      if (CAPACITY_SQUAT_SLED_CONDITIONING_PATTERN.test(watchText) || (restSeconds > 0 && restSeconds < CAPACITY_SHORT_REST_SECONDS)) {
+        findings.push({
+          rule_key: 'capacity_squat_sled_fitness_suggest',
+          severity: 'recommendation',
+          message: `${name}: long-duration or short-rest sled work may belong in Fitness / Repeatability.`,
+          affected_items: [name],
+          meta: { slug, rest_seconds: restSeconds, symptom_flags: true },
+        })
+      }
+    }
+  }
+
+  return findings
+}
+
+const CAPACITY_HINGE_SLUGS = new Set([
+  'kettlebell-deadlift-trap-bar-deadlift',
+  'romanian-deadlift',
+  'single-leg-romanian-deadlift',
+  'hip-thrust-loaded-glute-bridge',
+  'good-morning-light-technical',
+  'hamstring-slider-curl',
+  'nordic-hamstring-eccentric',
+  'back-extension-hip-extension',
+])
+const KB_DEADLIFT_SLUG = 'kettlebell-deadlift-trap-bar-deadlift'
+const RDL_SLUG = 'romanian-deadlift'
+const SLRDL_SLUG = 'single-leg-romanian-deadlift'
+const HIP_THRUST_SLUG = 'hip-thrust-loaded-glute-bridge'
+const GOOD_MORNING_SLUG = 'good-morning-light-technical'
+const HAMSTRING_SLIDER_SLUG = 'hamstring-slider-curl'
+const BACK_EXT_SLUG = 'back-extension-hip-extension'
+const CAPACITY_HINGE_HEAVY_BEFORE_SPRINT_SLUGS = new Set([
+  KB_DEADLIFT_SLUG,
+  RDL_SLUG,
+  GOOD_MORNING_SLUG,
+  HAMSTRING_SLIDER_SLUG,
+  NORDIC_SLUG,
+])
+const CAPACITY_HINGE_BACK_ROUND_PATTERN = /back\s*round|rounded\s*back|low\s*back\s*round|spine\s*round/i
+const CAPACITY_HINGE_RDL_RANGE_PATTERN = /chase\s*(the\s*)?floor|too\s*deep|exceeds?\s*control|floor\s*range/i
+const CAPACITY_HINGE_BALANCE_FAIL_PATTERN = /balance\s*fail|cannot\s*balance|foot\s*touch|kickstand/i
+const CAPACITY_HINGE_LUMBAR_EXT_PATTERN = /lumbar\s*extension|arch(es|ing)?\s*at\s*lockout|over\s*arch/i
+const CAPACITY_HINGE_HAMSTRING_CRAMP_PATTERN = /hamstring\s*cramp|cramp(s|ing)?\s*immediately/i
+const CAPACITY_HINGE_SPRINT_SCHEDULE_PATTERN = /max\s*speed|max\s*velocity|sprint(ing)?\s*(within|in)\s*(24|48)|speed\s*day|high.?speed\s*sprint/i
+const CAPACITY_HINGE_BACK_DOMINANCE_PATTERN = /low\s*back\s*dominance|only\s*low\s*back|feels?\s*only\s*back/i
+const CAPACITY_HINGE_NERVE_PATTERN = /nerve|tingling|numbness|radiating|sciatica/i
+const CAPACITY_HINGE_TISSUE_PAIN_PATTERN = /hamstring\s*pain|low\s*back\s*pain|low-back\s*pain|hip\s*pain|knee\s*pain/i
+const NORDIC_MAX_VOLUME = 15
+
+/** Hinge / posterior-chain Capacity cluster checks. Pure helper for tests. */
+function analyzeCapacityHingeReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    blockMeta = [],
+    capacityBlockIndex = 0,
+    exerciseSkillLevelById = new Map(),
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const ordered = []
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug || !CAPACITY_HINGE_SLUGS.has(slug)) continue
+    ordered.push({ item, exerciseId, name, slug })
+  }
+
+  if (ordered.length === 0) return findings
+
+  const slugsInWorkout = new Set(ordered.map((o) => o.slug))
+  for (const meta of blockMeta ?? []) {
+    for (const blockItem of meta.block?.items ?? []) {
+      const slug = exerciseSlug(blockItem, slugByExercise)
+      if (slug) slugsInWorkout.add(slug)
+    }
+  }
+
+  let outputAfterCapacity = false
+  let maxVelocityAfterCapacity = false
+  for (let j = capacityBlockIndex + 1; j < blockMeta.length; j++) {
+    const key = blockMeta[j]?.phaseKey
+    if (key === OUTPUT) outputAfterCapacity = true
+    if (key === OUTPUT) {
+      for (const blockItem of blockMeta[j]?.block?.items ?? []) {
+        const slug = exerciseSlug(blockItem, slugByExercise)
+        if (slug && MAX_VELOCITY_OUTPUT_SLUGS.has(slug)) maxVelocityAfterCapacity = true
+      }
+    }
+  }
+
+  if (outputAfterCapacity) {
+    findings.push({
+      rule_key: 'capacity_hinge_before_output',
+      severity: 'warning',
+      message:
+        'Posterior-chain fatigue may reduce sprint, jump, tumbling, and deceleration quality. Confirm strength-priority session.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { capacity_before_output: true },
+    })
+  }
+
+  const heavyBeforeSprint = ordered.filter((o) => CAPACITY_HINGE_HEAVY_BEFORE_SPRINT_SLUGS.has(o.slug))
+  if (outputAfterCapacity && maxVelocityAfterCapacity && heavyBeforeSprint.length > 0) {
+    findings.push({
+      rule_key: 'capacity_hinge_before_max_velocity',
+      severity: 'warning',
+      message:
+        'Hamstring and trunk fatigue may compromise high-speed sprint exposure when heavy RDL, deadlift, good morning, Nordic, or hard slider curl precedes max-velocity Output.',
+      affected_items: heavyBeforeSprint.map((o) => o.name),
+      meta: { max_velocity_after_capacity: true },
+    })
+  }
+
+  const isYouthAthlete = ordered.some(({ exerciseId }) => {
+    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    return level === 'EARLY_STAGE' || level === 'BEGINNER'
+  })
+
+  if (CAPACITY_HINGE_TISSUE_PAIN_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'capacity_hinge_tissue_substitution',
+      severity: 'recommendation',
+      message:
+        'Pain warning signs — substitute: deadlift→elevated KB deadlift or hip thrust; RDL→shorter-range RDL or bridge; single-leg RDL→kickstand RDL; good morning→dowel hinge or RDL; slider→bridge hold; Nordic→assisted slider curl; back extension→glute bridge or bird dog.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (CAPACITY_HINGE_NERVE_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'capacity_hinge_nerve_symptoms',
+      severity: 'error',
+      message: 'End the drill and regress. Do not load through nerve symptoms.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  const hasNordic = ordered.some((o) => o.slug === NORDIC_SLUG)
+  if (hasNordic && !slugsInWorkout.has(HAMSTRING_SLIDER_SLUG)) {
+    findings.push({
+      rule_key: 'capacity_hinge_nordic_prerequisite',
+      severity: 'warning',
+      message: 'Nordics are high-stress eccentric work. Use hamstring slider curl or assisted partial-range Nordic first.',
+      affected_items: ordered.filter((o) => o.slug === NORDIC_SLUG).map((o) => o.name),
+      meta: { slug: NORDIC_SLUG },
+    })
+  }
+
+  if (CAPACITY_HINGE_SPRINT_SCHEDULE_PATTERN.test(watchText) && ordered.some((o) => ECCENTRIC_CAPACITY_SLUGS.has(o.slug) || o.slug === RDL_SLUG)) {
+    findings.push({
+      rule_key: 'capacity_hinge_sprint_schedule',
+      severity: 'warning',
+      message: 'Hard hamstring eccentric work may create soreness or reduce sprint quality within 24–48 hours.',
+      affected_items: ordered
+        .filter((o) => ECCENTRIC_CAPACITY_SLUGS.has(o.slug) || o.slug === RDL_SLUG || o.slug === GOOD_MORNING_SLUG)
+        .map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  let hasHighDensity = false
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
+    const volume = countCapacityVolume(item, dosage)
+    const rpe = itemRpe(item, dosage)
+    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+
+    if (restSeconds > 0 && restSeconds < CAPACITY_SHORT_REST_SECONDS && volume >= 12 && rpe >= CAPACITY_MIN_RPE_STRENGTH) {
+      hasHighDensity = true
+    }
+
+    if (slug === KB_DEADLIFT_SLUG && CAPACITY_HINGE_BACK_ROUND_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_hinge_deadlift_rounding',
+        severity: 'recommendation',
+        message: `${name}: elevate the load, reduce load, or regress to hip-hinge drill when back rounds before lift.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === RDL_SLUG && CAPACITY_HINGE_RDL_RANGE_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_hinge_rdl_range',
+        severity: 'warning',
+        message: `${name}: do not chase floor range. Stop where the hinge remains clean.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === SLRDL_SLUG && CAPACITY_HINGE_BALANCE_FAIL_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_hinge_slrdf_balance',
+        severity: 'recommendation',
+        message: `${name}: use kickstand RDL, supported single-leg RDL, or bilateral RDL when balance dominates over strength.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === HIP_THRUST_SLUG && CAPACITY_HINGE_LUMBAR_EXT_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_hinge_hip_thrust_lumbar',
+        severity: 'recommendation',
+        message: `${name}: reduce load, cue ribs down, shorten range, or use bodyweight bridge when lumbar extension appears at lockout.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === GOOD_MORNING_SLUG && (isBeginner || isYouthAthlete || YOUTH_ATHLETE_CAPACITY_PATTERN.test(watchText))) {
+      findings.push({
+        rule_key: 'capacity_hinge_good_morning_beginner',
+        severity: 'warning',
+        message: `${name}: good morning is technical and spine-position sensitive. Use dowel hinge, band good morning, or RDL first.`,
+        affected_items: [name],
+        meta: { slug, skill_level: 'BEGINNER' },
+      })
+    }
+
+    if (slug === HAMSTRING_SLIDER_SLUG && CAPACITY_HINGE_HAMSTRING_CRAMP_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_hinge_slider_cramp',
+        severity: 'recommendation',
+        message: `${name}: use shorter range, eccentric-only, bridge hold, or hip thrust when cramping appears immediately.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === NORDIC_SLUG && volume > NORDIC_MAX_VOLUME) {
+      findings.push({
+        rule_key: 'capacity_hinge_nordic_volume',
+        severity: 'warning',
+        message: `${name}: Nordic volume is high (>${NORDIC_MAX_VOLUME} reps). Monitor soreness and sprint schedule.`,
+        affected_items: [name],
+        meta: { slug, volume },
+      })
+    }
+
+    if (slug === BACK_EXT_SLUG && CAPACITY_HINGE_BACK_DOMINANCE_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_hinge_back_extension_dominance',
+        severity: 'recommendation',
+        message: `${name}: adjust pad, cue hip hinge/glute squeeze, reduce range, or substitute hip thrust/RDL when low back dominates.`,
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+  }
+
+  if (hasHighDensity) {
+    findings.push({
+      rule_key: 'capacity_hinge_short_rest_density',
+      severity: 'warning',
+      message: 'This may be Fitness / Repeatability rather than Capacity. Confirm intent — hinge strength needs full rest between sets.',
+      affected_items: ordered.map((o) => o.name),
+      meta: {},
+    })
+  }
+
+  return findings
+}
+
+/** Capacity phase dose, placement, and progression checks. Pure helper for tests. */
+function analyzeCapacityReadiness(items, ctx) {
+  const {
+    slugByExercise,
+    dosageByExercise,
+    blockMeta = [],
+    capacityBlockIndex = 0,
+    exerciseSkillLevelById = new Map(),
+    draft = {},
+  } = ctx
+
+  const findings = []
+  const watchText = draftWatchText(draft)
+  const ordered = []
+
+  for (const item of items ?? []) {
+    const exerciseId = Number(item.exercise_id ?? item.exerciseId)
+    if (!exerciseId) continue
+    const name = item.exercise_name ?? item.exerciseName ?? String(exerciseId)
+    const slug = exerciseSlug(item, slugByExercise)
+    if (!slug) continue
+    ordered.push({ item, exerciseId, name, slug, subrole: item.phase_subrole ?? item.phaseSubrole ?? null })
+  }
+
+  if (ordered.length === 0) return findings
+
+  let outputAfterCapacity = false
+  let maxVelocityAfterCapacity = false
+  for (let j = capacityBlockIndex + 1; j < blockMeta.length; j++) {
+    const key = blockMeta[j]?.phaseKey
+    if (key === OUTPUT) outputAfterCapacity = true
+    if (key === OUTPUT) {
+      for (const item of blockMeta[j]?.block?.items ?? []) {
+        const slug = exerciseSlug(item, slugByExercise)
+        if (slug && MAX_VELOCITY_OUTPUT_SLUGS.has(slug)) maxVelocityAfterCapacity = true
+      }
+    }
+  }
+
+  if (outputAfterCapacity) {
+    findings.push({
+      rule_key: 'capacity_before_output',
+      severity: 'warning',
+      message: 'Strength work may reduce sprint, jump, tumbling, and reactive Output quality. Confirm strength-priority session.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { capacity_before_output: true },
+    })
+  }
+
+  const hasHeavyLower = ordered.some((o) => CAPACITY_HEAVY_LOWER_SUBROLES.has(String(o.subrole ?? '')))
+  if (outputAfterCapacity && hasHeavyLower && maxVelocityAfterCapacity) {
+    findings.push({
+      rule_key: 'capacity_heavy_lower_before_max_velocity',
+      severity: 'warning',
+      message: 'Heavy lower-body work may compromise high-speed sprint mechanics and tissue readiness before max-velocity Output.',
+      affected_items: ordered.filter((o) => CAPACITY_HEAVY_LOWER_SUBROLES.has(String(o.subrole ?? ''))).map((o) => o.name),
+      meta: { max_velocity_after_capacity: true },
+    })
+  }
+
+  const isYouthAthlete = ordered.some(({ exerciseId }) => {
+    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
+    return level === 'EARLY_STAGE' || level === 'BEGINNER'
+  })
+
+  if ((isYouthAthlete || YOUTH_ATHLETE_CAPACITY_PATTERN.test(watchText)) && HEAVY_LOAD_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'capacity_youth_heavy_load_confirm',
+      severity: 'recommendation',
+      message:
+        'Youth heavy external load requires coach confirmation: technique mastered, load appropriate, qualified supervision, and no max attempts.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { youth_flags: true },
+    })
+  }
+
+  if (ECCENTRIC_VOLUME_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'capacity_eccentric_volume',
+      severity: 'warning',
+      message: 'Eccentric work has high tissue stress. Limit volume and avoid placing before sprint/jump Output.',
+      affected_items: ordered.filter(({ slug }) => ECCENTRIC_CAPACITY_SLUGS.has(slug)).map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (LIGHT_LOAD_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'capacity_load_progression',
+      severity: 'recommendation',
+      message: 'Progress load, reps, tempo, range, or complexity — load may be too light for a strength stimulus.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  if (JOINT_PAIN_PATTERN.test(watchText)) {
+    findings.push({
+      rule_key: 'capacity_joint_pain_substitution',
+      severity: 'recommendation',
+      message:
+        'Substitute by region: knee — box squat, sled push, split squat iso; hip — hip thrust, step-up; back — goblet squat, floor press; shoulder — floor press, ring row; wrist — handles, floor press; Achilles — soleus raise, calf iso.',
+      affected_items: ordered.map((o) => o.name),
+      meta: { symptom_flags: true },
+    })
+  }
+
+  let hasHighDensity = false
+  for (const { item, exerciseId, name, slug } of ordered) {
+    const dosage = dosageByExercise.get(String(exerciseId))
+    const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
+    const volume = countCapacityVolume(item, dosage)
+    const rpe = itemRpe(item, dosage)
+
+    if (restSeconds > 0 && restSeconds < CAPACITY_SHORT_REST_SECONDS && volume >= 12 && rpe >= CAPACITY_MIN_RPE_STRENGTH) {
+      hasHighDensity = true
+    }
+
+    if (slug === NORDIC_SLUG && isYouthAthlete) {
+      findings.push({
+        rule_key: 'capacity_nordic_beginner',
+        severity: 'warning',
+        message: 'Nordics are high-intensity eccentric work. Regress to hamstring slider curl or assisted Nordic.',
+        affected_items: [name],
+        meta: { slug, skill_level: 'BEGINNER' },
+      })
+    }
+
+    if (slug === COPENHAGEN_SLUG && isYouthAthlete) {
+      findings.push({
+        rule_key: 'capacity_copenhagen_beginner',
+        severity: 'recommendation',
+        message: 'Use short-lever Copenhagen or side plank adductor squeeze first.',
+        affected_items: [name],
+        meta: { slug, skill_level: 'BEGINNER' },
+      })
+    }
+
+    if (slug === PULL_UP_SLUG && isYouthAthlete) {
+      findings.push({
+        rule_key: 'capacity_pullup_regression',
+        severity: 'recommendation',
+        message: 'Use assisted pull-up, ring row, or eccentric pull-up before full pull-up/chin-up.',
+        affected_items: [name],
+        meta: { slug, skill_level: 'BEGINNER' },
+      })
+    }
+
+    if (slug === DEAD_HANG_SLUG && SHOULDER_PAIN_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_dead_hang_shoulder',
+        severity: 'recommendation',
+        message: 'Use active hang, scapular pull-up, or supported hang only if pain-free.',
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if ((slug.includes('carry') || slug.includes('farmer') || slug.includes('suitcase') || slug.includes('zercher')) && POSTURE_COLLAPSE_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_carry_posture',
+        severity: 'recommendation',
+        message: 'Reduce load, distance, or use a simpler carry variation when posture collapses.',
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === OVERHEAD_CARRY_SLUG && OVERHEAD_MOBILITY_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_overhead_carry_mobility',
+        severity: 'warning',
+        message: 'Use front-rack, suitcase, or farmer carry instead of overhead carry when overhead mobility or shoulder control is limited.',
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+
+    if (slug === SLED_PUSH_SLUG && SLED_GRIND_PATTERN.test(watchText)) {
+      findings.push({
+        rule_key: 'capacity_sled_posture',
+        severity: 'recommendation',
+        message: 'Classify as Capacity only if force work is intended; reduce load if movement quality breaks.',
+        affected_items: [name],
+        meta: { slug, symptom_flags: true },
+      })
+    }
+  }
+
+  if (hasHighDensity) {
+    findings.push({
+      rule_key: 'capacity_short_rest_density',
+      severity: 'warning',
+      message: 'This may be Fitness / Repeatability rather than Capacity. Confirm intent — strength work needs full rest between sets.',
+      affected_items: ordered.map((o) => o.name),
+      meta: {},
+    })
+  }
+
+  const tissueItems = ordered.filter(({ subrole }) => subrole === TISSUE_CAPACITY_SUBROLE)
+  if (tissueItems.length > 0 && /daily|every\s*day|hard\s*intensity/i.test(watchText)) {
+    findings.push({
+      rule_key: 'capacity_tissue_daily_hard',
+      severity: 'warning',
+      message: 'Hard tissue-capacity work needs recovery. Reduce intensity or frequency.',
+      affected_items: tissueItems.map((o) => o.name),
+      meta: { tissue_flags: true },
+    })
+  }
+
+  return findings
+}
+
 /** Output phase dose, placement, and prerequisite checks. Pure helper for tests. */
 function analyzeOutputReadiness(items, ctx) {
   const {
@@ -3737,6 +4493,79 @@ export async function validateWorkoutDraft(pool, draft) {
     }
   }
 
+  for (let i = 0; i < blockMeta.length; i++) {
+    const meta = blockMeta[i]
+    if (meta.phaseKey !== CAPACITY) continue
+    const items = meta.block.items ?? []
+    const capacityFindings = analyzeCapacityReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      capacityBlockIndex: i,
+      exerciseSkillLevelById,
+      draft,
+    })
+    const squatFindings = analyzeCapacitySquatReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      capacityBlockIndex: i,
+      exerciseSkillLevelById,
+      draft,
+    })
+    const hingeFindings = analyzeCapacityHingeReadiness(items, {
+      slugByExercise,
+      dosageByExercise,
+      blockMeta,
+      capacityBlockIndex: i,
+      exerciseSkillLevelById,
+      draft,
+    })
+    const allCapacityFindings = [...capacityFindings, ...squatFindings, ...hingeFindings]
+    if (allCapacityFindings.length > 0) {
+      const capacityEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'capacity_readiness' LIMIT 1`,
+      )
+      const squatEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'capacity_squat_readiness' LIMIT 1`,
+      )
+      const hingeEdu = await pool.query(
+        `SELECT * FROM coaching.education_content WHERE entity_type = 'validation_rule' AND entity_key = 'capacity_hinge_readiness' LIMIT 1`,
+      )
+      for (const finding of allCapacityFindings) {
+        const ruleKey = String(finding.rule_key ?? '')
+        const isSquatRule = ruleKey.startsWith('capacity_squat_')
+        const isHingeRule = ruleKey.startsWith('capacity_hinge_')
+        const edu = isSquatRule ? squatEdu.rows[0] : isHingeRule ? hingeEdu.rows[0] : capacityEdu.rows[0]
+        const payload = {
+          severity: finding.severity ?? 'warning',
+          rule_key: finding.rule_key,
+          message: finding.message,
+          why: edu?.why_it_matters
+            ?? (isSquatRule
+              ? 'Squat Capacity builds lower-body force with controlled load and full rest — not before fresh Output or as fatiguing circuits.'
+              : isHingeRule
+                ? 'Hinge Capacity builds posterior-chain strength without stealing sprint, jump, or max-velocity quality earlier in the session.'
+                : 'Capacity builds force and tissue tolerance after Output — not before speed/power work or as fatiguing circuits.'),
+          recommendation: edu?.programming_guidance
+            ?? (isSquatRule
+              ? 'Master goblet/box before front squat and RFESS; stop on groin pain in frontal-plane work; heavy slow sled is Capacity.'
+              : isHingeRule
+                ? 'Master deadlift/RDL before good morning and Nordics; use slider curl before full Nordics; keep eccentric volume low before speed days.'
+                : 'Use progressive overload with full rest. Place Capacity after Output unless strength-priority session.'),
+          affected_items: finding.affected_items ?? [],
+          related_phase: CAPACITY,
+          can_override: finding.severity !== 'error',
+          override_requires_reason: finding.severity === 'error',
+          meta: finding.meta,
+        }
+        if (finding.severity === 'error') errors.push(payload)
+        else if (finding.severity === 'recommendation') recommendations.push(payload)
+        else warnings.push(payload)
+      }
+    }
+  }
+
   const sprintPrepFinding = analyzeSprintPrepBeforeOutput(blockMeta, slugByExercise)
   if (sprintPrepFinding) {
     const sprintEdu = await pool.query(
@@ -3844,4 +4673,7 @@ export {
   analyzeOutputDecelCodReadiness,
   analyzeOutputReactiveTumblingReadiness,
   analyzeOutputAccelerationReadiness,
+  analyzeCapacityReadiness,
+  analyzeCapacitySquatReadiness,
+  analyzeCapacityHingeReadiness,
 }

@@ -48,6 +48,18 @@ export type PhaseSubrole =
   | 'locomotion_sprint_mechanics'
   | 'balance_coordination_rhythm'
   | 'perception_action_reactive_movement'
+  | 'acceleration_start_speed'
+  | 'max_velocity_exposure'
+  | 'elastic_stiffness_plyometric_rudiments'
+  | 'jump_throw_explosive_power'
+  | 'deceleration_cod_power'
+  | 'reactive_agility_tumbling_output'
+  | 'squat_knee_dominant_strength'
+  | 'hinge_posterior_chain_strength'
+  | 'upper_body_push_strength'
+  | 'pull_hang_grip_strength'
+  | 'carry_trunk_loaded_bracing_strength'
+  | 'tissue_capacity_isometric_eccentric_accessory'
 
 export type ScalingCohortKey =
   | 'youth_beginner'
@@ -74,6 +86,12 @@ export const PHASE_SUBROLE_OPTIONS: Array<{ value: PhaseSubrole; label: string }
   { value: 'locomotion_sprint_mechanics', label: 'Locomotion & sprint mechanics' },
   { value: 'balance_coordination_rhythm', label: 'Balance / coordination / rhythm' },
   { value: 'perception_action_reactive_movement', label: 'Perception-action / reactive' },
+  { value: 'squat_knee_dominant_strength', label: 'Squat / knee-dominant strength' },
+  { value: 'hinge_posterior_chain_strength', label: 'Hinge / posterior-chain strength' },
+  { value: 'upper_body_push_strength', label: 'Upper-body push strength' },
+  { value: 'pull_hang_grip_strength', label: 'Pull, hang & grip strength' },
+  { value: 'carry_trunk_loaded_bracing_strength', label: 'Carry / trunk / loaded bracing' },
+  { value: 'tissue_capacity_isometric_eccentric_accessory', label: 'Tissue capacity (iso/ecc/accessory)' },
 ]
 
 export interface ExerciseMovementRequirements {

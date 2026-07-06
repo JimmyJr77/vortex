@@ -142,6 +142,10 @@ export function outputSubroleSequence(taxonomy: Taxonomy | null | undefined): Ph
   return subroleSequenceForPhase(taxonomy, 'output')
 }
 
+export function capacitySubroleSequence(taxonomy: Taxonomy | null | undefined): PhaseSubroleTaxonomyItem[] {
+  return subroleSequenceForPhase(taxonomy, 'capacity')
+}
+
 export function subroleSequenceForPhase(
   taxonomy: Taxonomy | null | undefined,
   phaseKey: string,

@@ -23,6 +23,9 @@ import {
   analyzeOutputDecelCodReadiness,
   analyzeOutputReactiveTumblingReadiness,
   analyzeOutputAccelerationReadiness,
+  analyzeCapacityReadiness,
+  analyzeCapacitySquatReadiness,
+  analyzeCapacityHingeReadiness,
 } from '../workoutValidation.js'
 
 describe('workoutValidation helpers', () => {
@@ -1091,5 +1094,181 @@ describe('analyzeOutputReactiveTumblingReadiness', () => {
       },
     )
     assert.ok(findings.some((f) => f.rule_key === 'output_reactive_tumbling_after_fitness'))
+  })
+})
+
+describe('analyzeCapacityReadiness', () => {
+  it('warns when Capacity is scheduled before Output', () => {
+    const blockMeta = [
+      { phaseKey: 'capacity', block: { items: [{ exercise_id: 1, exercise_name: 'Goblet Squat', phase_subrole: 'squat_knee_dominant_strength' }] } },
+      { phaseKey: 'output', block: { items: [{ exercise_id: 2, exercise_name: 'Flying 10' }] } },
+    ]
+    const findings = analyzeCapacityReadiness(
+      [{ exercise_id: 1, exercise_name: 'Goblet Squat', phase_subrole: 'squat_knee_dominant_strength' }],
+      {
+        slugByExercise: new Map([['1', 'goblet-squat']]),
+        dosageByExercise: new Map(),
+        blockMeta,
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_before_output'))
+  })
+
+  it('warns when Nordic is assigned to beginner athlete', () => {
+    const findings = analyzeCapacityReadiness(
+      [{ exercise_id: 2, exercise_name: 'Nordic Hamstring Eccentric' }],
+      {
+        slugByExercise: new Map([['2', 'nordic-hamstring-eccentric']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'capacity', block: {} }],
+        capacityBlockIndex: 0,
+        exerciseSkillLevelById: new Map([['2', 'BEGINNER']]),
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_nordic_beginner'))
+  })
+
+  it('warns on short-rest high-density strength work', () => {
+    const findings = analyzeCapacityReadiness(
+      [{ exercise_id: 3, exercise_name: 'Goblet Squat', sets: 4, reps: 10, rest_seconds: 30 }],
+      {
+        slugByExercise: new Map([['3', 'goblet-squat']]),
+        dosageByExercise: new Map([['3', { default_sets: 3, default_reps: 8, default_rest_seconds: 90, default_rpe_min: 6, default_rpe_max: 8 }]]),
+        blockMeta: [{ phaseKey: 'capacity', block: {} }],
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_short_rest_density'))
+  })
+})
+
+describe('analyzeCapacitySquatReadiness', () => {
+  it('warns when RFESS lacks split squat foundation', () => {
+    const findings = analyzeCapacitySquatReadiness(
+      [{ exercise_id: 1, exercise_name: 'Rear-Foot-Elevated Split Squat' }],
+      {
+        slugByExercise: new Map([['1', 'rear-foot-elevated-split-squat']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'capacity', block: {} }],
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_squat_rfe_ss_prerequisite'))
+  })
+
+  it('recommends goblet regression on knee valgus', () => {
+    const findings = analyzeCapacitySquatReadiness(
+      [{ exercise_id: 2, exercise_name: 'Goblet Squat' }],
+      {
+        slugByExercise: new Map([['2', 'goblet-squat']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['knee valgus on last set'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_squat_goblet_valgus'))
+  })
+
+  it('stops frontal-plane work on groin pain', () => {
+    const findings = analyzeCapacitySquatReadiness(
+      [{ exercise_id: 3, exercise_name: 'Loaded Cossack Squat' }],
+      {
+        slugByExercise: new Map([['3', 'loaded-cossack-squat']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['groin pain on long leg'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_squat_groin_stop'))
+  })
+
+  it('warns on box squat hard sitting', () => {
+    const findings = analyzeCapacitySquatReadiness(
+      [{ exercise_id: 4, exercise_name: 'Box Squat' }],
+      {
+        slugByExercise: new Map([['4', 'box-squat']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['athlete crashes onto box and relaxes'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_squat_box_relax'))
+  })
+
+  it('warns when squat Capacity precedes Output', () => {
+    const blockMeta = [
+      { phaseKey: 'capacity', block: {} },
+      { phaseKey: 'output', block: {} },
+    ]
+    const findings = analyzeCapacitySquatReadiness(
+      [{ exercise_id: 5, exercise_name: 'Goblet Squat' }],
+      {
+        slugByExercise: new Map([['5', 'goblet-squat']]),
+        dosageByExercise: new Map(),
+        blockMeta,
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_squat_before_output'))
+  })
+})
+
+describe('analyzeCapacityHingeReadiness', () => {
+  it('warns when Nordic lacks slider curl prerequisite in workout', () => {
+    const findings = analyzeCapacityHingeReadiness(
+      [{ exercise_id: 1, exercise_name: 'Nordic Hamstring Eccentric', sets: 2, reps: 3 }],
+      {
+        slugByExercise: new Map([['1', 'nordic-hamstring-eccentric']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'capacity', block: {} }],
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_hinge_nordic_prerequisite'))
+  })
+
+  it('recommends deadlift regression on back rounding', () => {
+    const findings = analyzeCapacityHingeReadiness(
+      [{ exercise_id: 2, exercise_name: 'Kettlebell Deadlift / Trap-Bar Deadlift' }],
+      {
+        slugByExercise: new Map([['2', 'kettlebell-deadlift-trap-bar-deadlift']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['back rounds before lift'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_hinge_deadlift_rounding'))
+  })
+
+  it('errors on nerve symptoms during hinge work', () => {
+    const findings = analyzeCapacityHingeReadiness(
+      [{ exercise_id: 3, exercise_name: 'Romanian Deadlift' }],
+      {
+        slugByExercise: new Map([['3', 'romanian-deadlift']]),
+        dosageByExercise: new Map(),
+        blockMeta: [],
+        capacityBlockIndex: 0,
+        draft: { watch_points: ['tingling down leg during RDL'] },
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_hinge_nerve_symptoms' && f.severity === 'error'))
+  })
+
+  it('warns on high Nordic volume', () => {
+    const findings = analyzeCapacityHingeReadiness(
+      [{ exercise_id: 4, exercise_name: 'Nordic Hamstring Eccentric', sets: 4, reps: 5 }],
+      {
+        slugByExercise: new Map([['4', 'nordic-hamstring-eccentric']]),
+        dosageByExercise: new Map(),
+        blockMeta: [{ phaseKey: 'capacity', block: { items: [{ exercise_id: 4 }] } }],
+        capacityBlockIndex: 0,
+      },
+    )
+    assert.ok(findings.some((f) => f.rule_key === 'capacity_hinge_nordic_volume'))
   })
 })
