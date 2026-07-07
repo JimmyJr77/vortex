@@ -2,11 +2,23 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { seedCanonicalWaivers } from './seedCanonicalWaivers.js'
+import { ensureCoachingBootConstraints } from './ensureCoachingBootConstraints.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+/** Re-run on every boot but superseded by 228; skipping avoids constraint shrink + log noise. */
+const BOOT_SUPERSEDED_MIGRATIONS = new Set([
+  '104_coaching_skill_phase_infrastructure.sql',
+  '111_coaching_output_phase_infrastructure.sql',
+  '120_coaching_capacity_phase_infrastructure.sql',
+  '128_coaching_control_resilience_phase_infrastructure.sql',
+  '202_coaching_exercise_difficulty_profile.sql',
+])
+
 export async function initPlatformTables(pool) {
+  await ensureCoachingBootConstraints(pool)
+
   const migrationFiles = [
     '008_member_access_billing_waivers.sql',
     '009_family_identity_cleanup.sql',
@@ -219,9 +231,14 @@ export async function initPlatformTables(pool) {
     '225_coaching_needs_engine_template_repair.sql',
     '226_coaching_split_progression_d6_8.sql',
     '227_coaching_restore_and_progression_repair.sql',
+    '228_coaching_boot_constraint_canonical.sql',
   ]
 
   for (const migrationFile of migrationFiles) {
+    if (BOOT_SUPERSEDED_MIGRATIONS.has(migrationFile)) {
+      console.log(`[initPlatformTables] Skipping superseded boot migration: ${migrationFile}`)
+      continue
+    }
     const migrationPath = path.join(__dirname, '..', 'migrations', migrationFile)
     if (!fs.existsSync(migrationPath)) {
       console.error(`[initPlatformTables] Migration file missing (skipped): ${migrationFile}`)
