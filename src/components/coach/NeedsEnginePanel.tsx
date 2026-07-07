@@ -3,6 +3,7 @@ import { Loader2, Sparkles, Plus, Trash2, ArrowRight, Save, RotateCcw } from 'lu
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import { useCoachBuilderStore } from '../../coach/useCoachBuilderStore'
+import { listNeedsEngineRequirements, saveNeedsEngineRequirements } from '../../coach/needsEngineRequirementsStorage'
 import { useNeedsEngineStore, type NeedsEnginePhaseRowState, snapshotNeedsEngineState, applyNeedsEngineSnapshot } from '../../coach/useNeedsEngineStore'
 import {
   buildPhasePlan,
@@ -159,6 +160,8 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
   const [saveTemplateName, setSaveTemplateName] = useState('')
   const [saveRequirementsModalOpen, setSaveRequirementsModalOpen] = useState(false)
   const [saveRequirementsName, setSaveRequirementsName] = useState('')
+  const [saveRequirementsError, setSaveRequirementsError] = useState<string | null>(null)
+  const [saveRequirementsLoading, setSaveRequirementsLoading] = useState(false)
   const [skillOptions, setSkillOptions] = useState<ComboboxOption[]>([])
   const [gameOptions, setGameOptions] = useState<ComboboxOption[]>([])
   const [loading, setLoading] = useState(false)
@@ -204,13 +207,16 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       const [system, saved, requirements] = await Promise.all([
         coachFetch<SessionPhaseTemplate[]>('/api/coach/session-templates'),
         coachFetch<CoachPhaseTemplate[]>('/api/coach/phase-templates'),
-        coachFetch<CoachNeedsEngineRequirements[]>('/api/coach/needs-engine/requirements'),
+        listNeedsEngineRequirements(),
       ])
       setSystemTemplates(system)
-      setSavedTemplates(saved)
+      setSavedTemplates(saved.filter((t) => {
+        const plan = t.phase_plan as unknown
+        return !(typeof plan === 'object' && plan !== null && (plan as { __kind?: string }).__kind === 'needs_engine_requirements')
+      }))
       setSavedRequirements(requirements)
-    } catch {
-      /* optional */
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not load saved sessions')
     }
   }, [])
 
@@ -308,19 +314,23 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
 
   const saveRequirements = async () => {
     const name = saveRequirementsName.trim()
-    if (!name) return
+    if (!name) {
+      setSaveRequirementsError('Enter a session name.')
+      return
+    }
+    setSaveRequirementsLoading(true)
+    setSaveRequirementsError(null)
     try {
       const snapshot = snapshotNeedsEngineState(useNeedsEngineStore.getState())
-      const saved = await coachFetch<CoachNeedsEngineRequirements>('/api/coach/needs-engine/requirements', {
-        method: 'POST',
-        body: JSON.stringify({ name, requirements_json: snapshot }),
-      })
+      const saved = await saveNeedsEngineRequirements(name, snapshot)
       setSaveRequirementsModalOpen(false)
       setSaveRequirementsName('')
       setSelectedRequirementsId(saved.id)
       await loadTemplates()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not save requirements')
+      setSaveRequirementsError(err instanceof Error ? err.message : 'Could not save requirements')
+    } finally {
+      setSaveRequirementsLoading(false)
     }
   }
 
@@ -1054,7 +1064,11 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
             <div className="flex items-center justify-between mt-2">
               <button
                 type="button"
-                onClick={() => setSaveRequirementsModalOpen(true)}
+                onClick={() => {
+                  setSaveRequirementsError(null)
+                  setSaveRequirementsName('')
+                  setSaveRequirementsModalOpen(true)
+                }}
                 className="text-xs text-vortex-red flex items-center gap-1 hover:underline"
               >
                 <Save className="w-3 h-3" /> Save requirements
@@ -1257,13 +1271,24 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
             <p className="text-xs text-gray-500">Saves session inputs and the current prescription so you can recall them later.</p>
             <input
               value={saveRequirementsName}
-              onChange={(e) => setSaveRequirementsName(e.target.value)}
+              onChange={(e) => {
+                setSaveRequirementsName(e.target.value)
+                if (saveRequirementsError) setSaveRequirementsError(null)
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') void saveRequirements()
+              }}
               placeholder="Session name"
               className="w-full border border-gray-300 rounded-lg px-3 py-2"
             />
+            {saveRequirementsError && (
+              <p className="text-sm text-red-600">{saveRequirementsError}</p>
+            )}
             <div className="flex gap-2 justify-end">
               <button type="button" onClick={() => setSaveRequirementsModalOpen(false)} className="px-3 py-1.5 text-sm border rounded-lg">Cancel</button>
-              <button type="button" onClick={() => void saveRequirements()} className="px-3 py-1.5 text-sm bg-vortex-red text-white rounded-lg font-medium">Save</button>
+              <button type="button" onClick={() => void saveRequirements()} disabled={saveRequirementsLoading} className="px-3 py-1.5 text-sm bg-vortex-red text-white rounded-lg font-medium disabled:opacity-60">
+                {saveRequirementsLoading ? 'Saving…' : 'Save'}
+              </button>
             </div>
           </div>
         </div>
