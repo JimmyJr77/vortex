@@ -969,7 +969,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     })
 
     const minItems = minItemsForPhase(phaseKey, resolvedPhaseTargets)
-    const maxItems = maxItemsForPhase(phaseKey, blockMinutes)
+    const maxItems = maxItemsForPhase(phaseKey, blockMinutes, resolvedPhaseTargets)
     const fillTargetRatio = phaseFillTarget(phaseKey, resolvedPhaseTargets, blockMinutes)
     const relaxSplit = shouldRelaxSplitGate(phaseKey, blockMinutes, resolvedPhaseTargets)
     const phasePatternUsed = usedPatternsByPhase.get(phaseKey) ?? new Set()
@@ -1003,19 +1003,24 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       resolvedPhaseTargets,
     })
 
-    if (fillResult.items.length < minItems
-      || fillResult.usedSeconds < budgetSeconds * fillTargetRatio) {
+    const timeUnderfill = fillResult.usedSeconds < budgetSeconds * fillTargetRatio
+    const itemUnderfill = fillResult.items.length < minItems
+    if (itemUnderfill || timeUnderfill) {
       const remainingSeconds = Math.max(0, budgetSeconds - fillResult.usedSeconds)
-      if (remainingSeconds > 0) {
+      const backfillBudget = remainingSeconds > 0 ? remainingSeconds : (itemUnderfill ? 90 : 0)
+      if (backfillBudget > 0) {
+        const backfillMaxItems = timeUnderfill
+          ? null
+          : (maxItems != null ? Math.max(0, maxItems - fillResult.items.length) : null)
         const backfill = await fillPhaseItems({
           dbPool: pool,
           poolForPhase,
           scored,
           phaseKey,
           phase,
-          budgetSeconds: remainingSeconds,
+          budgetSeconds: backfillBudget,
           minItems: Math.max(0, minItems - fillResult.items.length),
-          maxItems: maxItems != null ? Math.max(0, maxItems - fillResult.items.length) : null,
+          maxItems: backfillMaxItems,
           fillTargetRatio: 1,
           splitProfiles: [],
           relaxSplit: true,
@@ -1051,16 +1056,16 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       && hasHiitFocus(resolvedPhaseTargets)
       && fillResult.items.length < minItems) {
       const remainingSeconds = Math.max(0, budgetSeconds - fillResult.usedSeconds)
-      if (remainingSeconds > 0) {
-        const hiitFallback = await fillPhaseItems({
+      const hiitBudget = remainingSeconds > 0 ? remainingSeconds : 90
+      const hiitFallback = await fillPhaseItems({
           dbPool: pool,
           poolForPhase,
           scored,
           phaseKey,
           phase,
-          budgetSeconds: remainingSeconds,
+          budgetSeconds: hiitBudget,
           minItems: Math.max(0, minItems - fillResult.items.length),
-          maxItems: maxItems != null ? Math.max(0, maxItems - fillResult.items.length) : null,
+          maxItems: null,
           fillTargetRatio: 1,
           splitProfiles: [],
           relaxSplit: true,
@@ -1082,13 +1087,12 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
           intentKeyById,
           resolvedPhaseTargets,
         })
-        if (hiitFallback.items.length > 0) {
-          fillResult = {
-            items: [...fillResult.items, ...hiitFallback.items],
-            usedSeconds: fillResult.usedSeconds + hiitFallback.usedSeconds,
-            skippedCandidates: fillResult.skippedCandidates + hiitFallback.skippedCandidates,
-            splitRejects: fillResult.splitRejects + hiitFallback.splitRejects,
-          }
+      if (hiitFallback.items.length > 0) {
+        fillResult = {
+          items: [...fillResult.items, ...hiitFallback.items],
+          usedSeconds: fillResult.usedSeconds + hiitFallback.usedSeconds,
+          skippedCandidates: fillResult.skippedCandidates + hiitFallback.skippedCandidates,
+          splitRejects: fillResult.splitRejects + hiitFallback.splitRejects,
         }
       }
     }

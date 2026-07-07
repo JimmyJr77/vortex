@@ -1,0 +1,27 @@
+---
+description: Autonomous Needs Engine prescription quality loop — run evaluator and iterate until COMPLETE
+globs:
+  - backend/platform/phaseAwarePrescription.js
+  - backend/platform/*Policy.js
+  - backend/migrations/22*.sql
+  - scripts/evaluate-prescription-quality.mjs
+  - scripts/golden-prescription-scenario.json
+  - docs/NEEDS_ENGINE_QUALITY_LOOP.md
+alwaysApply: false
+---
+
+# Needs Engine quality loop
+
+When the user asks to iterate on prescription quality, run the autonomous loop in [docs/NEEDS_ENGINE_QUALITY_LOOP.md](../../docs/NEEDS_ENGINE_QUALITY_LOOP.md).
+
+## Mandatory workflow
+
+1. Run unit tests listed in the loop doc.
+2. Run `node scripts/evaluate-prescription-quality.mjs` with `DATABASE_URL` from `backend/.env.local`.
+3. Fix failures in priority order (restore → progression gates → box avoid → fill → split2 progressions).
+4. Re-run until evaluator exits 0.
+5. Commit and push without asking when tests + evaluator pass.
+6. Append result to [docs/NEEDS_ENGINE_QUALITY_LOOP.log](../../docs/NEEDS_ENGINE_QUALITY_LOOP.log).
+7. Stop only when two consecutive PASS log lines exist; set Status to COMPLETE in the loop doc.
+
+Do not ask the user to re-prescribe manually unless verifying production UI after deploy.

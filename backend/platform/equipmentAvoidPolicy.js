@@ -5,6 +5,25 @@ export const EQUIPMENT_AVOID_ALIASES = {
   box: ['bench_or_box', 'low_step', 'plyo_box'],
 }
 
+const BOX_RELATED_AVOID_KEYS = new Set([
+  'box',
+  ...(EQUIPMENT_AVOID_ALIASES.box ?? []),
+  'bench_or_box',
+  'plyo_box',
+  'low_step',
+])
+
+/** Breathing / restore cards whose slug contains "box" but are not plyo-box work. */
+export function isBoxSemanticWhitelist(exercise) {
+  const text = `${exercise.slug ?? ''} ${exercise.name ?? ''}`.toLowerCase()
+  return /box[- ]?breath|breathing[- ]?hold|breath.*hold/.test(text)
+}
+
+function avoidKeysForSemanticScan(exercise, avoidKeys) {
+  if (!isBoxSemanticWhitelist(exercise)) return avoidKeys
+  return avoidKeys.filter((key) => !BOX_RELATED_AVOID_KEYS.has(key))
+}
+
 const SEMANTIC_AVOID_PATTERNS = {
   bar: /\b(bar|barbell|pull[- ]?up|chin[- ]?up|hang|muscle[- ]?up|dip)\b/i,
   box: /\b(box|plyo|platform|step[- ]?up|drop[- ]?landing|step[- ]?down)\b/i,
@@ -65,9 +84,11 @@ export function exerciseTextBlob(exercise) {
 
 export function inferAvoidedEquipmentKeys(exercise, avoidKeys) {
   if (!avoidKeys?.length) return []
+  const keysToScan = avoidKeysForSemanticScan(exercise, avoidKeys)
+  if (keysToScan.length === 0) return []
   const text = exerciseTextBlob(exercise)
   const matched = new Set()
-  for (const key of avoidKeys) {
+  for (const key of keysToScan) {
     const pattern = SEMANTIC_AVOID_PATTERNS[key]
     if (pattern?.test(text)) matched.add(key)
     for (const alias of EQUIPMENT_AVOID_ALIASES[key] ?? []) {
@@ -79,7 +100,10 @@ export function inferAvoidedEquipmentKeys(exercise, avoidKeys) {
 }
 
 export function exerciseViolatesEquipmentAvoid(exercise, equipTags, expandedAvoidIds, avoidKeys) {
-  if (expandedAvoidIds.size > 0 && equipTags.some((t) => expandedAvoidIds.has(t.facetId))) {
+  const onlyBoxRelatedAvoid = isBoxSemanticWhitelist(exercise)
+    && avoidKeysForSemanticScan(exercise, avoidKeys ?? []).length === 0
+
+  if (!onlyBoxRelatedAvoid && expandedAvoidIds.size > 0 && equipTags.some((t) => expandedAvoidIds.has(t.facetId))) {
     return true
   }
   if (avoidKeys?.length > 0) {

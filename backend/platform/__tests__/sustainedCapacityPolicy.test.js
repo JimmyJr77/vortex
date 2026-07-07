@@ -23,8 +23,8 @@ test('small sustained block has 80% fill target', () => {
 })
 
 test('prepare max items scales with block minutes', () => {
-  assert.equal(maxItemsForPhase('prepare_and_access', 10), 5)
-  assert.equal(maxItemsForPhase('prepare_and_access', 4), 2)
+  assert.equal(maxItemsForPhase('prepare_and_access', 10), 6)
+  assert.equal(maxItemsForPhase('prepare_and_access', 4), 3)
   assert.equal(maxItemsForPhase('restore', 12), 3)
 })
 

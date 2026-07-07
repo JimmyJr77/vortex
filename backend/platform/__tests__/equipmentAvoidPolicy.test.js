@@ -20,3 +20,11 @@ test('exerciseViolatesEquipmentAvoid uses semantic fallback when untagged', () =
   const violated = exerciseViolatesEquipmentAvoid(exercise, [], new Set(), ['box'])
   assert.equal(violated, true)
 })
+
+test('box breathing restore card is not excluded when avoiding plyo box', () => {
+  const exercise = { slug: 'box-breathing-hold-restore', name: 'Box Breathing Hold' }
+  const keys = inferAvoidedEquipmentKeys(exercise, ['box'])
+  assert.deepEqual(keys, [])
+  assert.equal(exerciseViolatesEquipmentAvoid(exercise, [], new Set(), ['box']), false)
+  assert.equal(exerciseViolatesEquipmentAvoid(exercise, [{ facetId: 99 }], new Set([99]), ['box']), false)
+})

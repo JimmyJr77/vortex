@@ -17,13 +17,18 @@ export function minItemsForPhase(phaseKey, resolvedPhaseTargets) {
   return hasHiitFocus(resolvedPhaseTargets) ? 2 : 1
 }
 
-export function maxItemsForPhase(phaseKey, blockMinutes = 20) {
+export function maxItemsForPhase(phaseKey, blockMinutes = 20, resolvedPhaseTargets = []) {
   const minutes = Number(blockMinutes) || 20
   if (phaseKey === 'restore') return 3
   if (phaseKey === 'prepare_and_access' || phaseKey === 'movement_intelligence') {
-    return Math.min(5, Math.max(2, Math.floor(minutes / 2)))
+    return Math.min(6, Math.max(2, Math.ceil(minutes / 1.5)))
   }
-  if (phaseKey === 'sustained_capacity' && minutes <= 8) return 2
+  if (phaseKey === 'sustained_capacity') {
+    if (hasHiitFocus(resolvedPhaseTargets)) {
+      return Math.max(2, Math.ceil(minutes / 3))
+    }
+    if (minutes <= 8) return 2
+  }
   return Math.max(1, Math.floor(minutes / 4))
 }
 
