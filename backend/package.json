@@ -13,6 +13,7 @@
     "seed:dev-members": "node members/runSeedDevMembers.js",
     "migrate": "node run-migration.js",
     "migrate:all": "node run-migration.js --all",
+    "repair:needs-engine-schema": "node scripts/repair-needs-engine-schema.mjs",
     "billing:recurring": "node scheduling/runRecurringCharges.js",
     "stripe:sync-catalog": "node billing/runStripeCatalogSync.js",
     "bootstrap:staging-rehearsal": "node scripts/bootstrap-staging-rehearsal-accounts.mjs",

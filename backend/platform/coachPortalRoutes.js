@@ -88,6 +88,7 @@ import { analyzeProgrammingPlacement } from './programmingValidation.js'
 import { validateTrainingBlockDraft } from './trainingBlockValidation.js'
 import { validateRegimenDraft } from './regimenValidation.js'
 import { getCoachingSchemaStatus } from './ensureCoachingWhyLayerSchema.js'
+import { ensureCoachingNeedsEngineSchema } from './ensureCoachingNeedsEngineSchema.js'
 import { dedupeSessionPhases, normalizePhaseKey } from './sessionPhaseKeys.js'
 import {
   runPhaseAwarePrescription,
@@ -391,6 +392,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
   app.get('/api/coach/phase-templates', ...can('library.view'), async (req, res) => {
     try {
+      await ensureCoachingNeedsEngineSchema(pool)
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
       ok(res, await listCoachPhaseTemplates(pool, facilityId, coachUserId))
@@ -401,6 +403,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
   app.post('/api/coach/phase-templates', ...can('workouts.manage'), async (req, res) => {
     try {
+      await ensureCoachingNeedsEngineSchema(pool)
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
       const name = String(req.body?.name || '').trim()
@@ -414,6 +417,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
   app.delete('/api/coach/phase-templates/:id', ...can('workouts.manage'), async (req, res) => {
     try {
+      await ensureCoachingNeedsEngineSchema(pool)
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
       await deleteCoachPhaseTemplate(pool, facilityId, coachUserId, num(req.params.id))
@@ -425,6 +429,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
   app.get('/api/coach/needs-engine/requirements', ...can('library.view'), async (req, res) => {
     try {
+      await ensureCoachingNeedsEngineSchema(pool)
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
       ok(res, await listCoachNeedsEngineRequirements(pool, facilityId, coachUserId))
@@ -435,6 +440,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
   app.post('/api/coach/needs-engine/requirements', ...can('workouts.manage'), async (req, res) => {
     try {
+      await ensureCoachingNeedsEngineSchema(pool)
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
       const name = String(req.body?.name || '').trim()
@@ -448,6 +454,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
   app.delete('/api/coach/needs-engine/requirements/:id', ...can('workouts.manage'), async (req, res) => {
     try {
+      await ensureCoachingNeedsEngineSchema(pool)
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
       await deleteCoachNeedsEngineRequirements(pool, facilityId, coachUserId, num(req.params.id))
