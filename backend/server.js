@@ -48,6 +48,7 @@ import { attachMessageWebSocket } from './platform/messageRealtime.js'
 import { ensureCoachClassAssignmentSchema } from './platform/coachRoster.js'
 import { ensureCoachingNotificationSchema, ensureCoachingMessageThreadSchema } from './platform/coachingSchemaEnsure.js'
 import { ensureCoachingWhyLayerSchema } from './platform/ensureCoachingWhyLayerSchema.js'
+import { ensureCoachingNeedsEngineSchema } from './platform/ensureCoachingNeedsEngineSchema.js'
 import { generateTemporaryPassword, sendTemporaryPasswordEmail } from './scheduling/tempPasswordEmail.js'
 import { logWarn, reportError } from './observability/logger.js'
 import { startAccountInviteReminderScheduler } from './email/accountInviteReminderService.js'
@@ -2877,6 +2878,8 @@ app.get('/api/health', async (req, res) => {
       programPricingCostOptions: API_FEATURES.programPricingCostOptions === true,
       multiClassPassPackages: API_FEATURES.multiClassPassPackages === true,
       evergreenOfferings: API_FEATURES.evergreenOfferings === true,
+      needsEngineTemplates: hasRegisteredRoute('/api/coach/phase-templates'),
+      needsEngineRequirements: hasRegisteredRoute('/api/coach/needs-engine/requirements'),
     },
   }
 
@@ -12852,6 +12855,11 @@ const startServer = async () => {
       await ensureCoachingWhyLayerSchema(pool)
     } catch (whyLayerSchemaError) {
       console.error(`[Server ${workerId}] Coaching Why Layer schema ensure failed:`, whyLayerSchemaError)
+    }
+    try {
+      await ensureCoachingNeedsEngineSchema(pool)
+    } catch (needsEngineSchemaError) {
+      console.error(`[Server ${workerId}] Needs Engine schema ensure failed:`, needsEngineSchemaError)
     }
     try {
       await ensureCoachClassAssignmentSchema(pool)
