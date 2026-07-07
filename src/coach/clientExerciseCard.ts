@@ -1,6 +1,13 @@
+import { collectExerciseYoutubeUrls } from '../utils/exerciseYoutubeUrls'
 import { exerciseFitnessGoal } from './exerciseCard'
 import { participantStructureLabel } from './types'
 import type { Exercise, ExerciseCoachingExecution, ExerciseSafetyProfile } from './types'
+
+export interface ClientExerciseSubstitution {
+  label: string
+  exerciseId: number | null
+  exerciseName: string | null
+}
 
 export interface ClientExerciseView {
   title: string
@@ -12,7 +19,7 @@ export interface ClientExerciseView {
   howTo: string[]
   lookFor: string[]
   watchOutFor: string[]
-  easierOption: string | null
+  substitution: ClientExerciseSubstitution | null
   videoUrls: string[]
 }
 
@@ -75,19 +82,6 @@ function clientBadges(exercise: Exercise): string[] {
   return limitItems(badges, 3)
 }
 
-function collectVideoUrls(exercise: Exercise): string[] {
-  const urls = new Set<string>()
-  for (const url of asStringArray(exercise.media_library?.demo_video_sources)) {
-    urls.add(url)
-  }
-  for (const item of exercise.media ?? []) {
-    if (item.kind === 'video' && item.url?.trim()) {
-      urls.add(item.url.trim())
-    }
-  }
-  return [...urls]
-}
-
 function buildHowTo(exec: ExerciseCoachingExecution | undefined): string[] {
   const setup = asStringArray(exec?.setup)
   const steps = asStringArray(exec?.execution_steps)
@@ -112,7 +106,47 @@ function buildWatchOutFor(
   ], 5)
 }
 
-export function exerciseToClientView(exercise: Exercise): ClientExerciseView {
+export function resolveExerciseByName(label: string, exercises: Exercise[]): Exercise | null {
+  const needle = label.trim().toLowerCase()
+  if (!needle) return null
+
+  const exact = exercises.find((e) => e.name.trim().toLowerCase() === needle)
+  if (exact) return exact
+
+  const needleInName = exercises.filter((e) => e.name.trim().toLowerCase().includes(needle))
+  if (needleInName.length === 1) return needleInName[0]
+  if (needleInName.length > 1) {
+    return [...needleInName].sort((a, b) => a.name.length - b.name.length)[0]
+  }
+
+  const nameInNeedle = exercises.filter((e) => needle.includes(e.name.trim().toLowerCase()))
+  if (nameInNeedle.length === 1) return nameInNeedle[0]
+  if (nameInNeedle.length > 1) {
+    return [...nameInNeedle].sort((a, b) => b.name.length - a.name.length)[0]
+  }
+
+  return null
+}
+
+function buildSubstitution(
+  exercise: Exercise,
+  exercises: Exercise[],
+): ClientExerciseSubstitution | null {
+  const label = firstNonEmpty(...(exercise.safety_profile?.common_substitutions ?? []).slice(0, 1))
+  if (!label) return null
+
+  const match = resolveExerciseByName(label, exercises)
+  return {
+    label,
+    exerciseId: match?.id ?? null,
+    exerciseName: match?.name ?? null,
+  }
+}
+
+export function exerciseToClientView(
+  exercise: Exercise,
+  exercises: Exercise[] = [],
+): ClientExerciseView {
   const exec = exercise.coaching_execution
   const safety = exercise.safety_profile
 
@@ -127,7 +161,7 @@ export function exerciseToClientView(exercise: Exercise): ClientExerciseView {
       ) ?? exercise.name,
     dosageLabel: plainDosageLabel(exercise),
     badges: clientBadges(exercise),
-    hasVideo: collectVideoUrls(exercise).length > 0,
+    hasVideo: collectExerciseYoutubeUrls(exercise).length > 0,
     whatIsThis: firstNonEmpty(
       exec?.movement_description,
       exercise.athlete_language,
@@ -136,9 +170,7 @@ export function exerciseToClientView(exercise: Exercise): ClientExerciseView {
     howTo: buildHowTo(exec),
     lookFor: buildLookFor(exec),
     watchOutFor: buildWatchOutFor(exec, safety),
-    easierOption: firstNonEmpty(
-      ...(safety?.common_substitutions ?? []).slice(0, 1),
-    ),
-    videoUrls: collectVideoUrls(exercise),
+    substitution: buildSubstitution(exercise, exercises),
+    videoUrls: collectExerciseYoutubeUrls(exercise),
   }
 }

@@ -7,7 +7,8 @@ import type { FacetType, Taxonomy } from '../../coach/taxonomy'
 import { FACET_LABELS } from '../../coach/taxonomy'
 import { exerciseFitnessGoal, exerciseToCard, phaseSubroleLabel } from '../../coach/exerciseCard'
 import { participantStructureLabel, SCALING_COHORT_KEYS } from '../../coach/types'
-import YoutubeLinkifiedText from '../YoutubeLinkifiedText'
+import { partitionExerciseMediaLibrary } from '../../utils/exerciseYoutubeUrls'
+import { YoutubeVideoList } from '../YoutubeEmbedPlayer'
 
 type DetailTab =
   | 'identity'
@@ -72,24 +73,14 @@ function ReadOnlyField({ label, value }: { label: string; value?: string | numbe
   )
 }
 
-function ReadOnlyList({
-  label,
-  items,
-  linkifyYoutube = false,
-}: {
-  label: string
-  items: string[]
-  linkifyYoutube?: boolean
-}) {
+function ReadOnlyList({ label, items }: { label: string; items: string[] }) {
   if (items.length === 0) return null
   return (
     <div className="text-sm">
       <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</div>
       <ul className="mt-1 list-disc ml-4 text-gray-800 space-y-0.5">
         {items.map((item) => (
-          <li key={item}>
-            {linkifyYoutube ? <YoutubeLinkifiedText text={item} linkClassName="text-vortex-red break-all hover:underline" /> : item}
-          </li>
+          <li key={item}>{item}</li>
         ))}
       </ul>
     </div>
@@ -172,6 +163,11 @@ export default function ExerciseDetailModal({
   }, [exercise?.tags])
 
   const card = useMemo(() => (exercise ? exerciseToCard(exercise, taxonomy) : null), [exercise, taxonomy])
+
+  const partitionedMedia = useMemo(
+    () => partitionExerciseMediaLibrary(exercise?.media_library, exercise?.media),
+    [exercise?.media, exercise?.media_library],
+  )
 
   const why = exercise?.why
 
@@ -400,19 +396,30 @@ export default function ExerciseDetailModal({
 
               {card && tab === 'media' && (
                 <div className="space-y-4">
-                  <ReadOnlyList label="Demo videos" items={card.media_and_document_library.demo_video_sources ?? []} linkifyYoutube />
-                  <ReadOnlyList label="Coaching articles" items={card.media_and_document_library.coaching_articles ?? []} linkifyYoutube />
-                  <ReadOnlyList label="References" items={card.media_and_document_library.clinical_or_sport_science_references ?? []} linkifyYoutube />
-                  <ReadOnlyList label="Internal notes" items={card.media_and_document_library.internal_notes ?? []} />
-                  {(card.media_and_document_library.media ?? []).length > 0 && (
-                    <ul className="space-y-2">
-                      {(card.media_and_document_library.media ?? []).map((m, i) => (
-                        <li key={m.id ?? i} className="border border-gray-100 rounded-lg p-3 text-sm">
-                          <div className="font-medium capitalize">{m.kind}</div>
-                          <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-vortex-red text-xs break-all hover:underline">{m.url}</a>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="text-sm">
+                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Youtube Videos</div>
+                    {partitionedMedia.youtubeUrls.length > 0 ? (
+                      <YoutubeVideoList urls={partitionedMedia.youtubeUrls} title={exercise?.name ?? 'Exercise video'} />
+                    ) : (
+                      <p className="text-sm text-gray-500">No YouTube videos yet.</p>
+                    )}
+                  </div>
+                  <ReadOnlyList label="Demo videos" items={partitionedMedia.demoVideos} />
+                  <ReadOnlyList label="Coaching articles" items={partitionedMedia.coachingArticles} />
+                  <ReadOnlyList label="References" items={partitionedMedia.references} />
+                  <ReadOnlyList label="Internal notes" items={partitionedMedia.internalNotes} />
+                  {partitionedMedia.nonYoutubeMedia.length > 0 && (
+                    <div className="text-sm">
+                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Hosted media</div>
+                      <ul className="space-y-2">
+                        {partitionedMedia.nonYoutubeMedia.map((m, i) => (
+                          <li key={m.id ?? i} className="border border-gray-100 rounded-lg p-3 text-sm">
+                            <div className="font-medium capitalize">{m.kind}</div>
+                            <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-vortex-red text-xs break-all hover:underline">{m.url}</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </div>
               )}

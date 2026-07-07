@@ -44,9 +44,12 @@ interface FilterState {
   canBeDaily: boolean
   paired: boolean
   minImpact: number | ''
+  maxImpact: number | ''
 }
 
-const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, minImpact: '' }
+const IMPACT_LEVEL_OPTIONS = [0, 1, 2, 3, 4, 5] as const
+
+const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, minImpact: '', maxImpact: '' }
 
 function buildExerciseQueryParams(filters: FilterState, pagination?: { limit: number; offset: number }) {
   const params = new URLSearchParams()
@@ -65,6 +68,7 @@ function buildExerciseQueryParams(filters: FilterState, pagination?: { limit: nu
   if (filters.canBeDaily) params.set('can_be_daily', 'true')
   if (filters.paired) params.set('paired', 'true')
   if (filters.minImpact !== '') params.set('min_impact', String(filters.minImpact))
+  if (filters.maxImpact !== '') params.set('max_impact', String(filters.maxImpact))
   if (pagination) {
     params.set('limit', String(pagination.limit))
     params.set('offset', String(pagination.offset))
@@ -342,9 +346,38 @@ export default function ExerciseLibrary() {
         </div>
         <div>
           <label className="block text-xs font-semibold text-gray-500 mb-1">Impact (min)</label>
-          <select value={filters.minImpact} onChange={(e) => setFilters((f) => ({ ...f, minImpact: e.target.value ? Number(e.target.value) : '' }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-            <option value="">Any</option>
-            {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}+</option>)}
+          <select
+            value={filters.minImpact}
+            onChange={(e) => {
+              const minImpact = e.target.value ? Number(e.target.value) : ''
+              setFilters((f) => ({
+                ...f,
+                minImpact,
+                maxImpact: minImpact !== '' && f.maxImpact !== '' && f.maxImpact < minImpact ? minImpact : f.maxImpact,
+              }))
+            }}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="">All</option>
+            {IMPACT_LEVEL_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 mb-1">Impact (max)</label>
+          <select
+            value={filters.maxImpact}
+            onChange={(e) => {
+              const maxImpact = e.target.value ? Number(e.target.value) : ''
+              setFilters((f) => ({
+                ...f,
+                maxImpact,
+                minImpact: maxImpact !== '' && f.minImpact !== '' && f.minImpact > maxImpact ? maxImpact : f.minImpact,
+              }))
+            }}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="">All</option>
+            {IMPACT_LEVEL_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
         </div>
         <label className="flex items-center gap-2 text-sm self-end pb-2">
@@ -393,7 +426,7 @@ export default function ExerciseLibrary() {
                     tenetName={tenetName}
                   />
                 ) : (
-                  <ClientExerciseLibraryCard view={exerciseToClientView(ex)} />
+                  <ClientExerciseLibraryCard view={exerciseToClientView(ex, exercises)} />
                 )}
               </LibraryCard>
             ))}
@@ -425,7 +458,12 @@ export default function ExerciseLibrary() {
         <ClientExerciseDetailModal
           exerciseId={viewing.id}
           preview={viewing}
+          exercises={exercises}
           onClose={() => setViewing(null)}
+          onOpenSubstitution={(id) => {
+            const target = exercises.find((e) => e.id === id)
+            if (target) setViewing(target)
+          }}
           onEdit={() => {
             setEditing(viewing)
             setViewing(null)

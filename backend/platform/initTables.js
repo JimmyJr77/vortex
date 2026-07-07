@@ -193,6 +193,7 @@ export async function initPlatformTables(pool) {
     '199_coaching_landmine_exercise_library_cards.sql',
     '200_coaching_rotational_power_infrastructure_and_seed.sql',
     '201_coaching_rotational_power_cards.sql',
+    '202_coaching_exercise_difficulty_profile.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

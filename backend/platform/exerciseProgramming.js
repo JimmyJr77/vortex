@@ -1,5 +1,6 @@
 import { loadEducationForExercise, upsertExerciseEducation, educationToWhyResponse } from './educationContent.js'
 import { deriveExerciseSubrole, resolveSubroleFromOrderSlot } from './phaseSubrole.js'
+import { computeOverallDifficulty, mapDifficultyRow } from './ageDifficultyPolicy.js'
 
 export const SCALING_COHORT_KEYS = [
   'youth_beginner', 'youth_intermediate', 'teen', 'adult_beginner',
@@ -84,6 +85,24 @@ async function loadSingleProfile(pool, table, exerciseIds, multiple = false) {
   return map
 }
 
+export async function loadDifficultyProfiles(pool, exerciseIds) {
+  if (exerciseIds.length === 0) return new Map()
+  try {
+    const result = await pool.query(
+      `SELECT * FROM coaching.exercise_difficulty_profile WHERE exercise_id = ANY($1::bigint[])`,
+      [exerciseIds],
+    )
+    const map = new Map()
+    for (const row of result.rows) {
+      map.set(String(row.exercise_id), mapDifficultyRow(row))
+    }
+    return map
+  } catch (err) {
+    if (/does not exist/i.test(String(err.message))) return new Map()
+    throw err
+  }
+}
+
 export async function loadExerciseProgrammingBundle(pool, exerciseIds) {
   const empty = {
     phaseProfiles: new Map(),
@@ -91,17 +110,19 @@ export async function loadExerciseProgrammingBundle(pool, exerciseIds) {
     scalingProfiles: new Map(),
     safetyProfiles: new Map(),
     regimenRules: new Map(),
+    difficultyProfiles: new Map(),
   }
   if (exerciseIds.length === 0) return empty
   try {
-    const [phaseProfiles, dosageProfiles, scalingProfiles, safetyProfiles, regimenRules] = await Promise.all([
+    const [phaseProfiles, dosageProfiles, scalingProfiles, safetyProfiles, regimenRules, difficultyProfiles] = await Promise.all([
       loadPhaseProfiles(pool, exerciseIds),
       loadSingleProfile(pool, 'exercise_dosage_profile', exerciseIds, true),
       loadSingleProfile(pool, 'exercise_scaling_profile', exerciseIds, true),
       loadSingleProfile(pool, 'exercise_safety_profile', exerciseIds, false),
       loadSingleProfile(pool, 'exercise_regimen_rule', exerciseIds, false),
+      loadDifficultyProfiles(pool, exerciseIds),
     ])
-    return { phaseProfiles, dosageProfiles, scalingProfiles, safetyProfiles, regimenRules }
+    return { phaseProfiles, dosageProfiles, scalingProfiles, safetyProfiles, regimenRules, difficultyProfiles }
   } catch (err) {
     if (/does not exist|undefined column/i.test(String(err.message))) {
       console.warn('[exerciseProgramming] programming tables/columns missing:', err.message)
@@ -306,6 +327,7 @@ export function buildExerciseCard(row, attached, tags = []) {
       internal_notes: asStringArray(mediaLib.internal_notes),
       media: attached.media ?? [],
     },
+    difficulty_profile: attached.difficulty_profile ?? null,
   }
 }
 
@@ -339,8 +361,51 @@ export function attachProgrammingToExercise(row, bundle, education = null) {
     scaling_profiles: scalingRaw.map(mapScalingRow),
     safety_profile: bundle.safetyProfiles.get(id) ?? null,
     regimen_rule: bundle.regimenRules.get(id) ?? null,
+    difficulty_profile: bundle.difficultyProfiles?.get(id) ?? null,
     why,
   }
+}
+
+export async function upsertExerciseDifficultyProfile(client, exerciseId, body, options = {}) {
+  const raw = body?.difficulty_profile ?? body?.difficultyProfile ?? body
+  if (!raw || typeof raw !== 'object') return
+
+  const technical = Math.min(10, Math.max(1, Number(raw.technical ?? raw.technical_difficulty) || 1))
+  const load = Math.min(10, Math.max(1, Number(raw.load ?? raw.load_difficulty) || 1))
+  const complexity = Math.min(10, Math.max(1, Number(raw.complexity ?? raw.complexity_difficulty) || 1))
+  const overall = computeOverallDifficulty(technical, load, complexity, raw.overall ?? raw.overall_difficulty)
+
+  await client.query(
+    `
+      INSERT INTO coaching.exercise_difficulty_profile (
+        exercise_id, technical, load, complexity, overall,
+        recommended_age_min, recommended_age_max, attention_demand, notes, source, updated_at
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,now())
+      ON CONFLICT (exercise_id) DO UPDATE SET
+        technical = EXCLUDED.technical,
+        load = EXCLUDED.load,
+        complexity = EXCLUDED.complexity,
+        overall = EXCLUDED.overall,
+        recommended_age_min = EXCLUDED.recommended_age_min,
+        recommended_age_max = EXCLUDED.recommended_age_max,
+        attention_demand = EXCLUDED.attention_demand,
+        notes = EXCLUDED.notes,
+        source = EXCLUDED.source,
+        updated_at = now()
+    `,
+    [
+      exerciseId,
+      technical,
+      load,
+      complexity,
+      overall,
+      raw.recommended_age_min ?? raw.recommendedAgeMin ?? null,
+      raw.recommended_age_max ?? raw.recommendedAgeMax ?? null,
+      raw.attention_demand ?? raw.attentionDemand ?? null,
+      raw.notes ?? null,
+      raw.source ?? options.source ?? 'authored',
+    ],
+  )
 }
 
 async function syncPrimaryIdentityFromPhases(client, exerciseId, phaseProfiles, movementRequirements, options = {}) {
@@ -639,6 +704,28 @@ export async function saveExerciseProgramming(client, exerciseId, slug, body) {
     }
   }
 
+  if (body.difficulty_profile ?? body.difficultyProfile) {
+    await upsertExerciseDifficultyProfile(client, exerciseId, body)
+  } else if (Array.isArray(body.phase_profiles) && body.phase_profiles.length > 0) {
+    const primary = pickPrimaryPhaseProfile(body.phase_profiles)
+    const tc = primary?.technicalComplexity ?? primary?.technical_complexity
+    if (tc != null) {
+      const existing = await client.query(
+        `SELECT 1 FROM coaching.exercise_difficulty_profile WHERE exercise_id = $1`,
+        [exerciseId],
+      )
+      if (existing.rows.length === 0) {
+        const technical = Math.min(10, Math.max(1, Number(tc) * 2))
+        await upsertExerciseDifficultyProfile(client, exerciseId, {
+          technical,
+          load: Math.min(10, Math.max(1, Number(primary?.fatigueCost ?? primary?.fatigue_cost ?? 2))),
+          complexity: Math.min(10, Math.max(1, Number(tc))),
+          source: 'derived',
+        }, { source: 'derived' })
+      }
+    }
+  }
+
   if (body.why || body.education || body.why_layer) {
     const w = { ...(body.why ?? {}), ...(body.why_layer ?? {}), ...(body.education ?? {}) }
     await upsertExerciseEducation(client, exerciseId, slug, w)
@@ -714,6 +801,18 @@ export async function validateExercisePublishReady(pool, exerciseId) {
   if (!edu?.what_it_is) issues.push('Why layer: training purpose required')
   if (!edu?.why_it_goes_here) issues.push('Why layer: phase rationale required')
   if (!edu?.common_misuse) issues.push('Why layer: common misuse required')
+
+  try {
+    const diff = await pool.query(
+      `SELECT 1 FROM coaching.exercise_difficulty_profile WHERE exercise_id = $1`,
+      [exerciseId],
+    )
+    if (diff.rows.length === 0) {
+      issues.push('Difficulty profile missing (recommended for age-aware programming)')
+    }
+  } catch {
+    // table may not exist on older DBs
+  }
 
   return { ready: issues.length === 0, issues }
 }

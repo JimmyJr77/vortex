@@ -59,13 +59,17 @@ function BulletList({
 export default function ClientExerciseDetailModal({
   exerciseId,
   preview,
+  exercises = [],
   onClose,
   onEdit,
+  onOpenSubstitution,
 }: {
   exerciseId: number
   preview?: Exercise | null
+  exercises?: Exercise[]
   onClose: () => void
   onEdit?: () => void
+  onOpenSubstitution?: (exerciseId: number) => void
 }) {
   const [exercise, setExercise] = useState<Exercise | null>(preview ?? null)
   const [loading, setLoading] = useState(true)
@@ -81,9 +85,13 @@ export default function ClientExerciseDetailModal({
       .finally(() => setLoading(false))
   }, [exerciseId])
 
+  useEffect(() => {
+    setEasierOpen(false)
+  }, [exerciseId])
+
   const view = useMemo(
-    () => (exercise ? exerciseToClientView(exercise) : null),
-    [exercise],
+    () => (exercise ? exerciseToClientView(exercise, exercises) : null),
+    [exercise, exercises],
   )
 
   return (
@@ -186,7 +194,7 @@ export default function ClientExerciseDetailModal({
                 <YoutubeVideoList urls={view.videoUrls} title={view.title} />
               </Section>
 
-              {view.easierOption && (
+              {view.substitution && (
                 <section className="border-t border-gray-100 pt-2">
                   <button
                     type="button"
@@ -201,7 +209,19 @@ export default function ClientExerciseDetailModal({
                     )}
                   </button>
                   {easierOpen && (
-                    <p className="pb-2 text-sm leading-relaxed text-gray-700">{view.easierOption}</p>
+                    <div className="pb-2">
+                      {view.substitution.exerciseId != null && onOpenSubstitution ? (
+                        <button
+                          type="button"
+                          onClick={() => onOpenSubstitution(view.substitution!.exerciseId!)}
+                          className="text-sm font-medium text-vortex-red hover:underline text-left"
+                        >
+                          {view.substitution.exerciseName ?? view.substitution.label}
+                        </button>
+                      ) : (
+                        <p className="text-sm leading-relaxed text-gray-700">{view.substitution.label}</p>
+                      )}
+                    </div>
                   )}
                 </section>
               )}

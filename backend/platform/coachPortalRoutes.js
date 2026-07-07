@@ -105,6 +105,27 @@ function num(value) {
   return Number.isFinite(n) ? n : null
 }
 
+/** Matches exerciseCard movement_requirements.impact_level resolution order. */
+const EXERCISE_EFFECTIVE_IMPACT_SQL = `COALESCE(
+  NULLIF(TRIM(e.movement_requirements->>'impact_level'), '')::int,
+  (
+    SELECT p.impact_level FROM coaching.exercise_phase_profile p
+    WHERE p.exercise_id = e.id AND p.role = 'primary'
+    LIMIT 1
+  ),
+  (
+    SELECT p.impact_level FROM coaching.exercise_phase_profile p
+    WHERE p.exercise_id = e.id AND p.role != 'avoid'
+    ORDER BY p.fit_weight DESC NULLS LAST
+    LIMIT 1
+  ),
+  (
+    SELECT s.impact_level FROM coaching.exercise_safety_profile s
+    WHERE s.exercise_id = e.id
+    LIMIT 1
+  )
+)`
+
 const EXERCISE_LIBRARY_MAX_PAGE_SIZE = 200
 
 function parseExerciseLibraryPagination(req) {
@@ -468,9 +489,17 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       }
 
       const minImpact = num(req.query.min_impact ?? req.query.impact_min)
+      const maxImpact = num(req.query.max_impact ?? req.query.impact_max)
+      if (minImpact != null || maxImpact != null) {
+        where.push(`${EXERCISE_EFFECTIVE_IMPACT_SQL} IS NOT NULL`)
+      }
       if (minImpact != null) {
         params.push(minImpact)
-        where.push(`EXISTS (SELECT 1 FROM coaching.exercise_phase_profile p WHERE p.exercise_id = e.id AND p.impact_level >= $${params.length})`)
+        where.push(`${EXERCISE_EFFECTIVE_IMPACT_SQL} >= $${params.length}`)
+      }
+      if (maxImpact != null) {
+        params.push(maxImpact)
+        where.push(`${EXERCISE_EFFECTIVE_IMPACT_SQL} <= $${params.length}`)
       }
 
       // Facet filters: tenet, method->methodology, physio->physiology, pattern, equipment, body_region.

@@ -232,6 +232,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
   }
 
   const messagingFullscreen = messagesMaximized && tab === 'messages'
+  const panelScrollable = tab !== 'messages' && tab !== 'faqs'
 
   return (
     <div className="min-h-screen h-dvh max-h-dvh bg-gray-50 flex flex-col overflow-hidden">
@@ -256,8 +257,8 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
         </div>
       </header>
 
-      <div className={`${messagingFullscreen ? 'flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden'}`}>
-        <nav className={messagingFullscreen ? 'hidden' : navOpen ? 'block' : 'hidden lg:block'}>
+      <div className={`${messagingFullscreen ? 'flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden p-0' : 'container-admin pt-6 flex flex-col gap-6 lg:grid lg:grid-cols-[220px_1fr] lg:grid-rows-[minmax(0,1fr)] flex-1 min-h-0 overflow-hidden'}`}>
+        <nav className={messagingFullscreen ? 'hidden' : `${navOpen ? 'block' : 'hidden lg:block'} shrink-0`}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
             {visibleNavEntries.map((entry) => {
               if (entry.type === 'section') {
@@ -289,8 +290,8 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
             })}
           </div>
         </nav>
-        <main className={`min-w-0 flex flex-col min-h-0 flex-1 ${tab === 'messages' || tab === 'faqs' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
-          <div className="flex flex-col flex-1 min-h-0 h-full">
+        <main className={`min-w-0 flex flex-col min-h-0 flex-1 ${panelScrollable ? 'overflow-y-auto overscroll-contain pb-6' : 'overflow-hidden'}`}>
+          <div className={`flex flex-col min-h-0 ${panelScrollable ? '' : 'flex-1 h-full'}`}>
             <Suspense fallback={<div className="flex items-center gap-2 text-gray-500 py-12"><Loader2 className="w-5 h-5 animate-spin" /> Loading…</div>}>
               {renderPanel()}
             </Suspense>
