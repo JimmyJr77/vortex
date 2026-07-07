@@ -95,7 +95,7 @@ Round 2 (`--tier=baseline`) proved structure (restore, fill, box-avoid). Round 3
 Status: COMPLETE
 Tier: strict
 Completed at: 2026-07-07T09:30:00-04:00
-Final commit: <pending>
+Final commit: 9c813d1
 Consecutive passes: 5
 Round: 3 (near-perfection)
 ```
