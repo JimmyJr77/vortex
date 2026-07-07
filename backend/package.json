@@ -17,6 +17,8 @@
     "repair:boot-constraints": "node -e \"import pg from 'pg'; import dotenv from 'dotenv'; import { ensureCoachingBootConstraints } from './platform/ensureCoachingBootConstraints.js'; dotenv.config({path:'.env.local'}); const cs=process.env.EXTERNAL_DB_URL||process.env.DB_URL; const p=new pg.Pool({connectionString:cs,ssl:{rejectUnauthorized:false}}); await ensureCoachingBootConstraints(p); await p.end(); console.log('done');\"",
     "repair:failed-seeds": "node scripts/repair-failed-seed-migrations.mjs",
     "audit:boot-migrations": "node scripts/audit-boot-migration-failures.mjs",
+    "eval:prescription": "node ../scripts/evaluate-prescription-quality.mjs",
+    "sync:golden-requirements": "node ../scripts/sync-golden-from-saved-requirements.mjs \"Test 3 - Reqs only\"",
     "billing:recurring": "node scheduling/runRecurringCharges.js",
     "stripe:sync-catalog": "node billing/runStripeCatalogSync.js",
     "bootstrap:staging-rehearsal": "node scripts/bootstrap-staging-rehearsal-accounts.mjs",

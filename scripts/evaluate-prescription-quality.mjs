@@ -21,6 +21,7 @@ import {
   collectExerciseIds,
   evaluatePrescriptionQuality,
 } from '../backend/platform/prescriptionQualityChecks.js'
+import { loadSavedRequirementsBody } from './needsEngineSnapshotToPrescribeBody.js'
 
 const require = createRequire(path.join(path.dirname(fileURLToPath(import.meta.url)), '../backend/package.json'))
 const pg = require('pg')
@@ -130,7 +131,22 @@ async function main() {
       process.exit(2)
     }
 
-    const body = await resolveScenarioBody(pool, scenario.body)
+    let body
+    let requirementsSource = 'golden-prescription-scenario.json body'
+    if (scenario.savedRequirementsName) {
+      try {
+        const loaded = await loadSavedRequirementsBody(pool, scenario.savedRequirementsName)
+        body = loaded.body
+        requirementsSource = `coaching.coach_needs_engine_requirements "${loaded.savedName}" (id ${loaded.savedId}, updated ${loaded.savedUpdatedAt})`
+      } catch (err) {
+        console.warn(`Could not load saved requirements "${scenario.savedRequirementsName}": ${err.message}`)
+        console.warn('Falling back to frozen scenario.body')
+        body = await resolveScenarioBody(pool, scenario.body)
+      }
+    } else {
+      body = await resolveScenarioBody(pool, scenario.body)
+    }
+
     const prescribePath = path.join(__dirname, '../backend/platform/phaseAwarePrescription.js')
     const { runPhaseAwarePrescription } = await import(pathToFileURL(prescribePath).href)
 
@@ -142,6 +158,8 @@ async function main() {
 
     const report = {
       scenario: scenario.name,
+      savedRequirementsName: scenario.savedRequirementsName ?? null,
+      requirementsSource,
       tier,
       facilityId,
       ok: evaluation.ok,
@@ -166,6 +184,9 @@ async function main() {
       console.log(JSON.stringify(report, null, 2))
     } else {
       console.log(`Scenario: ${scenario.name}`)
+      if (scenario.savedRequirementsName) {
+        console.log(`Requirements: ${requirementsSource}`)
+      }
       console.log(`Tier: ${tier}`)
       console.log(`Result: ${evaluation.ok ? 'PASS' : 'FAIL'} (${evaluation.passed}/${evaluation.checks.length} checks)`)
       if (evaluation.failed.length > 0) {

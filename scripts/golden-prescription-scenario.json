@@ -1,39 +1,107 @@
 {
-  "name": "GAD 120-min speed fitness youth splits box-avoid",
-  "description": "Canonical Needs Engine quality scenario from coach assessment runs.",
+  "name": "Saved: Test 3 - Reqs only",
+  "description": "Golden scenario synced from coaching.coach_needs_engine_requirements (“Test 3 - Reqs only”).",
   "facilityQuery": "SELECT id FROM public.facility ORDER BY id LIMIT 1",
   "body": {
     "workMode": "exercise",
-    "sessionObjective": "speed_priority",
+    "sportId": 1,
     "skillLevel": "INTERMEDIATE",
     "ageMin": 8,
     "ageMax": 14,
-    "durationMinutes": 120,
-    "sportKey": "fitness",
-    "equipmentUseKeys": ["kettlebell", "cones", "jump_rope"],
-    "equipmentAvoidKeys": ["box"],
+    "capsOverride": null,
     "audienceSplits": [
-      { "label": "Split 1", "ageMin": 8, "ageMax": 10, "difficultyOverride": 6 },
-      { "label": "Split 2", "ageMin": 11, "ageMax": 14, "difficultyOverride": 10 }
+      {
+        "label": "Split 1",
+        "ageMin": 8,
+        "ageMax": 10,
+        "difficultyOverride": 6
+      },
+      {
+        "label": "Split 2",
+        "ageMin": 11,
+        "ageMax": 14,
+        "difficultyOverride": 10
+      }
     ],
+    "equipmentUseIds": [
+      7,
+      1742,
+      12
+    ],
+    "equipmentAvoidIds": [
+      3
+    ],
+    "sessionObjective": "speed_priority",
+    "durationMinutes": 120,
     "phasePlan": [
-      { "phaseKey": "prepare_and_access", "minutes": 10, "label": "Prepare & Access" },
-      { "phaseKey": "movement_intelligence", "minutes": 13, "label": "Movement Intelligence" },
+      {
+        "phaseKey": "prepare_and_access",
+        "label": "Prepare & Access",
+        "minutes": 10,
+        "focusTargets": [],
+        "otherItemIds": [],
+        "pinned": true
+      },
+      {
+        "phaseKey": "movement_intelligence",
+        "label": "Movement Intelligence",
+        "minutes": 13,
+        "focusTargets": [],
+        "otherItemIds": [],
+        "pinned": false
+      },
       {
         "phaseKey": "output",
-        "minutes": 40,
         "label": "Output",
-        "focusTargets": [{ "facetType": "tenet", "facetKey": "speed", "weight": 3 }]
+        "minutes": 40,
+        "focusTargets": [
+          {
+            "weight": 6,
+            "facetId": 3,
+            "facetType": "tenet"
+          }
+        ],
+        "otherItemIds": [],
+        "pinned": false
       },
-      { "phaseKey": "capacity", "minutes": 30, "label": "Capacity" },
-      { "phaseKey": "resilience", "minutes": 13, "label": "Resilience" },
+      {
+        "phaseKey": "capacity",
+        "label": "Capacity",
+        "minutes": 30,
+        "focusTargets": [],
+        "otherItemIds": [],
+        "pinned": false
+      },
+      {
+        "phaseKey": "resilience",
+        "label": "Resilience",
+        "minutes": 13,
+        "focusTargets": [],
+        "otherItemIds": [],
+        "pinned": false
+      },
       {
         "phaseKey": "sustained_capacity",
-        "minutes": 10,
         "label": "Sustained Capacity",
-        "focusTargets": [{ "facetType": "methodology", "facetKey": "hiit", "weight": 3 }]
+        "minutes": 10,
+        "focusTargets": [
+          {
+            "weight": 5,
+            "facetId": 1169,
+            "facetType": "methodology"
+          }
+        ],
+        "otherItemIds": [],
+        "pinned": false
       },
-      { "phaseKey": "restore", "minutes": 4, "label": "Restore" }
+      {
+        "phaseKey": "restore",
+        "label": "Restore",
+        "minutes": 4,
+        "focusTargets": [],
+        "otherItemIds": [],
+        "pinned": false
+      }
     ]
   },
   "thresholds": {
@@ -49,5 +117,129 @@
       "maxSplitVariantWarnings": 1,
       "forbidHandstandInMIUnderAge": 15
     }
+  },
+  "savedRequirementsName": "Test 3 - Reqs only",
+  "savedRequirementsId": 3,
+  "savedRequirementsUpdatedAt": "2026-07-07T08:40:27.223Z",
+  "snapshot": {
+    "ageMax": 14,
+    "ageMin": 8,
+    "result": null,
+    "sportId": 1,
+    "nlPrompt": "",
+    "workMode": "exercise",
+    "phaseRows": [
+      {
+        "label": "Prepare & Access",
+        "pinned": true,
+        "minutes": 10,
+        "phaseKey": "prepare_and_access",
+        "focusTargets": [],
+        "otherItemIds": []
+      },
+      {
+        "label": "Movement Intelligence",
+        "pinned": false,
+        "minutes": 13,
+        "phaseKey": "movement_intelligence",
+        "focusTargets": [],
+        "otherItemIds": []
+      },
+      {
+        "label": "Output",
+        "pinned": false,
+        "minutes": 40,
+        "phaseKey": "output",
+        "focusTargets": [
+          {
+            "weight": 6,
+            "facetId": 3,
+            "facetType": "tenet"
+          }
+        ],
+        "otherItemIds": []
+      },
+      {
+        "label": "Capacity",
+        "pinned": false,
+        "minutes": 30,
+        "phaseKey": "capacity",
+        "focusTargets": [],
+        "otherItemIds": []
+      },
+      {
+        "label": "Resilience",
+        "pinned": false,
+        "minutes": 13,
+        "phaseKey": "resilience",
+        "focusTargets": [],
+        "otherItemIds": []
+      },
+      {
+        "label": "Sustained Capacity",
+        "pinned": false,
+        "minutes": 10,
+        "phaseKey": "sustained_capacity",
+        "focusTargets": [
+          {
+            "weight": 5,
+            "facetId": 1169,
+            "facetType": "methodology"
+          }
+        ],
+        "otherItemIds": []
+      },
+      {
+        "label": "Restore",
+        "pinned": false,
+        "minutes": 4,
+        "phaseKey": "restore",
+        "focusTargets": [],
+        "otherItemIds": []
+      }
+    ],
+    "skillLevel": "INTERMEDIATE",
+    "avoidTokens": [],
+    "equipmentUse": [
+      {
+        "id": "7",
+        "label": "Kettlebell"
+      },
+      {
+        "id": "1742",
+        "label": "Jump Rope"
+      },
+      {
+        "id": "12",
+        "label": "Cones / Ladder"
+      }
+    ],
+    "customMinutes": "",
+    "equipmentMode": "use",
+    "audienceSplits": [
+      {
+        "label": "Split 1",
+        "ageMax": 10,
+        "ageMin": 8,
+        "difficultyOverride": 6
+      },
+      {
+        "label": "Split 2",
+        "ageMax": 14,
+        "ageMin": 11,
+        "difficultyOverride": 10
+      }
+    ],
+    "equipmentAvoid": [
+      {
+        "id": "3",
+        "label": "Box / Plyo Box"
+      }
+    ],
+    "sessionMinutes": 120,
+    "blockProgramming": [],
+    "sessionObjective": "speed_priority",
+    "userEditedPrepare": false,
+    "difficultyOverride": ""
   }
 }

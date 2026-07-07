@@ -8,10 +8,24 @@ Round 2 (`--tier=baseline`) proved structure (restore, fill, box-avoid). Round 3
 
 | File | Role |
 |------|------|
-| [scripts/golden-prescription-scenario.json](../scripts/golden-prescription-scenario.json) | GAD 120-min speed / fitness / youth splits / box-avoid |
+| [scripts/golden-prescription-scenario.json](../scripts/golden-prescription-scenario.json) | Frozen copy of **Test 3 - Reqs only** (sync via script below) |
+| [scripts/sync-golden-from-saved-requirements.mjs](../scripts/sync-golden-from-saved-requirements.mjs) | Re-export saved requirements → golden JSON |
+| [scripts/needsEngineSnapshotToPrescribeBody.js](../scripts/needsEngineSnapshotToPrescribeBody.js) | Same prescribe body conversion as the UI |
 | [scripts/evaluate-prescription-quality.mjs](../scripts/evaluate-prescription-quality.mjs) | CLI evaluator (`--tier=strict` default) |
 | [backend/platform/prescriptionQualityChecks.js](../backend/platform/prescriptionQualityChecks.js) | Shared check definitions + thresholds |
 | [docs/NEEDS_ENGINE_QUALITY_LOOP.log](./NEEDS_ENGINE_QUALITY_LOOP.log) | One line per iteration (local; gitignored) |
+
+**Canonical comparison session:** saved requirements **`Test 3 - Reqs only`** (`coaching.coach_needs_engine_requirements`, id 3). The evaluator loads this row live when `savedRequirementsName` is set; the JSON file is a fallback if the row is missing.
+
+```bash
+# After editing Test 3 in the UI, refresh the frozen golden file:
+set -a && source backend/.env.local && set +a
+npm run needs-engine:sync-golden
+# or: node scripts/sync-golden-from-saved-requirements.mjs "Test 3 - Reqs only"
+
+# Run strict quality gate (same inputs as UI prescribe):
+npm run needs-engine:eval
+```
 
 ## Strict gates (summary)
 
@@ -61,7 +75,7 @@ Round 2 (`--tier=baseline`) proved structure (restore, fill, box-avoid). Round 3
 3. **Strict evaluator** (from repo root; `DATABASE_URL` in `backend/.env.local`)
    ```bash
    set -a && source backend/.env.local && set +a
-   node scripts/evaluate-prescription-quality.mjs
+   npm run needs-engine:eval
    ```
    Baseline smoke (optional): `node scripts/evaluate-prescription-quality.mjs --tier=baseline`
 4. **Fix failures** — priority: P0 → progression reuse/lane → stretch/youth → fill → warnings
