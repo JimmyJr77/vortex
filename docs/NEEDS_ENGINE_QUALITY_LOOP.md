@@ -45,7 +45,9 @@ Run this loop until the golden scenario passes **five times in a row** without h
 ## Stop condition
 
 ```
-Status: IN_PROGRESS
+Status: COMPLETE
+Completed at: 2026-07-07T09:16:00-04:00
+Final commit: 9a9d072
 Consecutive passes required: 2
 ```
 
