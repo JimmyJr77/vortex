@@ -86,20 +86,112 @@ function difficultyWithinCaps(difficulty, caps, hardExclude) {
   return fit === 'good' || fit === 'stretch'
 }
 
-function pickSplitAlternate(candidates, primaryExerciseId, caps, hardExclude) {
-  const primaryPattern = candidates.find((c) => Number(c.exercise.id) === Number(primaryExerciseId))
-    ?.tags?.find((t) => t.facetType === 'pattern')?.facetId
+function candidatePhaseProfile(candidate, phaseKey) {
+  return candidate.profiles?.find((p) => p.phaseKey === phaseKey && p.role !== 'avoid') ?? null
+}
 
-  for (const c of candidates) {
-    if (Number(c.exercise.id) === Number(primaryExerciseId)) continue
-    if (!difficultyWithinCaps(c.difficulty, caps, hardExclude)) continue
+function pickSplitAlternate(candidates, primaryCandidate, caps, hardExclude, excludeIds = new Set()) {
+  const primaryExerciseId = Number(primaryCandidate.exercise.id)
+  const primaryPattern = primaryCandidate.tags?.find((t) => t.facetType === 'pattern')?.facetId
+
+  const eligible = candidates.filter((c) => {
+    if (Number(c.exercise.id) === primaryExerciseId) return false
+    if (excludeIds.has(Number(c.exercise.id))) return false
+    if (!difficultyWithinCaps(c.difficulty, caps, hardExclude)) return false
     if (primaryPattern) {
       const pat = c.tags.find((t) => t.facetType === 'pattern')?.facetId
-      if (pat && pat !== primaryPattern) continue
+      if (pat && pat !== primaryPattern) return false
     }
-    return c
+    return true
+  })
+
+  eligible.sort((a, b) => {
+    const cap = Number(caps?.maxOverall ?? 10)
+    const aDiff = Number(a.difficulty?.overall ?? 99)
+    const bDiff = Number(b.difficulty?.overall ?? 99)
+    const aDist = Math.abs(aDiff - cap)
+    const bDist = Math.abs(bDiff - cap)
+    if (aDist !== bDist) return aDist - bDist
+    return (b.adjScore ?? b.score ?? 0) - (a.adjScore ?? a.score ?? 0)
+  })
+
+  return eligible[0] ?? null
+}
+
+function buildSplitVariantEntry(split, candidate, { variantType, substituted = false, scalingGuidance = null } = {}) {
+  return {
+    split_label: split.label,
+    age_min: split.ageMin ?? null,
+    age_max: split.ageMax ?? null,
+    difficulty_cap: split.caps?.maxOverall ?? null,
+    exercise_id: Number(candidate.exercise.id),
+    exercise_name: candidate.exercise.name,
+    difficulty: candidate.difficulty ?? null,
+    substituted: substituted || variantType === 'substituted',
+    variant_type: variantType,
+    scaling_guidance: scalingGuidance ?? null,
   }
-  return null
+}
+
+function resolvePerSplitVariants(primary, poolForPhase, scored, splitProfiles, phaseKey) {
+  const perSplit = []
+  const warnings = []
+  const reservedIds = new Set([Number(primary.exercise.id)])
+
+  const fallbackPool = scored.filter((c) => {
+    if (Number(c.exercise.id) === Number(primary.exercise.id)) return false
+    return Boolean(candidatePhaseProfile(c, phaseKey))
+  })
+
+  const searchPool = [...poolForPhase]
+  for (const c of fallbackPool) {
+    if (!searchPool.some((row) => Number(row.exercise.id) === Number(c.exercise.id))) {
+      searchPool.push(c)
+    }
+  }
+
+  for (const split of splitProfiles) {
+    const scalingGuidance = scalingGuidanceForCohort(primary.scalingProfiles, split.scalingCohort)
+    const fits = primary.difficulty && classifyAgeFit(primary.difficulty, split.caps) === 'good'
+
+    if (fits) {
+      perSplit.push(buildSplitVariantEntry(split, primary, {
+        variantType: scalingGuidance ? 'scaled' : 'same',
+        scalingGuidance,
+      }))
+      continue
+    }
+
+    const alt = pickSplitAlternate(searchPool, primary, split.caps, true, reservedIds)
+    if (alt) {
+      reservedIds.add(Number(alt.exercise.id))
+      perSplit.push(buildSplitVariantEntry(split, alt, {
+        variantType: 'substituted',
+        substituted: true,
+        scalingGuidance: scalingGuidanceForCohort(alt.scalingProfiles, split.scalingCohort),
+      }))
+      continue
+    }
+
+    if (scalingGuidance) {
+      perSplit.push(buildSplitVariantEntry(split, primary, {
+        variantType: 'scaled',
+        scalingGuidance,
+      }))
+      warnings.push(`${split.label}: ${primary.exercise.name} exceeds difficulty cap — coach scaling required.`)
+      continue
+    }
+
+    perSplit.push(buildSplitVariantEntry(split, primary, { variantType: 'missing' }))
+    warnings.push(`${split.label}: no suitable variant found for ${primary.exercise.name}.`)
+  }
+
+  return {
+    perSplit,
+    warnings,
+    complete: perSplit.every((entry) => entry.variant_type !== 'missing'),
+    reservedIds: [...reservedIds].filter((id) => id !== Number(primary.exercise.id)),
+  }
 }
 
 export class PrescriptionError extends Error {
@@ -134,7 +226,10 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   }
 
   const workMode = body.workMode ?? body.work_mode ?? 'exercise'
-  const hardDifficultyExclude = capsOverride != null || audienceSplits.some((s) => s.capsOverride ?? s.caps_override)
+  const hardDifficultyExclude = capsOverride != null || audienceSplits.some((s) => {
+    const override = s.capsOverride ?? s.caps_override ?? s.difficultyOverride ?? s.difficulty_override
+    return override != null
+  })
 
   const sportId = body.sportId != null ? Number(body.sportId) : null
   const level = body.skillLevel || body.skill_level || audience.impliedSkillLevel || null
@@ -309,12 +404,19 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
             maxLoad: Number(o.maxLoad ?? o.max_load ?? profile.caps.maxLoad),
           }
         }
-        return { label: split.label || `Ages ${split.ageMin}-${split.ageMax}`, caps: profile.caps, scalingCohort: profile.scalingCohort }
+        return {
+          label: split.label || `Ages ${split.ageMin ?? split.age_min}-${split.ageMax ?? split.age_max}`,
+          ageMin: split.ageMin ?? split.age_min ?? null,
+          ageMax: split.ageMax ?? split.age_max ?? null,
+          caps: profile.caps,
+          scalingCohort: profile.scalingCohort,
+        }
       })
     : []
 
   const resultBlocks = []
   const phaseRationales = []
+  const splitVariantWarnings = new Set()
 
   for (const block of phasePlan) {
     const phaseKey = block.phaseKey ?? block.phase_key ?? block.phase
@@ -457,33 +559,19 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       const cost = itemSecondsFromExercise(c.exercise, {})
       if (usedSeconds + cost > budgetSeconds && items.length > 0) continue
 
+      let perSplit = []
+      let splitReservedIds = []
+      if (splitProfiles.length > 0) {
+        const resolved = resolvePerSplitVariants(c, poolForPhase, scored, splitProfiles, phaseKey)
+        if (!resolved.complete) continue
+        perSplit = resolved.perSplit
+        splitReservedIds = resolved.reservedIds
+        for (const w of resolved.warnings) splitVariantWarnings.add(w)
+      }
+
       const eduEx = await loadEducationForExercise(pool, Number(c.exercise.id), c.exercise.slug)
       const why = educationToWhyResponse(eduEx)
       const cohortScaling = scalingGuidanceForCohort(c.scalingProfiles, scalingCohort)
-
-      const perSplit = []
-      for (const split of splitProfiles) {
-        const fits = difficultyWithinCaps(c.difficulty, split.caps, true)
-        if (fits) {
-          perSplit.push({
-            split_label: split.label,
-            exercise_id: Number(c.exercise.id),
-            exercise_name: c.exercise.name,
-            difficulty: c.difficulty,
-          })
-        } else {
-          const alt = pickSplitAlternate(poolForPhase, Number(c.exercise.id), split.caps, true)
-          if (alt) {
-            perSplit.push({
-              split_label: split.label,
-              exercise_id: Number(alt.exercise.id),
-              exercise_name: alt.exercise.name,
-              difficulty: alt.difficulty,
-              substituted: true,
-            })
-          }
-        }
-      }
 
       items.push({
         exercise_id: Number(c.exercise.id),
@@ -505,6 +593,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       })
       usedSeconds += cost
       usedExerciseIds.add(Number(c.exercise.id))
+      for (const altId of splitReservedIds) usedExerciseIds.add(altId)
       const patternTag = c.tags.find((t) => t.facetType === 'pattern')
       if (patternTag) usedPatterns.set(patternTag.facetId, (usedPatterns.get(patternTag.facetId) || 0) + 1)
       if (usedSeconds >= budgetSeconds) break
@@ -558,6 +647,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     },
     audience_splits: splitProfiles,
     age_fit_warnings: [...sessionWarnings],
+    split_variant_warnings: [...splitVariantWarnings],
     candidates: scored.slice(0, 40).map((c) => ({
       exercise_id: Number(c.exercise.id),
       exercise_name: c.exercise.name,

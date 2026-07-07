@@ -26,6 +26,7 @@ import type {
   PhaseFocusTarget,
 } from '../../coach/types'
 import { applyProgrammingMethodDefaults } from '../../coach/programmingBlockDefaults'
+import { splitVariantLabel, splitVariantTone, splitVariantsForItem } from '../../coach/splitVariants'
 import SmartCombobox, { type ComboboxOption } from './SmartCombobox'
 
 const FOCUS_LABELS: Record<FocusFacetType, string> = {
@@ -524,20 +525,57 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
-          {/* Work session mode */}
-          <div>
-            <span className="block text-sm font-semibold text-gray-700 mb-2">Work session</span>
-            <div className="inline-flex rounded-lg border border-gray-300 overflow-hidden">
-              {(['exercise', 'skill'] as WorkMode[]).map((mode) => (
-                <button
-                  key={mode}
-                  type="button"
-                  onClick={() => setWorkMode(mode)}
-                  className={`px-4 py-2 text-sm font-medium capitalize ${workMode === mode ? 'bg-vortex-red text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-                >
-                  {mode}
-                </button>
-              ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-gray-700">Work session</span>
+                <div className="inline-flex rounded border border-gray-300 overflow-hidden text-xs">
+                  {(['exercise', 'skill'] as WorkMode[]).map((mode) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setWorkMode(mode)}
+                      className={`px-2 py-1 capitalize ${workMode === mode ? 'bg-vortex-red text-white' : 'bg-white'}`}
+                    >
+                      {mode}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Equipment Use / Avoid */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-gray-700">Equipment</span>
+                <div className="inline-flex rounded border border-gray-300 overflow-hidden text-xs">
+                  <button type="button" onClick={() => setEquipmentMode('use')} className={`px-2 py-1 ${equipmentMode === 'use' ? 'bg-vortex-red text-white' : 'bg-white'}`}>Use</button>
+                  <button type="button" onClick={() => setEquipmentMode('avoid')} className={`px-2 py-1 ${equipmentMode === 'avoid' ? 'bg-vortex-red text-white' : 'bg-white'}`}>Avoid</button>
+                </div>
+              </div>
+              {equipmentMode === 'use' ? (
+                <SmartCombobox
+                  options={equipmentOptions}
+                  selected={equipmentUse}
+                  onChange={setEquipmentUse}
+                  placeholder="Required equipment (hard constraint)…"
+                  allowCustom
+                  onCustomAdd={(text) => ({ id: `custom:${text}`, label: text })}
+                />
+              ) : (
+                <>
+                  <div className="flex gap-2 mb-2">
+                    <button type="button" onClick={selectAllEquipmentAvoid} className="text-xs text-gray-600 hover:text-vortex-red">Select all</button>
+                    <button type="button" onClick={deselectAllEquipmentAvoid} className="text-xs text-gray-600 hover:text-vortex-red">Deselect all</button>
+                  </div>
+                  <SmartCombobox
+                    options={equipmentOptions}
+                    selected={equipmentAvoid}
+                    onChange={setEquipmentAvoid}
+                    placeholder="Equipment to exclude…"
+                  />
+                </>
+              )}
             </div>
           </div>
 
@@ -656,40 +694,6 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Equipment Use / Avoid */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-gray-700">Equipment</span>
-              <div className="inline-flex rounded border border-gray-300 overflow-hidden text-xs">
-                <button type="button" onClick={() => setEquipmentMode('use')} className={`px-2 py-1 ${equipmentMode === 'use' ? 'bg-vortex-red text-white' : 'bg-white'}`}>Use</button>
-                <button type="button" onClick={() => setEquipmentMode('avoid')} className={`px-2 py-1 ${equipmentMode === 'avoid' ? 'bg-vortex-red text-white' : 'bg-white'}`}>Avoid</button>
-              </div>
-            </div>
-            {equipmentMode === 'use' ? (
-              <SmartCombobox
-                options={equipmentOptions}
-                selected={equipmentUse}
-                onChange={setEquipmentUse}
-                placeholder="Required equipment (hard constraint)…"
-                allowCustom
-                onCustomAdd={(text) => ({ id: `custom:${text}`, label: text })}
-              />
-            ) : (
-              <>
-                <div className="flex gap-2 mb-2">
-                  <button type="button" onClick={selectAllEquipmentAvoid} className="text-xs text-gray-600 hover:text-vortex-red">Select all</button>
-                  <button type="button" onClick={deselectAllEquipmentAvoid} className="text-xs text-gray-600 hover:text-vortex-red">Deselect all</button>
-                </div>
-                <SmartCombobox
-                  options={equipmentOptions}
-                  selected={equipmentAvoid}
-                  onChange={setEquipmentAvoid}
-                  placeholder="Equipment to exclude…"
-                />
-              </>
-            )}
           </div>
 
           {/* Avoid list */}
@@ -905,6 +909,25 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                       {result.age_fit_warnings!.slice(0, 4).map((w) => <li key={w}>{w}</li>)}
                     </ul>
                   )}
+                  {(result.split_variant_warnings?.length ?? 0) > 0 && (
+                    <ul className="mt-2 text-xs text-amber-800 list-disc ml-4">
+                      {result.split_variant_warnings!.slice(0, 4).map((w) => <li key={w}>{w}</li>)}
+                    </ul>
+                  )}
+                </div>
+              )}
+              {(result.audience_splits?.length ?? 0) > 0 && (
+                <div className="rounded-lg border border-purple-100 bg-purple-50 p-3 text-sm">
+                  <div className="font-semibold text-purple-900">Age splits — one session, per-group variants</div>
+                  <ul className="mt-2 space-y-1 text-xs text-purple-800">
+                    {result.audience_splits!.map((split) => (
+                      <li key={split.label}>
+                        <span className="font-medium">{split.label}</span>
+                        {split.ageMin != null || split.ageMax != null ? ` (ages ${split.ageMin ?? '?'}-${split.ageMax ?? '?'})` : ''}
+                        {' · '}cap {split.caps.maxOverall}/10
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
               {(result.phase_rationales ?? []).map((pr, i) => (
@@ -924,7 +947,9 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                     <div className="text-xs text-indigo-700 mt-1">Format: {blockProgramming[i]?.name}</div>
                   )}
                   <ul className="mt-2 space-y-2">
-                    {b.items.map((it, j) => (
+                    {b.items.map((it, j) => {
+                      const splitVariants = splitVariantsForItem(it)
+                      return (
                       <li key={`${it.exercise_id}-${j}`} className={`text-sm border-t border-gray-50 first:border-t-0 pt-2 first:pt-0 ${it.age_fit === 'over_cap' || it.age_fit === 'stretch' ? 'bg-amber-50/80 -mx-2 px-2 rounded' : ''}`}>
                         <div className="flex items-center justify-between gap-2 flex-wrap">
                           <span className="text-gray-700">{it.exercise_name} <span className="text-gray-400">{it.sets}x{it.reps ?? '-'}</span></span>
@@ -933,17 +958,42 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                             {it.age_fit === 'good' && <span className="text-green-700">Age OK</span>}
                             {it.age_fit === 'stretch' && <span className="text-amber-700">Stretch</span>}
                             {it.age_fit === 'over_cap' && <span className="text-amber-800 font-medium">Over cap</span>}
-                            <span className="text-vortex-red font-medium">score {it.score}</span>
                           </span>
                         </div>
-                        {(it.per_split ?? it.split_alternates_json)?.map((ps) => (
-                          <span key={ps.split_label} className="inline-block mr-1 mt-1 text-xs rounded-full bg-purple-50 text-purple-700 px-2 py-0.5">
-                            {ps.split_label}: {ps.exercise_name}{ps.substituted ? ' (alt)' : ''}
-                          </span>
-                        ))}
+                        {splitVariants.length > 0 && (
+                          <div className="mt-2 overflow-x-auto">
+                            <table className="min-w-full text-xs border border-purple-100 rounded-lg overflow-hidden">
+                              <thead className="bg-purple-50 text-purple-900">
+                                <tr>
+                                  <th className="text-left px-2 py-1 font-semibold">Group</th>
+                                  <th className="text-left px-2 py-1 font-semibold">Exercise</th>
+                                  <th className="text-left px-2 py-1 font-semibold">Variant</th>
+                                  <th className="text-left px-2 py-1 font-semibold">Notes</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {splitVariants.map((ps) => (
+                                  <tr key={ps.split_label} className="border-t border-purple-50">
+                                    <td className="px-2 py-1 text-gray-700">{ps.split_label}</td>
+                                    <td className="px-2 py-1 text-gray-800">{ps.exercise_name}</td>
+                                    <td className="px-2 py-1">
+                                      <span className={`inline-block rounded-full px-2 py-0.5 ${splitVariantTone(ps)}`}>
+                                        {splitVariantLabel(ps)}
+                                      </span>
+                                    </td>
+                                    <td className="px-2 py-1 text-gray-500">
+                                      {ps.difficulty?.overall != null ? `D${ps.difficulty.overall}/10` : '—'}
+                                      {ps.scaling_guidance ? ` · ${ps.scaling_guidance}` : ''}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
                         {it.selection_rationale && <p className="text-xs text-gray-500 mt-1">{it.selection_rationale}</p>}
                       </li>
-                    ))}
+                    )})}
                     {b.items.length === 0 && <li className="text-xs text-gray-400">{b.other_kind === 'tramp_tumble' ? 'Reserved time block.' : 'No matching exercises.'}</li>}
                   </ul>
                 </div>

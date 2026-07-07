@@ -10,6 +10,7 @@ import { orderSlotsForSubrole, prepareAccessSubroleSequence } from '../../coach/
 import type { BlockFormat, Exercise, ProgrammingMethod, ProgrammingMethodSummary, ValidationResult, Workout, WorkoutType } from '../../coach/types'
 import { applyProgrammingMethodDefaults } from '../../coach/programmingBlockDefaults'
 import { parseExerciseCompatibility, programmingExerciseFit, type ProgrammingExerciseFit } from '../../coach/programmingExerciseCompat'
+import { splitVariantLabel, splitVariantTone, splitVariantsForItem } from '../../coach/splitVariants'
 
 function fmt(seconds: number) {
   const m = Math.floor(seconds / 60)
@@ -291,6 +292,22 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
         </div>
       )}
 
+      {(workout.audience_splits_json?.length ?? 0) > 0 && (
+        <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 text-sm">
+          <div className="text-xs font-semibold text-purple-900 uppercase mb-1">Age splits</div>
+          <ul className="space-y-1 text-xs text-purple-800">
+            {workout.audience_splits_json!.map((split) => (
+              <li key={split.label}>
+                <span className="font-medium">{split.label}</span>
+                {' '}(ages {split.ageMin}-{split.ageMax})
+                {split.difficultyOverride != null ? ` · cap ${split.difficultyOverride}/10` : ''}
+              </li>
+            ))}
+          </ul>
+          <p className="text-xs text-purple-700 mt-2">Each exercise below can show a different variant per group.</p>
+        </div>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
         <div className="space-y-4">
           <div className="bg-white border border-gray-200 rounded-xl p-4 grid gap-3 md:grid-cols-2">
@@ -427,6 +444,18 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
                       <button type="button" onClick={() => moveItem(bi, ii, 1)} className="text-gray-300 hover:text-gray-700"><ChevronDown className="w-4 h-4" /></button>
                       <button type="button" onClick={() => removeItem(bi, ii)} className="text-gray-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
                     </div>
+                    {splitVariantsForItem(item).length > 0 && (
+                      <div className="col-span-full mt-1 space-y-1">
+                        {splitVariantsForItem(item).map((variant) => (
+                          <div key={variant.split_label} className="flex flex-wrap items-center gap-2 text-xs">
+                            <span className="font-medium text-gray-600">{variant.split_label}:</span>
+                            <span className="text-gray-800">{variant.exercise_name}</span>
+                            <span className={`rounded-full px-2 py-0.5 ${splitVariantTone(variant)}`}>{splitVariantLabel(variant)}</span>
+                            {variant.scaling_guidance && <span className="text-gray-500">{variant.scaling_guidance}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
                 <button type="button" onClick={() => setPickerBlock(bi)} className="flex items-center gap-1 text-sm text-vortex-red font-medium mt-1">
@@ -630,6 +659,17 @@ function WorkoutPreviewModal({
                       {item.load && <span>Load: {item.load}</span>}
                       {item.tempo && <span>Tempo: {item.tempo}</span>}
                     </div>
+                    {splitVariantsForItem(item).length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {splitVariantsForItem(item).map((variant) => (
+                          <div key={variant.split_label} className="text-xs flex flex-wrap gap-2">
+                            <span className="font-medium text-purple-800">{variant.split_label}:</span>
+                            <span>{variant.exercise_name}</span>
+                            <span className={`rounded-full px-2 py-0.5 ${splitVariantTone(variant)}`}>{splitVariantLabel(variant)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     {item.coaching_note && (
                       <p className="text-xs text-gray-600 mt-1 italic">{item.coaching_note}</p>
                     )}

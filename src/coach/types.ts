@@ -440,6 +440,11 @@ export interface SplitAlternate {
   exercise_name: string
   difficulty?: ExerciseDifficultyProfile | null
   substituted?: boolean
+  variant_type?: 'same' | 'substituted' | 'scaled' | 'missing'
+  scaling_guidance?: string | null
+  age_min?: number | null
+  age_max?: number | null
+  difficulty_cap?: number | null
 }
 
 export interface WorkoutItem {
@@ -722,8 +727,9 @@ export interface PrescriptionResult {
   work_mode?: 'exercise' | 'skill'
   candidates: Array<{ exercise_id: number; exercise_name: string; score: number; est_seconds_per_set: number; primary_phase?: string | null }>
   audience_profile?: PrescriptionAudienceProfile
-  audience_splits?: Array<{ label: string; caps: PrescriptionAudienceProfile['caps'] }>
+  audience_splits?: Array<{ label: string; ageMin?: number | null; ageMax?: number | null; caps: PrescriptionAudienceProfile['caps']; scalingCohort?: string }>
   age_fit_warnings?: string[]
+  split_variant_warnings?: string[]
 }
 
 export interface SessionPhaseTemplate {
