@@ -49,7 +49,7 @@ interface FilterState {
   maxOverall: number | ''
   minTechnical: number | ''
   minLoad: number | ''
-  minComplexity: number | ''
+  programmingKind: '' | 'exercise' | 'skill_drill'
   sort: '' | 'difficulty_desc'
 }
 
@@ -61,7 +61,7 @@ const DIFFICULTY_PRESETS = [
   { label: 'Elite (≥9)', minOverall: 9, maxOverall: '' },
 ] as const
 
-const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, minImpact: '', maxImpact: '', minOverall: '', maxOverall: '', minTechnical: '', minLoad: '', minComplexity: '', sort: '' }
+const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, minImpact: '', maxImpact: '', minOverall: '', maxOverall: '', minTechnical: '', minLoad: '', programmingKind: '', sort: '' }
 
 function buildExerciseQueryParams(filters: FilterState, pagination?: { limit: number; offset: number }) {
   const params = new URLSearchParams()
@@ -85,7 +85,7 @@ function buildExerciseQueryParams(filters: FilterState, pagination?: { limit: nu
   if (filters.maxOverall !== '') params.set('max_overall', String(filters.maxOverall))
   if (filters.minTechnical !== '') params.set('min_technical', String(filters.minTechnical))
   if (filters.minLoad !== '') params.set('min_load', String(filters.minLoad))
-  if (filters.minComplexity !== '') params.set('min_complexity', String(filters.minComplexity))
+  if (filters.programmingKind) params.set('programming_kind', filters.programmingKind)
   if (filters.sort) params.set('sort', filters.sort)
   if (pagination) {
     params.set('limit', String(pagination.limit))
@@ -402,7 +402,14 @@ export default function ExerciseLibrary() {
           <label className="block text-xs font-semibold text-gray-500 mb-1">Min overall difficulty</label>
           <select
             value={filters.minOverall}
-            onChange={(e) => setFilters((f) => ({ ...f, minOverall: e.target.value ? Number(e.target.value) : '' }))}
+            onChange={(e) => {
+              const minOverall = e.target.value ? Number(e.target.value) : ''
+              setFilters((f) => ({
+                ...f,
+                minOverall,
+                maxOverall: minOverall !== '' && f.maxOverall !== '' && f.maxOverall < minOverall ? minOverall : f.maxOverall,
+              }))
+            }}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
           >
             <option value="">Any</option>
@@ -413,11 +420,30 @@ export default function ExerciseLibrary() {
           <label className="block text-xs font-semibold text-gray-500 mb-1">Max overall difficulty</label>
           <select
             value={filters.maxOverall}
-            onChange={(e) => setFilters((f) => ({ ...f, maxOverall: e.target.value ? Number(e.target.value) : '' }))}
+            onChange={(e) => {
+              const maxOverall = e.target.value ? Number(e.target.value) : ''
+              setFilters((f) => ({
+                ...f,
+                maxOverall,
+                minOverall: maxOverall !== '' && f.minOverall !== '' && f.minOverall > maxOverall ? maxOverall : f.minOverall,
+              }))
+            }}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
           >
             <option value="">Any</option>
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => <option key={n} value={n}>≤ {n}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 mb-1">Library type</label>
+          <select
+            value={filters.programmingKind}
+            onChange={(e) => setFilters((f) => ({ ...f, programmingKind: e.target.value as FilterState['programmingKind'] }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="">All types</option>
+            <option value="exercise">Workouts (exercises)</option>
+            <option value="skill_drill">Skill drills</option>
           </select>
         </div>
         <div>

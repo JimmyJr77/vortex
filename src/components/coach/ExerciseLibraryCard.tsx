@@ -33,16 +33,23 @@ export default function ExerciseLibraryCard({
   const programmingNote = whyPreview(exercise.why)
   const phaseProfile = primaryPhaseProfile(exercise)
   const diff = exercise.difficulty_profile
+  const isSkillDrill = exercise.programming_kind === 'skill_drill'
+  const youthCap = 6
 
   const programmingFlags: Array<{ key: string; label: string; variant: 'flag' | 'warning' | 'impact' | 'positive' | 'group' | 'difficulty' }> = []
+  if (isSkillDrill) {
+    programmingFlags.push({ key: 'kind', label: 'Skill drill', variant: 'group' })
+  } else {
+    programmingFlags.push({ key: 'kind', label: 'Workout', variant: 'flag' })
+  }
   if (diff?.overall != null) {
     programmingFlags.push({
       key: 'difficulty',
       label: `Overall ${diff.overall}/10`,
       variant: diff.overall >= 7 ? 'warning' : 'difficulty',
     })
-    if (diff.overall > 5) {
-      programmingFlags.push({ key: 'youth', label: 'Above youth cap', variant: 'warning' })
+    if (!isSkillDrill && diff.load > youthCap) {
+      programmingFlags.push({ key: 'load', label: 'High load for youth', variant: 'warning' })
     }
   }
   if (phaseProfile?.freshnessRequired) {
@@ -84,9 +91,10 @@ export default function ExerciseLibraryCard({
         <p className="w-full text-xs leading-snug text-gray-500">
           {[exercise.sport_name, identityLine].filter(Boolean).join(' · ')}
           {diff && (
-            <span className="block mt-1 text-gray-600" title={`Technical ${diff.technical} · Load ${diff.load} · Complexity ${diff.complexity}`}>
-              Difficulty: T{diff.technical} L{diff.load} C{diff.complexity}
-              {exercise.difficulty_profile?.recommended_age_min != null ? ` · Ages ${exercise.difficulty_profile.recommended_age_min}+` : ''}
+            <span className="block mt-1 text-gray-600" title={`Technical ${diff.technical} · Load ${diff.load}${diff.source === 'derived' ? ' · estimated' : ''}`}>
+              Difficulty: overall {diff.overall}/10 · T{diff.technical} · L{diff.load}
+              {!isSkillDrill && exercise.difficulty_profile?.recommended_age_min != null ? ` · Ages ${exercise.difficulty_profile.recommended_age_min}+` : ''}
+              {isSkillDrill ? ' · Class/level gated' : ''}
             </span>
           )}
         </p>

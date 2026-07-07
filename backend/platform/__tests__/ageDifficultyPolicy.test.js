@@ -12,9 +12,9 @@ import {
   detectStrengthIntent,
 } from '../ageDifficultyPolicy.js'
 
-test('computeOverallDifficulty uses max of sub-scores', () => {
-  assert.equal(computeOverallDifficulty(3, 7, 4), 7)
-  assert.equal(computeOverallDifficulty(3, 7, 4, 5), 5)
+test('computeOverallDifficulty uses max of load and technical', () => {
+  assert.equal(computeOverallDifficulty(3, 7), 7)
+  assert.equal(computeOverallDifficulty(3, 7, 5), 5)
 })
 
 test('resolveAgeBand for 6-8 returns youth_intermediate caps', () => {
@@ -38,24 +38,24 @@ test('resolveAudienceProfile auto-configures strength for ages 6-8', () => {
 })
 
 test('scoreAgeDifficultyFit soft penalty above caps', () => {
-  const caps = { maxOverall: 5, maxTechnical: 5, maxLoad: 4, maxComplexity: 4 }
-  assert.equal(scoreAgeDifficultyFit({ overall: 4, technical: 4, load: 3, complexity: 3 }, caps), 1)
-  const moderate = scoreAgeDifficultyFit({ overall: 8, technical: 7, load: 7, complexity: 6 }, caps)
+  const caps = { maxOverall: 5, maxTechnical: 5, maxLoad: 4 }
+  assert.equal(scoreAgeDifficultyFit({ overall: 4, technical: 4, load: 3 }, caps), 1)
+  const moderate = scoreAgeDifficultyFit({ overall: 8, technical: 7, load: 7 }, caps)
   assert.ok(moderate < 0.75)
   assert.ok(moderate >= 0.15)
-  const severe = scoreAgeDifficultyFit({ overall: 10, technical: 10, load: 10, complexity: 10 }, caps)
+  const severe = scoreAgeDifficultyFit({ overall: 10, technical: 10, load: 10 }, caps)
   assert.ok(severe <= 0.35)
 })
 
 test('classifyAgeFit buckets', () => {
-  const caps = { maxOverall: 5, maxTechnical: 5, maxLoad: 4, maxComplexity: 4 }
-  assert.equal(classifyAgeFit({ overall: 4, technical: 4, load: 3, complexity: 3 }, caps), 'good')
-  assert.equal(classifyAgeFit({ overall: 10, technical: 10, load: 10, complexity: 10 }, caps), 'over_cap')
+  const caps = { maxOverall: 5, maxTechnical: 5, maxLoad: 4 }
+  assert.equal(classifyAgeFit({ overall: 4, technical: 4, load: 3 }, caps), 'good')
+  assert.equal(classifyAgeFit({ overall: 10, technical: 10, load: 10 }, caps), 'over_cap')
 })
 
 test('ageFitWarnings lists breaches', () => {
-  const caps = { maxOverall: 5, maxTechnical: 5, maxLoad: 4, maxComplexity: 4 }
-  const warnings = ageFitWarnings({ overall: 6, technical: 4, load: 5, complexity: 3 }, caps, 'Push-up')
+  const caps = { maxOverall: 5, maxTechnical: 5, maxLoad: 4 }
+  const warnings = ageFitWarnings({ overall: 6, technical: 4, load: 5 }, caps, 'Push-up')
   assert.ok(warnings.some((w) => w.includes('overall')))
   assert.ok(warnings.some((w) => w.includes('load')))
 })

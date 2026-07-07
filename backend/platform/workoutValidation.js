@@ -8,6 +8,7 @@ import {
   analyzeControlHandSupportReadiness,
 } from './controlResilienceValidation.js'
 import { resolveAudienceProfile, ageFitWarnings } from './ageDifficultyPolicy.js'
+import { LADDER_MOVEMENT_INTELLIGENCE_SLUGS } from './ladderMovementIntelligenceSlugs.js'
 
 const SUBROLE_ORDER = {
   raise: 10,
@@ -630,7 +631,7 @@ const SPRINT_MECHANICS_SKILL_SLUGS = new Set([
   'a-skip', 'ankling-dribble-march', 'straight-leg-bound-march', 'falling-start-hold',
   'two-point-start-walk-in', 'arm-action-drill',
 ])
-const LADDER_SKILL_SLUGS = new Set(['ladder-in-in-out-out', 'ladder-ickey-shuffle'])
+const LADDER_SKILL_SLUGS = new Set(['ladder-in-in-out-out', 'ladder-ickey-shuffle', ...LADDER_MOVEMENT_INTELLIGENCE_SLUGS])
 const BALANCE_SKILL_SLUGS = new Set([
   'beam-walk', 'single-leg-balance-clock', 'cross-crawl-march', 'skipping-rhythm-drill',
   'carioca-walkthrough', 'lateral-shuffle-walkthrough', 'backpedal-walkthrough',
@@ -5007,6 +5008,7 @@ export async function validateWorkoutDraft(pool, draft) {
   const dosageByExercise = new Map()
   const slugByExercise = new Map()
   const exerciseSkillLevelById = new Map()
+  const programmingKindByExercise = new Map()
   const difficultyByExercise = new Map()
   let tagRows = []
   const methodologyKeysByExercise = new Map()
@@ -5037,13 +5039,14 @@ export async function validateWorkoutDraft(pool, draft) {
          FROM coaching.exercise_dosage_profile WHERE exercise_id = ANY($1::bigint[]) AND profile_name = 'Default'`,
         [exerciseIds],
       ),
-      pool.query(`SELECT id, slug, skill_level FROM coaching.exercise WHERE id = ANY($1::bigint[])`, [exerciseIds]),
-      pool.query(`SELECT exercise_id, technical, load, complexity, overall FROM coaching.exercise_difficulty_profile WHERE exercise_id = ANY($1::bigint[])`, [exerciseIds]).catch(() => ({ rows: [] })),
+      pool.query(`SELECT id, slug, skill_level, programming_kind FROM coaching.exercise WHERE id = ANY($1::bigint[])`, [exerciseIds]),
+      pool.query(`SELECT exercise_id, technical, load, overall FROM coaching.exercise_difficulty_profile WHERE exercise_id = ANY($1::bigint[])`, [exerciseIds]).catch(() => ({ rows: [] })),
     ])
     tagRows = tags.rows
     for (const ex of exercises.rows) {
       slugByExercise.set(String(ex.id), ex.slug)
       if (ex.skill_level) exerciseSkillLevelById.set(String(ex.id), ex.skill_level)
+      if (ex.programming_kind) programmingKindByExercise.set(String(ex.id), ex.programming_kind)
     }
     for (const p of profiles.rows) {
       profileByExercisePhase.set(`${p.exercise_id}:${p.phase_key}`, p)
@@ -5945,12 +5948,12 @@ export async function validateWorkoutDraft(pool, draft) {
     for (const meta of blockMeta) {
       for (const item of meta.block.items ?? []) {
         const exerciseId = String(item.exercise_id ?? item.exerciseId)
+        if (programmingKindByExercise.get(exerciseId) === 'skill_drill') continue
         const diffRow = difficultyByExercise.get(exerciseId)
         if (!diffRow) continue
         const difficulty = {
           technical: Number(diffRow.technical),
           load: Number(diffRow.load),
-          complexity: Number(diffRow.complexity),
           overall: Number(diffRow.overall),
         }
         const breaches = ageFitWarnings(difficulty, profile.caps, item.exercise_name ?? 'Exercise')

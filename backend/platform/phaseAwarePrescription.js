@@ -95,7 +95,9 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     where.push(`(e.age_max IS NULL OR e.age_max >= $${params.length})`)
     where.push(`NOT EXISTS (
       SELECT 1 FROM coaching.exercise_difficulty_profile d
-      WHERE d.exercise_id = e.id AND d.recommended_age_min IS NOT NULL AND d.recommended_age_min > $${params.length}
+      WHERE d.exercise_id = e.id
+        AND e.programming_kind = 'exercise'
+        AND d.recommended_age_min IS NOT NULL AND d.recommended_age_min > $${params.length}
     )`)
   }
   if (ageMax != null) {
@@ -143,14 +145,15 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       const profiles = bundle.phaseProfiles.get(String(ex.id)) ?? []
       const difficulty = bundle.difficultyProfiles?.get(String(ex.id)) ?? null
       const primary = profiles.find((p) => p.role === 'primary') ?? profiles[0]
+      const isSkillDrill = ex.programming_kind === 'skill_drill'
 
       if (strengthIntent && primary?.phaseKey === 'capacity') score += 4
       if (strengthIntent && (primary?.impactLevel ?? 99) <= 1) score += 2
 
-      const ageMultiplier = scoreAgeDifficultyFit(difficulty, caps)
+      const ageMultiplier = isSkillDrill ? 1 : scoreAgeDifficultyFit(difficulty, caps)
       score *= ageMultiplier
 
-      if (difficulty && caps && classifyAgeFit(difficulty, caps) !== 'good') {
+      if (!isSkillDrill && difficulty && caps && classifyAgeFit(difficulty, caps) !== 'good') {
         for (const w of ageFitWarnings(difficulty, caps, ex.name)) sessionWarnings.add(w)
       }
 

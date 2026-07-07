@@ -1,0 +1,14156 @@
+# Vortex Cone Drill Exercise Cards - All 50
+
+```json
+{
+  "cluster": {
+    "topic": "best_cone_drill_exercises",
+    "phase_mix": [
+      "movement_intelligence",
+      "output",
+      "resilience",
+      "sustained_capacity"
+    ],
+    "categories": [
+      "Foundational mechanics & speed exposure",
+      "Deceleration, braking & cut preparation",
+      "Planned change-of-direction patterns and tests",
+      "Curvilinear, multidirectional & spatial-control drills",
+      "Reactive agility, partner games & repeatability"
+    ],
+    "card_count": 50,
+    "source_rules": [
+      "Authoring format uses camelCase fields with taxonomy key+weight.",
+      "Use canonical phase keys only.",
+      "Include six required scaling cohorts plus safety, dosage, difficultyProfile, athleteLanguage, and direct YouTube watch URLs."
+    ]
+  },
+  "cards": [
+    {
+      "slug": "cone-march-line",
+      "name": "Cone March Line",
+      "family": "Cone Sprint Mechanics",
+      "subrole": "locomotion_sprint_mechanics",
+      "slot": "cone_sprint_mechanics",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for posture, arm action, rhythm, and front-side mechanics. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Cone March Line is a cone-based athletic drill focused on posture, arm action, rhythm, and front-side mechanics. Place 6-10 cones in a straight line about one walking stride apart. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: locomotion_sprint_mechanics. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "This is the lowest-risk way to connect upright posture, arm timing, dorsiflexion, and foot strike before faster cone runs.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "Cone March Line uses cones to create a clear movement problem: posture, arm action, rhythm, and front-side mechanics. Place 6-10 cones in a straight line about one walking stride apart. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Place 6-10 cones in a straight line about one walking stride apart.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the cone march line route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=dYVkpFAdHi8",
+        "https://www.youtube.com/watch?v=TOWXgGASKbM",
+        "https://www.youtube.com/watch?v=3ZLQ_LOPREo",
+        "https://www.youtube.com/watch?v=6W4ZFdtlRVA"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 3,
+        "load": 2,
+        "complexity": 3,
+        "overall": 3,
+        "recommended_age_min": 6,
+        "recommended_age_max": null,
+        "attention_demand": "low",
+        "notes": "Typical for ages 6+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=3, load=2, complexity=3."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "cone-skip-rhythm-build",
+      "name": "Cone Skip Rhythm Build",
+      "family": "Cone Sprint Mechanics",
+      "subrole": "balance_coordination_rhythm",
+      "slot": "cone_skip_rhythm",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for elastic rhythm, posture, and timing without racing. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Cone Skip Rhythm Build is a cone-based athletic drill focused on elastic rhythm, posture, and timing without racing. Place 6-8 cones in a line; spacing allows relaxed skip contacts. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: balance_coordination_rhythm. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Skips teach stiffness, rhythm, and coordination while staying technical enough for youth athletes.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Cone Skip Rhythm Build uses cones to create a clear movement problem: elastic rhythm, posture, and timing without racing. Place 6-8 cones in a line; spacing allows relaxed skip contacts. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Place 6-8 cones in a line; spacing allows relaxed skip contacts.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the cone skip rhythm build route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=dYVkpFAdHi8",
+        "https://www.youtube.com/watch?v=TOWXgGASKbM",
+        "https://www.youtube.com/watch?v=3ZLQ_LOPREo",
+        "https://www.youtube.com/watch?v=6W4ZFdtlRVA"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 3,
+        "load": 2,
+        "complexity": 3,
+        "overall": 3,
+        "recommended_age_min": 6,
+        "recommended_age_max": null,
+        "attention_demand": "low",
+        "notes": "Typical for ages 6+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=3, load=2, complexity=3."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "a-skip-through-cone-gates",
+      "name": "A-Skip Through Cone Gates",
+      "family": "Cone Sprint Mechanics",
+      "subrole": "locomotion_sprint_mechanics",
+      "slot": "cone_sprint_mechanics",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for front-side sprint mechanics and posture through visual gates. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "A-Skip Through Cone Gates is a cone-based athletic drill focused on front-side sprint mechanics and posture through visual gates. Use paired cones as 6-8 gates, each about one skip stride apart. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: locomotion_sprint_mechanics. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        },
+        {
+          "key": "mobility_flexibility",
+          "weight": 2
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The gates constrain rhythm and step length without over-coaching, making sprint mechanics more visible.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "A-Skip Through Cone Gates uses cones to create a clear movement problem: front-side sprint mechanics and posture through visual gates. Use paired cones as 6-8 gates, each about one skip stride apart. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Use paired cones as 6-8 gates, each about one skip stride apart.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the a-skip through cone gates route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=dYVkpFAdHi8",
+        "https://www.youtube.com/watch?v=TOWXgGASKbM",
+        "https://www.youtube.com/watch?v=3ZLQ_LOPREo",
+        "https://www.youtube.com/watch?v=6W4ZFdtlRVA"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 4,
+        "load": 2,
+        "complexity": 3,
+        "overall": 4,
+        "recommended_age_min": 7,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 7+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=4, load=2, complexity=3."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "falling-start-to-10-yard-cone",
+      "name": "Falling Start to 10-Yard Cone",
+      "family": "Cone Acceleration",
+      "subrole": "acceleration_start_speed",
+      "slot": "short_acceleration_start",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for first-step projection and acceleration posture. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "Falling Start to 10-Yard Cone is a cone-based athletic drill focused on first-step projection and acceleration posture. One start line cone and one finish cone 10 yards away. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: acceleration_start_speed. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "speed",
+          "weight": 5
+        },
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The forward fall creates a simple projection constraint so the athlete learns to push the ground back instead of popping up.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "Falling Start to 10-Yard Cone uses cones to create a clear movement problem: first-step projection and acceleration posture. One start line cone and one finish cone 10 yards away. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "One start line cone and one finish cone 10 yards away.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the falling start to 10-yard cone route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=TOWXgGASKbM",
+        "https://www.youtube.com/watch?v=dYVkpFAdHi8",
+        "https://www.youtube.com/watch?v=3ZLQ_LOPREo",
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 5,
+        "complexity": 3,
+        "overall": 5,
+        "recommended_age_min": 9,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 9+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=5, complexity=3."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 2,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "split-stance-10-yard-acceleration",
+      "name": "Split-Stance 10-Yard Acceleration",
+      "family": "Cone Acceleration",
+      "subrole": "acceleration_start_speed",
+      "slot": "short_acceleration_start",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for explosive first two steps from a staggered stance. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "Split-Stance 10-Yard Acceleration is a cone-based athletic drill focused on explosive first two steps from a staggered stance. One start cone and one finish cone 10 yards away. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: acceleration_start_speed. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "speed",
+          "weight": 5
+        },
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The split stance exposes push-off asymmetries and lets the coach cue shin angle, torso angle, and arm drive.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "Split-Stance 10-Yard Acceleration uses cones to create a clear movement problem: explosive first two steps from a staggered stance. One start cone and one finish cone 10 yards away. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "One start cone and one finish cone 10 yards away.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the split-stance 10-yard acceleration route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=TOWXgGASKbM",
+        "https://www.youtube.com/watch?v=dYVkpFAdHi8",
+        "https://www.youtube.com/watch?v=3ZLQ_LOPREo",
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 5,
+        "complexity": 3,
+        "overall": 5,
+        "recommended_age_min": 9,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 9+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=5, complexity=3."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 2,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "push-up-start-to-cone",
+      "name": "Push-Up Start to Cone",
+      "family": "Cone Acceleration",
+      "subrole": "acceleration_start_speed",
+      "slot": "ground_start_acceleration",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for reactive rise, projection, and first-step power. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "Push-Up Start to Cone is a cone-based athletic drill focused on reactive rise, projection, and first-step power. Start prone behind a cone and sprint to a cone 10 yards away. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: acceleration_start_speed. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "speed",
+          "weight": 5
+        },
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The floor start teaches fast organization from the ground while preserving a short, high-quality sprint distance.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "Push-Up Start to Cone uses cones to create a clear movement problem: reactive rise, projection, and first-step power. Start prone behind a cone and sprint to a cone 10 yards away. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Start prone behind a cone and sprint to a cone 10 yards away.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the push-up start to cone route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=TOWXgGASKbM",
+        "https://www.youtube.com/watch?v=dYVkpFAdHi8",
+        "https://www.youtube.com/watch?v=3ZLQ_LOPREo",
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 6,
+        "load": 6,
+        "complexity": 4,
+        "overall": 6,
+        "recommended_age_min": 10,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 10+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=6, load=6, complexity=4."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "crossover-step-to-sprint-cone",
+      "name": "Crossover Step to Sprint Cone",
+      "family": "Cone Acceleration",
+      "subrole": "acceleration_start_speed",
+      "slot": "lateral_start_acceleration",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for lateral first-step crossover into acceleration. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "Crossover Step to Sprint Cone is a cone-based athletic drill focused on lateral first-step crossover into acceleration. Start side-on at a cone, then crossover and sprint to a cone 7-10 yards away. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: acceleration_start_speed. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "speed",
+          "weight": 5
+        },
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Many sport accelerations start laterally; this drill connects crossover mechanics to actual sprint projection.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "Crossover Step to Sprint Cone uses cones to create a clear movement problem: lateral first-step crossover into acceleration. Start side-on at a cone, then crossover and sprint to a cone 7-10 yards away. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Start side-on at a cone, then crossover and sprint to a cone 7-10 yards away.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the crossover step to sprint cone route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=TOWXgGASKbM",
+        "https://www.youtube.com/watch?v=dYVkpFAdHi8",
+        "https://www.youtube.com/watch?v=3ZLQ_LOPREo",
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 6,
+        "load": 5,
+        "complexity": 4,
+        "overall": 6,
+        "recommended_age_min": 10,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 10+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=6, load=5, complexity=4."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "curve-run-around-cone-arc",
+      "name": "Curve Run Around Cone Arc",
+      "family": "Curvilinear Speed",
+      "subrole": "locomotion_sprint_mechanics",
+      "slot": "curvilinear_sprint_mechanics",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for lean, foot placement, and speed around a curve. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Curve Run Around Cone Arc is a cone-based athletic drill focused on lean, foot placement, and speed around a curve. Set 5-7 cones on a smooth arc; athletes run outside the cones. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: locomotion_sprint_mechanics. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Curved running teaches inside-edge control and trunk lean without forcing a hard cut.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "curvilinear_running",
+          "hip_flexion_extension",
+          "knee_flexion_extension",
+          "trunk_lateral_lean"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Curve Run Around Cone Arc uses cones to create a clear movement problem: lean, foot placement, and speed around a curve. Set 5-7 cones on a smooth arc; athletes run outside the cones. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Set 5-7 cones on a smooth arc; athletes run outside the cones.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the curve run around cone arc route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=xZrZB7gO-qg",
+        "https://www.youtube.com/watch?v=6qeXYRYMgsU",
+        "https://www.youtube.com/watch?v=2oW7u21hO4M",
+        "https://www.youtube.com/watch?v=89oUm0vEt20"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 4,
+        "load": 4,
+        "complexity": 4,
+        "overall": 4,
+        "recommended_age_min": 8,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 8+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=4, load=4, complexity=4."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "20-20-20-build-up-sprint",
+      "name": "20-20-20 Build-Up Sprint",
+      "family": "Cone Speed Exposure",
+      "subrole": "max_velocity_exposure",
+      "slot": "build_up_speed_exposure",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for progressive acceleration into relaxed fast sprinting. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "20-20-20 Build-Up Sprint is a cone-based athletic drill focused on progressive acceleration into relaxed fast sprinting. Cones mark 20 yards build, 20 yards faster, 20 yards fast-but-relaxed. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: max_velocity_exposure. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "speed",
+          "weight": 5
+        },
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "A progressive build gives athletes high-speed exposure without forcing a violent max start.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "20-20-20 Build-Up Sprint uses cones to create a clear movement problem: progressive acceleration into relaxed fast sprinting. Cones mark 20 yards build, 20 yards faster, 20 yards fast-but-relaxed. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Cones mark 20 yards build, 20 yards faster, 20 yards fast-but-relaxed.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the 20-20-20 build-up sprint route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 120,
+        "est_seconds_per_set": 25,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=TOWXgGASKbM",
+        "https://www.youtube.com/watch?v=dYVkpFAdHi8",
+        "https://www.youtube.com/watch?v=3ZLQ_LOPREo",
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 6,
+        "complexity": 3,
+        "overall": 6,
+        "recommended_age_min": 10,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 10+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=6, complexity=3."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 2,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "fly-zone-cone-sprint",
+      "name": "Fly Zone Cone Sprint",
+      "family": "Cone Speed Exposure",
+      "subrole": "max_velocity_exposure",
+      "slot": "fly_sprint_exposure",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for max velocity posture and relaxation through a marked fly zone. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "Fly Zone Cone Sprint is a cone-based athletic drill focused on max velocity posture and relaxation through a marked fly zone. Cones mark a 20-yard build-in, 10-20-yard fly zone, and safe run-out. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: max_velocity_exposure. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The fly zone lets the coach time or observe upright mechanics while keeping volume low and rest high.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "Fly Zone Cone Sprint uses cones to create a clear movement problem: max velocity posture and relaxation through a marked fly zone. Cones mark a 20-yard build-in, 10-20-yard fly zone, and safe run-out. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Cones mark a 20-yard build-in, 10-20-yard fly zone, and safe run-out.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the fly zone cone sprint route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 120,
+        "est_seconds_per_set": 25,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=TOWXgGASKbM",
+        "https://www.youtube.com/watch?v=dYVkpFAdHi8",
+        "https://www.youtube.com/watch?v=3ZLQ_LOPREo",
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 6,
+        "load": 7,
+        "complexity": 4,
+        "overall": 7,
+        "recommended_age_min": 11,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 11+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=6, load=7, complexity=4."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "sprint-to-stick-deceleration",
+      "name": "Sprint-to-Stick Deceleration",
+      "family": "Cone Braking Control",
+      "subrole": "landing_braking_control",
+      "slot": "linear_deceleration_stick",
+      "primaryPhaseKey": "resilience",
+      "cardSummary": "Cone drill for linear braking, low hips, and quiet stop mechanics. Best when coached as Resilience with the drill dose matched to the session phase.",
+      "bestPlacement": "After warm-up and before or after lower-level COD work when the goal is braking quality, not max speed.",
+      "description": "Sprint-to-Stick Deceleration is a cone-based athletic drill focused on linear braking, low hips, and quiet stop mechanics. Start cone, acceleration cone 7-10 yards away, stop cone 3-5 yards beyond. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Resilience. Primary subrole: landing_braking_control. Control, braking, and tissue tolerance; speed is secondary to clean ownership. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move in under control, stick the stop, and own the position.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "balance",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 3
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Athletes learn to lower the center of mass and distribute braking over several steps before harder COD drills.",
+      "whyItGoesHere": "It belongs in Resilience because the value is controlled braking, balance, joint ownership, and tissue tolerance.",
+      "commonMisuse": "Do not chase speed or volume before the athlete can stick the stop with clean knee and hip control.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "deceleration_braking",
+          "hip_flexion_extension",
+          "hip_hinge_absorption",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "braking_control",
+          "single_leg_stability",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "Sprint-to-Stick Deceleration uses cones to create a clear movement problem: linear braking, low hips, and quiet stop mechanics. Start cone, acceleration cone 7-10 yards away, stop cone 3-5 yards beyond. The coach selects speed, spacing, and rest so the drill trains resilience rather than junk fatigue.",
+        "setup": [
+          "Start cone, acceleration cone 7-10 yards away, stop cone 3-5 yards beyond.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Accelerate or move toward the target cone under control, then stick the stop for a two-count.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 40,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Shorten approach to 3-5 yards and stick for a two-count at walking or jogging speed.",
+        "youth_intermediate": "Jog in and stick; add speed only if the knee tracks cleanly.",
+        "teen": "Use prescribed distance and require symmetrical stop quality right and left.",
+        "adult_beginner": "Start with low speed, then add approach distance before sharper angles.",
+        "adult_advanced": "Increase approach speed or cut angle; keep total hard stops capped.",
+        "older_adult": "Use step-to-stop or shuffle-to-stop; avoid high-speed cuts and deep knee angles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Cone March Line",
+        "Single-Leg Cone Reach Stick"
+      ],
+      "pairsWellBefore": [
+        "Faster COD drills",
+        "Reactive agility",
+        "Sustained Capacity intervals"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=CRIgM8L5ObM",
+        "https://www.youtube.com/watch?v=rHpyFD_5mnE",
+        "https://www.youtube.com/watch?v=F1e7RowRtus",
+        "https://www.youtube.com/watch?v=9kCLZ8CURPI"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 4,
+        "load": 5,
+        "complexity": 3,
+        "overall": 5,
+        "recommended_age_min": 8,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 8+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=4, load=5, complexity=3."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": true,
+        "counts_as_neural": false,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 3,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "backpedal-to-stick",
+      "name": "Backpedal-to-Stick",
+      "family": "Cone Braking Control",
+      "subrole": "landing_braking_control",
+      "slot": "backpedal_deceleration_stick",
+      "primaryPhaseKey": "resilience",
+      "cardSummary": "Cone drill for backward braking and safe hip loading. Best when coached as Resilience with the drill dose matched to the session phase.",
+      "bestPlacement": "After warm-up and before or after lower-level COD work when the goal is braking quality, not max speed.",
+      "description": "Backpedal-to-Stick is a cone-based athletic drill focused on backward braking and safe hip loading. Backpedal from cone 1 to cone 2, then stick in an athletic base. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Resilience. Primary subrole: landing_braking_control. Control, braking, and tissue tolerance; speed is secondary to clean ownership. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move in under control, stick the stop, and own the position.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "balance",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 3
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Backward deceleration appears in field and court sports and teaches foot-under-hip control without max speed.",
+      "whyItGoesHere": "It belongs in Resilience because the value is controlled braking, balance, joint ownership, and tissue tolerance.",
+      "commonMisuse": "Do not chase speed or volume before the athlete can stick the stop with clean knee and hip control.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "deceleration_braking",
+          "hip_flexion_extension",
+          "hip_hinge_absorption",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "braking_control",
+          "single_leg_stability",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Backpedal-to-Stick uses cones to create a clear movement problem: backward braking and safe hip loading. Backpedal from cone 1 to cone 2, then stick in an athletic base. The coach selects speed, spacing, and rest so the drill trains resilience rather than junk fatigue.",
+        "setup": [
+          "Backpedal from cone 1 to cone 2, then stick in an athletic base.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Accelerate or move toward the target cone under control, then stick the stop for a two-count.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 40,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Shorten approach to 3-5 yards and stick for a two-count at walking or jogging speed.",
+        "youth_intermediate": "Jog in and stick; add speed only if the knee tracks cleanly.",
+        "teen": "Use prescribed distance and require symmetrical stop quality right and left.",
+        "adult_beginner": "Start with low speed, then add approach distance before sharper angles.",
+        "adult_advanced": "Increase approach speed or cut angle; keep total hard stops capped.",
+        "older_adult": "Use step-to-stop or shuffle-to-stop; avoid high-speed cuts and deep knee angles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Cone March Line",
+        "Single-Leg Cone Reach Stick"
+      ],
+      "pairsWellBefore": [
+        "Faster COD drills",
+        "Reactive agility",
+        "Sustained Capacity intervals"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=CRIgM8L5ObM",
+        "https://www.youtube.com/watch?v=rHpyFD_5mnE",
+        "https://www.youtube.com/watch?v=F1e7RowRtus",
+        "https://www.youtube.com/watch?v=9kCLZ8CURPI"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 4,
+        "load": 4,
+        "complexity": 4,
+        "overall": 4,
+        "recommended_age_min": 8,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 8+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=4, load=4, complexity=4."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": false,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "lateral-shuffle-to-stick",
+      "name": "Lateral Shuffle-to-Stick",
+      "family": "Cone Braking Control",
+      "subrole": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "lateral_deceleration_stick",
+      "primaryPhaseKey": "resilience",
+      "cardSummary": "Cone drill for lateral braking, hip control, and outside-foot pressure. Best when coached as Resilience with the drill dose matched to the session phase.",
+      "bestPlacement": "After warm-up and before or after lower-level COD work when the goal is braking quality, not max speed.",
+      "description": "Lateral Shuffle-to-Stick is a cone-based athletic drill focused on lateral braking, hip control, and outside-foot pressure. Two cones 5-7 yards apart; shuffle to the cone and freeze. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Resilience. Primary subrole: single_leg_balance_foot_ankle_hip_control. Control, braking, and tissue tolerance; speed is secondary to clean ownership. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move in under control, stick the stop, and own the position.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "balance",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 3
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The stop exposes knee collapse and overreaching before athletes cut, mirror, or chase.",
+      "whyItGoesHere": "It belongs in Resilience because the value is controlled braking, balance, joint ownership, and tissue tolerance.",
+      "commonMisuse": "Do not chase speed or volume before the athlete can stick the stop with clean knee and hip control.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "deceleration_braking",
+          "hip_flexion_extension",
+          "hip_hinge_absorption",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "braking_control",
+          "single_leg_stability",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Lateral Shuffle-to-Stick uses cones to create a clear movement problem: lateral braking, hip control, and outside-foot pressure. Two cones 5-7 yards apart; shuffle to the cone and freeze. The coach selects speed, spacing, and rest so the drill trains resilience rather than junk fatigue.",
+        "setup": [
+          "Two cones 5-7 yards apart; shuffle to the cone and freeze.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Accelerate or move toward the target cone under control, then stick the stop for a two-count.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 40,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Shorten approach to 3-5 yards and stick for a two-count at walking or jogging speed.",
+        "youth_intermediate": "Jog in and stick; add speed only if the knee tracks cleanly.",
+        "teen": "Use prescribed distance and require symmetrical stop quality right and left.",
+        "adult_beginner": "Start with low speed, then add approach distance before sharper angles.",
+        "adult_advanced": "Increase approach speed or cut angle; keep total hard stops capped.",
+        "older_adult": "Use step-to-stop or shuffle-to-stop; avoid high-speed cuts and deep knee angles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Cone March Line",
+        "Single-Leg Cone Reach Stick"
+      ],
+      "pairsWellBefore": [
+        "Faster COD drills",
+        "Reactive agility",
+        "Sustained Capacity intervals"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=CRIgM8L5ObM",
+        "https://www.youtube.com/watch?v=rHpyFD_5mnE",
+        "https://www.youtube.com/watch?v=F1e7RowRtus",
+        "https://www.youtube.com/watch?v=9kCLZ8CURPI"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 4,
+        "load": 4,
+        "complexity": 3,
+        "overall": 4,
+        "recommended_age_min": 8,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 8+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=4, load=4, complexity=3."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": false,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "45-degree-cut-and-stick",
+      "name": "45-Degree Cut-and-Stick",
+      "family": "Cone Cut Preparation",
+      "subrole": "landing_braking_control",
+      "slot": "angle_cut_stick",
+      "primaryPhaseKey": "resilience",
+      "cardSummary": "Cone drill for controlled angled cut entry and exit posture. Best when coached as Resilience with the drill dose matched to the session phase.",
+      "bestPlacement": "After warm-up and before or after lower-level COD work when the goal is braking quality, not max speed.",
+      "description": "45-Degree Cut-and-Stick is a cone-based athletic drill focused on controlled angled cut entry and exit posture. Start cone, approach cone, and exit cone set at a 45-degree angle. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Resilience. Primary subrole: landing_braking_control. Control, braking, and tissue tolerance; speed is secondary to clean ownership. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move in under control, stick the stop, and own the position.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "balance",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 3
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The 45-degree angle teaches useful redirection without the stress of a full 90-degree cut.",
+      "whyItGoesHere": "It belongs in Resilience because the value is controlled braking, balance, joint ownership, and tissue tolerance.",
+      "commonMisuse": "Do not chase speed or volume before the athlete can stick the stop with clean knee and hip control.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "deceleration_braking",
+          "hip_flexion_extension",
+          "hip_hinge_absorption",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "braking_control",
+          "single_leg_stability",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "45-Degree Cut-and-Stick uses cones to create a clear movement problem: controlled angled cut entry and exit posture. Start cone, approach cone, and exit cone set at a 45-degree angle. The coach selects speed, spacing, and rest so the drill trains resilience rather than junk fatigue.",
+        "setup": [
+          "Start cone, approach cone, and exit cone set at a 45-degree angle.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Accelerate or move toward the target cone under control, then stick the stop for a two-count.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 40,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Shorten approach to 3-5 yards and stick for a two-count at walking or jogging speed.",
+        "youth_intermediate": "Jog in and stick; add speed only if the knee tracks cleanly.",
+        "teen": "Use prescribed distance and require symmetrical stop quality right and left.",
+        "adult_beginner": "Start with low speed, then add approach distance before sharper angles.",
+        "adult_advanced": "Increase approach speed or cut angle; keep total hard stops capped.",
+        "older_adult": "Use step-to-stop or shuffle-to-stop; avoid high-speed cuts and deep knee angles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Cone March Line",
+        "Single-Leg Cone Reach Stick"
+      ],
+      "pairsWellBefore": [
+        "Faster COD drills",
+        "Reactive agility",
+        "Sustained Capacity intervals"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=CRIgM8L5ObM",
+        "https://www.youtube.com/watch?v=rHpyFD_5mnE",
+        "https://www.youtube.com/watch?v=F1e7RowRtus",
+        "https://www.youtube.com/watch?v=9kCLZ8CURPI"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 5,
+        "complexity": 4,
+        "overall": 5,
+        "recommended_age_min": 9,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 9+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=5, complexity=4."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": true,
+        "counts_as_neural": false,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 3,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "90-degree-cut-and-stick",
+      "name": "90-Degree Cut-and-Stick",
+      "family": "Cone Cut Preparation",
+      "subrole": "landing_braking_control",
+      "slot": "angle_cut_stick",
+      "primaryPhaseKey": "resilience",
+      "cardSummary": "Cone drill for sharp-angle braking and hip/knee ownership. Best when coached as Resilience with the drill dose matched to the session phase.",
+      "bestPlacement": "After warm-up and before or after lower-level COD work when the goal is braking quality, not max speed.",
+      "description": "90-Degree Cut-and-Stick is a cone-based athletic drill focused on sharp-angle braking and hip/knee ownership. Three cones in an L shape with 5-10 yards into the turn. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Resilience. Primary subrole: landing_braking_control. Control, braking, and tissue tolerance; speed is secondary to clean ownership. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move in under control, stick the stop, and own the position.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "balance",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 3
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Sticking the 90-degree cut teaches the athlete to own the plant before chasing faster times.",
+      "whyItGoesHere": "It belongs in Resilience because the value is controlled braking, balance, joint ownership, and tissue tolerance.",
+      "commonMisuse": "Do not chase speed or volume before the athlete can stick the stop with clean knee and hip control.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "deceleration_braking",
+          "hip_flexion_extension",
+          "hip_hinge_absorption",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "braking_control",
+          "single_leg_stability",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "90-Degree Cut-and-Stick uses cones to create a clear movement problem: sharp-angle braking and hip/knee ownership. Three cones in an L shape with 5-10 yards into the turn. The coach selects speed, spacing, and rest so the drill trains resilience rather than junk fatigue.",
+        "setup": [
+          "Three cones in an L shape with 5-10 yards into the turn.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Accelerate or move toward the target cone under control, then stick the stop for a two-count.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 40,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Shorten approach to 3-5 yards and stick for a two-count at walking or jogging speed.",
+        "youth_intermediate": "Jog in and stick; add speed only if the knee tracks cleanly.",
+        "teen": "Use prescribed distance and require symmetrical stop quality right and left.",
+        "adult_beginner": "Start with low speed, then add approach distance before sharper angles.",
+        "adult_advanced": "Increase approach speed or cut angle; keep total hard stops capped.",
+        "older_adult": "Use step-to-stop or shuffle-to-stop; avoid high-speed cuts and deep knee angles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Cone March Line",
+        "Single-Leg Cone Reach Stick"
+      ],
+      "pairsWellBefore": [
+        "Faster COD drills",
+        "Reactive agility",
+        "Sustained Capacity intervals"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=CRIgM8L5ObM",
+        "https://www.youtube.com/watch?v=rHpyFD_5mnE",
+        "https://www.youtube.com/watch?v=F1e7RowRtus",
+        "https://www.youtube.com/watch?v=9kCLZ8CURPI"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 6,
+        "complexity": 4,
+        "overall": 6,
+        "recommended_age_min": 10,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 10+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=6, complexity=4."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": true,
+        "counts_as_neural": false,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 3,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "decel-to-reaccelerate-gate",
+      "name": "Decel-to-Reaccelerate Gate",
+      "family": "Cone Braking to Reacceleration",
+      "subrole": "deceleration_cod_power",
+      "slot": "decel_reacceleration_gate",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for brake then project out cleanly. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "Decel-to-Reaccelerate Gate is a cone-based athletic drill focused on brake then project out cleanly. Start cone, brake cone, and two-cone exit gate 45-90 degrees away. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: deceleration_cod_power. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "It links braking to the next acceleration, which is the real sport demand of COD.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "deceleration_braking",
+          "hip_flexion_extension",
+          "hip_hinge_absorption",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "braking_control",
+          "single_leg_stability",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3,
+        "setup_metadata": "Start cone, brake cone, and two-cone exit gate 45-90 degrees away.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality."
+      },
+      "coachingExecution": {
+        "movement_description": "Decel-to-Reaccelerate Gate uses cones to create a clear movement problem: brake then project out cleanly. Start cone, brake cone, and two-cone exit gate 45-90 degrees away. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Start cone, brake cone, and two-cone exit gate 45-90 degrees away.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the decel-to-reaccelerate gate route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=CRIgM8L5ObM",
+        "https://www.youtube.com/watch?v=rHpyFD_5mnE",
+        "https://www.youtube.com/watch?v=F1e7RowRtus",
+        "https://www.youtube.com/watch?v=9kCLZ8CURPI"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 6,
+        "load": 6,
+        "complexity": 5,
+        "overall": 6,
+        "recommended_age_min": 10,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 10+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=6, load=6, complexity=5."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "single-leg-cone-reach-stick",
+      "name": "Single-Leg Cone Reach Stick",
+      "family": "Single-Leg Cone Control",
+      "subrole": "single_leg_balance_foot_ankle_hip_control",
+      "slot": "single_leg_cone_reach",
+      "primaryPhaseKey": "resilience",
+      "cardSummary": "Cone drill for foot tripod, hip control, and single-leg ownership. Best when coached as Resilience with the drill dose matched to the session phase.",
+      "bestPlacement": "After warm-up and before or after lower-level COD work when the goal is braking quality, not max speed.",
+      "description": "Single-Leg Cone Reach Stick is a cone-based athletic drill focused on foot tripod, hip control, and single-leg ownership. One athlete stands inside a small triangle of cones and reaches to touch each cone. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Resilience. Primary subrole: single_leg_balance_foot_ankle_hip_control. Control, braking, and tissue tolerance; speed is secondary to clean ownership. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move in under control, stick the stop, and own the position.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "balance",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 3
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "land",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "This low-speed drill gives the ankle, knee, and hip the control needed for later cuts.",
+      "whyItGoesHere": "It belongs in Resilience because the value is controlled braking, balance, joint ownership, and tissue tolerance.",
+      "commonMisuse": "Do not chase speed or volume before the athlete can stick the stop with clean knee and hip control.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "deceleration_braking",
+          "hip_flexion_extension",
+          "hip_hinge_absorption",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "braking_control",
+          "single_leg_stability",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "Single-Leg Cone Reach Stick uses cones to create a clear movement problem: foot tripod, hip control, and single-leg ownership. One athlete stands inside a small triangle of cones and reaches to touch each cone. The coach selects speed, spacing, and rest so the drill trains resilience rather than junk fatigue.",
+        "setup": [
+          "One athlete stands inside a small triangle of cones and reaches to touch each cone.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Accelerate or move toward the target cone under control, then stick the stop for a two-count.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 40,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Shorten approach to 3-5 yards and stick for a two-count at walking or jogging speed.",
+        "youth_intermediate": "Jog in and stick; add speed only if the knee tracks cleanly.",
+        "teen": "Use prescribed distance and require symmetrical stop quality right and left.",
+        "adult_beginner": "Start with low speed, then add approach distance before sharper angles.",
+        "adult_advanced": "Increase approach speed or cut angle; keep total hard stops capped.",
+        "older_adult": "Use step-to-stop or shuffle-to-stop; avoid high-speed cuts and deep knee angles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Cone March Line",
+        "Single-Leg Cone Reach Stick"
+      ],
+      "pairsWellBefore": [
+        "Faster COD drills",
+        "Reactive agility",
+        "Sustained Capacity intervals"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=CRIgM8L5ObM",
+        "https://www.youtube.com/watch?v=rHpyFD_5mnE",
+        "https://www.youtube.com/watch?v=F1e7RowRtus",
+        "https://www.youtube.com/watch?v=9kCLZ8CURPI"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 3,
+        "load": 3,
+        "complexity": 3,
+        "overall": 3,
+        "recommended_age_min": 6,
+        "recommended_age_max": null,
+        "attention_demand": "low",
+        "notes": "Typical for ages 6+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=3, load=3, complexity=3."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": false,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "closeout-chop-to-stick",
+      "name": "Closeout Chop-to-Stick",
+      "family": "Cone Braking Control",
+      "subrole": "landing_braking_control",
+      "slot": "chop_to_stick",
+      "primaryPhaseKey": "resilience",
+      "cardSummary": "Cone drill for fast feet into controlled stop without drifting. Best when coached as Resilience with the drill dose matched to the session phase.",
+      "bestPlacement": "After warm-up and before or after lower-level COD work when the goal is braking quality, not max speed.",
+      "description": "Closeout Chop-to-Stick is a cone-based athletic drill focused on fast feet into controlled stop without drifting. Start cone and target cone 7-10 yards away; chop steps before the target and stick. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Resilience. Primary subrole: landing_braking_control. Control, braking, and tissue tolerance; speed is secondary to clean ownership. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move in under control, stick the stop, and own the position.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "body_control",
+          "weight": 5
+        },
+        {
+          "key": "balance",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "strength",
+          "weight": 2
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "balance_stability",
+          "weight": 5
+        },
+        {
+          "key": "eccentric_negative",
+          "weight": 3
+        },
+        {
+          "key": "isometrics",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "control_stability",
+          "weight": 5
+        },
+        {
+          "key": "force_tissue_capacity",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Chop steps teach athletes to shorten stride and control the torso before contact or direction change.",
+      "whyItGoesHere": "It belongs in Resilience because the value is controlled braking, balance, joint ownership, and tissue tolerance.",
+      "commonMisuse": "Do not chase speed or volume before the athlete can stick the stop with clean knee and hip control.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "deceleration_braking",
+          "hip_flexion_extension",
+          "hip_hinge_absorption",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "braking_control",
+          "single_leg_stability",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Closeout Chop-to-Stick uses cones to create a clear movement problem: fast feet into controlled stop without drifting. Start cone and target cone 7-10 yards away; chop steps before the target and stick. The coach selects speed, spacing, and rest so the drill trains resilience rather than junk fatigue.",
+        "setup": [
+          "Start cone and target cone 7-10 yards away; chop steps before the target and stick.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Accelerate or move toward the target cone under control, then stick the stop for a two-count.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 40,
+        "default_rpe_min": 4,
+        "default_rpe_max": 6
+      },
+      "scaling": {
+        "youth_beginner": "Shorten approach to 3-5 yards and stick for a two-count at walking or jogging speed.",
+        "youth_intermediate": "Jog in and stick; add speed only if the knee tracks cleanly.",
+        "teen": "Use prescribed distance and require symmetrical stop quality right and left.",
+        "adult_beginner": "Start with low speed, then add approach distance before sharper angles.",
+        "adult_advanced": "Increase approach speed or cut angle; keep total hard stops capped.",
+        "older_adult": "Use step-to-stop or shuffle-to-stop; avoid high-speed cuts and deep knee angles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Cone March Line",
+        "Single-Leg Cone Reach Stick"
+      ],
+      "pairsWellBefore": [
+        "Faster COD drills",
+        "Reactive agility",
+        "Sustained Capacity intervals"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "resilience"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=CRIgM8L5ObM",
+        "https://www.youtube.com/watch?v=rHpyFD_5mnE",
+        "https://www.youtube.com/watch?v=F1e7RowRtus",
+        "https://www.youtube.com/watch?v=9kCLZ8CURPI"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 4,
+        "load": 4,
+        "complexity": 3,
+        "overall": 4,
+        "recommended_age_min": 8,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 8+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=4, load=4, complexity=3."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 3,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": false,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 3,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "drop-step-decel-cone-box",
+      "name": "Drop-Step Decel Cone Box",
+      "family": "Cone Braking to Reacceleration",
+      "subrole": "deceleration_cod_power",
+      "slot": "drop_step_decel_reaccelerate",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for drop-step, hip turn, brake, and reaccelerate. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "Drop-Step Decel Cone Box is a cone-based athletic drill focused on drop-step, hip turn, brake, and reaccelerate. Four cones form a small box; start in center and drop-step to a called corner. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: deceleration_cod_power. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The drop-step pattern trains a common sport turn while requiring clean braking at the cone.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "deceleration_braking",
+          "hip_flexion_extension",
+          "hip_hinge_absorption",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "braking_control",
+          "single_leg_stability",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3,
+        "setup_metadata": "Four cones form a small box; start in center and drop-step to a called corner.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality."
+      },
+      "coachingExecution": {
+        "movement_description": "Drop-Step Decel Cone Box uses cones to create a clear movement problem: drop-step, hip turn, brake, and reaccelerate. Four cones form a small box; start in center and drop-step to a called corner. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Four cones form a small box; start in center and drop-step to a called corner.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the drop-step decel cone box route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=0z8_hpHf_iA",
+        "https://www.youtube.com/watch?v=BVALb90q93I",
+        "https://www.youtube.com/watch?v=DEDkpnzc49g",
+        "https://www.youtube.com/watch?v=N4ODVFqUq5c"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 6,
+        "load": 5,
+        "complexity": 6,
+        "overall": 6,
+        "recommended_age_min": 10,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 10+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=6, load=5, complexity=6."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "shuffle-sprint-brake-combo",
+      "name": "Shuffle-Sprint-Brake Combo",
+      "family": "Cone Braking Control",
+      "subrole": "deceleration_cod_power",
+      "slot": "combo_deceleration",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for transition from lateral movement to sprint and controlled stop. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "Shuffle-Sprint-Brake Combo is a cone-based athletic drill focused on transition from lateral movement to sprint and controlled stop. Three cones in a line or shallow angle: shuffle, turn sprint, then brake. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: deceleration_cod_power. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "speed",
+          "weight": 5
+        },
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "It blends lateral entry, hip turn, acceleration, and deceleration in one high-quality sequence.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "deceleration_braking",
+          "hip_flexion_extension",
+          "hip_hinge_absorption",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "braking_control",
+          "single_leg_stability",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3,
+        "setup_metadata": "Three cones in a line or shallow angle: shuffle, turn sprint, then brake.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality."
+      },
+      "coachingExecution": {
+        "movement_description": "Shuffle-Sprint-Brake Combo uses cones to create a clear movement problem: transition from lateral movement to sprint and controlled stop. Three cones in a line or shallow angle: shuffle, turn sprint, then brake. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Three cones in a line or shallow angle: shuffle, turn sprint, then brake.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the shuffle-sprint-brake combo route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=CRIgM8L5ObM",
+        "https://www.youtube.com/watch?v=rHpyFD_5mnE",
+        "https://www.youtube.com/watch?v=F1e7RowRtus",
+        "https://www.youtube.com/watch?v=9kCLZ8CURPI"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 6,
+        "load": 6,
+        "complexity": 5,
+        "overall": 6,
+        "recommended_age_min": 10,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 10+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=6, load=6, complexity=5."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "5-10-5-pro-agility-shuttle",
+      "name": "5-10-5 Pro Agility Shuttle",
+      "family": "Planned COD Test",
+      "subrole": "deceleration_cod_power",
+      "slot": "planned_cod_test",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for repeated 180-degree cuts with acceleration out. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "5-10-5 Pro Agility Shuttle is a cone-based athletic drill focused on repeated 180-degree cuts with acceleration out. Three cones in a line, 5 yards between center and each outside cone. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: deceleration_cod_power. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The 5-10-5 is a proven way to expose right-left braking symmetry and reacceleration power.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 4,
+        "setup_metadata": "Three cones in a line, 5 yards between center and each outside cone.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality."
+      },
+      "coachingExecution": {
+        "movement_description": "5-10-5 Pro Agility Shuttle uses cones to create a clear movement problem: repeated 180-degree cuts with acceleration out. Three cones in a line, 5 yards between center and each outside cone. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Three cones in a line, 5 yards between center and each outside cone.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the 5-10-5 pro agility shuttle route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 1,
+        "default_work_seconds": null,
+        "default_rest_seconds": 120,
+        "est_seconds_per_set": 25,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=z-wV9O8y-a0",
+        "https://www.youtube.com/watch?v=MjOZtf9q8Hw",
+        "https://www.youtube.com/watch?v=fZoJVVuqY3U",
+        "https://www.youtube.com/watch?v=tYhCJd7LaBU"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 6,
+        "load": 7,
+        "complexity": 4,
+        "overall": 7,
+        "recommended_age_min": 11,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 11+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=6, load=7, complexity=4."
+      },
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 4,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 4,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "3-cone-l-drill",
+      "name": "3-Cone L Drill",
+      "family": "Planned COD Test",
+      "subrole": "deceleration_cod_power",
+      "slot": "planned_cod_test",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for acceleration, tight turns, hip bend, and reorientation. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "3-Cone L Drill is a cone-based athletic drill focused on acceleration, tight turns, hip bend, and reorientation. Three cones in an L shape, typically 5 yards apart. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: deceleration_cod_power. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The L drill combines linear acceleration, tight turn mechanics, and body lean around cones.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 4,
+        "setup_metadata": "Three cones in an L shape, typically 5 yards apart.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality."
+      },
+      "coachingExecution": {
+        "movement_description": "3-Cone L Drill uses cones to create a clear movement problem: acceleration, tight turns, hip bend, and reorientation. Three cones in an L shape, typically 5 yards apart. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Three cones in an L shape, typically 5 yards apart.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the 3-cone l drill route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 1,
+        "default_work_seconds": null,
+        "default_rest_seconds": 120,
+        "est_seconds_per_set": 25,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=_KtUvR2zcNU",
+        "https://www.youtube.com/watch?v=rLtvdHEwnus",
+        "https://www.youtube.com/watch?v=plnbMRosKLc",
+        "https://www.youtube.com/watch?v=-jDfMe_tuXU"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 7,
+        "load": 7,
+        "complexity": 5,
+        "overall": 7,
+        "recommended_age_min": 12,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 12+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=7, load=7, complexity=5."
+      },
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 4,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 4,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "t-test-agility-drill",
+      "name": "T-Test Agility Drill",
+      "family": "Planned COD Test",
+      "subrole": "deceleration_cod_power",
+      "slot": "planned_cod_test",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for forward sprint, lateral shuffle, backpedal, and directional control. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "T-Test Agility Drill is a cone-based athletic drill focused on forward sprint, lateral shuffle, backpedal, and directional control. Four cones in a T: start, top center, left, right. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: deceleration_cod_power. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "speed",
+          "weight": 5
+        },
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The T-test samples multiple locomotor patterns with clear cones and repeatable standards.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3,
+        "setup_metadata": "Four cones in a T: start, top center, left, right.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality."
+      },
+      "coachingExecution": {
+        "movement_description": "T-Test Agility Drill uses cones to create a clear movement problem: forward sprint, lateral shuffle, backpedal, and directional control. Four cones in a T: start, top center, left, right. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Four cones in a T: start, top center, left, right.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the t-test agility drill route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 1,
+        "default_work_seconds": null,
+        "default_rest_seconds": 120,
+        "est_seconds_per_set": 25,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=XkPsoV6-HJw",
+        "https://www.youtube.com/watch?v=k7xUw9Sjf-c",
+        "https://www.youtube.com/watch?v=-qbXjsPxCo4",
+        "https://www.youtube.com/watch?v=leJALwttReI"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 6,
+        "load": 6,
+        "complexity": 5,
+        "overall": 6,
+        "recommended_age_min": 11,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 11+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=6, load=6, complexity=5."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "w-drill-forward-cuts",
+      "name": "W Drill Forward Cuts",
+      "family": "Planned COD Pattern",
+      "subrole": "deceleration_cod_power",
+      "slot": "planned_cod_pattern",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for repeated angled cuts while moving forward. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "W Drill Forward Cuts is a cone-based athletic drill focused on repeated angled cuts while moving forward. Five cones in a W shape with 5-7 yards between points. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: deceleration_cod_power. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The W pattern gives multiple submax-to-fast cuts while staying more teachable than open play.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3,
+        "setup_metadata": "Five cones in a W shape with 5-7 yards between points.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality."
+      },
+      "coachingExecution": {
+        "movement_description": "W Drill Forward Cuts uses cones to create a clear movement problem: repeated angled cuts while moving forward. Five cones in a W shape with 5-7 yards between points. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Five cones in a W shape with 5-7 yards between points.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the w drill forward cuts route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=z8XoaoUSB_c",
+        "https://www.youtube.com/watch?v=2x4MKxYwBtw",
+        "https://www.youtube.com/watch?v=hXNuP6ohxwQ",
+        "https://www.youtube.com/watch?v=_oJRFrj_gVc"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 6,
+        "complexity": 5,
+        "overall": 6,
+        "recommended_age_min": 10,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 10+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=6, complexity=5."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 2,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "w-drill-backpedal-cuts",
+      "name": "W Drill Backpedal Cuts",
+      "family": "Planned COD Pattern",
+      "subrole": "balance_coordination_rhythm",
+      "slot": "planned_multidirectional_pattern",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for forward/backward transition control through a w pattern. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "W Drill Backpedal Cuts is a cone-based athletic drill focused on forward/backward transition control through a w pattern. Five cones in a W; alternate forward sprint and backpedal to each cone. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: balance_coordination_rhythm. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "This version teaches orientation, backpedal control, and safe hips before the faster W drill.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "W Drill Backpedal Cuts uses cones to create a clear movement problem: forward/backward transition control through a w pattern. Five cones in a W; alternate forward sprint and backpedal to each cone. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Five cones in a W; alternate forward sprint and backpedal to each cone.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the w drill backpedal cuts route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=z8XoaoUSB_c",
+        "https://www.youtube.com/watch?v=2x4MKxYwBtw",
+        "https://www.youtube.com/watch?v=hXNuP6ohxwQ",
+        "https://www.youtube.com/watch?v=_oJRFrj_gVc"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 4,
+        "complexity": 5,
+        "overall": 5,
+        "recommended_age_min": 9,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 9+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=4, complexity=5."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "box-drill-sprint-shuffle-backpedal",
+      "name": "Box Drill Sprint-Shuffle-Backpedal",
+      "family": "Planned COD Pattern",
+      "subrole": "balance_coordination_rhythm",
+      "slot": "planned_multidirectional_pattern",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for pattern literacy across sprint, shuffle, and backpedal. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Box Drill Sprint-Shuffle-Backpedal is a cone-based athletic drill focused on pattern literacy across sprint, shuffle, and backpedal. Four cones form a square or rectangle. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: balance_coordination_rhythm. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The box drill teaches athletes how to enter and exit common sport movement patterns without chaos.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Box Drill Sprint-Shuffle-Backpedal uses cones to create a clear movement problem: pattern literacy across sprint, shuffle, and backpedal. Four cones form a square or rectangle. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Four cones form a square or rectangle.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the box drill sprint-shuffle-backpedal route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=XkPsoV6-HJw",
+        "https://www.youtube.com/watch?v=k7xUw9Sjf-c",
+        "https://www.youtube.com/watch?v=-qbXjsPxCo4",
+        "https://www.youtube.com/watch?v=leJALwttReI"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 4,
+        "load": 4,
+        "complexity": 4,
+        "overall": 4,
+        "recommended_age_min": 8,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 8+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=4, load=4, complexity=4."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "x-drill-cone-cut",
+      "name": "X-Drill Cone Cut",
+      "family": "Planned COD Pattern",
+      "subrole": "deceleration_cod_power",
+      "slot": "planned_cod_pattern",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for diagonal cuts, crossover transitions, and hip reorientation. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "X-Drill Cone Cut is a cone-based athletic drill focused on diagonal cuts, crossover transitions, and hip reorientation. Four cones form a square; athlete travels diagonally and around the X path. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: deceleration_cod_power. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The X path layers diagonal acceleration and change of direction without needing a large space.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3,
+        "setup_metadata": "Four cones form a square; athlete travels diagonally and around the X path.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality."
+      },
+      "coachingExecution": {
+        "movement_description": "X-Drill Cone Cut uses cones to create a clear movement problem: diagonal cuts, crossover transitions, and hip reorientation. Four cones form a square; athlete travels diagonally and around the X path. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Four cones form a square; athlete travels diagonally and around the X path.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the x-drill cone cut route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk",
+        "https://www.youtube.com/watch?v=e6uGs7Tw_bM",
+        "https://www.youtube.com/watch?v=swPWW_WmhCU",
+        "https://www.youtube.com/watch?v=_oJRFrj_gVc"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 6,
+        "load": 6,
+        "complexity": 5,
+        "overall": 6,
+        "recommended_age_min": 10,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 10+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=6, load=6, complexity=5."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "m-drill-multidirectional-cut",
+      "name": "M-Drill Multidirectional Cut",
+      "family": "Planned COD Pattern",
+      "subrole": "balance_coordination_rhythm",
+      "slot": "planned_multidirectional_pattern",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for sequential turns, rhythm, and visual route memory. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "M-Drill Multidirectional Cut is a cone-based athletic drill focused on sequential turns, rhythm, and visual route memory. Five cones form an M shape with 5-yard segments. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: balance_coordination_rhythm. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The M pattern builds route memory and footwork precision before higher-speed COD.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "M-Drill Multidirectional Cut uses cones to create a clear movement problem: sequential turns, rhythm, and visual route memory. Five cones form an M shape with 5-yard segments. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Five cones form an M shape with 5-yard segments.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the m-drill multidirectional cut route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk",
+        "https://www.youtube.com/watch?v=e6uGs7Tw_bM",
+        "https://www.youtube.com/watch?v=swPWW_WmhCU",
+        "https://www.youtube.com/watch?v=_oJRFrj_gVc"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 4,
+        "complexity": 5,
+        "overall": 5,
+        "recommended_age_min": 9,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 9+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=4, complexity=5."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "u-drill-turn-and-go",
+      "name": "U-Drill Turn-and-Go",
+      "family": "Planned COD Pattern",
+      "subrole": "deceleration_cod_power",
+      "slot": "planned_cod_pattern",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for rounded turn, inside lean, and exit acceleration. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "U-Drill Turn-and-Go is a cone-based athletic drill focused on rounded turn, inside lean, and exit acceleration. Set cones in a U shape; athlete accelerates in, rounds the turn, and exits. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: deceleration_cod_power. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The U drill bridges curved running and sharper COD with less abrupt braking than a shuttle.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3,
+        "setup_metadata": "Set cones in a U shape; athlete accelerates in, rounds the turn, and exits.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality."
+      },
+      "coachingExecution": {
+        "movement_description": "U-Drill Turn-and-Go uses cones to create a clear movement problem: rounded turn, inside lean, and exit acceleration. Set cones in a U shape; athlete accelerates in, rounds the turn, and exits. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Set cones in a U shape; athlete accelerates in, rounds the turn, and exits.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the u-drill turn-and-go route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk",
+        "https://www.youtube.com/watch?v=e6uGs7Tw_bM",
+        "https://www.youtube.com/watch?v=swPWW_WmhCU",
+        "https://www.youtube.com/watch?v=_oJRFrj_gVc"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 5,
+        "complexity": 4,
+        "overall": 5,
+        "recommended_age_min": 10,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 10+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=5, complexity=4."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 2,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "illinois-agility-run",
+      "name": "Illinois Agility Run",
+      "family": "Planned COD Test",
+      "subrole": "deceleration_cod_power",
+      "slot": "planned_cod_test",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for acceleration, weaving, turning, and repeatable agility benchmark. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "Illinois Agility Run is a cone-based athletic drill focused on acceleration, weaving, turning, and repeatable agility benchmark. Four outside cones and four center cones in the standard Illinois layout. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: deceleration_cod_power. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "It is a robust planned agility benchmark when used as a low-volume timed exposure, not as conditioning spam.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 4,
+        "setup_metadata": "Four outside cones and four center cones in the standard Illinois layout.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality."
+      },
+      "coachingExecution": {
+        "movement_description": "Illinois Agility Run uses cones to create a clear movement problem: acceleration, weaving, turning, and repeatable agility benchmark. Four outside cones and four center cones in the standard Illinois layout. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Four outside cones and four center cones in the standard Illinois layout.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the illinois agility run route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 1,
+        "default_work_seconds": null,
+        "default_rest_seconds": 120,
+        "est_seconds_per_set": 25,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=_6lf-Fjj6zw",
+        "https://www.youtube.com/watch?v=yme6Aq_GbPY",
+        "https://www.youtube.com/watch?v=k9CYW5NRMAk",
+        "https://www.youtube.com/watch?v=e8bIWwcFKLw"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 7,
+        "load": 7,
+        "complexity": 6,
+        "overall": 7,
+        "recommended_age_min": 12,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 12+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=7, load=7, complexity=6."
+      },
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 4,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 4,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "slalom-weave-run",
+      "name": "Slalom Weave Run",
+      "family": "Curvilinear Cone Control",
+      "subrole": "balance_coordination_rhythm",
+      "slot": "weave_spatial_control",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for body lean, smooth foot placement, and rhythm around cones. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Slalom Weave Run is a cone-based athletic drill focused on body lean, smooth foot placement, and rhythm around cones. Place 6-10 cones in a straight line; weave through them. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: balance_coordination_rhythm. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The slalom pattern trains steering and rhythm without demanding a hard plant at every cone.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "curvilinear_running",
+          "hip_flexion_extension",
+          "knee_flexion_extension",
+          "trunk_lateral_lean"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Slalom Weave Run uses cones to create a clear movement problem: body lean, smooth foot placement, and rhythm around cones. Place 6-10 cones in a straight line; weave through them. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Place 6-10 cones in a straight line; weave through them.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the slalom weave run route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=xZrZB7gO-qg",
+        "https://www.youtube.com/watch?v=6qeXYRYMgsU",
+        "https://www.youtube.com/watch?v=2oW7u21hO4M",
+        "https://www.youtube.com/watch?v=89oUm0vEt20"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 4,
+        "load": 3,
+        "complexity": 4,
+        "overall": 4,
+        "recommended_age_min": 7,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 7+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=4, load=3, complexity=4."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "zig-zag-sprint-cuts",
+      "name": "Zig-Zag Sprint Cuts",
+      "family": "Angled COD Pattern",
+      "subrole": "deceleration_cod_power",
+      "slot": "angle_cut_series",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for repeated angled cuts with acceleration between cones. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "Zig-Zag Sprint Cuts is a cone-based athletic drill focused on repeated angled cuts with acceleration between cones. Set 5-7 cones in a zig-zag with 5-8 yards between cuts. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: deceleration_cod_power. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Zig-zags give repeated plant-and-go opportunities while keeping angles predictable.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3,
+        "setup_metadata": "Set 5-7 cones in a zig-zag with 5-8 yards between cuts.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality."
+      },
+      "coachingExecution": {
+        "movement_description": "Zig-Zag Sprint Cuts uses cones to create a clear movement problem: repeated angled cuts with acceleration between cones. Set 5-7 cones in a zig-zag with 5-8 yards between cuts. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Set 5-7 cones in a zig-zag with 5-8 yards between cuts.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the zig-zag sprint cuts route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=xZrZB7gO-qg",
+        "https://www.youtube.com/watch?v=6qeXYRYMgsU",
+        "https://www.youtube.com/watch?v=2oW7u21hO4M",
+        "https://www.youtube.com/watch?v=89oUm0vEt20"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 6,
+        "complexity": 5,
+        "overall": 6,
+        "recommended_age_min": 10,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 10+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=6, complexity=5."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 2,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "figure-8-cone-run",
+      "name": "Figure-8 Cone Run",
+      "family": "Curvilinear Cone Control",
+      "subrole": "balance_coordination_rhythm",
+      "slot": "curvilinear_spatial_control",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for continuous turns, inside shoulder lean, and foot control. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Figure-8 Cone Run is a cone-based athletic drill focused on continuous turns, inside shoulder lean, and foot control. Two cones 5-8 yards apart; run a figure-8 around them. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: balance_coordination_rhythm. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The figure-8 teaches smooth transitions from one curve to another with minimal hard braking.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "curvilinear_running",
+          "hip_flexion_extension",
+          "knee_flexion_extension",
+          "trunk_lateral_lean"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Figure-8 Cone Run uses cones to create a clear movement problem: continuous turns, inside shoulder lean, and foot control. Two cones 5-8 yards apart; run a figure-8 around them. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Two cones 5-8 yards apart; run a figure-8 around them.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the figure-8 cone run route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=xZrZB7gO-qg",
+        "https://www.youtube.com/watch?v=6qeXYRYMgsU",
+        "https://www.youtube.com/watch?v=2oW7u21hO4M",
+        "https://www.youtube.com/watch?v=89oUm0vEt20"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 4,
+        "load": 3,
+        "complexity": 4,
+        "overall": 4,
+        "recommended_age_min": 7,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 7+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=4, load=3, complexity=4."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "circle-cone-chase",
+      "name": "Circle Cone Chase",
+      "family": "Curvilinear Cone Control",
+      "subrole": "perception_action_reactive_movement",
+      "slot": "curvilinear_reactive_game",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for curve running, spacing, and pursuit angles. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Circle Cone Chase is a cone-based athletic drill focused on curve running, spacing, and pursuit angles. Make a circle with 6-10 cones; athlete runs around the outside or chases a partner. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: perception_action_reactive_movement. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Circular constraints teach curved acceleration and spatial awareness more naturally than straight shuttles.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "auditory_visual_reaction",
+          "perception_action_coupling",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2,
+        "reactive_output_profile": "Stimulus can be coach call, partner movement, color/number call, or visual point; cap speed when decision quality drops."
+      },
+      "coachingExecution": {
+        "movement_description": "Circle Cone Chase uses cones to create a clear movement problem: curve running, spacing, and pursuit angles. Make a circle with 6-10 cones; athlete runs around the outside or chases a partner. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Make a circle with 6-10 cones; athlete runs around the outside or chases a partner.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the circle cone chase route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=xZrZB7gO-qg",
+        "https://www.youtube.com/watch?v=6qeXYRYMgsU",
+        "https://www.youtube.com/watch?v=2oW7u21hO4M",
+        "https://www.youtube.com/watch?v=89oUm0vEt20"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 4,
+        "load": 4,
+        "complexity": 5,
+        "overall": 5,
+        "recommended_age_min": 8,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 8+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=4, load=4, complexity=5."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "hexagon-cone-attack-drill",
+      "name": "Hexagon Cone Attack Drill",
+      "family": "Multidirectional Cone Control",
+      "subrole": "balance_coordination_rhythm",
+      "slot": "multidirectional_spatial_control",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for quick direction changes around a small hexagon. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Hexagon Cone Attack Drill is a cone-based athletic drill focused on quick direction changes around a small hexagon. Six cones form a hexagon; athlete moves around or touches each point. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: balance_coordination_rhythm. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The hexagon gives many small angles and teaches quick orientation without long sprint distances.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Hexagon Cone Attack Drill uses cones to create a clear movement problem: quick direction changes around a small hexagon. Six cones form a hexagon; athlete moves around or touches each point. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Six cones form a hexagon; athlete moves around or touches each point.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the hexagon cone attack drill route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=xZrZB7gO-qg",
+        "https://www.youtube.com/watch?v=6qeXYRYMgsU",
+        "https://www.youtube.com/watch?v=2oW7u21hO4M",
+        "https://www.youtube.com/watch?v=89oUm0vEt20"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 4,
+        "complexity": 5,
+        "overall": 5,
+        "recommended_age_min": 8,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 8+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=4, complexity=5."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "4-corner-cone-touch-drill",
+      "name": "4-Corner Cone Touch Drill",
+      "family": "Multidirectional Cone Control",
+      "subrole": "balance_coordination_rhythm",
+      "slot": "multidirectional_spatial_control",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for low-center-of-mass movement and touch accuracy. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "4-Corner Cone Touch Drill is a cone-based athletic drill focused on low-center-of-mass movement and touch accuracy. Four cones in a square; athlete starts in the middle and touches each cone. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: balance_coordination_rhythm. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Touch constraints teach hip lowering, balance, and awareness of space before high-speed call-outs.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "4-Corner Cone Touch Drill uses cones to create a clear movement problem: low-center-of-mass movement and touch accuracy. Four cones in a square; athlete starts in the middle and touches each cone. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Four cones in a square; athlete starts in the middle and touches each cone.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the 4-corner cone touch drill route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk",
+        "https://www.youtube.com/watch?v=e6uGs7Tw_bM",
+        "https://www.youtube.com/watch?v=swPWW_WmhCU",
+        "https://www.youtube.com/watch?v=_oJRFrj_gVc"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 4,
+        "load": 3,
+        "complexity": 4,
+        "overall": 4,
+        "recommended_age_min": 7,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 7+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=4, load=3, complexity=4."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "star-drill-return-to-center",
+      "name": "Star Drill Return-to-Center",
+      "family": "Multidirectional Cone Control",
+      "subrole": "balance_coordination_rhythm",
+      "slot": "multidirectional_spatial_control",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for return-to-base control in multiple directions. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Star Drill Return-to-Center is a cone-based athletic drill focused on return-to-base control in multiple directions. One center cone with 5-6 outer cones arranged like a star. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: balance_coordination_rhythm. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Returning to center builds braking and reorientation at lower speeds before chaotic agility.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Star Drill Return-to-Center uses cones to create a clear movement problem: return-to-base control in multiple directions. One center cone with 5-6 outer cones arranged like a star. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "One center cone with 5-6 outer cones arranged like a star.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the star drill return-to-center route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk",
+        "https://www.youtube.com/watch?v=e6uGs7Tw_bM",
+        "https://www.youtube.com/watch?v=swPWW_WmhCU",
+        "https://www.youtube.com/watch?v=_oJRFrj_gVc"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 4,
+        "complexity": 5,
+        "overall": 5,
+        "recommended_age_min": 8,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 8+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=4, complexity=5."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "5-cone-compass-drill",
+      "name": "5-Cone Compass Drill",
+      "family": "Multidirectional Cone Control",
+      "subrole": "balance_coordination_rhythm",
+      "slot": "multidirectional_spatial_control",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for directional literacy: north, south, east, west, center. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "5-Cone Compass Drill is a cone-based athletic drill focused on directional literacy: north, south, east, west, center. One center cone and four outer cones in a compass shape. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: balance_coordination_rhythm. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The compass layout is simple enough for youth but can progress to reactive command work later.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 1
+      },
+      "coachingExecution": {
+        "movement_description": "5-Cone Compass Drill uses cones to create a clear movement problem: directional literacy: north, south, east, west, center. One center cone and four outer cones in a compass shape. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "One center cone and four outer cones in a compass shape.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the 5-cone compass drill route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk",
+        "https://www.youtube.com/watch?v=e6uGs7Tw_bM",
+        "https://www.youtube.com/watch?v=swPWW_WmhCU",
+        "https://www.youtube.com/watch?v=_oJRFrj_gVc"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 4,
+        "load": 3,
+        "complexity": 5,
+        "overall": 5,
+        "recommended_age_min": 7,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 7+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=4, load=3, complexity=5."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "triangle-shuffle-sprint-drill",
+      "name": "Triangle Shuffle-Sprint Drill",
+      "family": "Multidirectional Cone Control",
+      "subrole": "balance_coordination_rhythm",
+      "slot": "planned_multidirectional_pattern",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for shuffle-to-sprint transition around a triangle. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Triangle Shuffle-Sprint Drill is a cone-based athletic drill focused on shuffle-to-sprint transition around a triangle. Three cones in a triangle, 5-7 yards per side. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: balance_coordination_rhythm. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The triangle provides multiple entry angles and teaches hip turns without too many route rules.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Triangle Shuffle-Sprint Drill uses cones to create a clear movement problem: shuffle-to-sprint transition around a triangle. Three cones in a triangle, 5-7 yards per side. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Three cones in a triangle, 5-7 yards per side.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the triangle shuffle-sprint drill route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk",
+        "https://www.youtube.com/watch?v=e6uGs7Tw_bM",
+        "https://www.youtube.com/watch?v=swPWW_WmhCU",
+        "https://www.youtube.com/watch?v=_oJRFrj_gVc"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 4,
+        "load": 4,
+        "complexity": 4,
+        "overall": 4,
+        "recommended_age_min": 8,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 8+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=4, load=4, complexity=4."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "serpentine-sprint-to-backpedal-drill",
+      "name": "Serpentine Sprint-to-Backpedal Drill",
+      "family": "Curvilinear Cone Control",
+      "subrole": "balance_coordination_rhythm",
+      "slot": "weave_spatial_control",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for forward/backward transition and serpentine route control. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Serpentine Sprint-to-Backpedal Drill is a cone-based athletic drill focused on forward/backward transition and serpentine route control. Use a serpentine cone line; alternate sprint segments and backpedal exits. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: balance_coordination_rhythm. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "It layers route control and orientation without turning the session into a fatigue circuit.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Serpentine Sprint-to-Backpedal Drill uses cones to create a clear movement problem: forward/backward transition and serpentine route control. Use a serpentine cone line; alternate sprint segments and backpedal exits. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Use a serpentine cone line; alternate sprint segments and backpedal exits.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the serpentine sprint-to-backpedal drill route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk",
+        "https://www.youtube.com/watch?v=e6uGs7Tw_bM",
+        "https://www.youtube.com/watch?v=swPWW_WmhCU",
+        "https://www.youtube.com/watch?v=_oJRFrj_gVc"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 4,
+        "complexity": 5,
+        "overall": 5,
+        "recommended_age_min": 9,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 9+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=4, complexity=5."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "partner-mirror-shuffle-box",
+      "name": "Partner Mirror Shuffle Box",
+      "family": "Reactive Cone Agility",
+      "subrole": "perception_action_reactive_movement",
+      "slot": "partner_mirror_agility",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for perception-action, lateral reaction, and defensive posture. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Partner Mirror Shuffle Box is a cone-based athletic drill focused on perception-action, lateral reaction, and defensive posture. Four cones make a box or lane; leader moves laterally while partner mirrors. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: perception_action_reactive_movement. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "pairs",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        },
+        {
+          "key": "partner",
+          "weight": 2
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Mirroring trains reading, reacting, spacing, and body control without needing a ball or sport-specific setup.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "auditory_visual_reaction",
+          "perception_action_coupling",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2,
+        "reactive_output_profile": "Stimulus can be coach call, partner movement, color/number call, or visual point; cap speed when decision quality drops."
+      },
+      "coachingExecution": {
+        "movement_description": "Partner Mirror Shuffle Box uses cones to create a clear movement problem: perception-action, lateral reaction, and defensive posture. Four cones make a box or lane; leader moves laterally while partner mirrors. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Four cones make a box or lane; leader moves laterally while partner mirrors.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard.",
+          "Assign clear leader/chaser roles and keep athletes inside the cone boundaries."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the partner mirror shuffle box route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "rounds",
+        "default_sets": 4,
+        "default_reps": 1,
+        "default_work_seconds": 8,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 5,
+        "default_rpe_max": 8
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Partners cannot maintain safe spacing or follow boundaries."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=Pb15pCX16H8",
+        "https://www.youtube.com/watch?v=TFN0oIXfIl4",
+        "https://www.youtube.com/watch?v=TZC-Pl_quoc",
+        "https://www.youtube.com/watch?v=jJnGQbhbU64"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 4,
+        "complexity": 7,
+        "overall": 7,
+        "recommended_age_min": 9,
+        "recommended_age_max": null,
+        "attention_demand": "high",
+        "notes": "Typical for ages 9+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=4, complexity=7."
+      },
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "partner-crossover-mirror-box",
+      "name": "Partner Crossover Mirror Box",
+      "family": "Reactive Cone Agility",
+      "subrole": "perception_action_reactive_movement",
+      "slot": "partner_mirror_agility",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for crossover reaction, hip turn, and partner timing. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Partner Crossover Mirror Box is a cone-based athletic drill focused on crossover reaction, hip turn, and partner timing. Four cones make a box or lane; leader can shuffle or crossover while partner mirrors. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: perception_action_reactive_movement. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "pairs",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        },
+        {
+          "key": "partner",
+          "weight": 2
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Adding crossover expands the movement vocabulary while preserving a clear partner constraint.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "auditory_visual_reaction",
+          "perception_action_coupling",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2,
+        "reactive_output_profile": "Stimulus can be coach call, partner movement, color/number call, or visual point; cap speed when decision quality drops."
+      },
+      "coachingExecution": {
+        "movement_description": "Partner Crossover Mirror Box uses cones to create a clear movement problem: crossover reaction, hip turn, and partner timing. Four cones make a box or lane; leader can shuffle or crossover while partner mirrors. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Four cones make a box or lane; leader can shuffle or crossover while partner mirrors.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard.",
+          "Assign clear leader/chaser roles and keep athletes inside the cone boundaries."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the partner crossover mirror box route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "rounds",
+        "default_sets": 4,
+        "default_reps": 1,
+        "default_work_seconds": 8,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 5,
+        "default_rpe_max": 8
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Partners cannot maintain safe spacing or follow boundaries."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=Pb15pCX16H8",
+        "https://www.youtube.com/watch?v=TFN0oIXfIl4",
+        "https://www.youtube.com/watch?v=TZC-Pl_quoc",
+        "https://www.youtube.com/watch?v=jJnGQbhbU64"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 6,
+        "load": 4,
+        "complexity": 7,
+        "overall": 7,
+        "recommended_age_min": 10,
+        "recommended_age_max": null,
+        "attention_demand": "high",
+        "notes": "Typical for ages 10+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=6, load=4, complexity=7."
+      },
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 3,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "5-cone-chase-drill",
+      "name": "5-Cone Chase Drill",
+      "family": "Reactive Cone Agility",
+      "subrole": "reactive_agility_tumbling_output",
+      "slot": "partner_chase_reactive_output",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for reactive acceleration and pursuit around a cone grid. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "5-Cone Chase Drill is a cone-based athletic drill focused on reactive acceleration and pursuit around a cone grid. Five cones in a cross or dice-five shape; leader chooses route and chaser reacts. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: reactive_agility_tumbling_output. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "pairs",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        },
+        {
+          "key": "partner",
+          "weight": 2
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The chase constraint adds true perception and consequence while the cone grid keeps distances capped.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "auditory_visual_reaction",
+          "perception_action_coupling",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3,
+        "setup_metadata": "Five cones in a cross or dice-five shape; leader chooses route and chaser reacts.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality.",
+        "reactive_output_profile": "Stimulus can be coach call, partner movement, color/number call, or visual point; cap speed when decision quality drops."
+      },
+      "coachingExecution": {
+        "movement_description": "5-Cone Chase Drill uses cones to create a clear movement problem: reactive acceleration and pursuit around a cone grid. Five cones in a cross or dice-five shape; leader chooses route and chaser reacts. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Five cones in a cross or dice-five shape; leader chooses route and chaser reacts.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard.",
+          "Assign clear leader/chaser roles and keep athletes inside the cone boundaries."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the 5-cone chase drill route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "rounds",
+        "default_sets": 4,
+        "default_reps": 1,
+        "default_work_seconds": 10,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps.",
+        "Partners cannot maintain safe spacing or follow boundaries."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=gFJfTO162hA",
+        "https://www.youtube.com/watch?v=swsrlCSb0mg",
+        "https://www.youtube.com/watch?v=mBmGU7xcH08",
+        "https://www.youtube.com/watch?v=tn2V57hqqGQ"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 6,
+        "load": 5,
+        "complexity": 7,
+        "overall": 7,
+        "recommended_age_min": 10,
+        "recommended_age_max": null,
+        "attention_demand": "high",
+        "notes": "Typical for ages 10+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=6, load=5, complexity=7."
+      },
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "coach-call-out-4-cone-box",
+      "name": "Coach Call-Out 4-Cone Box",
+      "family": "Reactive Cone Agility",
+      "subrole": "reactive_agility_tumbling_output",
+      "slot": "coach_callout_reactive_output",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for react to auditory/visual cue and move to the right cone. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "Coach Call-Out 4-Cone Box is a cone-based athletic drill focused on react to auditory/visual cue and move to the right cone. Four cones form a square; athlete starts in the middle. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: reactive_agility_tumbling_output. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Coach call-outs add reaction without requiring a partner, and they scale easily by speed and cone spacing.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "auditory_visual_reaction",
+          "perception_action_coupling",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2,
+        "setup_metadata": "Four cones form a square; athlete starts in the middle.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality.",
+        "reactive_output_profile": "Stimulus can be coach call, partner movement, color/number call, or visual point; cap speed when decision quality drops."
+      },
+      "coachingExecution": {
+        "movement_description": "Coach Call-Out 4-Cone Box uses cones to create a clear movement problem: react to auditory/visual cue and move to the right cone. Four cones form a square; athlete starts in the middle. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Four cones form a square; athlete starts in the middle.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the coach call-out 4-cone box route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=0z8_hpHf_iA",
+        "https://www.youtube.com/watch?v=BVALb90q93I",
+        "https://www.youtube.com/watch?v=DEDkpnzc49g",
+        "https://www.youtube.com/watch?v=N4ODVFqUq5c"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 5,
+        "complexity": 6,
+        "overall": 6,
+        "recommended_age_min": 9,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 9+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=5, complexity=6."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "color-number-cone-reaction-drill",
+      "name": "Color/Number Cone Reaction Drill",
+      "family": "Reactive Cone Agility",
+      "subrole": "perception_action_reactive_movement",
+      "slot": "coach_callout_reactive_skill",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for decision speed, visual scanning, and safe route choice. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Color/Number Cone Reaction Drill is a cone-based athletic drill focused on decision speed, visual scanning, and safe route choice. Use colored or numbered cones in a small grid. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: perception_action_reactive_movement. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "Color/number cues train perception and choice while allowing the coach to keep speed submaximal.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "auditory_visual_reaction",
+          "perception_action_coupling",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 1,
+        "reactive_output_profile": "Stimulus can be coach call, partner movement, color/number call, or visual point; cap speed when decision quality drops."
+      },
+      "coachingExecution": {
+        "movement_description": "Color/Number Cone Reaction Drill uses cones to create a clear movement problem: decision speed, visual scanning, and safe route choice. Use colored or numbered cones in a small grid. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Use colored or numbered cones in a small grid.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the color/number cone reaction drill route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "reps",
+        "default_sets": 2,
+        "default_reps": 3,
+        "default_work_seconds": null,
+        "default_rest_seconds": 45,
+        "est_seconds_per_set": 45,
+        "default_rpe_min": 3,
+        "default_rpe_max": 5
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=0z8_hpHf_iA",
+        "https://www.youtube.com/watch?v=BVALb90q93I",
+        "https://www.youtube.com/watch?v=DEDkpnzc49g",
+        "https://www.youtube.com/watch?v=N4ODVFqUq5c"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 4,
+        "load": 3,
+        "complexity": 6,
+        "overall": 6,
+        "recommended_age_min": 7,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 7+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=4, load=3, complexity=6."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 1,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 1,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "reactive-box-shuttle",
+      "name": "Reactive Box Shuttle",
+      "family": "Reactive Cone Agility",
+      "subrole": "reactive_agility_tumbling_output",
+      "slot": "reactive_box_shuttle",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for hard reaction, short shuttle, and reacceleration. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "Reactive Box Shuttle is a cone-based athletic drill focused on hard reaction, short shuttle, and reacceleration. Four cones make a box; coach or partner cues the target cone. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: reactive_agility_tumbling_output. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The box makes a simple decision environment where the athlete must react, brake, and accelerate cleanly.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "auditory_visual_reaction",
+          "perception_action_coupling",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3,
+        "setup_metadata": "Four cones make a box; coach or partner cues the target cone.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality.",
+        "reactive_output_profile": "Stimulus can be coach call, partner movement, color/number call, or visual point; cap speed when decision quality drops."
+      },
+      "coachingExecution": {
+        "movement_description": "Reactive Box Shuttle uses cones to create a clear movement problem: hard reaction, short shuttle, and reacceleration. Four cones make a box; coach or partner cues the target cone. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Four cones make a box; coach or partner cues the target cone.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the reactive box shuttle route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "rounds",
+        "default_sets": 4,
+        "default_reps": 1,
+        "default_work_seconds": 10,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=0z8_hpHf_iA",
+        "https://www.youtube.com/watch?v=BVALb90q93I",
+        "https://www.youtube.com/watch?v=DEDkpnzc49g",
+        "https://www.youtube.com/watch?v=N4ODVFqUq5c"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 6,
+        "load": 6,
+        "complexity": 7,
+        "overall": 7,
+        "recommended_age_min": 10,
+        "recommended_age_max": null,
+        "attention_demand": "high",
+        "notes": "Typical for ages 10+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=6, load=6, complexity=7."
+      },
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 3,
+        "impact_level": 3,
+        "intensity_ceiling": "high"
+      }
+    },
+    {
+      "slug": "shadow-tag-cone-channel",
+      "name": "Shadow Tag Cone Channel",
+      "family": "Reactive Cone Agility",
+      "subrole": "perception_action_reactive_movement",
+      "slot": "partner_tag_agility",
+      "primaryPhaseKey": "movement_intelligence",
+      "cardSummary": "Cone drill for small-space evasive movement and defensive tracking. Best when coached as Movement Intelligence with the drill dose matched to the session phase.",
+      "bestPlacement": "After Prepare & Access and before Output. Use while athletes are fresh enough to learn rhythm, route, and body position.",
+      "description": "Shadow Tag Cone Channel is a cone-based athletic drill focused on small-space evasive movement and defensive tracking. Two cone lines make a narrow channel; one athlete shadows or tags the other. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Movement Intelligence. Primary subrole: perception_action_reactive_movement. Technical learning while fresh; quality stops when timing or posture fades. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move smooth, stay balanced, and learn the route before going fast.",
+      "participantStructure": "pairs",
+      "tenets": [
+        {
+          "key": "coordination",
+          "weight": 5
+        },
+        {
+          "key": "body_control",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 4
+        },
+        {
+          "key": "balance_stability",
+          "weight": 4
+        }
+      ],
+      "physiology": [
+        {
+          "key": "perception_action_skill",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        },
+        {
+          "key": "neural_output_readiness",
+          "weight": 2
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        },
+        {
+          "key": "partner",
+          "weight": 2
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The channel creates boundaries so athletes learn spacing, fakes, and reactions without collisions.",
+      "whyItGoesHere": "It belongs in Movement Intelligence because the value is route learning, rhythm, spacing, and perception before fatigue.",
+      "commonMisuse": "Do not race it before the athlete owns the route and rhythm; sloppy speed teaches the wrong pattern.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2,
+        "reactive_output_profile": "Stimulus can be coach call, partner movement, color/number call, or visual point; cap speed when decision quality drops."
+      },
+      "coachingExecution": {
+        "movement_description": "Shadow Tag Cone Channel uses cones to create a clear movement problem: small-space evasive movement and defensive tracking. Two cone lines make a narrow channel; one athlete shadows or tags the other. The coach selects speed, spacing, and rest so the drill trains movement intelligence rather than junk fatigue.",
+        "setup": [
+          "Two cone lines make a narrow channel; one athlete shadows or tags the other.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard.",
+          "Assign clear leader/chaser roles and keep athletes inside the cone boundaries."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the shadow tag cone channel route at teaching speed first, then progress only if rhythm stays clean.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "rounds",
+        "default_sets": 4,
+        "default_reps": 1,
+        "default_work_seconds": 8,
+        "default_rest_seconds": 75,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 5,
+        "default_rpe_max": 8
+      },
+      "scaling": {
+        "youth_beginner": "Walk or march the route with larger cone spacing; coach one cue only.",
+        "youth_intermediate": "Jog at 60-70% and require exact route before increasing speed.",
+        "teen": "Use normal cone spacing and add light timing only after rhythm is automatic.",
+        "adult_beginner": "Use submax speed and wider turns; remove backpedal or crossover until posture is stable.",
+        "adult_advanced": "Use tighter cones, faster rhythm, or one added decision while keeping reps crisp.",
+        "older_adult": "Use walking pace, larger cones, and no abrupt cuts or backward running if balance is limited.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Prepare & Access raise/mobilize sequence",
+        "Cone March Line",
+        "A-Skip Through Cone Gates"
+      ],
+      "pairsWellBefore": [
+        "Acceleration starts",
+        "Planned COD drills",
+        "Reactive agility games"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Partners cannot maintain safe spacing or follow boundaries."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=gFJfTO162hA",
+        "https://www.youtube.com/watch?v=swsrlCSb0mg",
+        "https://www.youtube.com/watch?v=mBmGU7xcH08",
+        "https://www.youtube.com/watch?v=tn2V57hqqGQ"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 4,
+        "complexity": 7,
+        "overall": 7,
+        "recommended_age_min": 8,
+        "recommended_age_max": null,
+        "attention_demand": "high",
+        "notes": "Typical for ages 8+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=4, complexity=7."
+      },
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 4,
+        "minimum_hours_between_hard_exposures": 24,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 2,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "moderate"
+      }
+    },
+    {
+      "slug": "ball-drop-point-and-sprint-cone-reaction",
+      "name": "Ball Drop/Point-and-Sprint Cone Reaction",
+      "family": "Reactive Cone Agility",
+      "subrole": "acceleration_start_speed",
+      "slot": "visual_reaction_acceleration",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for visual cue reaction into short acceleration. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "Ball Drop/Point-and-Sprint Cone Reaction is a cone-based athletic drill focused on visual cue reaction into short acceleration. Athlete starts between cones; coach drops a ball or points to a cone target. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: acceleration_start_speed. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "speed",
+          "weight": 5
+        },
+        {
+          "key": "explosiveness",
+          "weight": 4
+        },
+        {
+          "key": "agility",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 4
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        },
+        {
+          "key": "tennis_ball",
+          "weight": 2
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "The visual cue prevents pre-planned starts and connects reaction time to first-step acceleration.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "auditory_visual_reaction",
+          "perception_action_coupling",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 2
+      },
+      "coachingExecution": {
+        "movement_description": "Ball Drop/Point-and-Sprint Cone Reaction uses cones to create a clear movement problem: visual cue reaction into short acceleration. Athlete starts between cones; coach drops a ball or points to a cone target. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Athlete starts between cones; coach drops a ball or points to a cone target.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the ball drop/point-and-sprint cone reaction route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 2,
+        "default_work_seconds": null,
+        "default_rest_seconds": 90,
+        "est_seconds_per_set": 20,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=0z8_hpHf_iA",
+        "https://www.youtube.com/watch?v=BVALb90q93I",
+        "https://www.youtube.com/watch?v=DEDkpnzc49g",
+        "https://www.youtube.com/watch?v=N4ODVFqUq5c"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 5,
+        "complexity": 6,
+        "overall": 6,
+        "recommended_age_min": 9,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 9+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=5, complexity=6."
+      },
+      "safety": {
+        "risk_level": 2,
+        "impact_level": 2,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": false,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": false,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 2,
+        "impact_level": 2,
+        "intensity_ceiling": "high"
+      },
+      "subroleSecondary": "reactive_agility_tumbling_output"
+    },
+    {
+      "slug": "commanded-pro-agility-shuttle",
+      "name": "Commanded Pro Agility Shuttle",
+      "family": "Reactive COD Test",
+      "subrole": "deceleration_cod_power",
+      "slot": "reactive_cod_shuttle",
+      "primaryPhaseKey": "output",
+      "cardSummary": "Cone drill for 5-10-5 pattern with left/right decision at the start. Best when coached as Output with the drill dose matched to the session phase.",
+      "bestPlacement": "Early main-session Output block after warm-up and skill prep. Use low volume, high intent, and full rest before strength or conditioning.",
+      "description": "Commanded Pro Agility Shuttle is a cone-based athletic drill focused on 5-10-5 pattern with left/right decision at the start. Standard 5-10-5 cone line; coach calls left or right on movement. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Output. Primary subrole: deceleration_cod_power. High intent, low volume, full rest; tired reps become conditioning rather than power. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Attack the cone, brake under control, then explode out clean.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 5
+        },
+        {
+          "key": "coordination",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "neural",
+          "weight": 5
+        },
+        {
+          "key": "plyometrics",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "neural_output_readiness",
+          "weight": 5
+        },
+        {
+          "key": "perception_action_skill",
+          "weight": 2
+        },
+        {
+          "key": "ssc_stiffness",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "It preserves the value of the 5-10-5 while adding perception-action and reducing rehearsed bias.",
+      "whyItGoesHere": "It belongs in Output because the value is high-quality speed, acceleration, reacceleration, or COD power with full recovery.",
+      "commonMisuse": "Do not turn this into a conditioning finisher. If rest is short and cuts get sloppy, it is no longer an Output drill.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "auditory_visual_reaction",
+          "perception_action_coupling",
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic-high-speed",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 4,
+        "setup_metadata": "Standard 5-10-5 cone line; coach calls left or right on movement.",
+        "cod_stress_profile": "Cut stress is managed by cone spacing, approach speed, cut angle, and rest quality."
+      },
+      "coachingExecution": {
+        "movement_description": "Commanded Pro Agility Shuttle uses cones to create a clear movement problem: 5-10-5 pattern with left/right decision at the start. Standard 5-10-5 cone line; coach calls left or right on movement. The coach selects speed, spacing, and rest so the drill trains output rather than junk fatigue.",
+        "setup": [
+          "Standard 5-10-5 cone line; coach calls left or right on movement.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Perform the commanded pro agility shuttle route at the prescribed speed while staying inside the cone constraints.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "Reset fully before the next rep; stop the set if posture, route accuracy, or braking quality fades."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "attempts",
+        "default_sets": 3,
+        "default_reps": 1,
+        "default_work_seconds": null,
+        "default_rest_seconds": 120,
+        "est_seconds_per_set": 25,
+        "default_rpe_min": 7,
+        "default_rpe_max": 9
+      },
+      "scaling": {
+        "youth_beginner": "Use as a technical walk-through or 50-70% run only; do not chase time.",
+        "youth_intermediate": "Use 70-80% speed, longer rest, and fewer direction changes.",
+        "teen": "Use full setup with full rest; time only if mechanics stay clean.",
+        "adult_beginner": "Start at submax speed and remove reactive elements until the route is automatic.",
+        "adult_advanced": "Use timing, sharper angles, or reactive cueing; cap total high-intent attempts.",
+        "older_adult": "Use Movement Intelligence or Resilience version; avoid max velocity, hard cuts, and timed shuttles.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Dynamic warm-up",
+        "Sprint mechanics drills",
+        "Linear deceleration stick"
+      ],
+      "pairsWellBefore": [
+        "Capacity strength",
+        "Resilience accessories",
+        "Sustained Capacity"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Athlete is already fatigued from conditioning, heavy strength, or repeated jumps."
+      ],
+      "goodForSessions": [
+        "deceleration",
+        "general_warmup",
+        "landing_prep",
+        "sprint_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=z-wV9O8y-a0",
+        "https://www.youtube.com/watch?v=MjOZtf9q8Hw",
+        "https://www.youtube.com/watch?v=fZoJVVuqY3U",
+        "https://www.youtube.com/watch?v=tYhCJd7LaBU"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 7,
+        "load": 7,
+        "complexity": 7,
+        "overall": 7,
+        "recommended_age_min": 12,
+        "recommended_age_max": null,
+        "attention_demand": "high",
+        "notes": "Typical for ages 12+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=7, load=7, complexity=7."
+      },
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 4,
+        "requires_spotting": false,
+        "requires_coach_supervision": "required",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": true,
+        "counts_as_high_impact": true,
+        "counts_as_neural": true,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": false
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": true,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 4,
+        "technical_complexity": 4,
+        "impact_level": 4,
+        "intensity_ceiling": "high"
+      },
+      "subroleSecondary": "reactive_agility_tumbling_output"
+    },
+    {
+      "slug": "cone-gauntlet-quality-intervals",
+      "name": "Cone Gauntlet Quality Intervals",
+      "family": "Cone Repeatability",
+      "subrole": "conditioning_intervals",
+      "slot": "quality_agility_intervals",
+      "primaryPhaseKey": "sustained_capacity",
+      "cardSummary": "Cone drill for repeat useful cone work under fatigue while maintaining posture. Best when coached as Sustained Capacity with the drill dose matched to the session phase.",
+      "bestPlacement": "Late session only, after high-speed skill and Output work are complete. Use as quality conditioning, not punishment.",
+      "description": "Cone Gauntlet Quality Intervals is a cone-based athletic drill focused on repeat useful cone work under fatigue while maintaining posture. Use 4-6 cones to build a short route; work 15-25 seconds, rest fully enough to keep mechanics safe. It belongs in the library because it is easy to set up, easy to coach, and scalable from youth development to advanced field/court athletes.",
+      "coachLanguage": "Primary phase: Sustained Capacity. Primary subrole: conditioning_intervals. Conditioning on purpose late in the session; posture and safety cap the volume. Progress only when the route, posture, and stop/cut quality are repeatable.",
+      "athleteLanguage": "Move fast enough to work, but clean enough to stay safe.",
+      "participantStructure": "individual",
+      "tenets": [
+        {
+          "key": "agility",
+          "weight": 4
+        },
+        {
+          "key": "coordination",
+          "weight": 4
+        },
+        {
+          "key": "speed",
+          "weight": 3
+        }
+      ],
+      "methodologies": [
+        {
+          "key": "hiit",
+          "weight": 4
+        },
+        {
+          "key": "neural",
+          "weight": 3
+        },
+        {
+          "key": "balance_stability",
+          "weight": 3
+        }
+      ],
+      "physiology": [
+        {
+          "key": "energy_systems_repeatability",
+          "weight": 5
+        },
+        {
+          "key": "control_stability",
+          "weight": 3
+        }
+      ],
+      "patterns": [
+        {
+          "key": "locomote",
+          "weight": 5
+        }
+      ],
+      "equipment": [
+        {
+          "key": "cones",
+          "weight": 5
+        }
+      ],
+      "body_regions": [
+        {
+          "key": "foot",
+          "weight": 4
+        },
+        {
+          "key": "ankle",
+          "weight": 4
+        },
+        {
+          "key": "knee",
+          "weight": 4
+        },
+        {
+          "key": "hip",
+          "weight": 5
+        },
+        {
+          "key": "core",
+          "weight": 3
+        },
+        {
+          "key": "full_body",
+          "weight": 4
+        }
+      ],
+      "whyItWorks": "This is conditioning on purpose: late session, quality-capped, and stopped when mechanics degrade.",
+      "whyItGoesHere": "It belongs in Sustained Capacity only when the goal is repeatability under fatigue and the coach intentionally places it late.",
+      "commonMisuse": "Do not place this before speed, skill, or heavy work; it intentionally creates fatigue and belongs late.",
+      "scalingGuidance": "Reduce speed before reducing the learning goal; scale cone spacing, approach velocity, cut angle, and decision complexity.",
+      "movementRequirements": {
+        "primary_joint_actions": [
+          "ankle_stiffness",
+          "hip_flexion_extension",
+          "knee_flexion_extension"
+        ],
+        "primary_tissues": [
+          "calves",
+          "quadriceps",
+          "hamstrings",
+          "glutes",
+          "adductors"
+        ],
+        "primary_motor_control_demands": [
+          "spatial_orientation",
+          "visual_navigation"
+        ],
+        "postural_shape": "athletic stance with ribs stacked over pelvis during cuts and stops",
+        "breathing_demand": "rhythmic; no breath holding during approach, cut, or stop",
+        "balance_demand": "dynamic",
+        "coordination_demand": "multi-step cone navigation with clean arm-leg timing",
+        "impact_level": 3
+      },
+      "coachingExecution": {
+        "movement_description": "Cone Gauntlet Quality Intervals uses cones to create a clear movement problem: repeat useful cone work under fatigue while maintaining posture. Use 4-6 cones to build a short route; work 15-25 seconds, rest fully enough to keep mechanics safe. The coach selects speed, spacing, and rest so the drill trains sustained capacity rather than junk fatigue.",
+        "setup": [
+          "Use 4-6 cones to build a short route; work 15-25 seconds, rest fully enough to keep mechanics safe.",
+          "Use a flat, dry surface with at least 3-5 yards of safe run-out beyond the final cone.",
+          "Walk the route once so the athlete understands the entry, target, and finish standard.",
+          "Place this late in the session and set a quality cap before starting."
+        ],
+        "execution_steps": [
+          "Start in an athletic stance with eyes up and weight balanced through the whole foot.",
+          "Move for the prescribed work interval while preserving posture, foot control, and route accuracy.",
+          "Brake, cut, or turn with hips loaded, knees tracking over toes, and the trunk under control.",
+          "Finish through the final cone or stick the final position exactly as prescribed.",
+          "End the interval early if the athlete can no longer brake or turn safely."
+        ],
+        "coach_cues": [
+          "Eyes up; see the cone early, not at the last step.",
+          "Push the ground away; do not reach and pull with the lead foot.",
+          "Load the hip before changing direction.",
+          "Quiet shoulders, violent arms when the drill calls for speed.",
+          "Win the shape before chasing the time."
+        ],
+        "athlete_cues": [
+          "See it early.",
+          "Brake low and strong.",
+          "Push out of the cut.",
+          "Fast feet, quiet body."
+        ],
+        "breathing_cues": [
+          "Breathe naturally during setup.",
+          "Do not hold the breath through the cut or stop.",
+          "Use one calm breath to reset before the next rep."
+        ],
+        "common_faults": [
+          "Standing tall into the stop or cut.",
+          "Reaching the plant foot too far outside the hip.",
+          "Knee collapsing inside the foot.",
+          "Looking down at the cone instead of scanning ahead.",
+          "Turning quality reps into conditioning volume."
+        ],
+        "quality_gate": [
+          "Route is correct without coach rescue.",
+          "Final stop or turn is balanced with no extra hop unless the drill calls for a run-through.",
+          "Knee tracks over toes on the plant leg.",
+          "Athlete can repeat the same shape on both sides.",
+          "Speed increases only after control is repeatable."
+        ],
+        "stop_signs": [
+          "Pain in ankle, knee, hip, back, or groin.",
+          "Slipping surface or cones sliding into the athlete path.",
+          "Repeated uncontrolled knee valgus or trunk collapse.",
+          "Athlete cannot remember route or react safely.",
+          "Fatigue changes braking mechanics."
+        ]
+      },
+      "dosage": {
+        "volume_unit": "intervals",
+        "default_sets": 5,
+        "default_reps": null,
+        "default_work_seconds": 20,
+        "default_rest_seconds": 60,
+        "est_seconds_per_set": 80,
+        "default_rpe_min": 6,
+        "default_rpe_max": 8
+      },
+      "scaling": {
+        "youth_beginner": "Do not use as conditioning; convert to a simple walk-through or movement game.",
+        "youth_intermediate": "Use short intervals with generous rest and stop before mechanics fade.",
+        "teen": "Use late-session intervals only after speed/COD work is complete.",
+        "adult_beginner": "Use lower work duration, longer rest, and no max-speed cuts.",
+        "adult_advanced": "Use density progression, not sloppy speed; stop if posture or braking falls apart.",
+        "older_adult": "Use steady walking cone circuits; avoid fatigue-driven rapid cuts.",
+        "pregnancy_postpartum": "Prefer walking, marching, or low-speed shuffle versions; avoid max sprinting, breath-holding, high-impact cuts, and any symptoms of pelvic pressure, leaking, dizziness, or pain."
+      },
+      "genderSpecificNotes": "No default gender split. Scale by readiness, growth stage, limb control, footwear, surface, pregnancy/postpartum status, and prior injury history.",
+      "pairsWellAfter": [
+        "Output speed/COD block",
+        "Capacity strength block",
+        "Resilience braking block"
+      ],
+      "pairsWellBefore": [
+        "Restore breathing",
+        "Cooldown mobility"
+      ],
+      "doNotUseWhen": [
+        "Athlete has pain or loss of control during warm-up.",
+        "Surface is slippery or space is crowded.",
+        "The session goal is recovery or restore only.",
+        "Before sprinting, jumping, skill learning, or heavy strength work."
+      ],
+      "goodForSessions": [
+        "conditioning_intervals",
+        "general_warmup",
+        "landing_prep"
+      ],
+      "mediaReferences": [
+        "https://www.youtube.com/watch?v=yBKmTZ1XEOk",
+        "https://www.youtube.com/watch?v=e6uGs7Tw_bM",
+        "https://www.youtube.com/watch?v=swPWW_WmhCU",
+        "https://www.youtube.com/watch?v=_oJRFrj_gVc",
+        "https://www.youtube.com/watch?v=leJALwttReI"
+      ],
+      "mediaInternalNotes": [
+        "Film one front/diagonal angle and one side angle when possible.",
+        "Show the cone layout before the rep.",
+        "Capture one slow walk-through, then one quality-speed rep.",
+        "For client view, keep the demo focused on setup, route, posture, and stop/cut standard."
+      ],
+      "difficultyProfile": {
+        "technical": 5,
+        "load": 6,
+        "complexity": 5,
+        "overall": 6,
+        "recommended_age_min": 11,
+        "recommended_age_max": null,
+        "attention_demand": "moderate",
+        "notes": "Typical for ages 11+ when cone spacing, approach speed, and decision complexity are scaled. Overall difficulty reflects technical=5, load=6, complexity=5."
+      },
+      "safety": {
+        "risk_level": 3,
+        "impact_level": 3,
+        "requires_spotting": false,
+        "requires_coach_supervision": "recommended",
+        "readiness_checks": [
+          "Athlete is pain-free through ankle, knee, hip, groin, and low back.",
+          "Surface is dry, flat, and clear of traffic.",
+          "Athlete can demonstrate an athletic stop without knee collapse.",
+          "Cone spacing leaves safe deceleration and run-out room."
+        ],
+        "contraindications": [
+          "Acute lower-limb pain or recent uncontrolled ankle/knee/hip injury.",
+          "Dizziness, unsafe balance, or inability to understand the route.",
+          "Slippery surface or crowded training area.",
+          "For reactive/partner drills: uncontrolled contact or athletes ignoring boundaries."
+        ],
+        "common_substitutions": [
+          "Cone walk-through at teaching speed",
+          "Linear sprint-to-stick deceleration",
+          "Cone march line",
+          "Single-leg cone reach stick"
+        ]
+      },
+      "regimen": {
+        "can_be_daily": false,
+        "weekly_max_frequency": 2,
+        "minimum_hours_between_hard_exposures": 48,
+        "counts_as_high_intensity": false,
+        "counts_as_high_impact": true,
+        "counts_as_neural": false,
+        "counts_as_tissue_stress": true,
+        "counts_as_conditioning": true
+      },
+      "phaseProfile": {
+        "role": "primary",
+        "fit_weight": 5,
+        "freshness_required": false,
+        "fatigue_cost": 4,
+        "fatigue_sensitivity": 3,
+        "technical_complexity": 2,
+        "impact_level": 3,
+        "intensity_ceiling": "moderate"
+      }
+    }
+  ]
+}
+```

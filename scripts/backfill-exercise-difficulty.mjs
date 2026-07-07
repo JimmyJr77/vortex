@@ -11,7 +11,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import pg from 'pg'
 import dotenv from 'dotenv'
-import { computeOverallDifficulty } from '../backend/platform/ageDifficultyPolicy.js'
+import { deriveExerciseDifficulty } from '../backend/platform/exerciseDifficultyDerivation.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.join(__dirname, '..')
@@ -27,76 +27,6 @@ function parseJson(val) {
   if (val == null) return {}
   if (typeof val === 'object') return val
   try { return JSON.parse(val) } catch { return {} }
-}
-
-function coordinationScore(text) {
-  const s = String(text || '').toLowerCase()
-  if (!s) return 2
-  if (s.includes('high')) return 7
-  if (s.includes('moderate_to_high') || s.includes('moderate to high')) return 6
-  if (s.includes('moderate')) return 4
-  if (s.includes('low')) return 2
-  return 3
-}
-
-function skillFloor(skill) {
-  if (skill === 'ADVANCED') return 7
-  if (skill === 'INTERMEDIATE') return 5
-  if (skill === 'BEGINNER') return 3
-  if (skill === 'EARLY_STAGE') return 2
-  return 2
-}
-
-function slugHeuristic(slug) {
-  const s = String(slug || '').toLowerCase()
-  let bump = 0
-  if (/plyo|depth-drop|hurdle|sprint-max|tumbling|round-off|handstand/.test(s)) bump += 2
-  if (/coordination|reactive|decision|catch|partner/.test(s)) bump += 1
-  if (/breathing|cars|mobilize|9090|crocodile/.test(s)) bump -= 1
-  return bump
-}
-
-function deriveDifficulty(row, primaryPhase, regimen, safety, req) {
-  const tc = Number(primaryPhase?.technical_complexity) || 2
-  let technical = Math.min(10, Math.max(1, tc * 2))
-  let load = Math.min(10, Math.max(1, Number(primaryPhase?.fatigue_cost) || 2))
-  let complexity = coordinationScore(req.coordination_demand)
-
-  const impact = Number(req.impact_level ?? primaryPhase?.impact_level ?? safety?.impact_level ?? 0)
-  if (impact >= 3) load = Math.min(10, load + 2)
-  if (impact >= 4) load = Math.min(10, load + 1)
-
-  if (regimen?.counts_as_high_intensity) load = Math.min(10, load + 2)
-  if (regimen?.counts_as_high_impact) load = Math.min(10, load + 1)
-
-  if (row.participant_structure === 'pairs' || row.participant_structure === 'group') {
-    complexity = Math.min(10, complexity + 2)
-  }
-
-  const floor = skillFloor(row.skill_level)
-  technical = Math.max(technical, floor)
-  load = Math.max(load, Math.max(1, floor - 1))
-  complexity = Math.max(complexity, Math.max(1, floor - 1))
-
-  const bump = slugHeuristic(row.slug)
-  technical = Math.min(10, Math.max(1, technical + bump))
-  load = Math.min(10, Math.max(1, load + Math.floor(bump / 2)))
-  complexity = Math.min(10, Math.max(1, complexity + Math.floor(bump / 2)))
-
-  const overall = computeOverallDifficulty(technical, load, complexity)
-  const attention = complexity >= 7 ? 'high' : complexity >= 4 ? 'moderate' : 'low'
-
-  return {
-    technical,
-    load,
-    complexity,
-    overall,
-    recommended_age_min: row.age_min ?? safety?.minimum_age_recommended ?? null,
-    recommended_age_max: row.age_max ?? null,
-    attention_demand: attention,
-    notes: `derived from tc=${tc}, fatigue=${primaryPhase?.fatigue_cost ?? '?'}`,
-    source: 'derived',
-  }
 }
 
 function resolveSsl(connectionString) {
@@ -140,7 +70,7 @@ async function main() {
       `SELECT source FROM coaching.exercise_difficulty_profile WHERE exercise_id = $1`,
       [row.id],
     )
-    if (existing.rows[0]?.source === 'reviewed') {
+    if (existing.rows[0]?.source === 'reviewed' || existing.rows[0]?.source === 'authored') {
       skipped++
       continue
     }
@@ -160,7 +90,7 @@ async function main() {
     ])
 
     const req = parseJson(row.movement_requirements)
-    const diff = deriveDifficulty(
+    const diff = deriveExerciseDifficulty(
       row,
       phaseRes.rows[0] ?? null,
       regimenRes.rows[0] ?? null,
@@ -198,7 +128,7 @@ async function main() {
           notes = EXCLUDED.notes,
           source = EXCLUDED.source,
           updated_at = now()
-        WHERE coaching.exercise_difficulty_profile.source != 'reviewed'`,
+        WHERE coaching.exercise_difficulty_profile.source NOT IN ('reviewed', 'authored')`,
         [
           row.id,
           diff.technical,

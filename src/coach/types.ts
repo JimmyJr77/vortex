@@ -307,10 +307,11 @@ export interface ExerciseSafetyProfile {
   contraindications?: string[]
 }
 
+export type ProgrammingKind = 'exercise' | 'skill_drill'
+
 export interface ExerciseDifficultyProfile {
   technical: number
   load: number
-  complexity: number
   overall: number
   recommended_age_min?: number | null
   recommended_age_max?: number | null
@@ -410,6 +411,8 @@ export interface Exercise {
   phase_subrole?: PhaseSubrole | null
   primary_order_slot?: string | null
   participant_structure?: ParticipantStructure
+  programming_kind?: ProgrammingKind | null
+  linked_skill_id?: number | null
   movement_requirements?: ExerciseMovementRequirements
   coaching_execution?: ExerciseCoachingExecution
   pairing_logic?: ExercisePairingLogic

@@ -1,6 +1,7 @@
 import { loadEducationForExercise, upsertExerciseEducation, educationToWhyResponse } from './educationContent.js'
 import { deriveExerciseSubrole, resolveSubroleFromOrderSlot } from './phaseSubrole.js'
 import { computeOverallDifficulty, mapDifficultyRow } from './ageDifficultyPolicy.js'
+import { deriveExerciseDifficulty, ensureDerivedDifficultyProfiles } from './exerciseDifficultyDerivation.js'
 
 export const SCALING_COHORT_KEYS = [
   'youth_beginner', 'youth_intermediate', 'teen', 'adult_beginner',
@@ -331,6 +332,23 @@ export function buildExerciseCard(row, attached, tags = []) {
   }
 }
 
+function resolveDifficultyProfile(row, bundle, phaseProfiles) {
+  const id = String(row.id)
+  const stored = bundle.difficultyProfiles?.get(id) ?? null
+  if (stored) return stored
+
+  const primaryPhase = pickPrimaryPhaseProfile(phaseProfiles)
+  if (!primaryPhase && !row.skill_level && !row.movement_requirements) return null
+
+  return deriveExerciseDifficulty(
+    row,
+    primaryPhase,
+    bundle.regimenRules.get(id) ?? null,
+    bundle.safetyProfiles.get(id) ?? null,
+    row.movement_requirements,
+  )
+}
+
 export function attachProgrammingToExercise(row, bundle, education = null) {
   const id = String(row.id)
   const phaseProfiles = bundle.phaseProfiles.get(id) ?? []
@@ -338,6 +356,7 @@ export function attachProgrammingToExercise(row, bundle, education = null) {
   const scalingRaw = bundle.scalingProfiles.get(id) ?? []
   const dosageRaw = bundle.dosageProfiles.get(id) ?? []
   const why = educationToWhyResponse(education)
+  const difficultyProfile = resolveDifficultyProfile(row, bundle, phaseProfiles)
 
   return {
     ...row,
@@ -361,10 +380,13 @@ export function attachProgrammingToExercise(row, bundle, education = null) {
     scaling_profiles: scalingRaw.map(mapScalingRow),
     safety_profile: bundle.safetyProfiles.get(id) ?? null,
     regimen_rule: bundle.regimenRules.get(id) ?? null,
-    difficulty_profile: bundle.difficultyProfiles?.get(id) ?? null,
+    difficulty_profile: difficultyProfile,
+    programming_kind: row.programming_kind ?? difficultyProfile?.programming_kind ?? null,
     why,
   }
 }
+
+export { ensureDerivedDifficultyProfiles }
 
 export async function upsertExerciseDifficultyProfile(client, exerciseId, body, options = {}) {
   const raw = body?.difficulty_profile ?? body?.difficultyProfile ?? body
@@ -372,19 +394,17 @@ export async function upsertExerciseDifficultyProfile(client, exerciseId, body, 
 
   const technical = Math.min(10, Math.max(1, Number(raw.technical ?? raw.technical_difficulty) || 1))
   const load = Math.min(10, Math.max(1, Number(raw.load ?? raw.load_difficulty) || 1))
-  const complexity = Math.min(10, Math.max(1, Number(raw.complexity ?? raw.complexity_difficulty) || 1))
-  const overall = computeOverallDifficulty(technical, load, complexity, raw.overall ?? raw.overall_difficulty)
+  const overall = computeOverallDifficulty(technical, load, raw.overall ?? raw.overall_difficulty)
 
   await client.query(
     `
       INSERT INTO coaching.exercise_difficulty_profile (
-        exercise_id, technical, load, complexity, overall,
+        exercise_id, technical, load, overall,
         recommended_age_min, recommended_age_max, attention_demand, notes, source, updated_at
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,now())
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,now())
       ON CONFLICT (exercise_id) DO UPDATE SET
         technical = EXCLUDED.technical,
         load = EXCLUDED.load,
-        complexity = EXCLUDED.complexity,
         overall = EXCLUDED.overall,
         recommended_age_min = EXCLUDED.recommended_age_min,
         recommended_age_max = EXCLUDED.recommended_age_max,
@@ -397,7 +417,6 @@ export async function upsertExerciseDifficultyProfile(client, exerciseId, body, 
       exerciseId,
       technical,
       load,
-      complexity,
       overall,
       raw.recommended_age_min ?? raw.recommendedAgeMin ?? null,
       raw.recommended_age_max ?? raw.recommendedAgeMax ?? null,
@@ -715,13 +734,11 @@ export async function saveExerciseProgramming(client, exerciseId, slug, body) {
         [exerciseId],
       )
       if (existing.rows.length === 0) {
-        const technical = Math.min(10, Math.max(1, Number(tc) * 2))
-        await upsertExerciseDifficultyProfile(client, exerciseId, {
-          technical,
-          load: Math.min(10, Math.max(1, Number(primary?.fatigueCost ?? primary?.fatigue_cost ?? 2))),
-          complexity: Math.min(10, Math.max(1, Number(tc))),
-          source: 'derived',
-        }, { source: 'derived' })
+        const exRow = await client.query(`SELECT * FROM coaching.exercise WHERE id = $1`, [exerciseId])
+        if (exRow.rows[0]) {
+          const derived = deriveExerciseDifficulty(exRow.rows[0], primary, null, null, body.movement_requirements ?? {})
+          await upsertExerciseDifficultyProfile(client, exerciseId, derived, { source: 'derived' })
+        }
       }
     }
   }

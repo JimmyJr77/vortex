@@ -81,6 +81,7 @@ import {
   saveExerciseProgramming,
   validateExercisePublishReady,
   buildExerciseCard,
+  ensureDerivedDifficultyProfiles,
 } from './exerciseProgramming.js'
 import { validateWorkoutDraft } from './workoutValidation.js'
 import { analyzeProgrammingPlacement } from './programmingValidation.js'
@@ -514,7 +515,9 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         where.push(`(e.age_max IS NULL OR e.age_max >= $${params.length})`)
         where.push(`NOT EXISTS (
           SELECT 1 FROM coaching.exercise_difficulty_profile d
-          WHERE d.exercise_id = e.id AND d.recommended_age_min IS NOT NULL AND d.recommended_age_min > $${params.length}
+          WHERE d.exercise_id = e.id
+            AND e.programming_kind = 'exercise'
+            AND d.recommended_age_min IS NOT NULL AND d.recommended_age_min > $${params.length}
         )`)
       }
       if (filterAgeMax != null) {
@@ -526,7 +529,20 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const maxOverall = num(req.query.max_overall ?? req.query.maxOverall)
       const minTechnical = num(req.query.min_technical ?? req.query.minTechnical)
       const minLoad = num(req.query.min_load ?? req.query.minLoad)
-      const minComplexity = num(req.query.min_complexity ?? req.query.minComplexity)
+      const programmingKind = req.query.programming_kind ? String(req.query.programming_kind).trim() : null
+      const usesDifficultyFilter = minOverall != null || maxOverall != null
+        || minTechnical != null || minLoad != null
+        || String(req.query.sort ?? '').trim() === 'difficulty_desc'
+
+      if (usesDifficultyFilter) {
+        await ensureDerivedDifficultyProfiles(pool, { facilityId })
+      }
+
+      if (programmingKind === 'exercise' || programmingKind === 'skill_drill') {
+        params.push(programmingKind)
+        where.push(`e.programming_kind = $${params.length}`)
+      }
+
       if (minOverall != null) {
         params.push(minOverall)
         where.push(`EXISTS (SELECT 1 FROM coaching.exercise_difficulty_profile d WHERE d.exercise_id = e.id AND d.overall >= $${params.length})`)
@@ -542,10 +558,6 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (minLoad != null) {
         params.push(minLoad)
         where.push(`EXISTS (SELECT 1 FROM coaching.exercise_difficulty_profile d WHERE d.exercise_id = e.id AND d.load >= $${params.length})`)
-      }
-      if (minComplexity != null) {
-        params.push(minComplexity)
-        where.push(`EXISTS (SELECT 1 FROM coaching.exercise_difficulty_profile d WHERE d.exercise_id = e.id AND d.complexity >= $${params.length})`)
       }
 
       // Facet filters: tenet, method->methodology, physio->physiology, pattern, equipment, body_region.
@@ -580,7 +592,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         ? `ORDER BY d.overall DESC NULLS LAST, e.name`
         : 'ORDER BY e.name'
       const difficultyJoin = sortMode === 'difficulty_desc' || minOverall != null || maxOverall != null
-        || minTechnical != null || minLoad != null || minComplexity != null
+        || minTechnical != null || minLoad != null
         ? 'LEFT JOIN coaching.exercise_difficulty_profile d ON d.exercise_id = e.id'
         : ''
 
@@ -752,9 +764,9 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
             age_min, age_max, default_sets, default_reps, default_work_seconds,
             default_rest_seconds, tempo, load_note, est_seconds_per_set, created_by,
             is_published, visibility, card_summary, coach_language, athlete_language, programming_logic, scalable_variables,
-            participant_structure
+            participant_structure, programming_kind
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7::public.skill_level, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23::jsonb, $24, $25)
+          VALUES ($1, $2, $3, $4, $5, $6, $7::public.skill_level, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23::jsonb, $24, $25, $26)
           RETURNING id
         `,
         [
@@ -767,6 +779,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           req.body?.card_summary || null, req.body?.coach_language || null, req.body?.athlete_language || null,
           JSON.stringify(req.body?.programming_logic ?? {}), req.body?.scalable_variables ?? [],
           normalizeParticipantStructure(req.body?.participant_structure) ?? 'individual',
+          req.body?.programming_kind === 'skill_drill' ? 'skill_drill' : 'exercise',
         ],
       )
       const id = Number(created.rows[0].id)
@@ -819,6 +832,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
             scalable_variables = COALESCE($22, scalable_variables),
             why_publish_ready = COALESCE($23, why_publish_ready),
             participant_structure = COALESCE($24, participant_structure),
+            programming_kind = COALESCE($25, programming_kind),
             updated_at = now()
           WHERE id = $1
         `,
@@ -835,6 +849,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           req.body?.scalable_variables ?? null,
           typeof req.body?.is_published === 'boolean' ? req.body.is_published : null,
           normalizeParticipantStructure(req.body?.participant_structure),
+          req.body?.programming_kind === 'skill_drill' ? 'skill_drill' : req.body?.programming_kind === 'exercise' ? 'exercise' : null,
         ],
       )
       await writeExerciseRelations(client, id, req.body || {})

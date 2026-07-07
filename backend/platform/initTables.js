@@ -198,6 +198,15 @@ export async function initPlatformTables(pool) {
     '204_coaching_exercise_youtube_links_batch3.sql',
     '205_coaching_high_impact_level_3_4_infrastructure_and_seed.sql',
     '206_coaching_high_impact_level_3_4_cards.sql',
+    '207_coaching_exercise_difficulty_reviewed.sql',
+    '208_coaching_box_jump_infrastructure_and_seed.sql',
+    '209_coaching_box_jump_cards.sql',
+    '210_coaching_cone_drill_exercise_library_infrastructure_and_seed.sql',
+    '211_coaching_cone_drill_exercise_library_cards.sql',
+    '212_coaching_ladder_infrastructure_and_seed.sql',
+    '213_coaching_ladder_cards.sql',
+    '214_coaching_exercise_programming_kind.sql',
+    '215_coaching_exercise_difficulty_v2_reviewed.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

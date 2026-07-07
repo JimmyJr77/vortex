@@ -1,11 +1,11 @@
 /** Age-band difficulty caps and soft-penalty scoring for prescription / validation. */
 
 export const AGE_BAND_POLICIES = [
-  { ageMin: 4, ageMax: 5, maxOverall: 3, maxTechnical: 3, maxLoad: 2, maxComplexity: 3, impliedSkillLevel: 'EARLY_STAGE', scalingCohort: 'youth_beginner' },
-  { ageMin: 6, ageMax: 8, maxOverall: 5, maxTechnical: 5, maxLoad: 4, maxComplexity: 4, impliedSkillLevel: 'BEGINNER', scalingCohort: 'youth_intermediate' },
-  { ageMin: 9, ageMax: 12, maxOverall: 6, maxTechnical: 6, maxLoad: 5, maxComplexity: 5, impliedSkillLevel: 'BEGINNER', scalingCohort: 'youth_intermediate' },
-  { ageMin: 13, ageMax: 17, maxOverall: 7, maxTechnical: 7, maxLoad: 6, maxComplexity: 6, impliedSkillLevel: 'INTERMEDIATE', scalingCohort: 'teen' },
-  { ageMin: 18, ageMax: 120, maxOverall: 10, maxTechnical: 10, maxLoad: 10, maxComplexity: 10, impliedSkillLevel: null, scalingCohort: 'adult_beginner' },
+  { ageMin: 4, ageMax: 5, maxOverall: 3, maxTechnical: 3, maxLoad: 2, impliedSkillLevel: 'EARLY_STAGE', scalingCohort: 'youth_beginner' },
+  { ageMin: 6, ageMax: 8, maxOverall: 5, maxTechnical: 5, maxLoad: 4, impliedSkillLevel: 'BEGINNER', scalingCohort: 'youth_intermediate' },
+  { ageMin: 9, ageMax: 12, maxOverall: 6, maxTechnical: 6, maxLoad: 5, impliedSkillLevel: 'BEGINNER', scalingCohort: 'youth_intermediate' },
+  { ageMin: 13, ageMax: 17, maxOverall: 7, maxTechnical: 7, maxLoad: 6, impliedSkillLevel: 'INTERMEDIATE', scalingCohort: 'teen' },
+  { ageMin: 18, ageMax: 120, maxOverall: 10, maxTechnical: 10, maxLoad: 10, impliedSkillLevel: null, scalingCohort: 'adult_beginner' },
 ]
 
 const STRENGTH_KEYWORDS = /\b(strength|stronger|force|lifting|calisthenics|muscle)\b/i
@@ -20,14 +20,14 @@ function numOrNull(v) {
   return Number.isFinite(n) ? n : null
 }
 
-export function computeOverallDifficulty(technical, load, complexity, overallOverride = null) {
+/** Overall = max(technical, load). Optional manual override. */
+export function computeOverallDifficulty(technical, load, overallOverride = null) {
   const t = clamp(Number(technical) || 1, 1, 10)
   const l = clamp(Number(load) || 1, 1, 10)
-  const c = clamp(Number(complexity) || 1, 1, 10)
   if (overallOverride != null && Number.isFinite(Number(overallOverride))) {
     return clamp(Number(overallOverride), 1, 10)
   }
-  return Math.max(t, l, c)
+  return Math.max(t, l)
 }
 
 export function resolveAgeBand(ageMin, ageMax) {
@@ -82,9 +82,6 @@ export function parseSessionObjectiveFromText(text) {
   return null
 }
 
-/**
- * Resolve audience caps, implied skill, scaling cohort, and optional strength auto-setup.
- */
 export function resolveAudienceProfile(input = {}) {
   const ageMin = numOrNull(input.ageMin ?? input.age_min)
   const ageMax = numOrNull(input.ageMax ?? input.age_max)
@@ -109,7 +106,6 @@ export function resolveAudienceProfile(input = {}) {
       maxOverall: band.maxOverall,
       maxTechnical: band.maxTechnical,
       maxLoad: band.maxLoad,
-      maxComplexity: band.maxComplexity,
     },
     scalingCohort: band.scalingCohort,
     impliedSkillLevel: skillLevel,
@@ -127,18 +123,14 @@ function overBy(value, cap) {
   return Math.max(0, Number(value) - Number(cap))
 }
 
-/** Soft penalty multiplier: 1.0 in band, down to ~0.15 when far over cap. */
+/** Soft penalty multiplier: 1.0 in band, down when load/technical exceed caps. */
 export function scoreAgeDifficultyFit(difficulty, caps) {
   if (!difficulty || !caps) return 1
   const overallOver = overBy(difficulty.overall, caps.maxOverall)
   const technicalOver = overBy(difficulty.technical, caps.maxTechnical)
   const loadOver = overBy(difficulty.load, caps.maxLoad)
-  const complexityOver = overBy(difficulty.complexity, caps.maxComplexity)
 
-  const weightedOver = overallOver * 0.35
-    + technicalOver * 0.2
-    + loadOver * 0.25
-    + complexityOver * 0.2
+  const weightedOver = overallOver * 0.4 + technicalOver * 0.25 + loadOver * 0.35
 
   if (weightedOver <= 0) return 1
   return clamp(1 - weightedOver * 0.18, 0.15, 1)
@@ -159,13 +151,10 @@ export function ageFitWarnings(difficulty, caps, exerciseName = 'Exercise') {
     warnings.push(`${exerciseName}: overall difficulty ${difficulty.overall} exceeds cap ${caps.maxOverall}`)
   }
   if (overBy(difficulty.load, caps.maxLoad) > 0) {
-    warnings.push(`${exerciseName}: load ${difficulty.load} exceeds cap ${caps.maxLoad}`)
-  }
-  if (overBy(difficulty.complexity, caps.maxComplexity) > 0) {
-    warnings.push(`${exerciseName}: complexity ${difficulty.complexity} exceeds cap ${caps.maxComplexity}`)
+    warnings.push(`${exerciseName}: load ${difficulty.load} exceeds cap ${caps.maxLoad} for this age group`)
   }
   if (overBy(difficulty.technical, caps.maxTechnical) > 0) {
-    warnings.push(`${exerciseName}: technical ${difficulty.technical} exceeds cap ${caps.maxTechnical}`)
+    warnings.push(`${exerciseName}: technical ${difficulty.technical} exceeds cap ${caps.maxTechnical} for this age group`)
   }
   return warnings
 }
@@ -175,7 +164,6 @@ export function mapDifficultyRow(row) {
   return {
     technical: Number(row.technical),
     load: Number(row.load),
-    complexity: Number(row.complexity),
     overall: Number(row.overall),
     recommended_age_min: row.recommended_age_min ?? null,
     recommended_age_max: row.recommended_age_max ?? null,

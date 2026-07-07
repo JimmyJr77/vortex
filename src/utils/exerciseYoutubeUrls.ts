@@ -53,8 +53,12 @@ function dedupeUrls(urls: string[]): string[] {
   return [...new Set(urls)]
 }
 
-export function collectExerciseYoutubeUrls(exercise: Pick<Exercise, 'media_library' | 'media'>): string[] {
-  const mediaLib = exercise.media_library ?? {}
+export function collectExerciseYoutubeUrls(exercise: Pick<Exercise, 'media_library' | 'media'> & {
+  media_and_document_library?: ExerciseMediaLibrary | null
+}): string[] {
+  const mediaLib = exercise.media_library
+    ?? exercise.media_and_document_library
+    ?? {}
   const lists = [
     ...asStringArray(mediaLib.demo_video_sources),
     ...asStringArray(mediaLib.coaching_articles),
