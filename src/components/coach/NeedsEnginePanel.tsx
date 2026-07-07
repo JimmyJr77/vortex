@@ -7,7 +7,6 @@ import { useNeedsEngineStore, type NeedsEnginePhaseRowState } from '../../coach/
 import {
   buildPhasePlan,
   redistributeOnDelete,
-  defaultPhaseRows,
   PREPARE_PINNED_MINUTES,
   type WorkMode,
   type NeedsEnginePhaseRow,
@@ -63,6 +62,42 @@ function focusTargetWeight(facetType: FocusFacetType | '' | undefined): number {
   if (facetType === 'tenet') return 6
   if (facetType === 'methodology') return 5
   return 4
+}
+
+function focusTargetComboboxId(t: PhaseFocusTarget): string {
+  return `${t.facetType}:${t.facetId}`
+}
+
+function focusTargetToComboboxOption(
+  t: PhaseFocusTarget,
+  phaseKey: string,
+  taxonomy: ReturnType<typeof useTaxonomy>['taxonomy'],
+): ComboboxOption {
+  const list = t.facetType === 'tenet' ? taxonomy?.tenets
+    : t.facetType === 'methodology' ? taxonomy?.methodologies
+      : t.facetType === 'physiology' ? taxonomy?.physiology
+        : taxonomy?.phaseOrderSlots?.filter((s) => !phaseKey || phaseKey === 'other' || s.phase_key === phaseKey)
+  const match = list?.find((row) => row.id === t.facetId)
+  const name = match?.name ?? String(t.facetId)
+  return {
+    id: focusTargetComboboxId(t),
+    label: name,
+    meta: FOCUS_LABELS[t.facetType],
+  }
+}
+
+function comboboxSelectionToFocusTargets(sel: ComboboxOption[]): PhaseFocusTarget[] {
+  return sel.map((s) => {
+    const raw = String(s.id)
+    const sep = raw.indexOf(':')
+    const facetType = raw.slice(0, sep) as FocusFacetType
+    const facetId = Number(raw.slice(sep + 1))
+    return {
+      facetType,
+      facetId,
+      weight: focusTargetWeight(facetType),
+    }
+  })
 }
 
 function resolveFocusLabels(
@@ -395,7 +430,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                 desiredAdaptation: sessionObjective,
                 focusTargets: b.focusTargets ?? [],
                 blockMinutes: b.minutes,
-                methodologyKey: methodologyRow?.key ?? methodologyRow?.slug ?? null,
+                methodologyKey: methodologyRow?.key ?? null,
               }),
             })
             return pick.selected
@@ -583,7 +618,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
 
       <div className="bg-gray-50 border-2 border-vortex-red rounded-xl p-4">
-        <label className="block text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2"><Sparkles className="w-4 h-4 text-vortex-red" /> Describe the need in plain language</label>
+        <label className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2"><Sparkles className="w-4 h-4 text-vortex-red" /> Describe the need in plain language</label>
         <div className="flex flex-col sm:flex-row gap-2">
           <input
             value={nlPrompt}
@@ -821,11 +856,16 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
             <div className="space-y-2">
               {phaseRows.map((row, i) => {
                 const focusType = row.focusFacetType ?? ''
-                const focusSelections: ComboboxOption[] = (row.focusTargets ?? []).map((t) => {
-                  const opts = focusOptionsFor(t.facetType, row.phaseKey)
-                  const match = opts.find((o) => Number(o.id) === t.facetId)
-                  return { id: t.facetId, label: match?.label ?? String(t.facetId) }
-                })
+                const focusSelections: ComboboxOption[] = (row.focusTargets ?? []).map((t) =>
+                  focusTargetToComboboxOption(t, row.phaseKey, taxonomy),
+                )
+                const focusOptionsForRow = focusType
+                  ? focusOptionsFor(focusType, row.phaseKey).map((o) => ({
+                    id: `${focusType}:${o.id}`,
+                    label: o.label,
+                    meta: o.meta ?? FOCUS_LABELS[focusType as FocusFacetType],
+                  }))
+                  : []
                 const isOther = row.phaseKey === 'other'
                 return (
                   <div key={`${row.phaseKey}-${i}`} className="flex gap-1.5 items-start border border-gray-100 rounded-lg p-1.5">
@@ -860,7 +900,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                         ) : (
                           <select
                             value={focusType}
-                            onChange={(e) => updateRow(i, { focusFacetType: e.target.value as FocusFacetType | '', focusTargets: [] })}
+                            onChange={(e) => updateRow(i, { focusFacetType: e.target.value as FocusFacetType | '' })}
                             className="border border-gray-300 rounded px-2 py-1 text-sm min-w-0"
                           >
                             <option value="">Focus…</option>
@@ -913,18 +953,16 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                           )}
                         </div>
                       )}
-                      {!isOther && focusType && (
+                      {!isOther && (focusType || focusSelections.length > 0) && (
                         <SmartCombobox
-                          options={focusOptionsFor(focusType, row.phaseKey)}
+                          options={focusOptionsForRow}
                           selected={focusSelections}
                           onChange={(sel) => updateRow(i, {
-                            focusTargets: sel.map((s): PhaseFocusTarget => ({
-                              facetType: focusType as FocusFacetType,
-                              facetId: Number(s.id),
-                              weight: focusTargetWeight(focusType as FocusFacetType),
-                            })),
+                            focusTargets: comboboxSelectionToFocusTargets(sel),
                           })}
-                          placeholder={`Select ${FOCUS_LABELS[focusType as FocusFacetType].toLowerCase()}…`}
+                          placeholder={focusType
+                            ? `Select ${FOCUS_LABELS[focusType as FocusFacetType].toLowerCase()}…`
+                            : 'Choose a focus type above to add more…'}
                           allowCustom={false}
                         />
                       )}
@@ -1048,16 +1086,21 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                       ))}
                     </div>
                   )}
-                  {blockProgramming[i] && (
-                    <div className="text-xs text-indigo-700 mt-1">
-                      Format: {blockProgramming[i]?.name}
-                      {blockProgramming[i]?.workout_builder_rules?.work_seconds != null && (
-                        <span className="text-gray-500">
-                          {' '}· {blockProgramming[i]?.workout_builder_rules?.work_seconds}s work / {blockProgramming[i]?.workout_builder_rules?.rest_seconds ?? '—'}s rest
-                        </span>
-                      )}
-                    </div>
-                  )}
+                  {blockProgramming[i] && (() => {
+                    const rules = blockProgramming[i]?.workout_builder_rules ?? {}
+                    const workSeconds = typeof rules.work_seconds === 'number' ? rules.work_seconds : null
+                    const restSeconds = typeof rules.rest_seconds === 'number' ? rules.rest_seconds : null
+                    return (
+                      <div className="text-xs text-indigo-700 mt-1">
+                        Format: {blockProgramming[i]?.name}
+                        {workSeconds != null && (
+                          <span className="text-gray-500">
+                            {' '}· {workSeconds}s work / {restSeconds ?? '—'}s rest
+                          </span>
+                        )}
+                      </div>
+                    )
+                  })()}
                   {b.other_kind && <div className="text-xs text-indigo-600 mt-1">Other · {OTHER_KIND_LABELS[b.other_kind] ?? b.other_kind}</div>}
                   <ul className="mt-2 space-y-2">
                     {b.items.map((it, j) => {

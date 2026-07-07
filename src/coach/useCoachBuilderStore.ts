@@ -86,12 +86,13 @@ export const useCoachBuilderStore = create<BuilderState>((set) => ({
   patchWorkout: (patch) => set((s) => ({ workout: { ...s.workout, ...patch }, dirty: true })),
   applyPhasePlan: (plan) =>
     set((s) => {
-      const normalized = plan.map((p) => ({
+      type PhasePlanEntry = NonNullable<Workout['phase_plan_json']>[number]
+      const normalized: PhasePlanEntry[] = plan.map((p) => ({
         phaseKey: p.phaseKey ?? p.phase ?? '',
         minutes: p.minutes,
         label: p.label,
-        focusTargets: (p as { focusTargets?: unknown[] }).focusTargets,
-        otherKind: (p as { otherKind?: string }).otherKind,
+        focusTargets: (p as Partial<PhasePlanEntry>).focusTargets,
+        otherKind: (p as Partial<PhasePlanEntry>).otherKind,
       })).filter((p) => p.phaseKey)
       return {
         workout: {
