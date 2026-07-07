@@ -105,6 +105,21 @@ function num(value) {
   return Number.isFinite(n) ? n : null
 }
 
+const EXERCISE_LIBRARY_MAX_PAGE_SIZE = 200
+
+function parseExerciseLibraryPagination(req) {
+  const hasLimit = req.query.limit != null && String(req.query.limit).trim() !== ''
+  const hasOffset = req.query.offset != null && String(req.query.offset).trim() !== ''
+  const hasPage = req.query.page != null && String(req.query.page).trim() !== ''
+  if (!hasLimit && !hasOffset && !hasPage) {
+    return { limit: null, offset: 0, paginated: false }
+  }
+  const limit = Math.min(Math.max(num(req.query.limit) ?? 48, 1), EXERCISE_LIBRARY_MAX_PAGE_SIZE)
+  const page = Math.max(num(req.query.page) ?? 1, 1)
+  const offset = hasOffset ? Math.max(num(req.query.offset) ?? 0, 0) : (page - 1) * limit
+  return { limit, offset, paginated: true }
+}
+
 function messageHasExtendedContent(body, attachment, files) {
   if (messageHasContent(body, attachment)) return true
   return Array.isArray(files) && files.some((f) => f && String(f.url || '').trim())
@@ -368,7 +383,12 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const q = req.query.q ? String(req.query.q).trim() : null
       if (q) {
         params.push(`%${q}%`)
-        where.push(`(e.name ILIKE $${params.length} OR e.description ILIKE $${params.length})`)
+        where.push(`(
+          e.name ILIKE $${params.length}
+          OR e.description ILIKE $${params.length}
+          OR e.slug ILIKE $${params.length}
+          OR e.card_summary ILIKE $${params.length}
+        )`)
       }
 
       const sportId = num(req.query.sport)
@@ -478,21 +498,37 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         )`)
       }
 
-      const result = await pool.query(
-        `
-          SELECT e.*, s.name as sport_name
-          FROM coaching.exercise e
-          LEFT JOIN coaching.sport s ON s.id = e.sport_id
-          WHERE ${where.join(' AND ')}
-          ORDER BY e.name
-          LIMIT 500
-        `,
+      const whereSql = where.join(' AND ')
+      const pagination = parseExerciseLibraryPagination(req)
+      const countResult = await pool.query(
+        `SELECT COUNT(*)::int AS total FROM coaching.exercise e WHERE ${whereSql}`,
         params,
       )
+      const total = countResult.rows[0]?.total ?? 0
+
+      const listParams = [...params]
+      let listSql = `
+        SELECT e.*, s.name as sport_name
+        FROM coaching.exercise e
+        LEFT JOIN coaching.sport s ON s.id = e.sport_id
+        WHERE ${whereSql}
+        ORDER BY e.name
+      `
+      if (pagination.paginated) {
+        listParams.push(pagination.limit, pagination.offset)
+        listSql += ` LIMIT $${listParams.length - 1} OFFSET $${listParams.length}`
+      }
+
+      const result = await pool.query(listSql, listParams)
       const ids = result.rows.map((r) => Number(r.id))
       const tagMap = await loadExerciseTags(ids)
       const bundle = await loadExerciseProgrammingBundle(pool, ids)
-      ok(res, result.rows.map((r) => ({ ...attachProgrammingToExercise(r, bundle, null), tags: tagMap.get(String(r.id)) ?? [] })))
+      ok(res, {
+        items: result.rows.map((r) => ({ ...attachProgrammingToExercise(r, bundle, null), tags: tagMap.get(String(r.id)) ?? [] })),
+        total,
+        limit: pagination.limit,
+        offset: pagination.offset,
+      })
     } catch (error) {
       bad(res, error.message, 500)
     }

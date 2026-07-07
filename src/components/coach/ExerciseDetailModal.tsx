@@ -7,6 +7,7 @@ import type { FacetType, Taxonomy } from '../../coach/taxonomy'
 import { FACET_LABELS } from '../../coach/taxonomy'
 import { exerciseFitnessGoal, exerciseToCard, phaseSubroleLabel } from '../../coach/exerciseCard'
 import { participantStructureLabel, SCALING_COHORT_KEYS } from '../../coach/types'
+import YoutubeLinkifiedText from '../YoutubeLinkifiedText'
 
 type DetailTab =
   | 'identity'
@@ -71,13 +72,25 @@ function ReadOnlyField({ label, value }: { label: string; value?: string | numbe
   )
 }
 
-function ReadOnlyList({ label, items }: { label: string; items: string[] }) {
+function ReadOnlyList({
+  label,
+  items,
+  linkifyYoutube = false,
+}: {
+  label: string
+  items: string[]
+  linkifyYoutube?: boolean
+}) {
   if (items.length === 0) return null
   return (
     <div className="text-sm">
       <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</div>
       <ul className="mt-1 list-disc ml-4 text-gray-800 space-y-0.5">
-        {items.map((item) => <li key={item}>{item}</li>)}
+        {items.map((item) => (
+          <li key={item}>
+            {linkifyYoutube ? <YoutubeLinkifiedText text={item} linkClassName="text-vortex-red break-all hover:underline" /> : item}
+          </li>
+        ))}
       </ul>
     </div>
   )
@@ -387,9 +400,9 @@ export default function ExerciseDetailModal({
 
               {card && tab === 'media' && (
                 <div className="space-y-4">
-                  <ReadOnlyList label="Demo videos" items={card.media_and_document_library.demo_video_sources ?? []} />
-                  <ReadOnlyList label="Coaching articles" items={card.media_and_document_library.coaching_articles ?? []} />
-                  <ReadOnlyList label="References" items={card.media_and_document_library.clinical_or_sport_science_references ?? []} />
+                  <ReadOnlyList label="Demo videos" items={card.media_and_document_library.demo_video_sources ?? []} linkifyYoutube />
+                  <ReadOnlyList label="Coaching articles" items={card.media_and_document_library.coaching_articles ?? []} linkifyYoutube />
+                  <ReadOnlyList label="References" items={card.media_and_document_library.clinical_or_sport_science_references ?? []} linkifyYoutube />
                   <ReadOnlyList label="Internal notes" items={card.media_and_document_library.internal_notes ?? []} />
                   {(card.media_and_document_library.media ?? []).length > 0 && (
                     <ul className="space-y-2">

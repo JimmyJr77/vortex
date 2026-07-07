@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, Clock, Loader2, Plus, Save, Search, Trash2, ChevronUp, ChevronDown, FolderOpen, GripVertical, X, Pencil, Sparkles, ChevronRight, ChevronDown as ChevronDownIcon } from 'lucide-react'
-import { coachFetch } from '../../coach/api'
+import { coachFetch, type CoachLibraryPage } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import { useCoachBuilderStore, blockSeconds, workoutSeconds } from '../../coach/useCoachBuilderStore'
 import WorkoutSetupWizard from './WorkoutSetupWizard'
@@ -697,13 +697,13 @@ function ExercisePicker({
         const params = new URLSearchParams({ q })
         if (phaseKey === 'prepare_and_access' && subroleFilter) params.set('subrole', subroleFilter)
         if (slotFilter) params.set('order_slot', slotFilter)
-        const data = await coachFetch<Exercise[]>(`/api/coach/exercises?${params.toString()}`)
+        const data = await coachFetch<CoachLibraryPage<Exercise>>(`/api/coach/exercises?${params.toString()}`)
         const filtered = phaseKey && mode === 'ideal'
-          ? data.filter((ex) => {
+          ? data.items.filter((ex) => {
               const fit = phaseFitBadge(ex, phaseKey)
               return fit === 'strong' || fit === 'conditional'
             })
-          : data
+          : data.items
         const progFiltered = programmingCompat && progMode === 'compatible'
           ? filtered.filter((ex) => {
               const fit = programmingExerciseFit(ex, programmingCompat)

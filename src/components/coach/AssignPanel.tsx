@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, Send } from 'lucide-react'
-import { coachFetch } from '../../coach/api'
+import { coachFetch, type CoachLibraryPage } from '../../coach/api'
 import ClassDrilldownTarget, { type AssignGroupTarget } from './ClassDrilldownTarget'
 import { fetchCoachMemberOptions } from './fetchCoachMemberOptions'
 import SearchCombobox, { type SearchComboboxOption } from './SearchCombobox'
@@ -109,8 +109,8 @@ export default function AssignPanel() {
   const loadAllExercises = useCallback(async () => {
     setExercisesLoading(true)
     try {
-      const rows = await coachFetch<ExerciseOption[]>(`/api/coach/exercises`)
-      setAllExercises(rows.map((e) => ({ id: Number(e.id), name: e.name })))
+      const data = await coachFetch<CoachLibraryPage<ExerciseOption>>(`/api/coach/exercises`)
+      setAllExercises(data.items.map((e) => ({ id: Number(e.id), name: e.name })))
     } catch {
       setAllExercises([])
     } finally {

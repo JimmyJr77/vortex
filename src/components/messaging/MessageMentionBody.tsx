@@ -1,5 +1,6 @@
 import type { ThreadParticipant } from './types'
 import type { MessageViewer } from './messageBubbleStyle'
+import YoutubeLinkifiedText from '../YoutubeLinkifiedText'
 import { splitMessageBodyForDisplay } from './messageMentions'
 
 interface MessageMentionBodyProps {
@@ -20,9 +21,12 @@ export default function MessageMentionBody({
       {segments.map((segment, index) => {
         if (segment.kind === 'quote') {
           return (
-            <span key={index} className="text-gray-500">
-              {segment.text}
-            </span>
+            <YoutubeLinkifiedText
+              key={index}
+              text={segment.text}
+              className="text-gray-500"
+              linkClassName="text-blue-600 underline underline-offset-2 break-all hover:text-blue-800"
+            />
           )
         }
         if (segment.kind === 'mention') {
@@ -39,7 +43,7 @@ export default function MessageMentionBody({
             </span>
           )
         }
-        return <span key={index}>{segment.text}</span>
+        return <YoutubeLinkifiedText key={index} text={segment.text} />
       })}
     </div>
   )

@@ -155,6 +155,19 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
     if (tab !== 'messages' && messagesMaximized) setMessagesMaximized(false)
   }, [tab, messagesMaximized])
 
+  useEffect(() => {
+    const html = document.documentElement
+    const body = document.body
+    const prevHtml = html.style.overflow
+    const prevBody = body.style.overflow
+    html.style.overflow = 'hidden'
+    body.style.overflow = 'hidden'
+    return () => {
+      html.style.overflow = prevHtml
+      body.style.overflow = prevBody
+    }
+  }, [])
+
   const renderPanel = () => {
     switch (tab) {
       case 'home':
@@ -223,7 +236,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
   return (
     <div className="min-h-screen h-dvh max-h-dvh bg-gray-50 flex flex-col overflow-hidden">
       <header className={`bg-gradient-to-br from-black via-gray-900 to-black shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
-        <div className="container-admin py-4 flex items-center justify-between gap-4 pt-below-site-header">
+        <div className="container-admin py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button type="button" className="lg:hidden text-white" onClick={() => setNavOpen((o) => !o)}>
               {navOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

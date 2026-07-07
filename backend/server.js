@@ -12873,7 +12873,6 @@ const startServer = async () => {
     // Log registered routes for debugging
     console.log(`[Server ${workerId}] Checking registered routes...`)
     let routeCount = 0
-    let enrollmentFound = false
     app._router.stack.forEach((middleware) => {
       if (middleware.route) {
         const methods = Object.keys(middleware.route.methods).join(', ').toUpperCase()
@@ -12882,7 +12881,7 @@ const startServer = async () => {
       }
     })
     console.log(`[Server ${workerId}] Total routes registered: ${routeCount}`)
-    if (!enrollmentFound) {
+    if (!hasRegisteredRoute('/api/admin/scheduling/members/:memberId/enrollments')) {
       console.error(`[Server ${workerId}] ⚠️ WARNING: Enrollment endpoint NOT found in registered routes!`)
     }
     if (!hasRegisteredRoute('/api/admin/highlights')) {
@@ -12903,8 +12902,8 @@ const startServer = async () => {
         console.log(`[Server ${workerId}] 📊 Health check: http://localhost:${PORT}/api/health`)
         console.log(`[Server ${workerId}] 📝 Registrations: http://localhost:${PORT}/api/registrations`)
         console.log(`[Server ${workerId}] 📧 Newsletter: http://localhost:${PORT}/api/newsletter`)
-        if (!enrollmentFound) {
-          console.error(`[Server ${workerId}] ⚠️ ERROR: Enrollment endpoint missing on worker ${workerId}!`)
+        if (!hasRegisteredRoute('/api/admin/scheduling/members/:memberId/enrollments')) {
+          console.error(`[Server ${workerId}] ⚠️ WARNING: Enrollment endpoint missing on worker ${workerId}!`)
         }
       })
     } else {

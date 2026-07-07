@@ -1,5 +1,6 @@
 import type { MessageRow } from './types'
 import MessageAttachmentDisplay from './MessageAttachmentDisplay'
+import YoutubeLinkifiedText from '../YoutubeLinkifiedText'
 import { formatMessageSenderDisplayName } from './messageFormatting'
 
 interface ArchivedMessageLinesProps {
@@ -30,7 +31,9 @@ export default function ArchivedMessageLines({ messages }: ArchivedMessageLinesP
             </span>
             <span className="text-gray-400">#{m.id}</span>
           </div>
-          <div className="text-gray-900 whitespace-pre-wrap leading-relaxed">{m.body}</div>
+          <div className="text-gray-900 whitespace-pre-wrap leading-relaxed">
+            <YoutubeLinkifiedText text={m.body ?? ''} />
+          </div>
           {m.attachment_url && (
             <div className="mt-1">
               <MessageAttachmentDisplay url={m.attachment_url} name={m.attachment_name} mime={m.attachment_mime} />

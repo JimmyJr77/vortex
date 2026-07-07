@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Loader2, Plus, Search, X, Link2 } from 'lucide-react'
-import { coachFetch } from '../../coach/api'
+import { coachFetch, type CoachLibraryPage } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import type { Exercise, Skill, SkillEvaluationMode, SkillKind, SkillComponentRow, SkillPrerequisiteRow } from '../../coach/types'
 import type { TaxonomyItem } from '../../coach/taxonomy'
@@ -296,7 +296,7 @@ function SkillEditor({ skill, allSkills, onClose, onSaved }: { skill: Skill | nu
 
   useEffect(() => {
     coachFetch<Skill[]>('/api/coach/skills').then(setSkillOptions).catch(() => setSkillOptions(allSkills))
-    coachFetch<Exercise[]>('/api/coach/exercises').then(setExercises).catch(() => setExercises([]))
+    coachFetch<CoachLibraryPage<Exercise>>('/api/coach/exercises').then((data) => setExercises(data.items)).catch(() => setExercises([]))
   }, [allSkills])
 
   const save = async () => {

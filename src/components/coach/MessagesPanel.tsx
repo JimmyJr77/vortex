@@ -59,6 +59,7 @@ import type {
 } from '../messaging/types'
 import { mergeRecipientOptions, participantKey } from '../messaging/types'
 import { useMessageRealtime } from '../../hooks/useMessageRealtime'
+import { scrollToEndWithinContainer } from '../messaging/scrollMessagingContainer'
 
 type MemberPickerScope = 'my_classes' | 'all'
 
@@ -198,7 +199,7 @@ export default function MessagesPanel({
   }, [recipientOptions])
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    scrollToEndWithinContainer(messagesEndRef.current)
   }, [messages, selectedId])
 
   const loadThreads = useCallback(async () => {

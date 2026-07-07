@@ -751,9 +751,9 @@ export async function queryCoachRosterMembers(pool, {
           AND (wt.active_to IS NULL OR wt.active_to > now())
       ) accepted_waivers ON TRUE
       LEFT JOIN coach_roster_note crn
-        ON crn.assignment_id = $8
+        ON crn.assignment_id = $7
        AND crn.member_id = m.id
-       AND crn.coach_user_id = $9
+       AND crn.coach_user_id = $8
        AND crn.note_date = CURRENT_DATE
       ORDER BY m.last_name, m.first_name
     `,

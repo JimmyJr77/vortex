@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import SignupSheetPanel from './SignupSheetPanel'
+import { scrollToEndWithinContainer } from './scrollMessagingContainer'
 import type { ThreadCollaborationPanelMode } from './useThreadCollaboration'
 import type { MessageChecklist, MessagingRole } from './types'
 
@@ -62,7 +63,7 @@ export default function MessagingThreadSignupsPanel({
 
   useEffect(() => {
     if (!scrollToLatest) return
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    scrollToEndWithinContainer(bottomRef.current)
     onScrollToLatestDone?.()
   }, [onScrollToLatestDone, scrollToLatest, signups])
 

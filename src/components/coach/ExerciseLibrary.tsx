@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, Plus, Search } from 'lucide-react'
-import { coachFetch } from '../../coach/api'
+import { coachFetch, type CoachLibraryPage } from '../../coach/api'
+import { exerciseToClientView } from '../../coach/clientExerciseCard'
 import { useTaxonomy } from './useTaxonomy'
 import type { Exercise } from '../../coach/types'
 import type { TaxonomyItem } from '../../coach/taxonomy'
@@ -15,12 +16,17 @@ import {
 import { PREPARE_SESSION_NEED_OPTIONS } from '../../coach/prepareAccessFilters'
 import { exportExercises, type LibraryExportFormat } from '../../coach/libraryExport'
 import ExerciseDetailModal from './ExerciseDetailModal'
+import ClientExerciseDetailModal from './ClientExerciseDetailModal'
 import ExerciseEditor from './ExerciseEditor'
 import LibraryCardMenu from './LibraryCardMenu'
 import ExerciseLibraryCard from './ExerciseLibraryCard'
+import ClientExerciseLibraryCard from './ClientExerciseLibraryCard'
 import LibraryCard from './LibraryCard'
 import LibraryExportControls from './LibraryExportControls'
 import LibraryResultCount from './LibraryResultCount'
+import LibraryPagination from './LibraryPagination'
+
+const PAGE_SIZE = 48
 
 interface FilterState {
   q: string
@@ -42,44 +48,89 @@ interface FilterState {
 
 const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, minImpact: '' }
 
+function buildExerciseQueryParams(filters: FilterState, pagination?: { limit: number; offset: number }) {
+  const params = new URLSearchParams()
+  if (filters.q) params.set('q', filters.q)
+  if (filters.sport) params.set('sport', String(filters.sport))
+  if (filters.tenet) params.set('tenet', String(filters.tenet))
+  if (filters.methodology) params.set('method', String(filters.methodology))
+  if (filters.physiology) params.set('physio', String(filters.physiology))
+  if (filters.phase) params.set('phase', String(filters.phase))
+  if (filters.subrole) params.set('subrole', filters.subrole)
+  if (filters.orderSlot) params.set('order_slot', filters.orderSlot)
+  if (filters.bodyRegion) params.set('body_region', String(filters.bodyRegion))
+  if (filters.sessionNeed) params.set('session_need', filters.sessionNeed)
+  if (filters.maxFatigueCost !== '') params.set('max_fatigue_cost', String(filters.maxFatigueCost))
+  if (filters.freshness) params.set('freshness', 'true')
+  if (filters.canBeDaily) params.set('can_be_daily', 'true')
+  if (filters.paired) params.set('paired', 'true')
+  if (filters.minImpact !== '') params.set('min_impact', String(filters.minImpact))
+  if (pagination) {
+    params.set('limit', String(pagination.limit))
+    params.set('offset', String(pagination.offset))
+  }
+  return params
+}
+
+type ExerciseLibraryViewMode = 'coach' | 'client'
+const VIEW_MODE_STORAGE_KEY = 'vortex-exercise-library-view-mode'
+
+function readStoredViewMode(): ExerciseLibraryViewMode {
+  try {
+    const stored = localStorage.getItem(VIEW_MODE_STORAGE_KEY)
+    return stored === 'client' ? 'client' : 'coach'
+  } catch {
+    return 'coach'
+  }
+}
+
 export default function ExerciseLibrary() {
   const { taxonomy } = useTaxonomy()
   const [filters, setFilters] = useState<FilterState>(emptyFilters)
+  const [searchInput, setSearchInput] = useState('')
+  const [pageOffset, setPageOffset] = useState(0)
   const [exercises, setExercises] = useState<Exercise[]>([])
+  const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [editing, setEditing] = useState<Exercise | null>(null)
   const [viewing, setViewing] = useState<Exercise | null>(null)
   const [creating, setCreating] = useState(false)
+  const [viewMode, setViewMode] = useState<ExerciseLibraryViewMode>(readStoredViewMode)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(VIEW_MODE_STORAGE_KEY, viewMode)
+    } catch {
+      // ignore storage errors
+    }
+  }, [viewMode])
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setFilters((current) => (current.q === searchInput ? current : { ...current, q: searchInput }))
+    }, 300)
+    return () => window.clearTimeout(timer)
+  }, [searchInput])
+
+  useEffect(() => {
+    setPageOffset(0)
+  }, [filters])
 
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const params = new URLSearchParams()
-      if (filters.q) params.set('q', filters.q)
-      if (filters.sport) params.set('sport', String(filters.sport))
-      if (filters.tenet) params.set('tenet', String(filters.tenet))
-      if (filters.methodology) params.set('method', String(filters.methodology))
-      if (filters.physiology) params.set('physio', String(filters.physiology))
-      if (filters.phase) params.set('phase', String(filters.phase))
-      if (filters.subrole) params.set('subrole', filters.subrole)
-      if (filters.orderSlot) params.set('order_slot', filters.orderSlot)
-      if (filters.bodyRegion) params.set('body_region', String(filters.bodyRegion))
-      if (filters.sessionNeed) params.set('session_need', filters.sessionNeed)
-      if (filters.maxFatigueCost !== '') params.set('max_fatigue_cost', String(filters.maxFatigueCost))
-      if (filters.freshness) params.set('freshness', 'true')
-      if (filters.canBeDaily) params.set('can_be_daily', 'true')
-      if (filters.paired) params.set('paired', 'true')
-      if (filters.minImpact !== '') params.set('min_impact', String(filters.minImpact))
-      const data = await coachFetch<Exercise[]>(`/api/coach/exercises?${params.toString()}`)
-      setExercises(data)
+      const params = buildExerciseQueryParams(filters, { limit: PAGE_SIZE, offset: pageOffset })
+      const data = await coachFetch<CoachLibraryPage<Exercise>>(`/api/coach/exercises?${params.toString()}`)
+      setExercises(data.items)
+      setTotalCount(data.total)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load library')
     } finally {
       setLoading(false)
     }
-  }, [filters])
+  }, [filters, pageOffset])
 
   useEffect(() => {
     void load()
@@ -107,9 +158,16 @@ export default function ExerciseLibrary() {
 
   const tenetName = facetName
 
-  const handleExport = (format: LibraryExportFormat) => {
-    if (exercises.length === 0) return
-    exportExercises(exercises, format, facetName, 'exercise-library')
+  const handleExport = async (format: LibraryExportFormat) => {
+    if (totalCount === 0) return
+    try {
+      const params = buildExerciseQueryParams(filters)
+      const data = await coachFetch<CoachLibraryPage<Exercise>>(`/api/coach/exercises?${params.toString()}`)
+      if (data.items.length === 0) return
+      exportExercises(data.items, format, facetName, 'exercise-library')
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : 'Failed to export exercises')
+    }
   }
 
   const handleDelete = async (ex: Exercise) => {
@@ -165,10 +223,34 @@ export default function ExerciseLibrary() {
           <p className="text-sm text-gray-500">Movements programmed toward fitness outcomes — tenets, physiology, and session phase — for the Needs Engine and workout builder.</p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+          <div
+            className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1"
+            role="group"
+            aria-label="Exercise library view mode"
+          >
+            <button
+              type="button"
+              onClick={() => setViewMode('coach')}
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                viewMode === 'coach' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Coach view
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('client')}
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                viewMode === 'client' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Client view
+            </button>
+          </div>
           <LibraryExportControls
-            disabled={loading || exercises.length === 0}
+            disabled={loading || totalCount === 0}
             filenameStem="exercise-library"
-            onExport={(format) => handleExport(format as LibraryExportFormat)}
+            onExport={(format) => { void handleExport(format as LibraryExportFormat) }}
           />
           <button
             type="button"
@@ -186,8 +268,8 @@ export default function ExerciseLibrary() {
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
-              value={filters.q}
-              onChange={(e) => setFilters((f) => ({ ...f, q: e.target.value }))}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search exercises..."
               className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-sm"
             />
@@ -277,45 +359,70 @@ export default function ExerciseLibrary() {
           <input type="checkbox" checked={filters.paired} onChange={(e) => setFilters((f) => ({ ...f, paired: e.target.checked }))} />
           Paired exercises
         </label>
-        <button type="button" onClick={() => setFilters(emptyFilters)} className="self-end text-sm text-gray-500 hover:text-gray-800 underline">
+        <button type="button" onClick={() => { setFilters(emptyFilters); setSearchInput('') }} className="self-end text-sm text-gray-500 hover:text-gray-800 underline">
           Clear filters
         </button>
       </div>
 
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
 
-      <LibraryResultCount count={exercises.length} loading={loading} />
+      <LibraryResultCount count={totalCount} loading={loading} />
 
       {loading ? (
         <div className="flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading library...</div>
       ) : (
-        <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {exercises.map((ex) => (
-            <LibraryCard
-              key={ex.id}
-              onClick={() => setViewing(ex)}
-              menu={
-                <LibraryCardMenu
-                  itemLabel={ex.name}
-                  onEdit={() => setEditing(ex)}
-                  onDelete={() => { void handleDelete(ex) }}
-                />
-              }
-            >
-              <ExerciseLibraryCard
-                exercise={ex}
-                taxonomy={taxonomy}
-                facetName={facetName}
-                tenetName={tenetName}
-              />
-            </LibraryCard>
-          ))}
-          {exercises.length === 0 && <div className="text-sm text-gray-500">No exercises match these filters.</div>}
-        </div>
+        <>
+          <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {exercises.map((ex) => (
+              <LibraryCard
+                key={ex.id}
+                onClick={() => setViewing(ex)}
+                menu={
+                  <LibraryCardMenu
+                    itemLabel={ex.name}
+                    onEdit={() => setEditing(ex)}
+                    onDelete={() => { void handleDelete(ex) }}
+                  />
+                }
+              >
+                {viewMode === 'coach' ? (
+                  <ExerciseLibraryCard
+                    exercise={ex}
+                    taxonomy={taxonomy}
+                    facetName={facetName}
+                    tenetName={tenetName}
+                  />
+                ) : (
+                  <ClientExerciseLibraryCard view={exerciseToClientView(ex)} />
+                )}
+              </LibraryCard>
+            ))}
+            {exercises.length === 0 && <div className="text-sm text-gray-500">No exercises match these filters.</div>}
+          </div>
+          <LibraryPagination
+            total={totalCount}
+            limit={PAGE_SIZE}
+            offset={pageOffset}
+            loading={loading}
+            onPageChange={setPageOffset}
+          />
+        </>
       )}
 
-      {viewing && (
+      {viewing && viewMode === 'coach' && (
         <ExerciseDetailModal
+          exerciseId={viewing.id}
+          preview={viewing}
+          onClose={() => setViewing(null)}
+          onEdit={() => {
+            setEditing(viewing)
+            setViewing(null)
+          }}
+        />
+      )}
+
+      {viewing && viewMode === 'client' && (
+        <ClientExerciseDetailModal
           exerciseId={viewing.id}
           preview={viewing}
           onClose={() => setViewing(null)}

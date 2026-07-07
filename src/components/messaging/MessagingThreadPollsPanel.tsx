@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import PollSheetPanel from './PollSheetPanel'
+import { scrollToEndWithinContainer } from './scrollMessagingContainer'
 import type { ThreadCollaborationPanelMode } from './useThreadCollaboration'
 import type { MessagePoll, MessagingRole } from './types'
 
@@ -51,7 +52,7 @@ export default function MessagingThreadPollsPanel({
 
   useEffect(() => {
     if (!scrollToLatest) return
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    scrollToEndWithinContainer(bottomRef.current)
     onScrollToLatestDone?.()
   }, [onScrollToLatestDone, polls, scrollToLatest])
 

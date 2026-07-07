@@ -8,6 +8,13 @@ export function getCoachToken(): string | null {
   return localStorage.getItem('vortex_member_token')
 }
 
+export interface CoachLibraryPage<T> {
+  items: T[]
+  total: number
+  limit: number | null
+  offset: number
+}
+
 export async function coachFetch<T = unknown>(
   endpoint: string,
   options: RequestInit = {},
