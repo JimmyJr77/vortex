@@ -79,6 +79,9 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       }
       const data = await coachFetch<PrescriptionResult>('/api/coach/needs-engine/prescribe', { method: 'POST', body: JSON.stringify(body) })
       setResult(data)
+      if (data.audience_profile?.impliedSkillLevel && !skillLevel) {
+        setSkillLevel(data.audience_profile.impliedSkillLevel)
+      }
       const youth = ageMax !== '' && Number(ageMax) <= 14
       const progPicks = await Promise.all(
         blocks.map(async (b) => {
@@ -112,12 +115,32 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     setNlLoading(true)
     setError(null)
     try {
-      const data = await coachFetch<PrescriptionResult & { parsed: { sportId: number | null; skillLevel: string | null; equipmentIds: number[]; targets: TargetRow[]; blocks: Array<{ label: string; phaseKey?: string; minutes: number }> } }>(
+      const data = await coachFetch<PrescriptionResult & { parsed: {
+        sportId: number | null
+        skillLevel: string | null
+        ageMin?: number | null
+        ageMax?: number | null
+        sessionObjective?: SessionObjective | null
+        equipmentIds: number[]
+        targets: TargetRow[]
+        blocks: Array<{ label: string; phaseKey?: string; minutes: number }>
+      } }>(
         '/api/coach/ai/nl-needs', { method: 'POST', body: JSON.stringify({ prompt: nlPrompt }) },
       )
       const p = data.parsed
       setSportId(p.sportId ?? '')
       setSkillLevel(p.skillLevel ?? '')
+      if (p.ageMin != null) setAgeMin(p.ageMin)
+      if (p.ageMax != null) setAgeMax(p.ageMax)
+      if (p.sessionObjective) {
+        setSessionObjective(p.sessionObjective)
+        const plan = phasePlanForObjective(p.sessionObjective, sessionMinutes)
+        setBlocks(plan.map((row) => ({
+          label: taxonomy?.sessionPhases?.find((sp) => sp.key === row.phaseKey)?.name ?? row.phaseKey,
+          phaseKey: row.phaseKey,
+          minutes: row.minutes,
+        })))
+      }
       setEquipmentIds(p.equipmentIds ?? [])
       if (Array.isArray(p.targets) && p.targets.length > 0) {
         setTargets(p.targets.map((t) => ({ facetType: t.facetType, facetId: t.facetId, weight: t.weight })))
@@ -129,7 +152,12 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           minutes: b.minutes,
         })))
       }
-      setResult({ blocks: data.blocks, candidates: data.candidates })
+      setResult({
+        blocks: data.blocks,
+        candidates: data.candidates,
+        audience_profile: data.audience_profile,
+        age_fit_warnings: data.age_fit_warnings,
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not interpret that request')
     } finally {
@@ -148,9 +176,18 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       target_minutes: blocks.reduce((sum, b) => sum + b.minutes, 0),
       duration_minutes: sessionMinutes,
       phase_plan_json: plan,
+      audience_json: {
+        age_min: ageMin === '' ? null : Number(ageMin),
+        age_max: ageMax === '' ? null : Number(ageMax),
+        skill_level: skillLevel || result.audience_profile?.impliedSkillLevel || null,
+        sport_id: sportId || null,
+      },
       coach_rationale_json: {
         session_why: SESSION_OBJECTIVE_OPTIONS.find((o) => o.value === sessionObjective)?.label,
         order_why: 'Prescribed via Needs Engine using phase-aware exercise selection.',
+        audience_notes: result.age_fit_warnings?.length
+          ? result.age_fit_warnings.slice(0, 5).join('; ')
+          : undefined,
       },
       blocks: result.blocks.map((b, i) => {
         const base: WorkoutBlock = {
@@ -197,7 +234,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
             value={nlPrompt}
             onChange={(e) => setNlPrompt(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') void runNaturalLanguage() }}
-            placeholder="e.g. 30 minute beginner gymnastics session focused on power and balance with bodyweight only"
+            placeholder="e.g. 45 minute session for kids ages 6-8 focused on strength development"
             className="flex-1 rounded-lg px-3 py-2 text-gray-900"
           />
           <button type="button" onClick={() => void runNaturalLanguage()} disabled={nlLoading || !nlPrompt.trim()} className="bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold disabled:opacity-60 flex items-center justify-center gap-2">
@@ -344,6 +381,22 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           {!result && <div className="text-sm text-gray-500">Run a prescription to see results.</div>}
           {result && (
             <div className="space-y-4">
+              {result.audience_profile && (
+                <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm">
+                  <div className="font-semibold text-blue-900">Audience profile</div>
+                  <p className="text-xs text-blue-800 mt-1">
+                    {result.audience_profile.ageBandLabel}
+                    {' · '}Max difficulty {result.audience_profile.caps.maxOverall}/10
+                    {result.audience_profile.scalingCohort ? ` · Cohort ${result.audience_profile.scalingCohort.replace(/_/g, ' ')}` : ''}
+                    {result.audience_profile.impliedSkillLevel ? ` · ${result.audience_profile.impliedSkillLevel}` : ''}
+                  </p>
+                  {(result.age_fit_warnings?.length ?? 0) > 0 && (
+                    <ul className="mt-2 text-xs text-amber-800 list-disc ml-4">
+                      {result.age_fit_warnings!.slice(0, 4).map((w) => <li key={w}>{w}</li>)}
+                    </ul>
+                  )}
+                </div>
+              )}
               {(result.phase_rationales ?? []).map((pr, i) => (
                 <div key={i} className="bg-gray-50 rounded-lg p-3 text-sm">
                   <div className="font-semibold text-gray-800">{pr.phase_name ?? pr.phase_key}</div>
@@ -363,10 +416,18 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                   )}
                   <ul className="mt-2 space-y-2">
                     {b.items.map((it) => (
-                      <li key={it.exercise_id} className="text-sm border-t border-gray-50 first:border-t-0 pt-2 first:pt-0">
-                        <div className="flex items-center justify-between">
+                      <li key={it.exercise_id} className={`text-sm border-t border-gray-50 first:border-t-0 pt-2 first:pt-0 ${it.age_fit === 'over_cap' || it.age_fit === 'stretch' ? 'bg-amber-50/80 -mx-2 px-2 rounded' : ''}`}>
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
                           <span className="text-gray-700">{it.exercise_name} <span className="text-gray-400">{it.sets}x{it.reps ?? '-'}</span></span>
-                          <span className="text-xs text-vortex-red font-medium">score {it.score}</span>
+                          <span className="flex items-center gap-2 text-xs">
+                            {it.difficulty?.overall != null && (
+                              <span className="text-gray-600">D{it.difficulty.overall}/10</span>
+                            )}
+                            {it.age_fit === 'good' && <span className="text-green-700">Age OK</span>}
+                            {it.age_fit === 'stretch' && <span className="text-amber-700">Stretch</span>}
+                            {it.age_fit === 'over_cap' && <span className="text-amber-800 font-medium">Over cap</span>}
+                            <span className="text-vortex-red font-medium">score {it.score}</span>
+                          </span>
                         </div>
                         {it.selection_rationale && <p className="text-xs text-gray-500 mt-1">{it.selection_rationale}</p>}
                         {it.placement_rationale && <p className="text-xs text-gray-500">{it.placement_rationale}</p>}

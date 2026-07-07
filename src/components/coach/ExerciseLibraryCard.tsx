@@ -32,8 +32,19 @@ export default function ExerciseLibraryCard({
   const reqChips = exerciseRequirementChips(exercise)
   const programmingNote = whyPreview(exercise.why)
   const phaseProfile = primaryPhaseProfile(exercise)
+  const diff = exercise.difficulty_profile
 
-  const programmingFlags: Array<{ key: string; label: string; variant: 'flag' | 'warning' | 'impact' | 'positive' | 'group' }> = []
+  const programmingFlags: Array<{ key: string; label: string; variant: 'flag' | 'warning' | 'impact' | 'positive' | 'group' | 'difficulty' }> = []
+  if (diff?.overall != null) {
+    programmingFlags.push({
+      key: 'difficulty',
+      label: `Overall ${diff.overall}/10`,
+      variant: diff.overall >= 7 ? 'warning' : 'difficulty',
+    })
+    if (diff.overall > 5) {
+      programmingFlags.push({ key: 'youth', label: 'Above youth cap', variant: 'warning' })
+    }
+  }
   if (phaseProfile?.freshnessRequired) {
     programmingFlags.push({ key: 'freshness', label: 'Freshness required', variant: 'flag' })
   }
@@ -69,9 +80,15 @@ export default function ExerciseLibraryCard({
         </p>
       </header>
 
-      {(exercise.sport_name || identityLine) && (
+      {(exercise.sport_name || identityLine || diff) && (
         <p className="w-full text-xs leading-snug text-gray-500">
           {[exercise.sport_name, identityLine].filter(Boolean).join(' · ')}
+          {diff && (
+            <span className="block mt-1 text-gray-600" title={`Technical ${diff.technical} · Load ${diff.load} · Complexity ${diff.complexity}`}>
+              Difficulty: T{diff.technical} L{diff.load} C{diff.complexity}
+              {exercise.difficulty_profile?.recommended_age_min != null ? ` · Ages ${exercise.difficulty_profile.recommended_age_min}+` : ''}
+            </span>
+          )}
         </p>
       )}
 

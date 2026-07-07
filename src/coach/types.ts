@@ -307,6 +307,18 @@ export interface ExerciseSafetyProfile {
   contraindications?: string[]
 }
 
+export interface ExerciseDifficultyProfile {
+  technical: number
+  load: number
+  complexity: number
+  overall: number
+  recommended_age_min?: number | null
+  recommended_age_max?: number | null
+  attention_demand?: 'low' | 'moderate' | 'high' | null
+  notes?: string | null
+  source?: string | null
+}
+
 export interface ExerciseRegimenRule {
   can_be_daily?: boolean
   weekly_max_frequency?: number
@@ -414,6 +426,7 @@ export interface Exercise {
   dosage_profiles?: ExerciseDosageProfile[]
   scaling_profiles?: ExerciseScalingProfile[]
   safety_profile?: ExerciseSafetyProfile | null
+  difficulty_profile?: ExerciseDifficultyProfile | null
   regimen_rule?: ExerciseRegimenRule | null
   why?: ExerciseWhy | null
 }
@@ -466,6 +479,7 @@ export interface WorkoutCoachRationale {
   session_why?: string
   order_why?: string
   watch_points?: string[]
+  audience_notes?: string
 }
 
 export interface WorkoutSessionFormat {
@@ -620,13 +634,32 @@ export interface PrescribedBlock {
     selection_rationale?: string | null
     placement_rationale?: string | null
     scaling_rationale?: string | null
+    difficulty?: ExerciseDifficultyProfile | null
+    age_fit?: 'good' | 'stretch' | 'over_cap'
   }>
+}
+
+export interface PrescriptionAudienceProfile {
+  ageMin?: number | null
+  ageMax?: number | null
+  caps: {
+    maxOverall: number
+    maxTechnical: number
+    maxLoad: number
+    maxComplexity: number
+  }
+  scalingCohort?: string
+  impliedSkillLevel?: string | null
+  ageBandLabel?: string
+  strengthIntent?: boolean
 }
 
 export interface PrescriptionResult {
   blocks: PrescribedBlock[]
   phase_rationales?: PrescriptionRationale[]
   candidates: Array<{ exercise_id: number; exercise_name: string; score: number; est_seconds_per_set: number; primary_phase?: string | null }>
+  audience_profile?: PrescriptionAudienceProfile
+  age_fit_warnings?: string[]
 }
 
 export interface SessionPhaseTemplate {

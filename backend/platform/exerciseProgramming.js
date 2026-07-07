@@ -734,6 +734,7 @@ export async function saveExerciseProgramming(client, exerciseId, slug, body) {
 
 export async function validateExercisePublishReady(pool, exerciseId) {
   const issues = []
+  const warnings = []
   const ex = await pool.query(
     `SELECT id, name, slug, description, est_seconds_per_set, card_summary, primary_phase_key,
             movement_requirements, coaching_execution
@@ -808,13 +809,13 @@ export async function validateExercisePublishReady(pool, exerciseId) {
       [exerciseId],
     )
     if (diff.rows.length === 0) {
-      issues.push('Difficulty profile missing (recommended for age-aware programming)')
+      warnings.push('Difficulty profile missing (recommended for age-aware programming)')
     }
   } catch {
     // table may not exist on older DBs
   }
 
-  return { ready: issues.length === 0, issues }
+  return { ready: issues.length === 0, issues, warnings }
 }
 
 export { loadEducationForExercise, educationToWhyResponse, buildExerciseCard as exerciseToCardJson }

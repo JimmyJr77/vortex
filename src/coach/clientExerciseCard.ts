@@ -71,6 +71,10 @@ function clientBadges(exercise: Exercise): string[] {
   if (safety?.requires_spotting) {
     badges.push('Needs spotting')
   }
+  const ageMin = exercise.difficulty_profile?.recommended_age_min ?? exercise.age_min
+  if (ageMin != null) {
+    badges.push(`Best for ages ${ageMin}+`)
+  }
   if (impact != null && impact >= 3) {
     badges.push('High impact')
   }

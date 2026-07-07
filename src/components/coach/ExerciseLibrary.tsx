@@ -45,11 +45,23 @@ interface FilterState {
   paired: boolean
   minImpact: number | ''
   maxImpact: number | ''
+  minOverall: number | ''
+  maxOverall: number | ''
+  minTechnical: number | ''
+  minLoad: number | ''
+  minComplexity: number | ''
+  sort: '' | 'difficulty_desc'
 }
 
 const IMPACT_LEVEL_OPTIONS = [0, 1, 2, 3, 4, 5] as const
+const DIFFICULTY_PRESETS = [
+  { label: 'Youth-safe (≤5)', minOverall: '', maxOverall: 5 },
+  { label: 'Moderate (4–6)', minOverall: 4, maxOverall: 6 },
+  { label: 'Challenging (≥7)', minOverall: 7, maxOverall: '' },
+  { label: 'Elite (≥9)', minOverall: 9, maxOverall: '' },
+] as const
 
-const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, minImpact: '', maxImpact: '' }
+const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, minImpact: '', maxImpact: '', minOverall: '', maxOverall: '', minTechnical: '', minLoad: '', minComplexity: '', sort: '' }
 
 function buildExerciseQueryParams(filters: FilterState, pagination?: { limit: number; offset: number }) {
   const params = new URLSearchParams()
@@ -69,6 +81,12 @@ function buildExerciseQueryParams(filters: FilterState, pagination?: { limit: nu
   if (filters.paired) params.set('paired', 'true')
   if (filters.minImpact !== '') params.set('min_impact', String(filters.minImpact))
   if (filters.maxImpact !== '') params.set('max_impact', String(filters.maxImpact))
+  if (filters.minOverall !== '') params.set('min_overall', String(filters.minOverall))
+  if (filters.maxOverall !== '') params.set('max_overall', String(filters.maxOverall))
+  if (filters.minTechnical !== '') params.set('min_technical', String(filters.minTechnical))
+  if (filters.minLoad !== '') params.set('min_load', String(filters.minLoad))
+  if (filters.minComplexity !== '') params.set('min_complexity', String(filters.minComplexity))
+  if (filters.sort) params.set('sort', filters.sort)
   if (pagination) {
     params.set('limit', String(pagination.limit))
     params.set('offset', String(pagination.offset))
@@ -379,6 +397,57 @@ export default function ExerciseLibrary() {
             <option value="">All</option>
             {IMPACT_LEVEL_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 mb-1">Min overall difficulty</label>
+          <select
+            value={filters.minOverall}
+            onChange={(e) => setFilters((f) => ({ ...f, minOverall: e.target.value ? Number(e.target.value) : '' }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="">Any</option>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => <option key={n} value={n}>{n}+</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 mb-1">Max overall difficulty</label>
+          <select
+            value={filters.maxOverall}
+            onChange={(e) => setFilters((f) => ({ ...f, maxOverall: e.target.value ? Number(e.target.value) : '' }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="">Any</option>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => <option key={n} value={n}>≤ {n}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 mb-1">Sort</label>
+          <select
+            value={filters.sort}
+            onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value as FilterState['sort'] }))}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="">Name (A–Z)</option>
+            <option value="difficulty_desc">Hardest first</option>
+          </select>
+        </div>
+        <div className="md:col-span-2 lg:col-span-4 flex flex-wrap gap-2 items-end pb-1">
+          <span className="text-xs font-semibold text-gray-500 mr-1">Difficulty presets:</span>
+          {DIFFICULTY_PRESETS.map((preset) => (
+            <button
+              key={preset.label}
+              type="button"
+              onClick={() => setFilters((f) => ({
+                ...f,
+                minOverall: preset.minOverall,
+                maxOverall: preset.maxOverall,
+                sort: preset.minOverall === 7 || preset.minOverall === 9 ? 'difficulty_desc' : f.sort,
+              }))}
+              className="text-xs px-2.5 py-1 rounded-full border border-gray-300 hover:border-vortex-red hover:text-vortex-red"
+            >
+              {preset.label}
+            </button>
+          ))}
         </div>
         <label className="flex items-center gap-2 text-sm self-end pb-2">
           <input type="checkbox" checked={filters.freshness} onChange={(e) => setFilters((f) => ({ ...f, freshness: e.target.checked }))} />

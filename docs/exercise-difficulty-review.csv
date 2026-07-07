@@ -1,0 +1,2 @@
+slug,name,technical,load,complexity,overall,recommended_age_min,attention_demand,source,notes
+# Run: node scripts/backfill-exercise-difficulty.mjs

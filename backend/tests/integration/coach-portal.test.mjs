@@ -80,6 +80,34 @@ test('POST /api/coach/needs-engine/prescribe returns time-packed blocks', { skip
   assert.equal(data.blocks[0].label, 'Main')
 })
 
+test('POST /api/coach/needs-engine/prescribe with age 6-8 strength returns audience_profile', { skip: !runCoach }, async () => {
+  const strengthTenet = (await jsonRequest('/api/coach/taxonomy', {}, coachJwt)).body?.data?.tenets
+    ?.find((t) => String(t.name).toLowerCase() === 'strength')
+  const { response, body } = await jsonRequest(
+    '/api/coach/needs-engine/prescribe',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        ageMin: 6,
+        ageMax: 8,
+        sessionObjective: 'strength_priority',
+        skillLevel: 'BEGINNER',
+        targets: strengthTenet ? [{ facetType: 'tenet', facetId: strengthTenet.id, weight: 5 }] : [],
+        blocks: [
+          { label: 'Prepare', phaseKey: 'prepare_and_access', minutes: 8 },
+          { label: 'Capacity', phaseKey: 'capacity', minutes: 20 },
+        ],
+      }),
+    },
+    coachJwt,
+  )
+  assert.equal(response.status, 200)
+  const data = body.data ?? body
+  assert.ok(data.audience_profile, 'should return audience_profile')
+  assert.equal(data.audience_profile.caps.maxOverall, 5)
+  assert.ok(Array.isArray(data.blocks))
+})
+
 test('assignment + member completion log round-trip', { skip: !runRoundTrip }, async () => {
   // Coach assigns a workout to the member.
   const assignRes = await jsonRequest(

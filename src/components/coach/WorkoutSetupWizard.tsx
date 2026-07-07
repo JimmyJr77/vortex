@@ -202,6 +202,14 @@ export default function WorkoutSetupWizard({ workout, onApply, onComplete, onClo
                   {taxonomy?.sports.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </label>
+              <label className="text-sm">
+                <span className="font-semibold text-gray-700">Age min</span>
+                <input type="number" min={0} value={audience.age_min ?? ''} onChange={(e) => setAudience({ ...audience, age_min: e.target.value ? Number(e.target.value) : undefined })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="e.g. 6" />
+              </label>
+              <label className="text-sm">
+                <span className="font-semibold text-gray-700">Age max</span>
+                <input type="number" min={0} value={audience.age_max ?? ''} onChange={(e) => setAudience({ ...audience, age_max: e.target.value ? Number(e.target.value) : undefined })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="e.g. 8" />
+              </label>
             </div>
           )}
           {step === 2 && (

@@ -328,6 +328,12 @@ Sustained Capacity → Restore. Workout blocks link via `workout_block.phase_id`
 (`workoutValidation.js`) and Needs Engine (`phaseAwarePrescription.js`) score exercises using
 `exercise_phase_profile` fit weights and return educational warnings with override flow.
 
+**Age-aware difficulty (migration `202`):** Each exercise can have a canonical
+`exercise_difficulty_profile` (technical / load / complexity / overall on 1–10 plus recommended ages).
+[`ageDifficultyPolicy.js`](../backend/platform/ageDifficultyPolicy.js) maps audience age bands to difficulty
+caps; Needs Engine applies soft penalties when exercises exceed caps; library supports `min_overall` and
+`sort=difficulty_desc` for challenge search. Backfill: `node scripts/backfill-exercise-difficulty.mjs`.
+
 **Prepare & Access subroles (migration `096`):** Within Prepare/Access, five subroles form the coach-facing sequence layer — **Raise → Mobilize → Activate → Integrate → Potentiate Bridge** — then **Performance Work** (Skill, Output, Capacity, etc.). This is a deliberate adaptation of Ian Jeffreys' RAMP model (original order: Raise → Activate → Mobilize → Potentiate); Mobilize precedes Activate so joint access comes before stabilizer activation, and Potentiate Bridge gradually ramps elastic/reactive intent before maximal output. See [EXERCISE_CARD_SPEC.md](EXERCISE_CARD_SPEC.md) §2 RAMP and [prepareAccessRampPhilosophy.ts](../src/coach/prepareAccessRampPhilosophy.ts). Fine `phase_order_slot` rows map to exactly one subrole; exercise cards store `order_slot` and derive `phase_subrole` automatically. Workout Builder and Exercise Library filter by subrole then slot; validation warns when subrole order is violated.
 
 **Exercise card format:** See [EXERCISE_CARD_SPEC.md](EXERCISE_CARD_SPEC.md) for the canonical card v2

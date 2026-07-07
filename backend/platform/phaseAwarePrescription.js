@@ -1,5 +1,11 @@
 import { loadExerciseProgrammingBundle, attachProgrammingToExercise } from './exerciseProgramming.js'
 import { loadEducationForExercise, educationToWhyResponse } from './educationContent.js'
+import {
+  resolveAudienceProfile,
+  scoreAgeDifficultyFit,
+  classifyAgeFit,
+  ageFitWarnings,
+} from './ageDifficultyPolicy.js'
 
 function itemSecondsFromExercise(ex, item) {
   const sets = Number(item?.sets ?? ex.default_sets) || 3
@@ -8,18 +14,63 @@ function itemSecondsFromExercise(ex, item) {
   return sets * work + sets * rest
 }
 
+async function resolveTargetFacetIds(pool, targets) {
+  const resolved = []
+  for (const target of targets) {
+    if (target.facetId != null) {
+      resolved.push(target)
+      continue
+    }
+    const key = target.facetKey ?? target.key
+    if (!key || !target.facetType) continue
+    const tableMap = {
+      tenet: 'tenet',
+      methodology: 'methodology',
+      physiology: 'physiological_emphasis',
+    }
+    const table = tableMap[target.facetType]
+    if (!table) continue
+    const row = await pool.query(`SELECT id FROM coaching.${table} WHERE key = $1 LIMIT 1`, [String(key)])
+    if (row.rows[0]?.id) {
+      resolved.push({ ...target, facetId: Number(row.rows[0].id) })
+    }
+  }
+  return resolved
+}
+
+function scalingGuidanceForCohort(scalingProfiles, cohortKey) {
+  if (!Array.isArray(scalingProfiles) || !cohortKey) return null
+  const row = scalingProfiles.find((s) => s.cohort_key === cohortKey)
+  if (!row) return null
+  const parts = [row.load_guidance, row.complexity_guidance, row.coach_notes].filter(Boolean)
+  return parts.length > 0 ? parts.join(' ') : null
+}
+
 export async function runPhaseAwarePrescription(pool, facilityId, body) {
+  const audience = resolveAudienceProfile({
+    ageMin: body.ageMin ?? body.age_min,
+    ageMax: body.ageMax ?? body.age_max,
+    skillLevel: body.skillLevel ?? body.skill_level,
+    sessionObjective: body.sessionObjective ?? body.session_objective,
+    targets: body.targets,
+    prompt: body.prompt,
+  })
+
   const sportId = body.sportId != null ? Number(body.sportId) : null
-  const level = body.skillLevel || body.skill_level || null
-  const ageMin = body.ageMin != null ? Number(body.ageMin) : null
-  const ageMax = body.ageMax != null ? Number(body.ageMax) : null
+  const level = body.skillLevel || body.skill_level || audience.impliedSkillLevel || null
+  const ageMin = audience.ageMin
+  const ageMax = audience.ageMax
+  const caps = audience.caps
+  const strengthIntent = audience.strengthIntent
+  const scalingCohort = audience.scalingCohort
+
   const equipmentIds = Array.isArray(body.equipmentIds) ? body.equipmentIds.map(Number).filter(Number.isFinite) : []
   const excludeBodyRegionIds = Array.isArray(body.excludeBodyRegionIds)
     ? body.excludeBodyRegionIds.map(Number).filter(Number.isFinite)
     : []
-  const targets = Array.isArray(body.targets)
-    ? body.targets.filter((t) => t.facetId != null || t.facetKey || t.key)
-    : []
+  const rawTargets = Array.isArray(body.targets) ? body.targets : audience.targets ?? []
+  const targets = await resolveTargetFacetIds(pool, rawTargets.filter((t) => t.facetId != null || t.facetKey || t.key))
+
   const phasePlan = Array.isArray(body.phasePlan) && body.phasePlan.length > 0
     ? body.phasePlan
     : Array.isArray(body.blocks) && body.blocks.length > 0
@@ -42,6 +93,10 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   if (ageMin != null) {
     params.push(ageMin)
     where.push(`(e.age_max IS NULL OR e.age_max >= $${params.length})`)
+    where.push(`NOT EXISTS (
+      SELECT 1 FROM coaching.exercise_difficulty_profile d
+      WHERE d.exercise_id = e.id AND d.recommended_age_min IS NOT NULL AND d.recommended_age_min > $${params.length}
+    )`)
   }
   if (ageMax != null) {
     params.push(ageMax)
@@ -69,6 +124,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   const bundle = await loadExerciseProgrammingBundle(pool, ids)
   const allowedEquip = new Set(equipmentIds)
   const usedPatterns = new Map()
+  const sessionWarnings = new Set()
 
   const scored = candidates.rows
     .map((ex) => {
@@ -85,7 +141,29 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
         if (match) score += match.weight * (Number(target.weight) || 3)
       }
       const profiles = bundle.phaseProfiles.get(String(ex.id)) ?? []
-      return { exercise: ex, tags, score, profiles, bundleRow: attachProgrammingToExercise(ex, bundle, null) }
+      const difficulty = bundle.difficultyProfiles?.get(String(ex.id)) ?? null
+      const primary = profiles.find((p) => p.role === 'primary') ?? profiles[0]
+
+      if (strengthIntent && primary?.phaseKey === 'capacity') score += 4
+      if (strengthIntent && (primary?.impactLevel ?? 99) <= 1) score += 2
+
+      const ageMultiplier = scoreAgeDifficultyFit(difficulty, caps)
+      score *= ageMultiplier
+
+      if (difficulty && caps && classifyAgeFit(difficulty, caps) !== 'good') {
+        for (const w of ageFitWarnings(difficulty, caps, ex.name)) sessionWarnings.add(w)
+      }
+
+      const scalingProfiles = bundle.scalingProfiles.get(String(ex.id)) ?? []
+      return {
+        exercise: ex,
+        tags,
+        score,
+        profiles,
+        difficulty,
+        scalingProfiles,
+        bundleRow: attachProgrammingToExercise(ex, bundle, null),
+      }
     })
     .filter(Boolean)
     .sort((a, b) => b.score - a.score)
@@ -120,7 +198,9 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
         else if (profile.role === 'conditional') phaseFit *= 0.75
         const patternId = c.tags.find((t) => t.facetType === 'pattern')?.facetId
         const penalty = patternId && usedPatterns.get(patternId) ? 0.25 : 0
-        return { ...c, adjScore: (c.score + phaseFit) * (1 - Math.min(penalty, 0.75)), profile }
+        let adjScore = (c.score + phaseFit) * (1 - Math.min(penalty, 0.75))
+        if (strengthIntent && phaseKey === 'capacity') adjScore *= 1.15
+        return { ...c, adjScore, profile }
       })
       .filter(Boolean)
       .sort((a, b) => b.adjScore - a.adjScore)
@@ -134,6 +214,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
 
       const eduEx = await loadEducationForExercise(pool, Number(c.exercise.id), c.exercise.slug)
       const why = educationToWhyResponse(eduEx)
+      const cohortScaling = scalingGuidanceForCohort(c.scalingProfiles, scalingCohort)
 
       items.push({
         exercise_id: Number(c.exercise.id),
@@ -145,9 +226,11 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
         est_seconds_per_set: c.exercise.est_seconds_per_set,
         score: Number(c.score.toFixed(2)),
         phase_fit: c.profile.fitWeight,
+        difficulty: c.difficulty,
+        age_fit: classifyAgeFit(c.difficulty, caps),
         selection_rationale: why?.training_purpose ?? `Selected for ${phase?.name ?? phaseKey} (score ${c.score.toFixed(1)}).`,
         placement_rationale: why?.phase_rationale ?? c.profile.notes ?? `Placed in ${phase?.name ?? phaseKey} based on phase fit.`,
-        scaling_rationale: why?.scaling_rationale ?? null,
+        scaling_rationale: cohortScaling ?? why?.scaling_rationale ?? null,
       })
       usedSeconds += cost
       const patternTag = c.tags.find((t) => t.facetType === 'pattern')
@@ -168,12 +251,24 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   return {
     blocks: resultBlocks,
     phase_rationales: phaseRationales,
+    audience_profile: {
+      ageMin: audience.ageMin,
+      ageMax: audience.ageMax,
+      caps: audience.caps,
+      scalingCohort: audience.scalingCohort,
+      impliedSkillLevel: audience.impliedSkillLevel,
+      ageBandLabel: audience.ageBandLabel,
+      strengthIntent: audience.strengthIntent,
+      sessionObjective: audience.sessionObjective,
+    },
+    age_fit_warnings: [...sessionWarnings],
     candidates: scored.slice(0, 40).map((c) => ({
       exercise_id: Number(c.exercise.id),
       exercise_name: c.exercise.name,
       score: Number(c.score.toFixed(2)),
       est_seconds_per_set: Number(c.exercise.est_seconds_per_set),
       primary_phase: c.profiles.find((p) => p.role === 'primary')?.phaseKey ?? null,
+      difficulty: c.difficulty,
     })),
   }
 }

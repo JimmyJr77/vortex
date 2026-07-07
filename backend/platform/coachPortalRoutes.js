@@ -89,6 +89,11 @@ import { validateRegimenDraft } from './regimenValidation.js'
 import { getCoachingSchemaStatus } from './ensureCoachingWhyLayerSchema.js'
 import { dedupeSessionPhases, normalizePhaseKey } from './sessionPhaseKeys.js'
 import { runPhaseAwarePrescription, getSessionPhaseTemplates } from './phaseAwarePrescription.js'
+import {
+  parseAgeRangeFromText,
+  parseSessionObjectiveFromText,
+  resolveAudienceProfile,
+} from './ageDifficultyPolicy.js'
 import { registerProgrammingRoutes } from './coachProgrammingRoutes.js'
 import { registerGameRoutes } from './coachGameRoutes.js'
 
@@ -502,6 +507,47 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         where.push(`${EXERCISE_EFFECTIVE_IMPACT_SQL} <= $${params.length}`)
       }
 
+      const filterAgeMin = num(req.query.age_min ?? req.query.ageMin)
+      const filterAgeMax = num(req.query.age_max ?? req.query.ageMax)
+      if (filterAgeMin != null) {
+        params.push(filterAgeMin)
+        where.push(`(e.age_max IS NULL OR e.age_max >= $${params.length})`)
+        where.push(`NOT EXISTS (
+          SELECT 1 FROM coaching.exercise_difficulty_profile d
+          WHERE d.exercise_id = e.id AND d.recommended_age_min IS NOT NULL AND d.recommended_age_min > $${params.length}
+        )`)
+      }
+      if (filterAgeMax != null) {
+        params.push(filterAgeMax)
+        where.push(`(e.age_min IS NULL OR e.age_min <= $${params.length})`)
+      }
+
+      const minOverall = num(req.query.min_overall ?? req.query.minOverall)
+      const maxOverall = num(req.query.max_overall ?? req.query.maxOverall)
+      const minTechnical = num(req.query.min_technical ?? req.query.minTechnical)
+      const minLoad = num(req.query.min_load ?? req.query.minLoad)
+      const minComplexity = num(req.query.min_complexity ?? req.query.minComplexity)
+      if (minOverall != null) {
+        params.push(minOverall)
+        where.push(`EXISTS (SELECT 1 FROM coaching.exercise_difficulty_profile d WHERE d.exercise_id = e.id AND d.overall >= $${params.length})`)
+      }
+      if (maxOverall != null) {
+        params.push(maxOverall)
+        where.push(`EXISTS (SELECT 1 FROM coaching.exercise_difficulty_profile d WHERE d.exercise_id = e.id AND d.overall <= $${params.length})`)
+      }
+      if (minTechnical != null) {
+        params.push(minTechnical)
+        where.push(`EXISTS (SELECT 1 FROM coaching.exercise_difficulty_profile d WHERE d.exercise_id = e.id AND d.technical >= $${params.length})`)
+      }
+      if (minLoad != null) {
+        params.push(minLoad)
+        where.push(`EXISTS (SELECT 1 FROM coaching.exercise_difficulty_profile d WHERE d.exercise_id = e.id AND d.load >= $${params.length})`)
+      }
+      if (minComplexity != null) {
+        params.push(minComplexity)
+        where.push(`EXISTS (SELECT 1 FROM coaching.exercise_difficulty_profile d WHERE d.exercise_id = e.id AND d.complexity >= $${params.length})`)
+      }
+
       // Facet filters: tenet, method->methodology, physio->physiology, pattern, equipment, body_region.
       const facetMap = {
         tenet: req.query.tenet,
@@ -529,8 +575,17 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
       const whereSql = where.join(' AND ')
       const pagination = parseExerciseLibraryPagination(req)
+      const sortMode = String(req.query.sort ?? '').trim()
+      const orderSql = sortMode === 'difficulty_desc'
+        ? `ORDER BY d.overall DESC NULLS LAST, e.name`
+        : 'ORDER BY e.name'
+      const difficultyJoin = sortMode === 'difficulty_desc' || minOverall != null || maxOverall != null
+        || minTechnical != null || minLoad != null || minComplexity != null
+        ? 'LEFT JOIN coaching.exercise_difficulty_profile d ON d.exercise_id = e.id'
+        : ''
+
       const countResult = await pool.query(
-        `SELECT COUNT(*)::int AS total FROM coaching.exercise e WHERE ${whereSql}`,
+        `SELECT COUNT(*)::int AS total FROM coaching.exercise e ${difficultyJoin} WHERE ${whereSql}`,
         params,
       )
       const total = countResult.rows[0]?.total ?? 0
@@ -540,8 +595,9 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         SELECT e.*, s.name as sport_name
         FROM coaching.exercise e
         LEFT JOIN coaching.sport s ON s.id = e.sport_id
+        ${difficultyJoin}
         WHERE ${whereSql}
-        ORDER BY e.name
+        ${orderSql}
       `
       if (pagination.paginated) {
         listParams.push(pagination.limit, pagination.offset)
@@ -3335,21 +3391,50 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const minutesMatch = lower.match(/(\d{1,3})\s*(?:min|minute|minutes|mins)/)
       const minutes = minutesMatch ? Math.min(180, Math.max(5, Number(minutesMatch[1]))) : 30
 
+      const parsedAge = parseAgeRangeFromText(prompt)
       let skillLevel = null
       if (/\b(beginner|novice|new)\b/.test(lower)) skillLevel = 'BEGINNER'
       else if (/\b(intermediate)\b/.test(lower)) skillLevel = 'INTERMEDIATE'
       else if (/\b(advanced|elite|competitive)\b/.test(lower)) skillLevel = 'ADVANCED'
       else if (/\b(early.stage|youth|kids|little)\b/.test(lower)) skillLevel = 'EARLY_STAGE'
 
+      const sessionObjective = parseSessionObjectiveFromText(prompt)
+      const strengthTenet = tenets.rows.find((r) => String(r.name).toLowerCase() === 'strength')
+      if (sessionObjective === 'strength_priority' && strengthTenet && !targets.some((t) => t.facetType === 'tenet' && Number(t.facetId) === Number(strengthTenet.id))) {
+        targets.push({ facetType: 'tenet', facetId: Number(strengthTenet.id), weight: 5, facetKey: 'strength' })
+      }
+
+      const audience = resolveAudienceProfile({
+        ageMin: parsedAge.ageMin,
+        ageMax: parsedAge.ageMax,
+        skillLevel,
+        sessionObjective,
+        targets,
+        prompt,
+      })
+
+      if (!skillLevel && audience.impliedSkillLevel) skillLevel = audience.impliedSkillLevel
+
       const parsed = {
         sportId: sport ? Number(sport.id) : null,
         skillLevel,
+        ageMin: audience.ageMin,
+        ageMax: audience.ageMax,
+        sessionObjective: audience.sessionObjective,
         equipmentIds,
         targets,
         blocks: [{ label: phaseName, phaseKey, minutes }],
+        audienceProfile: audience,
       }
 
-      const prescription = await runPrescription(facilityId, parsed)
+      const prescription = await runPrescription(facilityId, {
+        ...parsed,
+        ageMin: audience.ageMin,
+        ageMax: audience.ageMax,
+        sessionObjective: audience.sessionObjective,
+        targets,
+        prompt,
+      })
       await pool.query(
         `INSERT INTO coaching.ai_draft_log (facility_id, coach_user_id, kind, prompt, response) VALUES ($1, $2, 'nl_needs', $3, $4)`,
         [facilityId, Number(req.platformAuth.user.id), prompt, JSON.stringify({ parsed, prescription })],

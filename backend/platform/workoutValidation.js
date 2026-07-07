@@ -7,6 +7,7 @@ import {
   analyzeControlSlowEccentricReadiness,
   analyzeControlHandSupportReadiness,
 } from './controlResilienceValidation.js'
+import { resolveAudienceProfile, ageFitWarnings } from './ageDifficultyPolicy.js'
 
 const SUBROLE_ORDER = {
   raise: 10,
@@ -5006,12 +5007,13 @@ export async function validateWorkoutDraft(pool, draft) {
   const dosageByExercise = new Map()
   const slugByExercise = new Map()
   const exerciseSkillLevelById = new Map()
+  const difficultyByExercise = new Map()
   let tagRows = []
   const methodologyKeysByExercise = new Map()
   const equipmentKeysByExercise = new Map()
 
   if (exerciseIds.length > 0) {
-    const [profiles, tags, regimens, dosages, exercises] = await Promise.all([
+    const [profiles, tags, regimens, dosages, exercises, difficulties] = await Promise.all([
       pool.query(
         `SELECT p.*, sp.key AS phase_key FROM coaching.exercise_phase_profile p
          JOIN coaching.session_phase sp ON sp.id = p.phase_id WHERE p.exercise_id = ANY($1::bigint[])`,
@@ -5036,6 +5038,7 @@ export async function validateWorkoutDraft(pool, draft) {
         [exerciseIds],
       ),
       pool.query(`SELECT id, slug, skill_level FROM coaching.exercise WHERE id = ANY($1::bigint[])`, [exerciseIds]),
+      pool.query(`SELECT exercise_id, technical, load, complexity, overall FROM coaching.exercise_difficulty_profile WHERE exercise_id = ANY($1::bigint[])`, [exerciseIds]).catch(() => ({ rows: [] })),
     ])
     tagRows = tags.rows
     for (const ex of exercises.rows) {
@@ -5050,6 +5053,9 @@ export async function validateWorkoutDraft(pool, draft) {
     }
     for (const d of dosages.rows) {
       dosageByExercise.set(String(d.exercise_id), d)
+    }
+    for (const d of difficulties.rows) {
+      difficultyByExercise.set(String(d.exercise_id), d)
     }
     for (const t of tags.rows) {
       if (t.facet_type === 'methodology') {
@@ -5929,6 +5935,41 @@ export async function validateWorkoutDraft(pool, draft) {
     }
   } catch (progErr) {
     if (!/does not exist|undefined column/i.test(String(progErr.message))) throw progErr
+  }
+
+  const audience = draft?.audience_json ?? draft?.audienceJson ?? {}
+  const ageMin = audience.age_min ?? audience.ageMin
+  const ageMax = audience.age_max ?? audience.ageMax
+  if ((ageMin != null || ageMax != null) && exerciseIds.length > 0) {
+    const profile = resolveAudienceProfile({ ageMin, ageMax, skillLevel: audience.skill_level ?? audience.skillLevel })
+    for (const meta of blockMeta) {
+      for (const item of meta.block.items ?? []) {
+        const exerciseId = String(item.exercise_id ?? item.exerciseId)
+        const diffRow = difficultyByExercise.get(exerciseId)
+        if (!diffRow) continue
+        const difficulty = {
+          technical: Number(diffRow.technical),
+          load: Number(diffRow.load),
+          complexity: Number(diffRow.complexity),
+          overall: Number(diffRow.overall),
+        }
+        const breaches = ageFitWarnings(difficulty, profile.caps, item.exercise_name ?? 'Exercise')
+        if (breaches.length === 0) continue
+        const overBy = difficulty.overall - profile.caps.maxOverall
+        const payload = {
+          severity: overBy >= 3 ? 'error' : 'warning',
+          rule_key: 'audience_difficulty_cap',
+          message: breaches[0],
+          why: `Session audience is ${profile.ageBandLabel}; difficulty caps are overall ≤${profile.caps.maxOverall}.`,
+          recommendation: 'Swap for a lower-difficulty regression or adjust the session audience.',
+          affected_items: [item.exercise_name ?? exerciseId],
+          related_phase: meta.phaseKey,
+          can_override: overBy < 3,
+        }
+        if (overBy >= 3) errors.push(payload)
+        else warnings.push(payload)
+      }
+    }
   }
 
   const status = errors.length > 0 ? 'error' : warnings.length > 0 ? 'warning' : recommendations.length > 0 ? 'warning' : 'valid'

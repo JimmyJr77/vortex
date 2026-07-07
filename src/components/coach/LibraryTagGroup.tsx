@@ -12,6 +12,7 @@ const TAG_VARIANTS = {
   positive: 'bg-green-50 text-green-800',
   warning: 'bg-orange-50 text-orange-800',
   impact: 'bg-purple-50 text-purple-800',
+  difficulty: 'bg-rose-50 text-rose-800',
   group: 'bg-sky-50 text-sky-800',
 } as const
 

@@ -3,6 +3,7 @@ import { CheckCircle2, Plus, Sparkles, Trash2, X } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import type {
   Exercise,
+  ExerciseDifficultyProfile,
   ExerciseCoachingExecution,
   ExerciseMedia,
   ExerciseMovementRequirements,
@@ -85,6 +86,7 @@ type EditorTab =
   | 'execution'
   | 'dosage'
   | 'scaling'
+  | 'difficulty'
   | 'pairing'
   | 'safety'
   | 'media'
@@ -98,6 +100,7 @@ const EDITOR_TABS: Array<{ id: EditorTab; label: string }> = [
   { id: 'execution', label: 'Coaching Execution' },
   { id: 'dosage', label: 'Dosage' },
   { id: 'scaling', label: 'Scaling' },
+  { id: 'difficulty', label: 'Difficulty & Age' },
   { id: 'pairing', label: 'Pairing Logic' },
   { id: 'safety', label: 'Safety' },
   { id: 'media', label: 'Media & Docs' },
@@ -221,6 +224,21 @@ export default function ExerciseEditor({
   const [regimenRule, setRegimenRule] = useState<ExerciseRegimenRule>(exercise?.regimen_rule ?? {})
   const [mediaLib, setMediaLib] = useState<ExerciseMediaLibrary>(exercise?.media_library ?? {})
   const [media, setMedia] = useState<ExerciseMedia[]>(exercise?.media ?? [])
+  const [ageMin, setAgeMin] = useState<number | ''>(exercise?.age_min ?? '')
+  const [ageMax, setAgeMax] = useState<number | ''>(exercise?.age_max ?? '')
+  const [difficultyProfile, setDifficultyProfile] = useState<Partial<ExerciseDifficultyProfile>>(exercise?.difficulty_profile ?? {
+    technical: 3,
+    load: 3,
+    complexity: 3,
+    overall: 3,
+    attention_demand: 'low',
+  })
+
+  const computedOverall = Math.max(
+    Number(difficultyProfile.technical) || 1,
+    Number(difficultyProfile.load) || 1,
+    Number(difficultyProfile.complexity) || 1,
+  )
 
   useEffect(() => {
     if (!exercise) return
@@ -274,6 +292,15 @@ export default function ExerciseEditor({
         setRegimenRule(full.regimen_rule ?? {})
         setMediaLib(full.media_library ?? {})
         setMedia(full.media ?? [])
+        setAgeMin(full.age_min ?? full.difficulty_profile?.recommended_age_min ?? '')
+        setAgeMax(full.age_max ?? full.difficulty_profile?.recommended_age_max ?? '')
+        setDifficultyProfile(full.difficulty_profile ?? {
+          technical: 3,
+          load: 3,
+          complexity: 3,
+          overall: 3,
+          attention_demand: 'low',
+        })
       })
       .catch(() => {/* keep defaults */})
     coachFetch<{ ready: boolean; issues: string[] }>(`/api/coach/exercises/${exercise.id}/publish-check`)
@@ -325,6 +352,8 @@ export default function ExerciseEditor({
         description: coachingExec.movement_description || null,
         sport_id: sportId || null,
         skill_level: skillLevel || null,
+        age_min: ageMin === '' ? null : Number(ageMin),
+        age_max: ageMax === '' ? null : Number(ageMax),
         default_sets: dosage.default_sets || null,
         default_reps: dosage.default_reps || null,
         default_work_seconds: dosage.default_work_seconds || null,
@@ -359,6 +388,17 @@ export default function ExerciseEditor({
           requires_coach_supervision: safetyProfile.requires_coach_supervision ?? 'none',
         },
         regimen_rule: regimenRule,
+        difficulty_profile: {
+          technical: Number(difficultyProfile.technical) || 1,
+          load: Number(difficultyProfile.load) || 1,
+          complexity: Number(difficultyProfile.complexity) || 1,
+          overall: computedOverall,
+          recommended_age_min: ageMin === '' ? null : Number(ageMin),
+          recommended_age_max: ageMax === '' ? null : Number(ageMax),
+          attention_demand: difficultyProfile.attention_demand ?? 'low',
+          notes: difficultyProfile.notes ?? null,
+          source: 'authored',
+        },
         dosage: {
           volume_unit: dosage.volume_unit,
           default_sets: dosage.default_sets || null,
@@ -758,6 +798,42 @@ export default function ExerciseEditor({
                   </div>
                 )
               })}
+            </div>
+          )}
+
+          {tab === 'difficulty' && (
+            <div className="grid gap-3 md:grid-cols-2 text-sm">
+              <p className="md:col-span-2 text-xs text-gray-500">
+                Rate each exercise 1–10. Overall is computed as the max of technical, load, and complexity. Used by Needs Engine and library filters for age-appropriate programming.
+              </p>
+              <label><span className="font-semibold text-gray-700">Technical difficulty (1–10)</span>
+                <input type="number" min={1} max={10} value={difficultyProfile.technical ?? 3} onChange={(e) => setDifficultyProfile({ ...difficultyProfile, technical: Number(e.target.value) })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" />
+              </label>
+              <label><span className="font-semibold text-gray-700">Load difficulty (1–10)</span>
+                <input type="number" min={1} max={10} value={difficultyProfile.load ?? 3} onChange={(e) => setDifficultyProfile({ ...difficultyProfile, load: Number(e.target.value) })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" />
+              </label>
+              <label><span className="font-semibold text-gray-700">Complexity / attention (1–10)</span>
+                <input type="number" min={1} max={10} value={difficultyProfile.complexity ?? 3} onChange={(e) => setDifficultyProfile({ ...difficultyProfile, complexity: Number(e.target.value) })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" />
+              </label>
+              <label><span className="font-semibold text-gray-700">Overall (computed)</span>
+                <input type="number" value={computedOverall} readOnly className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50" />
+              </label>
+              <label><span className="font-semibold text-gray-700">Recommended age min</span>
+                <input type="number" min={0} value={ageMin} onChange={(e) => setAgeMin(e.target.value ? Number(e.target.value) : '')} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" />
+              </label>
+              <label><span className="font-semibold text-gray-700">Recommended age max</span>
+                <input type="number" min={0} value={ageMax} onChange={(e) => setAgeMax(e.target.value ? Number(e.target.value) : '')} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" />
+              </label>
+              <label><span className="font-semibold text-gray-700">Attention demand</span>
+                <select value={difficultyProfile.attention_demand ?? 'low'} onChange={(e) => setDifficultyProfile({ ...difficultyProfile, attention_demand: e.target.value as ExerciseDifficultyProfile['attention_demand'] })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2">
+                  <option value="low">Low</option>
+                  <option value="moderate">Moderate</option>
+                  <option value="high">High</option>
+                </select>
+              </label>
+              <label className="md:col-span-2"><span className="font-semibold text-gray-700">Notes</span>
+                <textarea value={difficultyProfile.notes ?? ''} onChange={(e) => setDifficultyProfile({ ...difficultyProfile, notes: e.target.value })} rows={2} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="e.g. Fine for attentive 5s with regression" />
+              </label>
             </div>
           )}
 

@@ -108,6 +108,23 @@ Hosted video uses `coaching.exercise_media` (Cloudinary); URL lists in JSONB are
 
 Population-specific prose goes in **`exercise_scaling_profile.load_guidance`** per cohort. **`gender_specific_notes`** on the `adult_beginner` row when applicable.
 
+### Difficulty profile (age-aware programming)
+
+Canonical table: **`coaching.exercise_difficulty_profile`** (migration `202`). One row per exercise.
+
+| Field | Scale | Meaning |
+|-------|-------|---------|
+| `technical` | 1–10 | Movement skill / spotting demand |
+| `load` | 1–10 | Bodyweight or external load stress |
+| `complexity` | 1–10 | Rules, decisions, attention span |
+| `overall` | 1–10 | `max(technical, load, complexity)` unless overridden |
+| `recommended_age_min` / `recommended_age_max` | years | Typical athlete age band |
+| `attention_demand` | low / moderate / high | Coaching density |
+
+Age-band caps for Needs Engine / workout validation live in [`ageDifficultyPolicy.js`](../backend/platform/ageDifficultyPolicy.js) (e.g. ages 6–8 → max overall 5). Publish gate **warns** when missing; does not block until content backfill is complete.
+
+Backfill: `node scripts/backfill-exercise-difficulty.mjs` → review CSV at `docs/exercise-difficulty-review.csv`.
+
 ### RPE
 
 Author `rpe_range: "1-2"` as `default_rpe_min = 1`, `default_rpe_max = 2` on the Default dosage profile. Card API exposes formatted `dosage.rpe_range`.
