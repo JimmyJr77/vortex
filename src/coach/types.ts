@@ -571,6 +571,36 @@ export interface CoachPhaseTemplate {
   updated_at?: string
 }
 
+export interface NeedsEngineRequirementsSnapshot {
+  workMode: 'exercise' | 'skill'
+  sessionObjective: string
+  sessionMinutes: number
+  customMinutes: number | ''
+  sportId: number | ''
+  skillLevel: string
+  ageMin: number | ''
+  ageMax: number | ''
+  difficultyOverride: number | ''
+  audienceSplits: AudienceSplit[]
+  equipmentMode: 'use' | 'avoid'
+  equipmentUse: Array<{ id: string | number; label: string; meta?: string }>
+  equipmentAvoid: Array<{ id: string | number; label: string; meta?: string }>
+  avoidTokens: Array<{ id: string | number; label: string; meta?: string }>
+  phaseRows: NeedsEnginePhaseRow[]
+  userEditedPrepare: boolean
+  result: PrescriptionResult | null
+  blockProgramming: (ProgrammingMethod | null)[]
+  nlPrompt: string
+}
+
+export interface CoachNeedsEngineRequirements {
+  id: number
+  name: string
+  requirements: NeedsEngineRequirementsSnapshot
+  created_at?: string
+  updated_at?: string
+}
+
 export interface NeedsEnginePhaseRow {
   phaseKey: string
   minutes: number

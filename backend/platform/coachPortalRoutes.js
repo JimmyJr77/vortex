@@ -96,6 +96,9 @@ import {
   listCoachPhaseTemplates,
   saveCoachPhaseTemplate,
   deleteCoachPhaseTemplate,
+  listCoachNeedsEngineRequirements,
+  saveCoachNeedsEngineRequirements,
+  deleteCoachNeedsEngineRequirements,
 } from './phaseAwarePrescription.js'
 import {
   parseAgeRangeFromText,
@@ -414,6 +417,40 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
       await deleteCoachPhaseTemplate(pool, facilityId, coachUserId, num(req.params.id))
+      ok(res, { deleted: true })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/needs-engine/requirements', ...can('library.view'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      ok(res, await listCoachNeedsEngineRequirements(pool, facilityId, coachUserId))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/coach/needs-engine/requirements', ...can('workouts.manage'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const name = String(req.body?.name || '').trim()
+      if (!name) return bad(res, 'Requirements name is required.')
+      const requirements = req.body?.requirements_json ?? req.body?.requirementsJson ?? req.body?.requirements ?? {}
+      ok(res, await saveCoachNeedsEngineRequirements(pool, facilityId, coachUserId, name, requirements))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.delete('/api/coach/needs-engine/requirements/:id', ...can('workouts.manage'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      await deleteCoachNeedsEngineRequirements(pool, facilityId, coachUserId, num(req.params.id))
       ok(res, { deleted: true })
     } catch (error) {
       bad(res, error.message, 500)

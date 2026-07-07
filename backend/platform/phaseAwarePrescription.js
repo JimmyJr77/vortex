@@ -1147,3 +1147,42 @@ export async function deleteCoachPhaseTemplate(pool, facilityId, coachUserId, te
     [templateId, facilityId, coachUserId],
   )
 }
+
+export async function listCoachNeedsEngineRequirements(pool, facilityId, coachUserId) {
+  const result = await pool.query(
+    `SELECT id, name, requirements_json, created_at, updated_at FROM coaching.coach_needs_engine_requirements
+     WHERE facility_id = $1 AND coach_user_id = $2 AND archived = FALSE ORDER BY updated_at DESC`,
+    [facilityId, coachUserId],
+  )
+  return result.rows.map((r) => ({
+    id: Number(r.id),
+    name: r.name,
+    requirements: r.requirements_json,
+    created_at: r.created_at,
+    updated_at: r.updated_at,
+  }))
+}
+
+export async function saveCoachNeedsEngineRequirements(pool, facilityId, coachUserId, name, requirementsJson) {
+  const result = await pool.query(
+    `INSERT INTO coaching.coach_needs_engine_requirements (facility_id, coach_user_id, name, requirements_json, updated_at)
+     VALUES ($1, $2, $3, $4::jsonb, now()) RETURNING id, name, requirements_json, created_at, updated_at`,
+    [facilityId, coachUserId, name, JSON.stringify(requirementsJson ?? {})],
+  )
+  const row = result.rows[0]
+  return {
+    id: Number(row.id),
+    name: row.name,
+    requirements: row.requirements_json,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  }
+}
+
+export async function deleteCoachNeedsEngineRequirements(pool, facilityId, coachUserId, requirementsId) {
+  await pool.query(
+    `UPDATE coaching.coach_needs_engine_requirements SET archived = TRUE, updated_at = now()
+     WHERE id = $1 AND facility_id = $2 AND coach_user_id = $3`,
+    [requirementsId, facilityId, coachUserId],
+  )
+}

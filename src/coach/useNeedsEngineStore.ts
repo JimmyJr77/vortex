@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { defaultPhaseRows, type NeedsEnginePhaseRow, type WorkMode } from './phaseArchitect'
 import { SESSION_OBJECTIVE_OPTIONS, type SessionObjective } from './phasePlan'
-import type { AudienceSplit, PrescriptionResult, ProgrammingMethod } from './types'
+import type { AudienceSplit, PrescriptionResult, ProgrammingMethod, NeedsEngineRequirementsSnapshot } from './types'
 
 export interface NeedsEngineComboboxOption {
   id: string | number
@@ -49,6 +49,63 @@ export function defaultNeedsEngineState() {
 interface NeedsEngineStore extends ReturnType<typeof defaultNeedsEngineState> {
   patch: (patch: Partial<Omit<NeedsEngineStore, 'patch' | 'reset'>>) => void
   reset: () => void
+}
+
+export function snapshotNeedsEngineState(
+  state: Omit<NeedsEngineStore, 'patch' | 'reset'>,
+): NeedsEngineRequirementsSnapshot {
+  return {
+    workMode: state.workMode,
+    sessionObjective: state.sessionObjective,
+    sessionMinutes: state.sessionMinutes,
+    customMinutes: state.customMinutes,
+    sportId: state.sportId,
+    skillLevel: state.skillLevel,
+    ageMin: state.ageMin,
+    ageMax: state.ageMax,
+    difficultyOverride: state.difficultyOverride,
+    audienceSplits: state.audienceSplits,
+    equipmentMode: state.equipmentMode,
+    equipmentUse: state.equipmentUse,
+    equipmentAvoid: state.equipmentAvoid,
+    avoidTokens: state.avoidTokens,
+    phaseRows: state.phaseRows.map(({ focusFacetType: _, ...row }) => row),
+    userEditedPrepare: state.userEditedPrepare,
+    result: state.result,
+    blockProgramming: state.blockProgramming,
+    nlPrompt: state.nlPrompt,
+  }
+}
+
+export function applyNeedsEngineSnapshot(
+  snapshot: NeedsEngineRequirementsSnapshot,
+): Partial<Omit<NeedsEngineStore, 'patch' | 'reset'>> {
+  return {
+    workMode: snapshot.workMode,
+    sessionObjective: snapshot.sessionObjective as SessionObjective,
+    sessionMinutes: snapshot.sessionMinutes,
+    customMinutes: snapshot.customMinutes,
+    sportId: snapshot.sportId,
+    skillLevel: snapshot.skillLevel,
+    ageMin: snapshot.ageMin,
+    ageMax: snapshot.ageMax,
+    difficultyOverride: snapshot.difficultyOverride,
+    audienceSplits: snapshot.audienceSplits,
+    equipmentMode: snapshot.equipmentMode,
+    equipmentUse: snapshot.equipmentUse,
+    equipmentAvoid: snapshot.equipmentAvoid,
+    avoidTokens: snapshot.avoidTokens,
+    phaseRows: snapshot.phaseRows.map((r) => ({
+      ...r,
+      focusFacetType: r.focusTargets?.[0]?.facetType ?? '',
+    })),
+    userEditedPrepare: snapshot.userEditedPrepare,
+    architectAdjustments: [],
+    selectedTemplateKey: '',
+    result: snapshot.result,
+    blockProgramming: snapshot.blockProgramming ?? [],
+    nlPrompt: snapshot.nlPrompt ?? '',
+  }
 }
 
 export const useNeedsEngineStore = create<NeedsEngineStore>((set) => ({

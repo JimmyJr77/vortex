@@ -3,7 +3,7 @@ import { Loader2, Sparkles, Plus, Trash2, ArrowRight, Save, RotateCcw } from 'lu
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import { useCoachBuilderStore } from '../../coach/useCoachBuilderStore'
-import { useNeedsEngineStore, type NeedsEnginePhaseRowState } from '../../coach/useNeedsEngineStore'
+import { useNeedsEngineStore, type NeedsEnginePhaseRowState, snapshotNeedsEngineState, applyNeedsEngineSnapshot } from '../../coach/useNeedsEngineStore'
 import {
   buildPhasePlan,
   redistributeOnDelete,
@@ -18,6 +18,7 @@ import { standardDifficultyCap, suggestedDifficultyCap } from '../../coach/ageDi
 import type {
   AudienceSplit,
   CoachPhaseTemplate,
+  CoachNeedsEngineRequirements,
   PrescriptionResult,
   ProgrammingMethod,
   SessionPhaseTemplate,
@@ -152,8 +153,12 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
   const [avoidSearchOptions, setAvoidSearchOptions] = useState<ComboboxOption[]>([])
   const [systemTemplates, setSystemTemplates] = useState<SessionPhaseTemplate[]>([])
   const [savedTemplates, setSavedTemplates] = useState<CoachPhaseTemplate[]>([])
+  const [savedRequirements, setSavedRequirements] = useState<CoachNeedsEngineRequirements[]>([])
+  const [selectedRequirementsId, setSelectedRequirementsId] = useState<number | ''>('')
   const [saveModalOpen, setSaveModalOpen] = useState(false)
   const [saveTemplateName, setSaveTemplateName] = useState('')
+  const [saveRequirementsModalOpen, setSaveRequirementsModalOpen] = useState(false)
+  const [saveRequirementsName, setSaveRequirementsName] = useState('')
   const [skillOptions, setSkillOptions] = useState<ComboboxOption[]>([])
   const [gameOptions, setGameOptions] = useState<ComboboxOption[]>([])
   const [loading, setLoading] = useState(false)
@@ -196,12 +201,14 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
 
   const loadTemplates = useCallback(async () => {
     try {
-      const [system, saved] = await Promise.all([
+      const [system, saved, requirements] = await Promise.all([
         coachFetch<SessionPhaseTemplate[]>('/api/coach/session-templates'),
         coachFetch<CoachPhaseTemplate[]>('/api/coach/phase-templates'),
+        coachFetch<CoachNeedsEngineRequirements[]>('/api/coach/needs-engine/requirements'),
       ])
       setSystemTemplates(system)
       setSavedTemplates(saved)
+      setSavedRequirements(requirements)
     } catch {
       /* optional */
     }
@@ -297,6 +304,36 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not save phasing')
     }
+  }
+
+  const saveRequirements = async () => {
+    const name = saveRequirementsName.trim()
+    if (!name) return
+    try {
+      const snapshot = snapshotNeedsEngineState(useNeedsEngineStore.getState())
+      const saved = await coachFetch<CoachNeedsEngineRequirements>('/api/coach/needs-engine/requirements', {
+        method: 'POST',
+        body: JSON.stringify({ name, requirements_json: snapshot }),
+      })
+      setSaveRequirementsModalOpen(false)
+      setSaveRequirementsName('')
+      setSelectedRequirementsId(saved.id)
+      await loadTemplates()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not save requirements')
+    }
+  }
+
+  const recallRequirements = () => {
+    if (selectedRequirementsId === '') return
+    const entry = savedRequirements.find((r) => r.id === selectedRequirementsId)
+    if (!entry?.requirements) return
+    const applied = applyNeedsEngineSnapshot(entry.requirements)
+    if (applied.phaseRows) {
+      applied.phaseRows = rowsWithLabels(applied.phaseRows, taxonomy)
+    }
+    patch(applied)
+    setError(null)
   }
 
   const updateRow = (index: number, rowPatch: Partial<NeedsEnginePhaseRowState>) => {
@@ -612,6 +649,30 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:border-vortex-red hover:text-vortex-red"
         >
           <RotateCcw className="w-4 h-4" /> Reset
+        </button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-end gap-2 bg-white border border-gray-200 rounded-xl p-3">
+        <label className="flex-1 text-sm">
+          <span className="block font-semibold text-gray-700 mb-1">Saved session</span>
+          <select
+            value={selectedRequirementsId}
+            onChange={(e) => setSelectedRequirementsId(e.target.value ? Number(e.target.value) : '')}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+          >
+            <option value="">Select a saved session…</option>
+            {savedRequirements.map((r) => (
+              <option key={r.id} value={r.id}>{r.name}</option>
+            ))}
+          </select>
+        </label>
+        <button
+          type="button"
+          onClick={recallRequirements}
+          disabled={selectedRequirementsId === ''}
+          className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:border-vortex-red hover:text-vortex-red disabled:opacity-40"
+        >
+          Recall
         </button>
       </div>
 
@@ -990,7 +1051,14 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                 )
               })}
             </div>
-            <div className="flex justify-end mt-2">
+            <div className="flex items-center justify-between mt-2">
+              <button
+                type="button"
+                onClick={() => setSaveRequirementsModalOpen(true)}
+                className="text-xs text-vortex-red flex items-center gap-1 hover:underline"
+              >
+                <Save className="w-3 h-3" /> Save requirements
+              </button>
               <button type="button" onClick={() => setSaveModalOpen(true)} className="text-xs text-vortex-red flex items-center gap-1 hover:underline">
                 <Save className="w-3 h-3" /> Save phasing
               </button>
@@ -1181,6 +1249,25 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           )}
         </div>
       </div>
+
+      {saveRequirementsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-xl p-4 w-full max-w-sm space-y-3">
+            <h4 className="font-semibold text-gray-900">Save requirements</h4>
+            <p className="text-xs text-gray-500">Saves session inputs and the current prescription so you can recall them later.</p>
+            <input
+              value={saveRequirementsName}
+              onChange={(e) => setSaveRequirementsName(e.target.value)}
+              placeholder="Session name"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            />
+            <div className="flex gap-2 justify-end">
+              <button type="button" onClick={() => setSaveRequirementsModalOpen(false)} className="px-3 py-1.5 text-sm border rounded-lg">Cancel</button>
+              <button type="button" onClick={() => void saveRequirements()} className="px-3 py-1.5 text-sm bg-vortex-red text-white rounded-lg font-medium">Save</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {saveModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
