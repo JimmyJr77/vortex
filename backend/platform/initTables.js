@@ -194,6 +194,10 @@ export async function initPlatformTables(pool) {
     '200_coaching_rotational_power_infrastructure_and_seed.sql',
     '201_coaching_rotational_power_cards.sql',
     '202_coaching_exercise_difficulty_profile.sql',
+    '203_coaching_exercise_youtube_links_batch2.sql',
+    '204_coaching_exercise_youtube_links_batch3.sql',
+    '205_coaching_high_impact_level_3_4_infrastructure_and_seed.sql',
+    '206_coaching_high_impact_level_3_4_cards.sql',
   ]
 
   for (const migrationFile of migrationFiles) {
