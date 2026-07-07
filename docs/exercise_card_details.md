@@ -1,5 +1,7 @@
 # Exercise Card Authoring Guide (LLM / Content Agent)
 
+> **Canonical file of record:** [exercise_card_details_for_llm.md](./exercise_card_details_for_llm.md) — use that path when feeding new Library inputs. This file is kept as a legacy alias; prefer editing `exercise_card_details_for_llm.md`.
+
 Use this document when generating **complete, publish-ready Vortex coaching exercise cards** (Card v2). It explains the Athleticism Accelerator taxonomy, what each card section means, how to think while authoring, and the exact JSON shapes to output.
 
 **Canonical implementation reference:** [EXERCISE_CARD_SPEC.md](./EXERCISE_CARD_SPEC.md) · Example data: [scripts/data/foundation-access-cards-1-10.mjs](../scripts/data/foundation-access-cards-1-10.mjs)
@@ -1057,7 +1059,7 @@ Some Output / Resilience cards include extra JSON on `movement_requirements` for
 You are authoring Vortex coaching exercise cards (Card v2) for the Athleticism Accelerator.
 
 Rules:
-- Follow docs/exercise_card_details.md exactly.
+- Follow docs/exercise_card_details_for_llm.md exactly.
 - Output valid JSON using the Authoring format (§8): camelCase, taxonomy by key+weight.
 - Pick canonical phase keys only (prepare_and_access, movement_intelligence, output, capacity, resilience, sustained_capacity, restore).
 - Match subrole to order slot for the target phase.

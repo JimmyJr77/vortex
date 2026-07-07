@@ -446,17 +446,156 @@ Vortex order: **Raise → Mobilize → Activate → Integrate → Potentiate Bri
     },
     {
       "section": "media",
-      "fields": ["mediaReferences", "mediaInternalNotes"],
+      "fields": ["mediaReferences", "mediaInternalNotes", "youtubeLinks"],
       "think": [
-        "References = external sport-science / clinical sources (FMS, NSCA, etc.).",
-        "Internal notes = coach-only context not shown to athletes."
+        "YouTube demo URLs → mediaReferences (stored as clinical_or_sport_science_references).",
+        "Use canonical watch URLs: https://www.youtube.com/watch?v=VIDEO_ID",
+        "Provide 3–5 quality demos per card when movement is filmable; skip only for abstract prep (breathing, CARs).",
+        "Non-YouTube citations (FMS, NSCA article titles) can share the same array — the app auto-partitions URLs.",
+        "internal_notes = coach-only filming guidance; never athlete-facing."
+      ]
+    },
+    {
+      "section": "difficulty_profile",
+      "fields": ["difficultyProfile"],
+      "think": [
+        "technical / load / complexity = 1–10; overall = max(technical, load, complexity) unless overridden.",
+        "recommended_age_min/max = typical athlete band; drives client badge and age-cap validation.",
+        "attention_demand = low | moderate | high — coaching density, not RPE.",
+        "Publish warns when missing; include on every new card."
+      ]
+    },
+    {
+      "section": "participant_structure",
+      "fields": ["participantStructure"],
+      "think": [
+        "individual (default) | pairs | group.",
+        "Use pairs/group only when a second athlete is required to perform the drill.",
+        "Spotters, coach cues, wall/equipment alternatives do NOT count as pairs.",
+        "Client view shows badge: Do with partner / Do with group."
       ]
     }
   ]
 }
 ```
 
-### 5.1 Session need keys (`good_for_sessions`)
+### 5.1 YouTube demo videos (`mediaReferences` / `youtubeLinks`)
+
+The coach Library and **Client view** embed YouTube from `media_library`. The app scans all `media_library` string lists plus hosted `exercise_media` URLs and extracts any `youtube.com` / `youtu.be` link.
+
+**Authoring rule — put client-facing demo videos here:**
+
+| Authoring field (§8 JSON) | API / DB path | Client embed? |
+|---------------------------|---------------|---------------|
+| `mediaReferences` (preferred for YouTube) | `media_library.clinical_or_sport_science_references[]` | Yes |
+| `youtubeLinks` (alias — generators merge into references) | same | Yes |
+| `demoVideoSources` | `media_library.demo_video_sources[]` | Yes |
+| `coachingArticles` | `media_library.coaching_articles[]` | Yes (if URL) |
+| `mediaInternalNotes` | `media_library.internal_notes[]` | No — coach-only |
+| Hosted Cloudinary video | `exercise_media` row with YouTube URL | Yes |
+
+**URL format:**
+
+```json
+{
+  "mediaReferences": [
+    "https://www.youtube.com/watch?v=d7nTaj0A8Iw",
+    "https://www.youtube.com/watch?v=x1nBhDLUUi0",
+    "https://www.youtube.com/watch?v=vQqmduv_de8"
+  ],
+  "mediaInternalNotes": [
+    "Film front and side views when possible.",
+    "Show setup, one slow rep, and two normal-speed quality reps.",
+    "Client-facing video embeds use watch?v= URLs in clinical_or_sport_science_references."
+  ]
+}
+```
+
+**Quality bar for LLM research:**
+
+- Prefer coaching-quality demos (clear angles, similar intent, no clickbait fitness circuits).
+- 3–5 links per card when the movement exists on YouTube; 1–2 acceptable for niche drills.
+- Do **not** use `youtube.com/results?` search URLs — only direct watch or youtu.be links.
+- Non-YouTube strings (e.g. `"Functional Movement Systems 90/90 Breathing Position"`) may remain in the same array alongside URLs.
+- Batch backfill pattern: `docs/exercise-youtube-links-*.md` → `scripts/generate-203-exercise-youtube-links.mjs` / `generate-204-*.mjs`.
+
+### 5.2 Client-facing card view (Library “Client view”)
+
+Coaches toggle **Coach view** / **Client view** in the Exercise Library. Client cards are **not** a separate schema — they are a projection of the same card via `exerciseToClientView()` ([clientExerciseCard.ts](../src/coach/clientExerciseCard.ts)).
+
+**What the athlete/parent sees → what to author:**
+
+| Client UI section | Source fields (priority order) | Authoring guidance |
+|-------------------|-------------------------------|-------------------|
+| Title | `name` | Short, recognizable label |
+| Subtitle | `athleteLanguage` → `cardSummary` → training purpose | One plain sentence the athlete hears |
+| Dosage | `dosage` (sets/reps/work seconds) | Rendered as “3 sets · 5 reps · about 45 sec each” |
+| Badges | `participantStructure`, `safety.requires_spotting`, `difficultyProfile.recommended_age_min`, impact ≥3, supervision | Max 3 badges on list card |
+| “Demo available” chip | Any YouTube URL on card | Author `mediaReferences` |
+| What is this? | `coachingExecution.movement_description` → `athleteLanguage` → `description` | Plain prose; avoid coach jargon |
+| How to do it | `setup[]` + `execution_steps[]` | Max 6 combined steps; imperative voice |
+| What to look for | `quality_gate[]` + `athlete_cues[]` | Max 5; short, observable cues |
+| What to watch out for | `common_faults[]` + `stop_signs[]` + `contraindications[]` | Max 5; safety-first |
+| Watch it | YouTube URLs from media | Embedded player in detail modal |
+| Try this instead | First `safety.common_substitutions[]` entry | Link if name matches library slug |
+
+**Client-view checklist (add to every card):**
+
+- [ ] `athleteLanguage` — floor cue in athlete voice
+- [ ] `coachingExecution.athlete_cues` — 2–4 short “look for” lines
+- [ ] `coachingExecution.movement_description` — readable without coach context
+- [ ] `safety.common_substitutions` — at least one easier option when regressions exist
+- [ ] YouTube demos in `mediaReferences` when filmable
+
+### 5.3 Difficulty profile (`difficultyProfile`)
+
+Stored in **`coaching.exercise_difficulty_profile`** (migration `202`). One row per exercise. Powers Library filters (min/max overall, sort “Hardest first”), Needs Engine age-fit warnings, and client “Best for ages N+” badges.
+
+| Field | Scale | Meaning |
+|-------|-------|---------|
+| `technical` | 1–10 | Movement skill, spotting demand, inversion/tumbling risk |
+| `load` | 1–10 | External load, impact contacts, tissue stress |
+| `complexity` | 1–10 | Rules, decisions, partner timing, attention span |
+| `overall` | 1–10 | `max(technical, load, complexity)` unless you set an explicit override |
+| `recommended_age_min` / `recommended_age_max` | years | Typical athlete band |
+| `attention_demand` | `low` \| `moderate` \| `high` | Coaching density (not RPE) |
+| `notes` | string | Optional — e.g. “Fine for attentive 5s with regression” |
+
+**Age-band caps** ([ageDifficultyPolicy.js](../backend/platform/ageDifficultyPolicy.js)) — Needs Engine / workout validation soft-enforces:
+
+| Ages | Max overall |
+|------|-------------|
+| 4–5 | 3 |
+| 6–8 | 5 |
+| 9–12 | 6 |
+| 13–17 | 7 |
+| 18+ | 10 |
+
+**Heuristic starting points (tune per card):**
+
+| Card flavor | technical | load | complexity | age_min hint |
+|-------------|-----------|------|------------|--------------|
+| Prepare breathing / CARs | 1–2 | 1–2 | 1–2 | 4+ |
+| Prepare mobility / activation | 2–4 | 1–3 | 2–3 | 6+ |
+| Movement Intelligence shapes | 3–5 | 2–4 | 3–5 | 6+ |
+| Output plyo / sprint (fresh) | 5–8 | 6–9 | 4–6 | 10+ |
+| Capacity strength | 4–7 | 5–8 | 2–4 | 12+ |
+| Resilience landing / eccentrics | 4–6 | 4–7 | 3–5 | 8+ |
+| Reactive / partner games | 4–6 | 3–5 | 6–8 | 9+ |
+
+Publish gate **warns** (does not block) when `difficultyProfile` is missing. **Always include** on new cards. Backfill helper: `node scripts/backfill-exercise-difficulty.mjs` → review `docs/exercise-difficulty-review.csv`.
+
+### 5.4 Participant structure (`participantStructure`)
+
+| Value | When to use | Client badge |
+|-------|-------------|--------------|
+| `individual` | Default — solo drill | (none) |
+| `pairs` | Requires exactly one partner athlete | “Do with partner” |
+| `group` | 3+ athletes interacting (e.g. two-partner mirror tag) | “Do with group” |
+
+**Do not** set `pairs` for: coach-delivered stimulus, spotting, wall/band substitutes, or optional partner progressions. Name partner drills clearly (`Partner Shadow Tag`, not `Shadow Tag`).
+
+### 5.5 Session need keys (`good_for_sessions`)
 
 ```json
 {
@@ -491,7 +630,10 @@ Resilience / Output clusters may add keys like `control_landing`, `deceleration`
     "scaling": "Cohort rows for: youth_beginner, youth_intermediate, teen, adult_beginner, adult_advanced, older_adult",
     "safety": "risk_level + at least one readiness_checks[] entry",
     "why_layer": ["what_it_is", "why_it_goes_here", "common_misuse"],
-    "recommended_rich": ["why_it_works", "body_region tags", "RPE range", "pairing_logic", "media refs", "pregnancy_postpartum cohort"]
+    "recommended_rich": ["why_it_works", "body_region tags", "RPE range", "pairing_logic", "media refs (YouTube watch URLs)", "pregnancy_postpartum cohort", "difficultyProfile", "athleteLanguage + athlete_cues for client view"]
+  },
+  "warnings_not_blocking": {
+    "difficulty_profile": "Publish warns when coaching.exercise_difficulty_profile row is missing"
   }
 }
 ```
@@ -514,7 +656,12 @@ Before finalizing JSON, verify:
     "Scaling covers all six required cohorts with actionable prose",
     "Dosage unit matches drill type; rest periods realistic",
     "Slug is unique, kebab-case, and intent-clear",
-    "No deprecated phase keys used"
+    "No deprecated phase keys used",
+    "mediaReferences includes 3–5 YouTube watch?v= URLs when movement is filmable",
+    "athleteLanguage and athlete_cues written for Client view",
+    "difficultyProfile present with honest technical/load/complexity and recommended_age_min",
+    "participantStructure set to pairs/group only when partner is required (not spotting)",
+    "impact_level consistent across movementRequirements, safety, and phaseProfile"
   ]
 }
 ```
@@ -535,7 +682,8 @@ Use **camelCase** field names. Taxonomy tags use **`key` + `weight`** (generator
     "slug", "name", "family", "subrole", "slot", "cardSummary",
     "description", "tenets", "methodologies", "physiology", "patterns", "equipment",
     "whyItGoesHere", "commonMisuse",
-    "movementRequirements", "coachingExecution", "dosage", "scaling", "safety"
+    "movementRequirements", "coachingExecution", "dosage", "scaling", "safety",
+    "difficultyProfile"
   ],
   "properties": {
     "slug": { "type": "string", "pattern": "kebab-case" },
@@ -553,7 +701,12 @@ Use **camelCase** field names. Taxonomy tags use **`key` + `weight`** (generator
     "bestPlacement": { "type": "string", "maps_to": "programming_guidance" },
     "description": { "type": "string", "maps_to": "what_it_is" },
     "coachLanguage": { "type": "string" },
-    "athleteLanguage": { "type": "string" },
+    "athleteLanguage": { "type": "string", "description": "Client view subtitle + floor cue" },
+    "participantStructure": {
+      "type": "string",
+      "enum": ["individual", "pairs", "group"],
+      "default": "individual"
+    },
     "tenets": { "type": "array", "items": { "key": "string", "weight": "1-5" } },
     "methodologies": { "type": "array", "items": { "key": "string", "weight": "1-5" } },
     "physiology": { "type": "array", "items": { "key": "string", "weight": "1-5" } },
@@ -615,8 +768,31 @@ Use **camelCase** field names. Taxonomy tags use **`key` + `weight`** (generator
     "pairsWellBefore": { "type": "array", "items": "string", "optional": true },
     "doNotUseWhen": { "type": "array", "items": "string" },
     "goodForSessions": { "type": "array", "items": "string", "description": "session_need keys" },
-    "mediaReferences": { "type": "array", "items": "string" },
+    "mediaReferences": {
+      "type": "array",
+      "items": "string",
+      "description": "YouTube watch?v= URLs and/or text citations → clinical_or_sport_science_references"
+    },
+    "youtubeLinks": {
+      "type": "array",
+      "items": "string",
+      "optional": true,
+      "description": "Alias for YouTube-only entries; generators merge into mediaReferences"
+    },
     "mediaInternalNotes": { "type": "array", "items": "string" },
+    "difficultyProfile": {
+      "type": "object",
+      "properties": {
+        "technical": { "type": "integer", "min": 1, "max": 10 },
+        "load": { "type": "integer", "min": 1, "max": 10 },
+        "complexity": { "type": "integer", "min": 1, "max": 10 },
+        "overall": { "type": "integer", "min": 1, "max": 10, "optional": true, "description": "Defaults to max(technical, load, complexity)" },
+        "recommended_age_min": { "type": "integer", "nullable": true },
+        "recommended_age_max": { "type": "integer", "nullable": true },
+        "attention_demand": { "enum": ["low", "moderate", "high"] },
+        "notes": { "type": "string", "optional": true }
+      }
+    },
     "safety": {
       "type": "object",
       "properties": {
@@ -731,6 +907,11 @@ Replace placeholders. This is a **Prepare & Access** reference card:
       "Long exhale",
       "Breath expands low, wide, and back — not just into the chest"
     ],
+    "athlete_cues": [
+      "Breathe into your belly, not your chest",
+      "Long exhale while reaching long",
+      "Ribs stay soft toward the floor"
+    ],
     "common_faults": [
       "Low back arching off the floor",
       "Shoulders shrugging",
@@ -765,8 +946,25 @@ Replace placeholders. This is a **Prepare & Access** reference card:
     "Class needs immediate temperature raise and athletes are already moving well"
   ],
   "goodForSessions": ["general_warmup", "low_readiness_reset"],
-  "mediaReferences": ["Functional Movement Systems 90/90 Breathing Position"],
-  "mediaInternalNotes": ["Best as reset, not a long relaxation block."],
+  "mediaReferences": [
+    "https://www.youtube.com/watch?v=example90_90_demo1",
+    "https://www.youtube.com/watch?v=example90_90_demo2",
+    "Functional Movement Systems 90/90 Breathing Position"
+  ],
+  "mediaInternalNotes": [
+    "Best as reset, not a long relaxation block.",
+    "Film supine 90/90 from side angle; show ribcage and pelvis alignment."
+  ],
+  "difficultyProfile": {
+    "technical": 2,
+    "load": 1,
+    "complexity": 2,
+    "recommended_age_min": 4,
+    "recommended_age_max": null,
+    "attention_demand": "low",
+    "notes": "Accessible for most youth with trunk-control regression"
+  },
+  "participantStructure": "individual",
   "safety": {
     "risk_level": 1,
     "impact_level": 0,
@@ -911,13 +1109,29 @@ Use when importing directly via API. **snake_case** keys. Tags need **`facetId`*
     "counts_as_conditioning": false
   },
   "media_library": {
-    "clinical_or_sport_science_references": [],
-    "internal_notes": []
-  }
+    "demo_video_sources": [],
+    "coaching_articles": [],
+    "clinical_or_sport_science_references": [
+      "https://www.youtube.com/watch?v=example90_90_demo1",
+      "Functional Movement Systems 90/90 Breathing Position"
+    ],
+    "internal_notes": ["Best as reset, not a long relaxation block."]
+  },
+  "difficulty_profile": {
+    "technical": 2,
+    "load": 1,
+    "complexity": 2,
+    "overall": 2,
+    "recommended_age_min": 4,
+    "recommended_age_max": null,
+    "attention_demand": "low",
+    "notes": "Accessible for most youth with trunk-control regression"
+  },
+  "participant_structure": "individual"
 }
 ```
 
-**Read-back shape:** `GET /api/coach/exercises/:id/card` returns nested sections: `movement_identity`, `taxonomy`, `why_layer`, `coaching_execution`, `dosage`, `scaling`, `pairing_logic`, `safety_profile`, `media_and_document_library`.
+**Read-back shape:** `GET /api/coach/exercises/:id/card` returns nested sections: `movement_identity`, `taxonomy`, `why_layer`, `coaching_execution`, `dosage`, `scaling`, `pairing_logic`, `safety_profile`, `media_and_document_library`, `difficulty_profile`. Library list endpoints include `difficulty_profile` and `participant_structure` for filters and Client view projection.
 
 ---
 
@@ -1011,6 +1225,30 @@ Use when importing directly via API. **snake_case** keys. Tags need **`facetId`*
     {
       "mistake": "Duplicate or near-duplicate slugs/names in same cluster",
       "fix": "Check existing library slugs; differentiate intent in name and summary"
+    },
+    {
+      "mistake": "YouTube search URLs or embed URLs instead of watch links",
+      "fix": "Use https://www.youtube.com/watch?v=ID — app embeds via youtube-nocookie.com"
+    },
+    {
+      "mistake": "Putting YouTube URLs only in internal_notes",
+      "fix": "Client view reads references/demo lists — URLs in internal_notes are coach-only"
+    },
+    {
+      "mistake": "Coach jargon in athleteLanguage / movement_description",
+      "fix": "Write Client view copy for a 12-year-old athlete; keep RAMP/phase terms in coachLanguage"
+    },
+    {
+      "mistake": "Missing difficultyProfile on Output / partner / high-impact cards",
+      "fix": "Always set technical/load/complexity + recommended_age_min; overall = max of three"
+    },
+    {
+      "mistake": "participantStructure = pairs for coach-spotted or optional partner work",
+      "fix": "pairs only when the drill cannot run solo; spotting ≠ partner"
+    },
+    {
+      "mistake": "Mismatched impact_level across movementRequirements, safety, phaseProfile",
+      "fix": "Keep all three aligned — client High impact badge uses safety ≥ 3"
     }
   ]
 }
@@ -1044,7 +1282,13 @@ Some Output / Resilience cards include extra JSON on `movement_requirements` for
 {
   "references": {
     "spec": "docs/EXERCISE_CARD_SPEC.md",
+    "llm_authoring": "docs/exercise_card_details_for_llm.md",
     "architecture": "docs/DATABASE_ARCHITECTURE.md",
+    "youtube_backfill_docs": "docs/exercise-youtube-links-*.md",
+    "difficulty_review_csv": "docs/exercise-difficulty-review.csv",
+    "client_view_mapper": "src/coach/clientExerciseCard.ts",
+    "youtube_url_utils": "src/utils/exerciseYoutubeUrls.ts",
+    "age_difficulty_policy": "backend/platform/ageDifficultyPolicy.js",
     "example_data_prepare": "scripts/data/foundation-access-cards-1-10.mjs",
     "example_data_resilience": "scripts/data/control-card-factory.mjs",
     "save_logic": "backend/platform/exerciseProgramming.js",
@@ -1063,13 +1307,17 @@ Some Output / Resilience cards include extra JSON on `movement_requirements` for
 You are authoring Vortex coaching exercise cards (Card v2) for the Athleticism Accelerator.
 
 Rules:
-- Follow docs/exercise_card_details.md exactly.
+- Follow docs/exercise_card_details_for_llm.md exactly (file of record for Library inputs).
 - Output valid JSON using the Authoring format (§8): camelCase, taxonomy by key+weight.
 - Pick canonical phase keys only (prepare_and_access, movement_intelligence, output, capacity, resilience, sustained_capacity, restore).
 - Match subrole to order slot for the target phase.
 - Include all publish-required fields and six scaling cohorts.
 - commonMisuse must warn against realistic sequencing errors.
 - Do not invent equipment keys unless necessary; prefer the equipment_common list.
+- mediaReferences: 3–5 YouTube https://www.youtube.com/watch?v= URLs per filmable movement (plus text citations OK).
+- Write athleteLanguage + coachingExecution.athlete_cues for Client view.
+- Include difficultyProfile (technical, load, complexity, recommended_age_min, attention_demand).
+- participantStructure: individual | pairs | group — only when partner/group is required.
 
 Task: Generate [N] cards for phase [PHASE], subrole [SUBROLE], slot band [SLOT].
 Return: { "cluster": {...}, "cards": [...] }
