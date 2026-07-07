@@ -72,11 +72,12 @@ npm run needs-engine:eval
      backend/platform/__tests__/equipmentAvoidPolicy.test.js \
      backend/platform/__tests__/prescriptionQualityChecks.test.js
    ```
-3. **Strict evaluator** (from repo root; `DATABASE_URL` in `backend/.env.local`)
+3. **Strict evaluator** (from repo root — reads `backend/.env.local` automatically; uses `EXTERNAL_DB_URL`)
    ```bash
-   set -a && source backend/.env.local && set +a
+   cd /Users/jimmy_mac/Desktop/code/vortex
    npm run needs-engine:eval
    ```
+   No need to `source backend/.env.local` unless you prefer. If you see `ENOTFOUND`, your shell may have a stale `DATABASE_URL`; unset it: `unset DATABASE_URL` then re-run.
    Baseline smoke (optional): `node scripts/evaluate-prescription-quality.mjs --tier=baseline`
 4. **Fix failures** — priority: P0 → progression reuse/lane → stretch/youth → fill → warnings
 

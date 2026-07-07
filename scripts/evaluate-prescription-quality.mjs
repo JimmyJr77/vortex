@@ -22,6 +22,7 @@ import {
   evaluatePrescriptionQuality,
 } from '../backend/platform/prescriptionQualityChecks.js'
 import { loadSavedRequirementsBody } from './needsEngineSnapshotToPrescribeBody.js'
+import { requireDatabaseUrl } from './resolveDatabaseUrl.js'
 
 const require = createRequire(path.join(path.dirname(fileURLToPath(import.meta.url)), '../backend/package.json'))
 const pg = require('pg')
@@ -114,11 +115,7 @@ async function loadPrescriptionContext(pool, result) {
 async function main() {
   const jsonOut = process.argv.includes('--json')
   const tier = parseTier(process.argv)
-  const connectionString = process.env.DATABASE_URL
-  if (!connectionString) {
-    console.error('DATABASE_URL is required')
-    process.exit(2)
-  }
+  const { connectionString, source: dbSource } = requireDatabaseUrl()
 
   const thresholds = mergeThresholds(tier, scenario.thresholds?.[tier] ?? scenario.thresholds ?? {})
 
@@ -187,6 +184,7 @@ async function main() {
       if (scenario.savedRequirementsName) {
         console.log(`Requirements: ${requirementsSource}`)
       }
+      console.log(`Database: ${dbSource} (${dbSource === 'local' ? 'localhost' : 'remote'})`)
       console.log(`Tier: ${tier}`)
       console.log(`Result: ${evaluation.ok ? 'PASS' : 'FAIL'} (${evaluation.passed}/${evaluation.checks.length} checks)`)
       if (evaluation.failed.length > 0) {

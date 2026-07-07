@@ -8,6 +8,7 @@ import path from 'node:path'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { loadSavedRequirementsBody, snapshotToPrescribeBody } from './needsEngineSnapshotToPrescribeBody.js'
+import { requireDatabaseUrl } from './resolveDatabaseUrl.js'
 
 const require = createRequire(path.join(path.dirname(fileURLToPath(import.meta.url)), '../backend/package.json'))
 const pg = require('pg')
@@ -17,11 +18,7 @@ const scenarioPath = path.join(__dirname, 'golden-prescription-scenario.json')
 const savedName = process.argv[2] ?? 'Test 3 - Reqs only'
 
 async function main() {
-  const connectionString = process.env.DATABASE_URL
-  if (!connectionString) {
-    console.error('DATABASE_URL is required')
-    process.exit(2)
-  }
+  const { connectionString } = requireDatabaseUrl()
 
   const pool = new pg.Pool({ connectionString, ssl: { rejectUnauthorized: false } })
   try {
