@@ -303,6 +303,9 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
   }
 
   const prescribe = async () => {
+    if (result && !window.confirm('Replace the current prescription? The previous result will be overwritten.')) {
+      return
+    }
     setLoading(true)
     setError(null)
     try {
