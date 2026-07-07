@@ -583,7 +583,7 @@ Multi-portal shell in `src/App.tsx` (website / admin / member / coach). Shared c
   `insights`, `roster`. Sidebar order/visibility and optional section-break headers come from
   `facility.portal_config` via `GET /api/coach/portal-config` (configured in Admin → Settings →
   Coach Portal).
-- **Why Layer panels**: `FrameworkPanel` (philosophy browser with section nav, full-text search, and `PhilosophyAssistant` UI stub for taxonomy Q&A — backend hookup pending), tabbed `LibraryPanel` with Exercise / Skill / Programming / **Games & Competitions** libraries
+- **Why Layer panels**: `FrameworkPanel` (philosophy browser with sticky section nav and full-text search — matching terms highlighted in filtered results; section content is always visible; only Prepare & Access subroles Raise → Potentiate Bridge remain expandable; `PhilosophyAssistant` UI stub for taxonomy Q&A — backend hookup pending), tabbed `LibraryPanel` with Exercise / Skill / Programming / **Games & Competitions** libraries
   (Why/Phase/Dosage/Safety/Regimen + publish checklist on exercises), `WorkoutSetupWizard` + phase canvas +
   validation UX in `WorkoutBuilder`, rationale cards in `NeedsEnginePanel`, `TrainingBlockBuilder`,
   `RegimenBuilder`. `ExerciseLibrary` filter row includes a "Paired exercises" checkbox (next to

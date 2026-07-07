@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { BookOpen, ChevronDown, Loader2, Search, X } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
@@ -34,7 +34,7 @@ import {
 const SECTIONS = [
   { id: 'overview', label: 'Overview' },
   { id: 'session-phases', label: 'Session phases' },
-  { id: 'prepare-access', label: 'Prepare & access' },
+  { id: 'prepare-access', label: 'RAMP framework & Vortex progression' },
   { id: 'tenets', label: 'Tenets' },
   { id: 'methodologies', label: 'Methodologies' },
   { id: 'physiology', label: 'Physiology' },
@@ -62,6 +62,35 @@ function matchesQuery(text: string | null | undefined, query: string) {
   return text.toLowerCase().includes(query)
 }
 
+const HighlightQueryContext = createContext('')
+
+function HighlightText({ text }: { text: string | null | undefined }) {
+  const query = useContext(HighlightQueryContext)
+  if (!text) return null
+  if (!query) return <>{text}</>
+
+  const lowerText = text.toLowerCase()
+  const lowerQuery = query.toLowerCase()
+  const nodes: ReactNode[] = []
+  let cursor = 0
+  let matchIndex = lowerText.indexOf(lowerQuery, cursor)
+  let key = 0
+
+  while (matchIndex !== -1) {
+    if (matchIndex > cursor) nodes.push(text.slice(cursor, matchIndex))
+    nodes.push(
+      <mark key={key++} className="bg-yellow-200 text-inherit rounded-sm px-0.5">
+        {text.slice(matchIndex, matchIndex + query.length)}
+      </mark>,
+    )
+    cursor = matchIndex + query.length
+    matchIndex = lowerText.indexOf(lowerQuery, cursor)
+  }
+
+  if (cursor < text.length) nodes.push(text.slice(cursor))
+  return <>{nodes}</>
+}
+
 function EducationDetail({ row }: { row: EducationContent }) {
   const fields = EDUCATION_FIELDS.filter((f) => row[f.key])
   if (fields.length === 0) return null
@@ -69,8 +98,8 @@ function EducationDetail({ row }: { row: EducationContent }) {
     <dl className="divide-y divide-gray-100 text-sm">
       {fields.map(({ key, label }) => (
         <div key={key} className="px-5 py-3 grid gap-1 sm:grid-cols-[9rem_1fr]">
-          <dt className="text-gray-500">{label}</dt>
-          <dd className="text-gray-700">{String(row[key])}</dd>
+          <dt className="text-gray-500"><HighlightText text={label} /></dt>
+          <dd className="text-gray-700"><HighlightText text={String(row[key])} /></dd>
         </div>
       ))}
     </dl>
@@ -82,13 +111,11 @@ function SessionModelMinutes({ row }: { row: EducationContent }) {
   if (plan.length === 0) return null
   return (
     <div className="px-5 pb-4 text-sm border-t border-gray-100">
-      <p className="text-gray-500 mb-2 pt-3">Phase allocation</p>
+      <p className="text-gray-500 mb-2 pt-3"><HighlightText text="Phase allocation" /></p>
       <ul className="space-y-1 text-gray-700">
         {plan.map((block: { phase?: string; minutes?: number; contains_tumbling?: boolean; add_on_focus?: string }, i: number) => (
           <li key={`${block.phase}-${i}`}>
-            {phaseDisplayName(block.phase) || block.phase?.replace(/_/g, ' ')} — {block.minutes} min
-            {block.contains_tumbling ? ' (tumbling block)' : ''}
-            {block.add_on_focus ? ` (${block.add_on_focus.replace(/_/g, ' ')})` : ''}
+            <HighlightText text={`${phaseDisplayName(block.phase) || block.phase?.replace(/_/g, ' ')} — ${block.minutes} min${block.contains_tumbling ? ' (tumbling block)' : ''}${block.add_on_focus ? ` (${block.add_on_focus.replace(/_/g, ' ')})` : ''}`} />
           </li>
         ))}
       </ul>
@@ -99,7 +126,7 @@ function SessionModelMinutes({ row }: { row: EducationContent }) {
 function ProseBlock({ title, children }: { title?: string; children: ReactNode }) {
   return (
     <div className="text-sm text-gray-700 space-y-3">
-      {title && <p className="text-gray-900 font-medium">{title}</p>}
+      {title && <p className="text-gray-900 font-medium"><HighlightText text={title} /></p>}
       {children}
     </div>
   )
@@ -109,7 +136,7 @@ function TextList({ items }: { items: readonly string[] }) {
   return (
     <ul className="space-y-1.5 text-gray-600">
       {items.map((item) => (
-        <li key={item}>{item}</li>
+        <li key={item}><HighlightText text={item} /></li>
       ))}
     </ul>
   )
@@ -122,7 +149,6 @@ function Collapsible({
   open,
   onToggle,
   children,
-  variant = 'item',
 }: {
   id: string
   title: string
@@ -130,33 +156,20 @@ function Collapsible({
   open: boolean
   onToggle: (id: string) => void
   children: ReactNode
-  variant?: 'hub' | 'item'
 }) {
   return (
-    <div
-      className={
-        variant === 'hub'
-          ? 'border-b border-gray-100 last:border-b-0'
-          : 'border border-gray-200 rounded-lg overflow-hidden bg-white'
-      }
-    >
+    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
       <button
         type="button"
         id={`${id}-trigger`}
         aria-expanded={open}
         aria-controls={`${id}-panel`}
         onClick={() => onToggle(id)}
-        className={`w-full flex items-center gap-3 text-left transition-colors ${
-          variant === 'hub'
-            ? 'px-5 py-4 hover:bg-gray-50/80'
-            : 'px-4 py-3 hover:bg-gray-50'
-        }`}
+        className="w-full flex items-center gap-3 text-left transition-colors px-4 py-3 hover:bg-gray-50"
       >
         <span className="flex-1 min-w-0">
-          <span className={`block truncate ${variant === 'hub' ? 'font-medium text-gray-900' : 'text-gray-800'}`}>
-            {title}
-          </span>
-          {subtitle && <span className="block text-xs text-gray-500 mt-0.5 truncate">{subtitle}</span>}
+          <span className="block truncate text-gray-800"><HighlightText text={title} /></span>
+          {subtitle && <span className="block text-xs text-gray-500 mt-0.5 truncate"><HighlightText text={subtitle} /></span>}
         </span>
         <ChevronDown
           className={`w-4 h-4 shrink-0 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`}
@@ -191,8 +204,8 @@ function SectionCard({
       className="bg-white border border-gray-200 rounded-xl overflow-hidden scroll-mt-24"
     >
       <div className="px-5 py-4 border-b border-gray-100">
-        <h3 className="text-base font-semibold text-gray-900">{title}</h3>
-        {description && <p className="text-sm text-gray-500 mt-1">{description}</p>}
+        <h3 className="text-base font-semibold text-gray-900"><HighlightText text={title} /></h3>
+        {description && <p className="text-sm text-gray-500 mt-1"><HighlightText text={description} /></p>}
       </div>
       {children}
     </section>
@@ -205,10 +218,11 @@ export default function FrameworkPanel() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeSection, setActiveSection] = useState<SectionId>('overview')
-  const [openKeys, setOpenKeys] = useState<Set<string>>(() => new Set(['hub:overview']))
+  const [openKeys, setOpenKeys] = useState<Set<string>>(() => new Set())
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
 
   const query = searchQuery.trim().toLowerCase()
+  const highlightQuery = searchQuery.trim()
 
   useEffect(() => {
     coachFetch<EducationContent[]>('/api/coach/education')
@@ -355,23 +369,18 @@ export default function FrameworkPanel() {
     const visible = rows.filter(rowMatches)
     if (visible.length === 0) return query ? null : undefined
     return (
-      <div className="px-5 pb-4 space-y-2">
+      <div className="px-5 pb-4 space-y-2 border-t border-gray-100 pt-3">
         {visible.map((row) => {
           const key = `${prefix}:${row.entity_key}:${row.entity_id ?? 'null'}`
-          const open = openKeys.has(key) || !!query
           return (
-            <Collapsible
-              key={key}
-              id={key}
-              title={row.title ?? row.entity_key}
-              subtitle={row.short_summary ?? undefined}
-              open={open}
-              onToggle={toggle}
-              variant="item"
-            >
+            <div key={key} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+              <div className="px-4 py-3">
+                <p className="text-gray-800"><HighlightText text={row.title ?? row.entity_key} /></p>
+                {row.short_summary && <p className="text-xs text-gray-500 mt-0.5"><HighlightText text={row.short_summary} /></p>}
+              </div>
               <EducationDetail row={row} />
               {itemExtra?.(row)}
-            </Collapsible>
+            </div>
           )
         })}
       </div>
@@ -478,6 +487,7 @@ export default function FrameworkPanel() {
           Loading framework…
         </div>
       ) : (
+        <HighlightQueryContext.Provider value={highlightQuery}>
         <div className="lg:grid lg:grid-cols-[12rem_1fr] lg:gap-6 xl:grid-cols-[14rem_1fr]">
           <nav className="hidden lg:block sticky top-4 self-start">
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2 px-1">Sections</p>
@@ -525,45 +535,37 @@ export default function FrameworkPanel() {
                 description="How the taxonomy layers connect and the canonical session flow."
                 sectionRef={(el) => { sectionRefs.current.overview = el }}
               >
-                <Collapsible
-                  id="hub:overview"
-                  title="Taxonomy overview"
-                  open={openKeys.has('hub:overview') || !!query}
-                  onToggle={toggle}
-                  variant="hub"
-                >
-                  <div className="px-5 pb-5 space-y-5 text-sm text-gray-700 border-t border-gray-100">
-                    <p>{TRAINING_PHILOSOPHY_TAXONOMY.intro}</p>
+                <div className="px-5 pb-5 space-y-5 text-sm text-gray-700">
+                  <p><HighlightText text={TRAINING_PHILOSOPHY_TAXONOMY.intro} /></p>
 
-                    <ProseBlock title="How the layers connect">
-                      <ul className="space-y-3">
-                        {TRAINING_PHILOSOPHY_TAXONOMY.layers.map((layer) => (
-                          <li key={layer.name}>
-                            <p className="text-gray-900">{layer.name}</p>
-                            <p className="text-gray-600">{layer.role}</p>
-                            <p className="text-gray-500 mt-0.5">{layer.connects}</p>
-                          </li>
-                        ))}
-                      </ul>
-                    </ProseBlock>
+                  <ProseBlock title="How the layers connect">
+                    <ul className="space-y-3">
+                      {TRAINING_PHILOSOPHY_TAXONOMY.layers.map((layer) => (
+                        <li key={layer.name}>
+                          <p className="text-gray-900"><HighlightText text={layer.name} /></p>
+                          <p className="text-gray-600"><HighlightText text={layer.role} /></p>
+                          <p className="text-gray-500 mt-0.5"><HighlightText text={layer.connects} /></p>
+                        </li>
+                      ))}
+                    </ul>
+                  </ProseBlock>
 
-                    <ProseBlock title="Canonical session flow">
-                      <ol className="space-y-1.5">
-                        {TRAINING_PHILOSOPHY_TAXONOMY.flow.map((step) => (
-                          <li key={step.phaseKey} className="text-gray-700">
-                            {step.step}. {step.label}
-                          </li>
-                        ))}
-                      </ol>
-                    </ProseBlock>
+                  <ProseBlock title="Canonical session flow">
+                    <ol className="space-y-1.5">
+                      {TRAINING_PHILOSOPHY_TAXONOMY.flow.map((step) => (
+                        <li key={step.phaseKey} className="text-gray-700">
+                          {step.step}. <HighlightText text={step.label} />
+                        </li>
+                      ))}
+                    </ol>
+                  </ProseBlock>
 
-                    <ProseBlock title="Common shortfalls in traditional workouts">
-                      <TextList items={TRAINING_PHILOSOPHY_TAXONOMY.shortfalls} />
-                    </ProseBlock>
+                  <ProseBlock title="Common shortfalls in traditional workouts">
+                    <TextList items={TRAINING_PHILOSOPHY_TAXONOMY.shortfalls} />
+                  </ProseBlock>
 
-                    <p className="text-gray-900">{TRAINING_PHILOSOPHY_TAXONOMY.transcends}</p>
-                  </div>
-                </Collapsible>
+                  <p className="text-gray-900"><HighlightText text={TRAINING_PHILOSOPHY_TAXONOMY.transcends} /></p>
+                </div>
               </SectionCard>
             )}
 
@@ -577,21 +579,13 @@ export default function FrameworkPanel() {
                 description="Macro structure of a training session from prepare through cooldown."
                 sectionRef={(el) => { sectionRefs.current['session-phases'] = el }}
               >
-                <Collapsible
-                  id="hub:session_phases"
-                  title={SESSION_PHASES_HUB.title}
-                  open={openKeys.has('hub:session_phases') || !!query}
-                  onToggle={toggle}
-                  variant="hub"
-                >
-                  <div className="px-5 pb-5 space-y-4 text-sm text-gray-700 border-t border-gray-100">
-                    <p>{SESSION_PHASES_HUB.intro}</p>
-                    <ProseBlock title="Phase principles">
-                      <TextList items={SESSION_PHASES_HUB.principles} />
-                    </ProseBlock>
-                    <p className="text-gray-600">{SESSION_PHASES_HUB.misuse}</p>
-                  </div>
-                </Collapsible>
+                <div className="px-5 pb-5 space-y-4 text-sm text-gray-700">
+                  <p><HighlightText text={SESSION_PHASES_HUB.intro} /></p>
+                  <ProseBlock title="Phase principles">
+                    <TextList items={SESSION_PHASES_HUB.principles} />
+                  </ProseBlock>
+                  <p className="text-gray-600"><HighlightText text={SESSION_PHASES_HUB.misuse} /></p>
+                </div>
                 {renderItemList(sessionPhaseRows, 'session_phase')}
               </SectionCard>
             )}
@@ -599,55 +593,47 @@ export default function FrameworkPanel() {
             {sectionVisible(rampMatches) && (
               <SectionCard
                 id="prepare-access"
-                title="Prepare & access"
-                description="RAMP framework and the Vortex subrole sequence before performance work."
+                title="RAMP framework & Vortex progression"
+                description="RAMP framework and the Vortex subrole sequence are used in the Prepare & Access phase, before performance work."
                 sectionRef={(el) => { sectionRefs.current['prepare-access'] = el }}
               >
-                <Collapsible
-                  id="hub:ramp"
-                  title="RAMP framework & Vortex progression"
-                  open={openKeys.has('hub:ramp') || !!query}
-                  onToggle={toggle}
-                  variant="hub"
-                >
-                  <div className="px-5 pb-5 space-y-5 text-sm text-gray-700 border-t border-gray-100">
-                    <p>{RAMP_PHILOSOPHY_INTRO}</p>
+                <div className="px-5 pb-5 space-y-5 text-sm text-gray-700">
+                  <p><HighlightText text={RAMP_PHILOSOPHY_INTRO} /></p>
 
-                    <ProseBlock title="Original RAMP sequence (Jeffreys)">
-                      <ul className="space-y-2">
-                        {ORIGINAL_RAMP_PHASES.map((phase) => (
-                          <li key={phase.name}>
-                            <p className="text-gray-900">{phase.name}</p>
-                            <p className="text-gray-600">{phase.goal}</p>
-                            <p className="text-gray-500 text-xs mt-0.5">Examples: {phase.examples}</p>
-                          </li>
-                        ))}
-                      </ul>
-                    </ProseBlock>
+                  <ProseBlock title="Original RAMP sequence (Jeffreys)">
+                    <ul className="space-y-2">
+                      {ORIGINAL_RAMP_PHASES.map((phase) => (
+                        <li key={phase.name}>
+                          <p className="text-gray-900"><HighlightText text={phase.name} /></p>
+                          <p className="text-gray-600"><HighlightText text={phase.goal} /></p>
+                          <p className="text-gray-500 text-xs mt-0.5"><HighlightText text={`Examples: ${phase.examples}`} /></p>
+                        </li>
+                      ))}
+                    </ul>
+                  </ProseBlock>
 
-                    <p>{RAMP_VARIANTS_NOTE}</p>
-                    <p>{VORTEX_ORDER_RATIONALE}</p>
-                    <p className="text-gray-500">{POTENTIATE_BRIDGE_AUDIENCE}</p>
+                  <p><HighlightText text={RAMP_VARIANTS_NOTE} /></p>
+                  <p><HighlightText text={VORTEX_ORDER_RATIONALE} /></p>
+                  <p className="text-gray-500"><HighlightText text={POTENTIATE_BRIDGE_AUDIENCE} /></p>
 
-                    <ProseBlock title="Vortex session progression">
-                      <p className="text-gray-600 mb-2">
-                        Prepare & access uses five subroles, then main session phases express performance intent.
-                      </p>
-                      <ol className="space-y-3">
-                        {VORTEX_SESSION_PROGRESSION.map((step, i) => (
-                          <li key={step.stage}>
-                            <p className="text-gray-900">{i + 1}. {step.stage}</p>
-                            <p className="text-gray-600">{step.goal}</p>
-                            <p className="text-gray-500 text-xs mt-0.5">Examples: {step.examples}</p>
-                          </li>
-                        ))}
-                      </ol>
-                    </ProseBlock>
-                  </div>
-                </Collapsible>
+                  <ProseBlock title="Vortex session progression">
+                    <p className="text-gray-600 mb-2">
+                      <HighlightText text="Prepare & access uses five subroles, then main session phases express performance intent." />
+                    </p>
+                    <ol className="space-y-3">
+                      {VORTEX_SESSION_PROGRESSION.map((step, i) => (
+                        <li key={step.stage}>
+                          <p className="text-gray-900">{i + 1}. <HighlightText text={step.stage} /></p>
+                          <p className="text-gray-600"><HighlightText text={step.goal} /></p>
+                          <p className="text-gray-500 text-xs mt-0.5"><HighlightText text={`Examples: ${step.examples}`} /></p>
+                        </li>
+                      ))}
+                    </ol>
+                  </ProseBlock>
+                </div>
 
                 <div className="px-5 py-3 text-sm text-gray-500 border-t border-gray-100">
-                  Subroles: Raise → Mobilize → Activate → Integrate → Potentiate Bridge → Performance Work (Skill, Output, Capacity, and beyond).
+                  <HighlightText text="Subroles: Raise → Mobilize → Activate → Integrate → Potentiate Bridge → Performance Work (Skill, Output, Capacity, and beyond)." />
                 </div>
 
                 {prepareSubroles.length > 0 && (
@@ -672,31 +658,30 @@ export default function FrameworkPanel() {
                             subtitle={sr.description ?? undefined}
                             open={open}
                             onToggle={toggle}
-                            variant="item"
                           >
                             <dl className="divide-y divide-gray-100 text-sm">
                               {sr.why_it_exists && (
                                 <div className="px-4 py-3 grid gap-1 sm:grid-cols-[9rem_1fr]">
-                                  <dt className="text-gray-500">Why</dt>
-                                  <dd className="text-gray-700">{sr.why_it_exists}</dd>
+                                  <dt className="text-gray-500"><HighlightText text="Why" /></dt>
+                                  <dd className="text-gray-700"><HighlightText text={sr.why_it_exists} /></dd>
                                 </div>
                               )}
                               {sr.what_belongs_here && (
                                 <div className="px-4 py-3 grid gap-1 sm:grid-cols-[9rem_1fr]">
-                                  <dt className="text-gray-500">Examples</dt>
-                                  <dd className="text-gray-700">{sr.what_belongs_here}</dd>
+                                  <dt className="text-gray-500"><HighlightText text="Examples" /></dt>
+                                  <dd className="text-gray-700"><HighlightText text={sr.what_belongs_here} /></dd>
                                 </div>
                               )}
                               {sr.what_to_avoid && (
                                 <div className="px-4 py-3 grid gap-1 sm:grid-cols-[9rem_1fr]">
-                                  <dt className="text-gray-500">Avoid</dt>
-                                  <dd className="text-gray-700">{sr.what_to_avoid}</dd>
+                                  <dt className="text-gray-500"><HighlightText text="Avoid" /></dt>
+                                  <dd className="text-gray-700"><HighlightText text={sr.what_to_avoid} /></dd>
                                 </div>
                               )}
                               {sr.coach_guidance && (
                                 <div className="px-4 py-3 grid gap-1 sm:grid-cols-[9rem_1fr]">
-                                  <dt className="text-gray-500">Coaching</dt>
-                                  <dd className="text-gray-700">{sr.coach_guidance}</dd>
+                                  <dt className="text-gray-500"><HighlightText text="Coaching" /></dt>
+                                  <dd className="text-gray-700"><HighlightText text={sr.coach_guidance} /></dd>
                                 </div>
                               )}
                             </dl>
@@ -718,21 +703,13 @@ export default function FrameworkPanel() {
                 description="The performance qualities every session is designed to develop."
                 sectionRef={(el) => { sectionRefs.current.tenets = el }}
               >
-                <Collapsible
-                  id="hub:tenets"
-                  title={TENETS_HUB.title}
-                  open={openKeys.has('hub:tenets') || !!query}
-                  onToggle={toggle}
-                  variant="hub"
-                >
-                  <div className="px-5 pb-5 space-y-4 text-sm text-gray-700 border-t border-gray-100">
-                    <p>{TENETS_HUB.intro}</p>
-                    <ProseBlock title="Tenet programming principles">
-                      <TextList items={TENETS_HUB.principles} />
-                    </ProseBlock>
-                    <p className="text-gray-600">{TENETS_HUB.misuse}</p>
-                  </div>
-                </Collapsible>
+                <div className="px-5 pb-5 space-y-4 text-sm text-gray-700">
+                  <p><HighlightText text={TENETS_HUB.intro} /></p>
+                  <ProseBlock title="Tenet programming principles">
+                    <TextList items={TENETS_HUB.principles} />
+                  </ProseBlock>
+                  <p className="text-gray-600"><HighlightText text={TENETS_HUB.misuse} /></p>
+                </div>
                 {renderItemList(tenetRows, 'tenet')}
               </SectionCard>
             )}
@@ -747,31 +724,22 @@ export default function FrameworkPanel() {
                 description="Training methods and their primary phase homes."
                 sectionRef={(el) => { sectionRefs.current.methodologies = el }}
               >
-                <Collapsible
-                  id="hub:methodologies"
-                  title={METHODOLOGIES_HUB.title}
-                  open={openKeys.has('hub:methodologies') || !!query}
-                  onToggle={toggle}
-                  variant="hub"
-                >
-                  <div className="px-5 pb-5 space-y-4 text-sm text-gray-700 border-t border-gray-100">
-                    <p>{METHODOLOGIES_HUB.intro}</p>
-                    <ProseBlock title="Primary phase homes">
-                      <ul className="space-y-2">
-                        {METHODOLOGIES_HUB.primaryHomes.map((row) => (
-                          <li key={row.methodology}>
-                            <p className="text-gray-900">{row.methodology}</p>
-                            <p className="text-gray-600">
-                              Primary: {row.primary}
-                              {row.secondary ? ` · Secondary: ${row.secondary}` : ''}
-                            </p>
-                          </li>
-                        ))}
-                      </ul>
-                    </ProseBlock>
-                    <p className="text-gray-600">{METHODOLOGIES_HUB.misuse}</p>
-                  </div>
-                </Collapsible>
+                <div className="px-5 pb-5 space-y-4 text-sm text-gray-700">
+                  <p><HighlightText text={METHODOLOGIES_HUB.intro} /></p>
+                  <ProseBlock title="Primary phase homes">
+                    <ul className="space-y-2">
+                      {METHODOLOGIES_HUB.primaryHomes.map((row) => (
+                        <li key={row.methodology}>
+                          <p className="text-gray-900"><HighlightText text={row.methodology} /></p>
+                          <p className="text-gray-600">
+                            <HighlightText text={`Primary: ${row.primary}${row.secondary ? ` · Secondary: ${row.secondary}` : ''}`} />
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  </ProseBlock>
+                  <p className="text-gray-600"><HighlightText text={METHODOLOGIES_HUB.misuse} /></p>
+                </div>
                 {renderItemList(methodologyRows, 'methodology')}
               </SectionCard>
             )}
@@ -786,26 +754,18 @@ export default function FrameworkPanel() {
                 description="Energy systems and physiological targets by emphasis."
                 sectionRef={(el) => { sectionRefs.current.physiology = el }}
               >
-                <Collapsible
-                  id="hub:physiology"
-                  title={PHYSIOLOGY_HUB.title}
-                  open={openKeys.has('hub:physiology') || !!query}
-                  onToggle={toggle}
-                  variant="hub"
-                >
-                  <div className="px-5 pb-5 space-y-4 text-sm text-gray-700 border-t border-gray-100">
-                    <p>{PHYSIOLOGY_HUB.intro}</p>
-                    <ul className="space-y-2">
-                      {PHYSIOLOGY_HUB.systems.map((sys) => (
-                        <li key={sys.key}>
-                          <p className="text-gray-900 capitalize">{sys.key.replace(/_/g, ' ')}</p>
-                          <p className="text-gray-600">{sys.summary}</p>
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="text-gray-600">{PHYSIOLOGY_HUB.misuse}</p>
-                  </div>
-                </Collapsible>
+                <div className="px-5 pb-5 space-y-4 text-sm text-gray-700">
+                  <p><HighlightText text={PHYSIOLOGY_HUB.intro} /></p>
+                  <ul className="space-y-2">
+                    {PHYSIOLOGY_HUB.systems.map((sys) => (
+                      <li key={sys.key}>
+                        <p className="text-gray-900 capitalize"><HighlightText text={sys.key.replace(/_/g, ' ')} /></p>
+                        <p className="text-gray-600"><HighlightText text={sys.summary} /></p>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-gray-600"><HighlightText text={PHYSIOLOGY_HUB.misuse} /></p>
+                </div>
                 {renderItemList(physiologyRows, 'physiology')}
               </SectionCard>
             )}
@@ -820,51 +780,38 @@ export default function FrameworkPanel() {
                 description="Fine-grained placement within each session phase."
                 sectionRef={(el) => { sectionRefs.current['order-slots'] = el }}
               >
-                <Collapsible
-                  id="hub:order_slots"
-                  title={ORDER_SLOTS_HUB.title}
-                  open={openKeys.has('hub:order_slots') || !!query}
-                  onToggle={toggle}
-                  variant="hub"
-                >
-                  <div className="px-5 pb-5 space-y-4 text-sm text-gray-700 border-t border-gray-100">
-                    <p>{ORDER_SLOTS_HUB.intro}</p>
-                    <TextList items={ORDER_SLOTS_HUB.concepts} />
-                    <ProseBlock title="Phase groupings">
-                      <ul className="space-y-3">
-                        {ORDER_SLOTS_HUB.phaseGroups.map((group) => (
-                          <li key={group.phase}>
-                            <p className="text-gray-900">{group.phase}</p>
-                            <p className="text-gray-600">Subroles: {group.subroles}</p>
-                            <p className="text-gray-500 text-xs mt-0.5">Examples: {group.examples}</p>
-                          </li>
-                        ))}
-                      </ul>
-                    </ProseBlock>
-                    <p className="text-gray-600">{ORDER_SLOTS_HUB.misuse}</p>
-                  </div>
-                </Collapsible>
+                <div className="px-5 pb-5 space-y-4 text-sm text-gray-700">
+                  <p><HighlightText text={ORDER_SLOTS_HUB.intro} /></p>
+                  <TextList items={ORDER_SLOTS_HUB.concepts} />
+                  <ProseBlock title="Phase groupings">
+                    <ul className="space-y-3">
+                      {ORDER_SLOTS_HUB.phaseGroups.map((group) => (
+                        <li key={group.phase}>
+                          <p className="text-gray-900"><HighlightText text={group.phase} /></p>
+                          <p className="text-gray-600"><HighlightText text={`Subroles: ${group.subroles}`} /></p>
+                          <p className="text-gray-500 text-xs mt-0.5"><HighlightText text={`Examples: ${group.examples}`} /></p>
+                        </li>
+                      ))}
+                    </ul>
+                  </ProseBlock>
+                  <p className="text-gray-600"><HighlightText text={ORDER_SLOTS_HUB.misuse} /></p>
+                </div>
                 {groupedOrderSlots.length > 0 && (
                   <div className="px-5 pb-4 space-y-4 border-t border-gray-100 pt-3">
                     {groupedOrderSlots.map((group) => (
                       <div key={group.phaseKey}>
-                        <p className="text-xs font-medium text-gray-400 mb-2">{group.label}</p>
+                        <p className="text-xs font-medium text-gray-400 mb-2"><HighlightText text={group.label} /></p>
                         <div className="space-y-2">
                           {group.rows.filter(rowMatches).map((row) => {
                             const key = `phase_order_slot:${row.entity_key}:${row.entity_id ?? 'null'}`
-                            const open = openKeys.has(key) || !!query
                             return (
-                              <Collapsible
-                                key={key}
-                                id={key}
-                                title={row.title ?? row.entity_key}
-                                subtitle={row.short_summary ?? undefined}
-                                open={open}
-                                onToggle={toggle}
-                                variant="item"
-                              >
+                              <div key={key} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                                <div className="px-4 py-3">
+                                  <p className="text-gray-800"><HighlightText text={row.title ?? row.entity_key} /></p>
+                                  {row.short_summary && <p className="text-xs text-gray-500 mt-0.5"><HighlightText text={row.short_summary} /></p>}
+                                </div>
                                 <EducationDetail row={row} />
-                              </Collapsible>
+                              </div>
                             )
                           })}
                         </div>
@@ -885,29 +832,21 @@ export default function FrameworkPanel() {
                 description="Standard session lengths and add-on placement rules."
                 sectionRef={(el) => { sectionRefs.current['session-models'] = el }}
               >
-                <Collapsible
-                  id="hub:session_models"
-                  title={SESSION_MODELS_HUB.title}
-                  open={openKeys.has('hub:session_models') || !!query}
-                  onToggle={toggle}
-                  variant="hub"
-                >
-                  <div className="px-5 pb-5 space-y-4 text-sm text-gray-700 border-t border-gray-100">
-                    <p>{SESSION_MODELS_HUB.intro}</p>
-                    <ul className="space-y-2">
-                      {SESSION_MODELS_HUB.models.map((model) => (
-                        <li key={model.key}>
-                          <p className="text-gray-900">{model.name}</p>
-                          <p className="text-gray-600">{model.summary}</p>
-                        </li>
-                      ))}
-                    </ul>
-                    <ProseBlock title="Add-on placement rules">
-                      <TextList items={SESSION_MODELS_HUB.placementRules} />
-                    </ProseBlock>
-                    <p className="text-gray-600">{SESSION_MODELS_HUB.misuse}</p>
-                  </div>
-                </Collapsible>
+                <div className="px-5 pb-5 space-y-4 text-sm text-gray-700">
+                  <p><HighlightText text={SESSION_MODELS_HUB.intro} /></p>
+                  <ul className="space-y-2">
+                    {SESSION_MODELS_HUB.models.map((model) => (
+                      <li key={model.key}>
+                        <p className="text-gray-900"><HighlightText text={model.name} /></p>
+                        <p className="text-gray-600"><HighlightText text={model.summary} /></p>
+                      </li>
+                    ))}
+                  </ul>
+                  <ProseBlock title="Add-on placement rules">
+                    <TextList items={SESSION_MODELS_HUB.placementRules} />
+                  </ProseBlock>
+                  <p className="text-gray-600"><HighlightText text={SESSION_MODELS_HUB.misuse} /></p>
+                </div>
                 {renderItemList(templateRows, 'template', (row) => <SessionModelMinutes row={row} />)}
               </SectionCard>
             )}
@@ -922,34 +861,27 @@ export default function FrameworkPanel() {
                 description="Automated checks that keep sessions aligned with philosophy."
                 sectionRef={(el) => { sectionRefs.current['validation-rules'] = el }}
               >
-                <Collapsible
-                  id="hub:validation_rules"
-                  title={VALIDATION_RULES_HUB.title}
-                  open={openKeys.has('hub:validation_rules') || !!query}
-                  onToggle={toggle}
-                  variant="hub"
-                >
-                  <div className="px-5 pb-5 space-y-4 text-sm text-gray-700 border-t border-gray-100">
-                    <p>{VALIDATION_RULES_HUB.intro}</p>
-                    <ProseBlock title="Rule categories">
-                      <ul className="space-y-2">
-                        {VALIDATION_RULES_HUB.categories.map((cat) => (
-                          <li key={cat.name}>
-                            <p className="text-gray-900">{cat.name}</p>
-                            <p className="text-gray-500 text-xs mt-0.5">{cat.examples}</p>
-                          </li>
-                        ))}
-                      </ul>
-                    </ProseBlock>
-                    <TextList items={VALIDATION_RULES_HUB.principles} />
-                    <p className="text-gray-600">{VALIDATION_RULES_HUB.misuse}</p>
-                  </div>
-                </Collapsible>
+                <div className="px-5 pb-5 space-y-4 text-sm text-gray-700">
+                  <p><HighlightText text={VALIDATION_RULES_HUB.intro} /></p>
+                  <ProseBlock title="Rule categories">
+                    <ul className="space-y-2">
+                      {VALIDATION_RULES_HUB.categories.map((cat) => (
+                        <li key={cat.name}>
+                          <p className="text-gray-900"><HighlightText text={cat.name} /></p>
+                          <p className="text-gray-500 text-xs mt-0.5"><HighlightText text={cat.examples} /></p>
+                        </li>
+                      ))}
+                    </ul>
+                  </ProseBlock>
+                  <TextList items={VALIDATION_RULES_HUB.principles} />
+                  <p className="text-gray-600"><HighlightText text={VALIDATION_RULES_HUB.misuse} /></p>
+                </div>
                 {renderItemList(validationRows, 'validation_rule')}
               </SectionCard>
             )}
           </div>
         </div>
+        </HighlightQueryContext.Provider>
       )}
     </div>
   )

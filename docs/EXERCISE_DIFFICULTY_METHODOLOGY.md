@@ -27,8 +27,9 @@ Canonical rules for scoring the coaching exercise library. Implemented in [`back
 
 ### Classification rules
 
-- **Skill drills:** hand-placement drills, line/shape drills, wall handstand **holds** and balance prep, tumbling entry drills, muscle-up **progression drills** (not the full movement).
-- **Exercises:** locomotor work, loaded lifts, calisthenics **including** wall / box / pike handstand push-ups, negatives used as workout progressions, milestone rep tests (see §8).
+- **Skill drills:** pure skill acquisition — hand-placement drills, line/shape drills, wall handstand **holds**, isolated tumbling shape/entry work **without** a workout finish (lunge, stick, rebound, locomotor layer).
+- **Exercises:** workouts and conditioning — loaded lifts, calisthenics, locomotor/skipping, integrated drills that combine a skill with a **workout element** (lunge finish, snap-down to stick, catch under balance/fatigue), milestone rep tests (see §8).
+- **Skill component ≠ skill drill:** catching a ball is a skill; catching on a BOSU while balancing is an **exercise**. Cartwheel finish **lunge**, round-off rebound **to stick**, and skipping rhythm drill are **exercises** — they belong in workouts with age gating, not skill-only class matching.
 - **Do not conflate:** `wall-handstand-push-up` is an **exercise**; `wall-handstand-hold` / `handstand-hold` (freestanding prep) are **skill_drills**.
 
 Classifier: [`exerciseProgrammingKind.js`](../backend/platform/exerciseProgrammingKind.js).

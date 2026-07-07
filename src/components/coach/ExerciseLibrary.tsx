@@ -250,46 +250,49 @@ export default function ExerciseLibrary() {
           <p className="text-sm text-gray-500">Movements programmed toward fitness outcomes — tenets, physiology, and session phase — for the Needs Engine and workout builder.</p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-          <div
-            className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1"
-            role="group"
-            aria-label="Exercise library view mode"
-          >
-            <button
-              type="button"
-              onClick={() => setViewMode('coach')}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                viewMode === 'coach' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Coach view
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('client')}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                viewMode === 'client' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Client view
-            </button>
-          </div>
           <LibraryExportControls
             disabled={loading || totalCount === 0}
             filenameStem="exercise-library"
             onExport={(format) => { void handleExport(format as LibraryExportFormat) }}
           />
-          <button
-            type="button"
-            onClick={() => setCreating(true)}
-            className="flex items-center justify-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
-          >
-            <Plus className="w-4 h-4" /> New Exercise
-          </button>
+          <div className="flex items-stretch gap-2">
+            <div
+              className="inline-flex h-10 rounded-lg border border-gray-200 bg-gray-50 p-1"
+              role="group"
+              aria-label="Exercise library view mode"
+            >
+              <button
+                type="button"
+                onClick={() => setViewMode('coach')}
+                className={`rounded-md px-3 text-sm font-medium transition-colors flex items-center ${
+                  viewMode === 'coach' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Coach view
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('client')}
+                className={`rounded-md px-3 text-sm font-medium transition-colors flex items-center ${
+                  viewMode === 'client' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Client view
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={() => setCreating(true)}
+              className="flex h-10 items-center justify-center gap-2 bg-vortex-red text-white px-4 rounded-lg text-sm font-semibold hover:bg-red-700"
+            >
+              <Plus className="w-4 h-4" /> New Exercise
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl p-4 grid gap-3 md:grid-cols-3 lg:grid-cols-4">
+      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+        <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-4">
         <div className="md:col-span-2 lg:col-span-1">
           <label className="block text-xs font-semibold text-gray-500 mb-1">Search</label>
           <div className="relative">
@@ -367,9 +370,8 @@ export default function ExerciseLibrary() {
           </select>
         </div>
         <RangeSelectPair
-          label="Impact"
-          minLabel="Min"
-          maxLabel="Max"
+          minLabel="Min impact"
+          maxLabel="Max impact"
           minValue={filters.minImpact}
           maxValue={filters.maxImpact}
           options={IMPACT_LEVEL_OPTIONS.map((n) => ({ value: n, label: String(n) }))}
@@ -411,9 +413,8 @@ export default function ExerciseLibrary() {
           </select>
         </div>
         <RangeSelectPair
-          label="Difficulty"
-          minLabel="Min diff"
-          maxLabel="Max diff"
+          minLabel="Min difficulty"
+          maxLabel="Max difficulty"
           minValue={filters.minOverall}
           maxValue={filters.maxOverall}
           options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => ({ value: n, label: `${n}+` }))}
@@ -457,21 +458,26 @@ export default function ExerciseLibrary() {
             <option value="difficulty_asc">Easiest first</option>
           </select>
         </div>
-        <label className="flex items-center gap-2 text-sm self-end pb-2">
-          <input type="checkbox" checked={filters.freshness} onChange={(e) => setFilters((f) => ({ ...f, freshness: e.target.checked }))} />
-          Freshness required
-        </label>
-        <label className="flex items-center gap-2 text-sm self-end pb-2">
-          <input type="checkbox" checked={filters.canBeDaily} onChange={(e) => setFilters((f) => ({ ...f, canBeDaily: e.target.checked }))} />
-          Can be daily
-        </label>
-        <label className="flex items-center gap-2 text-sm self-end pb-2">
-          <input type="checkbox" checked={filters.paired} onChange={(e) => setFilters((f) => ({ ...f, paired: e.target.checked }))} />
-          Paired exercises
-        </label>
-        <button type="button" onClick={() => { setFilters(emptyFilters); setSearchInput('') }} className="self-end text-sm text-gray-500 hover:text-gray-800 underline">
-          Clear filters
-        </button>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-gray-100 pt-3">
+          <div className="flex flex-wrap items-center gap-6">
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={filters.freshness} onChange={(e) => setFilters((f) => ({ ...f, freshness: e.target.checked }))} />
+              Freshness required
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={filters.canBeDaily} onChange={(e) => setFilters((f) => ({ ...f, canBeDaily: e.target.checked }))} />
+              Can be daily
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={filters.paired} onChange={(e) => setFilters((f) => ({ ...f, paired: e.target.checked }))} />
+              Paired exercises
+            </label>
+          </div>
+          <button type="button" onClick={() => { setFilters(emptyFilters); setSearchInput('') }} className="text-sm text-gray-500 hover:text-gray-800 underline shrink-0">
+            Clear filters
+          </button>
+        </div>
       </div>
 
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
@@ -567,7 +573,6 @@ export default function ExerciseLibrary() {
 }
 
 function RangeSelectPair({
-  label,
   minLabel,
   maxLabel,
   minValue,
@@ -578,7 +583,6 @@ function RangeSelectPair({
   onMinChange,
   onMaxChange,
 }: {
-  label: string
   minLabel: string
   maxLabel: string
   minValue: number | ''
@@ -591,31 +595,28 @@ function RangeSelectPair({
 }) {
   const maxOpts = maxOptions ?? options
   return (
-    <div>
-      <span className="block text-xs font-semibold text-gray-500 mb-1">{label}</span>
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="block text-[10px] font-medium text-gray-400 mb-0.5">{minLabel}</label>
-          <select
-            value={minValue}
-            onChange={(e) => onMinChange(e.target.value ? Number(e.target.value) : '')}
-            className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm"
-          >
-            <option value="">{emptyLabel}</option>
-            {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="block text-[10px] font-medium text-gray-400 mb-0.5">{maxLabel}</label>
-          <select
-            value={maxValue}
-            onChange={(e) => onMaxChange(e.target.value ? Number(e.target.value) : '')}
-            className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm"
-          >
-            <option value="">{emptyLabel}</option>
-            {maxOpts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
-        </div>
+    <div className="grid grid-cols-2 gap-2">
+      <div>
+        <label className="block text-xs font-semibold text-gray-500 mb-1">{minLabel}</label>
+        <select
+          value={minValue}
+          onChange={(e) => onMinChange(e.target.value ? Number(e.target.value) : '')}
+          className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm"
+        >
+          <option value="">{emptyLabel}</option>
+          {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+      </div>
+      <div>
+        <label className="block text-xs font-semibold text-gray-500 mb-1">{maxLabel}</label>
+        <select
+          value={maxValue}
+          onChange={(e) => onMaxChange(e.target.value ? Number(e.target.value) : '')}
+          className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm"
+        >
+          <option value="">{emptyLabel}</option>
+          {maxOpts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
       </div>
     </div>
   )
