@@ -216,6 +216,7 @@ export async function initPlatformTables(pool) {
     '222_coaching_sustained_capacity_hiit_fitness.sql',
     '223_coaching_profile_and_sport_cleanup.sql',
     '224_coaching_needs_engine_requirements.sql',
+    '225_coaching_needs_engine_template_repair.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

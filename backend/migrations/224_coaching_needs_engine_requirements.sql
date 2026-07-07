@@ -3,7 +3,7 @@
 
 CREATE TABLE IF NOT EXISTS coaching.coach_needs_engine_requirements (
   id BIGSERIAL PRIMARY KEY,
-  facility_id BIGINT NOT NULL REFERENCES coaching.facility(id) ON DELETE CASCADE,
+  facility_id BIGINT NOT NULL REFERENCES public.facility(id) ON DELETE CASCADE,
   coach_user_id BIGINT NOT NULL,
   name TEXT NOT NULL,
   requirements_json JSONB NOT NULL DEFAULT '{}'::jsonb,
