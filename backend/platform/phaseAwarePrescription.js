@@ -385,16 +385,15 @@ function resolvePerSplitVariants(primary, poolForPhase, scored, splitProfiles, p
 }
 
 function splitCandidateAcceptable(resolved, primary, splitProfiles, relaxSplit) {
-  if (resolved.complete) return true
   if (relaxSplit) return true
-  const hasScaled = resolved.perSplit.some((e) => e.variant_type === 'scaled' || e.scaling_guidance)
-  if (hasScaled) return true
-  if (splitProfiles.length === 0) return false
+  if ((resolved.warnings?.length ?? 0) > 0) return false
+  if (!resolved.complete) return false
+  if (splitProfiles.length === 0) return true
   const youngest = splitProfiles.reduce((a, b) => (
     Number(a.ageMax ?? 99) <= Number(b.ageMax ?? 99) ? a : b
   ))
   const fit = classifyAgeFit(primary.difficulty, youngest.caps)
-  return fit !== 'over_cap'
+  return fit === 'good' || fit === 'stretch'
 }
 
 function buildPoolForPhase({
