@@ -14,6 +14,26 @@ import {
 import { buildSkillLevelSql } from './skillLevelPolicy.js'
 import { beginnerAppropriatenessPenalty } from './beginnerExclusionPolicy.js'
 import { implicitPhaseFocusHints } from './sessionObjectivePolicy.js'
+import {
+  restoreCandidateExcluded,
+  restoreProfileEligible,
+  restoreScoreBoost,
+} from './restoreSelectionPolicy.js'
+import {
+  hasHiitFocus,
+  minItemsForPhase,
+  phaseFillTarget,
+  shouldRelaxSplitGate,
+  sustainedCapacityExcluded,
+  sustainedCapacityCandidateEligible,
+} from './sustainedCapacityPolicy.js'
+import { sportContextMultiplier } from './sportContextPolicy.js'
+import {
+  movementFamilyBlocked,
+  movementFamilyKey,
+  normalizeSlugStem,
+  recordMovementFamily,
+} from './movementFamilyPolicy.js'
 
 function itemSecondsFromExercise(ex, item) {
   const sets = Number(item?.sets ?? ex.default_sets) || 3
@@ -58,6 +78,19 @@ async function resolveTargetFacetIds(pool, targets) {
     }
   }
   return resolved
+}
+
+async function loadFacetKeyMaps(pool) {
+  const [methodology, intent, sport] = await Promise.all([
+    pool.query(`SELECT id, key FROM coaching.methodology`),
+    pool.query(`SELECT id, key FROM coaching.exercise_intent`),
+    pool.query(`SELECT id, key FROM coaching.sport`),
+  ])
+  return {
+    methodologyKeyById: new Map(methodology.rows.map((r) => [Number(r.id), r.key])),
+    intentKeyById: new Map(intent.rows.map((r) => [Number(r.id), r.key])),
+    sportIdByKey: new Map(sport.rows.map((r) => [r.key, Number(r.id)])),
+  }
 }
 
 function scalingGuidanceForCohort(scalingProfiles, cohortKey) {
@@ -161,15 +194,6 @@ function normalizeExerciseName(name) {
   return String(name ?? '').toLowerCase().replace(/\s+/g, ' ').trim()
 }
 
-function minItemsForPhase(phaseKey, resolvedPhaseTargets) {
-  if (phaseKey !== 'sustained_capacity') return 1
-  const hasHiit = resolvedPhaseTargets.some((t) => {
-    const key = String(t.facetKey ?? t.key ?? '').toLowerCase()
-    return t.facetType === 'methodology' && (key.includes('hiit') || key.includes('conditioning'))
-  })
-  return hasHiit ? 2 : 1
-}
-
 function buildSplitVariantEntry(split, candidate, { variantType, substituted = false, scalingGuidance = null } = {}) {
   return {
     split_label: split.label,
@@ -259,6 +283,200 @@ function resolvePerSplitVariants(primary, poolForPhase, scored, splitProfiles, p
   }
 }
 
+function splitCandidateAcceptable(resolved, primary, splitProfiles, relaxSplit) {
+  if (resolved.complete) return true
+  if (relaxSplit) return true
+  const hasScaled = resolved.perSplit.some((e) => e.variant_type === 'scaled' || e.scaling_guidance)
+  if (hasScaled) return true
+  if (splitProfiles.length === 0) return false
+  const youngest = splitProfiles.reduce((a, b) => (
+    Number(a.ageMax ?? 99) <= Number(b.ageMax ?? 99) ? a : b
+  ))
+  const fit = classifyAgeFit(primary.difficulty, youngest.caps)
+  return fit !== 'over_cap'
+}
+
+function buildPoolForPhase({
+  scored,
+  phaseKey,
+  resolvedPhaseTargets,
+  usedPatterns,
+  strengthIntent,
+  methodologyKeyById,
+  intentKeyById,
+  sportKey,
+  sportIdByKey,
+}) {
+  return scored
+    .map((c) => {
+      const profile = c.profiles.find((p) => p.phaseKey === phaseKey && p.role !== 'avoid')
+      if (!profile) return null
+
+      if (phaseKey === 'restore') {
+        if (!restoreProfileEligible(c.exercise, profile)) return null
+        if (restoreCandidateExcluded(c.exercise, profile, c.tags, methodologyKeyById)) return null
+      }
+
+      if (sustainedCapacityExcluded(phaseKey, c.exercise, c.tags, methodologyKeyById, intentKeyById, resolvedPhaseTargets)) {
+        return null
+      }
+
+      let phaseTargetScore = scoreTargets(c.tags, resolvedPhaseTargets)
+      for (const t of resolvedPhaseTargets) {
+        if (t.facetType === 'order_slot' && t.facetKey) {
+          if (matchesOrderSlot(c.exercise, profile, t.facetKey)) phaseTargetScore += 8
+        }
+      }
+      if (resolvedPhaseTargets.length > 0) phaseTargetScore *= 2.5
+
+      let phaseFit = profile.fitWeight * 2
+      if (profile.role === 'primary') phaseFit += 6
+      else if (profile.role === 'secondary') phaseFit += 2
+      else if (profile.role === 'conditional') phaseFit *= 0.75
+
+      if (phaseKey === 'restore') {
+        phaseFit += restoreScoreBoost(c.exercise, profile, c.tags, methodologyKeyById)
+      }
+
+      const patternId = c.tags.find((t) => t.facetType === 'pattern')?.facetId
+      const penalty = patternId && usedPatterns.get(patternId) ? 0.25 : 0
+      let adjScore = (c.score + phaseFit + phaseTargetScore) * (1 - Math.min(penalty, 0.75))
+      adjScore *= sportContextMultiplier(c.exercise, sportKey, sportIdByKey)
+      if (strengthIntent && phaseKey === 'capacity') adjScore *= 1.15
+      return { ...c, adjScore, profile, phaseTargetScore }
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.adjScore - a.adjScore)
+}
+
+async function fillPhaseItems({
+  dbPool,
+  poolForPhase,
+  scored,
+  phaseKey,
+  phase,
+  budgetSeconds,
+  minItems,
+  fillTargetRatio,
+  splitProfiles,
+  relaxSplit,
+  splitVariantWarnings,
+  usedExerciseIds,
+  usedSlugs,
+  usedSlugStems,
+  usedNamesNormalized,
+  usedMovementFamilies,
+  usedPatterns,
+  phasePatternUsed,
+  familyCounts,
+  sessionFamilyCounts,
+  caps,
+  scalingCohort,
+  allowRelaxedPatternDedup = false,
+  sustainedFallback = false,
+  methodologyKeyById,
+  intentKeyById,
+  resolvedPhaseTargets,
+}) {
+  const items = []
+  let usedSeconds = 0
+  let skippedCandidates = 0
+  let splitRejects = 0
+  const targetSeconds = Math.floor(budgetSeconds * fillTargetRatio)
+
+  for (const c of poolForPhase) {
+    if (usedExerciseIds.has(Number(c.exercise.id))) { skippedCandidates += 1; continue }
+    const slug = c.exercise.slug
+    const slugStem = normalizeSlugStem(slug)
+    if (slug && usedSlugs.has(slug)) { skippedCandidates += 1; continue }
+    if (slugStem && usedSlugStems.has(slugStem)) { skippedCandidates += 1; continue }
+    const normName = normalizeExerciseName(c.exercise.name)
+    if (normName && usedNamesNormalized.has(normName)) { skippedCandidates += 1; continue }
+    if (c.exercise.movement_family && usedMovementFamilies.has(c.exercise.movement_family)) { skippedCandidates += 1; continue }
+
+    const familyKey = movementFamilyKey(c.exercise)
+    if (movementFamilyBlocked(familyKey, phaseKey, familyCounts, sessionFamilyCounts)) {
+      skippedCandidates += 1
+      continue
+    }
+
+    const patternTag = c.tags.find((t) => t.facetType === 'pattern')
+    if (!allowRelaxedPatternDedup && patternTag && phasePatternUsed.has(patternTag.facetId)) {
+      skippedCandidates += 1
+      continue
+    }
+
+    if (sustainedFallback && phaseKey === 'sustained_capacity') {
+      if (!sustainedCapacityCandidateEligible(c.exercise, c.tags, methodologyKeyById, intentKeyById, { strictHiit: false })) {
+        skippedCandidates += 1
+        continue
+      }
+    }
+
+    const cost = itemSecondsFromExercise(c.exercise, {})
+    if (usedSeconds + cost > budgetSeconds && items.length > 0 && items.length >= minItems) continue
+    if (phaseKey === 'restore' && usedSeconds + cost > budgetSeconds && items.length >= minItems) break
+
+    let perSplit = []
+    let splitReservedIds = []
+    let splitFallbackUsed = false
+    if (splitProfiles.length > 0 && !sustainedFallback) {
+      const resolved = resolvePerSplitVariants(c, poolForPhase, scored, splitProfiles, phaseKey)
+      if (!splitCandidateAcceptable(resolved, c, splitProfiles, relaxSplit)) {
+        splitRejects += 1
+        skippedCandidates += 1
+        continue
+      }
+      if (!resolved.complete) splitFallbackUsed = true
+      perSplit = resolved.perSplit
+      splitReservedIds = resolved.reservedIds
+      for (const w of resolved.warnings) splitVariantWarnings.add(w)
+    }
+
+    const eduEx = await loadEducationForExercise(dbPool, Number(c.exercise.id), c.exercise.slug)
+    const why = educationToWhyResponse(eduEx)
+    const cohortScaling = scalingGuidanceForCohort(c.scalingProfiles, scalingCohort)
+
+    items.push({
+      exercise_id: Number(c.exercise.id),
+      exercise_name: c.exercise.name,
+      sets: c.exercise.default_sets ?? 3,
+      reps: c.exercise.default_reps,
+      rest_seconds: c.exercise.default_rest_seconds ?? 30,
+      work_seconds: c.exercise.default_work_seconds,
+      est_seconds_per_set: c.exercise.est_seconds_per_set,
+      score: Number(c.score.toFixed(2)),
+      phase_fit: c.profile.fitWeight,
+      difficulty: c.difficulty,
+      age_fit: classifyAgeFit(c.difficulty, caps),
+      per_split: perSplit.length > 0 ? perSplit : undefined,
+      split_alternates_json: perSplit.length > 0 ? perSplit : undefined,
+      split_fallback_used: splitFallbackUsed || undefined,
+      selection_rationale: sustainedFallback
+        ? 'HIIT fallback — limited library match.'
+        : (why?.training_purpose ?? `Selected for ${phase?.name ?? phaseKey} (score ${c.score.toFixed(1)}).`),
+      placement_rationale: why?.phase_rationale ?? c.profile.notes ?? `Placed in ${phase?.name ?? phaseKey} based on phase fit.`,
+      scaling_rationale: cohortScaling ?? why?.scaling_rationale ?? null,
+    })
+    usedSeconds += cost
+    usedExerciseIds.add(Number(c.exercise.id))
+    for (const altId of splitReservedIds) usedExerciseIds.add(altId)
+    if (slug) usedSlugs.add(slug)
+    if (slugStem) usedSlugStems.add(slugStem)
+    if (normName) usedNamesNormalized.add(normName)
+    if (c.exercise.movement_family) usedMovementFamilies.add(c.exercise.movement_family)
+    recordMovementFamily(familyKey, phaseKey, familyCounts, sessionFamilyCounts)
+    if (patternTag) {
+      phasePatternUsed.add(patternTag.facetId)
+      usedPatterns.set(patternTag.facetId, (usedPatterns.get(patternTag.facetId) || 0) + 1)
+    }
+    if (usedSeconds >= targetSeconds && items.length >= minItems) break
+    if (usedSeconds >= budgetSeconds && items.length >= minItems) break
+  }
+
+  return { items, usedSeconds, skippedCandidates, splitRejects }
+}
+
 export class PrescriptionError extends Error {
   constructor(message, code, details = {}) {
     super(message)
@@ -309,6 +527,8 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   const strengthIntent = audience.strengthIntent
   const scalingCohort = audience.scalingCohort
 
+  const { methodologyKeyById, intentKeyById, sportIdByKey } = await loadFacetKeyMaps(pool)
+
   const equipmentUseIds = Array.isArray(body.equipmentUseIds ?? body.equipment_use_ids)
     ? (body.equipmentUseIds ?? body.equipment_use_ids).map(Number).filter(Number.isFinite)
     : []
@@ -337,6 +557,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     body_region_avoid: { excluded_count: 0 },
     exercise_avoid: { excluded_count: avoidExerciseIds.length + avoidExerciseSlugs.length },
     empty_phase_reasons: [],
+    phase_fill: [],
   }
   const equipmentExcludedSamples = []
 
@@ -420,10 +641,13 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   const usedPatterns = new Map()
   const usedPatternsByPhase = new Map()
   const usedSlugs = new Set()
+  const usedSlugStems = new Set()
   const usedMovementFamilies = new Set()
   const usedNamesNormalized = new Set()
   const sessionWarnings = new Set()
   const usedExerciseIds = new Set()
+  const familyCounts = new Map()
+  const sessionFamilyCounts = new Map()
 
   const scored = candidates.rows
     .map((ex) => {
@@ -465,6 +689,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
 
       const ageMultiplier = isSkillDrill ? 1 : scoreAgeDifficultyFit(difficulty, caps)
       score *= ageMultiplier
+      score *= sportContextMultiplier(ex, sportKey, sportIdByKey)
 
       if (!isSkillDrill && difficulty && caps && classifyAgeFit(difficulty, caps) !== 'good') {
         for (const w of ageFitWarnings(difficulty, caps, ex.name)) sessionWarnings.add(w)
@@ -611,7 +836,8 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     }
 
     const phase = phaseByKey.get(phaseKey)
-    const budgetSeconds = (Number(block.minutes) || 20) * 60
+    const blockMinutes = Number(block.minutes) || 20
+    const budgetSeconds = blockMinutes * 60
     const phaseTargets = Array.isArray(block.focusTargets ?? block.focus_targets)
       ? (block.focusTargets ?? block.focus_targets)
       : []
@@ -634,100 +860,156 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       phase_rationale: edu.rows[0]?.why_it_goes_here ?? edu.rows[0]?.short_summary ?? null,
     })
 
-    const poolForPhase = scored
-      .map((c) => {
-        const profile = c.profiles.find((p) => p.phaseKey === phaseKey && p.role !== 'avoid')
-        if (!profile) return null
+    const poolForPhase = buildPoolForPhase({
+      scored,
+      phaseKey,
+      resolvedPhaseTargets,
+      usedPatterns,
+      strengthIntent,
+      methodologyKeyById,
+      intentKeyById,
+      sportKey,
+      sportIdByKey,
+    })
 
-        let phaseTargetScore = scoreTargets(c.tags, resolvedPhaseTargets)
-        for (const t of resolvedPhaseTargets) {
-          if (t.facetType === 'order_slot' && t.facetKey) {
-            if (matchesOrderSlot(c.exercise, profile, t.facetKey)) phaseTargetScore += 8
-          }
-        }
-        if (resolvedPhaseTargets.length > 0) phaseTargetScore *= 2.5
-
-        let phaseFit = profile.fitWeight * 2
-        if (profile.role === 'primary') phaseFit += 6
-        else if (profile.role === 'secondary') phaseFit += 2
-        else if (profile.role === 'conditional') phaseFit *= 0.75
-
-        const patternId = c.tags.find((t) => t.facetType === 'pattern')?.facetId
-        const penalty = patternId && usedPatterns.get(patternId) ? 0.25 : 0
-        let adjScore = (c.score + phaseFit + phaseTargetScore) * (1 - Math.min(penalty, 0.75))
-        if (strengthIntent && phaseKey === 'capacity') adjScore *= 1.15
-        return { ...c, adjScore, profile, phaseTargetScore }
-      })
-      .filter(Boolean)
-      .sort((a, b) => b.adjScore - a.adjScore)
-
-    const items = []
-    let usedSeconds = 0
     const minItems = minItemsForPhase(phaseKey, resolvedPhaseTargets)
+    const fillTargetRatio = phaseFillTarget(phaseKey, resolvedPhaseTargets, blockMinutes)
+    const relaxSplit = shouldRelaxSplitGate(phaseKey, blockMinutes, resolvedPhaseTargets)
     const phasePatternUsed = usedPatternsByPhase.get(phaseKey) ?? new Set()
 
-    for (const c of poolForPhase) {
-      if (usedExerciseIds.has(Number(c.exercise.id))) continue
-      const slug = c.exercise.slug
-      if (slug && usedSlugs.has(slug)) continue
-      const normName = normalizeExerciseName(c.exercise.name)
-      if (normName && usedNamesNormalized.has(normName)) continue
-      if (c.exercise.movement_family && usedMovementFamilies.has(c.exercise.movement_family)) continue
-      const patternTag = c.tags.find((t) => t.facetType === 'pattern')
-      if (patternTag && phasePatternUsed.has(patternTag.facetId)) continue
+    let fillResult = await fillPhaseItems({
+      dbPool: pool,
+      poolForPhase,
+      scored,
+      phaseKey,
+      phase,
+      budgetSeconds,
+      minItems,
+      fillTargetRatio,
+      splitProfiles,
+      relaxSplit,
+      splitVariantWarnings,
+      usedExerciseIds,
+      usedSlugs,
+      usedSlugStems,
+      usedNamesNormalized,
+      usedMovementFamilies,
+      usedPatterns,
+      phasePatternUsed,
+      familyCounts,
+      sessionFamilyCounts,
+      caps,
+      scalingCohort,
+      methodologyKeyById,
+      intentKeyById,
+      resolvedPhaseTargets,
+    })
 
-      const cost = itemSecondsFromExercise(c.exercise, {})
-      if (usedSeconds + cost > budgetSeconds && items.length > 0 && items.length >= minItems) continue
-
-      let perSplit = []
-      let splitReservedIds = []
-      if (splitProfiles.length > 0) {
-        const resolved = resolvePerSplitVariants(c, poolForPhase, scored, splitProfiles, phaseKey)
-        if (!resolved.complete) continue
-        perSplit = resolved.perSplit
-        splitReservedIds = resolved.reservedIds
-        for (const w of resolved.warnings) splitVariantWarnings.add(w)
-      }
-
-      const eduEx = await loadEducationForExercise(pool, Number(c.exercise.id), c.exercise.slug)
-      const why = educationToWhyResponse(eduEx)
-      const cohortScaling = scalingGuidanceForCohort(c.scalingProfiles, scalingCohort)
-
-      items.push({
-        exercise_id: Number(c.exercise.id),
-        exercise_name: c.exercise.name,
-        sets: c.exercise.default_sets ?? 3,
-        reps: c.exercise.default_reps,
-        rest_seconds: c.exercise.default_rest_seconds ?? 30,
-        work_seconds: c.exercise.default_work_seconds,
-        est_seconds_per_set: c.exercise.est_seconds_per_set,
-        score: Number(c.score.toFixed(2)),
-        phase_fit: c.profile.fitWeight,
-        difficulty: c.difficulty,
-        age_fit: classifyAgeFit(c.difficulty, caps),
-        per_split: perSplit.length > 0 ? perSplit : undefined,
-        split_alternates_json: perSplit.length > 0 ? perSplit : undefined,
-        selection_rationale: why?.training_purpose ?? `Selected for ${phase?.name ?? phaseKey} (score ${c.score.toFixed(1)}).`,
-        placement_rationale: why?.phase_rationale ?? c.profile.notes ?? `Placed in ${phase?.name ?? phaseKey} based on phase fit.`,
-        scaling_rationale: cohortScaling ?? why?.scaling_rationale ?? null,
+    if (fillResult.items.length < minItems
+      || fillResult.usedSeconds < budgetSeconds * fillTargetRatio) {
+      const backfill = await fillPhaseItems({
+        dbPool: pool,
+        poolForPhase,
+        scored,
+        phaseKey,
+        phase,
+        budgetSeconds,
+        minItems,
+        fillTargetRatio,
+        splitProfiles: [],
+        relaxSplit: true,
+        splitVariantWarnings,
+        usedExerciseIds,
+        usedSlugs,
+        usedSlugStems,
+        usedNamesNormalized,
+        usedMovementFamilies,
+        usedPatterns,
+        phasePatternUsed,
+        familyCounts,
+        sessionFamilyCounts,
+        caps,
+        scalingCohort,
+        allowRelaxedPatternDedup: true,
+        methodologyKeyById,
+        intentKeyById,
+        resolvedPhaseTargets,
       })
-      usedSeconds += cost
-      usedExerciseIds.add(Number(c.exercise.id))
-      for (const altId of splitReservedIds) usedExerciseIds.add(altId)
-      if (slug) usedSlugs.add(slug)
-      if (normName) usedNamesNormalized.add(normName)
-      if (c.exercise.movement_family) usedMovementFamilies.add(c.exercise.movement_family)
-      if (patternTag) {
-        phasePatternUsed.add(patternTag.facetId)
-        usedPatterns.set(patternTag.facetId, (usedPatterns.get(patternTag.facetId) || 0) + 1)
+      if (backfill.items.length > 0 || backfill.usedSeconds > fillResult.usedSeconds) {
+        fillResult = {
+          items: [...fillResult.items, ...backfill.items],
+          usedSeconds: fillResult.usedSeconds + backfill.usedSeconds,
+          skippedCandidates: fillResult.skippedCandidates + backfill.skippedCandidates,
+          splitRejects: fillResult.splitRejects + backfill.splitRejects,
+        }
       }
-      if (usedSeconds >= budgetSeconds && items.length >= minItems) break
+    }
+
+    if (phaseKey === 'sustained_capacity'
+      && hasHiitFocus(resolvedPhaseTargets)
+      && fillResult.items.length < minItems) {
+      const hiitFallback = await fillPhaseItems({
+        dbPool: pool,
+        poolForPhase,
+        scored,
+        phaseKey,
+        phase,
+        budgetSeconds,
+        minItems,
+        fillTargetRatio,
+        splitProfiles: [],
+        relaxSplit: true,
+        splitVariantWarnings,
+        usedExerciseIds,
+        usedSlugs,
+        usedSlugStems,
+        usedNamesNormalized,
+        usedMovementFamilies,
+        usedPatterns,
+        phasePatternUsed,
+        familyCounts,
+        sessionFamilyCounts,
+        caps,
+        scalingCohort,
+        allowRelaxedPatternDedup: true,
+        sustainedFallback: true,
+        methodologyKeyById,
+        intentKeyById,
+        resolvedPhaseTargets,
+      })
+      if (hiitFallback.items.length > 0) {
+        fillResult = {
+          items: [...fillResult.items, ...hiitFallback.items],
+          usedSeconds: fillResult.usedSeconds + hiitFallback.usedSeconds,
+          skippedCandidates: fillResult.skippedCandidates + hiitFallback.skippedCandidates,
+          splitRejects: fillResult.splitRejects + hiitFallback.splitRejects,
+        }
+      }
     }
 
     usedPatternsByPhase.set(phaseKey, phasePatternUsed)
 
-    if (items.length === 0 && poolForPhase.length === 0) {
-      constraintReport.empty_phase_reasons.push(`${block.label || phaseKey}: no matching exercises for phase/focus/constraints.`)
+    const estimatedMinutes = Math.round(fillResult.usedSeconds / 60)
+    const fillPct = blockMinutes > 0 ? Math.round((estimatedMinutes / blockMinutes) * 100) : 0
+    constraintReport.phase_fill.push({
+      phase_key: phaseKey,
+      target_minutes: blockMinutes,
+      estimated_minutes: estimatedMinutes,
+      fill_pct: fillPct,
+      skipped_candidates: fillResult.skippedCandidates,
+      split_rejects: fillResult.splitRejects,
+      pool_size: poolForPhase.length,
+    })
+
+    if (fillResult.items.length === 0) {
+      const reason = poolForPhase.length === 0 ? 'pool_empty' : 'all_candidates_filtered'
+      constraintReport.empty_phase_reasons.push(
+        `${block.label || phaseKey}: ${reason} — no exercises selected for phase/focus/constraints.`,
+      )
+    } else if (fillPct < 50) {
+      constraintReport.empty_phase_reasons.push(
+        `${block.label || phaseKey}: underfilled (${fillPct}% of ${blockMinutes}m target).`,
+      )
     }
 
     resultBlocks.push({
@@ -735,9 +1017,10 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       phase_key: phaseKey,
       phase_id: phase?.id ?? null,
       focus_targets: phaseTargets,
-      target_minutes: Number(block.minutes) || 20,
-      estimated_minutes: Math.round(usedSeconds / 60),
-      items,
+      target_minutes: blockMinutes,
+      estimated_minutes: estimatedMinutes,
+      fill_pct: fillPct,
+      items: fillResult.items,
     })
   }
 

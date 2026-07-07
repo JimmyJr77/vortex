@@ -685,6 +685,7 @@ export interface PrescribedBlock {
   focus_targets?: PhaseFocusTarget[]
   target_minutes: number
   estimated_minutes: number
+  fill_pct?: number
   items: Array<{
     exercise_id: number | null
     exercise_name: string
@@ -735,6 +736,15 @@ export interface PrescriptionResult {
     body_region_avoid?: { excluded_count: number }
     exercise_avoid?: { excluded_count: number }
     empty_phase_reasons?: string[]
+    phase_fill?: Array<{
+      phase_key: string
+      target_minutes: number
+      estimated_minutes: number
+      fill_pct: number
+      skipped_candidates?: number
+      split_rejects?: number
+      pool_size?: number
+    }>
   }
 }
 

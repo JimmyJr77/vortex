@@ -410,14 +410,18 @@ multi-track audience splits. Frontend: [NeedsEnginePanel.tsx](../src/components/
 | Age splits | `audienceSplits` → per-split variants (`same`, `substituted`, `scaled`, `progression`, `missing`) on items (`split_alternates_json`) |
 | Skill gating | Ordinal `skillLevelPolicy.js` SQL filter + `beginnerExclusionPolicy.js` slug penalties |
 | Focus scoring | Phase focus ×2.5; tiered UI weights; implicit objective hints via `sessionObjectivePolicy.js` |
-| Dedup | Session slug/name/movement_family + per-phase pattern hard skip |
+| Dedup | Session slug-stem/name/movement_family + elastic family caps ([movementFamilyPolicy.js](../backend/platform/movementFamilyPolicy.js)) + per-phase pattern |
+| Phase fill | Target fill ratios per phase; second-pass backfill; `constraint_report.phase_fill` |
+| Restore gate | [restoreSelectionPolicy.js](../backend/platform/restoreSelectionPolicy.js) — primary/secondary only; excludes plyo/throw profiles |
+| Sustained HIIT | [sustainedCapacityPolicy.js](../backend/platform/sustainedCapacityPolicy.js) — HIIT hard filter; split relax ≤8 min; conditioning fallback pass |
+| Sport context | [sportContextPolicy.js](../backend/platform/sportContextPolicy.js) — fitness-general penalizes sport-specific slugs |
 | HIIT / methodology | Method scorer accepts `methodologyKey`; sustained_capacity min 2 items when HIIT focus |
-| Library audit | Migration [219](../backend/migrations/219_equipment_tag_audit.sql); [220](../backend/migrations/220_coaching_beginner_explosiveness_capacity.sql) beginner explosiveness capacity; `scripts/audit-prescription-coverage.mjs` |
+| Library audit | Migrations [219](../backend/migrations/219_equipment_tag_audit.sql)–[223](../backend/migrations/223_coaching_profile_and_sport_cleanup.sql); restore + HIIT fitness seeds [221](../backend/migrations/221_coaching_restore_library_seed.sql), [222](../backend/migrations/222_coaching_sustained_capacity_hiit_fitness.sql); `scripts/audit-prescription-coverage.mjs` (HIIT + restore primary counts) |
 | Other phases | Skills (`coaching.skill`), Games (`coaching.game`), Tramp & Tumble placeholder block |
 | Saved phasing | `coaching.coach_phase_template` + `/api/coach/phase-templates` |
 | Send to builder | `setWorkout` only — no `applyPhasePlan` wipe |
 
-Tests: [phaseArchitect.test.js](../backend/platform/__tests__/phaseArchitect.test.js), [phaseAwarePrescription.v2.test.js](../backend/platform/__tests__/phaseAwarePrescription.v2.test.js), [phaseAwarePrescription.integration.test.js](../backend/platform/__tests__/phaseAwarePrescription.integration.test.js), [equipmentAvoidPolicy.test.js](../backend/platform/__tests__/equipmentAvoidPolicy.test.js), [coachBuilderPrescribe.test.js](../backend/platform/__tests__/coachBuilderPrescribe.test.js). Workout Builder calls `validate-programming-block` per block when a programming method is set.
+Tests: [phaseArchitect.test.js](../backend/platform/__tests__/phaseArchitect.test.js), [phaseAwarePrescription.v2.test.js](../backend/platform/__tests__/phaseAwarePrescription.v2.test.js), [phaseAwarePrescription.integration.test.js](../backend/platform/__tests__/phaseAwarePrescription.integration.test.js) (120-min explosiveness scenario), [restoreSelectionPolicy.test.js](../backend/platform/__tests__/restoreSelectionPolicy.test.js), [sustainedCapacityPolicy.test.js](../backend/platform/__tests__/sustainedCapacityPolicy.test.js), [sportContextPolicy.test.js](../backend/platform/__tests__/sportContextPolicy.test.js), [movementFamilyPolicy.test.js](../backend/platform/__tests__/movementFamilyPolicy.test.js), [equipmentAvoidPolicy.test.js](../backend/platform/__tests__/equipmentAvoidPolicy.test.js), [coachBuilderPrescribe.test.js](../backend/platform/__tests__/coachBuilderPrescribe.test.js). Workout Builder calls `validate-programming-block` per block when a programming method is set.
 
 ### Idempotent migrations, applied on boot
 Every migration uses `CREATE ... IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`, and

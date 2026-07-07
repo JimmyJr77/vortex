@@ -668,7 +668,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                   options={equipmentOptions}
                   selected={equipmentUse}
                   onChange={(sel) => patch({ equipmentUse: sel })}
-                  placeholder="Required equipment (hard constraint)…"
+                  placeholder="Required equipment must appear in session; other equipment may also be used."
                   allowCustom
                   onCustomAdd={(text) => ({ id: `custom:${text}`, label: text })}
                 />
@@ -1035,15 +1035,32 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                   )}
                 </div>
               )}
-              {(result.constraint_report?.equipment_avoid?.excluded_count ?? 0) > 0 && (
+              {((result.constraint_report?.equipment_avoid?.excluded_count ?? 0) > 0
+                || (result.constraint_report?.empty_phase_reasons?.length ?? 0) > 0
+                || (result.constraint_report?.phase_fill?.some((p) => p.fill_pct < 80) ?? false)) && (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
                   <div className="font-semibold text-amber-900">Constraint report</div>
-                  <p className="text-xs text-amber-800 mt-1">
-                    Equipment avoid filtered {result.constraint_report!.equipment_avoid!.excluded_count} candidates
-                    {(result.constraint_report!.equipment_avoid!.sample_names?.length ?? 0) > 0
-                      ? ` (e.g. ${result.constraint_report!.equipment_avoid!.sample_names!.slice(0, 3).join(', ')})`
-                      : ''}.
-                  </p>
+                  {(result.constraint_report?.equipment_avoid?.excluded_count ?? 0) > 0 && (
+                    <p className="text-xs text-amber-800 mt-1">
+                      Equipment avoid filtered {result.constraint_report!.equipment_avoid!.excluded_count} candidates
+                      {(result.constraint_report!.equipment_avoid!.sample_names?.length ?? 0) > 0
+                        ? ` (e.g. ${result.constraint_report!.equipment_avoid!.sample_names!.slice(0, 3).join(', ')})`
+                        : ''}.
+                    </p>
+                  )}
+                  {(result.constraint_report?.phase_fill?.length ?? 0) > 0 && (
+                    <ul className="mt-2 text-xs text-amber-800 list-disc ml-4">
+                      {result.constraint_report!.phase_fill!
+                        .filter((p) => p.fill_pct < 80)
+                        .slice(0, 4)
+                        .map((p) => (
+                          <li key={p.phase_key}>
+                            {p.phase_key.replace(/_/g, ' ')}: {p.estimated_minutes}m / {p.target_minutes}m ({p.fill_pct}%)
+                            {(p.split_rejects ?? 0) > 0 ? ` · ${p.split_rejects} split rejects` : ''}
+                          </li>
+                        ))}
+                    </ul>
+                  )}
                   {(result.constraint_report?.empty_phase_reasons?.length ?? 0) > 0 && (
                     <ul className="mt-2 text-xs text-amber-800 list-disc ml-4">
                       {result.constraint_report!.empty_phase_reasons!.slice(0, 4).map((w) => <li key={w}>{w}</li>)}
@@ -1075,9 +1092,14 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                 const focusLabels = resolveFocusLabels(b.focus_targets, taxonomy)
                 return (
                 <div key={i} className="border border-gray-100 rounded-lg p-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <span className="font-semibold text-gray-800">{b.label}</span>
-                    <span className="text-xs text-gray-500">~{b.estimated_minutes}m / {b.target_minutes}m</span>
+                    <span className="text-xs text-gray-500 flex items-center gap-2">
+                      ~{b.estimated_minutes}m / {b.target_minutes}m
+                      {(b.fill_pct ?? Math.round((b.estimated_minutes / Math.max(b.target_minutes, 1)) * 100)) < 80 && (
+                        <span className="text-amber-700 font-medium">Underfilled</span>
+                      )}
+                    </span>
                   </div>
                   {focusLabels.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-1">
