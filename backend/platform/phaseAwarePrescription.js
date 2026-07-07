@@ -668,19 +668,30 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       where.push(skillSql.clause)
     }
   }
+  let ageMinParamIndex = null
   if (ageMin != null) {
     params.push(ageMin)
-    where.push(`(e.age_max IS NULL OR e.age_max >= $${params.length})`)
+    ageMinParamIndex = params.length
+    where.push(`(e.age_max IS NULL OR e.age_max >= $${ageMinParamIndex})`)
+  }
+  if (ageMax != null) {
+    params.push(ageMax)
+    const ageMaxParamIndex = params.length
+    where.push(`(e.age_min IS NULL OR e.age_min <= $${ageMaxParamIndex})`)
     where.push(`NOT EXISTS (
       SELECT 1 FROM coaching.exercise_difficulty_profile d
       WHERE d.exercise_id = e.id
         AND e.programming_kind = 'exercise'
-        AND d.recommended_age_min IS NOT NULL AND d.recommended_age_min > $${params.length}
+        AND d.recommended_age_min IS NOT NULL AND d.recommended_age_min > $${ageMaxParamIndex}
     )`)
-  }
-  if (ageMax != null) {
-    params.push(ageMax)
-    where.push(`(e.age_min IS NULL OR e.age_min <= $${params.length})`)
+    if (ageMinParamIndex != null) {
+      where.push(`NOT EXISTS (
+        SELECT 1 FROM coaching.exercise_difficulty_profile d
+        WHERE d.exercise_id = e.id
+          AND e.programming_kind = 'exercise'
+          AND d.recommended_age_max IS NOT NULL AND d.recommended_age_max < $${ageMinParamIndex}
+      )`)
+    }
   }
   if (excludeBodyRegionIds.length > 0) {
     params.push(excludeBodyRegionIds)

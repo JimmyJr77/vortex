@@ -218,6 +218,7 @@ export async function initPlatformTables(pool) {
     '224_coaching_needs_engine_requirements.sql',
     '225_coaching_needs_engine_template_repair.sql',
     '226_coaching_split_progression_d6_8.sql',
+    '227_coaching_restore_and_progression_repair.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

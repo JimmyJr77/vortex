@@ -168,12 +168,12 @@ ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = GREATEST(
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
 SELECT e.id, 'equipment', eq.id, 5
 FROM coaching.exercise e
-JOIN coaching.equipment eq ON eq.key = v.equip_key
 JOIN (VALUES
   ('med-ball-belly-breathing-restore', 'medicine_ball'),
   ('slow-cone-walk-reset-restore', 'cones'),
   ('dead-hang-breathing-reset-restore', 'bar')
 ) AS v(slug, equip_key) ON e.slug = v.slug
+JOIN coaching.equipment eq ON eq.key = v.equip_key
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 -- Restore profiles for new cards
