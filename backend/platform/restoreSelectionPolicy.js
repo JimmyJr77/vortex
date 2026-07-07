@@ -1,7 +1,6 @@
 const EXCLUDED_METHODOLOGY_KEYS = new Set([
   'plyometrics',
   'hiit',
-  'neural',
   'speed_agility',
   'neural_output',
 ])
@@ -39,6 +38,16 @@ export function restoreCandidateExcluded(exercise, restoreProfile, tags, methodo
   if (primaryPhase && EXCLUDED_PRIMARY_PHASES.has(primaryPhase)) return true
 
   for (const key of tagKeys(tags, 'methodology', methodologyKeyById)) {
+    if (key === 'neural') {
+      const impact = Number(restoreProfile.impactLevel ?? restoreProfile.impact_level ?? 99)
+      const ceiling = String(restoreProfile.intensityCeiling ?? restoreProfile.intensity_ceiling ?? 'low').toLowerCase()
+      const lowImpactRestore = impact < 2 && ceiling === 'low'
+      const restorePrimary = exercise.primary_phase_key === 'restore'
+        || restoreProfile.role === 'primary'
+        || restoreProfile.role === 'secondary'
+      if (lowImpactRestore && restorePrimary) continue
+      return true
+    }
     if (EXCLUDED_METHODOLOGY_KEYS.has(key)) return true
   }
 

@@ -10,6 +10,17 @@ const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL })
 const PHASES = ['prepare_and_access', 'movement_intelligence', 'output', 'capacity', 'resilience', 'sustained_capacity', 'restore']
 const SKILL_LEVELS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED']
 
+function difficultyBucket(overall) {
+  const d = Number(overall)
+  if (!Number.isFinite(d)) return 'unknown'
+  if (d <= 2) return 'D1-2'
+  if (d <= 4) return 'D3-4'
+  if (d <= 5) return 'D5'
+  if (d <= 6) return 'D6'
+  if (d <= 8) return 'D7-8'
+  return 'D9-10'
+}
+
 async function main() {
   const client = await pool.connect()
   try {
@@ -71,6 +82,39 @@ async function main() {
             )
           : { rows: [{ count: 0 }] }
         console.log(`${phaseKey},${skill},${hiit.rows[0].count},${restorePrimary.rows[0].count}`)
+      }
+    }
+
+    console.log('\nphase,skill_level,difficulty_bucket,exercise_count')
+    for (const phaseKey of PHASES) {
+      for (const skill of SKILL_LEVELS) {
+        const rows = await client.query(
+          `
+            SELECT d.overall, COUNT(DISTINCT e.id)::int AS exercise_count
+            FROM coaching.exercise e
+            JOIN coaching.exercise_phase_profile p ON p.exercise_id = e.id
+            JOIN coaching.session_phase sp ON sp.id = p.phase_id AND sp.key = $1
+            LEFT JOIN coaching.exercise_difficulty_profile d ON d.exercise_id = e.id
+            WHERE e.archived = FALSE AND e.is_published = TRUE
+              AND e.programming_kind = 'exercise'
+              AND p.role IN ('primary', 'secondary')
+              AND (e.skill_level IS NULL OR e.skill_level = $2::public.skill_level)
+            GROUP BY d.overall
+            ORDER BY d.overall NULLS LAST
+          `,
+          [phaseKey, skill],
+        )
+        const bucketCounts = new Map()
+        for (const row of rows.rows) {
+          const bucket = difficultyBucket(row.overall)
+          bucketCounts.set(bucket, (bucketCounts.get(bucket) ?? 0) + Number(row.exercise_count))
+        }
+        for (const bucket of ['D1-2', 'D3-4', 'D5', 'D6', 'D7-8', 'D9-10', 'unknown']) {
+          const count = bucketCounts.get(bucket) ?? 0
+          if (count > 0 || bucket === 'D6' || bucket === 'D7-8') {
+            console.log(`${phaseKey},${skill},${bucket},${count}`)
+          }
+        }
       }
     }
   } finally {

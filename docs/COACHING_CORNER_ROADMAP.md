@@ -407,16 +407,16 @@ multi-track audience splits. Frontend: [NeedsEnginePanel.tsx](../src/components/
 | Per-phase Focus | `focusTargets` on each phase row (Tenet, Methodology, Physiology, Movement Slot) |
 | Equipment | **Use** = hard requirement (422 `unsatisfiable_equipment`); **Avoid** = hard exclude + alias expansion ([equipmentAvoidPolicy.js](../backend/platform/equipmentAvoidPolicy.js)); semantic slug fallback; 422 `violates_equipment_avoid`; `constraint_report` on prescribe |
 | Avoid list | Exercise ids/slugs + body regions |
-| Age splits | `audienceSplits` → per-split variants (`same`, `substituted`, `scaled`, `progression`, `missing`) on items (`split_alternates_json`) |
+| Age splits | `audienceSplits` → per-split variants (`same`, `substituted`, `scaled`, `progression`, `missing`) on items (`split_alternates_json`); **Round 2:** `poolCaps` = max(session + split caps) for SQL pool; cap-proximity scoring; looser progression (+1 gap, stretch OK, pattern prefer-not-require); `same` vs `scaled` label fix |
 | Skill gating | Ordinal `skillLevelPolicy.js` SQL filter + `beginnerExclusionPolicy.js` slug penalties |
 | Focus scoring | Phase focus ×2.5; tiered UI weights; implicit objective hints via `sessionObjectivePolicy.js` |
 | Dedup | Session slug-stem/name/movement_family + elastic family caps ([movementFamilyPolicy.js](../backend/platform/movementFamilyPolicy.js)) + per-phase pattern |
-| Phase fill | Target fill ratios per phase; second-pass backfill; `constraint_report.phase_fill` |
-| Restore gate | [restoreSelectionPolicy.js](../backend/platform/restoreSelectionPolicy.js) — primary/secondary only; excludes plyo/throw profiles |
+| Phase fill | Target fill ratios per phase; second-pass backfill on **remaining** budget; hard budget ceiling + `maxItemsForPhase`; `rest_seconds = 0` honored in packing; `constraint_report.phase_fill` |
+| Restore gate | [restoreSelectionPolicy.js](../backend/platform/restoreSelectionPolicy.js) — primary/secondary only; excludes plyo/throw profiles; **Round 2:** low-impact restore-primary cards with `neural` methodology no longer blanket-excluded |
 | Sustained HIIT | [sustainedCapacityPolicy.js](../backend/platform/sustainedCapacityPolicy.js) — HIIT hard filter; split relax ≤8 min; conditioning fallback pass |
 | Sport context | [sportContextPolicy.js](../backend/platform/sportContextPolicy.js) — fitness-general penalizes sport-specific slugs |
 | HIIT / methodology | Method scorer accepts `methodologyKey`; sustained_capacity min 2 items when HIIT focus |
-| Library audit | Migrations [219](../backend/migrations/219_equipment_tag_audit.sql)–[223](../backend/migrations/223_coaching_profile_and_sport_cleanup.sql); restore + HIIT fitness seeds [221](../backend/migrations/221_coaching_restore_library_seed.sql), [222](../backend/migrations/222_coaching_sustained_capacity_hiit_fitness.sql); `scripts/audit-prescription-coverage.mjs` (HIIT + restore primary counts) |
+| Library audit | Migrations [219](../backend/migrations/219_equipment_tag_audit.sql)–[223](../backend/migrations/223_coaching_profile_and_sport_cleanup.sql); restore + HIIT fitness seeds [221](../backend/migrations/221_coaching_restore_library_seed.sql), [222](../backend/migrations/222_coaching_sustained_capacity_hiit_fitness.sql); split progression D6–8 seed [226](../backend/migrations/226_coaching_split_progression_d6_8.sql); `scripts/audit-prescription-coverage.mjs` (HIIT + restore primary + phase×difficulty histogram) |
 | Other phases | Skills (`coaching.skill`), Games (`coaching.game`), Tramp & Tumble placeholder block |
 | Saved phasing | `coaching.coach_phase_template` + `/api/coach/phase-templates` |
 | Saved requirements | `coaching.coach_needs_engine_requirements` + `/api/coach/needs-engine/requirements` (inputs + prescription snapshot) |

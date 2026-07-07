@@ -197,3 +197,257 @@ test('audience splits emit per-group exercise variants', async () => {
   assert.equal(older.exercise_name, 'Hard Jump')
   assert.equal(older.variant_type, 'same')
 })
+
+function prescriptionMockHandlers({
+  exercises,
+  phaseKey = 'output',
+  phaseId = 2,
+  phaseProfiles = null,
+  difficulties = null,
+  tags = null,
+}) {
+  const profileRows = phaseProfiles ?? exercises.flatMap((ex) => ([{
+    exercise_id: ex.id,
+    phase_id: phaseId,
+    phase_key: phaseKey,
+    role: ex.role ?? 'primary',
+    fit_weight: ex.fit_weight ?? 10,
+    order_slot: null,
+    notes: null,
+    impact_level: ex.impact_level ?? 1,
+    order_index: 1,
+    freshness_required: false,
+    fatigue_sensitivity: 1,
+    fatigue_cost: 1,
+    technical_complexity: 1,
+    intensity_ceiling: 'low',
+  }]))
+
+  const difficultyRows = difficulties ?? exercises.map((ex) => ({
+    exercise_id: ex.id,
+    technical: ex.technical ?? ex.difficulty ?? 4,
+    load: ex.load ?? ex.difficulty ?? 4,
+    overall: ex.difficulty ?? 4,
+    recommended_age_min: null,
+    recommended_age_max: null,
+    attention_demand: null,
+    notes: null,
+    source: 'test',
+  }))
+
+  const tagRows = tags ?? exercises.flatMap((ex) => (
+    ex.tags ?? [{ exercise_id: ex.id, facet_type: 'pattern', facet_id: ex.pattern_id ?? 10, weight: 1 }]
+  ))
+
+  return [
+    ...baseHandlers(),
+    (sql) => {
+      if (sql.includes('FROM coaching.session_phase')) {
+        return { rows: [{ id: phaseId, key: phaseKey, name: phaseKey }] }
+      }
+      if (sql.includes('FROM coaching.exercise e WHERE')) return { rows: exercises }
+      if (sql.includes('FROM coaching.exercise_tag')) return { rows: tagRows }
+      if (sql.includes('FROM coaching.exercise_phase_profile')) return { rows: profileRows }
+      if (sql.includes('FROM coaching.exercise_difficulty_profile')) return { rows: difficultyRows }
+      if (sql.includes('FROM coaching.exercise_scaling_profile')) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise_dosage_profile')) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise_safety_profile')) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise_regimen_rule')) return { rows: [] }
+      if (sql.includes("entity_type = 'exercise'")) return { rows: [] }
+      if (sql.includes('FROM coaching.methodology')) return { rows: [{ id: 4, key: 'neural' }] }
+    },
+  ]
+}
+
+test('high-cap split receives progression variant with higher difficulty', async () => {
+  const exercises = [
+    {
+      id: 1,
+      name: 'Base Pass',
+      slug: 'base-pass',
+      programming_kind: 'exercise',
+      default_sets: 3,
+      default_reps: 5,
+      default_rest_seconds: 30,
+      default_work_seconds: 45,
+      est_seconds_per_set: 45,
+      facility_id: 1,
+      archived: false,
+      is_published: true,
+      difficulty: 4,
+      fit_weight: 12,
+      pattern_id: 10,
+    },
+    {
+      id: 2,
+      name: 'Heavy Pass',
+      slug: 'heavy-pass',
+      programming_kind: 'exercise',
+      default_sets: 3,
+      default_reps: 5,
+      default_rest_seconds: 30,
+      default_work_seconds: 45,
+      est_seconds_per_set: 45,
+      facility_id: 1,
+      archived: false,
+      is_published: true,
+      difficulty: 7,
+      fit_weight: 8,
+      role: 'secondary',
+      pattern_id: 10,
+    },
+  ]
+
+  const pool = mockPool(prescriptionMockHandlers({ exercises, phaseKey: 'output' }))
+
+  const result = await runPhaseAwarePrescription(pool, 1, {
+    ageMin: 8,
+    ageMax: 14,
+    skillLevel: 'INTERMEDIATE',
+    audienceSplits: [
+      { label: 'Ages 8-10', ageMin: 8, ageMax: 10, difficultyOverride: 6 },
+      { label: 'Ages 11-14', ageMin: 11, ageMax: 14, difficultyOverride: 10 },
+    ],
+    phasePlan: [{ phaseKey: 'output', minutes: 20, label: 'Output' }],
+  })
+
+  const item = result.blocks[0].items[0]
+  assert.ok(item)
+  assert.equal(item.exercise_name, 'Base Pass')
+  const younger = item.per_split?.find((entry) => entry.split_label === 'Ages 8-10')
+  const older = item.per_split?.find((entry) => entry.split_label === 'Ages 11-14')
+  assert.ok(younger)
+  assert.ok(older)
+  assert.equal(younger.variant_type, 'same')
+  assert.equal(older.variant_type, 'progression')
+  assert.equal(older.exercise_name, 'Heavy Pass')
+  assert.ok((older.difficulty?.overall ?? 0) > (younger.difficulty?.overall ?? 0))
+})
+
+test('poolCaps admits high-difficulty candidates when split cap exceeds session cap', async () => {
+  const exercises = [
+    {
+      id: 10,
+      name: 'Elite Bound',
+      slug: 'elite-bound',
+      programming_kind: 'exercise',
+      default_sets: 3,
+      default_reps: 3,
+      default_rest_seconds: 30,
+      default_work_seconds: 45,
+      est_seconds_per_set: 45,
+      facility_id: 1,
+      archived: false,
+      is_published: true,
+      difficulty: 8,
+      fit_weight: 15,
+    },
+  ]
+
+  const pool = mockPool(prescriptionMockHandlers({ exercises, phaseKey: 'output' }))
+
+  const result = await runPhaseAwarePrescription(pool, 1, {
+    ageMin: 8,
+    ageMax: 14,
+    skillLevel: 'INTERMEDIATE',
+    audienceSplits: [
+      { label: 'Older', ageMin: 11, ageMax: 14, difficultyOverride: 10 },
+    ],
+    phasePlan: [{ phaseKey: 'output', minutes: 20, label: 'Output' }],
+  })
+
+  assert.equal(result.blocks[0].items.length, 1)
+  assert.equal(result.blocks[0].items[0].exercise_name, 'Elite Bound')
+})
+
+test('prepare respects max item cap and phase budget', async () => {
+  const exercises = Array.from({ length: 8 }, (_, i) => ({
+    id: i + 1,
+    name: `Prep Drill ${i + 1}`,
+    slug: `prep-drill-${i + 1}`,
+    programming_kind: 'exercise',
+    default_sets: 2,
+    default_reps: 5,
+    default_rest_seconds: 0,
+    default_work_seconds: 60,
+    est_seconds_per_set: 60,
+    facility_id: 1,
+    archived: false,
+    is_published: true,
+    difficulty: 3,
+    fit_weight: 10 - i,
+    pattern_id: 100 + i,
+    tags: [{ exercise_id: i + 1, facet_type: 'pattern', facet_id: 100 + i, weight: 1 }],
+  }))
+
+  const pool = mockPool(prescriptionMockHandlers({
+    exercises,
+    phaseKey: 'prepare_and_access',
+    phaseId: 7,
+  }))
+
+  const result = await runPhaseAwarePrescription(pool, 1, {
+    ageMin: 8,
+    ageMax: 14,
+    phasePlan: [{ phaseKey: 'prepare_and_access', minutes: 10, label: 'Prepare' }],
+  })
+
+  const block = result.blocks[0]
+  assert.ok(block.items.length <= 5)
+  assert.ok(block.estimated_minutes <= 10)
+})
+
+test('restore phase fills when neural-tagged low-impact card is eligible', async () => {
+  const exercises = [{
+    id: 50,
+    name: 'Box Breathing Hold',
+    slug: 'box-breathing-hold-restore',
+    programming_kind: 'exercise',
+    primary_phase_key: 'restore',
+    default_sets: 2,
+    default_reps: 4,
+    default_rest_seconds: 15,
+    default_work_seconds: 60,
+    est_seconds_per_set: 60,
+    facility_id: 1,
+    archived: false,
+    is_published: true,
+    difficulty: 2,
+    fit_weight: 12,
+    tags: [
+      { exercise_id: 50, facet_type: 'methodology', facet_id: 4, weight: 1 },
+      { exercise_id: 50, facet_type: 'pattern', facet_id: 200, weight: 1 },
+    ],
+  }]
+
+  const pool = mockPool(prescriptionMockHandlers({
+    exercises,
+    phaseKey: 'restore',
+    phaseId: 8,
+    phaseProfiles: [{
+      exercise_id: 50,
+      phase_id: 8,
+      phase_key: 'restore',
+      role: 'primary',
+      fit_weight: 12,
+      order_slot: 'cooldown_breathing',
+      notes: null,
+      impact_level: 0,
+      order_index: 1,
+      freshness_required: false,
+      fatigue_sensitivity: 1,
+      fatigue_cost: 1,
+      technical_complexity: 1,
+      intensity_ceiling: 'low',
+    }],
+  }))
+
+  const result = await runPhaseAwarePrescription(pool, 1, {
+    ageMin: 8,
+    ageMax: 14,
+    phasePlan: [{ phaseKey: 'restore', minutes: 8, label: 'Restore' }],
+  })
+
+  assert.equal(result.blocks[0].items.length, 1)
+  assert.equal(result.blocks[0].items[0].exercise_name, 'Box Breathing Hold')
+})

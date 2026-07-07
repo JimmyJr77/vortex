@@ -12,6 +12,21 @@ const methodologyKeyById = new Map([
   [3, 'hiit'],
 ])
 
+test('restore accepts neural-tagged low-impact breathing card', () => {
+  const exercise = {
+    slug: 'box-breathing-hold-restore',
+    name: 'Box Breathing Hold',
+    primary_phase_key: 'restore',
+  }
+  const profile = { role: 'primary', impactLevel: 0, intensityCeiling: 'low', orderSlot: 'cooldown_breathing', fatigueCost: 1 }
+  const tags = [{ facetType: 'methodology', facetId: 4 }]
+  const methodologyWithNeural = new Map([
+    ...methodologyKeyById,
+    [4, 'neural'],
+  ])
+  assert.equal(restoreCandidateExcluded(exercise, profile, tags, methodologyWithNeural), false)
+})
+
 test('restore rejects output-primary med-ball throw', () => {
   const exercise = {
     slug: 'step-behind-rotational-medicine-ball-throw',

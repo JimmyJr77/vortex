@@ -3,6 +3,7 @@ import test from 'node:test'
 import {
   hasHiitFocus,
   minItemsForPhase,
+  maxItemsForPhase,
   phaseFillTarget,
   sustainedCapacityCandidateEligible,
 } from '../sustainedCapacityPolicy.js'
@@ -19,6 +20,12 @@ test('prepare requires 2 min items', () => {
 
 test('small sustained block has 80% fill target', () => {
   assert.equal(phaseFillTarget('sustained_capacity', [{ facetType: 'methodology', facetKey: 'hiit' }], 4), 0.8)
+})
+
+test('prepare max items scales with block minutes', () => {
+  assert.equal(maxItemsForPhase('prepare_and_access', 10), 5)
+  assert.equal(maxItemsForPhase('prepare_and_access', 4), 2)
+  assert.equal(maxItemsForPhase('restore', 12), 3)
 })
 
 test('sustained HIIT candidate requires hiit methodology tag', () => {
