@@ -385,8 +385,8 @@ function resolvePerSplitVariants(primary, poolForPhase, scored, splitProfiles, p
 }
 
 function splitCandidateAcceptable(resolved, primary, splitProfiles, relaxSplit) {
-  if (relaxSplit) return true
   if ((resolved.warnings?.length ?? 0) > 0) return false
+  if (relaxSplit) return resolved.complete
   if (!resolved.complete) return false
   if (splitProfiles.length === 0) return true
   const youngest = splitProfiles.reduce((a, b) => (
