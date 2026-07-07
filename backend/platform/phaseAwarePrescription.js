@@ -183,6 +183,44 @@ function candidatePhaseProfile(candidate, phaseKey) {
   return candidate.profiles?.find((p) => p.phaseKey === phaseKey && p.role !== 'avoid') ?? null
 }
 
+const SPLIT_PROGRESSION_PHASE_KEYS = new Set(['output', 'capacity', 'resilience'])
+
+function tagFacetIds(candidate, facetType) {
+  return new Set(
+    (candidate.tags ?? [])
+      .filter((t) => t.facetType === facetType)
+      .map((t) => Number(t.facetId))
+      .filter(Number.isFinite),
+  )
+}
+
+function sharesTagFacet(a, b, facetType) {
+  const aIds = tagFacetIds(a, facetType)
+  if (aIds.size === 0) return false
+  for (const id of tagFacetIds(b, facetType)) {
+    if (aIds.has(id)) return true
+  }
+  return false
+}
+
+function sameProgressionLane(candidate, primaryCandidate, phaseKey) {
+  if (!SPLIT_PROGRESSION_PHASE_KEYS.has(phaseKey)) return false
+
+  const profile = candidatePhaseProfile(candidate, phaseKey)
+  if (!profile || !['primary', 'secondary'].includes(profile.role)) return false
+
+  if (sharesTagFacet(candidate, primaryCandidate, 'pattern')) return true
+
+  const candidateFamily = String(candidate.exercise.movement_family ?? '').toLowerCase()
+  const primaryFamily = String(primaryCandidate.exercise.movement_family ?? '').toLowerCase()
+  if (candidateFamily && primaryFamily && candidateFamily === primaryFamily) return true
+
+  const candidateSlot = candidate.exercise.primary_order_slot ?? profile.order_slot ?? profile.orderSlot
+  const primaryProfile = candidatePhaseProfile(primaryCandidate, phaseKey)
+  const primarySlot = primaryCandidate.exercise.primary_order_slot ?? primaryProfile?.order_slot ?? primaryProfile?.orderSlot
+  return Boolean(candidateSlot && primarySlot && candidateSlot === primarySlot)
+}
+
 function pickSplitAlternate(candidates, primaryCandidate, caps, hardExclude, excludeIds = new Set()) {
   const primaryExerciseId = Number(primaryCandidate.exercise.id)
   const primaryPattern = primaryCandidate.tags?.find((t) => t.facetType === 'pattern')?.facetId
@@ -217,7 +255,7 @@ function progressionFitsCaps(difficulty, caps) {
   return fit === 'good' || fit === 'stretch'
 }
 
-function pickSplitProgression(candidates, primaryCandidate, caps, excludeIds = new Set(), fullScored = []) {
+function pickSplitProgression(candidates, primaryCandidate, caps, phaseKey, excludeIds = new Set(), fullScored = []) {
   const primaryExerciseId = Number(primaryCandidate.exercise.id)
   const primaryPattern = primaryCandidate.tags?.find((t) => t.facetType === 'pattern')?.facetId
   const primaryDiff = Number(primaryCandidate.difficulty?.overall ?? 0)
@@ -228,6 +266,7 @@ function pickSplitProgression(candidates, primaryCandidate, caps, excludeIds = n
     const eligible = pool.filter((c) => {
       if (Number(c.exercise.id) === primaryExerciseId) return false
       if (excludeIds.has(Number(c.exercise.id))) return false
+      if (!sameProgressionLane(c, primaryCandidate, phaseKey)) return false
       const diff = Number(c.difficulty?.overall ?? 99)
       if (diff <= primaryDiff + 1) return false
       if (diff > targetCap) return false
@@ -297,7 +336,7 @@ function resolvePerSplitVariants(primary, poolForPhase, scored, splitProfiles, p
       const primaryDiff = Number(primary.difficulty?.overall ?? 0)
       const cap = Number(split.caps?.maxOverall ?? 10)
       if (cap > primaryDiff + 1) {
-        const progressed = pickSplitProgression(searchPool, primary, split.caps, reservedIds, scored)
+        const progressed = pickSplitProgression(searchPool, primary, split.caps, phaseKey, reservedIds, scored)
         if (progressed) {
           reservedIds.add(Number(progressed.exercise.id))
           perSplit.push(buildSplitVariantEntry(split, progressed, {
@@ -481,7 +520,7 @@ async function fillPhaseItems({
 
     const cost = itemSecondsFromExercise(c.exercise, {})
     if (usedSeconds + cost > budgetSeconds) {
-      if (items.length === 0) {
+      if (items.length === 0 && minItems > 0) {
         // Allow one oversize item so the phase is not empty.
       } else {
         continue

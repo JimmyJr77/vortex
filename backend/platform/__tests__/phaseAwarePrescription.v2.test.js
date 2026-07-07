@@ -324,6 +324,128 @@ test('high-cap split receives progression variant with higher difficulty', async
   assert.ok((older.difficulty?.overall ?? 0) > (younger.difficulty?.overall ?? 0))
 })
 
+test('split progressions stay off low-intent phases', async () => {
+  const exercises = [
+    {
+      id: 1,
+      name: 'Bear Crawl Prep',
+      slug: 'bear-crawl-prep',
+      programming_kind: 'exercise',
+      default_sets: 1,
+      default_reps: 6,
+      default_rest_seconds: 0,
+      default_work_seconds: 45,
+      est_seconds_per_set: 45,
+      facility_id: 1,
+      archived: false,
+      is_published: true,
+      difficulty: 4,
+      fit_weight: 12,
+      pattern_id: 11,
+    },
+    {
+      id: 2,
+      name: 'Goblet Squat Tempo 3-1',
+      slug: 'goblet-squat-tempo-d6',
+      programming_kind: 'exercise',
+      default_sets: 3,
+      default_reps: 6,
+      default_rest_seconds: 45,
+      default_work_seconds: 45,
+      est_seconds_per_set: 90,
+      facility_id: 1,
+      archived: false,
+      is_published: true,
+      difficulty: 6,
+      fit_weight: 8,
+      role: 'secondary',
+      pattern_id: 99,
+    },
+  ]
+
+  const pool = mockPool(prescriptionMockHandlers({ exercises, phaseKey: 'prepare_and_access', phaseId: 7 }))
+
+  const result = await runPhaseAwarePrescription(pool, 1, {
+    ageMin: 8,
+    ageMax: 14,
+    skillLevel: 'INTERMEDIATE',
+    audienceSplits: [
+      { label: 'Ages 8-10', ageMin: 8, ageMax: 10, difficultyOverride: 6 },
+      { label: 'Ages 11-14', ageMin: 11, ageMax: 14, difficultyOverride: 10 },
+    ],
+    phasePlan: [{ phaseKey: 'prepare_and_access', minutes: 10, label: 'Prepare' }],
+  })
+
+  const item = result.blocks[0].items[0]
+  assert.equal(item.exercise_name, 'Bear Crawl Prep')
+  assert.equal(item.per_split?.find((entry) => entry.split_label === 'Ages 8-10')?.variant_type, 'same')
+  assert.equal(item.per_split?.find((entry) => entry.split_label === 'Ages 11-14')?.variant_type, 'same')
+})
+
+test('split progressions require a compatible lane within the phase', async () => {
+  const exercises = [
+    {
+      id: 1,
+      name: 'Push-Up Start 10m',
+      slug: 'push-up-start-10m',
+      programming_kind: 'exercise',
+      default_sets: 3,
+      default_reps: 1,
+      default_rest_seconds: 60,
+      default_work_seconds: 20,
+      est_seconds_per_set: 20,
+      facility_id: 1,
+      archived: false,
+      is_published: true,
+      difficulty: 4,
+      fit_weight: 12,
+      pattern_id: 11,
+      primary_order_slot: 'acceleration_start_speed',
+      movement_family: 'Acceleration start',
+    },
+    {
+      id: 2,
+      name: 'Nordic Hamstring Iso Hold',
+      slug: 'nordic-hamstring-iso-hold',
+      programming_kind: 'exercise',
+      default_sets: 2,
+      default_reps: null,
+      default_rest_seconds: 60,
+      default_work_seconds: 30,
+      est_seconds_per_set: 30,
+      facility_id: 1,
+      archived: false,
+      is_published: true,
+      difficulty: 8,
+      fit_weight: 8,
+      role: 'secondary',
+      pattern_id: 99,
+      primary_order_slot: 'slow_eccentric_isometric_joint_resilience',
+      movement_family: 'Hamstring isometric',
+    },
+  ]
+
+  const pool = mockPool(prescriptionMockHandlers({ exercises, phaseKey: 'output' }))
+
+  const result = await runPhaseAwarePrescription(pool, 1, {
+    ageMin: 8,
+    ageMax: 14,
+    skillLevel: 'INTERMEDIATE',
+    audienceSplits: [
+      { label: 'Ages 8-10', ageMin: 8, ageMax: 10, difficultyOverride: 6 },
+      { label: 'Ages 11-14', ageMin: 11, ageMax: 14, difficultyOverride: 10 },
+    ],
+    phasePlan: [{ phaseKey: 'output', minutes: 20, label: 'Output' }],
+  })
+
+  const item = result.blocks[0].items[0]
+  assert.equal(item.exercise_name, 'Push-Up Start 10m')
+  const older = item.per_split?.find((entry) => entry.split_label === 'Ages 11-14')
+  assert.ok(older)
+  assert.equal(older.variant_type, 'same')
+  assert.equal(older.exercise_name, 'Push-Up Start 10m')
+})
+
 test('poolCaps admits high-difficulty candidates when split cap exceeds session cap', async () => {
   const exercises = [
     {
@@ -450,4 +572,76 @@ test('restore phase fills when neural-tagged low-impact card is eligible', async
 
   assert.equal(result.blocks[0].items.length, 1)
   assert.equal(result.blocks[0].items[0].exercise_name, 'Box Breathing Hold')
+})
+
+test('restore backfill does not exceed remaining phase budget', async () => {
+  const exercises = [
+    {
+      id: 60,
+      name: 'Med Ball Belly Breathing',
+      slug: 'med-ball-belly-breathing-restore',
+      programming_kind: 'exercise',
+      primary_phase_key: 'restore',
+      default_sets: 2,
+      default_reps: 5,
+      default_rest_seconds: 10,
+      default_work_seconds: 105,
+      est_seconds_per_set: 105,
+      facility_id: 1,
+      archived: false,
+      is_published: true,
+      difficulty: 2,
+      fit_weight: 12,
+      pattern_id: 200,
+    },
+    {
+      id: 61,
+      name: 'Supine Hamstring Hold',
+      slug: 'supine-hamstring-hold-restore',
+      programming_kind: 'exercise',
+      primary_phase_key: 'restore',
+      default_sets: 2,
+      default_reps: 1,
+      default_rest_seconds: 10,
+      default_work_seconds: 45,
+      est_seconds_per_set: 45,
+      facility_id: 1,
+      archived: false,
+      is_published: true,
+      difficulty: 2,
+      fit_weight: 10,
+      pattern_id: 201,
+    },
+  ]
+
+  const pool = mockPool(prescriptionMockHandlers({
+    exercises,
+    phaseKey: 'restore',
+    phaseId: 8,
+    phaseProfiles: exercises.map((ex, index) => ({
+      exercise_id: ex.id,
+      phase_id: 8,
+      phase_key: 'restore',
+      role: 'primary',
+      fit_weight: 12 - index,
+      order_slot: 'cooldown_breathing',
+      notes: null,
+      impact_level: 0,
+      order_index: index + 1,
+      freshness_required: false,
+      fatigue_sensitivity: 1,
+      fatigue_cost: 1,
+      technical_complexity: 1,
+      intensity_ceiling: 'low',
+    })),
+  }))
+
+  const result = await runPhaseAwarePrescription(pool, 1, {
+    ageMin: 8,
+    ageMax: 14,
+    phasePlan: [{ phaseKey: 'restore', minutes: 4, label: 'Restore' }],
+  })
+
+  assert.equal(result.blocks[0].items.length, 1)
+  assert.ok(result.blocks[0].estimated_minutes <= 4)
 })
