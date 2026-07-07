@@ -89,7 +89,14 @@ import { validateTrainingBlockDraft } from './trainingBlockValidation.js'
 import { validateRegimenDraft } from './regimenValidation.js'
 import { getCoachingSchemaStatus } from './ensureCoachingWhyLayerSchema.js'
 import { dedupeSessionPhases, normalizePhaseKey } from './sessionPhaseKeys.js'
-import { runPhaseAwarePrescription, getSessionPhaseTemplates } from './phaseAwarePrescription.js'
+import {
+  runPhaseAwarePrescription,
+  getSessionPhaseTemplates,
+  PrescriptionError,
+  listCoachPhaseTemplates,
+  saveCoachPhaseTemplate,
+  deleteCoachPhaseTemplate,
+} from './phaseAwarePrescription.js'
 import {
   parseAgeRangeFromText,
   parseSessionObjectiveFromText,
@@ -102,8 +109,10 @@ function ok(res, data) {
   res.json({ success: true, data })
 }
 
-function bad(res, message, status = 400) {
-  res.status(status).json({ success: false, message })
+function bad(res, message, status = 400, details = null) {
+  const body = { success: false, message }
+  if (details != null) body.details = details
+  res.status(status).json(body)
 }
 
 function num(value) {
@@ -372,6 +381,40 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   app.get('/api/coach/session-templates', ...can('library.view'), async (_req, res) => {
     try {
       ok(res, await getSessionPhaseTemplates(pool))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/phase-templates', ...can('library.view'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      ok(res, await listCoachPhaseTemplates(pool, facilityId, coachUserId))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.post('/api/coach/phase-templates', ...can('workouts.manage'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      const name = String(req.body?.name || '').trim()
+      if (!name) return bad(res, 'Template name is required.')
+      const phasePlan = req.body?.phase_plan_json ?? req.body?.phasePlanJson ?? []
+      ok(res, await saveCoachPhaseTemplate(pool, facilityId, coachUserId, name, phasePlan))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
+  app.delete('/api/coach/phase-templates/:id', ...can('workouts.manage'), async (req, res) => {
+    try {
+      const facilityId = req.platformAuth.user.facility_id
+      const coachUserId = Number(req.platformAuth.user.id)
+      await deleteCoachPhaseTemplate(pool, facilityId, coachUserId, num(req.params.id))
+      ok(res, { deleted: true })
     } catch (error) {
       bad(res, error.message, 500)
     }
@@ -1327,12 +1370,13 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       for (const item of block.items || []) {
         await client.query(
           `
-            INSERT INTO coaching.workout_item (block_id, exercise_id, sort_order, sets, reps, work_seconds, rest_seconds, load, tempo, coaching_note)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            INSERT INTO coaching.workout_item (block_id, exercise_id, sort_order, sets, reps, work_seconds, rest_seconds, load, tempo, coaching_note, split_alternates_json)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb)
           `,
           [
             blockId, num(item.exercise_id), itemOrder++, num(item.sets), num(item.reps),
             num(item.work_seconds), num(item.rest_seconds), item.load || null, item.tempo || null, item.coaching_note || null,
+            JSON.stringify(item.split_alternates_json ?? item.per_split ?? null),
           ],
         )
       }
@@ -1351,9 +1395,9 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         `
           INSERT INTO coaching.workout (
             facility_id, title, type, sport_id, description, target_minutes, notes, created_by, is_published, visibility,
-            duration_minutes, session_objective, audience_json, format_json, coach_rationale_json, phase_plan_json, validation_snapshot_json, validation_override_reason
+            duration_minutes, session_objective, audience_json, format_json, coach_rationale_json, phase_plan_json, validation_snapshot_json, validation_override_reason, audience_splits_json
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb, $14::jsonb, $15::jsonb, $16::jsonb, $17::jsonb, $18) RETURNING id
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb, $14::jsonb, $15::jsonb, $16::jsonb, $17::jsonb, $18, $19::jsonb) RETURNING id
         `,
         [
           facilityId, title,
@@ -1368,6 +1412,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           JSON.stringify(req.body?.phase_plan_json ?? req.body?.phasePlanJson ?? []),
           JSON.stringify(req.body?.validation_snapshot_json ?? req.body?.validationSnapshotJson ?? {}),
           req.body?.validation_override_reason ?? req.body?.validationOverrideReason ?? null,
+          JSON.stringify(req.body?.audience_splits_json ?? req.body?.audienceSplitsJson ?? []),
         ],
       )
       const id = Number(created.rows[0].id)
@@ -1414,6 +1459,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
             phase_plan_json = COALESCE($15::jsonb, phase_plan_json),
             validation_snapshot_json = COALESCE($16::jsonb, validation_snapshot_json),
             validation_override_reason = COALESCE($17, validation_override_reason),
+            audience_splits_json = COALESCE($18::jsonb, audience_splits_json),
             updated_at = now()
           WHERE id = $1
         `,
@@ -1431,6 +1477,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           req.body?.phase_plan_json != null || req.body?.phasePlanJson != null ? JSON.stringify(req.body.phase_plan_json ?? req.body.phasePlanJson) : null,
           req.body?.validation_snapshot_json != null || req.body?.validationSnapshotJson != null ? JSON.stringify(req.body.validation_snapshot_json ?? req.body.validationSnapshotJson) : null,
           req.body?.validation_override_reason ?? req.body?.validationOverrideReason ?? null,
+          req.body?.audience_splits_json != null || req.body?.audienceSplitsJson != null ? JSON.stringify(req.body.audience_splits_json ?? req.body.audienceSplitsJson) : null,
         ],
       )
       if (Array.isArray(req.body?.blocks)) {
@@ -1482,6 +1529,9 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     try {
       ok(res, await runPrescription(req.platformAuth.user.facility_id, req.body || {}))
     } catch (error) {
+      if (error instanceof PrescriptionError && error.code === 'unsatisfiable_equipment') {
+        return bad(res, error.message, 422, error.details)
+      }
       bad(res, error.message, 500)
     }
   })

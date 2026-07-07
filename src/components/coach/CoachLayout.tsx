@@ -1,6 +1,6 @@
 import { Suspense, useState, useEffect, useMemo } from 'react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
-import { Home, Users, BookOpen, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video, Bell, CircleHelp, Layers, Blocks } from 'lucide-react'
+import { Home, Users, BookOpen, ScrollText, Dumbbell, Flame, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video, Bell, CircleHelp, Layers, Blocks } from 'lucide-react'
 import PortalPreferencesPanel from '../messaging/PortalPreferencesPanel'
 import MessagingFaqMasterPanel from '../messaging/MessagingFaqMasterPanel'
 import HomePanel from './HomePanel'
@@ -72,7 +72,7 @@ const NAV: Array<{ tab: CoachTab; label: string; icon: typeof Home }> = [
   { tab: 'sessions', label: 'Today', icon: CalendarDays },
   { tab: 'needs', label: 'Needs Engine', icon: Sparkles },
   { tab: 'library', label: 'Library', icon: BookOpen },
-  { tab: 'framework', label: 'Philosophy', icon: BookOpen },
+  { tab: 'framework', label: 'Philosophy', icon: ScrollText },
   { tab: 'workout', label: 'Workouts', icon: Dumbbell },
   { tab: 'warmup', label: 'Warmups', icon: Flame },
   { tab: 'programs', label: 'Programs', icon: CalendarRange },

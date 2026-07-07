@@ -29,7 +29,13 @@ export async function coachFetch<T = unknown>(
   const res = await fetch(`${getApiUrl()}${endpoint}`, { ...options, headers })
   const json = await res.json().catch(() => ({}))
   if (!res.ok || json?.success === false) {
-    throw new Error(json?.message || `Request failed: ${res.status}`)
+    const err = new Error(json?.message || `Request failed: ${res.status}`) as Error & {
+      status?: number
+      details?: unknown
+    }
+    err.status = res.status
+    err.details = json?.details
+    throw err
   }
   return (json?.data ?? json) as T
 }

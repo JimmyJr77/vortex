@@ -434,6 +434,14 @@ export interface Exercise {
   why?: ExerciseWhy | null
 }
 
+export interface SplitAlternate {
+  split_label: string
+  exercise_id: number
+  exercise_name: string
+  difficulty?: ExerciseDifficultyProfile | null
+  substituted?: boolean
+}
+
 export interface WorkoutItem {
   id?: number
   exercise_id: number | null
@@ -446,6 +454,8 @@ export interface WorkoutItem {
   tempo?: string | null
   coaching_note?: string | null
   est_seconds_per_set?: number | null
+  split_alternates_json?: SplitAlternate[] | null
+  per_split?: SplitAlternate[]
 }
 
 export type BlockFormat = 'straight_sets' | 'circuit' | 'amrap' | 'emom' | 'for_time' | 'stations' | 'interval' | 'density' | 'tempo' | 'relay' | 'game'
@@ -516,12 +526,56 @@ export interface Workout {
   audience_json?: WorkoutAudience
   format_json?: WorkoutSessionFormat
   coach_rationale_json?: WorkoutCoachRationale
-  phase_plan_json?: Array<{ phaseKey: string; minutes: number; label?: string }>
+  phase_plan_json?: Array<{
+    phaseKey: string
+    minutes: number
+    label?: string
+    focusTargets?: PhaseFocusTarget[]
+    otherKind?: 'skills' | 'games' | 'tramp_tumble'
+    otherItemIds?: number[]
+    pinned?: boolean
+  }>
+  audience_splits_json?: AudienceSplit[]
   validation_snapshot_json?: ValidationResult
   validation_override_reason?: string | null
   notes?: string | null
   computed_minutes?: number
   blocks: WorkoutBlock[]
+}
+
+export type FocusFacetType = 'tenet' | 'methodology' | 'physiology' | 'order_slot'
+
+export interface PhaseFocusTarget {
+  facetType: FocusFacetType
+  facetId: number
+  weight?: number
+}
+
+export interface AudienceSplit {
+  label: string
+  ageMin: number
+  ageMax: number
+  difficultyOverride?: number | null
+}
+
+export interface CoachPhaseTemplate {
+  id: number
+  name: string
+  phase_plan: NeedsEnginePhaseRow[]
+  created_at?: string
+  updated_at?: string
+}
+
+export interface NeedsEnginePhaseRow {
+  phaseKey: string
+  minutes: number
+  label?: string
+  pinned?: boolean
+  contains_tumbling?: boolean
+  focusTargets?: PhaseFocusTarget[]
+  otherKind?: 'skills' | 'games' | 'tramp_tumble'
+  otherItemIds?: number[]
+  otherItemLabels?: string[]
 }
 
 export interface SessionPhase {
@@ -622,10 +676,12 @@ export interface PrescribedBlock {
   label: string
   phase_key?: string | null
   phase_id?: number | null
+  other_kind?: 'skills' | 'games' | 'tramp_tumble' | null
+  focus_targets?: PhaseFocusTarget[]
   target_minutes: number
   estimated_minutes: number
   items: Array<{
-    exercise_id: number
+    exercise_id: number | null
     exercise_name: string
     sets: number
     reps?: number | null
@@ -634,11 +690,14 @@ export interface PrescribedBlock {
     est_seconds_per_set: number
     score: number
     phase_fit?: number
+    game_id?: number
     selection_rationale?: string | null
     placement_rationale?: string | null
     scaling_rationale?: string | null
     difficulty?: ExerciseDifficultyProfile | null
     age_fit?: 'good' | 'stretch' | 'over_cap'
+    per_split?: SplitAlternate[]
+    split_alternates_json?: SplitAlternate[]
   }>
 }
 
@@ -660,8 +719,10 @@ export interface PrescriptionAudienceProfile {
 export interface PrescriptionResult {
   blocks: PrescribedBlock[]
   phase_rationales?: PrescriptionRationale[]
+  work_mode?: 'exercise' | 'skill'
   candidates: Array<{ exercise_id: number; exercise_name: string; score: number; est_seconds_per_set: number; primary_phase?: string | null }>
   audience_profile?: PrescriptionAudienceProfile
+  audience_splits?: Array<{ label: string; caps: PrescriptionAudienceProfile['caps'] }>
   age_fit_warnings?: string[]
 }
 

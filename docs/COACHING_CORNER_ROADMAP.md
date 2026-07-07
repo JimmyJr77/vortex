@@ -395,6 +395,25 @@ follow the Prepare cluster pattern — `106` (shape 1–10), `107` (tumbling 11�
 with per-exercise/placement/scaling rationales from `education_content`. The AI layer still only *drafts*
 inputs; the deterministic engine remains executor of record.
 
+#### Needs Engine v2 (custom workout generation)
+Migration [218](../backend/migrations/218_coaching_needs_engine_v2.sql) adds saved phasing templates and
+multi-track audience splits. Frontend: [NeedsEnginePanel.tsx](../src/components/coach/NeedsEnginePanel.tsx)
++ [phaseArchitect.ts](../src/coach/phaseArchitect.ts). Backend: [phaseAwarePrescription.js](../backend/platform/phaseAwarePrescription.js).
+
+| Capability | Implementation |
+|------------|----------------|
+| Work session mode | `workMode: exercise \| skill` → SQL `programming_kind` filter |
+| Phase architect | Pinned Prepare 7/10/10 min; objective templates; skill/young-age exceptions |
+| Per-phase Focus | `focusTargets` on each phase row (Tenet, Methodology, Physiology, Movement Slot) |
+| Equipment | **Use** = hard requirement (422 `unsatisfiable_equipment`); **Avoid** = hard exclude |
+| Avoid list | Exercise ids/slugs + body regions |
+| Age splits | `audienceSplits` → shared skeleton + per-split substitutions on items (`split_alternates_json`) |
+| Other phases | Skills (`coaching.skill`), Games (`coaching.game`), Tramp & Tumble placeholder block |
+| Saved phasing | `coaching.coach_phase_template` + `/api/coach/phase-templates` |
+| Send to builder | `setWorkout` only — no `applyPhasePlan` wipe |
+
+Tests: [phaseArchitect.test.js](../backend/platform/__tests__/phaseArchitect.test.js), [phaseAwarePrescription.v2.test.js](../backend/platform/__tests__/phaseAwarePrescription.v2.test.js), [coachBuilderPrescribe.test.js](../backend/platform/__tests__/coachBuilderPrescribe.test.js).
+
 ### Idempotent migrations, applied on boot
 Every migration uses `CREATE ... IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`, and
 `INSERT ... ON CONFLICT`, and is appended to the ordered list in

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { BookOpen, ChevronDown, Loader2, Search, X } from 'lucide-react'
+import { ScrollText, ChevronDown, Loader2, Search, X } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import PhilosophyAssistant from './PhilosophyAssistant'
@@ -445,7 +445,7 @@ export default function FrameworkPanel() {
     <div className="space-y-6">
       <header>
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <BookOpen className="w-6 h-6 text-vortex-red" />
+          <ScrollText className="w-6 h-6 text-vortex-red" />
           Training Philosophy
         </h2>
         <p className="text-sm text-gray-500 mt-1 max-w-2xl">
