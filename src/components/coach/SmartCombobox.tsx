@@ -69,7 +69,7 @@ export default function SmartCombobox({
     <div ref={wrapRef} className={`relative ${className}`}>
       <div className="flex flex-wrap gap-1.5 min-h-[38px] border border-gray-300 rounded-lg px-2 py-1.5 bg-white focus-within:ring-2 focus-within:ring-vortex-red/30">
         {selected.map((s) => (
-          <span key={String(s.id)} className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-800">
+          <span key={String(s.id)} className="inline-flex items-center gap-1 rounded-md bg-gray-100 px-2 py-0.5 text-xs text-gray-800">
             {s.label}
             <button type="button" onClick={() => remove(s.id)} className="text-gray-400 hover:text-red-600"><X className="w-3 h-3" /></button>
           </span>

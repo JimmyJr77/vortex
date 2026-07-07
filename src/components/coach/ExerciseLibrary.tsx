@@ -42,25 +42,26 @@ interface FilterState {
   freshness: boolean
   canBeDaily: boolean
   paired: boolean
+  incorporatesSkills: boolean
   minImpact: number | ''
   maxImpact: number | ''
   minOverall: number | ''
   maxOverall: number | ''
   minTechnical: number | ''
   minLoad: number | ''
-  programmingKind: '' | 'exercise' | 'skill_drill'
   sort: '' | 'impact_desc' | 'impact_asc' | 'name_desc' | 'difficulty_desc' | 'difficulty_asc'
 }
 
 const IMPACT_LEVEL_OPTIONS = [0, 1, 2, 3, 4, 5] as const
 const DIFFICULTY_PRESETS = [
-  { key: 'youth', label: 'Youth-safe (≤5)', minOverall: '' as const, maxOverall: 5 as const },
-  { key: 'moderate', label: 'Moderate (4–6)', minOverall: 4 as const, maxOverall: 6 as const },
-  { key: 'challenging', label: 'Challenging (≥7)', minOverall: 7 as const, maxOverall: '' as const },
-  { key: 'elite', label: 'Elite (≥9)', minOverall: 9 as const, maxOverall: '' as const },
+  // Buckets aligned to v3 score distribution (~727@4, ~259@5, ~36@6–7, ~5@8).
+  { key: 'youth', label: 'Youth-safe (≤4)', minOverall: '' as const, maxOverall: 4 as const },
+  { key: 'moderate', label: 'Moderate (5–6)', minOverall: 5 as const, maxOverall: 6 as const },
+  { key: 'challenging', label: 'Challenging (7–8)', minOverall: 7 as const, maxOverall: 8 as const },
+  { key: 'elite', label: 'Elite (8+)', minOverall: 8 as const, maxOverall: '' as const },
 ] as const
 
-const emptyFilters: FilterState = { q: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, minImpact: '', maxImpact: '', minOverall: '', maxOverall: '', minTechnical: '', minLoad: '', programmingKind: '', sort: '' }
+const emptyFilters: FilterState = { q: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, incorporatesSkills: false, minImpact: '', maxImpact: '', minOverall: '', maxOverall: '', minTechnical: '', minLoad: '', sort: '' }
 
 function buildExerciseQueryParams(filters: FilterState, pagination?: { limit: number; offset: number }) {
   const params = new URLSearchParams()
@@ -77,13 +78,13 @@ function buildExerciseQueryParams(filters: FilterState, pagination?: { limit: nu
   if (filters.freshness) params.set('freshness', 'true')
   if (filters.canBeDaily) params.set('can_be_daily', 'true')
   if (filters.paired) params.set('paired', 'true')
+  if (filters.incorporatesSkills) params.set('incorporates_skills', 'true')
   if (filters.minImpact !== '') params.set('min_impact', String(filters.minImpact))
   if (filters.maxImpact !== '') params.set('max_impact', String(filters.maxImpact))
   if (filters.minOverall !== '') params.set('min_overall', String(filters.minOverall))
   if (filters.maxOverall !== '') params.set('max_overall', String(filters.maxOverall))
   if (filters.minTechnical !== '') params.set('min_technical', String(filters.minTechnical))
   if (filters.minLoad !== '') params.set('min_load', String(filters.minLoad))
-  if (filters.programmingKind) params.set('programming_kind', filters.programmingKind)
   if (filters.sort) params.set('sort', filters.sort)
   if (pagination) {
     params.set('limit', String(pagination.limit))
@@ -387,31 +388,6 @@ export default function ExerciseLibrary() {
             minImpact: maxImpact !== '' && f.minImpact !== '' && f.minImpact > maxImpact ? maxImpact : f.minImpact,
           }))}
         />
-        <div>
-          <label className="block text-xs font-semibold text-gray-500 mb-1">Difficulty preset</label>
-          <select
-            value={activeDifficultyPreset}
-            onChange={(e) => {
-              const preset = DIFFICULTY_PRESETS.find((p) => p.key === e.target.value)
-              if (!preset) {
-                setFilters((f) => ({ ...f, minOverall: '', maxOverall: '' }))
-                return
-              }
-              setFilters((f) => ({
-                ...f,
-                minOverall: preset.minOverall,
-                maxOverall: preset.maxOverall,
-                sort: preset.minOverall === 7 || preset.minOverall === 9 ? 'difficulty_desc' : f.sort,
-              }))
-            }}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          >
-            <option value="">Custom</option>
-            {DIFFICULTY_PRESETS.map((preset) => (
-              <option key={preset.key} value={preset.key}>{preset.label}</option>
-            ))}
-          </select>
-        </div>
         <RangeSelectPair
           minLabel="Min difficulty"
           maxLabel="Max difficulty"
@@ -432,15 +408,28 @@ export default function ExerciseLibrary() {
           }))}
         />
         <div>
-          <label className="block text-xs font-semibold text-gray-500 mb-1">Library type</label>
+          <label className="block text-xs font-semibold text-gray-500 mb-1">Difficulty preset</label>
           <select
-            value={filters.programmingKind}
-            onChange={(e) => setFilters((f) => ({ ...f, programmingKind: e.target.value as FilterState['programmingKind'] }))}
+            value={activeDifficultyPreset}
+            onChange={(e) => {
+              const preset = DIFFICULTY_PRESETS.find((p) => p.key === e.target.value)
+              if (!preset) {
+                setFilters((f) => ({ ...f, minOverall: '', maxOverall: '' }))
+                return
+              }
+              setFilters((f) => ({
+                ...f,
+                minOverall: preset.minOverall,
+                maxOverall: preset.maxOverall,
+                sort: preset.minOverall === 7 || preset.minOverall === 8 ? 'difficulty_desc' : f.sort,
+              }))
+            }}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
           >
-            <option value="">All types</option>
-            <option value="exercise">Workouts (exercises)</option>
-            <option value="skill_drill">Skill drills</option>
+            <option value="">Custom</option>
+            {DIFFICULTY_PRESETS.map((preset) => (
+              <option key={preset.key} value={preset.key}>{preset.label}</option>
+            ))}
           </select>
         </div>
         <div>
@@ -472,6 +461,10 @@ export default function ExerciseLibrary() {
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={filters.paired} onChange={(e) => setFilters((f) => ({ ...f, paired: e.target.checked }))} />
               Paired exercises
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={filters.incorporatesSkills} onChange={(e) => setFilters((f) => ({ ...f, incorporatesSkills: e.target.checked }))} />
+              Incorporates skills
             </label>
           </div>
           <button type="button" onClick={() => { setFilters(emptyFilters); setSearchInput('') }} className="text-sm text-gray-500 hover:text-gray-800 underline shrink-0">

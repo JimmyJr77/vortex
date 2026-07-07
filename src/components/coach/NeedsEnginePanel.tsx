@@ -14,7 +14,7 @@ import {
   type OtherPhaseKind,
 } from '../../coach/phaseArchitect'
 import { SESSION_OBJECTIVE_OPTIONS, type SessionObjective } from '../../coach/phasePlan'
-import { standardDifficultyCap } from '../../coach/ageDifficultyPolicy'
+import { standardDifficultyCap, suggestedDifficultyCap } from '../../coach/ageDifficultyPolicy'
 import type {
   AudienceSplit,
   CoachPhaseTemplate,
@@ -251,6 +251,36 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     setPhaseRows(rowsWithLabels(next as NeedsEnginePhaseRow[], taxonomy))
   }
 
+  const insertPhaseRowAfter = (index: number) => {
+    const newRow: PhaseRowUi = {
+      phaseKey: 'capacity',
+      minutes: 15,
+      label: phaseName(taxonomy, 'capacity'),
+      focusFacetType: '',
+      focusTargets: [],
+    }
+    setPhaseRows((rows) => [
+      ...rows.slice(0, index + 1),
+      newRow,
+      ...rows.slice(index + 1),
+    ])
+  }
+
+  const updateSplit = (index: number, patch: Partial<AudienceSplit>) => {
+    setAudienceSplits((splits) => splits.map((s, j) => {
+      if (j !== index) return s
+      const next = { ...s, ...patch }
+      if ('ageMin' in patch || 'ageMax' in patch) {
+        next.difficultyOverride = suggestedDifficultyCap(next.ageMin, next.ageMax)
+      }
+      return next
+    }))
+  }
+
+  const updateSplitCap = (index: number, value: number | null) => {
+    setAudienceSplits((splits) => splits.map((s, j) => (j === index ? { ...s, difficultyOverride: value } : s)))
+  }
+
   const parseAvoidPayload = () => {
     const excludeBodyRegionIds: number[] = []
     const avoidExerciseIds: number[] = []
@@ -292,7 +322,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           label: s.label,
           ageMin: s.ageMin,
           ageMax: s.ageMax,
-          difficultyOverride: s.difficultyOverride ?? null,
+          difficultyOverride: s.difficultyOverride ?? suggestedDifficultyCap(s.ageMin, s.ageMax),
         })),
         equipmentUseIds: equipmentUse.map((e) => Number(e.id)).filter(Number.isFinite),
         equipmentAvoidIds: equipmentAvoid.map((e) => Number(e.id)).filter(Number.isFinite),
@@ -588,7 +618,16 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
               <span className="text-sm font-semibold text-gray-700">Age splits</span>
               <button
                 type="button"
-                onClick={() => setAudienceSplits([...audienceSplits, { label: `Split ${audienceSplits.length + 1}`, ageMin: ageMinNum ?? 6, ageMax: ageMaxNum ?? 8, difficultyOverride: null }])}
+                onClick={() => {
+                  const min = ageMinNum ?? 6
+                  const max = ageMaxNum ?? 8
+                  setAudienceSplits([...audienceSplits, {
+                    label: `Split ${audienceSplits.length + 1}`,
+                    ageMin: min,
+                    ageMax: max,
+                    difficultyOverride: suggestedDifficultyCap(min, max),
+                  }])
+                }}
                 className="text-vortex-red text-sm flex items-center gap-1"
               >
                 <Plus className="w-4 h-4" /> Add split
@@ -598,18 +637,17 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
             <div className="space-y-2">
               {audienceSplits.map((split, i) => (
                 <div key={i} className="grid grid-cols-[1fr_60px_60px_60px_auto] gap-2 items-center text-sm">
-                  <input value={split.label} onChange={(e) => setAudienceSplits(audienceSplits.map((s, j) => j === i ? { ...s, label: e.target.value } : s))} className="border border-gray-300 rounded px-2 py-1" placeholder="Label" />
-                  <input type="number" value={split.ageMin} onChange={(e) => setAudienceSplits(audienceSplits.map((s, j) => j === i ? { ...s, ageMin: Number(e.target.value) } : s))} className="border border-gray-300 rounded px-2 py-1" title="Min age" />
-                  <input type="number" value={split.ageMax} onChange={(e) => setAudienceSplits(audienceSplits.map((s, j) => j === i ? { ...s, ageMax: Number(e.target.value) } : s))} className="border border-gray-300 rounded px-2 py-1" title="Max age" />
+                  <input value={split.label} onChange={(e) => updateSplit(i, { label: e.target.value })} className="border border-gray-300 rounded px-2 py-1" placeholder="Label" />
+                  <input type="number" value={split.ageMin} onChange={(e) => updateSplit(i, { ageMin: Number(e.target.value) || 0 })} className="border border-gray-300 rounded px-2 py-1" title="Min age" />
+                  <input type="number" value={split.ageMax} onChange={(e) => updateSplit(i, { ageMax: Number(e.target.value) || 0 })} className="border border-gray-300 rounded px-2 py-1" title="Max age" />
                   <input
                     type="number"
                     min={1}
                     max={10}
-                    value={split.difficultyOverride ?? ''}
-                    onChange={(e) => setAudienceSplits(audienceSplits.map((s, j) => j === i ? { ...s, difficultyOverride: e.target.value ? Number(e.target.value) : null } : s))}
+                    value={split.difficultyOverride ?? suggestedDifficultyCap(split.ageMin, split.ageMax)}
+                    onChange={(e) => updateSplitCap(i, e.target.value ? Number(e.target.value) : null)}
                     className="border border-gray-300 rounded px-2 py-1"
-                    title="Difficulty override"
-                    placeholder="Cap"
+                    title="Difficulty cap"
                   />
                   <button type="button" onClick={() => setAudienceSplits(audienceSplits.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
                 </div>
@@ -706,26 +744,63 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                 })
                 const isOther = row.phaseKey === 'other'
                 return (
-                  <div key={`${row.phaseKey}-${i}`} className="border border-gray-100 rounded-lg p-2 space-y-2">
-                    <div className="grid grid-cols-[1fr_1fr_70px_auto] gap-2 items-center text-sm">
+                  <div key={`${row.phaseKey}-${i}`} className="relative border border-gray-100 rounded-lg p-2 pt-8 pb-8 space-y-2">
+                    <button
+                      type="button"
+                      onClick={() => deleteRow(i)}
+                      disabled={row.pinned}
+                      className="absolute top-2 right-2 text-gray-400 hover:text-red-600 disabled:opacity-30"
+                      title="Remove phase"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => insertPhaseRowAfter(i)}
+                      className="absolute bottom-2 right-2 text-gray-400 hover:text-vortex-red"
+                      title="Add phase below"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                    <div className="grid grid-cols-[1fr_1fr_70px] gap-2 items-center text-sm pr-6">
                       <select
                         value={row.phaseKey}
                         onChange={(e) => {
                           const phaseKey = e.target.value
                           const label = phaseKey === 'other' ? 'Other' : phaseName(taxonomy, phaseKey)
-                          updateRow(i, { phaseKey, label, otherKind: phaseKey === 'other' ? (row.otherKind ?? 'skills') : undefined })
+                          updateRow(i, {
+                            phaseKey,
+                            label,
+                            otherKind: phaseKey === 'other' ? (row.otherKind ?? 'skills') : undefined,
+                            focusFacetType: phaseKey === 'other' ? '' : row.focusFacetType,
+                            focusTargets: phaseKey === 'other' ? [] : row.focusTargets,
+                          })
                         }}
                         className="border border-gray-300 rounded px-2 py-1"
                       >
                         {(taxonomy?.sessionPhases ?? []).map((p) => <option key={p.key} value={p.key}>{p.name}</option>)}
                         <option value="other">Other</option>
                       </select>
-                      <input
-                        value={row.label ?? ''}
-                        onChange={(e) => updateRow(i, { label: e.target.value })}
-                        className="border border-gray-300 rounded px-2 py-1"
-                        placeholder="Label"
-                      />
+                      {isOther ? (
+                        <select
+                          value={row.otherKind ?? 'skills'}
+                          onChange={(e) => updateRow(i, { otherKind: e.target.value as OtherPhaseKind, otherItemIds: [] })}
+                          className="border border-gray-300 rounded px-2 py-1 text-sm"
+                        >
+                          {Object.entries(OTHER_KIND_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                        </select>
+                      ) : (
+                        <select
+                          value={focusType}
+                          onChange={(e) => updateRow(i, { focusFacetType: e.target.value as FocusFacetType | '', focusTargets: [] })}
+                          className="border border-gray-300 rounded px-2 py-1 text-sm"
+                        >
+                          <option value="">Focus…</option>
+                          {(Object.entries(FOCUS_LABELS) as [FocusFacetType, string][]).map(([k, v]) => (
+                            <option key={k} value={k}>{v}</option>
+                          ))}
+                        </select>
+                      )}
                       <input
                         type="number"
                         value={row.minutes}
@@ -738,17 +813,9 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                         title="Minutes"
                         readOnly={row.pinned}
                       />
-                      <button type="button" onClick={() => deleteRow(i)} disabled={row.pinned} className="text-gray-400 hover:text-red-600 disabled:opacity-30"><Trash2 className="w-4 h-4" /></button>
                     </div>
                     {isOther && (
-                      <div className="grid grid-cols-2 gap-2">
-                        <select
-                          value={row.otherKind ?? 'skills'}
-                          onChange={(e) => updateRow(i, { otherKind: e.target.value as OtherPhaseKind, otherItemIds: [] })}
-                          className="border border-gray-300 rounded px-2 py-1 text-sm"
-                        >
-                          {Object.entries(OTHER_KIND_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                        </select>
+                      <div>
                         {(row.otherKind === 'skills' || !row.otherKind) && (
                           <SmartCombobox
                             options={skillOptions}
@@ -774,38 +841,24 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                           />
                         )}
                         {row.otherKind === 'tramp_tumble' && (
-                          <span className="text-xs text-gray-500 self-center">Placeholder time block — no exercise selection.</span>
+                          <span className="text-xs text-gray-500">Placeholder time block — no exercise selection.</span>
                         )}
                       </div>
                     )}
-                    {!isOther && (
-                      <div className="grid grid-cols-[120px_1fr] gap-2 items-start">
-                        <select
-                          value={focusType}
-                          onChange={(e) => updateRow(i, { focusFacetType: e.target.value as FocusFacetType | '', focusTargets: [] })}
-                          className="border border-gray-300 rounded px-2 py-1 text-sm"
-                        >
-                          <option value="">Focus…</option>
-                          {(Object.entries(FOCUS_LABELS) as [FocusFacetType, string][]).map(([k, v]) => (
-                            <option key={k} value={k}>{v}</option>
-                          ))}
-                        </select>
-                        {focusType && (
-                          <SmartCombobox
-                            options={focusOptionsFor(focusType, row.phaseKey)}
-                            selected={focusSelections}
-                            onChange={(sel) => updateRow(i, {
-                              focusTargets: sel.map((s): PhaseFocusTarget => ({
-                                facetType: focusType as FocusFacetType,
-                                facetId: Number(s.id),
-                                weight: 4,
-                              })),
-                            })}
-                            placeholder={`Select ${FOCUS_LABELS[focusType as FocusFacetType].toLowerCase()}…`}
-                            allowCustom={false}
-                          />
-                        )}
-                      </div>
+                    {!isOther && focusType && (
+                      <SmartCombobox
+                        options={focusOptionsFor(focusType, row.phaseKey)}
+                        selected={focusSelections}
+                        onChange={(sel) => updateRow(i, {
+                          focusTargets: sel.map((s): PhaseFocusTarget => ({
+                            facetType: focusType as FocusFacetType,
+                            facetId: Number(s.id),
+                            weight: 4,
+                          })),
+                        })}
+                        placeholder={`Select ${FOCUS_LABELS[focusType as FocusFacetType].toLowerCase()}…`}
+                        allowCustom={false}
+                      />
                     )}
                   </div>
                 )

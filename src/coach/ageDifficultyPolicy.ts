@@ -20,6 +20,10 @@ export function resolveAgeBand(ageMin: number | null, ageMax: number | null) {
   return AGE_BAND_POLICIES[AGE_BAND_POLICIES.length - 1]
 }
 
+export function suggestedDifficultyCap(ageMin: number, ageMax: number) {
+  return resolveAgeBand(ageMin, ageMax).maxOverall
+}
+
 export function standardDifficultyCap(ageMin: number | null, ageMax: number | null, override?: number | null) {
   if (override != null && Number.isFinite(override)) return override
   return resolveAgeBand(ageMin, ageMax).maxOverall

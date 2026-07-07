@@ -515,6 +515,21 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         where.push(`e.participant_structure IN ('pairs', 'group')`)
       }
 
+      if (req.query.incorporates_skills === 'true' || req.query.incorporatesSkills === 'true') {
+        where.push(`(
+          e.programming_kind = 'skill_drill'
+          OR e.linked_skill_id IS NOT NULL
+          OR EXISTS (
+            SELECT 1 FROM coaching.skill sk
+            WHERE sk.exercise_id = e.id AND sk.facility_id = e.facility_id AND sk.archived = FALSE
+          )
+          OR e.slug IN (
+            'skipping-rhythm-drill', 'cartwheel-finish-lunge',
+            'round-off-rebound-snap-down-to-stick', 'hurdle-step-lunge'
+          )
+        )`)
+      }
+
       const participantStructure = normalizeParticipantStructure(req.query.participant_structure ? String(req.query.participant_structure).trim() : null)
       if (participantStructure) {
         params.push(participantStructure)
@@ -588,11 +603,16 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         where.push(`e.programming_kind = $${params.length}`)
       }
 
-      if (minOverall != null) {
+      if (minOverall != null && maxOverall != null) {
+        params.push(minOverall, maxOverall)
+        where.push(`EXISTS (
+          SELECT 1 FROM coaching.exercise_difficulty_profile d
+          WHERE d.exercise_id = e.id AND d.overall >= $${params.length - 1} AND d.overall <= $${params.length}
+        )`)
+      } else if (minOverall != null) {
         params.push(minOverall)
         where.push(`EXISTS (SELECT 1 FROM coaching.exercise_difficulty_profile d WHERE d.exercise_id = e.id AND d.overall >= $${params.length})`)
-      }
-      if (maxOverall != null) {
+      } else if (maxOverall != null) {
         params.push(maxOverall)
         where.push(`EXISTS (SELECT 1 FROM coaching.exercise_difficulty_profile d WHERE d.exercise_id = e.id AND d.overall <= $${params.length})`)
       }
