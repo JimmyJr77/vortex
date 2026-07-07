@@ -1,92 +1,143 @@
-# Needs Engine Quality Loop (autonomous)
+# Needs Engine Quality Loop — Strict (Round 3)
 
-Run this loop until the golden scenario passes **five times in a row** without human input.
+Autonomous loop until the golden scenario passes the **strict** evaluator **five times in a row** without human input.
 
-## Golden scenario
+Round 2 (`--tier=baseline`) proved structure (restore, fill, box-avoid). Round 3 demands **coach-credible prescriptions**: lane-valid progressions, no reuse spam, tight phase fill, youth safety, equipment coverage, zero spurious warnings.
 
-- File: [scripts/golden-prescription-scenario.json](../scripts/golden-prescription-scenario.json)
-- Evaluator: [scripts/evaluate-prescription-quality.mjs](../scripts/evaluate-prescription-quality.mjs)
+## Artifacts
 
-## One iteration (agent executes fully autonomously)
+| File | Role |
+|------|------|
+| [scripts/golden-prescription-scenario.json](../scripts/golden-prescription-scenario.json) | GAD 120-min speed / fitness / youth splits / box-avoid |
+| [scripts/evaluate-prescription-quality.mjs](../scripts/evaluate-prescription-quality.mjs) | CLI evaluator (`--tier=strict` default) |
+| [backend/platform/prescriptionQualityChecks.js](../backend/platform/prescriptionQualityChecks.js) | Shared check definitions + thresholds |
+| [docs/NEEDS_ENGINE_QUALITY_LOOP.log](./NEEDS_ENGINE_QUALITY_LOOP.log) | One line per iteration (local; gitignored) |
 
-1. **Pull latest** — `git pull --ff-only` (if clean).
-2. **Run unit tests**
+## Strict gates (summary)
+
+### P0 — must never fail
+
+| Check id | Requirement |
+|----------|-------------|
+| `restore_*` | Restore non-empty, no pool_empty, 95–105% of target minutes |
+| `restore_not_box_avoid_false_positive` | Box Breathing not in equipment-avoid samples |
+| `no_empty_phases` | No phase reports pool_empty |
+| `no_duplicate_session_slugs` | No repeated primary exercise in session |
+
+### P1 — phase structure
+
+| Check id | Requirement |
+|----------|-------------|
+| `phase_fill_*` | Prepare/Output/Capacity/Resilience ≥90%; MI ≥85%; Sustained ≥80% |
+| `no_progression_*` | No Split progressions on Prepare, MI, Restore, Sustained |
+| `stretch_primaries_*` | Zero stretch primaries in Prepare, MI, Output, Capacity, Resilience |
+| `equipment_use_coverage` | Kettlebell, jump rope, and cones each appear in prescribed items |
+| `mi_no_handstand_youth` | No handstand/inversion primaries in MI for ages 8–14 |
+
+### P1 — Split 2 progressions (coach quality)
+
+| Check id | Requirement |
+|----------|-------------|
+| `split2_progressions_output` | ≥3 Split 2 progressions in Output |
+| `split2_progressions_capacity` | ≥2 in Capacity |
+| `split2_progressions_resilience` | ≥1 in Resilience |
+| `progression_reuse_*` | Same progression exercise **at most once per phase** |
+| `progression_difficulty_*` | Progression D > primary D |
+| `progression_lane_*` | Progression shares **pattern tag or movement_family** with primary |
+| `session_age_fit_warnings` | Zero session age-fit warnings |
+| `split_variant_warnings` | ≤1 split variant warning |
+
+## One iteration (agent — no user questions)
+
+1. **Pull** — `git pull --ff-only`
+2. **Unit tests**
    ```bash
    node --test backend/platform/__tests__/phaseAwarePrescription*.test.js \
      backend/platform/__tests__/restoreSelectionPolicy.test.js \
-     backend/platform/__tests__/sustainedCapacityPolicy.test.js
+     backend/platform/__tests__/sustainedCapacityPolicy.test.js \
+     backend/platform/__tests__/equipmentAvoidPolicy.test.js \
+     backend/platform/__tests__/prescriptionQualityChecks.test.js
    ```
-3. **Run golden evaluator** (requires `DATABASE_URL` in `backend/.env.local` or env)
+3. **Strict evaluator** (from repo root; `DATABASE_URL` in `backend/.env.local`)
    ```bash
    set -a && source backend/.env.local && set +a
    node scripts/evaluate-prescription-quality.mjs
    ```
-   (`pg` resolves via `backend/node_modules`; run from repo root.)
-4. **If evaluator fails** — fix the highest-severity failure first:
+   Baseline smoke (optional): `node scripts/evaluate-prescription-quality.mjs --tier=baseline`
+4. **Fix failures** — priority: P0 → progression reuse/lane → stretch/youth → fill → warnings
+
    | Failure id | Typical fix |
    |------------|-------------|
-   | `restore_*` | Migrations 221/227, restoreSelectionPolicy, box-avoid false positives |
-   | `no_progression_*` | pickSplitProgression lane gates, phase allowlist |
-   | `restore_not_box_avoid_false_positive` | equipmentAvoidPolicy restore whitelist |
-   | `phase_fill_*` | fillPhaseItems budget/backfill, dose-aware packing |
-   | `split2_has_progressions` | progression graph / migration 226 content |
-   | `prepare_no_stretch_primaries` | primary scoring caps for Prepare |
-5. **Re-run tests + evaluator** until pass.
-6. **Commit and push** when tests + evaluator pass (no user prompt needed):
+   | `progression_reuse_*` | Per-phase reserved progression IDs in `resolvePerSplitVariants` |
+   | `progression_lane_*` | Require pattern match in `sameProgressionLane`; add `exercise_progression` graph |
+   | `progression_difficulty_*` | Tighten `pickSplitProgression` sort / min gap |
+   | `split2_progressions_*` | Migration 226+ progression cards per pattern/phase |
+   | `stretch_primaries_*` | Hard-exclude stretch at primary pick for Prepare/MI; cap-aware scoring |
+   | `session_age_fit_warnings` | Split-aware warnings; don't score Split 2 picks against session cap 6 |
+   | `mi_no_handstand_youth` | Youth MI slug blocklist or age filter on inversion drills |
+   | `equipment_use_coverage` | Equipment-use boost in `buildPoolForPhase` scoring |
+   | `phase_fill_*` | `fillPhaseItems` backfill / maxItems (see Round 2) |
+
+5. **Re-run** tests + strict evaluator until exit 0.
+6. **Commit + push** when green:
    ```bash
-   git add -A && git commit -m "Needs Engine quality loop: <one-line why>" && git push
+   git add -A && git commit -m "Needs Engine strict loop: <one-line why>" && git push
    ```
-7. **Record iteration** — append one line to `docs/NEEDS_ENGINE_QUALITY_LOOP.log`:
+7. **Log** — append to `docs/NEEDS_ENGINE_QUALITY_LOOP.log`:
    ```
-   YYYY-MM-DD HH:MM | PASS|FAIL | commit <sha> | <failed check ids or ALL PASS>
+   YYYY-MM-DD HH:MM | PASS|FAIL | strict | commit <sha> | <failed ids or ALL PASS>
    ```
-8. **Stop condition** — last **two** log lines are `PASS`. Then set status below to `COMPLETE`.
+8. **Stop** — last **five** log lines are `PASS | strict`. Set Status to `COMPLETE`.
 
 ## Stop condition
 
 ```
 Status: COMPLETE
-Completed at: 2026-07-07T09:16:00-04:00
-Final commit: 9a9d072
-Consecutive passes required: 2
+Tier: strict
+Completed at: 2026-07-07T09:30:00-04:00
+Final commit: <pending>
+Consecutive passes: 5
+Round: 3 (near-perfection)
 ```
 
-When complete, change to:
+When complete:
 
 ```
 Status: COMPLETE
-Completed at: <timestamp>
+Tier: strict
+Completed at: <ISO timestamp>
 Final commit: <sha>
+Consecutive passes: 5
 ```
 
-## Deploy note
+## Deploy verification
 
-Evaluator uses **live DATABASE_URL** (same DB as production if pointed there). Backend code changes require Render redeploy before production UI matches; the loop validates engine + DB content locally/remotely via DATABASE_URL.
-
-After push, optionally verify deploy:
+Evaluator uses live `DATABASE_URL`. After push:
 
 ```bash
-curl -s https://vortex-backend-qybl.onrender.com/api/health | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('buildId'))"
+curl -s https://vortex-backend-qybl.onrender.com/api/health | python3 -c "import sys,json; print(json.load(sys.stdin).get('buildId'))"
 ```
 
-## Cursor `/loop` command (paste to start)
+Redeploy Render before expecting UI to match strict gates.
 
-Use **dynamic** loop (agent self-paces). Copy everything after `/loop`:
-
-```
-Run one Needs Engine quality iteration per docs/NEEDS_ENGINE_QUALITY_LOOP.md. Do not ask me questions. Execute steps 1–7 fully: tests, evaluate-prescription-quality.mjs, fix failures, commit+push when green, append NEEDS_ENGINE_QUALITY_LOOP.log. If Status is not COMPLETE, schedule the next iteration yourself (sleep 5m fallback). Stop only when two consecutive PASS entries exist and Status is COMPLETE.
-```
-
-## Optional: fixed interval while deploy propagates
+## Cursor `/loop` command
 
 ```
-/loop 10m Run one Needs Engine quality iteration per docs/NEEDS_ENGINE_QUALITY_LOOP.md (steps 1–7). Stop when NEEDS_ENGINE_QUALITY_LOOP.md Status is COMPLETE.
+/loop
+Run one Needs Engine **strict** quality iteration per docs/NEEDS_ENGINE_QUALITY_LOOP.md. Do not ask questions. Steps 1–8: unit tests (including prescriptionQualityChecks), `node scripts/evaluate-prescription-quality.mjs` (strict tier), fix P0 then progression/lane failures, commit+push when green, append NEEDS_ENGINE_QUALITY_LOOP.log with `strict` marker. Stop only when five consecutive strict PASS log lines exist and Status is COMPLETE.
 ```
 
-## Priority backlog (when evaluator passes but quality still feels weak)
+## Backlog after strict loop completes
 
-1. Progression graph table (`exercise_progression`)
-2. Box-avoid semantic whitelist for `-restore` slugs
-3. Per-split primary selection for Output/Capacity
-4. Boot migration health assertions in `initTables.js`
-5. CI job running evaluator on every PR
+1. `exercise_progression` graph table (canonical next-of-kin links)
+2. CI job: strict evaluator on every PR
+3. Boot migration health assertions (`initTables.js`)
+4. Per-split primary selection for Output/Capacity
+5. Second golden scenario (explosiveness + bar avoid) for regression matrix
+
+## Round history
+
+| Round | Tier | Stop rule | Focus |
+|-------|------|-----------|--------|
+| 2 | baseline | 2× PASS | Restore, fill, box-avoid |
+| 3 | **strict** | **5× PASS** | Progression lanes, reuse, youth, warnings, equipment |

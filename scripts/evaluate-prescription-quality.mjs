@@ -1,14 +1,26 @@
 #!/usr/bin/env node
 /**
  * Golden-scenario Needs Engine quality evaluator.
- * Usage: DATABASE_URL=... node scripts/evaluate-prescription-quality.mjs [--json]
  *
- * Exit 0 = all checks pass. Exit 1 = one or more failures (details on stdout).
+ * Usage:
+ *   DATABASE_URL=... node scripts/evaluate-prescription-quality.mjs [--json] [--tier=strict|baseline]
+ *
+ * Exit 0 = all checks pass. Exit 1 = failures. Exit 2 = setup error.
+ *
+ * Tiers:
+ *   strict   — near-perfection gates (default; used by quality loop)
+ *   baseline — Round 2 structural gates only
  */
 import fs from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import {
+  DEFAULT_BASELINE_THRESHOLDS,
+  DEFAULT_STRICT_THRESHOLDS,
+  collectExerciseIds,
+  evaluatePrescriptionQuality,
+} from '../backend/platform/prescriptionQualityChecks.js'
 
 const require = createRequire(path.join(path.dirname(fileURLToPath(import.meta.url)), '../backend/package.json'))
 const pg = require('pg')
@@ -17,15 +29,20 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const scenarioPath = path.join(__dirname, 'golden-prescription-scenario.json')
 const scenario = JSON.parse(fs.readFileSync(scenarioPath, 'utf8'))
 
-const LOW_INTENT_PHASES = new Set(['prepare_and_access', 'movement_intelligence', 'restore', 'sustained_capacity'])
-const PROGRESSION_PHASES = new Set(['output', 'capacity', 'resilience'])
-
-function fail(checks, id, message, detail = null) {
-  checks.push({ id, ok: false, message, detail })
+function parseTier(argv) {
+  const flag = argv.find((a) => a.startsWith('--tier='))
+  if (!flag) return 'strict'
+  const tier = flag.split('=')[1]
+  if (tier !== 'strict' && tier !== 'baseline') {
+    console.error(`Unknown tier "${tier}". Use strict or baseline.`)
+    process.exit(2)
+  }
+  return tier
 }
 
-function pass(checks, id, message, detail = null) {
-  checks.push({ id, ok: true, message, detail })
+function mergeThresholds(tier, scenarioThresholds = {}) {
+  const base = tier === 'baseline' ? DEFAULT_BASELINE_THRESHOLDS : DEFAULT_STRICT_THRESHOLDS
+  return { ...base, ...scenarioThresholds, tier }
 }
 
 async function resolveScenarioBody(pool, body) {
@@ -58,126 +75,51 @@ async function resolveScenarioBody(pool, body) {
   return resolved
 }
 
-function blockByKey(result, phaseKey) {
-  return result.blocks?.find((b) => b.phase_key === phaseKey)
-}
-
-function allPerSplitVariants(block) {
-  const variants = []
-  for (const item of block?.items ?? []) {
-    for (const v of item.per_split ?? item.split_alternates_json ?? []) {
-      variants.push({ item, variant: v })
-    }
-  }
-  return variants
-}
-
-function evaluateResult(result, thresholds) {
-  const checks = []
-
-  const restoreBlock = blockByKey(result, 'restore')
-  const restoreItems = restoreBlock?.items ?? []
-  const restoreTarget = restoreBlock?.target_minutes ?? 4
-  const restoreEst = restoreBlock?.estimated_minutes ?? 0
-
-  if (restoreItems.length === 0) {
-    fail(checks, 'restore_non_empty', 'Restore phase must contain at least one exercise')
-  } else {
-    pass(checks, 'restore_non_empty', `Restore has ${restoreItems.length} item(s)`)
+async function loadPrescriptionContext(pool, result) {
+  const exerciseIds = collectExerciseIds(result)
+  if (exerciseIds.length === 0) {
+    return { tagMap: new Map(), exerciseById: new Map(), equipmentKeyById: new Map() }
   }
 
-  const restoreEmptyReason = (result.constraint_report?.empty_phase_reasons ?? [])
-    .some((r) => /restore/i.test(r) && /pool_empty|no exercises/i.test(r))
-  if (restoreEmptyReason) {
-    fail(checks, 'restore_no_pool_empty', 'Restore must not report pool_empty')
-  } else {
-    pass(checks, 'restore_no_pool_empty', 'Restore has no pool_empty reason')
+  const [exercises, tags, equipment] = await Promise.all([
+    pool.query(
+      `SELECT id, slug, name, movement_family FROM coaching.exercise WHERE id = ANY($1::bigint[])`,
+      [exerciseIds],
+    ),
+    pool.query(
+      `SELECT exercise_id, facet_type, facet_id, weight FROM coaching.exercise_tag WHERE exercise_id = ANY($1::bigint[])`,
+      [exerciseIds],
+    ),
+    pool.query(`SELECT id, key FROM coaching.equipment`),
+  ])
+
+  const exerciseById = new Map(exercises.rows.map((r) => [Number(r.id), r]))
+  const equipmentKeyById = new Map(equipment.rows.map((r) => [Number(r.id), r.key]))
+  const tagMap = new Map()
+  for (const row of tags.rows) {
+    const key = String(row.exercise_id)
+    const entry = tagMap.get(key) ?? []
+    entry.push({
+      facetType: row.facet_type,
+      facetId: Number(row.facet_id),
+      weight: row.weight,
+    })
+    tagMap.set(key, entry)
   }
 
-  const restoreFillPct = restoreTarget > 0 ? Math.round((restoreEst / restoreTarget) * 100) : 100
-  if (restoreEst > restoreTarget * (thresholds.restoreMaxOverfillPct / 100)) {
-    fail(checks, 'restore_within_budget', `Restore over budget: ${restoreEst}m / ${restoreTarget}m (${restoreFillPct}%)`)
-  } else {
-    pass(checks, 'restore_within_budget', `Restore within budget: ${restoreEst}m / ${restoreTarget}m`)
-  }
-
-  for (const phaseKey of LOW_INTENT_PHASES) {
-    const block = blockByKey(result, phaseKey)
-    if (!block) continue
-    const bad = allPerSplitVariants(block).filter(({ variant }) => variant.variant_type === 'progression')
-    if (bad.length > 0) {
-      fail(
-        checks,
-        `no_progression_${phaseKey}`,
-        `${phaseKey} must not use Progression variants`,
-        bad.slice(0, 3).map(({ item, variant }) => `${item.exercise_name} → ${variant.exercise_name}`),
-      )
-    } else {
-      pass(checks, `no_progression_${phaseKey}`, `${phaseKey} has no Progression variants`)
-    }
-  }
-
-  const avoidSamples = result.constraint_report?.equipment_avoid?.sample_names ?? []
-  const boxBreathingExcluded = avoidSamples.some((n) => /box breathing/i.test(String(n)))
-  if (boxBreathingExcluded) {
-    fail(checks, 'restore_not_box_avoid_false_positive', 'Box Breathing Hold must not appear in equipment-avoid samples when avoiding plyo box')
-  } else {
-    pass(checks, 'restore_not_box_avoid_false_positive', 'No box-breathing false positive in avoid samples')
-  }
-
-  for (const fill of result.constraint_report?.phase_fill ?? []) {
-    if (fill.phase_key === 'restore') continue
-    if ((fill.fill_pct ?? 0) < thresholds.minPhaseFillPct) {
-      fail(
-        checks,
-        `phase_fill_${fill.phase_key}`,
-        `${fill.phase_key} underfilled: ${fill.fill_pct}% (min ${thresholds.minPhaseFillPct}%)`,
-      )
-    } else {
-      pass(checks, `phase_fill_${fill.phase_key}`, `${fill.phase_key} fill ${fill.fill_pct}%`)
-    }
-  }
-
-  const prepareBlock = blockByKey(result, 'prepare_and_access')
-  const stretchInPrepare = (prepareBlock?.items ?? []).filter((it) => it.age_fit === 'stretch').length
-  if (stretchInPrepare > thresholds.maxStretchPrimariesInPrepare) {
-    fail(checks, 'prepare_no_stretch_primaries', `Prepare has ${stretchInPrepare} stretch primary item(s)`)
-  } else {
-    pass(checks, 'prepare_no_stretch_primaries', 'Prepare has no stretch primaries')
-  }
-
-  let split2Progressions = 0
-  for (const phaseKey of thresholds.requireSplit2ProgressionInPhases ?? []) {
-    const block = blockByKey(result, phaseKey)
-    for (const { item, variant } of allPerSplitVariants(block)) {
-      const isSplit2 = /split 2|11-14|11–14/i.test(String(variant.split_label ?? ''))
-      if (isSplit2 && variant.variant_type === 'progression') {
-        split2Progressions += 1
-      }
-    }
-  }
-  if (split2Progressions < (thresholds.minSplit2ProgressionCount ?? 1)) {
-    fail(
-      checks,
-      'split2_has_progressions',
-      `Expected ≥${thresholds.minSplit2ProgressionCount} Split 2 Progression in output/capacity; got ${split2Progressions}`,
-    )
-  } else {
-    pass(checks, 'split2_has_progressions', `Split 2 progressions in output/capacity: ${split2Progressions}`)
-  }
-
-  const passed = checks.filter((c) => c.ok).length
-  const failed = checks.filter((c) => !c.ok)
-  return { checks, passed, failed, ok: failed.length === 0 }
+  return { tagMap, exerciseById, equipmentKeyById }
 }
 
 async function main() {
   const jsonOut = process.argv.includes('--json')
+  const tier = parseTier(process.argv)
   const connectionString = process.env.DATABASE_URL
   if (!connectionString) {
     console.error('DATABASE_URL is required')
     process.exit(2)
   }
+
+  const thresholds = mergeThresholds(tier, scenario.thresholds?.[tier] ?? scenario.thresholds ?? {})
 
   const pool = new pg.Pool({ connectionString, ssl: { rejectUnauthorized: false } })
   try {
@@ -193,22 +135,30 @@ async function main() {
     const { runPhaseAwarePrescription } = await import(pathToFileURL(prescribePath).href)
 
     const result = await runPhaseAwarePrescription(pool, facilityId, body)
-    const evaluation = evaluateResult(result, scenario.thresholds)
+    const context = await loadPrescriptionContext(pool, result)
+    context.sessionAgeMax = body.ageMax ?? body.age_max ?? result.audience_profile?.ageMax
+
+    const evaluation = evaluatePrescriptionQuality(result, thresholds, context)
 
     const report = {
       scenario: scenario.name,
+      tier,
       facilityId,
       ok: evaluation.ok,
       passed: evaluation.passed,
       failed: evaluation.failed.length,
+      p0_failures: evaluation.p0Failed.map((f) => f.id),
       failures: evaluation.failed,
       checks: evaluation.checks,
       constraint_report: result.constraint_report,
+      age_fit_warnings: result.age_fit_warnings,
+      split_variant_warnings: result.split_variant_warnings,
       block_summary: (result.blocks ?? []).map((b) => ({
         phase_key: b.phase_key,
         target_minutes: b.target_minutes,
         estimated_minutes: b.estimated_minutes,
         item_count: b.items?.length ?? 0,
+        fill_pct: b.fill_pct,
       })),
     }
 
@@ -216,17 +166,26 @@ async function main() {
       console.log(JSON.stringify(report, null, 2))
     } else {
       console.log(`Scenario: ${scenario.name}`)
+      console.log(`Tier: ${tier}`)
       console.log(`Result: ${evaluation.ok ? 'PASS' : 'FAIL'} (${evaluation.passed}/${evaluation.checks.length} checks)`)
       if (evaluation.failed.length > 0) {
-        console.log('\nFailures:')
-        for (const f of evaluation.failed) {
-          console.log(`  - [${f.id}] ${f.message}`)
+        console.log('\nFailures (fix in priority order — P0 first):')
+        const ordered = [...evaluation.failed].sort((a, b) => {
+          const rank = (s) => (s === 'P0' ? 0 : 1)
+          return rank(a.severity) - rank(b.severity)
+        })
+        for (const f of ordered) {
+          console.log(`  - [${f.severity ?? 'P1'}][${f.id}] ${f.message}`)
           if (f.detail) console.log(`    ${JSON.stringify(f.detail)}`)
         }
       }
       console.log('\nBlocks:')
       for (const b of report.block_summary) {
-        console.log(`  ${b.phase_key}: ${b.estimated_minutes}m / ${b.target_minutes}m (${b.item_count} items)`)
+        console.log(`  ${b.phase_key}: ${b.estimated_minutes}m / ${b.target_minutes}m (${b.item_count} items, ${b.fill_pct ?? '?'}%)`)
+      }
+      if ((result.age_fit_warnings ?? []).length > 0) {
+        console.log('\nAge-fit warnings:')
+        for (const w of result.age_fit_warnings.slice(0, 5)) console.log(`  - ${w}`)
       }
     }
 

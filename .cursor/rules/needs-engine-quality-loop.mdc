@@ -1,7 +1,8 @@
 ---
-description: Autonomous Needs Engine prescription quality loop — run evaluator and iterate until COMPLETE
+description: Autonomous strict Needs Engine prescription quality loop (Round 3)
 globs:
   - backend/platform/phaseAwarePrescription.js
+  - backend/platform/prescriptionQualityChecks.js
   - backend/platform/*Policy.js
   - backend/migrations/22*.sql
   - scripts/evaluate-prescription-quality.mjs
@@ -10,18 +11,18 @@ globs:
 alwaysApply: false
 ---
 
-# Needs Engine quality loop
+# Needs Engine strict quality loop (Round 3)
 
-When the user asks to iterate on prescription quality, run the autonomous loop in [docs/NEEDS_ENGINE_QUALITY_LOOP.md](../../docs/NEEDS_ENGINE_QUALITY_LOOP.md).
+When iterating on prescription quality, follow [docs/NEEDS_ENGINE_QUALITY_LOOP.md](../../docs/NEEDS_ENGINE_QUALITY_LOOP.md).
 
 ## Mandatory workflow
 
-1. Run unit tests listed in the loop doc.
-2. Run `node scripts/evaluate-prescription-quality.mjs` with `DATABASE_URL` from `backend/.env.local`.
-3. Fix failures in priority order (restore → progression gates → box avoid → fill → split2 progressions).
-4. Re-run until evaluator exits 0.
-5. Commit and push without asking when tests + evaluator pass.
-6. Append result to [docs/NEEDS_ENGINE_QUALITY_LOOP.log](../../docs/NEEDS_ENGINE_QUALITY_LOOP.log).
-7. Stop only when two consecutive PASS log lines exist; set Status to COMPLETE in the loop doc.
+1. Run all unit tests listed in the loop doc (including `prescriptionQualityChecks.test.js`).
+2. Run `node scripts/evaluate-prescription-quality.mjs` (strict tier default) with `DATABASE_URL`.
+3. Fix failures: **P0 → progression_reuse → progression_lane → stretch/youth → fill → warnings**.
+4. Re-run until strict evaluator exits 0.
+5. Commit and push without asking when tests + strict evaluator pass.
+6. Append `strict | PASS|FAIL` line to [docs/NEEDS_ENGINE_QUALITY_LOOP.log](../../docs/NEEDS_ENGINE_QUALITY_LOOP.log).
+7. Stop only when **five consecutive strict PASS** log lines exist; set Status COMPLETE.
 
-Do not ask the user to re-prescribe manually unless verifying production UI after deploy.
+Baseline tier (`--tier=baseline`) is a smoke check only — loop completion requires strict.

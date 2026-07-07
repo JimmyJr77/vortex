@@ -37,10 +37,17 @@
     ]
   },
   "thresholds": {
-    "minPhaseFillPct": 70,
-    "restoreMaxOverfillPct": 105,
-    "maxStretchPrimariesInPrepare": 0,
-    "requireSplit2ProgressionInPhases": ["output", "capacity"],
-    "minSplit2ProgressionCount": 1
+    "baseline": {},
+    "strict": {
+      "minSplit2ProgressionCountByPhase": {
+        "output": 3,
+        "capacity": 2,
+        "resilience": 1
+      },
+      "maxProgressionReusePerPhase": 1,
+      "maxAgeFitWarnings": 0,
+      "maxSplitVariantWarnings": 1,
+      "forbidHandstandInMIUnderAge": 15
+    }
   }
 }
