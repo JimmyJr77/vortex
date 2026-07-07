@@ -15,14 +15,19 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') })
 dotenv.config({ path: path.join(__dirname, '..', '.env.local') })
 
 const connectionString = process.env.DATABASE_URL
+  || process.env.EXTERNAL_DB_URL
+  || process.env.DB_URL
+  || process.env.INTERNAL_DB_URL
 if (!connectionString) {
-  console.error('DATABASE_URL is required. Copy it from Render → vortex-backend → Environment.')
+  console.error('DATABASE_URL (or EXTERNAL_DB_URL / DB_URL) is required.')
   process.exit(1)
 }
 
 const ssl = process.env.DATABASE_SSL === 'false'
   ? false
-  : { rejectUnauthorized: false }
+  : /render\.com|neon\.tech|supabase\.co|rds\.amazonaws\.com/i.test(connectionString)
+    ? { rejectUnauthorized: false }
+    : false
 
 const pool = new pg.Pool({ connectionString, ssl })
 
