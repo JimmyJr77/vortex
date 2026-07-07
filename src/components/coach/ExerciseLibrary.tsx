@@ -30,7 +30,6 @@ const PAGE_SIZE = 48
 
 interface FilterState {
   q: string
-  sport: number | ''
   tenet: number | ''
   methodology: number | ''
   physiology: number | ''
@@ -50,23 +49,22 @@ interface FilterState {
   minTechnical: number | ''
   minLoad: number | ''
   programmingKind: '' | 'exercise' | 'skill_drill'
-  sort: '' | 'difficulty_desc'
+  sort: '' | 'impact_desc' | 'impact_asc' | 'name_desc' | 'difficulty_desc' | 'difficulty_asc'
 }
 
 const IMPACT_LEVEL_OPTIONS = [0, 1, 2, 3, 4, 5] as const
 const DIFFICULTY_PRESETS = [
-  { label: 'Youth-safe (≤5)', minOverall: '', maxOverall: 5 },
-  { label: 'Moderate (4–6)', minOverall: 4, maxOverall: 6 },
-  { label: 'Challenging (≥7)', minOverall: 7, maxOverall: '' },
-  { label: 'Elite (≥9)', minOverall: 9, maxOverall: '' },
+  { key: 'youth', label: 'Youth-safe (≤5)', minOverall: '' as const, maxOverall: 5 as const },
+  { key: 'moderate', label: 'Moderate (4–6)', minOverall: 4 as const, maxOverall: 6 as const },
+  { key: 'challenging', label: 'Challenging (≥7)', minOverall: 7 as const, maxOverall: '' as const },
+  { key: 'elite', label: 'Elite (≥9)', minOverall: 9 as const, maxOverall: '' as const },
 ] as const
 
-const emptyFilters: FilterState = { q: '', sport: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, minImpact: '', maxImpact: '', minOverall: '', maxOverall: '', minTechnical: '', minLoad: '', programmingKind: '', sort: '' }
+const emptyFilters: FilterState = { q: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, minImpact: '', maxImpact: '', minOverall: '', maxOverall: '', minTechnical: '', minLoad: '', programmingKind: '', sort: '' }
 
 function buildExerciseQueryParams(filters: FilterState, pagination?: { limit: number; offset: number }) {
   const params = new URLSearchParams()
   if (filters.q) params.set('q', filters.q)
-  if (filters.sport) params.set('sport', String(filters.sport))
   if (filters.tenet) params.set('tenet', String(filters.tenet))
   if (filters.methodology) params.set('method', String(filters.methodology))
   if (filters.physiology) params.set('physio', String(filters.physiology))
@@ -237,6 +235,13 @@ export default function ExerciseLibrary() {
     })
   }, [taxonomy, filters.subrole, selectedPhaseKey])
 
+  const activeDifficultyPreset = useMemo(() => {
+    const match = DIFFICULTY_PRESETS.find(
+      (p) => p.minOverall === filters.minOverall && p.maxOverall === filters.maxOverall,
+    )
+    return match?.key ?? ''
+  }, [filters.minOverall, filters.maxOverall])
+
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -297,7 +302,6 @@ export default function ExerciseLibrary() {
             />
           </div>
         </div>
-        <FacetSelect label="Sport" items={taxonomy?.sports} value={filters.sport} onChange={(v) => setFilters((f) => ({ ...f, sport: v }))} />
         <FacetSelect label="Tenet" items={taxonomy?.tenets as TaxonomyItem[] | undefined} value={filters.tenet} onChange={(v) => setFilters((f) => ({ ...f, tenet: v }))} />
         <FacetSelect label="Methodology" items={taxonomy?.methodologies as TaxonomyItem[] | undefined} value={filters.methodology} onChange={(v) => setFilters((f) => ({ ...f, methodology: v }))} />
         <FacetSelect label="Physiology" items={taxonomy?.physiology as TaxonomyItem[] | undefined} value={filters.physiology} onChange={(v) => setFilters((f) => ({ ...f, physiology: v }))} />
@@ -362,78 +366,70 @@ export default function ExerciseLibrary() {
             )}
           </select>
         </div>
+        <RangeSelectPair
+          label="Impact"
+          minLabel="Min"
+          maxLabel="Max"
+          minValue={filters.minImpact}
+          maxValue={filters.maxImpact}
+          options={IMPACT_LEVEL_OPTIONS.map((n) => ({ value: n, label: String(n) }))}
+          emptyLabel="All"
+          onMinChange={(minImpact) => setFilters((f) => ({
+            ...f,
+            minImpact,
+            maxImpact: minImpact !== '' && f.maxImpact !== '' && f.maxImpact < minImpact ? minImpact : f.maxImpact,
+          }))}
+          onMaxChange={(maxImpact) => setFilters((f) => ({
+            ...f,
+            maxImpact,
+            minImpact: maxImpact !== '' && f.minImpact !== '' && f.minImpact > maxImpact ? maxImpact : f.minImpact,
+          }))}
+        />
         <div>
-          <label className="block text-xs font-semibold text-gray-500 mb-1">Impact (min)</label>
+          <label className="block text-xs font-semibold text-gray-500 mb-1">Difficulty preset</label>
           <select
-            value={filters.minImpact}
+            value={activeDifficultyPreset}
             onChange={(e) => {
-              const minImpact = e.target.value ? Number(e.target.value) : ''
+              const preset = DIFFICULTY_PRESETS.find((p) => p.key === e.target.value)
+              if (!preset) {
+                setFilters((f) => ({ ...f, minOverall: '', maxOverall: '' }))
+                return
+              }
               setFilters((f) => ({
                 ...f,
-                minImpact,
-                maxImpact: minImpact !== '' && f.maxImpact !== '' && f.maxImpact < minImpact ? minImpact : f.maxImpact,
+                minOverall: preset.minOverall,
+                maxOverall: preset.maxOverall,
+                sort: preset.minOverall === 7 || preset.minOverall === 9 ? 'difficulty_desc' : f.sort,
               }))
             }}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
           >
-            <option value="">All</option>
-            {IMPACT_LEVEL_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
+            <option value="">Custom</option>
+            {DIFFICULTY_PRESETS.map((preset) => (
+              <option key={preset.key} value={preset.key}>{preset.label}</option>
+            ))}
           </select>
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-gray-500 mb-1">Impact (max)</label>
-          <select
-            value={filters.maxImpact}
-            onChange={(e) => {
-              const maxImpact = e.target.value ? Number(e.target.value) : ''
-              setFilters((f) => ({
-                ...f,
-                maxImpact,
-                minImpact: maxImpact !== '' && f.minImpact !== '' && f.minImpact > maxImpact ? maxImpact : f.minImpact,
-              }))
-            }}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          >
-            <option value="">All</option>
-            {IMPACT_LEVEL_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-gray-500 mb-1">Min overall difficulty</label>
-          <select
-            value={filters.minOverall}
-            onChange={(e) => {
-              const minOverall = e.target.value ? Number(e.target.value) : ''
-              setFilters((f) => ({
-                ...f,
-                minOverall,
-                maxOverall: minOverall !== '' && f.maxOverall !== '' && f.maxOverall < minOverall ? minOverall : f.maxOverall,
-              }))
-            }}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          >
-            <option value="">Any</option>
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => <option key={n} value={n}>{n}+</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-gray-500 mb-1">Max overall difficulty</label>
-          <select
-            value={filters.maxOverall}
-            onChange={(e) => {
-              const maxOverall = e.target.value ? Number(e.target.value) : ''
-              setFilters((f) => ({
-                ...f,
-                maxOverall,
-                minOverall: maxOverall !== '' && f.minOverall !== '' && f.minOverall > maxOverall ? maxOverall : f.minOverall,
-              }))
-            }}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          >
-            <option value="">Any</option>
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => <option key={n} value={n}>≤ {n}</option>)}
-          </select>
-        </div>
+        <RangeSelectPair
+          label="Difficulty"
+          minLabel="Min diff"
+          maxLabel="Max diff"
+          minValue={filters.minOverall}
+          maxValue={filters.maxOverall}
+          options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => ({ value: n, label: `${n}+` }))}
+          maxOptions={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => ({ value: n, label: `≤ ${n}` }))}
+          emptyLabel="Any"
+          onMinChange={(minOverall) => setFilters((f) => ({
+            ...f,
+            minOverall,
+            maxOverall: minOverall !== '' && f.maxOverall !== '' && f.maxOverall < minOverall ? minOverall : f.maxOverall,
+          }))}
+          onMaxChange={(maxOverall) => setFilters((f) => ({
+            ...f,
+            maxOverall,
+            minOverall: maxOverall !== '' && f.minOverall !== '' && f.minOverall > maxOverall ? maxOverall : f.minOverall,
+          }))}
+        />
         <div>
           <label className="block text-xs font-semibold text-gray-500 mb-1">Library type</label>
           <select
@@ -453,27 +449,13 @@ export default function ExerciseLibrary() {
             onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value as FilterState['sort'] }))}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
           >
-            <option value="">Name (A–Z)</option>
+            <option value="impact_desc">Impact hi-lo</option>
+            <option value="impact_asc">Impact lo-hi</option>
+            <option value="">Name A-Z</option>
+            <option value="name_desc">Name Z-A</option>
             <option value="difficulty_desc">Hardest first</option>
+            <option value="difficulty_asc">Easiest first</option>
           </select>
-        </div>
-        <div className="md:col-span-2 lg:col-span-4 flex flex-wrap gap-2 items-end pb-1">
-          <span className="text-xs font-semibold text-gray-500 mr-1">Difficulty presets:</span>
-          {DIFFICULTY_PRESETS.map((preset) => (
-            <button
-              key={preset.label}
-              type="button"
-              onClick={() => setFilters((f) => ({
-                ...f,
-                minOverall: preset.minOverall,
-                maxOverall: preset.maxOverall,
-                sort: preset.minOverall === 7 || preset.minOverall === 9 ? 'difficulty_desc' : f.sort,
-              }))}
-              className="text-xs px-2.5 py-1 rounded-full border border-gray-300 hover:border-vortex-red hover:text-vortex-red"
-            >
-              {preset.label}
-            </button>
-          ))}
         </div>
         <label className="flex items-center gap-2 text-sm self-end pb-2">
           <input type="checkbox" checked={filters.freshness} onChange={(e) => setFilters((f) => ({ ...f, freshness: e.target.checked }))} />
@@ -580,6 +562,61 @@ export default function ExerciseLibrary() {
           }}
         />
       )}
+    </div>
+  )
+}
+
+function RangeSelectPair({
+  label,
+  minLabel,
+  maxLabel,
+  minValue,
+  maxValue,
+  options,
+  maxOptions,
+  emptyLabel,
+  onMinChange,
+  onMaxChange,
+}: {
+  label: string
+  minLabel: string
+  maxLabel: string
+  minValue: number | ''
+  maxValue: number | ''
+  options: { value: number; label: string }[]
+  maxOptions?: { value: number; label: string }[]
+  emptyLabel: string
+  onMinChange: (value: number | '') => void
+  onMaxChange: (value: number | '') => void
+}) {
+  const maxOpts = maxOptions ?? options
+  return (
+    <div>
+      <span className="block text-xs font-semibold text-gray-500 mb-1">{label}</span>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-[10px] font-medium text-gray-400 mb-0.5">{minLabel}</label>
+          <select
+            value={minValue}
+            onChange={(e) => onMinChange(e.target.value ? Number(e.target.value) : '')}
+            className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm"
+          >
+            <option value="">{emptyLabel}</option>
+            {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-[10px] font-medium text-gray-400 mb-0.5">{maxLabel}</label>
+          <select
+            value={maxValue}
+            onChange={(e) => onMaxChange(e.target.value ? Number(e.target.value) : '')}
+            className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm"
+          >
+            <option value="">{emptyLabel}</option>
+            {maxOpts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+      </div>
     </div>
   )
 }

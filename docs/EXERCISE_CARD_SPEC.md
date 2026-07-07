@@ -110,20 +110,23 @@ Population-specific prose goes in **`exercise_scaling_profile.load_guidance`** p
 
 ### Difficulty profile (age-aware programming)
 
-Canonical table: **`coaching.exercise_difficulty_profile`** (migration `202`). One row per exercise.
+Canonical table: **`coaching.exercise_difficulty_profile`** (migration `202`, rescored in `216`). One row per exercise.
+
+**Product of record:** [EXERCISE_DIFFICULTY_METHODOLOGY.md](EXERCISE_DIFFICULTY_METHODOLOGY.md)
 
 | Field | Scale | Meaning |
 |-------|-------|---------|
-| `technical` | 1–10 | Movement skill / spotting demand |
-| `load` | 1–10 | Bodyweight or external load stress |
-| `complexity` | 1–10 | Rules, decisions, attention span |
-| `overall` | 1–10 | `max(technical, load, complexity)` unless overridden |
-| `recommended_age_min` / `recommended_age_max` | years | Typical athlete age band |
+| `technical` | 1–10 | Movement pattern complexity (not medium, regressions, or assists) |
+| `load` | 1–10 | Inherent resistance — external implement floor or relative BW / stability |
+| `overall` | 1–10 | `max(technical, load)` |
+| `recommended_age_min` / `recommended_age_max` | years | From **overall** for `exercise`; null for `skill_drill` |
 | `attention_demand` | low / moderate / high | Coaching density |
 
-Age-band caps for Needs Engine / workout validation live in [`ageDifficultyPolicy.js`](../backend/platform/ageDifficultyPolicy.js) (e.g. ages 6–8 → max overall 5). Publish gate **warns** when missing; does not block until content backfill is complete.
+**`programming_kind`** on `coaching.exercise`: `exercise` (workout, age-gated) vs `skill_drill` (class/level gated).
 
-Backfill: `node scripts/backfill-exercise-difficulty.mjs` → review CSV at `docs/exercise-difficulty-review.csv`.
+Age-band caps for Needs Engine / workout validation: [`ageDifficultyPolicy.js`](../backend/platform/ageDifficultyPolicy.js) (e.g. ages 6–8 → max overall 5).
+
+Review pipeline: `node scripts/review-exercise-difficulty.mjs` → CSV at `docs/exercise-difficulty-review.csv`.
 
 ### RPE
 

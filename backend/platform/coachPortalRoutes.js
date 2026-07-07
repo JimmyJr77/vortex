@@ -530,9 +530,11 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const minTechnical = num(req.query.min_technical ?? req.query.minTechnical)
       const minLoad = num(req.query.min_load ?? req.query.minLoad)
       const programmingKind = req.query.programming_kind ? String(req.query.programming_kind).trim() : null
+      const sortMode = String(req.query.sort ?? '').trim()
+      const usesDifficultySort = sortMode === 'difficulty_desc' || sortMode === 'difficulty_asc'
       const usesDifficultyFilter = minOverall != null || maxOverall != null
         || minTechnical != null || minLoad != null
-        || String(req.query.sort ?? '').trim() === 'difficulty_desc'
+        || usesDifficultySort
 
       if (usesDifficultyFilter) {
         await ensureDerivedDifficultyProfiles(pool, { facilityId })
@@ -587,11 +589,18 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
       const whereSql = where.join(' AND ')
       const pagination = parseExerciseLibraryPagination(req)
-      const sortMode = String(req.query.sort ?? '').trim()
       const orderSql = sortMode === 'difficulty_desc'
-        ? `ORDER BY d.overall DESC NULLS LAST, e.name`
-        : 'ORDER BY e.name'
-      const difficultyJoin = sortMode === 'difficulty_desc' || minOverall != null || maxOverall != null
+        ? 'ORDER BY d.overall DESC NULLS LAST, e.name'
+        : sortMode === 'difficulty_asc'
+          ? 'ORDER BY d.overall ASC NULLS LAST, e.name'
+          : sortMode === 'name_desc'
+            ? 'ORDER BY e.name DESC'
+            : sortMode === 'impact_desc'
+              ? `ORDER BY ${EXERCISE_EFFECTIVE_IMPACT_SQL} DESC NULLS LAST, e.name`
+              : sortMode === 'impact_asc'
+                ? `ORDER BY ${EXERCISE_EFFECTIVE_IMPACT_SQL} ASC NULLS LAST, e.name`
+                : 'ORDER BY e.name'
+      const difficultyJoin = usesDifficultySort || minOverall != null || maxOverall != null
         || minTechnical != null || minLoad != null
         ? 'LEFT JOIN coaching.exercise_difficulty_profile d ON d.exercise_id = e.id'
         : ''

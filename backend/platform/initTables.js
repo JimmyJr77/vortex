@@ -207,6 +207,7 @@ export async function initPlatformTables(pool) {
     '213_coaching_ladder_cards.sql',
     '214_coaching_exercise_programming_kind.sql',
     '215_coaching_exercise_difficulty_v2_reviewed.sql',
+    '216_coaching_exercise_difficulty_v3_reviewed.sql',
   ]
 
   for (const migrationFile of migrationFiles) {
