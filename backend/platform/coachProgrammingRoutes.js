@@ -237,6 +237,8 @@ export function registerProgrammingRoutes(app, pool, { can, canMutateRow: shared
         lowImpact: Boolean(req.body?.lowImpact),
         groupSize: Number(req.body?.groupSize) || 1,
         desiredAdaptation: req.body?.desiredAdaptation ? String(req.body.desiredAdaptation) : null,
+        methodologyKey: req.body?.methodologyKey ? String(req.body.methodologyKey).toLowerCase() : null,
+        blockMinutes: Number(req.body?.blockMinutes) || null,
       }
       const ranked = result.rows
         .map((row) => {

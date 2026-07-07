@@ -44,4 +44,25 @@ describe('programmingValidation', () => {
     const small = scoreProgrammingMethodForBlock(method, { phaseKey: 'capacity', groupSize: 4 })
     assert.ok(large > small)
   })
+
+  it('boosts HIIT methodology match for sustained capacity', () => {
+    const hiit = {
+      slug: 'hiit-interval',
+      programming_type: 'hiit',
+      category: 'conditioning',
+      phase_profiles: [{ phaseKey: 'sustained_capacity', role: 'primary' }],
+      fatigue_profile: { fatigue_level: 'high' },
+      workout_builder_rules: {},
+    }
+    const circuit = {
+      slug: 'general-circuit',
+      programming_type: 'circuit',
+      category: 'conditioning',
+      phase_profiles: [{ phaseKey: 'sustained_capacity', role: 'primary' }],
+      fatigue_profile: { fatigue_level: 'moderate' },
+      workout_builder_rules: {},
+    }
+    const ctx = { phaseKey: 'sustained_capacity', methodologyKey: 'hiit' }
+    assert.ok(scoreProgrammingMethodForBlock(hiit, ctx) > scoreProgrammingMethodForBlock(circuit, ctx))
+  })
 })

@@ -173,7 +173,9 @@ export function scoreProgrammingMethodForBlock(method, ctx) {
   if (ctx.youth && fp.fatigue_level === 'high') score -= 15
   if (ctx.lowImpact && fp.impact_risk_under_fatigue === 'high') score -= 20
   if (ctx.groupSize > 8 && method.workout_builder_rules?.group_friendly) score += 8
-  if (ctx.desiredAdaptation && method.primary_development_goal?.toLowerCase().includes(ctx.desiredAdaptation.toLowerCase())) score += 10
+  if (ctx.methodologyKey && method.programming_type === ctx.methodologyKey) score += 25
+  if (ctx.methodologyKey && method.slug?.includes?.(ctx.methodologyKey)) score += 15
+  if (ctx.methodologyKey && method.category?.toLowerCase?.().includes(ctx.methodologyKey)) score += 10
   return score
 }
 

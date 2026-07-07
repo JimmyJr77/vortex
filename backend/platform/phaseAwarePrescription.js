@@ -6,6 +6,14 @@ import {
   classifyAgeFit,
   ageFitWarnings,
 } from './ageDifficultyPolicy.js'
+import {
+  expandEquipmentAvoidIds,
+  exerciseViolatesEquipmentAvoid,
+  auditPrescriptionEquipmentAvoid,
+} from './equipmentAvoidPolicy.js'
+import { buildSkillLevelSql } from './skillLevelPolicy.js'
+import { beginnerAppropriatenessPenalty } from './beginnerExclusionPolicy.js'
+import { implicitPhaseFocusHints } from './sessionObjectivePolicy.js'
 
 function itemSecondsFromExercise(ex, item) {
   const sets = Number(item?.sets ?? ex.default_sets) || 3
@@ -118,6 +126,50 @@ function pickSplitAlternate(candidates, primaryCandidate, caps, hardExclude, exc
   return eligible[0] ?? null
 }
 
+function pickSplitProgression(candidates, primaryCandidate, caps, excludeIds = new Set()) {
+  const primaryExerciseId = Number(primaryCandidate.exercise.id)
+  const primaryPattern = primaryCandidate.tags?.find((t) => t.facetType === 'pattern')?.facetId
+  const primaryDiff = Number(primaryCandidate.difficulty?.overall ?? 0)
+  const targetCap = Number(caps?.maxOverall ?? 10)
+  if (targetCap <= primaryDiff + 2) return null
+
+  const eligible = candidates.filter((c) => {
+    if (Number(c.exercise.id) === primaryExerciseId) return false
+    if (excludeIds.has(Number(c.exercise.id))) return false
+    const diff = Number(c.difficulty?.overall ?? 99)
+    if (diff <= primaryDiff + 2) return false
+    if (diff > targetCap) return false
+    if (!c.difficulty || classifyAgeFit(c.difficulty, caps) !== 'good') return false
+    if (primaryPattern) {
+      const pat = c.tags.find((t) => t.facetType === 'pattern')?.facetId
+      if (pat && pat !== primaryPattern) return false
+    }
+    return true
+  })
+
+  eligible.sort((a, b) => {
+    const aDiff = Number(a.difficulty?.overall ?? 0)
+    const bDiff = Number(b.difficulty?.overall ?? 0)
+    if (bDiff !== aDiff) return bDiff - aDiff
+    return (b.adjScore ?? b.score ?? 0) - (a.adjScore ?? a.score ?? 0)
+  })
+
+  return eligible[0] ?? null
+}
+
+function normalizeExerciseName(name) {
+  return String(name ?? '').toLowerCase().replace(/\s+/g, ' ').trim()
+}
+
+function minItemsForPhase(phaseKey, resolvedPhaseTargets) {
+  if (phaseKey !== 'sustained_capacity') return 1
+  const hasHiit = resolvedPhaseTargets.some((t) => {
+    const key = String(t.facetKey ?? t.key ?? '').toLowerCase()
+    return t.facetType === 'methodology' && (key.includes('hiit') || key.includes('conditioning'))
+  })
+  return hasHiit ? 2 : 1
+}
+
 function buildSplitVariantEntry(split, candidate, { variantType, substituted = false, scalingGuidance = null } = {}) {
   return {
     split_label: split.label,
@@ -155,6 +207,19 @@ function resolvePerSplitVariants(primary, poolForPhase, scored, splitProfiles, p
     const fits = primary.difficulty && classifyAgeFit(primary.difficulty, split.caps) === 'good'
 
     if (fits) {
+      const primaryDiff = Number(primary.difficulty?.overall ?? 0)
+      const cap = Number(split.caps?.maxOverall ?? 10)
+      if (cap > primaryDiff + 2) {
+        const progressed = pickSplitProgression(searchPool, primary, split.caps, reservedIds)
+        if (progressed) {
+          reservedIds.add(Number(progressed.exercise.id))
+          perSplit.push(buildSplitVariantEntry(split, progressed, {
+            variantType: 'progression',
+            scalingGuidance: scalingGuidanceForCohort(progressed.scalingProfiles, split.scalingCohort),
+          }))
+          continue
+        }
+      }
       perSplit.push(buildSplitVariantEntry(split, primary, {
         variantType: scalingGuidance ? 'scaled' : 'same',
         scalingGuidance,
@@ -232,6 +297,11 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   })
 
   const sportId = body.sportId != null ? Number(body.sportId) : null
+  let sportKey = null
+  if (sportId) {
+    const sportRow = await pool.query(`SELECT key FROM coaching.sport WHERE id = $1 LIMIT 1`, [sportId])
+    sportKey = sportRow.rows[0]?.key ?? null
+  }
   const level = body.skillLevel || body.skill_level || audience.impliedSkillLevel || null
   const ageMin = audience.ageMin
   const ageMax = audience.ageMax
@@ -247,6 +317,11 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     : []
   const legacyEquipmentIds = Array.isArray(body.equipmentIds) ? body.equipmentIds.map(Number).filter(Number.isFinite) : []
 
+  const { expandedIds: expandedAvoidEquip, avoidKeys } = await expandEquipmentAvoidIds(
+    pool,
+    [...equipmentAvoidIds, ...legacyEquipmentIds],
+  )
+
   const excludeBodyRegionIds = Array.isArray(body.excludeBodyRegionIds)
     ? body.excludeBodyRegionIds.map(Number).filter(Number.isFinite)
     : []
@@ -256,6 +331,14 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   const avoidExerciseIds = Array.isArray(body.avoidExerciseIds ?? body.avoid_exercise_ids)
     ? (body.avoidExerciseIds ?? body.avoid_exercise_ids).map(Number).filter(Number.isFinite)
     : []
+
+  const constraintReport = {
+    equipment_avoid: { excluded_count: 0, sample_names: [] },
+    body_region_avoid: { excluded_count: 0 },
+    exercise_avoid: { excluded_count: avoidExerciseIds.length + avoidExerciseSlugs.length },
+    empty_phase_reasons: [],
+  }
+  const equipmentExcludedSamples = []
 
   const rawTargets = Array.isArray(body.targets) ? body.targets : audience.targets ?? []
   const sessionTargets = await resolveTargetFacetIds(pool, rawTargets.filter((t) => t.facetId != null || t.facetKey || t.key))
@@ -283,8 +366,11 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     where.push(`(e.sport_id = $${params.length} OR e.sport_id IS NULL)`)
   }
   if (level && level !== 'N/A') {
-    params.push(level)
-    where.push(`(e.skill_level IS NULL OR e.skill_level = $${params.length}::public.skill_level)`)
+    const skillSql = buildSkillLevelSql(level, params.length + 1)
+    if (skillSql.clause) {
+      params.push(...skillSql.params)
+      where.push(skillSql.clause)
+    }
   }
   if (ageMin != null) {
     params.push(ageMin)
@@ -328,9 +414,14 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   }
 
   const bundle = await loadExerciseProgrammingBundle(pool, ids)
+  const idToExercise = new Map(candidates.rows.map((r) => [Number(r.id), r]))
   const useEquip = new Set(equipmentUseIds)
-  const avoidEquip = new Set([...equipmentAvoidIds, ...legacyEquipmentIds])
+  const avoidEquip = expandedAvoidEquip
   const usedPatterns = new Map()
+  const usedPatternsByPhase = new Map()
+  const usedSlugs = new Set()
+  const usedMovementFamilies = new Set()
+  const usedNamesNormalized = new Set()
   const sessionWarnings = new Set()
   const usedExerciseIds = new Set()
 
@@ -339,7 +430,13 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       const tags = tagMap.get(String(ex.id)) ?? []
       const equipTags = tags.filter((t) => t.facetType === 'equipment')
 
-      if (avoidEquip.size > 0 && equipTags.some((t) => avoidEquip.has(t.facetId))) return null
+      if (avoidEquip.size > 0 || avoidKeys?.length > 0) {
+        if (exerciseViolatesEquipmentAvoid(ex, equipTags, avoidEquip, avoidKeys)) {
+          constraintReport.equipment_avoid.excluded_count += 1
+          if (equipmentExcludedSamples.length < 8) equipmentExcludedSamples.push(ex.name)
+          return null
+        }
+      }
 
       if (legacyEquipmentIds.length > 0 && !equipmentAvoidIds.length && !equipmentUseIds.length) {
         if (equipTags.some((t) => !avoidEquip.has(t.facetId) && !legacyEquipmentIds.includes(t.facetId))) {
@@ -363,6 +460,9 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       if (strengthIntent && primary?.phaseKey === 'capacity') score += 4
       if (strengthIntent && (primary?.impactLevel ?? 99) <= 1) score += 2
 
+      const beginnerPenalty = beginnerAppropriatenessPenalty(ex, primary, level, sportKey)
+      score -= beginnerPenalty
+
       const ageMultiplier = isSkillDrill ? 1 : scoreAgeDifficultyFit(difficulty, caps)
       score *= ageMultiplier
 
@@ -383,6 +483,11 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     })
     .filter(Boolean)
     .sort((a, b) => b.score - a.score)
+
+  constraintReport.equipment_avoid.sample_names = equipmentExcludedSamples
+  if (excludeBodyRegionIds.length > 0) {
+    constraintReport.body_region_avoid.excluded_count = Math.max(0, candidates.rows.length - ids.length)
+  }
 
   const splitProfiles = audienceSplits.length > 0
     ? audienceSplits.map((split) => {
@@ -510,7 +615,11 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     const phaseTargets = Array.isArray(block.focusTargets ?? block.focus_targets)
       ? (block.focusTargets ?? block.focus_targets)
       : []
-    const resolvedPhaseTargets = await resolveTargetFacetIds(pool, phaseTargets)
+    let resolvedPhaseTargets = await resolveTargetFacetIds(pool, phaseTargets)
+    const implicitHints = implicitPhaseFocusHints(audience.sessionObjective, phaseKey, phaseTargets.length)
+    if (implicitHints.length > 0) {
+      resolvedPhaseTargets = await resolveTargetFacetIds(pool, [...resolvedPhaseTargets, ...implicitHints])
+    }
 
     const edu = phase
       ? await pool.query(
@@ -536,6 +645,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
             if (matchesOrderSlot(c.exercise, profile, t.facetKey)) phaseTargetScore += 8
           }
         }
+        if (resolvedPhaseTargets.length > 0) phaseTargetScore *= 2.5
 
         let phaseFit = profile.fitWeight * 2
         if (profile.role === 'primary') phaseFit += 6
@@ -553,11 +663,21 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
 
     const items = []
     let usedSeconds = 0
+    const minItems = minItemsForPhase(phaseKey, resolvedPhaseTargets)
+    const phasePatternUsed = usedPatternsByPhase.get(phaseKey) ?? new Set()
 
     for (const c of poolForPhase) {
       if (usedExerciseIds.has(Number(c.exercise.id))) continue
+      const slug = c.exercise.slug
+      if (slug && usedSlugs.has(slug)) continue
+      const normName = normalizeExerciseName(c.exercise.name)
+      if (normName && usedNamesNormalized.has(normName)) continue
+      if (c.exercise.movement_family && usedMovementFamilies.has(c.exercise.movement_family)) continue
+      const patternTag = c.tags.find((t) => t.facetType === 'pattern')
+      if (patternTag && phasePatternUsed.has(patternTag.facetId)) continue
+
       const cost = itemSecondsFromExercise(c.exercise, {})
-      if (usedSeconds + cost > budgetSeconds && items.length > 0) continue
+      if (usedSeconds + cost > budgetSeconds && items.length > 0 && items.length >= minItems) continue
 
       let perSplit = []
       let splitReservedIds = []
@@ -594,9 +714,20 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       usedSeconds += cost
       usedExerciseIds.add(Number(c.exercise.id))
       for (const altId of splitReservedIds) usedExerciseIds.add(altId)
-      const patternTag = c.tags.find((t) => t.facetType === 'pattern')
-      if (patternTag) usedPatterns.set(patternTag.facetId, (usedPatterns.get(patternTag.facetId) || 0) + 1)
-      if (usedSeconds >= budgetSeconds) break
+      if (slug) usedSlugs.add(slug)
+      if (normName) usedNamesNormalized.add(normName)
+      if (c.exercise.movement_family) usedMovementFamilies.add(c.exercise.movement_family)
+      if (patternTag) {
+        phasePatternUsed.add(patternTag.facetId)
+        usedPatterns.set(patternTag.facetId, (usedPatterns.get(patternTag.facetId) || 0) + 1)
+      }
+      if (usedSeconds >= budgetSeconds && items.length >= minItems) break
+    }
+
+    usedPatternsByPhase.set(phaseKey, phasePatternUsed)
+
+    if (items.length === 0 && poolForPhase.length === 0) {
+      constraintReport.empty_phase_reasons.push(`${block.label || phaseKey}: no matching exercises for phase/focus/constraints.`)
     }
 
     resultBlocks.push({
@@ -631,6 +762,23 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     }
   }
 
+  if (expandedAvoidEquip.size > 0 || avoidKeys?.length > 0) {
+    const violations = auditPrescriptionEquipmentAvoid(
+      resultBlocks,
+      tagMap,
+      expandedAvoidEquip,
+      avoidKeys,
+      idToExercise,
+    )
+    if (violations.length > 0) {
+      throw new PrescriptionError(
+        'Prescription includes avoided equipment.',
+        'violates_equipment_avoid',
+        { violations },
+      )
+    }
+  }
+
   return {
     blocks: resultBlocks,
     phase_rationales: phaseRationales,
@@ -648,6 +796,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     audience_splits: splitProfiles,
     age_fit_warnings: [...sessionWarnings],
     split_variant_warnings: [...splitVariantWarnings],
+    constraint_report: constraintReport,
     candidates: scored.slice(0, 40).map((c) => ({
       exercise_id: Number(c.exercise.id),
       exercise_name: c.exercise.name,

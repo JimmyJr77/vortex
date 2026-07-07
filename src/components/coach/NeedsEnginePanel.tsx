@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Loader2, Sparkles, Plus, Trash2, ArrowRight, Save } from 'lucide-react'
+import { Loader2, Sparkles, Plus, Trash2, ArrowRight, Save, RotateCcw } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import { useCoachBuilderStore } from '../../coach/useCoachBuilderStore'
+import { useNeedsEngineStore, type NeedsEnginePhaseRowState } from '../../coach/useNeedsEngineStore'
 import {
   buildPhasePlan,
   redistributeOnDelete,
@@ -42,16 +43,13 @@ const OTHER_KIND_LABELS: Record<OtherPhaseKind, string> = {
   tramp_tumble: 'Tramp & Tumble',
 }
 
-interface PhaseRowUi extends NeedsEnginePhaseRow {
-  focusFacetType?: FocusFacetType | ''
-}
 
 function phaseName(taxonomy: ReturnType<typeof useTaxonomy>['taxonomy'], phaseKey: string) {
   if (phaseKey === 'other') return 'Other'
   return taxonomy?.sessionPhases?.find((p) => p.key === phaseKey)?.name ?? phaseKey
 }
 
-function rowsWithLabels(rows: NeedsEnginePhaseRow[], taxonomy: ReturnType<typeof useTaxonomy>['taxonomy']): PhaseRowUi[] {
+function rowsWithLabels(rows: NeedsEnginePhaseRowState[], taxonomy: ReturnType<typeof useTaxonomy>['taxonomy']): NeedsEnginePhaseRowState[] {
   return rows.map((r) => ({
     ...r,
     label: r.label ?? (r.phaseKey === 'other'
@@ -61,7 +59,27 @@ function rowsWithLabels(rows: NeedsEnginePhaseRow[], taxonomy: ReturnType<typeof
   }))
 }
 
-function nearestDurationKey(minutes: number) {
+function focusTargetWeight(facetType: FocusFacetType | '' | undefined): number {
+  if (facetType === 'tenet') return 6
+  if (facetType === 'methodology') return 5
+  return 4
+}
+
+function resolveFocusLabels(
+  targets: PhaseFocusTarget[] | undefined,
+  taxonomy: ReturnType<typeof useTaxonomy>['taxonomy'],
+): string[] {
+  if (!targets?.length || !taxonomy) return []
+  return targets.map((t) => {
+    const list = t.facetType === 'tenet' ? taxonomy.tenets
+      : t.facetType === 'methodology' ? taxonomy.methodologies
+        : t.facetType === 'physiology' ? taxonomy.physiology
+          : taxonomy.phaseOrderSlots
+    return list?.find((row) => row.id === t.facetId)?.name ?? `${t.facetType} ${t.facetId}`
+  })
+}
+
+function nearestDurationKey(minutes: number): 60 | 90 | 120 {
   if (minutes <= 75) return 60
   if (minutes <= 105) return 90
   return 120
@@ -70,38 +88,46 @@ function nearestDurationKey(minutes: number) {
 export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?: () => void }) {
   const { taxonomy } = useTaxonomy()
   const { setWorkout, setWizardComplete } = useCoachBuilderStore()
+  const {
+    workMode,
+    sessionObjective,
+    sessionMinutes,
+    customMinutes,
+    sportId,
+    skillLevel,
+    ageMin,
+    ageMax,
+    difficultyOverride,
+    audienceSplits,
+    equipmentMode,
+    equipmentUse,
+    equipmentAvoid,
+    avoidTokens,
+    phaseRows,
+    userEditedPrepare,
+    architectAdjustments,
+    selectedTemplateKey,
+    result,
+    blockProgramming,
+    nlPrompt,
+    patch,
+    reset: resetNeedsEngine,
+  } = useNeedsEngineStore()
 
-  const [workMode, setWorkMode] = useState<WorkMode>('exercise')
-  const [sessionObjective, setSessionObjective] = useState<SessionObjective>('general_athletic_development')
-  const [sessionMinutes, setSessionMinutes] = useState(60)
-  const [customMinutes, setCustomMinutes] = useState<number | ''>('')
-  const [sportId, setSportId] = useState<number | ''>('')
-  const [skillLevel, setSkillLevel] = useState('')
-  const [ageMin, setAgeMin] = useState<number | ''>('')
-  const [ageMax, setAgeMax] = useState<number | ''>('')
-  const [difficultyOverride, setDifficultyOverride] = useState<number | ''>('')
-  const [audienceSplits, setAudienceSplits] = useState<AudienceSplit[]>([])
-  const [equipmentMode, setEquipmentMode] = useState<'use' | 'avoid'>('use')
-  const [equipmentUse, setEquipmentUse] = useState<ComboboxOption[]>([])
-  const [equipmentAvoid, setEquipmentAvoid] = useState<ComboboxOption[]>([])
-  const [avoidTokens, setAvoidTokens] = useState<ComboboxOption[]>([])
   const [avoidSearchOptions, setAvoidSearchOptions] = useState<ComboboxOption[]>([])
-  const [phaseRows, setPhaseRows] = useState<PhaseRowUi[]>(() => rowsWithLabels(defaultPhaseRows(60) as NeedsEnginePhaseRow[], null))
-  const [userEditedPrepare, setUserEditedPrepare] = useState(false)
-  const [architectAdjustments, setArchitectAdjustments] = useState<string[]>([])
   const [systemTemplates, setSystemTemplates] = useState<SessionPhaseTemplate[]>([])
   const [savedTemplates, setSavedTemplates] = useState<CoachPhaseTemplate[]>([])
-  const [selectedTemplateKey, setSelectedTemplateKey] = useState('')
   const [saveModalOpen, setSaveModalOpen] = useState(false)
   const [saveTemplateName, setSaveTemplateName] = useState('')
   const [skillOptions, setSkillOptions] = useState<ComboboxOption[]>([])
   const [gameOptions, setGameOptions] = useState<ComboboxOption[]>([])
-  const [result, setResult] = useState<PrescriptionResult | null>(null)
-  const [blockProgramming, setBlockProgramming] = useState<(ProgrammingMethod | null)[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [nlPrompt, setNlPrompt] = useState('')
   const [nlLoading, setNlLoading] = useState(false)
+
+  const setPhaseRows = useCallback((next: NeedsEnginePhaseRowState[] | ((rows: NeedsEnginePhaseRowState[]) => NeedsEnginePhaseRowState[])) => {
+    patch({ phaseRows: typeof next === 'function' ? next(useNeedsEngineStore.getState().phaseRows) : next })
+  }, [patch])
 
   const effectiveMinutes = customMinutes !== '' ? Number(customMinutes) : sessionMinutes
   const ageMinNum = ageMin === '' ? null : Number(ageMin)
@@ -152,8 +178,8 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
 
   useEffect(() => {
     if (!taxonomy) return
-    setPhaseRows((rows) => rowsWithLabels(rows, taxonomy))
-  }, [taxonomy])
+    patch({ phaseRows: rowsWithLabels(useNeedsEngineStore.getState().phaseRows, taxonomy) })
+  }, [taxonomy, patch])
 
   useEffect(() => {
     void coachFetch<Array<{ id: number; name: string }>>('/api/coach/skills')
@@ -197,12 +223,11 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       existingRows: phaseRows,
       userEditedPrepare,
     })
-    setPhaseRows(rowsWithLabels(plan as NeedsEnginePhaseRow[], taxonomy))
-    setArchitectAdjustments(adjustments)
+    patch({ phaseRows: rowsWithLabels(plan as NeedsEnginePhaseRow[], taxonomy), architectAdjustments: adjustments })
   }
 
   const loadTemplatePlan = (key: string) => {
-    setSelectedTemplateKey(key)
+    patch({ selectedTemplateKey: key })
     if (!key) return
     if (key.startsWith('sys:')) {
       const tpl = systemTemplates.find((t) => `sys:${t.key}` === key)
@@ -239,8 +264,8 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     }
   }
 
-  const updateRow = (index: number, patch: Partial<PhaseRowUi>) => {
-    setPhaseRows((rows) => rows.map((r, i) => (i === index ? { ...r, ...patch } : r)))
+  const updateRow = (index: number, rowPatch: Partial<NeedsEnginePhaseRowState>) => {
+    setPhaseRows((rows) => rows.map((r, i) => (i === index ? { ...r, ...rowPatch } : r)))
   }
 
   const deleteRow = (index: number) => {
@@ -253,7 +278,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
   }
 
   const insertPhaseRowAfter = (index: number) => {
-    const newRow: PhaseRowUi = {
+    const newRow: NeedsEnginePhaseRowState = {
       phaseKey: 'capacity',
       minutes: 15,
       label: phaseName(taxonomy, 'capacity'),
@@ -267,19 +292,23 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     ])
   }
 
-  const updateSplit = (index: number, patch: Partial<AudienceSplit>) => {
-    setAudienceSplits((splits) => splits.map((s, j) => {
-      if (j !== index) return s
-      const next = { ...s, ...patch }
-      if ('ageMin' in patch || 'ageMax' in patch) {
-        next.difficultyOverride = suggestedDifficultyCap(next.ageMin, next.ageMax)
-      }
-      return next
-    }))
+  const updateSplit = (index: number, splitPatch: Partial<AudienceSplit>) => {
+    patch({
+      audienceSplits: audienceSplits.map((s, j) => {
+        if (j !== index) return s
+        const next = { ...s, ...splitPatch }
+        if ('ageMin' in splitPatch || 'ageMax' in splitPatch) {
+          next.difficultyOverride = suggestedDifficultyCap(next.ageMin, next.ageMax)
+        }
+        return next
+      }),
+    })
   }
 
   const updateSplitCap = (index: number, value: number | null) => {
-    setAudienceSplits((splits) => splits.map((s, j) => (j === index ? { ...s, difficultyOverride: value } : s)))
+    patch({
+      audienceSplits: audienceSplits.map((s, j) => (j === index ? { ...s, difficultyOverride: value } : s)),
+    })
   }
 
   const parseAvoidPayload = () => {
@@ -304,9 +333,6 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
   }
 
   const prescribe = async () => {
-    if (result && !window.confirm('Replace the current prescription? The previous result will be overwritten.')) {
-      return
-    }
     setLoading(true)
     setError(null)
     try {
@@ -345,15 +371,20 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
         })),
       }
       const data = await coachFetch<PrescriptionResult>('/api/coach/needs-engine/prescribe', { method: 'POST', body: JSON.stringify(body) })
-      setResult(data)
+      const nextPatch: Parameters<typeof patch>[0] = { result: data }
       if (data.audience_profile?.impliedSkillLevel && !skillLevel) {
-        setSkillLevel(data.audience_profile.impliedSkillLevel)
+        nextPatch.skillLevel = data.audience_profile.impliedSkillLevel
       }
+      patch(nextPatch)
       const youth = ageMaxNum != null && ageMaxNum <= 14
       const progPicks = await Promise.all(
         phaseRows.map(async (b) => {
           if (b.phaseKey === 'other') return null
           try {
+            const methodologyTarget = (b.focusTargets ?? []).find((t) => t.facetType === 'methodology')
+            const methodologyRow = methodologyTarget
+              ? taxonomy?.methodologies?.find((m) => m.id === methodologyTarget.facetId)
+              : null
             const pick = await coachFetch<{ selected: ProgrammingMethod | null }>('/api/coach/needs-engine/prescribe-programming-method', {
               method: 'POST',
               body: JSON.stringify({
@@ -362,6 +393,9 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                 lowImpact: avoid.excludeBodyRegionIds.length > 0,
                 groupSize: 12,
                 desiredAdaptation: sessionObjective,
+                focusTargets: b.focusTargets ?? [],
+                blockMinutes: b.minutes,
+                methodologyKey: methodologyRow?.key ?? methodologyRow?.slug ?? null,
               }),
             })
             return pick.selected
@@ -370,11 +404,19 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           }
         }),
       )
-      setBlockProgramming(progPicks)
+      patch({ blockProgramming: progPicks })
     } catch (err) {
-      const e = err as Error & { status?: number; details?: { unsatisfiable_equipment?: Array<{ name: string }> } }
+      const e = err as Error & {
+        status?: number
+        details?: {
+          unsatisfiable_equipment?: Array<{ name: string }>
+          violations?: Array<{ exercise_name: string; block_label?: string }>
+        }
+      }
       if (e.status === 422 && e.details?.unsatisfiable_equipment?.length) {
         setError(`No workout exists for that equipment: ${e.details.unsatisfiable_equipment.map((x) => x.name).join(', ')}`)
+      } else if (e.status === 422 && e.details?.violations?.length) {
+        setError(`Prescription includes avoided equipment: ${e.details.violations.map((x) => x.exercise_name).join(', ')}`)
       } else {
         setError(e.message || 'Prescription failed')
       }
@@ -400,33 +442,48 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
         equipmentIds?: number[]
         blocks?: Array<{ label: string; phaseKey?: string; minutes: number }>
       }
-      setSportId(p.sportId ?? '')
-      setSkillLevel(p.skillLevel ?? '')
-      if (p.ageMin != null) setAgeMin(p.ageMin)
-      if (p.ageMax != null) setAgeMax(p.ageMax)
+      const nlPatch: Parameters<typeof patch>[0] = {}
+      if (p.sportId != null) nlPatch.sportId = p.sportId
+      if (p.skillLevel != null) nlPatch.skillLevel = p.skillLevel
+      if (p.ageMin != null) nlPatch.ageMin = p.ageMin
+      if (p.ageMax != null) nlPatch.ageMax = p.ageMax
       if (p.sessionObjective) {
-        setSessionObjective(p.sessionObjective)
-        applyObjectivePlan()
+        nlPatch.sessionObjective = p.sessionObjective
       }
       if (Array.isArray(p.equipmentIds)) {
-        setEquipmentUse(p.equipmentIds.map((id) => {
+        nlPatch.equipmentUse = p.equipmentIds.map((id) => {
           const eq = taxonomy?.equipment?.find((e) => e.id === id)
           return { id, label: eq?.name ?? `Equipment ${id}` }
-        }))
+        })
       }
       if (Array.isArray(p.blocks) && p.blocks.length > 0) {
-        setPhaseRows(rowsWithLabels(p.blocks.map((b) => ({
+        nlPatch.phaseRows = rowsWithLabels(p.blocks.map((b) => ({
           phaseKey: b.phaseKey ?? 'capacity',
           minutes: b.minutes,
           label: b.label,
-        })), taxonomy))
+        })), taxonomy)
       }
-      setResult({
+      nlPatch.result = {
         blocks: data.blocks,
         candidates: data.candidates,
         audience_profile: data.audience_profile,
         age_fit_warnings: data.age_fit_warnings,
-      })
+      }
+      if (p.sessionObjective) {
+        const state = useNeedsEngineStore.getState()
+        const { plan, adjustments } = buildPhasePlan({
+          workMode: state.workMode,
+          sessionObjective: p.sessionObjective,
+          durationMinutes: state.customMinutes !== '' ? Number(state.customMinutes) : state.sessionMinutes,
+          ageMin: nlPatch.ageMin != null ? Number(nlPatch.ageMin) : (state.ageMin === '' ? null : Number(state.ageMin)),
+          ageMax: nlPatch.ageMax != null ? Number(nlPatch.ageMax) : (state.ageMax === '' ? null : Number(state.ageMax)),
+          existingRows: nlPatch.phaseRows ?? state.phaseRows,
+          userEditedPrepare: state.userEditedPrepare,
+        })
+        nlPatch.phaseRows = rowsWithLabels(plan as NeedsEnginePhaseRow[], taxonomy)
+        nlPatch.architectAdjustments = adjustments
+      }
+      patch(nlPatch)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not interpret that request')
     } finally {
@@ -465,6 +522,9 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
         audience_notes: result.age_fit_warnings?.length
           ? result.age_fit_warnings.slice(0, 5).join('; ')
           : undefined,
+        watch_points: result.split_variant_warnings?.length
+          ? result.split_variant_warnings.slice(0, 5)
+          : undefined,
       },
       blocks: result.blocks.map((b, i) => {
         const base: WorkoutBlock = {
@@ -495,14 +555,29 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     onSendToBuilder?.()
   }
 
-  const selectAllEquipmentAvoid = () => setEquipmentAvoid([...equipmentOptions])
-  const deselectAllEquipmentAvoid = () => setEquipmentAvoid([])
+  const selectAllEquipmentAvoid = () => patch({ equipmentAvoid: [...equipmentOptions] })
+  const deselectAllEquipmentAvoid = () => patch({ equipmentAvoid: [] })
+
+  const handleReset = () => {
+    if (result && !window.confirm('Clear the Needs Engine form and prescription?')) return
+    resetNeedsEngine()
+    setError(null)
+  }
 
   return (
     <div className="space-y-5">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2"><Sparkles className="w-6 h-6 text-vortex-red" /> Needs Engine</h2>
-        <p className="text-sm text-gray-500">Configure mode, audience, equipment, and per-phase focus — then prescribe a time-packed session.</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2"><Sparkles className="w-6 h-6 text-vortex-red" /> Needs Engine</h2>
+          <p className="text-sm text-gray-500">Configure mode, audience, equipment, and per-phase focus — then prescribe a time-packed session.</p>
+        </div>
+        <button
+          type="button"
+          onClick={handleReset}
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:border-vortex-red hover:text-vortex-red"
+        >
+          <RotateCcw className="w-4 h-4" /> Reset
+        </button>
       </div>
 
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
@@ -512,7 +587,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
         <div className="flex flex-col sm:flex-row gap-2">
           <input
             value={nlPrompt}
-            onChange={(e) => setNlPrompt(e.target.value)}
+            onChange={(e) => patch({ nlPrompt: e.target.value })}
             onKeyDown={(e) => { if (e.key === 'Enter') void runNaturalLanguage() }}
             placeholder="e.g. 60 min skill session for ages 9-12 with rings required"
             className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900"
@@ -534,7 +609,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                     <button
                       key={mode}
                       type="button"
-                      onClick={() => setWorkMode(mode)}
+                      onClick={() => patch({ workMode: mode })}
                       className={`px-2 py-1 capitalize ${workMode === mode ? 'bg-vortex-red text-white' : 'bg-white'}`}
                     >
                       {mode}
@@ -549,15 +624,15 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-semibold text-gray-700">Equipment</span>
                 <div className="inline-flex rounded border border-gray-300 overflow-hidden text-xs">
-                  <button type="button" onClick={() => setEquipmentMode('use')} className={`px-2 py-1 ${equipmentMode === 'use' ? 'bg-vortex-red text-white' : 'bg-white'}`}>Use</button>
-                  <button type="button" onClick={() => setEquipmentMode('avoid')} className={`px-2 py-1 ${equipmentMode === 'avoid' ? 'bg-vortex-red text-white' : 'bg-white'}`}>Avoid</button>
+                  <button type="button" onClick={() => patch({ equipmentMode: 'use' })} className={`px-2 py-1 ${equipmentMode === 'use' ? 'bg-vortex-red text-white' : 'bg-white'}`}>Use</button>
+                  <button type="button" onClick={() => patch({ equipmentMode: 'avoid' })} className={`px-2 py-1 ${equipmentMode === 'avoid' ? 'bg-vortex-red text-white' : 'bg-white'}`}>Avoid</button>
                 </div>
               </div>
               {equipmentMode === 'use' ? (
                 <SmartCombobox
                   options={equipmentOptions}
                   selected={equipmentUse}
-                  onChange={setEquipmentUse}
+                  onChange={(sel) => patch({ equipmentUse: sel })}
                   placeholder="Required equipment (hard constraint)…"
                   allowCustom
                   onCustomAdd={(text) => ({ id: `custom:${text}`, label: text })}
@@ -571,7 +646,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                   <SmartCombobox
                     options={equipmentOptions}
                     selected={equipmentAvoid}
-                    onChange={setEquipmentAvoid}
+                    onChange={(sel) => patch({ equipmentAvoid: sel })}
                     placeholder="Equipment to exclude…"
                   />
                 </>
@@ -582,7 +657,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           <div className="grid grid-cols-2 gap-3">
             <label className="text-sm col-span-2">
               <span className="block font-semibold text-gray-700 mb-1">Session objective</span>
-              <select value={sessionObjective} onChange={(e) => setSessionObjective(e.target.value as SessionObjective)} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+              <select value={sessionObjective} onChange={(e) => patch({ sessionObjective: e.target.value as SessionObjective })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
                 {SESSION_OBJECTIVE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </label>
@@ -591,8 +666,8 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
               <select
                 value={customMinutes !== '' ? 'custom' : sessionMinutes}
                 onChange={(e) => {
-                  if (e.target.value === 'custom') setCustomMinutes(sessionMinutes)
-                  else { setCustomMinutes(''); setSessionMinutes(Number(e.target.value)) }
+                  if (e.target.value === 'custom') patch({ customMinutes: sessionMinutes })
+                  else patch({ customMinutes: '', sessionMinutes: Number(e.target.value) })
                 }}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2"
               >
@@ -603,19 +678,27 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
             {customMinutes !== '' && (
               <label className="text-sm">
                 <span className="block font-semibold text-gray-700 mb-1">Custom minutes</span>
-                <input type="number" min={15} max={180} value={customMinutes} onChange={(e) => setCustomMinutes(e.target.value ? Number(e.target.value) : '')} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                <input type="number" min={15} max={180} value={customMinutes} onChange={(e) => patch({ customMinutes: e.target.value ? Number(e.target.value) : '' })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
               </label>
             )}
             <label className="text-sm">
               <span className="block font-semibold text-gray-700 mb-1">Sport</span>
-              <select value={sportId} onChange={(e) => setSportId(e.target.value ? Number(e.target.value) : '')} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+              <select value={sportId} onChange={(e) => patch({ sportId: e.target.value ? Number(e.target.value) : '' })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
                 <option value="">Universal</option>
                 {taxonomy?.sports.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
             </label>
             <label className="text-sm">
+              <span className="block font-semibold text-gray-700 mb-1">Age min</span>
+              <input type="number" value={ageMin} onChange={(e) => patch({ ageMin: e.target.value ? Number(e.target.value) : '' })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+            </label>
+            <label className="text-sm">
+              <span className="block font-semibold text-gray-700 mb-1">Age max</span>
+              <input type="number" value={ageMax} onChange={(e) => patch({ ageMax: e.target.value ? Number(e.target.value) : '' })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+            </label>
+            <label className="text-sm">
               <span className="block font-semibold text-gray-700 mb-1">Skill level</span>
-              <select value={skillLevel} onChange={(e) => setSkillLevel(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+              <select value={skillLevel} onChange={(e) => patch({ skillLevel: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
                 <option value="">Any</option>
                 <option value="N/A">N/A</option>
                 <option value="EARLY_STAGE">Early Stage</option>
@@ -623,14 +706,6 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                 <option value="INTERMEDIATE">Intermediate</option>
                 <option value="ADVANCED">Advanced</option>
               </select>
-            </label>
-            <label className="text-sm">
-              <span className="block font-semibold text-gray-700 mb-1">Age min</span>
-              <input type="number" value={ageMin} onChange={(e) => setAgeMin(e.target.value ? Number(e.target.value) : '')} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-            </label>
-            <label className="text-sm">
-              <span className="block font-semibold text-gray-700 mb-1">Age max</span>
-              <input type="number" value={ageMax} onChange={(e) => setAgeMax(e.target.value ? Number(e.target.value) : '')} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
             </label>
             {(ageMinNum != null || ageMaxNum != null) && (
               <div className="col-span-2 flex flex-wrap items-center gap-2">
@@ -644,7 +719,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                     min={1}
                     max={10}
                     value={difficultyOverride}
-                    onChange={(e) => setDifficultyOverride(e.target.value ? Number(e.target.value) : '')}
+                    onChange={(e) => patch({ difficultyOverride: e.target.value ? Number(e.target.value) : '' })}
                     className="w-14 border border-gray-300 rounded px-2 py-0.5"
                     placeholder="—"
                   />
@@ -662,12 +737,14 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                 onClick={() => {
                   const min = ageMinNum ?? 6
                   const max = ageMaxNum ?? 8
-                  setAudienceSplits([...audienceSplits, {
-                    label: `Split ${audienceSplits.length + 1}`,
-                    ageMin: min,
-                    ageMax: max,
-                    difficultyOverride: suggestedDifficultyCap(min, max),
-                  }])
+                  patch({
+                    audienceSplits: [...audienceSplits, {
+                      label: `Split ${audienceSplits.length + 1}`,
+                      ageMin: min,
+                      ageMax: max,
+                      difficultyOverride: suggestedDifficultyCap(min, max),
+                    }],
+                  })
                 }}
                 className="text-vortex-red text-sm flex items-center gap-1"
               >
@@ -690,7 +767,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                     className="border border-gray-300 rounded px-2 py-1"
                     title="Difficulty cap"
                   />
-                  <button type="button" onClick={() => setAudienceSplits(audienceSplits.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => patch({ audienceSplits: audienceSplits.filter((_, j) => j !== i) })} className="text-gray-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
                 </div>
               ))}
             </div>
@@ -702,7 +779,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
             <SmartCombobox
               options={avoidSearchOptions}
               selected={avoidTokens}
-              onChange={setAvoidTokens}
+              onChange={(sel) => patch({ avoidTokens: sel })}
               placeholder="Exercises, movement families, body regions…"
               allowCustom
               onCustomAdd={(text) => ({ id: `custom:${text}`, label: text })}
@@ -741,7 +818,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                 </optgroup>
               </select>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {phaseRows.map((row, i) => {
                 const focusType = row.focusFacetType ?? ''
                 const focusSelections: ComboboxOption[] = (row.focusTargets ?? []).map((t) => {
@@ -751,122 +828,126 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                 })
                 const isOther = row.phaseKey === 'other'
                 return (
-                  <div key={`${row.phaseKey}-${i}`} className="relative border border-gray-100 rounded-lg p-2 pt-8 pb-8 space-y-2">
-                    <button
-                      type="button"
-                      onClick={() => deleteRow(i)}
-                      disabled={row.pinned}
-                      className="absolute top-2 right-2 text-gray-400 hover:text-red-600 disabled:opacity-30"
-                      title="Remove phase"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => insertPhaseRowAfter(i)}
-                      className="absolute bottom-2 right-2 text-gray-400 hover:text-vortex-red"
-                      title="Add phase below"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                    <div className="grid grid-cols-[1fr_1fr_70px] gap-2 items-center text-sm pr-6">
-                      <select
-                        value={row.phaseKey}
-                        onChange={(e) => {
-                          const phaseKey = e.target.value
-                          const label = phaseKey === 'other' ? 'Other' : phaseName(taxonomy, phaseKey)
-                          updateRow(i, {
-                            phaseKey,
-                            label,
-                            otherKind: phaseKey === 'other' ? (row.otherKind ?? 'skills') : undefined,
-                            focusFacetType: phaseKey === 'other' ? '' : row.focusFacetType,
-                            focusTargets: phaseKey === 'other' ? [] : row.focusTargets,
-                          })
-                        }}
-                        className="border border-gray-300 rounded px-2 py-1"
-                      >
-                        {(taxonomy?.sessionPhases ?? []).map((p) => <option key={p.key} value={p.key}>{p.name}</option>)}
-                        <option value="other">Other</option>
-                      </select>
-                      {isOther ? (
+                  <div key={`${row.phaseKey}-${i}`} className="flex gap-1.5 items-start border border-gray-100 rounded-lg p-1.5">
+                    <div className="flex-1 min-w-0 space-y-1.5">
+                      <div className="grid grid-cols-[1fr_1fr_70px] gap-2 items-center text-sm">
                         <select
-                          value={row.otherKind ?? 'skills'}
-                          onChange={(e) => updateRow(i, { otherKind: e.target.value as OtherPhaseKind, otherItemIds: [] })}
-                          className="border border-gray-300 rounded px-2 py-1 text-sm"
+                          value={row.phaseKey}
+                          onChange={(e) => {
+                            const phaseKey = e.target.value
+                            const label = phaseKey === 'other' ? 'Other' : phaseName(taxonomy, phaseKey)
+                            updateRow(i, {
+                              phaseKey,
+                              label,
+                              otherKind: phaseKey === 'other' ? (row.otherKind ?? 'skills') : undefined,
+                              focusFacetType: phaseKey === 'other' ? '' : row.focusFacetType,
+                              focusTargets: phaseKey === 'other' ? [] : row.focusTargets,
+                            })
+                          }}
+                          className="border border-gray-300 rounded px-2 py-1 min-w-0"
                         >
-                          {Object.entries(OTHER_KIND_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                          {(taxonomy?.sessionPhases ?? []).map((p) => <option key={p.key} value={p.key}>{p.name}</option>)}
+                          <option value="other">Other</option>
                         </select>
-                      ) : (
-                        <select
-                          value={focusType}
-                          onChange={(e) => updateRow(i, { focusFacetType: e.target.value as FocusFacetType | '', focusTargets: [] })}
-                          className="border border-gray-300 rounded px-2 py-1 text-sm"
-                        >
-                          <option value="">Focus…</option>
-                          {(Object.entries(FOCUS_LABELS) as [FocusFacetType, string][]).map(([k, v]) => (
-                            <option key={k} value={k}>{v}</option>
-                          ))}
-                        </select>
-                      )}
-                      <input
-                        type="number"
-                        value={row.minutes}
-                        onChange={(e) => {
-                          const minutes = Number(e.target.value) || 0
-                          if (row.pinned) setUserEditedPrepare(true)
-                          updateRow(i, { minutes })
-                        }}
-                        className="border border-gray-300 rounded px-2 py-1"
-                        title="Minutes"
-                        readOnly={row.pinned}
-                      />
-                    </div>
-                    {isOther && (
-                      <div>
-                        {(row.otherKind === 'skills' || !row.otherKind) && (
-                          <SmartCombobox
-                            options={skillOptions}
-                            selected={(row.otherItemIds ?? []).map((id) => {
-                              const opt = skillOptions.find((o) => Number(o.id) === id)
-                              return { id, label: opt?.label ?? `Skill ${id}` }
-                            })}
-                            onChange={(sel) => updateRow(i, { otherItemIds: sel.map((s) => Number(s.id)).filter(Number.isFinite) })}
-                            placeholder="Pick skills…"
-                            allowCustom={false}
-                          />
+                        {isOther ? (
+                          <select
+                            value={row.otherKind ?? 'skills'}
+                            onChange={(e) => updateRow(i, { otherKind: e.target.value as OtherPhaseKind, otherItemIds: [] })}
+                            className="border border-gray-300 rounded px-2 py-1 text-sm min-w-0"
+                          >
+                            {Object.entries(OTHER_KIND_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                          </select>
+                        ) : (
+                          <select
+                            value={focusType}
+                            onChange={(e) => updateRow(i, { focusFacetType: e.target.value as FocusFacetType | '', focusTargets: [] })}
+                            className="border border-gray-300 rounded px-2 py-1 text-sm min-w-0"
+                          >
+                            <option value="">Focus…</option>
+                            {(Object.entries(FOCUS_LABELS) as [FocusFacetType, string][]).map(([k, v]) => (
+                              <option key={k} value={k}>{v}</option>
+                            ))}
+                          </select>
                         )}
-                        {row.otherKind === 'games' && (
-                          <SmartCombobox
-                            options={gameOptions}
-                            selected={(row.otherItemIds ?? []).map((id) => {
-                              const opt = gameOptions.find((o) => Number(o.id) === id)
-                              return { id, label: opt?.label ?? `Game ${id}` }
-                            })}
-                            onChange={(sel) => updateRow(i, { otherItemIds: sel.map((s) => Number(s.id)).filter(Number.isFinite) })}
-                            placeholder="Pick games…"
-                            allowCustom={false}
-                          />
-                        )}
-                        {row.otherKind === 'tramp_tumble' && (
-                          <span className="text-xs text-gray-500">Placeholder time block — no exercise selection.</span>
-                        )}
+                        <input
+                          type="number"
+                          value={row.minutes}
+                          onChange={(e) => {
+                            const minutes = Number(e.target.value) || 0
+                            if (row.pinned) patch({ userEditedPrepare: true })
+                            updateRow(i, { minutes })
+                          }}
+                          className="border border-gray-300 rounded px-2 py-1"
+                          title="Minutes"
+                          readOnly={row.pinned}
+                        />
                       </div>
-                    )}
-                    {!isOther && focusType && (
-                      <SmartCombobox
-                        options={focusOptionsFor(focusType, row.phaseKey)}
-                        selected={focusSelections}
-                        onChange={(sel) => updateRow(i, {
-                          focusTargets: sel.map((s): PhaseFocusTarget => ({
-                            facetType: focusType as FocusFacetType,
-                            facetId: Number(s.id),
-                            weight: 4,
-                          })),
-                        })}
-                        placeholder={`Select ${FOCUS_LABELS[focusType as FocusFacetType].toLowerCase()}…`}
-                        allowCustom={false}
-                      />
-                    )}
+                      {isOther && (
+                        <div>
+                          {(row.otherKind === 'skills' || !row.otherKind) && (
+                            <SmartCombobox
+                              options={skillOptions}
+                              selected={(row.otherItemIds ?? []).map((id) => {
+                                const opt = skillOptions.find((o) => Number(o.id) === id)
+                                return { id, label: opt?.label ?? `Skill ${id}` }
+                              })}
+                              onChange={(sel) => updateRow(i, { otherItemIds: sel.map((s) => Number(s.id)).filter(Number.isFinite) })}
+                              placeholder="Pick skills…"
+                              allowCustom={false}
+                            />
+                          )}
+                          {row.otherKind === 'games' && (
+                            <SmartCombobox
+                              options={gameOptions}
+                              selected={(row.otherItemIds ?? []).map((id) => {
+                                const opt = gameOptions.find((o) => Number(o.id) === id)
+                                return { id, label: opt?.label ?? `Game ${id}` }
+                              })}
+                              onChange={(sel) => updateRow(i, { otherItemIds: sel.map((s) => Number(s.id)).filter(Number.isFinite) })}
+                              placeholder="Pick games…"
+                              allowCustom={false}
+                            />
+                          )}
+                          {row.otherKind === 'tramp_tumble' && (
+                            <span className="text-xs text-gray-500">Placeholder time block — no exercise selection.</span>
+                          )}
+                        </div>
+                      )}
+                      {!isOther && focusType && (
+                        <SmartCombobox
+                          options={focusOptionsFor(focusType, row.phaseKey)}
+                          selected={focusSelections}
+                          onChange={(sel) => updateRow(i, {
+                            focusTargets: sel.map((s): PhaseFocusTarget => ({
+                              facetType: focusType as FocusFacetType,
+                              facetId: Number(s.id),
+                              weight: focusTargetWeight(focusType as FocusFacetType),
+                            })),
+                          })}
+                          placeholder={`Select ${FOCUS_LABELS[focusType as FocusFacetType].toLowerCase()}…`}
+                          allowCustom={false}
+                        />
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-0.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => deleteRow(i)}
+                        disabled={row.pinned}
+                        className="p-1 text-gray-400 hover:text-red-600 disabled:opacity-30"
+                        title="Remove phase"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => insertPhaseRowAfter(i)}
+                        className="p-1 text-gray-400 hover:text-vortex-red"
+                        title="Add phase below"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 )
               })}
@@ -916,6 +997,22 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                   )}
                 </div>
               )}
+              {(result.constraint_report?.equipment_avoid?.excluded_count ?? 0) > 0 && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
+                  <div className="font-semibold text-amber-900">Constraint report</div>
+                  <p className="text-xs text-amber-800 mt-1">
+                    Equipment avoid filtered {result.constraint_report!.equipment_avoid!.excluded_count} candidates
+                    {(result.constraint_report!.equipment_avoid!.sample_names?.length ?? 0) > 0
+                      ? ` (e.g. ${result.constraint_report!.equipment_avoid!.sample_names!.slice(0, 3).join(', ')})`
+                      : ''}.
+                  </p>
+                  {(result.constraint_report?.empty_phase_reasons?.length ?? 0) > 0 && (
+                    <ul className="mt-2 text-xs text-amber-800 list-disc ml-4">
+                      {result.constraint_report!.empty_phase_reasons!.slice(0, 4).map((w) => <li key={w}>{w}</li>)}
+                    </ul>
+                  )}
+                </div>
+              )}
               {(result.audience_splits?.length ?? 0) > 0 && (
                 <div className="rounded-lg border border-purple-100 bg-purple-50 p-3 text-sm">
                   <div className="font-semibold text-purple-900">Age splits — one session, per-group variants</div>
@@ -936,16 +1033,32 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                   {pr.phase_rationale && <p className="text-gray-600 mt-1 text-xs">{pr.phase_rationale}</p>}
                 </div>
               ))}
-              {result.blocks.map((b, i) => (
+              {result.blocks.map((b, i) => {
+                const focusLabels = resolveFocusLabels(b.focus_targets, taxonomy)
+                return (
                 <div key={i} className="border border-gray-100 rounded-lg p-3">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-gray-800">{b.label}</span>
                     <span className="text-xs text-gray-500">~{b.estimated_minutes}m / {b.target_minutes}m</span>
                   </div>
-                  {b.other_kind && <div className="text-xs text-indigo-600 mt-1">Other · {OTHER_KIND_LABELS[b.other_kind] ?? b.other_kind}</div>}
-                  {blockProgramming[i] && (
-                    <div className="text-xs text-indigo-700 mt-1">Format: {blockProgramming[i]?.name}</div>
+                  {focusLabels.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {focusLabels.map((label) => (
+                        <span key={label} className="text-xs rounded-full bg-indigo-50 text-indigo-800 px-2 py-0.5">{label}</span>
+                      ))}
+                    </div>
                   )}
+                  {blockProgramming[i] && (
+                    <div className="text-xs text-indigo-700 mt-1">
+                      Format: {blockProgramming[i]?.name}
+                      {blockProgramming[i]?.workout_builder_rules?.work_seconds != null && (
+                        <span className="text-gray-500">
+                          {' '}· {blockProgramming[i]?.workout_builder_rules?.work_seconds}s work / {blockProgramming[i]?.workout_builder_rules?.rest_seconds ?? '—'}s rest
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {b.other_kind && <div className="text-xs text-indigo-600 mt-1">Other · {OTHER_KIND_LABELS[b.other_kind] ?? b.other_kind}</div>}
                   <ul className="mt-2 space-y-2">
                     {b.items.map((it, j) => {
                       const splitVariants = splitVariantsForItem(it)
@@ -997,7 +1110,8 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                     {b.items.length === 0 && <li className="text-xs text-gray-400">{b.other_kind === 'tramp_tumble' ? 'Reserved time block.' : 'No matching exercises.'}</li>}
                   </ul>
                 </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>

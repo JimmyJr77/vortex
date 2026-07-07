@@ -169,7 +169,50 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
           })),
         }
         const result = await coachFetch<ValidationResult>('/api/coach/workouts/validate', { method: 'POST', body: JSON.stringify(draft) })
-        setValidation(result)
+        const progIssues: ValidationResult['warnings'] = []
+        for (let i = 0; i < workout.blocks.length; i += 1) {
+          const block = workout.blocks[i]
+          if (!block.programming_method_id) continue
+          try {
+            const prog = await coachFetch<{ issues: Array<{ severity: string; message: string; ruleKey?: string }> }>(
+              '/api/coach/workout-builder/validate-programming-block',
+              {
+                method: 'POST',
+                body: JSON.stringify({
+                  block: {
+                    phase_key: block.phase_key,
+                    programming_method_id: block.programming_method_id,
+                    work_seconds: block.work_seconds,
+                    rest_seconds: block.rest_seconds,
+                    quality_standard: block.quality_standard,
+                    items: block.items,
+                  },
+                }),
+              },
+            )
+            for (const issue of prog.issues ?? []) {
+              if (issue.severity === 'error' || issue.severity === 'strong_warning' || issue.severity === 'warning') {
+                progIssues.push({
+                  severity: issue.severity === 'error' ? 'error' : 'warning',
+                  rule_key: issue.ruleKey ?? 'programming_block',
+                  message: issue.message,
+                })
+              }
+            }
+          } catch {
+            /* optional */
+          }
+        }
+        if (progIssues.length > 0) {
+          setValidation({
+            ...result,
+            warnings: [...(result.warnings ?? []), ...progIssues.filter((w) => w.severity === 'warning')],
+            errors: [...(result.errors ?? []), ...progIssues.filter((w) => w.severity === 'error')],
+            status: progIssues.some((w) => w.severity === 'error') ? 'error' : result.status,
+          })
+        } else {
+          setValidation(result)
+        }
       } catch {
         setValidation(null)
       }

@@ -405,14 +405,19 @@ multi-track audience splits. Frontend: [NeedsEnginePanel.tsx](../src/components/
 | Work session mode | `workMode: exercise \| skill` → SQL `programming_kind` filter |
 | Phase architect | Pinned Prepare 7/10/10 min; objective templates; skill/young-age exceptions |
 | Per-phase Focus | `focusTargets` on each phase row (Tenet, Methodology, Physiology, Movement Slot) |
-| Equipment | **Use** = hard requirement (422 `unsatisfiable_equipment`); **Avoid** = hard exclude |
+| Equipment | **Use** = hard requirement (422 `unsatisfiable_equipment`); **Avoid** = hard exclude + alias expansion ([equipmentAvoidPolicy.js](../backend/platform/equipmentAvoidPolicy.js)); semantic slug fallback; 422 `violates_equipment_avoid`; `constraint_report` on prescribe |
 | Avoid list | Exercise ids/slugs + body regions |
-| Age splits | `audienceSplits` → shared skeleton + per-split substitutions on items (`split_alternates_json`) |
+| Age splits | `audienceSplits` → per-split variants (`same`, `substituted`, `scaled`, `progression`, `missing`) on items (`split_alternates_json`) |
+| Skill gating | Ordinal `skillLevelPolicy.js` SQL filter + `beginnerExclusionPolicy.js` slug penalties |
+| Focus scoring | Phase focus ×2.5; tiered UI weights; implicit objective hints via `sessionObjectivePolicy.js` |
+| Dedup | Session slug/name/movement_family + per-phase pattern hard skip |
+| HIIT / methodology | Method scorer accepts `methodologyKey`; sustained_capacity min 2 items when HIIT focus |
+| Library audit | Migration [219](../backend/migrations/219_equipment_tag_audit.sql); [220](../backend/migrations/220_coaching_beginner_explosiveness_capacity.sql) beginner explosiveness capacity; `scripts/audit-prescription-coverage.mjs` |
 | Other phases | Skills (`coaching.skill`), Games (`coaching.game`), Tramp & Tumble placeholder block |
 | Saved phasing | `coaching.coach_phase_template` + `/api/coach/phase-templates` |
 | Send to builder | `setWorkout` only — no `applyPhasePlan` wipe |
 
-Tests: [phaseArchitect.test.js](../backend/platform/__tests__/phaseArchitect.test.js), [phaseAwarePrescription.v2.test.js](../backend/platform/__tests__/phaseAwarePrescription.v2.test.js), [coachBuilderPrescribe.test.js](../backend/platform/__tests__/coachBuilderPrescribe.test.js).
+Tests: [phaseArchitect.test.js](../backend/platform/__tests__/phaseArchitect.test.js), [phaseAwarePrescription.v2.test.js](../backend/platform/__tests__/phaseAwarePrescription.v2.test.js), [phaseAwarePrescription.integration.test.js](../backend/platform/__tests__/phaseAwarePrescription.integration.test.js), [equipmentAvoidPolicy.test.js](../backend/platform/__tests__/equipmentAvoidPolicy.test.js), [coachBuilderPrescribe.test.js](../backend/platform/__tests__/coachBuilderPrescribe.test.js). Workout Builder calls `validate-programming-block` per block when a programming method is set.
 
 ### Idempotent migrations, applied on boot
 Every migration uses `CREATE ... IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`, and

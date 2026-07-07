@@ -1552,6 +1552,9 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (error instanceof PrescriptionError && error.code === 'unsatisfiable_equipment') {
         return bad(res, error.message, 422, error.details)
       }
+      if (error instanceof PrescriptionError && error.code === 'violates_equipment_avoid') {
+        return bad(res, error.message, 422, error.details)
+      }
       bad(res, error.message, 500)
     }
   })

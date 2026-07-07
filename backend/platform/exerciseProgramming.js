@@ -2,6 +2,7 @@ import { loadEducationForExercise, upsertExerciseEducation, educationToWhyRespon
 import { deriveExerciseSubrole, resolveSubroleFromOrderSlot } from './phaseSubrole.js'
 import { computeOverallDifficulty, mapDifficultyRow } from './ageDifficultyPolicy.js'
 import { deriveExerciseDifficulty, ensureDerivedDifficultyProfiles } from './exerciseDifficultyDerivation.js'
+import { equipmentTagMismatchWarning } from './equipmentAvoidPolicy.js'
 
 export const SCALING_COHORT_KEYS = [
   'youth_beginner', 'youth_intermediate', 'teen', 'adult_beginner',
@@ -782,6 +783,13 @@ export async function validateExercisePublishReady(pool, exerciseId) {
   for (const reqFacet of ['tenet', 'methodology', 'physiology', 'pattern', 'equipment']) {
     if (!types.has(reqFacet)) issues.push(`Missing ${reqFacet} tag`)
   }
+
+  const equipTagRows = await pool.query(
+    `SELECT eq.key FROM coaching.exercise_tag t JOIN coaching.equipment eq ON eq.id = t.facet_id
+     WHERE t.exercise_id = $1 AND t.facet_type = 'equipment'`,
+    [exerciseId],
+  )
+  warnings.push(...equipmentTagMismatchWarning(row, equipTagRows.rows.map((r) => r.key)))
 
   const phases = await pool.query(`SELECT 1 FROM coaching.exercise_phase_profile WHERE exercise_id = $1 LIMIT 1`, [exerciseId])
   if (phases.rows.length === 0) issues.push('At least one phase profile required')

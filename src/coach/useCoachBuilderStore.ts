@@ -90,6 +90,8 @@ export const useCoachBuilderStore = create<BuilderState>((set) => ({
         phaseKey: p.phaseKey ?? p.phase ?? '',
         minutes: p.minutes,
         label: p.label,
+        focusTargets: (p as { focusTargets?: unknown[] }).focusTargets,
+        otherKind: (p as { otherKind?: string }).otherKind,
       })).filter((p) => p.phaseKey)
       return {
         workout: {
