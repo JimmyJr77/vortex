@@ -1,4 +1,4 @@
-const SPORT_SPECIFIC_PATTERNS = [
+export const SPORT_SPECIFIC_PATTERNS = [
   /football/i,
   /receiver/i,
   /route/i,
@@ -13,6 +13,21 @@ const SPORT_SPECIFIC_PATTERNS = [
   /defender/i,
   /gridiron/i,
 ]
+
+/** Narrow slug guard for C23-MOP-21 (subset of sport-specific patterns). */
+export const FOOTBALL_BASEBALL_SLUG_RE = /football|baseball|quarterback|receiver/i
+
+export function isSportSpecificExercise(exercise) {
+  const slug = String(exercise?.slug ?? '')
+  const name = String(exercise?.name ?? '')
+  return SPORT_SPECIFIC_PATTERNS.some((re) => re.test(slug) || re.test(name))
+}
+
+export function matchesFootballBaseballSlug(exercise) {
+  const slug = String(exercise?.slug ?? '')
+  const name = String(exercise?.name ?? '')
+  return FOOTBALL_BASEBALL_SLUG_RE.test(slug) || FOOTBALL_BASEBALL_SLUG_RE.test(name)
+}
 
 export function sportContextMultiplier(exercise, sportKey, sportIdByKey) {
   if (!sportKey) return 1

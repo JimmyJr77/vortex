@@ -102,6 +102,7 @@ npm run needs-engine:eval
    ```
    YYYY-MM-DD HH:MM | PASS|FAIL | strict | commit <sha> | <failed ids or ALL PASS>
    ```
+   Also append structured JSON to `docs/NEEDS_ENGINE_QUALITY_HISTORY.jsonl` (cat7 pair keys, phase_fill) for lagging MOE stability (C7-MOE-06).
 8. **Stop** — last **five** log lines are `PASS | strict`. Set Status to `COMPLETE`.
 
 ## Stop condition

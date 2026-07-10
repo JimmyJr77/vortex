@@ -1,37 +1,29 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
-  hasHiitFocus,
+  hasSustainedConditioningFocus,
   minItemsForPhase,
-  maxItemsForPhase,
   phaseFillTarget,
   sustainedCapacityCandidateEligible,
 } from '../sustainedCapacityPolicy.js'
 
-test('HIIT focus requires 2 items in sustained_capacity', () => {
+test('conditioning focus on Sustained requires 2 items in sustained_capacity', () => {
   const targets = [{ facetType: 'methodology', facetKey: 'hiit' }]
+  assert.ok(hasSustainedConditioningFocus(targets))
   assert.equal(minItemsForPhase('sustained_capacity', targets), 2)
-  assert.ok(hasHiitFocus(targets))
+  assert.equal(minItemsForPhase('sustained_capacity', []), 1)
 })
 
-test('prepare requires 2 min items', () => {
-  assert.equal(minItemsForPhase('prepare_and_access', []), 2)
-})
-
-test('small sustained block has 80% fill target', () => {
+test('short sustained block uses 0.8 fill target when conditioning focused', () => {
   assert.equal(phaseFillTarget('sustained_capacity', [{ facetType: 'methodology', facetKey: 'hiit' }], 4), 0.8)
 })
 
-test('prepare max items scales with block minutes', () => {
-  assert.equal(maxItemsForPhase('prepare_and_access', 10), 6)
-  assert.equal(maxItemsForPhase('prepare_and_access', 4), 3)
-  assert.equal(maxItemsForPhase('restore', 12), 3)
-})
-
-test('sustained HIIT candidate requires hiit methodology tag', () => {
+test('sustained conditioning candidate requires methodology or intent tag', () => {
   const methodologyKeyById = new Map([[1, 'hiit']])
   const intentKeyById = new Map([[2, 'conditioning']])
-  const exercise = { primary_phase_key: 'sustained_capacity', phase_subrole: 'conditioning_intervals' }
+  const exercise = { primary_phase_key: 'output' }
   const tags = [{ facetType: 'methodology', facetId: 1 }]
-  assert.equal(sustainedCapacityCandidateEligible(exercise, tags, methodologyKeyById, intentKeyById), true)
+  assert.ok(sustainedCapacityCandidateEligible(exercise, tags, methodologyKeyById, intentKeyById))
+  const intentOnly = [{ facetType: 'intent', facetId: 2 }]
+  assert.ok(sustainedCapacityCandidateEligible(exercise, intentOnly, methodologyKeyById, intentKeyById, { strictConditioningMethodology: false }))
 })

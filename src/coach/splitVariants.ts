@@ -13,6 +13,15 @@ export function splitVariantLabel(variant: SplitAlternate) {
   return 'Same'
 }
 
+export function splitVariantTextTone(variant: SplitAlternate) {
+  if (variant.variant_type === 'missing') return 'text-red-700'
+  if (variant.variant_type === 'progression') return 'text-emerald-700'
+  if (variant.variant_type === 'substituted' || variant.substituted) return 'text-purple-700'
+  if (variant.variant_type === 'scaled') return 'text-indigo-700'
+  if (variant.variant_type === 'same' && variant.scaling_guidance) return 'text-sky-700'
+  return 'text-gray-700'
+}
+
 export function splitVariantTone(variant: SplitAlternate) {
   if (variant.variant_type === 'missing') return 'text-red-700 bg-red-50'
   if (variant.variant_type === 'progression') return 'text-emerald-700 bg-emerald-50'

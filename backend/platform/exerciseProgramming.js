@@ -105,6 +105,16 @@ export async function loadDifficultyProfiles(pool, exerciseIds) {
   }
 }
 
+export async function loadSafetyProfiles(pool, exerciseIds) {
+  if (exerciseIds.length === 0) return new Map()
+  try {
+    return loadSingleProfile(pool, 'exercise_safety_profile', exerciseIds, false)
+  } catch (err) {
+    if (/does not exist/i.test(String(err.message))) return new Map()
+    throw err
+  }
+}
+
 export async function loadExerciseProgrammingBundle(pool, exerciseIds) {
   const empty = {
     phaseProfiles: new Map(),

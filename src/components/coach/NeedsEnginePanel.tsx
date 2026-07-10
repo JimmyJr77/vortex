@@ -28,7 +28,7 @@ import type {
   PhaseFocusTarget,
 } from '../../coach/types'
 import { applyProgrammingMethodDefaults } from '../../coach/programmingBlockDefaults'
-import { splitVariantLabel, splitVariantTone, splitVariantsForItem } from '../../coach/splitVariants'
+import { splitVariantLabel, splitVariantTextTone, splitVariantsForItem } from '../../coach/splitVariants'
 import SmartCombobox, { type ComboboxOption } from './SmartCombobox'
 
 const FOCUS_LABELS: Record<FocusFacetType, string> = {
@@ -66,6 +66,43 @@ function focusTargetWeight(facetType: FocusFacetType | '' | undefined): number {
   return 4
 }
 
+/** Taxonomy rows from Postgres/JSON may use string ids; focus targets store numeric facetId. */
+function taxonomyFacetIdsMatch(
+  taxonomyId: number | string | null | undefined,
+  facetId: number | string | null | undefined,
+): boolean {
+  const a = Number(taxonomyId)
+  const b = Number(facetId)
+  return Number.isFinite(a) && Number.isFinite(b) && a === b
+}
+
+function focusFacetList(
+  facetType: FocusFacetType,
+  taxonomy: ReturnType<typeof useTaxonomy>['taxonomy'],
+  phaseKey?: string,
+) {
+  if (!taxonomy) return undefined
+  if (facetType === 'tenet') return taxonomy.tenets
+  if (facetType === 'methodology') return taxonomy.methodologies
+  if (facetType === 'physiology') return taxonomy.physiology
+  if (facetType === 'order_slot') {
+    return taxonomy.phaseOrderSlots?.filter(
+      (s) => !phaseKey || phaseKey === 'other' || s.phase_key === phaseKey,
+    )
+  }
+  return undefined
+}
+
+function focusTargetDisplayName(
+  t: PhaseFocusTarget,
+  taxonomy: ReturnType<typeof useTaxonomy>['taxonomy'],
+  phaseKey?: string,
+): string {
+  const list = focusFacetList(t.facetType, taxonomy, phaseKey)
+  const match = list?.find((row) => taxonomyFacetIdsMatch(row.id, t.facetId))
+  return match?.name ?? String(t.facetId)
+}
+
 function focusTargetComboboxId(t: PhaseFocusTarget): string {
   return `${t.facetType}:${t.facetId}`
 }
@@ -75,12 +112,7 @@ function focusTargetToComboboxOption(
   phaseKey: string,
   taxonomy: ReturnType<typeof useTaxonomy>['taxonomy'],
 ): ComboboxOption {
-  const list = t.facetType === 'tenet' ? taxonomy?.tenets
-    : t.facetType === 'methodology' ? taxonomy?.methodologies
-      : t.facetType === 'physiology' ? taxonomy?.physiology
-        : taxonomy?.phaseOrderSlots?.filter((s) => !phaseKey || phaseKey === 'other' || s.phase_key === phaseKey)
-  const match = list?.find((row) => row.id === t.facetId)
-  const name = match?.name ?? String(t.facetId)
+  const name = focusTargetDisplayName(t, taxonomy, phaseKey)
   return {
     id: focusTargetComboboxId(t),
     label: name,
@@ -107,13 +139,7 @@ function resolveFocusLabels(
   taxonomy: ReturnType<typeof useTaxonomy>['taxonomy'],
 ): string[] {
   if (!targets?.length || !taxonomy) return []
-  return targets.map((t) => {
-    const list = t.facetType === 'tenet' ? taxonomy.tenets
-      : t.facetType === 'methodology' ? taxonomy.methodologies
-        : t.facetType === 'physiology' ? taxonomy.physiology
-          : taxonomy.phaseOrderSlots
-    return list?.find((row) => row.id === t.facetId)?.name ?? `${t.facetType} ${t.facetId}`
-  })
+  return targets.map((t) => focusTargetDisplayName(t, taxonomy))
 }
 
 function nearestDurationKey(minutes: number): 60 | 90 | 120 {
@@ -136,7 +162,8 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     ageMax,
     difficultyOverride,
     audienceSplits,
-    equipmentMode,
+    equipmentUsePolicy,
+    allowBodyweight,
     equipmentUse,
     equipmentAvoid,
     avoidTokens,
@@ -191,13 +218,19 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
 
   const focusOptionsFor = useCallback((facetType: FocusFacetType | '', phaseKey: string): ComboboxOption[] => {
     if (!facetType || !taxonomy) return []
-    if (facetType === 'tenet') return (taxonomy.tenets ?? []).map((t) => ({ id: t.id!, label: t.name }))
-    if (facetType === 'methodology') return (taxonomy.methodologies ?? []).map((t) => ({ id: t.id!, label: t.name }))
-    if (facetType === 'physiology') return (taxonomy.physiology ?? []).map((t) => ({ id: t.id!, label: t.name }))
+    if (facetType === 'tenet') {
+      return (taxonomy.tenets ?? []).map((t) => ({ id: Number(t.id), label: t.name }))
+    }
+    if (facetType === 'methodology') {
+      return (taxonomy.methodologies ?? []).map((t) => ({ id: Number(t.id), label: t.name }))
+    }
+    if (facetType === 'physiology') {
+      return (taxonomy.physiology ?? []).map((t) => ({ id: Number(t.id), label: t.name }))
+    }
     if (facetType === 'order_slot') {
       return (taxonomy.phaseOrderSlots ?? [])
         .filter((s) => !phaseKey || phaseKey === 'other' || s.phase_key === phaseKey)
-        .map((s) => ({ id: s.id, label: s.name, meta: s.phase_key }))
+        .map((s) => ({ id: Number(s.id), label: s.name, meta: s.phase_key }))
     }
     return []
   }, [taxonomy])
@@ -437,7 +470,11 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           difficultyOverride: s.difficultyOverride ?? suggestedDifficultyCap(s.ageMin, s.ageMax),
         })),
         equipmentUseIds: equipmentUse.map((e) => Number(e.id)).filter(Number.isFinite),
-        equipmentAvoidIds: equipmentAvoid.map((e) => Number(e.id)).filter(Number.isFinite),
+        equipmentUsePolicy,
+        allowBodyweight,
+        equipmentAvoidIds: equipmentUsePolicy === 'use_only'
+          ? []
+          : equipmentAvoid.map((e) => Number(e.id)).filter(Number.isFinite),
         ...avoid,
         sessionObjective,
         durationMinutes: effectiveMinutes,
@@ -465,7 +502,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           try {
             const methodologyTarget = (b.focusTargets ?? []).find((t) => t.facetType === 'methodology')
             const methodologyRow = methodologyTarget
-              ? taxonomy?.methodologies?.find((m) => m.id === methodologyTarget.facetId)
+              ? taxonomy?.methodologies?.find((m) => taxonomyFacetIdsMatch(m.id, methodologyTarget.facetId))
               : null
             const pick = await coachFetch<{ selected: ProgrammingMethod | null }>('/api/coach/needs-engine/prescribe-programming-method', {
               method: 'POST',
@@ -706,57 +743,21 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-gray-700">Work session</span>
-                <div className="inline-flex rounded border border-gray-300 overflow-hidden text-xs">
-                  {(['exercise', 'skill'] as WorkMode[]).map((mode) => (
-                    <button
-                      key={mode}
-                      type="button"
-                      onClick={() => patch({ workMode: mode })}
-                      className={`px-2 py-1 capitalize ${workMode === mode ? 'bg-vortex-red text-white' : 'bg-white'}`}
-                    >
-                      {mode}
-                    </button>
-                  ))}
-                </div>
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-semibold text-gray-700">Work session</span>
+              <div className="inline-flex rounded border border-gray-300 overflow-hidden text-xs">
+                {(['exercise', 'skill'] as WorkMode[]).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => patch({ workMode: mode })}
+                    className={`px-2 py-1 capitalize ${workMode === mode ? 'bg-vortex-red text-white' : 'bg-white'}`}
+                  >
+                    {mode}
+                  </button>
+                ))}
               </div>
-            </div>
-
-            {/* Equipment Use / Avoid */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-gray-700">Equipment</span>
-                <div className="inline-flex rounded border border-gray-300 overflow-hidden text-xs">
-                  <button type="button" onClick={() => patch({ equipmentMode: 'use' })} className={`px-2 py-1 ${equipmentMode === 'use' ? 'bg-vortex-red text-white' : 'bg-white'}`}>Use</button>
-                  <button type="button" onClick={() => patch({ equipmentMode: 'avoid' })} className={`px-2 py-1 ${equipmentMode === 'avoid' ? 'bg-vortex-red text-white' : 'bg-white'}`}>Avoid</button>
-                </div>
-              </div>
-              {equipmentMode === 'use' ? (
-                <SmartCombobox
-                  options={equipmentOptions}
-                  selected={equipmentUse}
-                  onChange={(sel) => patch({ equipmentUse: sel })}
-                  placeholder="Required equipment must appear in session; other equipment may also be used."
-                  allowCustom
-                  onCustomAdd={(text) => ({ id: `custom:${text}`, label: text })}
-                />
-              ) : (
-                <>
-                  <div className="flex gap-2 mb-2">
-                    <button type="button" onClick={selectAllEquipmentAvoid} className="text-xs text-gray-600 hover:text-vortex-red">Select all</button>
-                    <button type="button" onClick={deselectAllEquipmentAvoid} className="text-xs text-gray-600 hover:text-vortex-red">Deselect all</button>
-                  </div>
-                  <SmartCombobox
-                    options={equipmentOptions}
-                    selected={equipmentAvoid}
-                    onChange={(sel) => patch({ equipmentAvoid: sel })}
-                    placeholder="Equipment to exclude…"
-                  />
-                </>
-              )}
             </div>
           </div>
 
@@ -891,6 +892,83 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
               onCustomAdd={(text) => ({ id: `custom:${text}`, label: text })}
             />
             <p className="text-xs text-gray-400 mt-1">Type to search exercises; free text saved as avoid notes.</p>
+          </div>
+
+          {/* Equipment */}
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span className="text-sm font-semibold text-gray-700">Equipment</span>
+              <div className="inline-flex rounded border border-gray-300 overflow-hidden text-xs">
+                <button
+                  type="button"
+                  onClick={() => patch({ equipmentUsePolicy: 'must_use' })}
+                  className={`px-2 py-1 ${equipmentUsePolicy === 'must_use' ? 'bg-vortex-red text-white' : 'bg-white'}`}
+                >
+                  Must Use
+                </button>
+                <button
+                  type="button"
+                  onClick={() => patch({ equipmentUsePolicy: 'use_only', equipmentAvoid: [] })}
+                  className={`px-2 py-1 ${equipmentUsePolicy === 'use_only' ? 'bg-vortex-red text-white' : 'bg-white'}`}
+                >
+                  Use only
+                </button>
+              </div>
+              {equipmentUsePolicy === 'use_only' && (
+                <label className="text-xs flex items-center gap-1.5 text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={allowBodyweight}
+                    onChange={(e) => patch({ allowBodyweight: e.target.checked })}
+                    className="rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
+                  />
+                  Allow bodyweight
+                </label>
+              )}
+            </div>
+            <SmartCombobox
+              options={equipmentOptions}
+              selected={equipmentUse}
+              onChange={(sel) => patch({ equipmentUse: sel })}
+              placeholder={
+                equipmentUsePolicy === 'use_only'
+                  ? 'Only exercises using this equipment (and bodyweight if allowed) will be selected.'
+                  : 'Required equipment must appear in session; other equipment may also be used.'
+              }
+              allowCustom
+              onCustomAdd={(text) => ({ id: `custom:${text}`, label: text })}
+            />
+
+            <div className={equipmentUsePolicy === 'use_only' ? 'opacity-50 pointer-events-none' : ''}>
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <span className="text-sm font-semibold text-gray-700">Equipment</span>
+                <span
+                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                    equipmentUsePolicy === 'use_only'
+                      ? 'bg-gray-100 text-gray-400'
+                      : 'bg-red-100 text-red-700'
+                  }`}
+                >
+                  Don&apos;t Use
+                </span>
+              </div>
+              {equipmentUsePolicy === 'must_use' && (
+                <div className="flex gap-2 mb-2">
+                  <button type="button" onClick={selectAllEquipmentAvoid} className="text-xs text-gray-600 hover:text-vortex-red">Select all</button>
+                  <button type="button" onClick={deselectAllEquipmentAvoid} className="text-xs text-gray-600 hover:text-vortex-red">Deselect all</button>
+                </div>
+              )}
+              <SmartCombobox
+                options={equipmentOptions}
+                selected={equipmentAvoid}
+                onChange={(sel) => patch({ equipmentAvoid: sel })}
+                placeholder={
+                  equipmentUsePolicy === 'use_only'
+                    ? 'All other equipment is excluded by default (except bodyweight when allowed).'
+                    : 'Equipment to exclude…'
+                }
+              />
+            </div>
           </div>
 
           {canApplyPlan && (
@@ -1237,7 +1315,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                                     <td className="px-2 py-1 text-gray-700">{ps.split_label}</td>
                                     <td className="px-2 py-1 text-gray-800">{ps.exercise_name}</td>
                                     <td className="px-2 py-1">
-                                      <span className={`inline-block rounded-full px-2 py-0.5 ${splitVariantTone(ps)}`}>
+                                      <span className={splitVariantTextTone(ps)}>
                                         {splitVariantLabel(ps)}
                                       </span>
                                     </td>

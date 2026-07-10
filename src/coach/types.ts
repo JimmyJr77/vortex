@@ -582,7 +582,10 @@ export interface NeedsEngineRequirementsSnapshot {
   ageMax: number | ''
   difficultyOverride: number | ''
   audienceSplits: AudienceSplit[]
-  equipmentMode: 'use' | 'avoid'
+  equipmentUsePolicy: 'must_use' | 'use_only'
+  allowBodyweight: boolean
+  /** @deprecated Loaded from legacy snapshots only */
+  equipmentMode?: 'use' | 'avoid'
   equipmentUse: Array<{ id: string | number; label: string; meta?: string }>
   equipmentAvoid: Array<{ id: string | number; label: string; meta?: string }>
   avoidTokens: Array<{ id: string | number; label: string; meta?: string }>
@@ -750,6 +753,8 @@ export interface PrescriptionAudienceProfile {
   impliedSkillLevel?: string | null
   ageBandLabel?: string
   strengthIntent?: boolean
+  sessionObjective?: string | null
+  hardDifficultyExclude?: boolean
 }
 
 export interface PrescriptionResult {

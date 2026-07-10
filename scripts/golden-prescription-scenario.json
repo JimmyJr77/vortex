@@ -115,7 +115,18 @@
       "maxProgressionReusePerPhase": 1,
       "maxAgeFitWarnings": 0,
       "maxSplitVariantWarnings": 1,
-      "forbidHandstandInMIUnderAge": 15
+      "forbidHandstandInMIUnderAge": 15,
+      "forbidProgressionNameSubstrings": ["hang clean", "power clean", "snatch"],
+      "forbiddenProgressionSlugs": ["hang-clean", "power-clean", "snatch"],
+      "forbiddenLaneFamilyPairs": [],
+      "minGraphEdgeRate": 0.7,
+      "maxFullScoredFallbackRate": 0.3,
+      "minPatternPriorityRate": 0.7,
+      "minEquipmentContinuityRate": 0.95,
+      "minCueLaneProxyRate": 0.9,
+      "minLaneStabilityRuns": 5,
+      "minEquipmentProgressionConsistencyRate": 0.2,
+      "minEquipmentProgressionSplit2Rate": 0.2
     }
   },
   "savedRequirementsName": "Test 3 - Reqs only",
@@ -215,7 +226,8 @@
       }
     ],
     "customMinutes": "",
-    "equipmentMode": "use",
+    "equipmentUsePolicy": "must_use",
+    "allowBodyweight": true,
     "audienceSplits": [
       {
         "label": "Split 1",

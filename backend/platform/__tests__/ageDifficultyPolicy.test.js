@@ -10,6 +10,7 @@ import {
   parseAgeRangeFromText,
   parseSessionObjectiveFromText,
   detectStrengthIntent,
+  resolveHardDifficultyExclude,
 } from '../ageDifficultyPolicy.js'
 
 test('computeOverallDifficulty uses max of load and technical', () => {
@@ -73,4 +74,9 @@ test('detectStrengthIntent', () => {
   assert.equal(detectStrengthIntent({ sessionObjective: 'strength_priority' }), true)
   assert.equal(detectStrengthIntent({ prompt: 'get stronger with calisthenics' }), true)
   assert.equal(detectStrengthIntent({ targets: [{ facetKey: 'speed' }] }), false)
+})
+
+test('resolveHardDifficultyExclude true when audience splits have difficultyOverride', () => {
+  assert.equal(resolveHardDifficultyExclude({ audienceSplits: [{ difficultyOverride: 6 }] }), true)
+  assert.equal(resolveHardDifficultyExclude({ capsOverride: null, audienceSplits: [] }), false)
 })

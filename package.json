@@ -22,6 +22,7 @@
     "needs-engine:sync-golden": "node scripts/sync-golden-from-saved-requirements.mjs \"Test 3 - Reqs only\"",
     "needs-engine:eval": "node scripts/evaluate-prescription-quality.mjs",
     "needs-engine:eval:baseline": "node scripts/evaluate-prescription-quality.mjs --tier=baseline",
+    "needs-engine:metrics": "node scripts/generate-category-metrics.mjs",
     "pull-lfs": "bash scripts/pull-lfs.sh || echo 'Git LFS pull failed, continuing build'",
     "lint": "eslint .",
     "preview": "vite preview",

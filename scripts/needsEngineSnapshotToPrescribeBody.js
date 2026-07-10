@@ -29,9 +29,14 @@ export function snapshotToPrescribeBody(snapshot) {
   const equipmentUseIds = Array.isArray(snapshot.equipmentUse)
     ? snapshot.equipmentUse.map((e) => Number(e.id)).filter(Number.isFinite)
     : []
-  const equipmentAvoidIds = Array.isArray(snapshot.equipmentAvoid)
-    ? snapshot.equipmentAvoid.map((e) => Number(e.id)).filter(Number.isFinite)
-    : []
+  const equipmentUsePolicy = snapshot.equipmentUsePolicy
+    ?? (snapshot.equipmentMode === 'use' || snapshot.equipmentMode === 'avoid' ? 'must_use' : 'must_use')
+  const allowBodyweight = snapshot.allowBodyweight !== false
+  const equipmentAvoidIds = equipmentUsePolicy === 'use_only'
+    ? []
+    : (Array.isArray(snapshot.equipmentAvoid)
+      ? snapshot.equipmentAvoid.map((e) => Number(e.id)).filter(Number.isFinite)
+      : [])
 
   const phasePlan = (snapshot.phaseRows ?? snapshot.phasePlan ?? []).map((r) => ({
     phaseKey: r.phaseKey,
@@ -53,6 +58,8 @@ export function snapshotToPrescribeBody(snapshot) {
     capsOverride,
     audienceSplits,
     equipmentUseIds,
+    equipmentUsePolicy,
+    allowBodyweight,
     equipmentAvoidIds,
     sessionObjective: snapshot.sessionObjective ?? null,
     durationMinutes: Number(snapshot.sessionMinutes) || null,

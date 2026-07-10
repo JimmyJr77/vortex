@@ -1,13 +1,20 @@
-const EXCLUDED_METHODOLOGY_KEYS = new Set([
+/** Methodology keys that exclude a card from restore selection (see restoreCandidateExcluded). */
+export const EXCLUDED_METHODOLOGY_KEYS = new Set([
   'plyometrics',
   'hiit',
   'speed_agility',
   'neural_output',
 ])
 
+/** Methodology tags that must not appear in restore after Sustained conditioning focus (C3-MOR-01). */
+export const RESTORE_HIGH_AROUSAL_AFTER_SUSTAINED_CONDITIONING_KEYS = new Set([
+  ...EXCLUDED_METHODOLOGY_KEYS,
+  'neural',
+])
+
 const EXCLUDED_PRIMARY_PHASES = new Set(['output', 'sustained_capacity'])
 
-const RESTORE_BOOST_SLOTS = new Set([
+export const RESTORE_BOOST_SLOTS = new Set([
   'cooldown_breathing',
   'post_workout_flexibility',
   'breathing_downshift',

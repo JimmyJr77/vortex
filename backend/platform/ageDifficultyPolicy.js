@@ -1,11 +1,11 @@
 /** Age-band difficulty caps and soft-penalty scoring for prescription / validation. */
 
 export const AGE_BAND_POLICIES = [
-  { ageMin: 4, ageMax: 5, maxOverall: 3, maxTechnical: 3, maxLoad: 2, impliedSkillLevel: 'EARLY_STAGE', scalingCohort: 'youth_beginner' },
-  { ageMin: 6, ageMax: 8, maxOverall: 5, maxTechnical: 5, maxLoad: 4, impliedSkillLevel: 'BEGINNER', scalingCohort: 'youth_intermediate' },
-  { ageMin: 9, ageMax: 12, maxOverall: 6, maxTechnical: 6, maxLoad: 5, impliedSkillLevel: 'BEGINNER', scalingCohort: 'youth_intermediate' },
-  { ageMin: 13, ageMax: 17, maxOverall: 7, maxTechnical: 7, maxLoad: 6, impliedSkillLevel: 'INTERMEDIATE', scalingCohort: 'teen' },
-  { ageMin: 18, ageMax: 120, maxOverall: 10, maxTechnical: 10, maxLoad: 10, impliedSkillLevel: null, scalingCohort: 'adult_beginner' },
+  { ageMin: 4, ageMax: 5, maxOverall: 3, maxTechnical: 3, maxLoad: 2, maxComplexity: 3, impliedSkillLevel: 'EARLY_STAGE', scalingCohort: 'youth_beginner' },
+  { ageMin: 6, ageMax: 8, maxOverall: 5, maxTechnical: 5, maxLoad: 4, maxComplexity: 5, impliedSkillLevel: 'BEGINNER', scalingCohort: 'youth_intermediate' },
+  { ageMin: 9, ageMax: 12, maxOverall: 6, maxTechnical: 6, maxLoad: 5, maxComplexity: 6, impliedSkillLevel: 'BEGINNER', scalingCohort: 'youth_intermediate' },
+  { ageMin: 13, ageMax: 17, maxOverall: 7, maxTechnical: 7, maxLoad: 6, maxComplexity: 7, impliedSkillLevel: 'INTERMEDIATE', scalingCohort: 'teen' },
+  { ageMin: 18, ageMax: 120, maxOverall: 10, maxTechnical: 10, maxLoad: 10, maxComplexity: 10, impliedSkillLevel: null, scalingCohort: 'adult_beginner' },
 ]
 
 const STRENGTH_KEYWORDS = /\b(strength|stronger|force|lifting|calisthenics|muscle)\b/i
@@ -40,6 +40,17 @@ export function resolveAgeBand(ageMin, ageMax) {
   }
   if (mid < 4) return AGE_BAND_POLICIES[0]
   return AGE_BAND_POLICIES[AGE_BAND_POLICIES.length - 1]
+}
+
+/** True when engine hard-excludes over-cap pool candidates at pick time (split/caps overrides). */
+export function resolveHardDifficultyExclude(input = {}) {
+  const capsOverride = input.capsOverride ?? input.caps_override
+  const audienceSplits = input.audienceSplits ?? input.audience_splits ?? []
+  if (capsOverride != null) return true
+  return audienceSplits.some((s) => {
+    const override = s.capsOverride ?? s.caps_override ?? s.difficultyOverride ?? s.difficulty_override
+    return override != null
+  })
 }
 
 export function detectStrengthIntent({ sessionObjective, targets = [], prompt = '' } = {}) {
@@ -106,6 +117,7 @@ export function resolveAudienceProfile(input = {}) {
       maxOverall: band.maxOverall,
       maxTechnical: band.maxTechnical,
       maxLoad: band.maxLoad,
+      maxComplexity: band.maxComplexity,
     },
     scalingCohort: band.scalingCohort,
     impliedSkillLevel: skillLevel,

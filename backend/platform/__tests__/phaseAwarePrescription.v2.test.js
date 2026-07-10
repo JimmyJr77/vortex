@@ -91,6 +91,29 @@ test('unsatisfiable equipment Use returns PrescriptionError 422 payload', async 
   )
 })
 
+test('enablePreflight throws unsatisfiable_requirements before generation', async () => {
+  const pool = mockPool([...baseHandlers()])
+  await assert.rejects(
+    () => runPhaseAwarePrescription(pool, 1, {
+      enablePreflight: true,
+      workMode: 'exercise',
+      ageMin: 8,
+      ageMax: 14,
+      skillLevel: 'INTERMEDIATE',
+      durationMinutes: 20,
+      phasePlan: [{ phaseKey: 'capacity', minutes: 20, label: 'Main' }],
+      equipmentUseIds: [7],
+      equipmentAvoidIds: [7],
+    }),
+    (err) => {
+      assert.ok(err instanceof PrescriptionError)
+      assert.equal(err.code, 'unsatisfiable_requirements')
+      assert.ok(Array.isArray(err.details.blocking_requirements))
+      return true
+    },
+  )
+})
+
 test('tramp_tumble Other block emits placeholder with no items', async () => {
   const pool = mockPool([...baseHandlers()])
   const result = await runPhaseAwarePrescription(pool, 1, {

@@ -3,6 +3,44 @@
  * Used by scripts/evaluate-prescription-quality.mjs and unit tests.
  */
 
+import { SESSION_PHASE_ORDER, buildPhasePlan } from './phaseArchitect.js'
+import { runCategoryEvaluators } from './categoryQualityEvaluators.js'
+
+/** Check IDs that feed C1-KPI-01 (MOP/MOS structure; excludes informational MOE). */
+export const CATEGORY1_KPI_CHECK_IDS = [
+  'prescribe_body_mos_complete',
+  'phase_plan_minute_sum_mos',
+  'phase_count_match',
+  'phase_key_set_equality',
+  'canonical_phase_order',
+  'phase_minutes_exact',
+  'session_minutes_sum',
+  'focus_targets_count_parity',
+  'focus_targets_field_parity',
+  'pinned_prepare_first',
+  'work_mode_echo',
+  'no_orphan_other_blocks',
+  'phase_label_parity',
+  'session_objective_echo',
+  'focus_weight_sum_sanity',
+  'phase_rationales_present',
+  'focus_weight_intent_minimum',
+  'other_phase_fidelity',
+  'block_index_order',
+  'sport_id_preflight',
+]
+
+/** Informational Category 1 MOE check ids (non-blocking). */
+export const CATEGORY1_MOE_CHECK_IDS = [
+  'category1_moe_high_intent_ratio',
+  'category1_moe_prepare_share',
+  'category1_moe_mi_proportion',
+  'category1_moe_restore_prepare_ratio',
+  'category1_moe_objective_template_proportions',
+  'category1_moe_restore_last',
+  'category1_moe_review_packet',
+]
+
 export const LOW_INTENT_PHASES = new Set([
   'prepare_and_access',
   'movement_intelligence',
@@ -134,6 +172,26 @@ export function sharesPatternOrFamily(primaryId, otherId, tagMap, exerciseById) 
   return Boolean(aFamily && bFamily && aFamily === bFamily)
 }
 
+/** C7-MOP-05 — how lane match was satisfied */
+export function progressionLaneMatchMethod(primaryId, progId, tagMap, exerciseById) {
+  const aPatterns = new Set(patternIdsForExercise(primaryId, tagMap))
+  const bPatterns = patternIdsForExercise(progId, tagMap)
+  if (aPatterns.size > 0 && bPatterns.some((id) => aPatterns.has(id))) return 'pattern'
+  if (sharesPatternOrFamily(primaryId, progId, tagMap, exerciseById)) return 'family'
+  return 'none'
+}
+
+/** Engine-style lane gate (profile role + pattern/family) for C7-MOP-04 parity */
+export function engineStyleLaneValid(primaryId, progId, phaseKey, tagMap, exerciseById, phaseProfileMap = new Map()) {
+  const progressionPhases = ['output', 'capacity', 'resilience']
+  if (!progressionPhases.includes(phaseKey)) return false
+  if (!sharesPatternOrFamily(primaryId, progId, tagMap, exerciseById)) return false
+  const profiles = phaseProfileMap.get(String(progId)) ?? phaseProfileMap.get(Number(progId)) ?? []
+  if (profiles.length === 0) return true
+  const role = profiles.find((p) => (p.phaseKey ?? p.phase_key) === phaseKey)?.role
+  return role === 'primary' || role === 'secondary'
+}
+
 function minFillForPhase(phaseKey, thresholds) {
   return thresholds.phaseFillPctOverrides?.[phaseKey] ?? thresholds.minPhaseFillPct ?? 85
 }
@@ -147,6 +205,390 @@ function maxStretchForPhase(phaseKey, thresholds) {
     resilience: thresholds.maxStretchPrimariesInResilience,
   }
   return map[phaseKey] ?? 99
+}
+
+function planRows(body) {
+  return Array.isArray(body?.phasePlan) ? body.phasePlan : []
+}
+
+function planPhaseKey(row) {
+  return row.phaseKey ?? row.phase_key ?? row.phase
+}
+
+function normFocusTarget(t) {
+  return {
+    facetId: Number(t.facetId ?? t.facet_id),
+    facetType: String(t.facetType ?? t.facet_type ?? ''),
+    weight: Number(t.weight),
+  }
+}
+
+function focusTargetsMatch(a, b) {
+  const na = normFocusTarget(a)
+  const nb = normFocusTarget(b)
+  return na.facetId === nb.facetId && na.facetType === nb.facetType && na.weight === nb.weight
+}
+
+/**
+ * Pre-prescribe MOS gates (C1-MOS-01, C1-MOS-02).
+ * @returns {{ checks: object[], ok: boolean }}
+ */
+export function validatePrescribeBodyMOS(body) {
+  const checks = []
+  const missing = []
+  if (body?.ageMin == null) missing.push('ageMin')
+  if (body?.ageMax == null) missing.push('ageMax')
+  if (body?.durationMinutes == null || !Number.isFinite(Number(body.durationMinutes))) missing.push('durationMinutes')
+  if (!Array.isArray(body?.phasePlan) || body.phasePlan.length === 0) missing.push('phasePlan')
+  if (body?.sessionObjective == null || body.sessionObjective === '') missing.push('sessionObjective')
+  if (body?.workMode == null || body.workMode === '') missing.push('workMode')
+  if (body?.skillLevel == null || body.skillLevel === '') missing.push('skillLevel')
+
+  if (missing.length > 0) {
+    fail(checks, 'prescribe_body_mos_complete', `Prescribe body missing mandatory fields: ${missing.join(', ')}`, missing)
+  } else {
+    pass(checks, 'prescribe_body_mos_complete', 'Prescribe body has mandatory fields')
+  }
+
+  const planSum = planRows(body).reduce((s, r) => s + Number(r.minutes ?? 0), 0)
+  const duration = Number(body?.durationMinutes ?? 0)
+  if (planSum !== duration) {
+    fail(checks, 'phase_plan_minute_sum_mos', `phasePlan minutes sum ${planSum} !== durationMinutes ${duration}`, { planSum, duration })
+  } else {
+    pass(checks, 'phase_plan_minute_sum_mos', `phasePlan minutes sum equals durationMinutes (${duration})`)
+  }
+
+  return { checks, ok: checks.every((c) => c.ok) }
+}
+
+/**
+ * Category 1 structure parity (C1-MOP-01–17, C1-MOE-06).
+ */
+export function evaluateCategory1Structure(result, expectedBody, checks) {
+  const plan = planRows(expectedBody)
+  const blocks = result.blocks ?? []
+
+  if (blocks.length !== plan.length) {
+    fail(checks, 'phase_count_match', `blocks.length ${blocks.length} !== phasePlan.length ${plan.length}`)
+  } else {
+    pass(checks, 'phase_count_match', `Phase count match (${blocks.length})`)
+  }
+
+  const planKeys = plan.map(planPhaseKey)
+  const blockKeys = blocks.map((b) => b.phase_key)
+  const planKeySet = new Set(planKeys)
+  const blockKeySet = new Set(blockKeys)
+  const missingKeys = planKeys.filter((k) => !blockKeySet.has(k))
+  const extraKeys = blockKeys.filter((k) => !planKeySet.has(k))
+  if (missingKeys.length > 0 || extraKeys.length > 0 || planKeys.length !== blockKeys.length) {
+    fail(checks, 'phase_key_set_equality', 'Phase key set mismatch', { missingKeys, extraKeys, planKeys, blockKeys })
+  } else {
+    pass(checks, 'phase_key_set_equality', 'Phase key sets equal')
+  }
+
+  const orderIndices = blockKeys.map((k) => SESSION_PHASE_ORDER.indexOf(k))
+  const hasUnknown = orderIndices.some((i) => i < 0)
+  const inversions = orderIndices.some((idx, i) => i > 0 && idx < orderIndices[i - 1])
+  if (hasUnknown || inversions) {
+    fail(checks, 'canonical_phase_order', 'Block phase order violates SESSION_PHASE_ORDER', { blockKeys, orderIndices })
+  } else {
+    pass(checks, 'canonical_phase_order', 'Canonical phase order preserved')
+  }
+
+  const expectedIndexOrder = SESSION_PHASE_ORDER.filter((k) => blockKeySet.has(k))
+  const indexMismatches = blockKeys
+    .map((k, i) => ({ i, key: k, expected: expectedIndexOrder[i] }))
+    .filter((row) => row.key !== row.expected)
+  if (indexMismatches.length > 0) {
+    fail(checks, 'block_index_order', 'Block index order does not match canonical phase order', indexMismatches)
+  } else {
+    pass(checks, 'block_index_order', 'Block index order matches canonical phase order')
+  }
+
+  const minuteMismatches = []
+  for (const row of plan) {
+    const key = planPhaseKey(row)
+    const block = blockByKey(result, key)
+    const planned = Number(row.minutes ?? 0)
+    const actual = Number(block?.target_minutes ?? -1)
+    if (!block || actual !== planned) {
+      minuteMismatches.push({ phase_key: key, planned, actual })
+    }
+  }
+  if (minuteMismatches.length > 0) {
+    fail(checks, 'phase_minutes_exact', 'Per-phase target_minutes differ from phasePlan', minuteMismatches)
+  } else {
+    pass(checks, 'phase_minutes_exact', 'Per-phase target minutes exact')
+  }
+
+  const blockSum = blocks.reduce((s, b) => s + Number(b.target_minutes ?? 0), 0)
+  const duration = Number(expectedBody.durationMinutes ?? 0)
+  if (blockSum !== duration) {
+    fail(checks, 'session_minutes_sum', `sum(target_minutes) ${blockSum} !== durationMinutes ${duration}`)
+  } else {
+    pass(checks, 'session_minutes_sum', `Session minutes sum equals durationMinutes (${duration})`)
+  }
+
+  const focusCountMismatches = []
+  for (const row of plan) {
+    const key = planPhaseKey(row)
+    const block = blockByKey(result, key)
+    const planFocus = row.focusTargets ?? row.focus_targets ?? []
+    const blockFocus = block?.focus_targets ?? []
+    if (planFocus.length !== blockFocus.length) {
+      focusCountMismatches.push({ phase_key: key, plan: planFocus.length, block: blockFocus.length })
+    }
+  }
+  if (focusCountMismatches.length > 0) {
+    fail(checks, 'focus_targets_count_parity', 'focus_targets count mismatch', focusCountMismatches)
+  } else {
+    pass(checks, 'focus_targets_count_parity', 'Focus target counts match per phase')
+  }
+
+  const focusFieldMismatches = []
+  for (const row of plan) {
+    const key = planPhaseKey(row)
+    const block = blockByKey(result, key)
+    const planFocus = (row.focusTargets ?? row.focus_targets ?? []).map(normFocusTarget)
+    const blockFocus = (block?.focus_targets ?? []).map(normFocusTarget)
+    for (let i = 0; i < planFocus.length; i++) {
+      if (!focusTargetsMatch(planFocus[i], blockFocus[i])) {
+        focusFieldMismatches.push({ phase_key: key, index: i, plan: planFocus[i], block: blockFocus[i] })
+      }
+    }
+  }
+  if (focusFieldMismatches.length > 0) {
+    fail(checks, 'focus_targets_field_parity', 'focus_targets facetId/facetType/weight mismatch', focusFieldMismatches)
+  } else {
+    pass(checks, 'focus_targets_field_parity', 'Focus target fields match per phase')
+  }
+
+  const preparePlan = plan.find((r) => planPhaseKey(r) === 'prepare_and_access')
+  if (preparePlan?.pinned) {
+    const firstKey = blocks[0]?.phase_key
+    const prepareBlock = blockByKey(result, 'prepare_and_access')
+    const planMinutes = Number(preparePlan.minutes ?? 0)
+    const blockMinutes = Number(prepareBlock?.target_minutes ?? 0)
+    if (firstKey !== 'prepare_and_access' || blockMinutes < planMinutes) {
+      fail(checks, 'pinned_prepare_first', 'Pinned Prepare must be first block with minutes >= plan', {
+        firstKey,
+        blockMinutes,
+        planMinutes,
+      })
+    } else {
+      pass(checks, 'pinned_prepare_first', 'Pinned Prepare first with correct minutes')
+    }
+  } else {
+    pass(checks, 'pinned_prepare_first', 'Prepare not pinned — check skipped')
+  }
+
+  const expectedWorkMode = expectedBody.workMode ?? expectedBody.work_mode ?? 'exercise'
+  if (result.work_mode !== expectedWorkMode) {
+    fail(checks, 'work_mode_echo', `work_mode ${result.work_mode} !== ${expectedWorkMode}`)
+  } else {
+    pass(checks, 'work_mode_echo', `work_mode echoes body (${expectedWorkMode})`)
+  }
+
+  const orphanOther = blocks.filter((b) => b.phase_key === 'other' && !(b.other_kind ?? b.otherKind))
+  if (orphanOther.length > 0) {
+    fail(checks, 'no_orphan_other_blocks', 'other phase blocks missing other_kind', orphanOther.map((b) => b.phase_key))
+  } else {
+    pass(checks, 'no_orphan_other_blocks', 'No orphan other blocks')
+  }
+
+  const labelMismatches = []
+  for (const row of plan) {
+    const key = planPhaseKey(row)
+    const block = blockByKey(result, key)
+    const planLabel = row.label ?? ''
+    const blockLabel = block?.label ?? ''
+    if (planLabel && blockLabel && planLabel !== blockLabel) {
+      labelMismatches.push({ phase_key: key, plan: planLabel, block: blockLabel })
+    }
+  }
+  if (labelMismatches.length > 0) {
+    fail(checks, 'phase_label_parity', 'Phase labels differ from plan', labelMismatches)
+  } else {
+    pass(checks, 'phase_label_parity', 'Phase labels match plan')
+  }
+
+  const expectedObjective = expectedBody.sessionObjective ?? expectedBody.session_objective
+  const actualObjective = result.audience_profile?.sessionObjective
+  if (expectedObjective != null && actualObjective !== expectedObjective) {
+    fail(checks, 'session_objective_echo', `sessionObjective ${actualObjective} !== ${expectedObjective}`)
+  } else {
+    pass(checks, 'session_objective_echo', `sessionObjective echoes body (${expectedObjective})`)
+  }
+
+  const weightIssues = []
+  for (const block of blocks) {
+    const targets = block.focus_targets ?? []
+    if (targets.length === 0) continue
+    const sum = targets.reduce((s, t) => s + Number(t.weight ?? 0), 0)
+    if (sum < 1 || sum > 10) {
+      weightIssues.push({ phase_key: block.phase_key, sum })
+    }
+  }
+  if (weightIssues.length > 0) {
+    fail(checks, 'focus_weight_sum_sanity', 'Focus weight sum out of range 1–10', weightIssues)
+  } else {
+    pass(checks, 'focus_weight_sum_sanity', 'Focus weight sums in valid range')
+  }
+
+  const rationales = result.phase_rationales ?? []
+  if (rationales.length !== blocks.length) {
+    fail(checks, 'phase_rationales_present', `phase_rationales.length ${rationales.length} !== blocks.length ${blocks.length}`)
+  } else {
+    pass(checks, 'phase_rationales_present', `phase_rationales present (${rationales.length})`)
+  }
+
+  const outputBlock = blockByKey(result, 'output')
+  const sustainedBlock = blockByKey(result, 'sustained_capacity')
+  const intentIssues = []
+  const outputFocus = outputBlock?.focus_targets ?? []
+  const sustainedFocus = sustainedBlock?.focus_targets ?? []
+  if (outputFocus.length > 0) {
+    const maxOutputWeight = Math.max(...outputFocus.map((t) => Number(t.weight ?? 0)))
+    if (maxOutputWeight < 3) intentIssues.push({ phase: 'output', maxWeight: maxOutputWeight, min: 3 })
+  }
+  if (sustainedFocus.length > 0) {
+    const maxSustainedWeight = Math.max(...sustainedFocus.map((t) => Number(t.weight ?? 0)))
+    if (maxSustainedWeight < 3) intentIssues.push({ phase: 'sustained_capacity', maxWeight: maxSustainedWeight, min: 3 })
+  }
+  if (intentIssues.length > 0) {
+    fail(checks, 'focus_weight_intent_minimum', 'Focused phases need weight >= 3', intentIssues)
+  } else {
+    pass(checks, 'focus_weight_intent_minimum', 'Focus weights meet intent minimums')
+  }
+
+  const otherPlanRows = plan.filter((r) => planPhaseKey(r) === 'other')
+  if (otherPlanRows.length > 0) {
+    const fidelityIssues = []
+    for (const row of otherPlanRows) {
+      const block = blockByKey(result, 'other')
+      const planKind = row.otherKind ?? row.other_kind
+      const blockKind = block?.other_kind ?? block?.otherKind
+      if (planKind && blockKind !== planKind) {
+        fidelityIssues.push({ planKind, blockKind })
+      }
+    }
+    if (fidelityIssues.length > 0) {
+      fail(checks, 'other_phase_fidelity', 'other phase otherKind mismatch', fidelityIssues)
+    } else {
+      pass(checks, 'other_phase_fidelity', 'other phase fidelity preserved')
+    }
+  } else {
+    pass(checks, 'other_phase_fidelity', 'No other phase in plan — check skipped')
+  }
+}
+
+/**
+ * Informational Category 1 MOE calculators (non-blocking).
+ */
+export function evaluateCategory1MoeInfo(result, expectedBody, checks) {
+  const blocks = result.blocks ?? []
+  const totalMinutes = blocks.reduce((s, b) => s + Number(b.target_minutes ?? 0), 0) || 1
+
+  const highIntentKeys = new Set(['output', 'capacity', 'resilience', 'sustained_capacity'])
+  const highIntentMinutes = blocks
+    .filter((b) => highIntentKeys.has(b.phase_key))
+    .reduce((s, b) => s + Number(b.target_minutes ?? 0), 0)
+  const highIntentRatio = highIntentMinutes / totalMinutes
+  pass(checks, 'category1_moe_high_intent_ratio', `High-intent minutes ratio: ${(highIntentRatio * 100).toFixed(1)}%`, {
+    informational: true,
+    ratio: highIntentRatio,
+    threshold: 0.75,
+    ok_band: highIntentRatio >= 0.75,
+  })
+
+  const prepareBlock = blockByKey(result, 'prepare_and_access')
+  const prepareShare = Number(prepareBlock?.target_minutes ?? 0) / totalMinutes
+  pass(checks, 'category1_moe_prepare_share', `Prepare share: ${(prepareShare * 100).toFixed(1)}%`, {
+    informational: true,
+    ratio: prepareShare,
+    threshold_max: 0.12,
+    ok_band: prepareShare <= 0.12,
+  })
+
+  const miBlock = blockByKey(result, 'movement_intelligence')
+  const miShare = Number(miBlock?.target_minutes ?? 0) / totalMinutes
+  const sessionObjective = expectedBody?.sessionObjective ?? result.audience_profile?.sessionObjective
+  pass(checks, 'category1_moe_mi_proportion', `MI proportion: ${(miShare * 100).toFixed(1)}%`, {
+    informational: true,
+    ratio: miShare,
+    band_min: 0.08,
+    band_max: 0.15,
+    ok_band: sessionObjective === 'speed_priority' ? miShare >= 0.08 && miShare <= 0.15 : null,
+  })
+
+  const restoreBlock = blockByKey(result, 'restore')
+  const restoreMinutes = Number(restoreBlock?.target_minutes ?? 0)
+  const prepareMinutes = Number(prepareBlock?.target_minutes ?? 0)
+  const restorePrepareRatio = prepareMinutes > 0 ? restoreMinutes / prepareMinutes : 0
+  pass(checks, 'category1_moe_restore_prepare_ratio', `Restore/Prepare ratio: ${restorePrepareRatio.toFixed(2)}`, {
+    informational: true,
+    ratio: restorePrepareRatio,
+    threshold_min: 0.30,
+    ok_band: restorePrepareRatio >= 0.30,
+  })
+
+  const objective = expectedBody?.sessionObjective ?? 'general_athletic_development'
+  const duration = Number(expectedBody?.durationMinutes ?? totalMinutes)
+  const { plan: templatePlan } = buildPhasePlan({ sessionObjective: objective, durationMinutes: duration })
+  const templateTotal = templatePlan.reduce((s, r) => s + Number(r.minutes ?? 0), 0) || 1
+  const proportionBands = []
+  for (const row of planRows(expectedBody)) {
+    const key = planPhaseKey(row)
+    const templateRow = templatePlan.find((p) => p.phaseKey === key)
+    const actualPct = (Number(row.minutes ?? 0) / totalMinutes) * 100
+    const templatePct = templateRow ? (Number(templateRow.minutes ?? 0) / templateTotal) * 100 : null
+    const delta = templatePct != null ? Math.abs(actualPct - templatePct) : null
+    proportionBands.push({ phase_key: key, actualPct, templatePct, delta })
+  }
+  const outsideBand = proportionBands.filter((b) => b.delta != null && b.delta > 5)
+  pass(checks, 'category1_moe_objective_template_proportions', `Template proportion compare: ${outsideBand.length} phase(s) outside ±5%`, {
+    informational: true,
+    phases: proportionBands,
+    outside_band_count: outsideBand.length,
+    ok_band: outsideBand.length <= 1,
+  })
+
+  const lastKey = blocks[blocks.length - 1]?.phase_key
+  const restorePresent = blocks.some((b) => b.phase_key === 'restore')
+  pass(checks, 'category1_moe_restore_last', `Restore last: ${lastKey === 'restore'}; present: ${restorePresent}`, {
+    informational: true,
+    last_phase_key: lastKey,
+    restore_present: restorePresent,
+    ok_band: restorePresent && lastKey === 'restore',
+  })
+
+  pass(checks, 'category1_moe_review_packet', `${blocks.length} phase(s) for coach MOE review`, {
+    informational: true,
+    phases: blocks.map((b) => ({
+      phase_key: b.phase_key,
+      label: b.label,
+      target_minutes: b.target_minutes,
+      item_count: b.items?.length ?? 0,
+    })),
+    rubric: ['C1-MOE-01', 'C1-MOE-07'],
+  })
+}
+
+/**
+ * C1-KPI-01 aggregate over CATEGORY1_KPI_CHECK_IDS (skips N/A checks marked skipped in message).
+ */
+export function computeCategory1Kpi(checks, { minRate = 0.95 } = {}) {
+  const applicable = checks.filter((c) => CATEGORY1_KPI_CHECK_IDS.includes(c.id))
+  const scored = applicable.filter((c) => !String(c.message).includes('skipped'))
+  const passed = scored.filter((c) => c.ok).length
+  const rate = scored.length > 0 ? passed / scored.length : 1
+  return {
+    id: 'category1_kpi',
+    ok: rate >= minRate,
+    severity: rate >= minRate ? 'ok' : 'P1',
+    message: `Category 1 structure fidelity: ${(rate * 100).toFixed(1)}% (${passed}/${scored.length}; min ${(minRate * 100).toFixed(0)}%)`,
+    detail: { rate, passed, total: scored.length, minRate },
+  }
 }
 
 export function evaluatePrescriptionQuality(result, thresholds, context = {}) {
@@ -401,6 +843,15 @@ export function evaluatePrescriptionQuality(result, thresholds, context = {}) {
     fail(checks, 'no_empty_phases', 'No phase may report pool_empty', emptyPhases)
   } else {
     pass(checks, 'no_empty_phases', 'No pool_empty phase reasons')
+  }
+
+  if (context.expectedBody) {
+    evaluateCategory1Structure(result, context.expectedBody, checks)
+    evaluateCategory1MoeInfo(result, context.expectedBody, checks)
+    const kpiCheck = computeCategory1Kpi(checks, { minRate: thresholds.category1KpiMinRate ?? 0.95 })
+    checks.push(kpiCheck)
+    context.evalInfraOk = context.evalInfraOk !== false
+    runCategoryEvaluators(result, context.expectedBody, checks, { ...context, expectedBody: context.expectedBody, thresholds })
   }
 
   const failed = checks.filter((c) => !c.ok)

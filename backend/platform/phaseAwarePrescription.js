@@ -2,6 +2,7 @@ import { loadExerciseProgrammingBundle, attachProgrammingToExercise } from './ex
 import { loadEducationForExercise, educationToWhyResponse } from './educationContent.js'
 import {
   resolveAudienceProfile,
+  resolveHardDifficultyExclude,
   scoreAgeDifficultyFit,
   classifyAgeFit,
   ageFitWarnings,
@@ -10,6 +11,8 @@ import {
   expandEquipmentAvoidIds,
   exerciseViolatesEquipmentAvoid,
   auditPrescriptionEquipmentAvoid,
+  exerciseAllowedUseOnly,
+  BODYWEIGHT_EQUIPMENT_KEYS,
 } from './equipmentAvoidPolicy.js'
 import { buildSkillLevelSql } from './skillLevelPolicy.js'
 import { beginnerAppropriatenessPenalty } from './beginnerExclusionPolicy.js'
@@ -20,7 +23,7 @@ import {
   restoreScoreBoost,
 } from './restoreSelectionPolicy.js'
 import {
-  hasHiitFocus,
+  hasSustainedConditioningFocus,
   minItemsForPhase,
   maxItemsForPhase,
   phaseFillTarget,
@@ -29,12 +32,18 @@ import {
   sustainedCapacityCandidateEligible,
 } from './sustainedCapacityPolicy.js'
 import { sportContextMultiplier } from './sportContextPolicy.js'
+import { runPreflight } from './preflightSatisfiability.js'
 import {
   movementFamilyBlocked,
   movementFamilyKey,
   normalizeSlugStem,
   recordMovementFamily,
 } from './movementFamilyPolicy.js'
+import {
+  emptyLaneRejectReasons,
+  hasHighArousalMethodology,
+  mergeLaneRejectReasons,
+} from './progressionLanePolicy.js'
 
 function itemSecondsFromExercise(ex, item) {
   const sets = Number(item?.sets ?? ex.default_sets) || 3
@@ -47,12 +56,13 @@ function itemSecondsFromExercise(ex, item) {
 function mergeCapsMax(...capObjects) {
   const valid = capObjects.filter(Boolean)
   if (valid.length === 0) {
-    return { maxOverall: 10, maxTechnical: 10, maxLoad: 10 }
+    return { maxOverall: 10, maxTechnical: 10, maxLoad: 10, maxComplexity: 10 }
   }
   return {
     maxOverall: Math.max(...valid.map((c) => Number(c.maxOverall ?? 10))),
     maxTechnical: Math.max(...valid.map((c) => Number(c.maxTechnical ?? 10))),
     maxLoad: Math.max(...valid.map((c) => Number(c.maxLoad ?? 10))),
+    maxComplexity: Math.max(...valid.map((c) => Number(c.maxComplexity ?? c.maxTechnical ?? 10))),
   }
 }
 
@@ -75,6 +85,7 @@ function buildSplitProfiles(audienceSplits, body) {
         maxOverall: Number(o.maxOverall ?? o.max_overall ?? profile.caps.maxOverall),
         maxTechnical: Number(o.maxTechnical ?? o.max_technical ?? profile.caps.maxTechnical),
         maxLoad: Number(o.maxLoad ?? o.max_load ?? profile.caps.maxLoad),
+        maxComplexity: Number(o.maxComplexity ?? o.max_complexity ?? o.maxOverall ?? o.max_overall ?? profile.caps.maxComplexity),
       }
     }
     return {
@@ -151,6 +162,15 @@ function scalingGuidanceForCohort(scalingProfiles, cohortKey) {
   if (!row) return null
   const parts = [row.load_guidance, row.complexity_guidance, row.coach_notes].filter(Boolean)
   return parts.length > 0 ? parts.join(' ') : null
+}
+
+function resolveSplitScalingGuidance(candidate, primary, split, primarySplitGuidance = null) {
+  return (
+    scalingGuidanceForCohort(candidate?.scalingProfiles, split.scalingCohort)
+    ?? scalingGuidanceForCohort(primary?.scalingProfiles, split.scalingCohort)
+    ?? primarySplitGuidance
+    ?? null
+  )
 }
 
 function scoreTargets(tags, targets) {
@@ -252,18 +272,93 @@ function progressionFitsCaps(difficulty, caps) {
   return fit === 'good' || fit === 'stretch'
 }
 
-function pickSplitProgression(candidates, primaryCandidate, caps, phaseKey, excludeIds = new Set(), fullScored = []) {
+function progressionLaneMatchAtPick(primaryCandidate, candidate) {
+  const primaryPattern = primaryCandidate.tags?.find((t) => t.facetType === 'pattern')?.facetId
+  const candPattern = candidate.tags?.find((t) => t.facetType === 'pattern')?.facetId
+  if (primaryPattern && candPattern === primaryPattern) {
+    return { method: 'pattern', pattern_priority_pick: true }
+  }
+  if (sharesTagFacet(candidate, primaryCandidate, 'pattern')) {
+    return { method: 'pattern', pattern_priority_pick: false }
+  }
+  const candidateFamily = String(candidate.exercise.movement_family ?? '').toLowerCase()
+  const primaryFamily = String(primaryCandidate.exercise.movement_family ?? '').toLowerCase()
+  if (candidateFamily && primaryFamily && candidateFamily === primaryFamily) {
+    return { method: 'family', pattern_priority_pick: false }
+  }
+  return { method: 'none', pattern_priority_pick: false }
+}
+
+function countProgressionLaneRejects(pool, primaryCandidate, caps, phaseKey, excludeIds, methodologyKeyById) {
+  const reasons = emptyLaneRejectReasons()
+  const primaryExerciseId = Number(primaryCandidate.exercise.id)
+  const primaryDiff = Number(primaryCandidate.difficulty?.overall ?? 0)
+  const targetCap = Number(caps?.maxOverall ?? 10)
+
+  for (const c of pool) {
+    if (Number(c.exercise.id) === primaryExerciseId) continue
+    if (excludeIds.has(Number(c.exercise.id))) {
+      reasons.reuse_excluded += 1
+      continue
+    }
+    if (!sameProgressionLane(c, primaryCandidate, phaseKey)) {
+      reasons.lane_mismatch += 1
+      continue
+    }
+    if (phaseKey !== 'sustained_capacity' && methodologyKeyById && hasHighArousalMethodology(
+      Number(c.exercise.id),
+      new Map([[String(c.exercise.id), (c.tags ?? []).map((t) => ({
+        facetType: t.facetType,
+        facetId: t.facetId,
+      }))]]),
+      methodologyKeyById,
+    )) {
+      reasons.methodology += 1
+      continue
+    }
+    const diff = Number(c.difficulty?.overall ?? 99)
+    if (diff <= primaryDiff + 1) {
+      reasons.difficulty_gap += 1
+      continue
+    }
+    if (diff > targetCap) {
+      reasons.over_cap += 1
+      continue
+    }
+    if (!progressionFitsCaps(c.difficulty, caps)) {
+      reasons.over_cap += 1
+      continue
+    }
+    const profile = candidatePhaseProfile(c, phaseKey)
+    if (!profile || !['primary', 'secondary'].includes(profile.role)) {
+      reasons.profile_role += 1
+    }
+  }
+  return reasons
+}
+
+function pickSplitProgression(candidates, primaryCandidate, caps, phaseKey, excludeIds = new Set(), fullScored = [], methodologyKeyById = null) {
   const primaryExerciseId = Number(primaryCandidate.exercise.id)
   const primaryPattern = primaryCandidate.tags?.find((t) => t.facetType === 'pattern')?.facetId
   const primaryDiff = Number(primaryCandidate.difficulty?.overall ?? 0)
   const targetCap = Number(caps?.maxOverall ?? 10)
-  if (targetCap <= primaryDiff + 1) return null
+  if (targetCap <= primaryDiff + 1) return { candidate: null, source: null, laneRejectReasons: emptyLaneRejectReasons() }
 
-  const tryPick = (pool) => {
+  const candidateTagMap = (c) => new Map([[String(c.exercise.id), (c.tags ?? []).map((t) => ({
+    facetType: t.facetType,
+    facetId: t.facetId,
+  }))]])
+
+  const tryPick = (pool, source) => {
     const eligible = pool.filter((c) => {
       if (Number(c.exercise.id) === primaryExerciseId) return false
       if (excludeIds.has(Number(c.exercise.id))) return false
       if (!sameProgressionLane(c, primaryCandidate, phaseKey)) return false
+      if (phaseKey !== 'sustained_capacity' && methodologyKeyById && hasHighArousalMethodology(
+        Number(c.exercise.id),
+        candidateTagMap(c),
+        methodologyKeyById,
+      )) return false
       const diff = Number(c.difficulty?.overall ?? 99)
       if (diff <= primaryDiff + 1) return false
       if (diff > targetCap) return false
@@ -283,17 +378,48 @@ function pickSplitProgression(candidates, primaryCandidate, caps, phaseKey, excl
       return (b.adjScore ?? b.score ?? 0) - (a.adjScore ?? a.score ?? 0)
     })
 
-    return eligible[0] ?? null
+    const picked = eligible[0] ?? null
+    if (!picked) return null
+    const laneMeta = progressionLaneMatchAtPick(primaryCandidate, picked)
+    return {
+      candidate: picked,
+      source,
+      lane_match_method: laneMeta.method,
+      pattern_priority_pick: laneMeta.pattern_priority_pick,
+    }
   }
 
-  return tryPick(candidates) ?? tryPick(fullScored)
+  const combinedPool = [...candidates]
+  for (const c of fullScored) {
+    if (!combinedPool.some((row) => Number(row.exercise.id) === Number(c.exercise.id))) {
+      combinedPool.push(c)
+    }
+  }
+
+  const fromPool = tryPick(candidates, 'pool')
+  if (fromPool) return fromPool
+  const fromFull = tryPick(fullScored, 'full_scored')
+  if (fromFull) return fromFull
+
+  return {
+    candidate: null,
+    source: null,
+    laneRejectReasons: countProgressionLaneRejects(combinedPool, primaryCandidate, caps, phaseKey, excludeIds, methodologyKeyById),
+  }
 }
 
 function normalizeExerciseName(name) {
   return String(name ?? '').toLowerCase().replace(/\s+/g, ' ').trim()
 }
 
-function buildSplitVariantEntry(split, candidate, { variantType, substituted = false, scalingGuidance = null } = {}) {
+function buildSplitVariantEntry(split, candidate, {
+  variantType,
+  substituted = false,
+  scalingGuidance = null,
+  progressionPickSource = null,
+  progressionLaneMatchMethod = null,
+  progressionPatternPriorityPick = null,
+} = {}) {
   return {
     split_label: split.label,
     age_min: split.ageMin ?? null,
@@ -305,13 +431,20 @@ function buildSplitVariantEntry(split, candidate, { variantType, substituted = f
     substituted: substituted || variantType === 'substituted',
     variant_type: variantType,
     scaling_guidance: scalingGuidance ?? null,
+    progression_pick_source: progressionPickSource ?? undefined,
+    progression_lane_match_method: progressionLaneMatchMethod ?? undefined,
+    progression_pattern_priority_pick: progressionPatternPriorityPick ?? undefined,
   }
 }
 
-function resolvePerSplitVariants(primary, poolForPhase, scored, splitProfiles, phaseKey, phaseUsedProgressionIds = new Set()) {
+function resolvePerSplitVariants(primary, poolForPhase, scored, splitProfiles, phaseKey, phaseUsedProgressionIds = new Set(), methodologyKeyById = null) {
   const perSplit = []
   const warnings = []
+  let laneRejectReasons = emptyLaneRejectReasons()
   const reservedIds = new Set([Number(primary.exercise.id)])
+  const maxSplitCap = splitProfiles.length > 0
+    ? Math.max(...splitProfiles.map((s) => Number(s.caps?.maxOverall ?? 0)))
+    : 0
 
   const fallbackPool = scored.filter((c) => {
     if (Number(c.exercise.id) === Number(primary.exercise.id)) return false
@@ -332,17 +465,25 @@ function resolvePerSplitVariants(primary, poolForPhase, scored, splitProfiles, p
     if (fits) {
       const primaryDiff = Number(primary.difficulty?.overall ?? 0)
       const cap = Number(split.caps?.maxOverall ?? 10)
-      if (cap > primaryDiff + 1) {
+      const isHighestCapSplit = cap >= maxSplitCap && maxSplitCap > 0
+      if (isHighestCapSplit && cap > primaryDiff + 1) {
         const progressionExclude = new Set([...reservedIds, ...phaseUsedProgressionIds])
-        const progressed = pickSplitProgression(searchPool, primary, split.caps, phaseKey, progressionExclude, scored)
-        if (progressed) {
+        const picked = pickSplitProgression(searchPool, primary, split.caps, phaseKey, progressionExclude, scored, methodologyKeyById)
+        if (picked?.candidate) {
+          const progressed = picked.candidate
           phaseUsedProgressionIds.add(Number(progressed.exercise.id))
           reservedIds.add(Number(progressed.exercise.id))
           perSplit.push(buildSplitVariantEntry(split, progressed, {
             variantType: 'progression',
-            scalingGuidance: scalingGuidanceForCohort(progressed.scalingProfiles, split.scalingCohort),
+            scalingGuidance: resolveSplitScalingGuidance(progressed, primary, split, scalingGuidance),
+            progressionPickSource: picked.source,
+            progressionLaneMatchMethod: picked.lane_match_method,
+            progressionPatternPriorityPick: picked.pattern_priority_pick,
           }))
           continue
+        }
+        if (picked?.laneRejectReasons) {
+          laneRejectReasons = mergeLaneRejectReasons(laneRejectReasons, picked.laneRejectReasons)
         }
       }
       perSplit.push(buildSplitVariantEntry(split, primary, {
@@ -358,7 +499,7 @@ function resolvePerSplitVariants(primary, poolForPhase, scored, splitProfiles, p
       perSplit.push(buildSplitVariantEntry(split, alt, {
         variantType: 'substituted',
         substituted: true,
-        scalingGuidance: scalingGuidanceForCohort(alt.scalingProfiles, split.scalingCohort),
+        scalingGuidance: resolveSplitScalingGuidance(alt, primary, split, scalingGuidance),
       }))
       continue
     }
@@ -381,6 +522,7 @@ function resolvePerSplitVariants(primary, poolForPhase, scored, splitProfiles, p
     warnings,
     complete: perSplit.every((entry) => entry.variant_type !== 'missing'),
     reservedIds: [...reservedIds].filter((id) => id !== Number(primary.exercise.id)),
+    laneRejectReasons,
   }
 }
 
@@ -465,6 +607,22 @@ const NO_STRETCH_PRIMARY_PHASES = new Set([
   'resilience',
 ])
 
+function highestCapSplitProfiles(splitProfiles) {
+  if (!Array.isArray(splitProfiles) || splitProfiles.length === 0) return []
+  const maxCap = Math.max(...splitProfiles.map((s) => Number(s.caps?.maxOverall ?? 0)))
+  if (maxCap <= 0) return []
+  return splitProfiles.filter((s) => Number(s.caps?.maxOverall ?? 0) >= maxCap)
+}
+
+function progressionEligiblePrimary(primaryDifficulty, splitProfiles) {
+  const highSplits = highestCapSplitProfiles(splitProfiles)
+  if (highSplits.length === 0) return false
+  const primaryD = Number(primaryDifficulty?.overall ?? 0)
+  const maxCap = Number(highSplits[0].caps?.maxOverall ?? 0)
+  if (maxCap <= primaryD + 1) return false
+  return highSplits.some((s) => classifyAgeFit(primaryDifficulty, s.caps) === 'good')
+}
+
 function classifyPrimaryAgeFit(difficulty, sessionCaps, splitProfiles) {
   if (!difficulty) return 'good'
   const sessionFit = classifyAgeFit(difficulty, sessionCaps)
@@ -502,16 +660,20 @@ async function fillPhaseItems({
   caps,
   scalingCohort,
   allowRelaxedPatternDedup = false,
-  sustainedFallback = false,
+  sustainedRelaxedPoolFill = false,
   methodologyKeyById,
   intentKeyById,
   resolvedPhaseTargets,
   phaseUsedProgressionIds,
+  fillPass = 'primary',
 }) {
   const items = []
   let usedSeconds = 0
   let skippedCandidates = 0
   let splitRejects = 0
+  let progressionEligible = 0
+  let progressionAssigned = 0
+  let laneRejectReasons = emptyLaneRejectReasons()
   const targetSeconds = Math.floor(budgetSeconds * fillTargetRatio)
 
   for (const c of poolForPhase) {
@@ -544,8 +706,8 @@ async function fillPhaseItems({
       continue
     }
 
-    if (sustainedFallback && phaseKey === 'sustained_capacity') {
-      if (!sustainedCapacityCandidateEligible(c.exercise, c.tags, methodologyKeyById, intentKeyById, { strictHiit: false })) {
+    if (sustainedRelaxedPoolFill && phaseKey === 'sustained_capacity') {
+      if (!sustainedCapacityCandidateEligible(c.exercise, c.tags, methodologyKeyById, intentKeyById, { strictConditioningMethodology: false })) {
         skippedCandidates += 1
         continue
       }
@@ -564,8 +726,18 @@ async function fillPhaseItems({
     let perSplit = []
     let splitReservedIds = []
     let splitFallbackUsed = false
-    if (splitProfiles.length > 0 && !sustainedFallback) {
-      const resolved = resolvePerSplitVariants(c, poolForPhase, scored, splitProfiles, phaseKey, phaseUsedProgressionIds)
+    let splitResolveWarnings = []
+    const eligibleForProgression = SPLIT_PROGRESSION_PHASE_KEYS.has(phaseKey)
+      && splitProfiles.length > 0
+      && progressionEligiblePrimary(c.difficulty, splitProfiles)
+    if (eligibleForProgression) progressionEligible += 1
+
+    if (splitProfiles.length > 0) {
+      const resolved = resolvePerSplitVariants(c, poolForPhase, scored, splitProfiles, phaseKey, phaseUsedProgressionIds, methodologyKeyById)
+      splitResolveWarnings = [...(resolved.warnings ?? [])]
+      if (resolved.laneRejectReasons) {
+        laneRejectReasons = mergeLaneRejectReasons(laneRejectReasons, resolved.laneRejectReasons)
+      }
       if (!splitCandidateAcceptable(resolved, c, splitProfiles, relaxSplit)) {
         splitRejects += 1
         skippedCandidates += 1
@@ -575,6 +747,9 @@ async function fillPhaseItems({
       perSplit = resolved.perSplit
       splitReservedIds = resolved.reservedIds
       for (const w of resolved.warnings) splitVariantWarnings.add(w)
+      if (eligibleForProgression && perSplit.some((v) => v.variant_type === 'progression')) {
+        progressionAssigned += 1
+      }
     }
 
     const eduEx = await loadEducationForExercise(dbPool, Number(c.exercise.id), c.exercise.slug)
@@ -582,6 +757,7 @@ async function fillPhaseItems({
     const cohortScaling = scalingGuidanceForCohort(c.scalingProfiles, scalingCohort)
 
     items.push({
+      fill_pass: fillPass,
       exercise_id: Number(c.exercise.id),
       exercise_name: c.exercise.name,
       sets: c.exercise.default_sets ?? 3,
@@ -596,8 +772,9 @@ async function fillPhaseItems({
       per_split: perSplit.length > 0 ? perSplit : undefined,
       split_alternates_json: perSplit.length > 0 ? perSplit : undefined,
       split_fallback_used: splitFallbackUsed || undefined,
-      selection_rationale: sustainedFallback
-        ? 'HIIT fallback — limited library match.'
+      split_resolve_warnings: splitResolveWarnings.length > 0 ? splitResolveWarnings : undefined,
+      selection_rationale: sustainedRelaxedPoolFill
+        ? 'Relaxed sustained pool fill — limited library match.'
         : (why?.training_purpose ?? `Selected for ${phase?.name ?? phaseKey} (score ${c.score.toFixed(1)}).`),
       placement_rationale: why?.phase_rationale ?? c.profile.notes ?? `Placed in ${phase?.name ?? phaseKey} based on phase fit.`,
       scaling_rationale: cohortScaling ?? why?.scaling_rationale ?? null,
@@ -618,7 +795,15 @@ async function fillPhaseItems({
     if (usedSeconds >= budgetSeconds && items.length >= minItems) break
   }
 
-  return { items, usedSeconds, skippedCandidates, splitRejects }
+  return {
+    items,
+    usedSeconds,
+    skippedCandidates,
+    splitRejects,
+    progressionEligible,
+    progressionAssigned,
+    laneRejectReasons,
+  }
 }
 
 export class PrescriptionError extends Error {
@@ -630,6 +815,26 @@ export class PrescriptionError extends Error {
 }
 
 export async function runPhaseAwarePrescription(pool, facilityId, body) {
+  if (body?.enablePreflight === true) {
+    const preflight = await runPreflight(body, pool, {
+      metricsCatalog: body.metricsCatalog ?? null,
+    })
+    if (!preflight.ok) {
+      throw new PrescriptionError(
+        preflight.status === 'SYSTEM_FAIL'
+          ? 'Prescription requirements failed preflight validation.'
+          : (preflight.blocking_requirements[0]?.message ?? 'Prescription requirements are unsatisfiable.'),
+        'unsatisfiable_requirements',
+        {
+          status: preflight.status ?? 'UNSATISFIABLE',
+          blocking_requirements: preflight.blocking_requirements,
+          suggested_relaxations: preflight.suggested_relaxations,
+          checks: preflight.checks,
+        },
+      )
+    }
+  }
+
   const capsOverride = body.capsOverride ?? body.caps_override ?? null
   const audienceSplits = Array.isArray(body.audienceSplits ?? body.audience_splits)
     ? (body.audienceSplits ?? body.audience_splits)
@@ -649,14 +854,12 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       maxOverall: Number(capsOverride.maxOverall ?? capsOverride.max_overall ?? audience.caps.maxOverall),
       maxTechnical: Number(capsOverride.maxTechnical ?? capsOverride.max_technical ?? audience.caps.maxTechnical),
       maxLoad: Number(capsOverride.maxLoad ?? capsOverride.max_load ?? audience.caps.maxLoad),
+      maxComplexity: Number(capsOverride.maxComplexity ?? capsOverride.max_complexity ?? audience.caps.maxComplexity),
     }
   }
 
   const workMode = body.workMode ?? body.work_mode ?? 'exercise'
-  const hardDifficultyExclude = capsOverride != null || audienceSplits.some((s) => {
-    const override = s.capsOverride ?? s.caps_override ?? s.difficultyOverride ?? s.difficulty_override
-    return override != null
-  })
+  const hardDifficultyExclude = resolveHardDifficultyExclude(body)
 
   const sportId = body.sportId != null ? Number(body.sportId) : null
   let sportKey = null
@@ -679,15 +882,29 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   const equipmentUseIds = Array.isArray(body.equipmentUseIds ?? body.equipment_use_ids)
     ? (body.equipmentUseIds ?? body.equipment_use_ids).map(Number).filter(Number.isFinite)
     : []
-  const equipmentAvoidIds = Array.isArray(body.equipmentAvoidIds ?? body.equipment_avoid_ids)
+  const equipmentUsePolicy = body.equipmentUsePolicy ?? body.equipment_use_policy ?? 'must_use'
+  const allowBodyweight = body.allowBodyweight !== false && body.allow_bodyweight !== false
+  let equipmentAvoidIds = Array.isArray(body.equipmentAvoidIds ?? body.equipment_avoid_ids)
     ? (body.equipmentAvoidIds ?? body.equipment_avoid_ids).map(Number).filter(Number.isFinite)
     : []
+  if (equipmentUsePolicy === 'use_only') {
+    equipmentAvoidIds = []
+  }
   const legacyEquipmentIds = Array.isArray(body.equipmentIds) ? body.equipmentIds.map(Number).filter(Number.isFinite) : []
 
   const { expandedIds: expandedAvoidEquip, avoidKeys } = await expandEquipmentAvoidIds(
     pool,
     [...equipmentAvoidIds, ...legacyEquipmentIds],
   )
+
+  let bodyweightEquipIds = new Set()
+  if (equipmentUsePolicy === 'use_only' && equipmentUseIds.length > 0) {
+    const bwRows = await pool.query(
+      `SELECT id FROM coaching.equipment WHERE key = ANY($1::text[])`,
+      [[...BODYWEIGHT_EQUIPMENT_KEYS]],
+    )
+    bodyweightEquipIds = new Set(bwRows.rows.map((r) => Number(r.id)))
+  }
 
   const excludeBodyRegionIds = Array.isArray(body.excludeBodyRegionIds)
     ? body.excludeBodyRegionIds.map(Number).filter(Number.isFinite)
@@ -795,6 +1012,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   const bundle = await loadExerciseProgrammingBundle(pool, ids)
   const idToExercise = new Map(candidates.rows.map((r) => [Number(r.id), r]))
   const useEquip = new Set(equipmentUseIds)
+  const useOnly = equipmentUsePolicy === 'use_only' && useEquip.size > 0
   const avoidEquip = expandedAvoidEquip
   const usedPatterns = new Map()
   const usedPatternsByPhase = new Map()
@@ -818,6 +1036,12 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
           if (equipmentExcludedSamples.length < 8) equipmentExcludedSamples.push(ex.name)
           return null
         }
+      }
+
+      if (useOnly && !exerciseAllowedUseOnly(equipTags, useEquip, allowBodyweight, bodyweightEquipIds)) {
+        constraintReport.equipment_avoid.excluded_count += 1
+        if (equipmentExcludedSamples.length < 8) equipmentExcludedSamples.push(ex.name)
+        return null
       }
 
       if (legacyEquipmentIds.length > 0 && !equipmentAvoidIds.length && !equipmentUseIds.length) {
@@ -1054,7 +1278,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
           minItems: Math.max(0, minItems - fillResult.items.length),
           maxItems: backfillMaxItems,
           fillTargetRatio: 1,
-          splitProfiles: [],
+          splitProfiles,
           relaxSplit: true,
           splitVariantWarnings,
           usedExerciseIds,
@@ -1073,6 +1297,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
           intentKeyById,
           resolvedPhaseTargets,
           phaseUsedProgressionIds,
+          fillPass: 'backfill',
         })
         if (backfill.items.length > 0 || backfill.usedSeconds > 0) {
           fillResult = {
@@ -1080,27 +1305,30 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
             usedSeconds: fillResult.usedSeconds + backfill.usedSeconds,
             skippedCandidates: fillResult.skippedCandidates + backfill.skippedCandidates,
             splitRejects: fillResult.splitRejects + backfill.splitRejects,
+            progressionEligible: fillResult.progressionEligible + backfill.progressionEligible,
+            progressionAssigned: fillResult.progressionAssigned + backfill.progressionAssigned,
+            laneRejectReasons: mergeLaneRejectReasons(fillResult.laneRejectReasons, backfill.laneRejectReasons),
           }
         }
       }
     }
 
     if (phaseKey === 'sustained_capacity'
-      && hasHiitFocus(resolvedPhaseTargets)
+      && hasSustainedConditioningFocus(resolvedPhaseTargets)
       && fillResult.items.length < minItems) {
       const remainingSeconds = Math.max(0, budgetSeconds - fillResult.usedSeconds)
-      const hiitBudget = remainingSeconds > 0 ? remainingSeconds : 90
-      const hiitFallback = await fillPhaseItems({
+      const relaxedBudget = remainingSeconds > 0 ? remainingSeconds : 90
+      const sustainedRelaxedFill = await fillPhaseItems({
           dbPool: pool,
           poolForPhase,
           scored,
           phaseKey,
           phase,
-          budgetSeconds: hiitBudget,
+          budgetSeconds: relaxedBudget,
           minItems: Math.max(0, minItems - fillResult.items.length),
           maxItems: null,
           fillTargetRatio: 1,
-          splitProfiles: [],
+          splitProfiles,
           relaxSplit: true,
           splitVariantWarnings,
           usedExerciseIds,
@@ -1115,18 +1343,21 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
           caps,
           scalingCohort,
           allowRelaxedPatternDedup: true,
-          sustainedFallback: true,
+          sustainedRelaxedPoolFill: true,
           methodologyKeyById,
           intentKeyById,
           resolvedPhaseTargets,
           phaseUsedProgressionIds,
         })
-      if (hiitFallback.items.length > 0) {
+      if (sustainedRelaxedFill.items.length > 0) {
         fillResult = {
-          items: [...fillResult.items, ...hiitFallback.items],
-          usedSeconds: fillResult.usedSeconds + hiitFallback.usedSeconds,
-          skippedCandidates: fillResult.skippedCandidates + hiitFallback.skippedCandidates,
-          splitRejects: fillResult.splitRejects + hiitFallback.splitRejects,
+          items: [...fillResult.items, ...sustainedRelaxedFill.items],
+          usedSeconds: fillResult.usedSeconds + sustainedRelaxedFill.usedSeconds,
+          skippedCandidates: fillResult.skippedCandidates + sustainedRelaxedFill.skippedCandidates,
+          splitRejects: fillResult.splitRejects + sustainedRelaxedFill.splitRejects,
+          progressionEligible: fillResult.progressionEligible + sustainedRelaxedFill.progressionEligible,
+          progressionAssigned: fillResult.progressionAssigned + sustainedRelaxedFill.progressionAssigned,
+          laneRejectReasons: mergeLaneRejectReasons(fillResult.laneRejectReasons, sustainedRelaxedFill.laneRejectReasons),
         }
       }
     }
@@ -1135,6 +1366,12 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
 
     const estimatedMinutes = Math.round(fillResult.usedSeconds / 60)
     const fillPct = blockMinutes > 0 ? Math.round((estimatedMinutes / blockMinutes) * 100) : 0
+    const progressionLaneUnassignedDeepPool = SPLIT_PROGRESSION_PHASE_KEYS.has(phaseKey)
+      && poolForPhase.length >= 20
+      && fillResult.progressionEligible > 0
+      && fillResult.progressionAssigned === 0
+      && Number(fillResult.laneRejectReasons?.lane_mismatch ?? 0) > 0
+
     constraintReport.phase_fill.push({
       phase_key: phaseKey,
       target_minutes: blockMinutes,
@@ -1143,6 +1380,14 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       skipped_candidates: fillResult.skippedCandidates,
       split_rejects: fillResult.splitRejects,
       pool_size: poolForPhase.length,
+      progression_eligible: fillResult.progressionEligible,
+      progression_assigned: fillResult.progressionAssigned,
+      progression_coverage: fillResult.progressionEligible > 0
+        ? Number((fillResult.progressionAssigned / fillResult.progressionEligible).toFixed(3))
+        : null,
+      phase_progression_ids: [...phaseUsedProgressionIds],
+      lane_reject_reasons: fillResult.laneRejectReasons ?? emptyLaneRejectReasons(),
+      progression_lane_unassigned_deep_pool: progressionLaneUnassignedDeepPool,
     })
 
     if (fillResult.items.length === 0) {
@@ -1230,6 +1475,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       ageBandLabel: audience.ageBandLabel,
       strengthIntent: audience.strengthIntent,
       sessionObjective: audience.sessionObjective,
+      hardDifficultyExclude,
     },
     audience_splits: splitProfiles,
     age_fit_warnings: [...sessionWarnings],

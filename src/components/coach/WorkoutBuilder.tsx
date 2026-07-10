@@ -10,6 +10,7 @@ import { orderSlotsForSubrole, prepareAccessSubroleSequence } from '../../coach/
 import type { BlockFormat, Exercise, ProgrammingMethod, ProgrammingMethodSummary, ValidationResult, Workout, WorkoutType } from '../../coach/types'
 import { applyProgrammingMethodDefaults } from '../../coach/programmingBlockDefaults'
 import { parseExerciseCompatibility, programmingExerciseFit, type ProgrammingExerciseFit } from '../../coach/programmingExerciseCompat'
+import { SESSION_OBJECTIVE_OPTIONS } from '../../coach/phasePlan'
 import { splitVariantLabel, splitVariantTone, splitVariantsForItem } from '../../coach/splitVariants'
 
 function fmt(seconds: number) {
@@ -327,13 +328,21 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
         </div>
       )}
 
-      {workout.session_objective && (
-        <div className="bg-white border border-gray-200 rounded-xl p-4 text-sm">
-          <div className="text-xs font-semibold text-gray-500 uppercase mb-1">Session objective</div>
-          <p className="text-gray-800">{workout.session_objective}</p>
-          {workout.coach_rationale_json?.session_why && <p className="text-gray-600 mt-2 text-xs">{workout.coach_rationale_json.session_why}</p>}
-        </div>
-      )}
+      {workout.session_objective && (() => {
+        const objectiveLabel =
+          SESSION_OBJECTIVE_OPTIONS.find((o) => o.value === workout.session_objective)?.label
+          ?? workout.coach_rationale_json?.session_why
+          ?? workout.session_objective
+        return (
+          <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm">
+            <p className="text-gray-800">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Session objective:</span>
+              {' '}
+              {objectiveLabel}
+            </p>
+          </div>
+        )
+      })()}
 
       {(workout.audience_splits_json?.length ?? 0) > 0 && (
         <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 text-sm">

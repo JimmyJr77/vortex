@@ -5,6 +5,24 @@ export const EQUIPMENT_AVOID_ALIASES = {
   box: ['bench_or_box', 'low_step', 'plyo_box'],
 }
 
+/** Bodyweight / no-equipment tags allowed alongside use-only selections when enabled. */
+export const BODYWEIGHT_EQUIPMENT_KEYS = new Set(['bodyweight', 'none'])
+
+export function exerciseAllowedUseOnly(equipTags, allowedEquipIds, allowBodyweight, bodyweightEquipIds) {
+  const allowed = allowedEquipIds instanceof Set ? allowedEquipIds : new Set(allowedEquipIds ?? [])
+  if (allowed.size === 0) return true
+
+  const bwIds = bodyweightEquipIds instanceof Set ? bodyweightEquipIds : new Set(bodyweightEquipIds ?? [])
+  const tags = equipTags ?? []
+  const equipIds = tags.map((t) => Number(t.facetId)).filter(Number.isFinite)
+
+  if (equipIds.length === 0) return allowBodyweight
+
+  const isBodyweightOnly = (id) => bwIds.has(id)
+  if (allowBodyweight && equipIds.every((id) => allowed.has(id) || isBodyweightOnly(id))) return true
+  return equipIds.every((id) => allowed.has(id))
+}
+
 const BOX_RELATED_AVOID_KEYS = new Set([
   'box',
   ...(EQUIPMENT_AVOID_ALIASES.box ?? []),

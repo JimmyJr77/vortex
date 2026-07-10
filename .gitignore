@@ -25,5 +25,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Needs Engine eval artifacts (local)
+docs/NEEDS_ENGINE_QUALITY_LOOP.log
+docs/NEEDS_ENGINE_QUALITY_HISTORY.jsonl
+
 # Large hero videos — hosted on CDN (see docs/r2-cdn-setup.md), not in git
 public/*.mp4
