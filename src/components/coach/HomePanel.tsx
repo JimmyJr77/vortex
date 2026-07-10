@@ -1,6 +1,5 @@
 import {
   Dumbbell,
-  Flame,
   Sparkles,
   ClipboardCheck,
   Send,
@@ -34,7 +33,6 @@ const CARD_ICONS: Record<Exclude<CoachTab, 'home'>, ComponentType<{ className?: 
   library: BookOpen,
   framework: ScrollText,
   workout: Dumbbell,
-  warmup: Flame,
   programs: CalendarRange,
   'training-blocks': Blocks,
   regimens: Layers,

@@ -5,6 +5,9 @@ import {
   inferAvoidedEquipmentKeys,
   EQUIPMENT_AVOID_ALIASES,
   exerciseAllowedUseOnly,
+  equipmentUsePolicyFromBody,
+  effectiveEquipmentAvoidIds,
+  equipmentAvoidActiveForBody,
 } from '../equipmentAvoidPolicy.js'
 
 test('bar avoid alias includes pull_up_bar keys', () => {
@@ -48,4 +51,24 @@ test('exerciseAllowedUseOnly requires only allowed tags when bodyweight disallow
   const allowed = new Set([10])
   assert.equal(exerciseAllowedUseOnly([{ facetId: 10 }], allowed, false, new Set([1])), true)
   assert.equal(exerciseAllowedUseOnly([{ facetId: 1 }], allowed, false, new Set([1])), false)
+})
+
+test('effectiveEquipmentAvoidIds clears avoid list under use_only', () => {
+  const body = {
+    equipmentUsePolicy: 'use_only',
+    equipmentUseIds: [7],
+    equipmentAvoidIds: [3],
+  }
+  assert.deepEqual(effectiveEquipmentAvoidIds(body), [])
+  assert.equal(equipmentAvoidActiveForBody(body), false)
+})
+
+test('effectiveEquipmentAvoidIds preserves avoid list under must_use', () => {
+  const body = {
+    equipmentUsePolicy: 'must_use',
+    equipmentUseIds: [7],
+    equipmentAvoidIds: [3],
+  }
+  assert.deepEqual(effectiveEquipmentAvoidIds(body), [3])
+  assert.equal(equipmentAvoidActiveForBody(body), true)
 })

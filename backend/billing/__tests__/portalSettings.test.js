@@ -43,7 +43,6 @@ test('normalizePortalConfig preserves custom coach order for all portal tabs', (
     'library',
     'needs',
     'workout',
-    'warmup',
     'assign',
     'training-blocks',
     'regimens',

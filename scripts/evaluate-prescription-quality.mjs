@@ -25,7 +25,7 @@ import {
   computeCategory1Kpi,
 } from '../backend/platform/prescriptionQualityChecks.js'
 import { loadPhaseProfiles, loadDifficultyProfiles, loadSafetyProfiles } from '../backend/platform/exerciseProgramming.js'
-import { expandEquipmentAvoidIds } from '../backend/platform/equipmentAvoidPolicy.js'
+import { expandEquipmentAvoidIds, effectiveEquipmentAvoidIds, loadBodyweightEquipmentIds, equipmentUsePolicyFromBody } from '../backend/platform/equipmentAvoidPolicy.js'
 import { loadSavedRequirementsBody } from './needsEngineSnapshotToPrescribeBody.js'
 import { requireDatabaseUrl } from './resolveDatabaseUrl.js'
 import {
@@ -318,9 +318,7 @@ function mergeEvaluation(mosChecks, sportChecks, evaluation) {
 }
 
 async function enrichEvalContext(pool, body, ctx) {
-  const avoidIds = (body.equipmentAvoidIds ?? body.equipment_avoid_ids ?? [])
-    .map(Number)
-    .filter(Number.isFinite)
+  const avoidIds = effectiveEquipmentAvoidIds(body)
   if (avoidIds.length > 0) {
     const expanded = await expandEquipmentAvoidIds(pool, avoidIds)
     ctx.expandedAvoidEquipIds = expanded.expandedIds
@@ -328,6 +326,12 @@ async function enrichEvalContext(pool, body, ctx) {
   } else {
     ctx.expandedAvoidEquipIds = new Set()
     ctx.equipmentAvoidKeys = []
+  }
+
+  if (equipmentUsePolicyFromBody(body) === 'use_only' && (body.equipmentUseIds ?? body.equipment_use_ids ?? []).length > 0) {
+    ctx.bodyweightEquipIds = await loadBodyweightEquipmentIds(pool)
+  } else {
+    ctx.bodyweightEquipIds = new Set()
   }
 
   try {

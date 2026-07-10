@@ -23,6 +23,41 @@ export function exerciseAllowedUseOnly(equipTags, allowedEquipIds, allowBodyweig
   return equipIds.every((id) => allowed.has(id))
 }
 
+/** Active equipment-use policy from prescribe body (default must_use). */
+export function equipmentUsePolicyFromBody(body) {
+  return body?.equipmentUsePolicy ?? body?.equipment_use_policy ?? 'must_use'
+}
+
+export function equipmentUseIdsFromBody(body) {
+  return (body?.equipmentUseIds ?? body?.equipment_use_ids ?? [])
+    .map(Number)
+    .filter(Number.isFinite)
+}
+
+/** Don't-use list applies only under must_use; use_only ignores explicit avoids. */
+export function effectiveEquipmentAvoidIds(body) {
+  if (equipmentUsePolicyFromBody(body) === 'use_only') return []
+  return (body?.equipmentAvoidIds ?? body?.equipment_avoid_ids ?? [])
+    .map(Number)
+    .filter(Number.isFinite)
+}
+
+export function equipmentAvoidActiveForBody(body, context = {}) {
+  if (equipmentUsePolicyFromBody(body) === 'use_only') return false
+  const raw = effectiveEquipmentAvoidIds(body)
+  const expanded = context.expandedAvoidEquipIds ?? new Set()
+  const keys = context.equipmentAvoidKeys ?? []
+  return raw.length > 0 || expanded.size > 0 || keys.length > 0
+}
+
+export async function loadBodyweightEquipmentIds(pool) {
+  const bwRows = await pool.query(
+    `SELECT id FROM coaching.equipment WHERE key = ANY($1::text[])`,
+    [[...BODYWEIGHT_EQUIPMENT_KEYS]],
+  )
+  return new Set(bwRows.rows.map((r) => Number(r.id)))
+}
+
 const BOX_RELATED_AVOID_KEYS = new Set([
   'box',
   ...(EQUIPMENT_AVOID_ALIASES.box ?? []),

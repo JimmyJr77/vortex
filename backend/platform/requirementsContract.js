@@ -5,6 +5,7 @@
 import { SESSION_PHASE_ORDER } from './phaseArchitect.js'
 import { getChecksForRequirement } from './checkMappingRegistry.js'
 import { canRequirementPass, filterHardGateChecks } from './hardGateEligibility.js'
+import { effectiveEquipmentAvoidIds, equipmentUsePolicyFromBody } from './equipmentAvoidPolicy.js'
 
 let reqCounter = 0
 
@@ -68,7 +69,7 @@ export function detectRequirementContradictions(body) {
   const warnings = []
 
   const useIds = body?.equipmentUseIds ?? body?.equipment_use_ids ?? []
-  const avoidIds = body?.equipmentAvoidIds ?? body?.equipment_avoid_ids ?? []
+  const avoidIds = effectiveEquipmentAvoidIds(body)
   const overlap = overlapNumericArrays(useIds, avoidIds)
   if (overlap.length > 0) {
     contradictions.push({
@@ -348,7 +349,7 @@ export function compileRequirementsContract(body, context = {}) {
     }))
   }
 
-  const avoidIds = body.equipmentAvoidIds ?? body.equipment_avoid_ids ?? []
+  const avoidIds = effectiveEquipmentAvoidIds(body)
   if (avoidIds.length > 0) {
     requirements.push(makeRequirement({
       source: 'user',

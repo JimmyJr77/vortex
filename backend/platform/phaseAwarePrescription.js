@@ -12,7 +12,10 @@ import {
   exerciseViolatesEquipmentAvoid,
   auditPrescriptionEquipmentAvoid,
   exerciseAllowedUseOnly,
-  BODYWEIGHT_EQUIPMENT_KEYS,
+  equipmentUsePolicyFromBody,
+  equipmentUseIdsFromBody,
+  effectiveEquipmentAvoidIds,
+  loadBodyweightEquipmentIds,
 } from './equipmentAvoidPolicy.js'
 import { buildSkillLevelSql } from './skillLevelPolicy.js'
 import { beginnerAppropriatenessPenalty } from './beginnerExclusionPolicy.js'
@@ -635,6 +638,12 @@ function classifyPrimaryAgeFit(difficulty, sessionCaps, splitProfiles) {
   return sessionFit
 }
 
+function rotatePoolBySeed(pool, seed) {
+  const offset = Math.abs(Math.floor(Number(seed))) % Math.max(pool.length, 1)
+  if (!Number.isFinite(Number(seed)) || pool.length < 2 || offset === 0) return pool
+  return [...pool.slice(offset), ...pool.slice(0, offset)]
+}
+
 async function fillPhaseItems({
   dbPool,
   poolForPhase,
@@ -879,17 +888,10 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
 
   const { methodologyKeyById, intentKeyById, sportIdByKey } = await loadFacetKeyMaps(pool)
 
-  const equipmentUseIds = Array.isArray(body.equipmentUseIds ?? body.equipment_use_ids)
-    ? (body.equipmentUseIds ?? body.equipment_use_ids).map(Number).filter(Number.isFinite)
-    : []
-  const equipmentUsePolicy = body.equipmentUsePolicy ?? body.equipment_use_policy ?? 'must_use'
+  const equipmentUseIds = equipmentUseIdsFromBody(body)
+  const equipmentUsePolicy = equipmentUsePolicyFromBody(body)
   const allowBodyweight = body.allowBodyweight !== false && body.allow_bodyweight !== false
-  let equipmentAvoidIds = Array.isArray(body.equipmentAvoidIds ?? body.equipment_avoid_ids)
-    ? (body.equipmentAvoidIds ?? body.equipment_avoid_ids).map(Number).filter(Number.isFinite)
-    : []
-  if (equipmentUsePolicy === 'use_only') {
-    equipmentAvoidIds = []
-  }
+  let equipmentAvoidIds = effectiveEquipmentAvoidIds(body)
   const legacyEquipmentIds = Array.isArray(body.equipmentIds) ? body.equipmentIds.map(Number).filter(Number.isFinite) : []
 
   const { expandedIds: expandedAvoidEquip, avoidKeys } = await expandEquipmentAvoidIds(
@@ -899,11 +901,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
 
   let bodyweightEquipIds = new Set()
   if (equipmentUsePolicy === 'use_only' && equipmentUseIds.length > 0) {
-    const bwRows = await pool.query(
-      `SELECT id FROM coaching.equipment WHERE key = ANY($1::text[])`,
-      [[...BODYWEIGHT_EQUIPMENT_KEYS]],
-    )
-    bodyweightEquipIds = new Set(bwRows.rows.map((r) => Number(r.id)))
+    bodyweightEquipIds = await loadBodyweightEquipmentIds(pool)
   }
 
   const excludeBodyRegionIds = Array.isArray(body.excludeBodyRegionIds)
@@ -1022,6 +1020,11 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   const usedNamesNormalized = new Set()
   const sessionWarnings = new Set()
   const usedExerciseIds = new Set()
+  const excludeExerciseIds = Array.isArray(body.excludeExerciseIds ?? body.exclude_exercise_ids)
+    ? (body.excludeExerciseIds ?? body.exclude_exercise_ids).map(Number).filter(Number.isFinite)
+    : []
+  for (const id of excludeExerciseIds) usedExerciseIds.add(id)
+  const regenerationSeed = body.regenerationSeed ?? body.regeneration_seed ?? null
   const familyCounts = new Map()
   const sessionFamilyCounts = new Map()
 
@@ -1208,19 +1211,22 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       phase_rationale: edu.rows[0]?.why_it_goes_here ?? edu.rows[0]?.short_summary ?? null,
     })
 
-    const poolForPhase = buildPoolForPhase({
-      scored,
-      phaseKey,
-      resolvedPhaseTargets,
-      usedPatterns,
-      strengthIntent,
-      methodologyKeyById,
-      intentKeyById,
-      sportKey,
-      sportIdByKey,
-      poolCapOverall: poolCaps.maxOverall,
-      ageMax,
-    })
+    const poolForPhase = rotatePoolBySeed(
+      buildPoolForPhase({
+        scored,
+        phaseKey,
+        resolvedPhaseTargets,
+        usedPatterns,
+        strengthIntent,
+        methodologyKeyById,
+        intentKeyById,
+        sportKey,
+        sportIdByKey,
+        poolCapOverall: poolCaps.maxOverall,
+        ageMax,
+      }),
+      regenerationSeed != null ? Number(regenerationSeed) + phaseKey.length : null,
+    )
 
     const minItems = minItemsForPhase(phaseKey, resolvedPhaseTargets)
     const maxItems = maxItemsForPhase(phaseKey, blockMinutes, resolvedPhaseTargets)
@@ -1564,11 +1570,20 @@ export async function listCoachNeedsEngineRequirements(pool, facilityId, coachUs
   }))
 }
 
+function sanitizeRequirementsJson(requirementsJson) {
+  if (!requirementsJson || typeof requirementsJson !== 'object' || Array.isArray(requirementsJson)) {
+    return {}
+  }
+  const { result: _result, blockProgramming: _blockProgramming, ...requirements } = requirementsJson
+  return requirements
+}
+
 export async function saveCoachNeedsEngineRequirements(pool, facilityId, coachUserId, name, requirementsJson) {
+  const sanitized = sanitizeRequirementsJson(requirementsJson)
   const result = await pool.query(
     `INSERT INTO coaching.coach_needs_engine_requirements (facility_id, coach_user_id, name, requirements_json, updated_at)
      VALUES ($1, $2, $3, $4::jsonb, now()) RETURNING id, name, requirements_json, created_at, updated_at`,
-    [facilityId, coachUserId, name, JSON.stringify(requirementsJson ?? {})],
+    [facilityId, coachUserId, name, JSON.stringify(sanitized)],
   )
   const row = result.rows[0]
   return {

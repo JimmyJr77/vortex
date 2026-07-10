@@ -591,9 +591,13 @@ export interface NeedsEngineRequirementsSnapshot {
   avoidTokens: Array<{ id: string | number; label: string; meta?: string }>
   phaseRows: NeedsEnginePhaseRow[]
   userEditedPrepare: boolean
-  result: PrescriptionResult | null
-  blockProgramming: (ProgrammingMethod | null)[]
   nlPrompt: string
+}
+
+/** @deprecated Legacy saved rows may still contain these; ignored on recall */
+export interface NeedsEngineRequirementsSnapshotLegacy extends NeedsEngineRequirementsSnapshot {
+  result?: PrescriptionResult | null
+  blockProgramming?: (ProgrammingMethod | null)[]
 }
 
 export interface CoachNeedsEngineRequirements {

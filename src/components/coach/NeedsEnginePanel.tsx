@@ -192,6 +192,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
   const [skillOptions, setSkillOptions] = useState<ComboboxOption[]>([])
   const [gameOptions, setGameOptions] = useState<ComboboxOption[]>([])
   const [loading, setLoading] = useState(false)
+  const [hasPrescription, setHasPrescription] = useState(Boolean(result))
   const [error, setError] = useState<string | null>(null)
   const [nlLoading, setNlLoading] = useState(false)
 
@@ -376,6 +377,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       applied.phaseRows = rowsWithLabels(applied.phaseRows, taxonomy)
     }
     patch(applied)
+    setHasPrescription(false)
     setError(null)
   }
 
@@ -450,6 +452,10 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
   const prescribe = async () => {
     setLoading(true)
     setError(null)
+    const excludeExerciseIds = result
+      ? result.blocks.flatMap((b) => b.items.map((it) => Number(it.exercise_id))).filter(Number.isFinite)
+      : []
+    patch({ result: null, blockProgramming: [] })
     try {
       const avoid = parseAvoidPayload()
       const capsOverride = difficultyOverride !== ''
@@ -488,6 +494,8 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           contains_tumbling: r.contains_tumbling,
           pinned: r.pinned,
         })),
+        regenerationSeed: Date.now(),
+        excludeExerciseIds,
       }
       const data = await coachFetch<PrescriptionResult>('/api/coach/needs-engine/prescribe', { method: 'POST', body: JSON.stringify(body) })
       const nextPatch: Parameters<typeof patch>[0] = { result: data }
@@ -495,6 +503,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
         nextPatch.skillLevel = data.audience_profile.impliedSkillLevel
       }
       patch(nextPatch)
+      setHasPrescription(true)
       const youth = ageMaxNum != null && ageMaxNum <= 14
       const progPicks = await Promise.all(
         phaseRows.map(async (b) => {
@@ -680,6 +689,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
   const handleReset = () => {
     if (result && !window.confirm('Clear the Needs Engine form and prescription?')) return
     resetNeedsEngine()
+    setHasPrescription(false)
     setError(null)
   }
 
@@ -940,17 +950,11 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
             />
 
             <div className={equipmentUsePolicy === 'use_only' ? 'opacity-50 pointer-events-none' : ''}>
-              <div className="flex flex-wrap items-center gap-2 mb-2">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-2">
                 <span className="text-sm font-semibold text-gray-700">Equipment</span>
-                <span
-                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    equipmentUsePolicy === 'use_only'
-                      ? 'bg-gray-100 text-gray-400'
-                      : 'bg-red-100 text-red-700'
-                  }`}
-                >
-                  Don&apos;t Use
-                </span>
+                <div className="inline-flex rounded border border-gray-300 overflow-hidden text-xs">
+                  <span className="px-2 py-1 bg-vortex-red text-white">Don&apos;t Use</span>
+                </div>
               </div>
               {equipmentUsePolicy === 'must_use' && (
                 <div className="flex gap-2 mb-2">
@@ -1158,7 +1162,8 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           </div>
 
           <button type="button" onClick={() => void prescribe()} disabled={loading} className="w-full flex items-center justify-center gap-2 bg-vortex-red text-white py-2.5 rounded-lg font-semibold disabled:opacity-60">
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} Prescribe Session
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            {hasPrescription ? 'Regenerate Session' : 'Prescribe Session'}
           </button>
         </div>
 

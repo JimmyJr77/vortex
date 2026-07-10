@@ -43,6 +43,9 @@ import {
   equipmentTagMismatchWarning,
   exerciseAllowedUseOnly,
   BODYWEIGHT_EQUIPMENT_KEYS,
+  equipmentUsePolicyFromBody,
+  effectiveEquipmentAvoidIds,
+  equipmentAvoidActiveForBody,
 } from './equipmentAvoidPolicy.js'
 import { classifyProgrammingKind } from './exerciseProgrammingKind.js'
 import {
@@ -4030,14 +4033,18 @@ export function evaluateCategory12EquipUse(result, expectedBody, checks, context
     }
   }
 
-  // C12-MOP-16
+  // C12-MOP-16 — overlap only applies when must_use (use_only ignores don't-use list)
   if (!findCheck(checks, 'equipment_use_avoid_overlap')) {
-    const avoidIds = bodyAvoidIdsForUse(expectedBody)
-    const overlap = useIds.filter((id) => avoidIds.includes(id))
-    if (overlap.length > 0) {
-      fail(checks, 'equipment_use_avoid_overlap', 'equipmentUseIds overlap equipmentAvoidIds', overlap)
+    const avoidIds = effectiveEquipmentAvoidIds(expectedBody)
+    if (usePolicy === 'use_only') {
+      pass(checks, 'equipment_use_avoid_overlap', 'use_only policy — explicit avoid list ignored')
     } else {
-      pass(checks, 'equipment_use_avoid_overlap', 'No use+avoid ID overlap on prescribe body')
+      const overlap = useIds.filter((id) => avoidIds.includes(id))
+      if (overlap.length > 0) {
+        fail(checks, 'equipment_use_avoid_overlap', 'equipmentUseIds overlap equipmentAvoidIds', overlap)
+      } else {
+        pass(checks, 'equipment_use_avoid_overlap', 'No use+avoid ID overlap on prescribe body')
+      }
     }
   }
 
@@ -4274,10 +4281,7 @@ function collectPrescribedExerciseRows(result) {
 }
 
 function avoidActive(expectedBody, context) {
-  const raw = bodyAvoidIds(expectedBody)
-  const expanded = context.expandedAvoidEquipIds ?? new Set()
-  const keys = context.equipmentAvoidKeys ?? []
-  return raw.length > 0 || expanded.size > 0 || keys.length > 0
+  return equipmentAvoidActiveForBody(expectedBody, context)
 }
 
 function boxAvoidContext(avoidKeys, expandedAvoidEquipIds) {
@@ -4444,30 +4448,34 @@ export function evaluateCategory13EquipAvoid(result, expectedBody, checks, conte
   }
 
   if (!findCheck(checks, 'equipment_avoid_use_overlap')) {
-    const useIds = new Set(
-      (expectedBody?.equipmentUseIds ?? expectedBody?.equipment_use_ids ?? [])
-        .map(Number)
-        .filter(Number.isFinite),
-    )
-    const bodyOverlap = rawAvoidIds.filter((id) => useIds.has(id))
-    if (bodyOverlap.length > 0) {
-      fail(checks, 'equipment_avoid_use_overlap', 'equipmentUseIds overlap equipmentAvoidIds', bodyOverlap)
-    }
+    if (equipmentUsePolicyFromBody(expectedBody) === 'use_only') {
+      pass(checks, 'equipment_avoid_use_overlap', 'use_only policy — avoid overlap checks N/A')
+    } else {
+      const useIds = new Set(
+        (expectedBody?.equipmentUseIds ?? expectedBody?.equipment_use_ids ?? [])
+          .map(Number)
+          .filter(Number.isFinite),
+      )
+      const bodyOverlap = rawAvoidIds.filter((id) => useIds.has(id))
+      if (bodyOverlap.length > 0) {
+        fail(checks, 'equipment_avoid_use_overlap', 'equipmentUseIds overlap equipmentAvoidIds', bodyOverlap)
+      }
 
-    let itemOverlap = 0
-    for (const row of collectPrescribedExerciseRows(result)) {
-      const equipIds = (tagMap.get(String(row.exercise_id)) ?? [])
-        .filter((t) => t.facetType === 'equipment')
-        .map((t) => Number(t.facetId))
-        .filter(Number.isFinite)
-      const hasUse = equipIds.some((id) => useIds.has(id))
-      const hasAvoid = equipIds.some((id) => expandedAvoidEquipIds.has(id))
-      if (hasUse && hasAvoid) itemOverlap += 1
-    }
-    if (itemOverlap > 0) {
-      fail(checks, 'equipment_avoid_use_overlap', `${itemOverlap} prescribed item(s) tagged both use and avoid`)
-    } else if (bodyOverlap.length === 0) {
-      pass(checks, 'equipment_avoid_use_overlap', 'No use+avoid overlap on body or prescribed items')
+      let itemOverlap = 0
+      for (const row of collectPrescribedExerciseRows(result)) {
+        const equipIds = (tagMap.get(String(row.exercise_id)) ?? [])
+          .filter((t) => t.facetType === 'equipment')
+          .map((t) => Number(t.facetId))
+          .filter(Number.isFinite)
+        const hasUse = equipIds.some((id) => useIds.has(id))
+        const hasAvoid = equipIds.some((id) => expandedAvoidEquipIds.has(id))
+        if (hasUse && hasAvoid) itemOverlap += 1
+      }
+      if (itemOverlap > 0) {
+        fail(checks, 'equipment_avoid_use_overlap', `${itemOverlap} prescribed item(s) tagged both use and avoid`)
+      } else if (bodyOverlap.length === 0) {
+        pass(checks, 'equipment_avoid_use_overlap', 'No use+avoid overlap on body or prescribed items')
+      }
     }
   }
 

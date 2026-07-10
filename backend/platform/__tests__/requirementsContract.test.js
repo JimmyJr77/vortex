@@ -117,6 +117,20 @@ test('equipmentUse and equipmentAvoid overlap detected at compile', () => {
   assert.ok(compiled.contradictions.length > 0)
 })
 
+test('use_only ignores equipmentAvoidIds for overlap and avoid requirements', () => {
+  const body = {
+    ...goldenBody,
+    equipmentUsePolicy: 'use_only',
+    equipmentUseIds: [7],
+    equipmentAvoidIds: [3],
+  }
+  const { contradictions } = detectRequirementContradictions(body)
+  assert.equal(contradictions.length, 0)
+  const compiled = compileRequirementsContract(body, { metricsCatalog: catalog })
+  assert.ok(!compiled.requirements.some((r) => r.normalized_constraint?.field === 'equipmentAvoidIds'))
+  assert.ok(compiled.requirements.some((r) => r.normalized_constraint?.field === 'equipmentUsePolicy'))
+})
+
 test('updateRequirementStatuses marks pass when eligible checks ok', () => {
   const { requirements } = compileRequirementsContract(goldenBody, { metricsCatalog: catalog })
   const durationReq = requirements.find((r) => r.normalized_constraint.field === 'durationMinutes')

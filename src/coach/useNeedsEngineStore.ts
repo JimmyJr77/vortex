@@ -73,14 +73,12 @@ export function snapshotNeedsEngineState(
     avoidTokens: state.avoidTokens,
     phaseRows: state.phaseRows.map(({ focusFacetType: _, ...row }) => row),
     userEditedPrepare: state.userEditedPrepare,
-    result: state.result,
-    blockProgramming: state.blockProgramming,
     nlPrompt: state.nlPrompt,
   }
 }
 
 export function applyNeedsEngineSnapshot(
-  snapshot: NeedsEngineRequirementsSnapshot,
+  snapshot: NeedsEngineRequirementsSnapshot | NeedsEngineRequirementsSnapshotLegacy,
 ): Partial<Omit<NeedsEngineStore, 'patch' | 'reset'>> {
   return {
     workMode: snapshot.workMode,
@@ -106,8 +104,8 @@ export function applyNeedsEngineSnapshot(
     userEditedPrepare: snapshot.userEditedPrepare,
     architectAdjustments: [],
     selectedTemplateKey: '',
-    result: snapshot.result,
-    blockProgramming: snapshot.blockProgramming ?? [],
+    result: null,
+    blockProgramming: [],
     nlPrompt: snapshot.nlPrompt ?? '',
   }
 }
