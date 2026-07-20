@@ -1217,6 +1217,7 @@ export default function MemberDashboard({
   }, [token])
 
   const [payNowLoading, setPayNowLoading] = useState(false)
+  const [portalLoading, setPortalLoading] = useState(false)
   const handlePayNow = async () => {
     if (!token) return
     setPayNowLoading(true)
@@ -1238,6 +1239,24 @@ export default function MemberDashboard({
       alert('Failed to start checkout.')
     } finally {
       setPayNowLoading(false)
+    }
+  }
+
+  const handleManagePayment = async () => {
+    if (!token) return
+    setPortalLoading(true)
+    try {
+      const res = await fetch(`${apiUrl}/api/members/billing/customer-portal`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      })
+      const data = await res.json()
+      if (res.ok && data.data?.url) window.location.href = data.data.url
+      else alert(data.message || 'Payment settings are not available right now.')
+    } catch {
+      alert('Failed to open payment settings.')
+    } finally {
+      setPortalLoading(false)
     }
   }
 
@@ -2630,7 +2649,9 @@ export default function MemberDashboard({
                   billingAccount={billingAccount}
                   billingLoading={billingLoading}
                   payNowLoading={payNowLoading}
+                  portalLoading={portalLoading}
                   onPayNow={handlePayNow}
+                  onManagePayment={handleManagePayment}
                   formatMoney={formatMoney}
                 />
               </motion.div>
