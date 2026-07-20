@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { defaultPhaseRows, type NeedsEnginePhaseRow, type WorkMode } from './phaseArchitect'
 import { SESSION_OBJECTIVE_OPTIONS, type SessionObjective } from './phasePlan'
-import type { AudienceSplit, PrescriptionResult, ProgrammingMethod, NeedsEngineRequirementsSnapshot } from './types'
+import type { AudienceSplit, PrescriptionResult, ProgrammingMethod, NeedsEngineRequirementsSnapshot, NeedsEngineRequirementsSnapshotLegacy } from './types'
 
 export interface NeedsEngineComboboxOption {
   id: string | number
