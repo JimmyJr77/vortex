@@ -1177,6 +1177,8 @@ export async function createEnrollmentCheckoutSession(
     signupAuthToken: string
     promoCodes?: string[]
     responses?: Record<string, string | boolean | number | string[]>
+    /** GA4 ids captured at checkout start so the webhook-side purchase event keeps attribution. */
+    analytics?: { gaClientId?: string; gaSessionId?: string }
   },
 ): Promise<{ url?: string; skipCheckout?: boolean; pendingEnrollmentId?: number }> {
   const res = await fetch(`${getApiUrl()}/api/members/billing/enrollment-checkout-session`, {
@@ -1207,11 +1209,24 @@ export function clearPendingEnrollmentId(): void {
   sessionStorage.removeItem(PENDING_ENROLLMENT_STORAGE_KEY)
 }
 
+export type EnrollmentPurchaseSummary = {
+  transactionId: string
+  valueCents: number
+  currency: string
+  enrollmentType?: string
+  paymentType?: string
+}
+
 /** Confirm paid enrollment after Stripe redirect (backup when webhook is delayed). */
 export async function confirmEnrollmentCheckoutSession(
   memberToken: string,
   payload: { checkoutSessionId?: string; pendingEnrollmentId?: number },
-): Promise<{ status: 'completed' | 'already_completed' | 'none' | string }> {
+): Promise<{
+  status: 'completed' | 'already_completed' | 'none' | string
+  /** True only on the first confirm after payment — gates the fire-once vortex_purchase push. */
+  firstConfirmation?: boolean
+  purchase?: EnrollmentPurchaseSummary
+}> {
   const res = await fetch(`${getApiUrl()}/api/members/billing/confirm-enrollment-checkout`, {
     method: 'POST',
     headers: {
@@ -1223,7 +1238,11 @@ export async function confirmEnrollmentCheckoutSession(
       pendingEnrollmentId: payload.pendingEnrollmentId,
     }),
   })
-  return parseJson<{ status: string }>(res)
+  return parseJson<{
+    status: string
+    firstConfirmation?: boolean
+    purchase?: EnrollmentPurchaseSummary
+  }>(res)
 }
 
 export function enrollmentDueNowCents(preview: SignupOrderPreview): number {

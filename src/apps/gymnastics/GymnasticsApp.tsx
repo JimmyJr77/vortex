@@ -48,6 +48,14 @@ const TrampolineTumblingGymnasticsPage = lazyWithRetry(
   () => import('./pages/TrampolineTumblingGymnasticsPage'),
 )
 const AerobicGymnasticsPage = lazyWithRetry(() => import('./pages/AerobicGymnasticsPage'))
+// Account creation and post-enrollment routes must exist on this host too:
+// SchedulingSignupEmbed redirects new users to a same-origin /signup/family,
+// which previously 404'd here and broke the enroll funnel (and split GA sessions
+// for visitors sent cross-domain to finish signup on the hub).
+const SignupFamilyPage = lazyWithRetry(() => import('../../components/signup/SignupFamilyPage'))
+const SignupInvitePage = lazyWithRetry(() => import('../../components/signup/SignupInvitePage'))
+const VerifyEmailPage = lazyWithRetry(() => import('../../components/VerifyEmailPage'))
+const EnrollmentReceiptPage = lazyWithRetry(() => import('../../components/EnrollmentReceiptPage'))
 const MemberDashboard = lazyWithRetry(() => import('../../components/MemberDashboard'))
 const CoachDashboard = lazyWithRetry(() => import('../../components/CoachDashboard'))
 const Admin = lazyWithRetry(() => import('../../components/Admin'))
@@ -275,6 +283,10 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
           <Route path="/enroll" element={<SchedulingPage />} />
           <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
           <Route path="/schedule" element={<Navigate to="/enroll" replace />} />
+          <Route path="/signup/family" element={<SignupFamilyPage />} />
+          <Route path="/signup/invite" element={<SignupInvitePage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/registration/receipt" element={<EnrollmentReceiptPage />} />
           <Route
             path="/acro-gymnastics"
             element={<AcroGymnasticsPage onSignUpClick={handleContactClick} />}

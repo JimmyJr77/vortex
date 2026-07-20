@@ -29,6 +29,7 @@ import {
   type SchedulingTimeSlot,
 } from '../utils/schedulingApi'
 import { getLoggedInMemberEmail, getMemberSessionToken } from '../utils/portalSession'
+import { trackEvent } from '../utils/analyticsClient'
 import OrderPricingSummary from './pricing/OrderPricingSummary'
 import { compareScheduleOptions, daySortIndex, sortSlotGroups } from '../utils/slotSort'
 
@@ -860,6 +861,13 @@ const SchedulingSignupEmbed = ({
   const mandateWaiver = formDetail?.mandateWaiver ?? false
 
   const handleOfferingSelect = (nextOfferingId: number) => {
+    trackEvent('select_item', window.location.pathname, {
+      properties: {
+        selection_type: 'offering',
+        class_id: formId,
+        offering_id: nextOfferingId,
+      },
+    })
     setSlotGroupId(null)
     setTimeSlotId(null)
     setOfferingId(nextOfferingId)
@@ -877,6 +885,15 @@ const SchedulingSignupEmbed = ({
     ) {
       return
     }
+    trackEvent('select_item', window.location.pathname, {
+      properties: {
+        selection_type: 'time_slot',
+        class_id: formDetail?.id ?? formId,
+        class_name: formDetail?.title,
+        slot_group_id: option.slotGroupId,
+        time_slot_id: option.timeSlotId,
+      },
+    })
     setSlotGroupId(option.slotGroupId)
     setTimeSlotId(option.timeSlotId)
     if (formDetail) {
@@ -1250,6 +1267,14 @@ const SchedulingSignupEmbed = ({
       })
       setSignupResults(result.signups)
       setSignupResult(result.signups[0] ?? null)
+      trackEvent('class_signup_submitted', window.location.pathname, {
+        properties: {
+          class_id: formDetail.id,
+          class_name: formDetail.title,
+          signup_count: result.signups.length,
+          waitlisted: result.signups.some((r) => r.status === 'waitlisted'),
+        },
+      })
       setSuccess(true)
       void loadConfirmedOrderPreview()
       const email = accountEmail.trim() || initialEmail?.trim() || ''

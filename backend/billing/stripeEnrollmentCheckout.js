@@ -26,6 +26,7 @@ import { formHasCustomPricingOverride } from '../programs/pricingDefaults.js'
 import { firstOfNextMonth, todayDateOnly } from '../scheduling/firstMonthProration.js'
 import { issueSignupAuthToken } from '../scheduling/signupAuth.js'
 import { findMemberById } from '../members/createMemberStub.js'
+import { emitStripePurchaseEvent } from '../analytics/ga4Measurement.js'
 
 async function loadFormProgramsId(pool, formId) {
   const res = await pool.query(`SELECT programs_id FROM scheduling_form WHERE id = $1`, [formId])
@@ -60,6 +61,11 @@ async function ensurePendingEnrollmentSchema(pool) {
   const fs = await import('fs')
   const migrationPath = new URL('../migrations/057_stripe_pending_enrollment.sql', import.meta.url)
   await pool.query(fs.readFileSync(migrationPath, 'utf8'))
+  const clientConfirmedPath = new URL(
+    '../migrations/100_stripe_pending_enrollment_client_confirmed.sql',
+    import.meta.url,
+  )
+  await pool.query(fs.readFileSync(clientConfirmedPath, 'utf8'))
   pendingSchemaEnsured = true
 }
 
@@ -657,14 +663,42 @@ export async function confirmEnrollmentCheckoutSession(
     throw new Error('Enrollment checkout not found.')
   }
 
-  if (commitResult.status === 'completed' || commitResult.status === 'already_completed') {
-    await recordEnrollmentStripePayment(pool, stripe, {
-      session,
-      accountId: Number(pending.family_billing_account_id),
-    })
+  if (commitResult.status !== 'completed' && commitResult.status !== 'already_completed') {
+    return commitResult
   }
 
-  return commitResult
+  const payment = await recordEnrollmentStripePayment(pool, stripe, {
+    session,
+    accountId: Number(pending.family_billing_account_id),
+  })
+  void emitStripePurchaseEvent(pool, {
+    payment,
+    session,
+    paymentType: 'initial_enrollment',
+  })
+
+  // Fire-once flag for the browser-side vortex_purchase dataLayer push (GTM
+  // Google Ads conversion): only the first confirm after payment returns
+  // firstConfirmation=true, so refresh/revisit never re-fires the conversion.
+  const confirmStamp = await pool.query(
+    `UPDATE stripe_pending_enrollment
+     SET client_confirmed_at = now(), updated_at = now()
+     WHERE id = $1 AND client_confirmed_at IS NULL
+     RETURNING id`,
+    [pendingId],
+  )
+  const firstConfirmation = (confirmStamp.rowCount ?? 0) > 0
+
+  const purchase = {
+    transactionId:
+      payment?.stripe_payment_intent_id || payment?.stripe_checkout_session_id || session.id,
+    valueCents: Number(payment?.amount_cents ?? session.amount_total) || 0,
+    currency: 'USD',
+    enrollmentType: pending.checkout_mode === 'subscription' ? 'recurring' : 'one_time',
+    paymentType: 'initial_enrollment',
+  }
+
+  return { ...commitResult, firstConfirmation, purchase }
 }
 
 export async function commitPendingEnrollment(pool, { pendingEnrollmentId, stripeSession = null }) {
@@ -736,9 +770,14 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
     if (stripeSession?.id) {
       const stripe = await getStripeClient()
       if (stripe) {
-        await recordEnrollmentStripePayment(pool, stripe, {
+        const payment = await recordEnrollmentStripePayment(pool, stripe, {
           session: stripeSession,
           accountId: Number(pending.family_billing_account_id),
+        })
+        void emitStripePurchaseEvent(pool, {
+          payment,
+          session: stripeSession,
+          paymentType: 'initial_enrollment',
         })
       }
     }

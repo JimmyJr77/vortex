@@ -11,6 +11,7 @@ import { getAttributionPayload } from '../utils/utmCapture'
 import { getVisitorId, getSessionId } from '../utils/visitorId'
 import { getActiveConsent } from '../utils/consent'
 import { trackEvent } from '../utils/analyticsClient'
+import { pushGtmEvent } from '../utils/googleAnalytics'
 import { Link } from 'react-router-dom'
 import { getSiteEnrollHref } from '../utils/enrollSite'
 import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
@@ -65,13 +66,39 @@ const ContactForm = ({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
 
+  const leadParams = () => {
+    const sourcePath = inquirySource || window.location.pathname
+    return {
+      form_name: 'general_inquiry',
+      lead_type: 'program_inquiry',
+      inquiry_variant: inquiryVariant,
+      program_slug: sourcePath.split('/').filter(Boolean)[0] ?? 'home',
+      source_domain: window.location.hostname,
+    }
+  }
+
   useEffect(() => {
     if (isOpen || embedded) {
       trackEvent('inquiry_form_start', inquirySource || window.location.pathname, {
         properties: { inquiry_variant: inquiryVariant },
       })
+      trackEvent('form_start', inquirySource || window.location.pathname, {
+        properties: leadParams(),
+      })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, embedded, inquiryVariant, inquirySource])
+
+  /** GA4-standard lead conversion; fires only after the backend confirms the inquiry. */
+  const fireGenerateLead = () => {
+    const params = leadParams()
+    trackEvent('generate_lead', inquirySource || window.location.pathname, {
+      properties: params,
+    })
+    if (getActiveConsent().analytics) {
+      pushGtmEvent('vortex_generate_lead', params)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -205,6 +232,7 @@ const ContactForm = ({
           }
         }
 
+        fireGenerateLead()
         setIsSubmitted(true)
       } else if (result.message === 'Email already registered') {
         if (newsletter) {
@@ -219,6 +247,7 @@ const ContactForm = ({
             console.error('Newsletter subscription error:', error)
           }
         }
+        fireGenerateLead()
         setIsSubmitted(true)
       } else {
         const errorMessage =

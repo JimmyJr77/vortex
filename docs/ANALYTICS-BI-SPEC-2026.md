@@ -1,5 +1,7 @@
 # Vortex Admin Analytics, SEO Intelligence & Marketing Tracking — Full Specification (2026)
 
+> **Marketing measurement source of truth:** See [VORTEX-MEASUREMENT-FRAMEWORK.md](./VORTEX-MEASUREMENT-FRAMEWORK.md) for verified Google identifiers, canonical events, conversion rules, current implementation/configuration status, and Google Ads launch gates. This document remains the broader BI and admin-dashboard roadmap; older audit statements below describe the system at the time of that audit.
+
 **Scope:** `vortexathletics.com`, `vortex-gymnastics.com`, stub domains, and the Vortex admin portal (`/admin`).
 
 **Audience:** Engineering, ownership, marketing, and operations.
@@ -329,6 +331,48 @@ trackEvent('inquiry_form_submit', {
 | `admin_report_exported` | Export click | Analytics | report_type | DB, audit | Compliance | P2 |
 
 \*GA4 only when `consent_analytics === true`; marketing pixels only when `consent_marketing === true`.
+
+### 4.2a Conversion event dictionary (implemented 2026-07)
+
+Canonical mapping for the Google Ads / SEO measurement build-out. Every event below goes to the
+first-party pipeline (`/api/analytics/event`) and, with analytics consent, to GA4 via gtag.
+Rows with a **GTM dataLayer event** also push a named event for GTM Custom Event triggers
+(Google Ads conversion tags); only those need GTM tags.
+
+| GA4 event | Fires when | Component / source | GTM dataLayer event | Key params |
+|-----------|-----------|--------------------|---------------------|------------|
+| `form_start` | Inquiry form opened | `ContactForm`, `SummerCampInquiryForm` | — | `form_name`, `lead_type`, `program_slug`, `source_domain` |
+| `generate_lead` | Backend confirms inquiry saved | `ContactForm`, `SummerCampInquiryForm` success handlers | `vortex_generate_lead` | same as `form_start` (+ `campaign_type: camp` for camp) |
+| `view_item` | Program selected on enroll page | `SchedulingPage` | — | `program_id`, `program_name` |
+| `select_item` | Class / offering / time slot selected | `SchedulingPage`, `SchedulingSignupEmbed` | — | `class_id`, `class_name`, `selection_type` |
+| `sign_up_start` | Family signup wizard mounted (public modes only) | `FamilySignupWizard` | — | `signup_mode` |
+| `family_member_added` | Additional member added in wizard | `FamilySignupWizard` | — | `member_index` |
+| `waiver_completed` | Waiver validation passes at submit | `FamilySignupWizard`, `SignupInvitePage` | — | `waiver_count` |
+| `sign_up` | Family account created / invite completed | `FamilySignupWizard`, `SignupInvitePage` | — | `method` (`family_wizard` \| `parent_invite`), counts |
+| `class_signup_submitted` | No-payment class signup batch succeeds | `SchedulingSignupEmbed` | — | `class_id`, `signup_count`, `waitlisted` |
+| `begin_checkout` | Stripe Checkout session URL received | `MemberClassesOfferedEnroll` | — | `value`, `currency`, `item_count`, `checkout_type` |
+| `checkout_cancelled` | Stripe cancel return (`?enrollment=cancelled` / `?billing=cancelled`) | `MemberDashboard` | — | `checkout_type` |
+| `billing_payment_return` | Stripe balance success return (`?billing=paid`) | `MemberDashboard` | — | `checkout_type: balance` |
+| `purchase` | **Server-side (authoritative):** Stripe webhook records a new `billing_payment` row | [ga4Measurement.js](../backend/analytics/ga4Measurement.js) via Measurement Protocol | — | `transaction_id` (PI id), `value`, `currency`, `payment_type` (`initial_enrollment` \| `outstanding_balance`), `enrollment_type`, `items` |
+| *(browser purchase signal)* | First confirm after payment (`firstConfirmation` from backend; fire-once, refresh-safe) | `MemberDashboard` | `vortex_purchase` | `transaction_id`, `value`, `currency`, `enrollment_type`, `payment_type` |
+| `payment_failed` | Stripe `payment_intent.payment_failed` / `invoice.payment_failed` | server-side MP (skipped without stored client id) | — | `value`, `currency` |
+| `registration_receipt_view` | Receipt token page loads | `EnrollmentReceiptPage` | — | `program_name`, `enrollment_status` |
+| `legacy_registration_click` | Outbound Jackrabbit registration link | `Header`, `SportSiteMenuLinks` | — | `destination`, `source` |
+| `legacy_parent_portal_click` | Outbound Jackrabbit parent portal link | `WaiverSigningBlock` | — | `destination`, `source` |
+
+**Deduplication contract:** the webhook-side GA4 `purchase` and the browser `vortex_purchase` push share the same
+`transaction_id` (Stripe PaymentIntent id, fallback Checkout Session id). Server emission only fires when the
+`billing_payment` insert was new (`newly_inserted`); browser push only fires when the confirm endpoint returns
+`firstConfirmation: true` (stamped once in `stripe_pending_enrollment.client_confirmed_at`). One paid enrollment
+therefore produces exactly one GA4 purchase and one Ads-conversion push.
+
+**Server env:** `GA4_MEASUREMENT_ID` + `GA4_API_SECRET` enable Measurement Protocol sends (no-op otherwise).
+GA client/session ids are captured from the `_ga` / `_ga_<stream>` cookies at checkout creation and stored in
+`stripe_pending_enrollment.payload.analytics` (enrollment) or Stripe session metadata (balance).
+
+**Google Ads guidance:** primary conversion = `vortex_purchase` with `payment_type = initial_enrollment`
+(via GTM). `generate_lead`, `sign_up`, `begin_checkout`, `phone_click`, `legacy_registration_click` are
+secondary/observational. `outstanding_balance` payments must not count toward acquisition bidding.
 
 ### 4.3 Consent rules per event
 

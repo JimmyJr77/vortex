@@ -15,6 +15,7 @@ import {
 } from '../../../utils/registrationApi'
 import { getActiveConsent } from '../../../utils/consent'
 import { trackEvent } from '../../../utils/analyticsClient'
+import { pushGtmEvent } from '../../../utils/googleAnalytics'
 import { getVisitorId, getSessionId } from '../../../utils/visitorId'
 import { getAttributionPayload } from '../../../utils/utmCapture'
 import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../../../utils/phoneUtils'
@@ -41,6 +42,14 @@ const SummerCampInquiryForm = () => {
   useEffect(() => {
     trackEvent('inquiry_form_start', location.pathname, {
       properties: { sport_label: 'Gymnastics', form: 'summer_camp_inquiry' },
+    })
+    trackEvent('form_start', location.pathname, {
+      properties: {
+        form_name: 'camp_interest',
+        lead_type: 'camp_inquiry',
+        campaign_type: 'camp',
+        source_domain: window.location.hostname,
+      },
     })
   }, [location.pathname])
 
@@ -162,6 +171,16 @@ const SummerCampInquiryForm = () => {
       const result = await response.json()
 
       if (result.success || result.message === 'Email already registered') {
+        const params = {
+          form_name: 'camp_interest',
+          lead_type: 'camp_inquiry',
+          campaign_type: 'camp',
+          source_domain: window.location.hostname,
+        }
+        trackEvent('generate_lead', location.pathname, { properties: params })
+        if (getActiveConsent().analytics) {
+          pushGtmEvent('vortex_generate_lead', params)
+        }
         goToThankYou()
         return
       }

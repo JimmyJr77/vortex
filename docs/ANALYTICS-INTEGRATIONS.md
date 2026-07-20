@@ -9,7 +9,9 @@ Loaded on every page, in this order (order matters):
 1. **Consent Mode v2 defaults** — inline script pushes `consent default: denied` to the
    `dataLayer` *before* any Google script loads. The cookie banner
    (`CookieConsent.tsx` → `updateGoogleConsent`) upgrades consent at runtime; GTM tags
-   with built-in consent checks respect it automatically.
+   with built-in consent checks respect it automatically. The same early block enables
+   URL passthrough and cross-domain linking, and redacts ad-click data while advertising
+   storage is denied.
 2. **Google Tag Manager** — container `GTM-T38PSLXX` (plus the `<noscript>` iframe after
    `<body>`).
 3. **GA4 gtag.js (direct)** — property `G-XDE178DQWY`, `send_page_view: false`; SPA route
