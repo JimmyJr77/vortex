@@ -4,6 +4,7 @@ export const HUB_ORIGIN = 'https://www.vortexathletics.com'
 
 export const HUB_SITEMAP_ENTRIES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
+  { path: '/sports', priority: '0.9', changefreq: 'weekly' },
   { path: '/ninja', priority: '0.8', changefreq: 'weekly' },
   { path: '/strength-conditioning', priority: '0.8', changefreq: 'weekly' },
   { path: '/athleticism-accelerator', priority: '0.8', changefreq: 'weekly' },

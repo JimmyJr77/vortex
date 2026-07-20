@@ -3834,7 +3834,7 @@ flowchart TD
 | **Grand total (MOP+MOE)** | **424** | **159** | **583** |
 
 \*Categories 1–5 include 10 additional MOS/MOR/KPI metrics (**139** total rows); see Categories 1–5 section.  
-\*Categories 16–20 include 29 additional MOS/MOR/KPI metrics (**174** total rows); see Categories 16–20 section.  
+\*Categories 16–20 include 29 additional MOS/MOR/KPI metrics (**174** total rows); see Categories 16–20 section.
 †Categories 21–25 include 25 additional MOS/MOR/KPI metrics (**166** total rows); see Categories 21–25 section.
 
 **Automation today (approx.)** — Categories 21–25 only: ~12 yes, ~28 partial, ~126 no/TBD.  

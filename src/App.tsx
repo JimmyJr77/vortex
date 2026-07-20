@@ -27,6 +27,7 @@ const HomePage = lazyWithRetry(() => import('./components/HomePage'))
 const AthleticismAccelerator = lazyWithRetry(() => import('./components/AthleticismAccelerator'))
 const SummerAthleticTraining = lazyWithRetry(() => import('./components/SummerAthleticTraining'))
 const StrengthFitness = lazyWithRetry(() => import('./components/StrengthFitness'))
+const Sports = lazyWithRetry(() => import('./components/Sports'))
 const Ninja = lazyWithRetry(() => import('./components/Ninja'))
 const Value = lazyWithRetry(() => import('./components/Value'))
 const ReadBoard = lazyWithRetry(() => import('./components/ReadBoard'))
@@ -216,6 +217,10 @@ function App() {
                 onHighlightsClick={hasHighlights ? openHighlights : undefined}
               />
             } 
+          />
+          <Route
+            path="/sports"
+            element={<Sports />}
           />
           <Route 
             path="/athleticism-accelerator" 

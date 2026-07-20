@@ -346,7 +346,6 @@ export default function AdminInquiries() {
         [user.id]: [created, ...(prev[user.id] || [])],
       }))
       setThreadDraft((prev) => ({ ...prev, [user.id]: '' }))
-      await persistRegistration(user, { admin_notes: body })
     } catch (error) {
       console.error('Error adding staff note:', error)
       alert('Failed to add note')

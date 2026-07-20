@@ -18,6 +18,13 @@ export const HUB_HOME_SEO: HubRouteSeo = {
 export const HUB_ROUTES: HubRouteSeo[] = [
   HUB_HOME_SEO,
   {
+    path: '/sports',
+    title: 'Youth Sports Training in Bowie, MD | Vortex Athletics',
+    description:
+      'Explore Vortex sports in Bowie, MD: athleticism training, Fit & Flip, and gymnastics. Pick your path and book a free trial class.',
+    priority: 0.9,
+  },
+  {
     path: '/ninja',
     title: 'Kids Ninja Classes in Bowie, MD | Vortex',
     description:
