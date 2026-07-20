@@ -198,7 +198,7 @@ export async function notifyPaymentReceipt(pool, { account, payment, bestEffort 
  *   bestEffort?: boolean
  * }} params
  */
-export async function notifyPaymentFailed(pool, { account, amountCents, reason = null, updatePaymentUrl = null, bestEffort = true }) {
+export async function notifyPaymentFailed(pool, { account, amountCents, reason = null, updatePaymentUrl = null, idempotencyKey = null, bestEffort = true }) {
   try {
     if (!account?.id) return { sent: false, skipped: true }
     const { to, guardianName } = await resolvePayerRecipient(pool, account)
@@ -209,6 +209,7 @@ export async function notifyPaymentFailed(pool, { account, amountCents, reason =
       amountCents: Number(amountCents ?? 0),
       reason,
       updatePaymentUrl,
+      idempotencyKey,
     })
     return { sent: result.sent === true, email: to }
   } catch (err) {

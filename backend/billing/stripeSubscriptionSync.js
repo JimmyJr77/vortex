@@ -65,6 +65,33 @@ export async function cancelStripeSubscriptionNow(stripeSubscriptionId) {
   }
 }
 
+/** Keep manual admin pause/resume actions aligned with Stripe collection state. */
+export async function setStripeSubscriptionOperationalStatus(stripeSubscriptionId, status) {
+  if (!stripeSubscriptionId) return { status: 'skipped', reason: 'missing_id' }
+  if (!stripeEnabled()) return { status: 'skipped', reason: 'stripe_disabled' }
+  if (status === 'cancelled') return cancelStripeSubscriptionNow(stripeSubscriptionId)
+  const stripe = await getStripeClient()
+  if (!stripe) return { status: 'error', reason: 'stripe_unavailable' }
+  try {
+    if (status === 'paused') {
+      await stripe.subscriptions.update(stripeSubscriptionId, {
+        pause_collection: { behavior: 'void' },
+      })
+      return { status: 'paused' }
+    }
+    if (status === 'active') {
+      await stripe.subscriptions.update(stripeSubscriptionId, {
+        pause_collection: null,
+        cancel_at_period_end: false,
+      })
+      return { status: 'active' }
+    }
+    return { status: 'skipped', reason: 'unsupported_status' }
+  } catch (error) {
+    return { status: 'error', reason: error?.message ?? String(error) }
+  }
+}
+
 /**
  * @param {import('pg').Pool|import('pg').PoolClient} db
  * @param {{ sourceType?: string, sourceId: number|string, effectiveDate?: string|null, immediate?: boolean }} opts

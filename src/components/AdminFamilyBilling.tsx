@@ -41,6 +41,9 @@ interface Refund {
   amountCents: number
   reason: string | null
   externalReference: string | null
+  stripeRefundId?: string | null
+  externalStatus?: string | null
+  errorMessage?: string | null
   createdAt: string
 }
 
@@ -445,18 +448,28 @@ export default function AdminFamilyBilling() {
 
               {/* Refund */}
               <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
-                <h3 className="font-bold text-gray-900">Record Refund</h3>
+                <h3 className="font-bold text-gray-900">Issue Refund</h3>
+                <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-900">
+                  Select a Stripe payment ID to return funds through Stripe. The refund is recorded only once and synchronized by webhook.
+                </div>
                 <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Amount dollars" value={refund.amount} onChange={(e) => setRefund((prev) => ({ ...prev, amount: e.target.value }))} />
                 <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Reason" value={refund.reason} onChange={(e) => setRefund((prev) => ({ ...prev, reason: e.target.value }))} />
-                <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Related payment ID (optional)" value={refund.paymentId} onChange={(e) => setRefund((prev) => ({ ...prev, paymentId: e.target.value }))} />
+                <select className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" value={refund.paymentId} onChange={(e) => setRefund((prev) => ({ ...prev, paymentId: e.target.value }))}>
+                  <option value="">Local ledger refund (no Stripe payment)</option>
+                  {(account.payments ?? []).map((p) => (
+                    <option key={p.id} value={p.id}>
+                      Payment #{p.id} · {money(p.amountCents)} · {new Date(p.paidAt).toLocaleDateString()}
+                    </option>
+                  ))}
+                </select>
                 <button type="button" onClick={() => void addRefund()} disabled={saving} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg disabled:opacity-60">
-                  Record Refund
+                  Issue Refund
                 </button>
                 <div className="divide-y divide-gray-100">
                   {refunds.map((r) => (
                     <div key={r.id} className="py-2 text-sm flex justify-between gap-3">
-                      <span>{new Date(r.createdAt).toLocaleDateString()} {r.reason ? `· ${r.reason}` : ''}</span>
-                      <span className="font-semibold">{money(r.amountCents)}</span>
+                      <span>{new Date(r.createdAt).toLocaleDateString()} {r.reason ? `· ${r.reason}` : ''}{r.externalStatus ? ` · ${r.externalStatus}` : ''}</span>
+                      <span className={`font-semibold ${r.externalStatus === 'failed' ? 'text-red-700' : ''}`}>{money(r.amountCents)}</span>
                     </div>
                   ))}
                 </div>

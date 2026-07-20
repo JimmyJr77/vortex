@@ -24,6 +24,7 @@ export const EMAIL_CATEGORIES = Object.freeze({
   signin_magic_link: STREAM_TRANSACTIONAL,
   registration_confirmation: STREAM_TRANSACTIONAL,
   payment_receipt: STREAM_TRANSACTIONAL,
+  payment_failed: STREAM_TRANSACTIONAL,
   schedule_change: STREAM_TRANSACTIONAL,
   waiver_request: STREAM_TRANSACTIONAL,
   security_notification: STREAM_TRANSACTIONAL,

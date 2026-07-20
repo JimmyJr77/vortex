@@ -13,7 +13,7 @@ function money(cents) {
 }
 
 /**
- * Failed-payment / dunning notice (transactional, category `payment_receipt`).
+ * Failed-payment / dunning notice (transactional, category `payment_failed`).
  * Uses neutral, factual language (no promotional content) so it passes the
  * transactional guardrail.
  * @param {{
@@ -22,6 +22,7 @@ function money(cents) {
  *   amountCents: number
  *   reason?: string | null
  *   updatePaymentUrl?: string | null
+ *   idempotencyKey?: string | null
  * }} params
  */
 export async function sendPaymentFailedEmail({
@@ -30,6 +31,7 @@ export async function sendPaymentFailedEmail({
   amountCents,
   reason = null,
   updatePaymentUrl = null,
+  idempotencyKey = null,
 }) {
   if (!isEmailConfigured()) {
     console.warn('[paymentFailedEmail] SMTP not configured; skipping send')
@@ -72,6 +74,6 @@ export async function sendPaymentFailedEmail({
     <p>— Vortex Athletics</p>
   `
 
-  await sendEmail({ to, subject, text, html, category: 'payment_receipt' })
+  await sendEmail({ to, subject, text, html, category: 'payment_failed', idempotencyKey })
   return { sent: true }
 }

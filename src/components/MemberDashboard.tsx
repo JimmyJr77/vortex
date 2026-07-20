@@ -1123,6 +1123,13 @@ export default function MemberDashboard({
     const enrollmentStatus = params.get('enrollment')
     const billingStatus = params.get('billing')
 
+    if (billingStatus === 'update') {
+      setActiveTab('billing')
+      const url = new URL(window.location.href)
+      url.searchParams.delete('billing')
+      window.history.replaceState({}, '', url.pathname + url.search + url.hash)
+    }
+
     if (billingStatus === 'paid' || billingStatus === 'cancelled') {
       trackEvent(
         billingStatus === 'paid' ? 'billing_payment_return' : 'checkout_cancelled',
