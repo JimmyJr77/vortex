@@ -136,7 +136,9 @@ interface MemberBillingPanelProps {
   billingAccount: MemberBillingAccountData | null
   billingLoading: boolean
   payNowLoading: boolean
+  portalLoading: boolean
   onPayNow: () => void
+  onManagePayment: () => void
   formatMoney: (cents: number) => string
 }
 
@@ -239,7 +241,9 @@ export default function MemberBillingPanel({
   billingAccount,
   billingLoading,
   payNowLoading,
+  portalLoading,
   onPayNow,
+  onManagePayment,
   formatMoney,
 }: MemberBillingPanelProps) {
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null)
@@ -298,8 +302,9 @@ export default function MemberBillingPanel({
           </p>
         )}
 
-        {billingAccount?.stripeEnabled && billingAccount.canSeeFamily && (totals?.balanceDueCents ?? 0) > 0 && (
-          <div className="mb-6">
+        {billingAccount?.stripeEnabled && billingAccount.canSeeFamily && (
+          <div className="mb-6 flex flex-wrap gap-3">
+            {(totals?.balanceDueCents ?? 0) > 0 && (
             <button
               type="button"
               onClick={onPayNow}
@@ -307,6 +312,15 @@ export default function MemberBillingPanel({
               className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
             >
               {payNowLoading ? 'Starting checkout…' : 'Pay now'}
+            </button>
+            )}
+            <button
+              type="button"
+              onClick={onManagePayment}
+              disabled={portalLoading}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-bold text-gray-900 disabled:opacity-60"
+            >
+              {portalLoading ? 'Opening settings…' : 'Manage payment method'}
             </button>
           </div>
         )}

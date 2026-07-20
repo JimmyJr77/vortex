@@ -222,8 +222,18 @@ app.use((req, res, next) => {
   next()
 })
 
-// Stripe webhook uses express.raw on the route itself — all other routes use JSON.
-app.use(express.json({ limit: '10mb' }))
+// Preserve the exact Stripe webhook bytes before JSON parsing. Stripe signs the raw
+// payload, so reconstructing it from req.body would make signature verification
+// unreliable. The route-level raw parser remains useful when routes are mounted in
+// isolation (for example, focused tests).
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, _res, buffer) => {
+    if (req.originalUrl?.split('?')[0] === '/api/stripe/webhook') {
+      req.rawBody = Buffer.from(buffer)
+    }
+  },
+}))
 
 // Rate limiting — higher cap in dev (React Strict Mode doubles effect fetches).
 const isProduction = process.env.NODE_ENV === 'production'

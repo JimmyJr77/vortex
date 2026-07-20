@@ -8,8 +8,8 @@ Step-by-step guide to get billing working in **test mode** first, then live. Wor
 |-------|------|--------|
 | 1 | Catalog sync (Admin pricing → Stripe Products/Prices) | Done |
 | 2 | Pay-at-enrollment via Stripe Checkout | Done |
-| 3 | Stripe Subscriptions for recurring tuition + invoice webhooks | Partial — subscription checkout at enroll; invoice→ledger webhooks still ledger-first for monthly cycles |
-| 4 | Live keys, reconciliation job, Customer Portal | Ops steps below |
+| 3 | Stripe Subscriptions for recurring tuition + invoice webhooks | Done — renewals mirror into the ledger; status changes synchronize |
+| 4 | Live keys, reconciliation job, Customer Portal | Live keys configured; endpoint verification and Customer Portal remain ops steps below |
 
 ---
 
@@ -105,8 +105,11 @@ Save → Render redeploys automatically.
      - `payment_intent.payment_failed`
      - `invoice.paid`
      - `invoice.payment_failed`
+     - `customer.subscription.created`
      - `customer.subscription.updated`
      - `customer.subscription.deleted`
+     - `customer.subscription.paused`
+     - `customer.subscription.resumed`
 3. Create → reveal **Signing secret** (`whsec_...`).
 4. Paste into Render as `STRIPE_WEBHOOK_SECRET` → redeploy.
 

@@ -25,6 +25,7 @@ import { loadPortalConfig, savePortalConfig } from './portalSettings.js'
 import {
   stripeEnabled as isStripeEnabled,
   createCheckoutSession,
+  createCustomerPortalSession,
   parseWebhookEvent,
   recordStripePayment,
   recordEnrollmentStripePayment,
@@ -33,6 +34,11 @@ import {
   logWebhookVerificationFailure,
 } from '../billing/stripeBilling.js'
 import { stripeWebhookRawParser } from '../billing/stripeWebhookMiddleware.js'
+import {
+  recordPaidStripeInvoice,
+  resolveStripeWebhookAccountId,
+  syncStripeSubscriptionStatus,
+} from '../billing/stripeWebhookLifecycle.js'
 import {
   createEnrollmentCheckoutSession,
   commitPendingEnrollment,
@@ -1963,6 +1969,32 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  app.post('/api/members/billing/customer-portal', authMiddleware(pool, jwtSecret), async (req, res) => {
+    if (!isStripeEnabled()) {
+      return res.status(503).json({ success: false, message: 'Online billing is not enabled yet.' })
+    }
+    const ctx = req.platformAuth
+    const memberId = Number(ctx.user.member_id ?? ctx.user.id)
+    const familyId = ctx.user.family_id
+    if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
+    const account = await ensureBillingAccount(pool, familyId)
+    if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
+    if (Number(account.payer_member_id) !== memberId) {
+      return res.status(403).json({ success: false, message: 'Only the family payer can manage payment methods.' })
+    }
+    try {
+      const session = await createCustomerPortalSession(pool, {
+        account,
+        returnUrl: `${publicAppUrl()}/?billing=portal-return`,
+      })
+      if (!session?.url) throw new Error('Stripe did not return a portal URL.')
+      res.json({ success: true, data: { url: session.url } })
+    } catch (err) {
+      console.error('[stripe] customer-portal:', err)
+      res.status(500).json({ success: false, message: 'Failed to open payment settings.' })
+    }
+  })
+
   app.post('/api/members/billing/enrollment-checkout-session', authMiddleware(pool, jwtSecret), async (req, res) => {
     if (!isStripeEnabled()) {
       return res.status(503).json({ success: false, message: 'Online payments are not enabled yet.', stripeEnabled: false })
@@ -2119,12 +2151,25 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             notifyPaymentReceipt(pool, { account: acct.rows[0], payment: insertedPayment }).catch(() => {})
           }
         }
+      } else if (event.type === 'invoice.paid') {
+        const invoice = event.data?.object ?? {}
+        const payment = await recordPaidStripeInvoice(pool, invoice)
+        if (payment) {
+          const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [payment.family_billing_account_id])
+          if (acct.rows[0]) notifyPaymentReceipt(pool, { account: acct.rows[0], payment }).catch(() => {})
+        }
+      } else if (
+        event.type === 'customer.subscription.created' ||
+        event.type === 'customer.subscription.updated' ||
+        event.type === 'customer.subscription.deleted' ||
+        event.type === 'customer.subscription.paused' ||
+        event.type === 'customer.subscription.resumed'
+      ) {
+        await syncStripeSubscriptionStatus(pool, event.data?.object ?? {}, event.type)
       } else if (event.type === 'payment_intent.payment_failed' || event.type === 'invoice.payment_failed') {
         const obj = event.data?.object ?? {}
         void emitStripePaymentFailedEvent(pool, { object: obj })
-        const accountId = obj.metadata?.familyBillingAccountId
-          ? Number(obj.metadata.familyBillingAccountId)
-          : null
+        const accountId = await resolveStripeWebhookAccountId(pool, obj)
         if (accountId) {
           const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [accountId])
           if (acct.rows[0]) {

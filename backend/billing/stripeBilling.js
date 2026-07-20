@@ -3,8 +3,8 @@
  * and STRIPE_SECRET_KEY is configured. The `stripe` SDK is imported lazily so
  * the app boots fine when the dependency or keys are absent.
  *
- * Go-live TODO (intentionally deferred): production keys, full reconciliation,
- * customer portal, dunning, and raw-body webhook signature hardening.
+ * Production credentials and webhook endpoints remain deployment configuration;
+ * live-mode webhook delivery is always signature verified below.
  */
 
 export function stripeEnabled() {
@@ -101,6 +101,14 @@ export async function createCheckoutSession(pool, { account, balanceCents, succe
   return { url: session.url }
 }
 
+/** Create a short-lived Stripe Customer Portal session for payment-method management. */
+export async function createCustomerPortalSession(pool, { account, returnUrl }) {
+  const stripe = await getStripe()
+  if (!stripe || !account) return null
+  const customerId = await ensureStripeCustomer(pool, stripe, account)
+  return stripe.billingPortal.sessions.create({ customer: customerId, return_url: returnUrl })
+}
+
 function normalizeWebhookSecret(value) {
   if (!value) return null
   let secret = String(value).trim()
@@ -125,6 +133,11 @@ function webhookSigningSecrets() {
   return secrets
 }
 
+/** Live credentials must never accept an unsigned or unverifiable webhook. */
+function liveWebhookVerificationRequired() {
+  return String(process.env.STRIPE_SECRET_KEY ?? '').trim().startsWith('sk_live_')
+}
+
 /**
  * Raw request body for Stripe webhook signature verification.
  * @returns {Buffer|string|null}
@@ -144,6 +157,19 @@ export async function parseWebhookEvent(rawBody, signature) {
   if (!stripe) return null
 
   const secrets = webhookSigningSecrets()
+  if (liveWebhookVerificationRequired()) {
+    if (!secrets.length) {
+      throw new Error('Stripe webhook signing secret is required in live mode.')
+    }
+    if (!signature) {
+      throw new Error('Stripe webhook signature is required in live mode.')
+    }
+    if (rawBody == null || (!Buffer.isBuffer(rawBody) && typeof rawBody !== 'string')) {
+      throw new Error(
+        'Webhook raw body missing — Stripe signature verification requires the unparsed request body.',
+      )
+    }
+  }
   if (secrets.length && signature && rawBody != null) {
     if (typeof rawBody === 'object' && !Buffer.isBuffer(rawBody)) {
       throw new Error(
