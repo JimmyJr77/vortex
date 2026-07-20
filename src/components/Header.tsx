@@ -11,6 +11,7 @@ import {
 } from '../utils/ninjaProgram'
 import { HUB_HEADER_LOGO } from '../utils/seo'
 import { getSiteEnrollHref } from '../utils/enrollSite'
+import { trackOutboundClickEvent } from '../utils/analyticsClient'
 import {
   JACKRABBIT_CLASS_REGISTRATION_URL,
 } from '../config/contact'
@@ -199,7 +200,13 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
                 href={JACKRABBIT_CLASS_REGISTRATION_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  trackOutboundClickEvent('legacy_registration_click', location.pathname, {
+                    destination: 'jackrabbit_registration',
+                    source: 'hub_header_menu',
+                  })
+                  setIsMenuOpen(false)
+                }}
                 className="block w-full text-left text-white hover:text-vortex-red transition-colors duration-300 font-medium"
               >
                 Jackrabbit Class Login

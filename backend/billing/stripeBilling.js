@@ -72,7 +72,7 @@ async function ensureStripeCustomer(pool, stripe, account) {
  * Create a hosted Stripe Checkout Session for the outstanding balance.
  * @returns {{url:string}|null} null when Stripe is disabled/unavailable.
  */
-export async function createCheckoutSession(pool, { account, balanceCents, successUrl, cancelUrl }) {
+export async function createCheckoutSession(pool, { account, balanceCents, successUrl, cancelUrl, analytics = null }) {
   const stripe = await getStripe()
   if (!stripe || !account || balanceCents <= 0) return null
   const customerId = await ensureStripeCustomer(pool, stripe, account)
@@ -91,7 +91,12 @@ export async function createCheckoutSession(pool, { account, balanceCents, succe
     ],
     success_url: successUrl,
     cancel_url: cancelUrl,
-    metadata: { familyBillingAccountId: String(account.id) },
+    metadata: {
+      familyBillingAccountId: String(account.id),
+      // GA4 attribution for the webhook-side purchase event (no pending row for balance checkout).
+      ...(analytics?.gaClientId ? { gaClientId: String(analytics.gaClientId).slice(0, 100) } : {}),
+      ...(analytics?.gaSessionId ? { gaSessionId: String(analytics.gaSessionId).slice(0, 100) } : {}),
+    },
   })
   return { url: session.url }
 }
@@ -177,6 +182,8 @@ export function logWebhookVerificationFailure(err, { rawBody, signature }) {
 
 /**
  * Idempotently record a successful Stripe payment into billing_payment.
+ * Returned row carries `newly_inserted: true` (ON CONFLICT DO NOTHING returns
+ * no row on replay), used to fire the GA4 purchase event exactly once.
  */
 export async function recordStripePayment(pool, { paymentIntentId, amountCents, accountId, customerId }) {
   if (!paymentIntentId || !accountId) return null
@@ -194,7 +201,9 @@ export async function recordStripePayment(pool, { paymentIntentId, amountCents, 
     `,
     [accountId, Math.round(Number(amountCents) || 0), customerId ?? null, paymentIntentId],
   )
-  return result.rows[0] ?? null
+  const payment = result.rows[0] ?? null
+  if (payment) payment.newly_inserted = true
+  return payment
 }
 
 /**
@@ -237,6 +246,8 @@ export async function resolveEnrollmentCheckoutPayment(stripe, session) {
 
 /**
  * Idempotently record enrollment Checkout payment (handles subscription-mode invoice PI).
+ * Returned row carries `newly_inserted` (true only on first insert; xmax=0 detects
+ * insert vs conflict-update), used to fire the GA4 purchase event exactly once.
  */
 export async function recordEnrollmentStripePayment(pool, stripe, { session, accountId, paidAt = null }) {
   if (!accountId || !session?.id) return null
@@ -272,7 +283,7 @@ export async function recordEnrollmentStripePayment(pool, stripe, { session, acc
             EXCLUDED.stripe_checkout_session_id
           ),
           stripe_invoice_id = COALESCE(billing_payment.stripe_invoice_id, EXCLUDED.stripe_invoice_id)
-        RETURNING *
+        RETURNING *, (xmax = 0) AS newly_inserted
       `,
       [accountId, amountCents, paidAtValue, customerId, paymentIntentId, checkoutSessionId, invoiceId],
     )
@@ -305,6 +316,7 @@ export async function recordEnrollmentStripePayment(pool, stripe, { session, acc
     [accountId, amountCents, paidAtValue, customerId, checkoutSessionId, invoiceId],
   )
   const payment = result.rows[0] ?? null
+  if (payment) payment.newly_inserted = true
 
   if (payment && checkoutSessionId) {
     await pool.query(

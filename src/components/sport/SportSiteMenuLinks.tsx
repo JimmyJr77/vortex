@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import NavMenuDivider from '../NavMenuDivider'
 import SportSiteHubMenuLogo from './SportSiteHubMenuLogo'
 import { JACKRABBIT_CLASS_REGISTRATION_URL } from '../../config/contact'
+import { trackOutboundClickEvent } from '../../utils/analyticsClient'
 
 export interface SportSiteMenuLinksProps {
   sportBrandName: string
@@ -59,7 +60,13 @@ const SportSiteMenuLinks = ({
           href={JACKRABBIT_CLASS_REGISTRATION_URL}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={onNavigate}
+          onClick={() => {
+            trackOutboundClickEvent('legacy_registration_click', window.location.pathname, {
+              destination: 'jackrabbit_registration',
+              source: 'sport_site_menu',
+            })
+            onNavigate?.()
+          }}
           className={linkClass}
         >
           Jackrabbit Class Login

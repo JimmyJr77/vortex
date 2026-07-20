@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { CheckCircle2, Clock, Loader2, XCircle } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
+import { trackEvent } from '../utils/analyticsClient'
 
 type Status = 'loading' | 'success' | 'error'
 
@@ -52,6 +53,12 @@ export default function EnrollmentReceiptPage() {
       }
       setReceipt(data.data || null)
       setStatus('success')
+      trackEvent('registration_receipt_view', window.location.pathname, {
+        properties: {
+          program_name: data.data?.programName ?? undefined,
+          enrollment_status: data.data?.status ?? undefined,
+        },
+      })
     } catch (err) {
       setStatus('error')
       setMessage(err instanceof Error ? err.message : 'Failed to load registration receipt.')

@@ -19,6 +19,8 @@ export const parseUtmFromSearch = (search: string): UtmParams => {
   if (params.get('utm_term')) utm.term = params.get('utm_term')!
   const clickIds: Record<string, string> = {}
   if (params.get('gclid')) clickIds.gclid = params.get('gclid')!
+  if (params.get('wbraid')) clickIds.wbraid = params.get('wbraid')!
+  if (params.get('gbraid')) clickIds.gbraid = params.get('gbraid')!
   if (params.get('fbclid')) clickIds.fbclid = params.get('fbclid')!
   if (Object.keys(clickIds).length) utm.clickIds = clickIds
   return utm

@@ -10,6 +10,7 @@ import { US_STATES, verifyUsAddressZip } from '../../utils/usStates'
 import SchoolAutocompleteInput from '../scheduling/SchoolAutocompleteInput'
 import FamilySearchCombobox, { type FamilySearchOption } from './FamilySearchCombobox'
 import WaiverSigningBlock, { validateWaiverSigning, type PublicWaiverTemplate } from './WaiverSigningBlock'
+import { flushEvents, trackEvent } from '../../utils/analyticsClient'
 
 type WizardMode = 'public' | 'admin' | 'minor-start' | 'admin-edit'
 type EmailSource = 'parent' | 'youth'
@@ -262,6 +263,17 @@ export default function FamilySignupWizard({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
+  // Funnel events only for parent-facing signups; admin flows are staff actions.
+  const isPublicFunnel = mode === 'public' || mode === 'minor-start'
+  const signupStartTracked = useRef(false)
+  useEffect(() => {
+    if (!isPublicFunnel || signupStartTracked.current) return
+    signupStartTracked.current = true
+    trackEvent('sign_up_start', window.location.pathname, {
+      properties: { signup_mode: mode },
+    })
+  }, [isPublicFunnel, mode])
 
   const allAthletes = useMemo(() => {
     const athletes: SignupMemberForm[] = []
@@ -1060,6 +1072,11 @@ export default function FamilySignupWizard({
           setError(waiverError)
           return
         }
+        if (isPublicFunnel) {
+          trackEvent('waiver_completed', window.location.pathname, {
+            properties: { waiver_count: waivers.length },
+          })
+        }
       }
     }
 
@@ -1096,6 +1113,7 @@ export default function FamilySignupWizard({
             : `Invite created. Share this link: ${data.data?.inviteUrl ?? ''}`,
         )
         if (returnTo) {
+          void flushEvents({ useBeacon: true })
           window.location.href = returnTo
           return
         }
@@ -1114,7 +1132,18 @@ export default function FamilySignupWizard({
           })
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Signup failed')
+      if (isPublicFunnel) {
+        trackEvent('sign_up', window.location.pathname, {
+          properties: {
+            method: 'family_wizard',
+            family_member_count: 1 + additionalMembers.length,
+            enrollment_count: enrollments.length,
+          },
+        })
+      }
       if (returnTo) {
+        // Flush before hard navigation so the conversion event is not lost.
+        void flushEvents({ useBeacon: true })
         window.location.href = returnTo
         return
       }
@@ -1418,6 +1447,11 @@ export default function FamilySignupWizard({
                 if (primaryAdult.email) {
                   m.emailSource = 'parent'
                   m.email = ''
+                }
+                if (isPublicFunnel) {
+                  trackEvent('family_member_added', window.location.pathname, {
+                    properties: { member_index: additionalMembers.length + 1 },
+                  })
                 }
                 setAdditionalMembers((prev) => [...prev, m])
               }}

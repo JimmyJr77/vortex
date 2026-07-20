@@ -1,4 +1,5 @@
 import { JACKRABBIT_PARENT_PORTAL_URL } from '../../config/contact'
+import { trackOutboundClickEvent } from '../../utils/analyticsClient'
 
 export interface PublicWaiverTemplate {
   id: number
@@ -149,6 +150,12 @@ export default function WaiverSigningBlock({
                 href={JACKRABBIT_PARENT_PORTAL_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() =>
+                  trackOutboundClickEvent('legacy_parent_portal_click', window.location.pathname, {
+                    destination: 'jackrabbit_parent_portal',
+                    source: 'waiver_payment_policy',
+                  })
+                }
                 className="inline-flex text-sm font-semibold text-vortex-red hover:underline"
               >
                 Open Jackrabbit Parent Portal (Add Credit Card)

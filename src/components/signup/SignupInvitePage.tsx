@@ -6,6 +6,7 @@ import { formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } fr
 import { isAdult } from '../../utils/dateUtils'
 import WaiverSigningBlock, { validateWaiverSigning, type PublicWaiverTemplate } from './WaiverSigningBlock'
 import SignupEnrollmentPicker from './SignupEnrollmentPicker'
+import { trackEvent } from '../../utils/analyticsClient'
 import {
   buildEnrollmentSubmitPayload,
   pendingEnrollmentsToRows,
@@ -122,6 +123,9 @@ export default function SignupInvitePage() {
       setError(waiverError)
       return
     }
+    trackEvent('waiver_completed', window.location.pathname, {
+      properties: { waiver_count: waivers.length, signup_mode: 'parent_invite' },
+    })
     if (!primaryAdult.firstName || !primaryAdult.lastName) {
       setError('First and last name are required.')
       return
@@ -165,6 +169,9 @@ export default function SignupInvitePage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Failed to complete signup')
+      trackEvent('sign_up', window.location.pathname, {
+        properties: { method: 'parent_invite', enrollment_count: enrollmentPayload.length },
+      })
       setSuccess(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to complete signup')

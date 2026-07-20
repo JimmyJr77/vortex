@@ -6,6 +6,9 @@ import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
 import { fetchClassesOffered, fetchMemberMultiClassPasses, type PublicProgramOffered, type MemberMultiClassPassBalance } from '../utils/publicClassesApi'
 import { confirmEnrollmentCheckoutSession, clearPendingEnrollmentId, readPendingEnrollmentId } from '../utils/schedulingApi'
+import { trackEvent } from '../utils/analyticsClient'
+import { pushGtmEvent, getGaClientId, getGaSessionId } from '../utils/googleAnalytics'
+import { getActiveConsent } from '../utils/consent'
 import MemberClassesOfferedEnroll, { type EnrollableMember } from './member/MemberClassesOfferedEnroll'
 import EventAttachedSignup from './EventAttachedSignup'
 import { MemberTrainingTab, MemberProgressTab, MemberMessagesTab } from './MemberTraining'
@@ -1118,9 +1121,24 @@ export default function MemberDashboard({
 
     const params = new URLSearchParams(window.location.search)
     const enrollmentStatus = params.get('enrollment')
+    const billingStatus = params.get('billing')
+
+    if (billingStatus === 'paid' || billingStatus === 'cancelled') {
+      trackEvent(
+        billingStatus === 'paid' ? 'billing_payment_return' : 'checkout_cancelled',
+        window.location.pathname,
+        { properties: { checkout_type: 'balance' } },
+      )
+      const url = new URL(window.location.href)
+      url.searchParams.delete('billing')
+      window.history.replaceState({}, '', url.pathname + url.search + url.hash)
+    }
 
     if (enrollmentStatus === 'cancelled') {
       clearPendingEnrollmentId()
+      trackEvent('checkout_cancelled', window.location.pathname, {
+        properties: { checkout_type: 'enrollment' },
+      })
       const url = new URL(window.location.href)
       url.searchParams.delete('enrollment')
       window.history.replaceState({}, '', url.pathname + url.search + url.hash)
@@ -1152,6 +1170,20 @@ export default function MemberDashboard({
 
         clearPendingEnrollmentId()
         clearEnrollmentReturnParams()
+
+        // Browser-side conversion signal for the GTM Google Ads purchase tag.
+        // Backend returns firstConfirmation=true exactly once per enrollment, so
+        // refreshing or revisiting the Stripe success URL never re-fires this.
+        // The authoritative GA4 purchase is sent server-side from the webhook.
+        if (result.firstConfirmation && result.purchase && getActiveConsent().analytics) {
+          pushGtmEvent('vortex_purchase', {
+            transaction_id: result.purchase.transactionId,
+            value: result.purchase.valueCents / 100,
+            currency: result.purchase.currency || 'USD',
+            enrollment_type: result.purchase.enrollmentType,
+            payment_type: result.purchase.paymentType,
+          })
+        }
 
         if (result.status === 'none') {
           await fetchEnrollments(true)
@@ -1192,7 +1224,9 @@ export default function MemberDashboard({
       const res = await fetch(`${apiUrl}/api/members/billing/checkout-session`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          analytics: { gaClientId: getGaClientId(), gaSessionId: getGaSessionId() },
+        }),
       })
       const data = await res.json()
       if (res.ok && data.data?.url) {

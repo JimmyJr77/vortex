@@ -10,6 +10,7 @@ import {
 } from '../utils/schedulingApi'
 import { getLoggedInMemberEmail } from '../utils/portalSession'
 import { fetchClassesOffered } from '../utils/publicClassesApi'
+import { trackEvent } from '../utils/analyticsClient'
 import SchedulingSignupEmbed from './SchedulingSignupEmbed'
 
 function parseOptionalInt(raw: string | null): number | null | undefined {
@@ -243,7 +244,16 @@ const SchedulingPage = () => {
                   <button
                     key={program.programsId}
                     type="button"
-                    onClick={() => setSelectedProgramId(program.programsId)}
+                    onClick={() => {
+                      trackEvent('view_item', window.location.pathname, {
+                        properties: {
+                          item_list_name: 'enroll_programs',
+                          program_id: program.programsId,
+                          program_name: program.displayName,
+                        },
+                      })
+                      setSelectedProgramId(program.programsId)
+                    }}
                     className={cardClass}
                   >
                     <div className="flex items-start justify-between gap-4">
@@ -279,7 +289,18 @@ const SchedulingPage = () => {
                   <button
                     key={form.id}
                     type="button"
-                    onClick={() => setSelectedFormId(form.id)}
+                    onClick={() => {
+                      trackEvent('select_item', window.location.pathname, {
+                        properties: {
+                          item_list_name: 'enroll_classes',
+                          class_id: form.id,
+                          class_name: form.classDisplayName?.trim() || form.title,
+                          program_id: selectedProgram.programsId,
+                          program_name: selectedProgram.displayName,
+                        },
+                      })
+                      setSelectedFormId(form.id)
+                    }}
                     className={cardClass}
                   >
                     <div className="flex items-start justify-between gap-4">

@@ -39,6 +39,7 @@ import {
   confirmEnrollmentCheckoutSession,
 } from '../billing/stripeEnrollmentCheckout.js'
 import { syncAllCatalog, getCatalogSyncStatus } from '../billing/stripeCatalogSync.js'
+import { emitStripePurchaseEvent, emitStripePaymentFailedEvent } from '../analytics/ga4Measurement.js'
 import { buildBillingAccountView } from '../billing/billingAccountView.js'
 import { chargeDisplayCategory } from '../billing/billingPeriodView.js'
 import { notifyPaymentReceipt, notifyPaymentFailed } from '../email/memberNotifications.js'
@@ -46,6 +47,15 @@ import { notifyPaymentReceipt, notifyPaymentFailed } from '../email/memberNotifi
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
   return authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null
+}
+
+/** GA4 client/session ids captured at checkout creation for server-side purchase attribution. */
+function sanitizeCheckoutAnalytics(raw) {
+  if (!raw || typeof raw !== 'object') return null
+  const gaClientId = typeof raw.gaClientId === 'string' && raw.gaClientId ? raw.gaClientId.slice(0, 100) : null
+  const gaSessionId = typeof raw.gaSessionId === 'string' && raw.gaSessionId ? raw.gaSessionId.slice(0, 100) : null
+  if (!gaClientId && !gaSessionId) return null
+  return { ...(gaClientId ? { gaClientId } : {}), ...(gaSessionId ? { gaSessionId } : {}) }
 }
 
 function normalizeRoleKey(role) {
@@ -1943,6 +1953,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         balanceCents,
         successUrl: `${base}/?billing=paid`,
         cancelUrl: `${base}/?billing=cancelled`,
+        analytics: sanitizeCheckoutAnalytics(req.body?.analytics),
       })
       if (!session) return res.status(503).json({ success: false, message: 'Online payments are not available right now.' })
       res.json({ success: true, data: session })
@@ -1967,7 +1978,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       return res.status(403).json({ success: false, message: 'Only the family payer can complete enrollment checkout.' })
     }
 
-    const { signups, promoCodes, signupAuthToken, responses } = req.body ?? {}
+    const { signups, promoCodes, signupAuthToken, responses, analytics } = req.body ?? {}
     if (!Array.isArray(signups) || signups.length === 0) {
       return res.status(400).json({ success: false, message: 'No enrollment items provided.' })
     }
@@ -1977,10 +1988,19 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
     try {
       const base = publicAppUrl()
+      const analyticsContext = sanitizeCheckoutAnalytics(analytics)
       const result = await createEnrollmentCheckoutSession(pool, {
         account,
         memberId,
-        batchPayload: { signups, promoCodes: promoCodes ?? [], signupAuthToken, responses: responses ?? {} },
+        batchPayload: {
+          signups,
+          promoCodes: promoCodes ?? [],
+          signupAuthToken,
+          responses: responses ?? {},
+          // Stored in stripe_pending_enrollment.payload; read by the webhook-side
+          // GA4 purchase emitter. Ignored by executeSignupBatch.
+          ...(analyticsContext ? { analytics: analyticsContext } : {}),
+        },
         successUrl: `${base}/?enrollment=paid&session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${base}/?enrollment=cancelled`,
       })
@@ -2086,6 +2106,13 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             customerId: obj.customer ?? null,
           })
         }
+        // Emits only when this call inserted the payment row (newly_inserted);
+        // the enrollment path usually emits inside commitPendingEnrollment instead.
+        void emitStripePurchaseEvent(pool, {
+          payment: insertedPayment,
+          session: obj,
+          paymentType: isEnrollmentCheckout ? 'initial_enrollment' : 'outstanding_balance',
+        })
         if (insertedPayment && accountId) {
           const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [accountId])
           if (acct.rows[0]) {
@@ -2094,6 +2121,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         }
       } else if (event.type === 'payment_intent.payment_failed' || event.type === 'invoice.payment_failed') {
         const obj = event.data?.object ?? {}
+        void emitStripePaymentFailedEvent(pool, { object: obj })
         const accountId = obj.metadata?.familyBillingAccountId
           ? Number(obj.metadata.familyBillingAccountId)
           : null

@@ -70,6 +70,16 @@ export const trackEvent = (eventName: string, pagePath: string, options?: TrackO
   }
 }
 
+/** Track an outbound link click and flush immediately so the event survives navigation. */
+export const trackOutboundClickEvent = (
+  eventName: string,
+  pagePath: string,
+  properties?: Record<string, unknown>,
+) => {
+  trackEvent(eventName, pagePath, { properties })
+  void flushEvents({ useBeacon: true })
+}
+
 export const trackPageViewEvent = (path: string, options?: { googleAnalytics?: boolean }) => {
   const consent = getActiveConsent()
   trackEvent('page_view', path, { skipGoogle: true })

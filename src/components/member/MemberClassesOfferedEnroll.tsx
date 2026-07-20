@@ -25,10 +25,13 @@ import {
   loginSchedulingAuthFromMemberSession,
   submitSchedulingSignupBatch,
   createEnrollmentCheckoutSession,
+  enrollmentDueNowCents,
   enrollmentNeedsPayment,
   storePendingEnrollmentId,
   type SignupOrderPreview,
 } from '../../utils/schedulingApi'
+import { flushEvents, trackEvent } from '../../utils/analyticsClient'
+import { getGaClientId, getGaSessionId } from '../../utils/googleAnalytics'
 import {
   slotOptionKey,
   type SignupClassCatalog,
@@ -550,11 +553,27 @@ export default function MemberClassesOfferedEnroll({
       }
 
       if (stripeEnabled && preview && enrollmentNeedsPayment(preview)) {
-        const checkout = await createEnrollmentCheckoutSession(memberToken, batchPayload)
+        const checkout = await createEnrollmentCheckoutSession(memberToken, {
+          ...batchPayload,
+          analytics: {
+            gaClientId: getGaClientId(),
+            gaSessionId: getGaSessionId(),
+          },
+        })
         if (checkout.url) {
           if (checkout.pendingEnrollmentId != null) {
             storePendingEnrollmentId(checkout.pendingEnrollmentId)
           }
+          trackEvent('begin_checkout', window.location.pathname, {
+            properties: {
+              value: enrollmentDueNowCents(preview) / 100,
+              currency: 'USD',
+              item_count: cart.length,
+              checkout_type: 'enrollment',
+            },
+          })
+          // Flush before leaving for Stripe so the event is not lost.
+          void flushEvents({ useBeacon: true })
           window.location.href = checkout.url
           return
         }

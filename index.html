@@ -18,6 +18,25 @@
         ad_personalization: 'denied',
         wait_for_update: 500
       });
+      // Preserve attribution across Vortex-owned domains while preventing ad-click
+      // identifiers from being sent when advertising storage is denied.
+      gtag('set', 'ads_data_redaction', true);
+      gtag('set', 'url_passthrough', true);
+      gtag('set', 'linker', {
+        domains: [
+          'vortexathletics.com',
+          'vortex-gymnastics.com',
+          'vortex-lacross.com',
+          'vortex-conditioning.com',
+          'vortex-football.com',
+          'vortex-basketball.com',
+          'vortex-track.com',
+          'vortex-fit.com',
+          'vortex-athlete.com',
+          'vortex-soccer.com',
+          'vortex-reps.com'
+        ]
+      });
     </script>
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
