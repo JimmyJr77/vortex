@@ -1,5 +1,5 @@
 /** Bumped when backend behavior changes — visible on GET /api/health and admin email status. */
-export const API_BUILD_ID = 'stripe-production-lifecycle-2026-07-20'
+export const API_BUILD_ID = 'stripe-operations-best-practices-2026-07-20'
 
 /** Advertised on GET /api/health → apiFeatures for frontend capability checks. */
 export const API_FEATURES = {

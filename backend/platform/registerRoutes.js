@@ -49,6 +49,15 @@ import { emitStripePurchaseEvent, emitStripePaymentFailedEvent } from '../analyt
 import { buildBillingAccountView } from '../billing/billingAccountView.js'
 import { chargeDisplayCategory } from '../billing/billingPeriodView.js'
 import { notifyPaymentReceipt, notifyPaymentFailed } from '../email/memberNotifications.js'
+import {
+  beginStripeWebhookEvent,
+  completeStripeWebhookEvent,
+  createBillingRefund,
+  failStripeWebhookEvent,
+  recordStripeBillingAlert,
+  syncStripeRefund,
+} from '../billing/stripeOperations.js'
+import { setStripeSubscriptionOperationalStatus } from '../billing/stripeSubscriptionSync.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -1426,26 +1435,22 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (!Number.isFinite(amountCents) || amountCents <= 0) {
       return res.status(400).json({ success: false, message: 'Positive amountCents is required.' })
     }
-    let paymentId = req.body?.paymentId != null ? Number(req.body.paymentId) : null
-    if (paymentId != null) {
-      const owns = await pool.query(
-        `SELECT 1 FROM billing_payment WHERE id = $1 AND family_billing_account_id = $2`,
-        [paymentId, account.id],
-      )
-      if (owns.rows.length === 0) paymentId = null
-    }
+    const paymentId = req.body?.paymentId != null ? Number(req.body.paymentId) : null
     const createdBy = req.platformAuth?.user?.id ?? null
-    const refund = await pool.query(
-      `
-        INSERT INTO billing_refund (
-          family_billing_account_id, payment_id, amount_cents, reason, external_reference, created_by_user_id
-        )
-        VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING *
-      `,
-      [account.id, paymentId, Math.round(amountCents), req.body?.reason ?? null, req.body?.externalReference ?? null, createdBy],
-    )
-    res.json({ success: true, data: refund.rows[0] })
+    try {
+      const refund = await createBillingRefund(pool, {
+        accountId: account.id,
+        paymentId,
+        amountCents,
+        reason: req.body?.reason ?? null,
+        externalReference: req.body?.externalReference ?? null,
+        createdByUserId: createdBy,
+      })
+      res.json({ success: true, data: refund })
+    } catch (error) {
+      console.error('[stripe] refund:', error)
+      res.status(400).json({ success: false, message: error?.message ?? 'Refund failed.' })
+    }
   })
 
   app.patch('/api/admin/subscriptions/:id/status', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
@@ -1453,6 +1458,14 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     const status = req.body?.status
     if (!['active', 'paused', 'cancelled'].includes(status)) {
       return res.status(400).json({ success: false, message: 'status must be active, paused, or cancelled.' })
+    }
+    const existing = await pool.query(`SELECT * FROM billing_subscription WHERE id = $1`, [id])
+    if (!existing.rows[0]) return res.status(404).json({ success: false, message: 'Subscription not found.' })
+    if (existing.rows[0].stripe_subscription_id) {
+      const stripeResult = await setStripeSubscriptionOperationalStatus(existing.rows[0].stripe_subscription_id, status)
+      if (stripeResult.status === 'error') {
+        return res.status(502).json({ success: false, message: `Stripe update failed: ${stripeResult.reason}` })
+      }
     }
     let sql
     let params
@@ -2100,9 +2113,12 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (!isStripeEnabled()) return res.status(503).json({ success: false })
     const rawBody = stripeWebhookRawBody(req)
     const signature = req.headers['stripe-signature']
+    let event = null
     try {
-      const event = await parseWebhookEvent(rawBody, signature)
+      event = await parseWebhookEvent(rawBody, signature)
       if (!event) return res.status(400).json({ success: false })
+      const claim = await beginStripeWebhookEvent(pool, event)
+      if (claim.replayed) return res.json({ received: true, replayed: true })
       if (event.type === 'checkout.session.completed' || event.type === 'payment_intent.succeeded') {
         const obj = event.data?.object ?? {}
         const isEnrollmentCheckout =
@@ -2166,11 +2182,49 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         event.type === 'customer.subscription.resumed'
       ) {
         await syncStripeSubscriptionStatus(pool, event.data?.object ?? {}, event.type)
+      } else if (
+        event.type === 'refund.created' ||
+        event.type === 'refund.updated' ||
+        event.type === 'refund.failed'
+      ) {
+        await syncStripeRefund(pool, event.data?.object ?? {})
+      } else if (
+        event.type === 'charge.dispute.created' ||
+        event.type === 'charge.dispute.updated' ||
+        event.type === 'charge.dispute.closed'
+      ) {
+        const dispute = event.data?.object ?? {}
+        await recordStripeBillingAlert(pool, {
+          event,
+          object: dispute,
+          alertType: 'dispute',
+          severity: event.type === 'charge.dispute.created' ? 'critical' : 'warning',
+          message: `Stripe dispute ${dispute.status ?? 'updated'} (${dispute.reason ?? 'reason unavailable'})`,
+        })
+      } else if (event.type === 'invoice.finalization_failed') {
+        const invoice = event.data?.object ?? {}
+        await recordStripeBillingAlert(pool, {
+          event,
+          object: invoice,
+          alertType: 'invoice_finalization_failed',
+          severity: 'critical',
+          message: `Stripe could not finalize invoice ${invoice.id ?? ''}`.trim(),
+        })
+      } else if (event.type === 'checkout.session.expired') {
+        const session = event.data?.object ?? {}
+        if (session.metadata?.pendingEnrollmentId) {
+          await pool.query(
+            `UPDATE stripe_pending_enrollment SET status = 'expired', updated_at = now()
+             WHERE id = $1 AND status = 'pending'`,
+            [Number(session.metadata.pendingEnrollmentId)],
+          )
+        }
       } else if (event.type === 'payment_intent.payment_failed' || event.type === 'invoice.payment_failed') {
         const obj = event.data?.object ?? {}
         void emitStripePaymentFailedEvent(pool, { object: obj })
         const accountId = await resolveStripeWebhookAccountId(pool, obj)
-        if (accountId) {
+        const shouldNotifyCustomer = event.type === 'invoice.payment_failed' || !obj.invoice
+        if (accountId && shouldNotifyCustomer) {
           const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [accountId])
           if (acct.rows[0]) {
             const amountCents = obj.amount_due ?? obj.amount ?? obj.amount_total ?? 0
@@ -2183,12 +2237,15 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
               amountCents,
               reason: failureReason,
               updatePaymentUrl: `${publicAppUrl()}/?billing=update`,
+              idempotencyKey: `stripe-payment-failed-${event.id}`,
             }).catch(() => {})
           }
         }
       }
+      await completeStripeWebhookEvent(pool, event)
       res.json({ received: true })
     } catch (err) {
+      await failStripeWebhookEvent(pool, event, err)
       if (String(err?.message ?? '').includes('signature')) {
         logWebhookVerificationFailure(err, { rawBody, signature })
       } else {
@@ -2196,6 +2253,26 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       }
       res.status(400).json({ success: false, message: err.message })
     }
+  })
+
+  app.get('/api/admin/stripe/billing-alerts', ...requirePermission(pool, jwtSecret, 'billing.view'), async (_req, res) => {
+    try {
+      const result = await pool.query(
+        `SELECT * FROM stripe_billing_alert WHERE resolved_at IS NULL ORDER BY created_at DESC LIMIT 100`,
+      )
+      res.json({ success: true, data: result.rows })
+    } catch (error) {
+      res.status(500).json({ success: false, message: 'Failed to load Stripe billing alerts.' })
+    }
+  })
+
+  app.patch('/api/admin/stripe/billing-alerts/:id/resolve', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
+    const result = await pool.query(
+      `UPDATE stripe_billing_alert SET resolved_at = now(), updated_at = now() WHERE id = $1 RETURNING *`,
+      [Number(req.params.id)],
+    )
+    if (!result.rows[0]) return res.status(404).json({ success: false, message: 'Billing alert not found.' })
+    res.json({ success: true, data: result.rows[0] })
   })
 
   app.get('/api/members/billing/statements', authMiddleware(pool, jwtSecret), async (req, res) => {

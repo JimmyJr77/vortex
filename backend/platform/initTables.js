@@ -233,6 +233,7 @@ export async function initPlatformTables(pool) {
     '227_coaching_restore_and_progression_repair.sql',
     '228_coaching_boot_constraint_canonical.sql',
     '229_coaching_exercise_progression.sql',
+    '230_stripe_operations.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

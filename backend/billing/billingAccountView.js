@@ -54,6 +54,9 @@ function mapRefund(row) {
     amountCents: Number(row.amount_cents ?? 0),
     reason: row.reason ?? null,
     externalReference: row.external_reference ?? null,
+    stripeRefundId: row.stripe_refund_id ?? null,
+    externalStatus: row.external_status ?? 'succeeded',
+    errorMessage: row.error_message ?? null,
     createdAt: row.created_at,
   }
 }
