@@ -55,6 +55,15 @@ export const trackGooglePageView = (path: string) => {
   window.gtag('config', GA_MEASUREMENT_ID, {
     page_path: pagePath,
   })
+
+  // Mirror the virtual page view into the dataLayer so GTM tags can fire on
+  // SPA route changes via a Custom Event trigger on "spa_page_view".
+  window.dataLayer?.push({
+    event: 'spa_page_view',
+    page_path: pagePath,
+    page_location: window.location.origin + pagePath,
+    page_title: document.title,
+  })
 }
 
 export const trackGoogleEvent = (

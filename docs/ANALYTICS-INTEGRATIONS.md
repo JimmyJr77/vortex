@@ -1,6 +1,35 @@
-# Analytics integrations (GA4 & Search Console)
+# Analytics integrations (GA4, GTM & Search Console)
 
 Server-side sync is optional. The admin **Marketing & SEO** tab works with first-party data even when Google APIs are not configured.
+
+## Client-side tags (index.html)
+
+Loaded on every page, in this order (order matters):
+
+1. **Consent Mode v2 defaults** — inline script pushes `consent default: denied` to the
+   `dataLayer` *before* any Google script loads. The cookie banner
+   (`CookieConsent.tsx` → `updateGoogleConsent`) upgrades consent at runtime; GTM tags
+   with built-in consent checks respect it automatically.
+2. **Google Tag Manager** — container `GTM-T38PSLXX` (plus the `<noscript>` iframe after
+   `<body>`).
+3. **GA4 gtag.js (direct)** — property `G-XDE178DQWY`, `send_page_view: false`; SPA route
+   changes are reported by `trackGooglePageView` (`src/utils/googleAnalytics.ts`).
+
+### Rules to avoid double-tracking
+
+- **Do NOT add a GA4 Google Tag for `G-XDE178DQWY` inside the GTM container.** GA4 is
+  loaded directly via gtag.js; a duplicate tag in GTM would double-count every page view
+  and event. Use GTM for non-GA4 tags (ads pixels, remarketing, etc.).
+- Any additional GA4 property tag added in GTM will also double-count unless the direct
+  gtag snippet is removed at the same time.
+
+### SPA page views in GTM
+
+This is a single-page app, so GTM's "Initialization / Page View" trigger fires once per
+full load only. `trackGooglePageView` also pushes a `spa_page_view` event (with
+`page_path`, `page_location`, `page_title`) to the `dataLayer` on every client-side route
+change — use a **Custom Event trigger on `spa_page_view`** (or the built-in History
+Change trigger) for tags that must fire per route.
 
 ## Environment variables (Render / backend)
 

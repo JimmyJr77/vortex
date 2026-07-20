@@ -6,12 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vortex Athletics - Transform Youth Athletes Into Champions</title>
     <meta name="description" content="Vortex Athletics is a premier youth athletic development center. Gymnastics, ninja, strength, athleticism programs, classes, events, and development-first coaching." />
-    <!-- Google tag (gtag.js) — send_page_view disabled; SPA routes report via trackGooglePageView -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XDE178DQWY"></script>
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
+    <!-- Consent Mode v2 defaults — must run before GTM and gtag.js so every tag starts denied until the cookie banner grants consent -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
       gtag('consent', 'default', {
         analytics_storage: 'denied',
         ad_storage: 'denied',
@@ -19,11 +18,27 @@
         ad_personalization: 'denied',
         wait_for_update: 500
       });
+    </script>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T38PSLXX');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) — send_page_view disabled; SPA routes report via trackGooglePageView -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XDE178DQWY"></script>
+    <script>
+      gtag('js', new Date());
       gtag('config', 'G-XDE178DQWY', { send_page_view: false });
     </script>
     <!-- CDN dns-prefetch injected in main.tsx when VITE_CDN_BASE_URL is set (opt-in preconnect via VITE_CDN_PRECONNECT=true) -->
   </head>
   <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T38PSLXX"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
