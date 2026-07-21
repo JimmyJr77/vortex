@@ -23,7 +23,7 @@
 | 4 | Refund exception approval and supporting evidence | COMPLETE | PR #7; production commit `3b66c0d`; Vercel passed; Render live; focused tests and production build passed. |
 | 5 | Structured missed-class tracking on athlete profiles | COMPLETE | PR #8; production commit `4d4e4a2`; Vercel passed; Render live; production build passed. |
 | 6 | Dispute ownership, evidence workflow, and deadline visibility | COMPLETE | PR #9; production commit `d3d34f5`; Vercel passed; Render live; focused tests and production build passed. |
-| 7 | Automated reconciliation and unresolved operational alerts | IN PROGRESS | Daily reconciliation job, mismatch recovery, failed-webhook alerts, manual action, and dashboard implemented; deployment/config verification underway. |
+| 7 | Automated reconciliation and unresolved operational alerts | COMPLETE | PR #10; production commit `6faaf88`; backend and cron live; first production reconciliation succeeded in 18.7 seconds. |
 | 8 | First-live-payment and analytics attribution verification | PENDING | Requires a legitimate customer transaction. |
 
 ## Section 1 — Centralized financial communications
@@ -177,7 +177,7 @@ Section completed July 20, 2026.
 
 ## Section 7 — Reconciliation and operational alerts
 
-Status: `IN PROGRESS`
+Status: `COMPLETE`
 
 ### Implementation log
 
@@ -191,4 +191,24 @@ Status: `IN PROGRESS`
 ### Verification evidence
 
 - Focused amount comparison test and full production build pass locally.
-- Release, Render cron creation, first successful run, and production dashboard verification pending.
+- GitHub PR [#10](https://github.com/JimmyJr77/vortex/pull/10) passed Vercel CI and merged as `6faaf88`.
+- Render deployed backend `6faaf88` and reported `Live`.
+- Production cron service `crn-d9fcjktaeets73bogiqg` is scheduled daily at 07:15 UTC.
+- Its first production reconciliation was manually triggered and succeeded in 18.7 seconds on July 20, 2026.
+
+Section completed July 20, 2026.
+
+## Section 8 — First live payment and analytics attribution
+
+Status: `IN PROGRESS`
+
+### Current evidence
+
+- Stripe live-mode Payments currently shows **Start collecting payments** and no live transactions.
+- A fabricated payment will not be used to claim production payment or attribution verification.
+- The production verification procedure is documented in [FIRST_LIVE_PAYMENT_VERIFICATION.md](./FIRST_LIVE_PAYMENT_VERIFICATION.md).
+
+### Remaining production gate
+
+- Complete one legitimate customer checkout.
+- Verify the Stripe PaymentIntent, local payment/enrollment ledger, receipt delivery, GA4 `purchase`, and Google Ads conversion use the same transaction context without duplication.
