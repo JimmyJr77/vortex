@@ -16,6 +16,17 @@ export const MARKETING_SUBDOMAIN = (process.env.EMAIL_MARKETING_SUBDOMAIN || 'ne
 
 export const BRAND_NAME = (process.env.EMAIL_BRAND_NAME || 'Vortex Athletics').trim()
 
+/** Single monitored mailbox for every financial conversation and alert. */
+export function billingMailbox() {
+  const raw = (
+    process.env.BILLING_REPLY_TO ||
+    process.env.BILLING_ALERT_EMAIL ||
+    `billing@${ROOT_DOMAIN}`
+  ).trim()
+  const addr = extractEmailAddress(raw)
+  return isValidEmail(addr) ? addr : `billing@${ROOT_DOMAIN}`
+}
+
 /** Recommended transactional From (used once the notify.* subdomain is verified at the ESP). */
 export function recommendedTransactionalFrom() {
   return `accounts@${TRANSACTIONAL_SUBDOMAIN}.${ROOT_DOMAIN}`

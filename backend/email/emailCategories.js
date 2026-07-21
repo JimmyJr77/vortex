@@ -23,8 +23,11 @@ export const EMAIL_CATEGORIES = Object.freeze({
   password_reset: STREAM_TRANSACTIONAL,
   signin_magic_link: STREAM_TRANSACTIONAL,
   registration_confirmation: STREAM_TRANSACTIONAL,
+  enrollment_receipt: STREAM_TRANSACTIONAL,
   payment_receipt: STREAM_TRANSACTIONAL,
   payment_failed: STREAM_TRANSACTIONAL,
+  refund_receipt: STREAM_TRANSACTIONAL,
+  billing_alert: STREAM_TRANSACTIONAL,
   schedule_change: STREAM_TRANSACTIONAL,
   waiver_request: STREAM_TRANSACTIONAL,
   security_notification: STREAM_TRANSACTIONAL,
@@ -47,6 +50,20 @@ export function streamForCategory(category) {
 
 export function isTransactional(category) {
   return streamForCategory(category) === STREAM_TRANSACTIONAL
+}
+
+export const FINANCIAL_CATEGORIES = Object.freeze(
+  new Set([
+    'enrollment_receipt',
+    'payment_receipt',
+    'payment_failed',
+    'refund_receipt',
+    'billing_alert',
+  ]),
+)
+
+export function isFinancialCategory(category) {
+  return FINANCIAL_CATEGORIES.has(category)
 }
 
 export function isMarketing(category) {

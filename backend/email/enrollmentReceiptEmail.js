@@ -101,6 +101,6 @@ export async function sendEnrollmentReceiptEmail({
     <p>— Vortex Athletics</p>
   `
 
-  await sendEmail({ to, subject, text, html })
+  await sendEmail({ to, subject, text, html, category: 'enrollment_receipt' })
   return { sent: true }
 }
