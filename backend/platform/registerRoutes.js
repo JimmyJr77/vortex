@@ -1273,6 +1273,50 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  app.get('/api/admin/members/:memberId/missed-classes', ...requirePermission(pool, jwtSecret, 'classes.manage'), async (req, res) => {
+    const result = await pool.query(
+      `SELECT mc.*, COALESCE(p.display_name, p.name, sf.title) AS class_name
+       FROM member_missed_class mc
+       LEFT JOIN scheduling_signup s ON s.id = mc.scheduling_signup_id
+       LEFT JOIN scheduling_form sf ON sf.id = s.form_id
+       LEFT JOIN program p ON p.id = sf.program_id
+       WHERE mc.member_id = $1 ORDER BY mc.missed_on DESC, mc.id DESC`,
+      [Number(req.params.memberId)],
+    )
+    res.json({ success: true, data: result.rows })
+  })
+
+  app.post('/api/admin/members/:memberId/missed-classes', ...requirePermission(pool, jwtSecret, 'classes.manage'), async (req, res) => {
+    const missedOn = String(req.body?.missedOn || '').slice(0, 10)
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(missedOn)) return res.status(400).json({ success: false, message: 'A missed class date is required.' })
+    const status = req.body?.approvalStatus || 'pending'
+    if (!['pending', 'approved', 'declined'].includes(status)) return res.status(400).json({ success: false, message: 'Invalid approval status.' })
+    const actor = req.platformAuth?.user?.id ?? null
+    const result = await pool.query(
+      `INSERT INTO member_missed_class
+       (member_id, scheduling_signup_id, missed_on, reason, approval_status, approval_note,
+        recorded_by_user_id, reviewed_by_user_id, reviewed_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,CASE WHEN $5='pending' THEN NULL ELSE $7 END,CASE WHEN $5='pending' THEN NULL ELSE now() END)
+       RETURNING *`,
+      [Number(req.params.memberId), req.body?.signupId || null, missedOn, req.body?.reason || null, status, req.body?.approvalNote || null, actor],
+    )
+    res.json({ success: true, data: result.rows[0] })
+  })
+
+  app.patch('/api/admin/members/:memberId/missed-classes/:id', ...requirePermission(pool, jwtSecret, 'classes.manage'), async (req, res) => {
+    const status = req.body?.approvalStatus
+    if (!['approved', 'declined'].includes(status)) return res.status(400).json({ success: false, message: 'Approval must be approved or declined.' })
+    if (!String(req.body?.approvalNote || '').trim()) return res.status(400).json({ success: false, message: 'An approval note is required.' })
+    const result = await pool.query(
+      `UPDATE member_missed_class SET approval_status=$3, approval_note=$4,
+       reviewed_by_user_id=$5, reviewed_at=now(), updated_at=now()
+       WHERE id=$1 AND member_id=$2 RETURNING *`,
+      [Number(req.params.id), Number(req.params.memberId), status, String(req.body.approvalNote).trim(), req.platformAuth?.user?.id ?? null],
+    )
+    if (!result.rows[0]) return res.status(404).json({ success: false, message: 'Missed-class record not found.' })
+    res.json({ success: true, data: result.rows[0] })
+  })
+
   app.put('/api/admin/families/:familyId/billing-account', ...requirePermission(pool, jwtSecret, 'family_billing.manage'), async (req, res) => {
     const familyId = Number(req.params.familyId)
     const payerMemberId = req.body?.payerMemberId == null ? null : Number(req.body.payerMemberId)

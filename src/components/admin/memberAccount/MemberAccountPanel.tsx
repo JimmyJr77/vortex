@@ -6,6 +6,7 @@ import MemberAccountSecurityTab from './MemberAccountSecurityTab'
 import MemberEnrollmentsTab from './MemberEnrollmentsTab'
 import MemberStaffNotesTab from './MemberStaffNotesTab'
 import MemberBillingTab from './MemberBillingTab'
+import MemberMissedClassesTab from './MemberMissedClassesTab'
 import type { MemberAccountTab, MemberDetailData, MemberFamilyData, MemberRole } from './types'
 
 const TABS: Array<{ id: MemberAccountTab; label: string }> = [
@@ -14,6 +15,7 @@ const TABS: Array<{ id: MemberAccountTab; label: string }> = [
   { id: 'enrollments', label: 'Enrollments' },
   { id: 'notes', label: 'Conversations & Comments' },
   { id: 'billing', label: 'Billing & Accounts' },
+  { id: 'missed-classes', label: 'Missed Classes' },
 ]
 
 interface Props {
@@ -116,6 +118,7 @@ export default function MemberAccountPanel({
           {activeTab === 'billing' && (
             <MemberBillingTab memberId={memberId} familyId={member.familyId} />
           )}
+          {activeTab === 'missed-classes' && <MemberMissedClassesTab memberId={memberId} />}
         </>
       ) : null}
     </div>

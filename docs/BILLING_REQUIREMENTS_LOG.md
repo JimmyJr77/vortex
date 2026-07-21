@@ -20,8 +20,8 @@
 | 1 | Centralize financial alerts and replies through `billing@vortexathletics.com` | COMPLETE | PR #4; production commit `330e70f`; Render live and healthy; Stripe support email and Render variables verified; 15 focused tests passed. |
 | 2 | Failed-payment alert with staff-reviewed suspend and restore actions | COMPLETE | PR #5; production commit `f2194d8`; Vercel passed; Render live and healthy; focused tests and production build passed. |
 | 3 | Billing-dashboard cancellation review, including multi-month programs | COMPLETE | PR #6; production commit `1835efc`; Vercel passed; Render live; eight focused tests and production build passed. |
-| 4 | Refund exception approval and supporting evidence | IN PROGRESS | Owner/Admin identity, approved-exception classification, and evidence validation implemented locally; release verification underway. |
-| 5 | Structured missed-class tracking on athlete profiles | PENDING | — |
+| 4 | Refund exception approval and supporting evidence | COMPLETE | PR #7; production commit `3b66c0d`; Vercel passed; Render live; focused tests and production build passed. |
+| 5 | Structured missed-class tracking on athlete profiles | IN PROGRESS | Athlete-profile ledger, approval states, staff review actions, and audit fields implemented locally; release verification underway. |
 | 6 | Dispute ownership, evidence workflow, and deadline visibility | PENDING | — |
 | 7 | Automated reconciliation and unresolved operational alerts | PENDING | — |
 | 8 | First-live-payment and analytics attribution verification | PENDING | Requires a legitimate customer transaction. |
@@ -111,7 +111,7 @@ Section completed July 20, 2026.
 
 ## Section 4 — Refund exception approval
 
-Status: `IN PROGRESS`
+Status: `COMPLETE`
 
 Approved behavior: fees are non-refundable except duplicate charges, a Vortex cancellation, documented medical issues, relocation, or Owner discretion. Only an Owner/Admin may approve a refund, and every refund must preserve its exception category, supporting evidence or approval note, approver identity, and approval time.
 
@@ -126,4 +126,25 @@ Approved behavior: fees are non-refundable except duplicate charges, a Vortex ca
 ### Verification evidence
 
 - Focused validation tests and the full production build pass locally.
+- GitHub PR [#7](https://github.com/JimmyJr77/vortex/pull/7) passed Vercel CI and merged as `3b66c0d`.
+- Render deployed `3b66c0d`, ran the refund evidence migration, and reported `Live`.
+
+Section completed July 20, 2026.
+
+## Section 5 — Missed-class tracking
+
+Status: `IN PROGRESS`
+
+Approved behavior: missed classes are allowed only when approved, and every missed class is retained on the athlete profile.
+
+### Implementation log
+
+- Added an athlete-linked missed-class ledger with class date, optional enrollment, reason, and approval status.
+- Records the creating staff user and, for reviewed absences, reviewer identity and timestamp.
+- Added pending, approved, and declined lifecycle states; approvals and declines require a staff note.
+- Added a dedicated **Missed Classes** tab to each athlete account with entry history and review actions.
+
+### Verification evidence
+
+- Full TypeScript production build passes locally.
 - Release and production verification pending.

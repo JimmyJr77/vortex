@@ -4,6 +4,7 @@ export type MemberAccountTab =
   | 'enrollments'
   | 'notes'
   | 'billing'
+  | 'missed-classes'
 
 export interface MemberRole {
   id: string
