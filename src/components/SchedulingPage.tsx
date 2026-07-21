@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Calendar, ChevronRight, Loader2 } from 'lucide-react'
+import { ArrowLeft, Calendar, ChevronRight, LayoutGrid, Loader2, Search, X } from 'lucide-react'
 import {
   fetchPublicSchedulingForms,
   saveSchedulingMemberEmail,
@@ -9,7 +9,17 @@ import {
   type SchedulingSignupCompleteDetail,
 } from '../utils/schedulingApi'
 import { getLoggedInMemberEmail } from '../utils/portalSession'
-import { fetchClassesOffered } from '../utils/publicClassesApi'
+import {
+  fetchClassesOffered,
+  type PublicClassOffered,
+  type PublicProgramOffered,
+} from '../utils/publicClassesApi'
+import {
+  CLASS_SKILL_LEVEL_FILTER_OPTIONS,
+  formatAgeRange,
+  formatSkillLevel,
+  type ClassSkillLevelFilter,
+} from '../utils/classDisplayUtils'
 import { trackEvent } from '../utils/analyticsClient'
 import SchedulingSignupEmbed from './SchedulingSignupEmbed'
 
@@ -19,339 +29,285 @@ function parseOptionalInt(raw: string | null): number | null | undefined {
   return Number.isFinite(n) ? n : undefined
 }
 
-type EnrollProgramGroup = {
+type CatalogClass = {
+  form: SchedulingFormSummary
+  classInfo: PublicClassOffered | null
+}
+
+type CatalogProgram = {
   programsId: number
   displayName: string
-  forms: SchedulingFormSummary[]
+  description: string | null
+  primarySportName: string | null
+  classes: CatalogClass[]
 }
+
+const UNSPECIFIED_SPORT = '__unspecified_sport__'
 
 function resolveProgramDisplayName(
   form: SchedulingFormSummary,
-  programNames: Map<number, string>,
+  program?: PublicProgramOffered,
 ): string {
-  const fromForm = form.programDisplayName?.trim()
-  if (fromForm) return fromForm
-  const programsId = form.programsId
-  if (programsId != null) {
-    const fromLookup = programNames.get(programsId)?.trim()
-    if (fromLookup) return fromLookup
-  }
-  return 'Unknown program'
+  return form.programDisplayName?.trim() || program?.displayName?.trim() || 'Unknown program'
 }
 
-function groupFormsByProgram(
+function buildCatalog(
   forms: SchedulingFormSummary[],
-  programNames: Map<number, string>,
-): EnrollProgramGroup[] {
-  const byId = new Map<number, EnrollProgramGroup>()
+  offeredPrograms: PublicProgramOffered[],
+): CatalogProgram[] {
+  const offeredById = new Map(offeredPrograms.map((program) => [program.id, program]))
+  const byId = new Map<number, CatalogProgram>()
+
   for (const form of forms) {
-    const programsId = form.programsId
-    if (programsId == null) continue
-    let group = byId.get(programsId)
-    const displayName = resolveProgramDisplayName(form, programNames)
-    if (!group) {
-      group = {
-        programsId,
-        displayName,
-        forms: [],
+    if (form.programsId == null) continue
+    const offeredProgram = offeredById.get(form.programsId)
+    const classInfo =
+      offeredProgram?.classes.find((classItem) => classItem.formId === form.id) ?? null
+    let program = byId.get(form.programsId)
+    if (!program) {
+      program = {
+        programsId: form.programsId,
+        displayName: resolveProgramDisplayName(form, offeredProgram),
+        description: offeredProgram?.description ?? null,
+        primarySportName: offeredProgram?.primarySportName ?? null,
+        classes: [],
       }
-      byId.set(programsId, group)
-    } else if (
-      group.displayName === 'Unknown program' &&
-      displayName !== 'Unknown program'
-    ) {
-      group.displayName = displayName
+      byId.set(form.programsId, program)
     }
-    group.forms.push(form)
+    program.classes.push({ form, classInfo })
   }
-  for (const group of byId.values()) {
-    group.forms.sort((a, b) => a.title.localeCompare(b.title))
+
+  for (const program of byId.values()) {
+    program.classes.sort((a, b) =>
+      (a.classInfo?.displayName || a.form.classDisplayName || a.form.title).localeCompare(
+        b.classInfo?.displayName || b.form.classDisplayName || b.form.title,
+      ),
+    )
   }
   return [...byId.values()].sort((a, b) => a.displayName.localeCompare(b.displayName))
 }
 
-const cardClass =
-  'text-left rounded-2xl border p-6 shadow-sm transition-all bg-white border-gray-200 hover:border-vortex-red hover:shadow-md group w-full'
+function className(item: CatalogClass): string {
+  return item.classInfo?.displayName || item.form.classDisplayName?.trim() || item.form.title
+}
+
+function classMatchesLevel(skillLevel: string | null, filter: ClassSkillLevelFilter): boolean {
+  return filter === 'all' || skillLevel == null || skillLevel === filter
+}
 
 const SchedulingPage = () => {
   const [searchParams] = useSearchParams()
-  const urlFormId = useMemo(() => {
-    const parsed = parseOptionalInt(searchParams.get('form'))
-    return parsed ?? null
-  }, [searchParams])
-  const urlProgramsId = useMemo(
-    () => parseOptionalInt(searchParams.get('programsId')),
-    [searchParams],
-  )
-  const urlOfferingId = useMemo(
-    () => parseOptionalInt(searchParams.get('offeringId')),
-    [searchParams],
-  )
-  const urlSlotGroupId = useMemo(
-    () => parseOptionalInt(searchParams.get('slotGroupId')),
-    [searchParams],
-  )
-  const urlTimeSlotId = useMemo(
-    () => parseOptionalInt(searchParams.get('timeSlotId')),
-    [searchParams],
-  )
+  const urlFormId = useMemo(() => parseOptionalInt(searchParams.get('form')) ?? null, [searchParams])
+  const urlProgramsId = useMemo(() => parseOptionalInt(searchParams.get('programsId')), [searchParams])
+  const urlOfferingId = useMemo(() => parseOptionalInt(searchParams.get('offeringId')), [searchParams])
+  const urlSlotGroupId = useMemo(() => parseOptionalInt(searchParams.get('slotGroupId')), [searchParams])
+  const urlTimeSlotId = useMemo(() => parseOptionalInt(searchParams.get('timeSlotId')), [searchParams])
   const urlAuthToken = searchParams.get('auth')
   const urlEmail = searchParams.get('email')
+  const shouldOpenSignupDirectly = Boolean(
+    urlFormId != null && (urlAuthToken || urlOfferingId || urlSlotGroupId || urlTimeSlotId),
+  )
 
   const [forms, setForms] = useState<SchedulingFormSummary[]>([])
-  const [programNames, setProgramNames] = useState<Map<number, string>>(() => new Map())
-  const [selectedProgramId, setSelectedProgramId] = useState<number | null>(null)
-  const [selectedFormId, setSelectedFormId] = useState<number | null>(urlFormId)
+  const [offeredPrograms, setOfferedPrograms] = useState<PublicProgramOffered[]>([])
+  const [selectedFormId, setSelectedFormId] = useState<number | null>(
+    shouldOpenSignupDirectly ? urlFormId : null,
+  )
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sportFilter, setSportFilter] = useState('all')
+  const [programFilter, setProgramFilter] = useState<number | 'all'>('all')
+  const [levelFilter, setLevelFilter] = useState<ClassSkillLevelFilter>('all')
+  const [focusedFormId, setFocusedFormId] = useState<number | null>(
+    shouldOpenSignupDirectly ? null : urlFormId,
+  )
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [signupComplete, setSignupComplete] = useState(false)
 
-  const programs = useMemo(
-    () => groupFormsByProgram(forms, programNames),
-    [forms, programNames],
-  )
-
-  const selectedProgram = useMemo(
-    () => programs.find((program) => program.programsId === selectedProgramId) ?? null,
-    [programs, selectedProgramId],
-  )
-
-  const step = selectedFormId != null ? 'signup' : selectedProgramId != null ? 'class' : 'program'
+  const programs = useMemo(() => buildCatalog(forms, offeredPrograms), [forms, offeredPrograms])
 
   useEffect(() => {
     Promise.all([fetchPublicSchedulingForms(), fetchClassesOffered()])
-      .then(([data, offered]) => {
-        const names = new Map<number, string>()
-        for (const program of offered.programs) {
-          const label = program.displayName?.trim()
-          if (label) names.set(program.id, label)
-        }
-        setProgramNames(names)
-        setForms(data)
-        const grouped = groupFormsByProgram(data, names)
+      .then(([formData, offered]) => {
+        setForms(formData)
+        setOfferedPrograms(offered.programs)
+        const catalog = buildCatalog(formData, offered.programs)
+        const target = urlFormId == null
+          ? null
+          : catalog.flatMap((program) => program.classes).find((item) => item.form.id === urlFormId)
+        const targetProgram = target
+          ? catalog.find((program) => program.classes.some((item) => item.form.id === urlFormId))
+          : null
 
-        if (urlFormId != null) {
-          const match = data.find((form) => form.id === urlFormId)
-          if (match?.programsId != null) {
-            setSelectedProgramId(match.programsId)
-            setSelectedFormId(match.id)
-            return
-          }
-        }
-
-        if (urlProgramsId != null && grouped.some((program) => program.programsId === urlProgramsId)) {
-          setSelectedProgramId(urlProgramsId)
-          return
-        }
-
-        if (urlFormId != null && data.some((form) => form.id === urlFormId)) {
-          setSelectedFormId(urlFormId)
+        if (shouldOpenSignupDirectly && target) {
+          setSelectedFormId(target.form.id)
+        } else if (target && targetProgram) {
+          setFocusedFormId(target.form.id)
+          setProgramFilter(targetProgram.programsId)
+          setSearchQuery(className(target))
+        } else if (
+          urlProgramsId != null &&
+          catalog.some((program) => program.programsId === urlProgramsId)
+        ) {
+          setProgramFilter(urlProgramsId)
         }
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load enroll options'))
       .finally(() => setLoading(false))
-  }, [urlFormId, urlProgramsId])
-
-  const handleSignupComplete = useCallback((detail: SchedulingSignupCompleteDetail) => {
-    setSignupComplete(detail.completed)
-    if (detail.email) {
-      saveSchedulingMemberEmail(detail.email)
-    }
-  }, [])
-
-  const backToPrograms = useCallback(() => {
-    setSelectedProgramId(null)
-    setSelectedFormId(null)
-    setSignupComplete(false)
-  }, [])
-
-  const backToClasses = useCallback(() => {
-    setSelectedFormId(null)
-    setSignupComplete(false)
-  }, [])
+  }, [urlFormId, urlProgramsId, shouldOpenSignupDirectly])
 
   useEffect(() => {
     if (urlEmail) saveSchedulingMemberEmail(urlEmail)
   }, [urlEmail])
 
-  const heroSubtitle =
-    step === 'program'
-      ? 'Choose a program to get started.'
-      : step === 'class'
-        ? `Choose a class in ${selectedProgram?.displayName ?? 'this program'}.`
-        : 'Choose a category, offering, and time slot to complete your signup.'
+  const sportOptions = useMemo(() => {
+    const named = new Set<string>()
+    let hasUnspecified = false
+    for (const program of programs) {
+      if (program.primarySportName) named.add(program.primarySportName)
+      else hasUnspecified = true
+    }
+    return { named: [...named].sort((a, b) => a.localeCompare(b)), hasUnspecified }
+  }, [programs])
+
+  const filteredPrograms = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
+    return programs.flatMap((program) => {
+      if (programFilter !== 'all' && program.programsId !== programFilter) return []
+      const sportKey = program.primarySportName ?? UNSPECIFIED_SPORT
+      if (sportFilter !== 'all' && sportKey !== sportFilter) return []
+      const classes = program.classes.filter((item) => {
+        const skillLevel = item.classInfo?.skillLevel ?? null
+        if (!classMatchesLevel(skillLevel, levelFilter)) return false
+        if (!query) return true
+        return [
+          className(item),
+          item.classInfo?.description ?? item.form.description ?? '',
+          program.displayName,
+          program.primarySportName ?? '',
+          skillLevel ?? '',
+        ].join(' ').toLowerCase().includes(query)
+      })
+      return classes.length > 0 ? [{ ...program, classes }] : []
+    })
+  }, [programs, programFilter, sportFilter, levelFilter, searchQuery])
+
+  const clearFilters = useCallback(() => {
+    setSearchQuery('')
+    setSportFilter('all')
+    setProgramFilter('all')
+    setLevelFilter('all')
+    setFocusedFormId(null)
+  }, [])
+
+  const handleSignupComplete = useCallback((detail: SchedulingSignupCompleteDetail) => {
+    setSignupComplete(detail.completed)
+    if (detail.email) saveSchedulingMemberEmail(detail.email)
+  }, [])
 
   if (loading && forms.length === 0) {
-    return (
-      <div className="min-h-[50vh] flex items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-vortex-red" />
-      </div>
-    )
+    return <div className="min-h-[50vh] flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-vortex-red" /></div>
   }
 
-  if (programs.length === 0) {
+  if (!loading && programs.length === 0) {
     return (
       <section className="section-padding pt-below-site-header bg-white min-h-[50vh]">
         <div className="container-custom max-w-2xl mx-auto text-center">
           <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h1 className="text-3xl font-display font-bold text-black mb-4">Enroll</h1>
-          <p className="text-gray-600">
-            {error || 'No enroll options are open right now. Check back soon.'}
-          </p>
+          <p className="text-gray-600">{error || 'No enroll options are open right now. Check back soon.'}</p>
         </div>
       </section>
     )
   }
 
+  if (selectedFormId != null) {
+    return (
+      <div className="min-h-screen bg-white">
+        <section className="bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header pb-12">
+          <div className="container-custom text-center">
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">Enroll</h1>
+            <p className="text-gray-300 max-w-2xl mx-auto text-lg">Choose an offering and time to complete your signup.</p>
+          </div>
+        </section>
+        <section className="section-padding bg-gray-50">
+          <div className="container-custom max-w-3xl mx-auto space-y-6">
+            <button type="button" onClick={() => { setSelectedFormId(null); setSignupComplete(false) }} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-400 hover:text-black">
+              <ArrowLeft className="w-4 h-4" /> {signupComplete ? 'Return to classes' : 'Back to classes'}
+            </button>
+            <SchedulingSignupEmbed
+              key={`${selectedFormId}:${urlOfferingId ?? 'none'}:${urlSlotGroupId ?? 'none'}:${urlTimeSlotId ?? 'none'}`}
+              formId={selectedFormId}
+              initialOfferingId={urlOfferingId}
+              initialSlotGroupId={urlSlotGroupId}
+              initialTimeSlotId={urlTimeSlotId}
+              initialAuthToken={urlAuthToken}
+              initialEmail={urlEmail ?? getLoggedInMemberEmail()}
+              onSignupComplete={handleSignupComplete}
+            />
+          </div>
+        </section>
+      </div>
+    )
+  }
+
+  const hasFilters = searchQuery !== '' || sportFilter !== 'all' || programFilter !== 'all' || levelFilter !== 'all'
+
   return (
     <div className="min-h-screen bg-white">
       <section className="bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header pb-12">
         <div className="container-custom text-center">
-          <motion.h1
-            className="text-4xl md:text-5xl font-display font-bold text-white mb-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            Enroll
-          </motion.h1>
-          <p className="text-gray-300 max-w-2xl mx-auto text-lg">{heroSubtitle}</p>
-          {step === 'program' && (
-            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link
-                to="/signup/family"
-                className="inline-flex items-center rounded-lg bg-vortex-red px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
-              >
-                Create a new family account
-              </Link>
-              <Link
-                to="/signup/family?mode=minor"
-                className="inline-flex items-center rounded-lg border border-white/40 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10"
-              >
-                Under 18? Invite a parent to finish
-              </Link>
-            </div>
-          )}
+          <motion.h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>Classes Offered</motion.h1>
+          <p className="text-gray-300 max-w-2xl mx-auto text-lg">Find the right class, then choose an available day and time.</p>
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link to="/signup/family" className="inline-flex items-center rounded-lg bg-vortex-red px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700">Create a new family account</Link>
+            <Link to="/signup/family?mode=minor" className="inline-flex items-center rounded-lg border border-white/40 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10">Under 18? Invite a parent to finish</Link>
+          </div>
         </div>
       </section>
 
       <section className="section-padding bg-gray-50">
-        <div className="container-custom max-w-3xl mx-auto">
-          {step === 'program' && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-display font-bold text-black">Program</h2>
-              <div className="grid grid-cols-1 gap-4">
-                {programs.map((program) => (
-                  <button
-                    key={program.programsId}
-                    type="button"
-                    onClick={() => {
-                      trackEvent('view_item', window.location.pathname, {
-                        properties: {
-                          item_list_name: 'enroll_programs',
-                          program_id: program.programsId,
-                          program_name: program.displayName,
-                        },
-                      })
-                      setSelectedProgramId(program.programsId)
-                    }}
-                    className={cardClass}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="text-xl font-display font-bold text-black group-hover:text-vortex-red transition-colors">
-                          {program.displayName}
-                        </h3>
-                        <p className="text-sm text-gray-600 mt-2">
-                          {program.forms.length} class{program.forms.length === 1 ? '' : 'es'} available
-                        </p>
-                      </div>
-                      <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-vortex-red shrink-0 mt-1" />
-                    </div>
-                  </button>
-                ))}
+        <div className="container-custom max-w-5xl mx-auto space-y-6">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 space-y-4 shadow-sm">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2"><LayoutGrid className="w-7 h-7 text-vortex-red" />Browse classes</h2>
+                <p className="text-sm text-gray-600 mt-1">Search all open classes or narrow the list with any filter.</p>
+              </div>
+              {hasFilters && <button type="button" onClick={clearFilters} className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-vortex-red"><X className="w-4 h-4" />Clear</button>}
+            </div>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input type="search" value={searchQuery} onChange={(event) => { setSearchQuery(event.target.value); setFocusedFormId(null) }} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm" />
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Sport</span><select value={sportFilter} onChange={(event) => { setSportFilter(event.target.value); setFocusedFormId(null) }} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All sports</option>{sportOptions.named.map((sport) => <option key={sport} value={sport}>{sport}</option>)}{sportOptions.hasUnspecified && <option value={UNSPECIFIED_SPORT}>Unspecified sport</option>}</select></label>
+              <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Program</span><select value={programFilter === 'all' ? 'all' : String(programFilter)} onChange={(event) => { setProgramFilter(event.target.value === 'all' ? 'all' : Number(event.target.value)); setFocusedFormId(null) }} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All programs</option>{programs.map((program) => <option key={program.programsId} value={program.programsId}>{program.displayName}</option>)}</select></label>
+              <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Experience level</span><select value={levelFilter} onChange={(event) => { setLevelFilter(event.target.value as ClassSkillLevelFilter); setFocusedFormId(null) }} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm">{CLASS_SKILL_LEVEL_FILTER_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+            </div>
+          </div>
+
+          {focusedFormId != null && <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">Showing the class you selected. Adjust or clear the filters to explore other classes.</p>}
+          {filteredPrograms.length === 0 && <div className="rounded-xl border border-gray-200 bg-white p-8 text-center"><p className="text-gray-600">No classes match your search or filters.</p>{hasFilters && <button type="button" onClick={clearFilters} className="mt-3 text-sm font-semibold text-vortex-red hover:underline">Show all classes</button>}</div>}
+
+          {filteredPrograms.map((program) => (
+            <div key={program.programsId} className="rounded-xl border border-vortex-red bg-white p-5 md:p-6 shadow-sm space-y-4">
+              <div><h2 className="text-xl font-display font-bold text-vortex-red">{program.displayName}</h2>{program.description && <p className="text-sm text-gray-600 mt-1">{program.description}</p>}</div>
+              <div className="divide-y divide-gray-100">
+                {program.classes.map((item) => {
+                  const description = item.classInfo?.description ?? item.form.description
+                  const skillLevel = item.classInfo?.skillLevel ?? null
+                  const isFocused = item.form.id === focusedFormId
+                  return (
+                    <button key={item.form.id} type="button" onClick={() => { trackEvent('select_item', window.location.pathname, { properties: { item_list_name: 'enroll_classes', class_id: item.form.id, class_name: className(item), program_id: program.programsId, program_name: program.displayName } }); setSelectedFormId(item.form.id) }} className={`group flex w-full items-start justify-between gap-4 py-5 text-left first:pt-1 last:pb-1 ${isFocused ? 'rounded-lg bg-red-50 px-4 ring-1 ring-red-200' : ''}`}>
+                      <div className="min-w-0 flex-1"><h3 className="text-lg font-bold text-gray-900 group-hover:text-vortex-red">{className(item)}</h3>{description && <p className="mt-1 text-sm text-gray-600 line-clamp-3">{description}</p>}<div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">{item.classInfo && <span>Age: {formatAgeRange(item.classInfo.ageMin, item.classInfo.ageMax)}</span>}<span>Level: {formatSkillLevel(skillLevel)}</span></div></div>
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white">Select <ChevronRight className="w-4 h-4" /></span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
-          )}
-
-          {step === 'class' && selectedProgram && (
-            <div className="space-y-4">
-              <button
-                type="button"
-                onClick={backToPrograms}
-                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-400 hover:text-black transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back to programs
-              </button>
-              <h2 className="text-xl font-display font-bold text-black">Classes</h2>
-              <div className="grid grid-cols-1 gap-4">
-                {selectedProgram.forms.map((form) => (
-                  <button
-                    key={form.id}
-                    type="button"
-                    onClick={() => {
-                      trackEvent('select_item', window.location.pathname, {
-                        properties: {
-                          item_list_name: 'enroll_classes',
-                          class_id: form.id,
-                          class_name: form.classDisplayName?.trim() || form.title,
-                          program_id: selectedProgram.programsId,
-                          program_name: selectedProgram.displayName,
-                        },
-                      })
-                      setSelectedFormId(form.id)
-                    }}
-                    className={cardClass}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="text-xl font-display font-bold text-black group-hover:text-vortex-red transition-colors">
-                          {form.classDisplayName?.trim() || form.title}
-                        </h3>
-                        {form.description && (
-                          <p className="text-sm mb-3 line-clamp-3 text-gray-600 mt-2">
-                            {form.description}
-                          </p>
-                        )}
-                        {(form.startDate || form.endDate) && (
-                          <p className="text-sm flex items-center gap-2 text-gray-500">
-                            <Calendar className="w-4 h-4 shrink-0" />
-                            {form.startDate && `Opens ${form.startDate}`}
-                            {form.startDate && form.endDate && ' · '}
-                            {form.endDate && `Closes ${form.endDate}`}
-                          </p>
-                        )}
-                      </div>
-                      <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-vortex-red shrink-0 mt-1" />
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {step === 'signup' && selectedFormId != null && (
-            <div className="space-y-6">
-              <button
-                type="button"
-                onClick={backToClasses}
-                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-400 hover:text-black transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                {signupComplete ? 'Return to classes' : 'Back to classes'}
-              </button>
-              <SchedulingSignupEmbed
-                key={`${selectedFormId}:${urlOfferingId ?? 'none'}:${urlSlotGroupId ?? 'none'}:${urlTimeSlotId ?? 'none'}`}
-                formId={selectedFormId}
-                initialOfferingId={urlOfferingId}
-                initialSlotGroupId={urlSlotGroupId}
-                initialTimeSlotId={urlTimeSlotId}
-                initialAuthToken={urlAuthToken}
-                initialEmail={urlEmail ?? getLoggedInMemberEmail()}
-                onSignupComplete={handleSignupComplete}
-              />
-            </div>
-          )}
+          ))}
         </div>
       </section>
     </div>

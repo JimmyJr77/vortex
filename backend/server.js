@@ -248,15 +248,34 @@ const limiter = rateLimit({
 app.use('/api/', limiter)
 console.log(`🛡️ API rate limit: ${apiRateLimitMax} requests / 15 min`)
 
-// PostgreSQL Database setup
+// PostgreSQL Database setup. Local development sometimes points at the hosted
+// database via DATABASE_URL; hosted PostgreSQL still requires TLS even though
+// NODE_ENV is not "production" in that case.
+const databaseConnectionString = process.env.DATABASE_URL || process.env.DB_URL
+const databaseUrlRequiresSsl = (() => {
+  if (!databaseConnectionString) return false
+  try {
+    const hostname = new URL(databaseConnectionString).hostname.toLowerCase()
+    return !['localhost', '127.0.0.1', '::1'].includes(hostname)
+  } catch {
+    return false
+  }
+})()
+const databaseSsl =
+  process.env.DATABASE_SSL === 'false'
+    ? false
+    : process.env.DATABASE_SSL === 'true' || isProduction || databaseUrlRequiresSsl
+      ? { rejectUnauthorized: false }
+      : false
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || process.env.DB_URL,
+  connectionString: databaseConnectionString,
   user: process.env.DB_USER || 'postgres',
   host: process.env.DB_HOST || 'localhost',
   database: process.env.DB_NAME || 'vortex_athletics',
   password: process.env.DB_PASSWORD || 'password',
   port: process.env.DB_PORT || 5432,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl: databaseSsl
 })
 
 // Test database connection

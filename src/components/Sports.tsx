@@ -3,7 +3,6 @@ import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ENROLL_PATH } from '../config/enrollSites'
 import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
-import HeroPosterBackground from './HeroPosterBackground'
 
 type SportTile =
   | {
@@ -53,58 +52,11 @@ const Sports = () => {
     <div className="min-h-screen bg-white">
       <h1 className="sr-only">Youth Sports Training in Bowie, MD</h1>
 
-      {/* Desktop hero */}
-      <section className="hidden md:block relative min-h-below-site-header w-full overflow-hidden pt-below-site-header">
-        <HeroPosterBackground overlayClassName="absolute inset-0 bg-black/45 z-[1] pointer-events-none" />
-        <div className="container-custom relative z-10 flex justify-center items-center min-h-below-site-header text-center">
-          <div>
-            <motion.div
-              className="text-5xl md:text-7xl font-display font-bold text-white mb-6"
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              Train <span className="text-vortex-red">Every</span> Sport.
-            </motion.div>
-            <motion.p
-              className="text-2xl md:text-3xl text-gray-300 max-w-3xl mx-auto"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-            >
-              Pick your path. We&apos;ll build the athlete.
-            </motion.p>
-          </div>
-        </div>
-      </section>
-
-      {/* Mobile hero */}
-      <section className="md:hidden relative h-[55vh] w-full overflow-hidden pt-below-site-header">
-        <HeroPosterBackground overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none" />
-        <div className="container-custom relative z-10 flex h-full items-center justify-center text-center px-4">
-          <div>
-            <motion.div
-              className="text-4xl sm:text-5xl font-display font-bold text-white mb-4"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7 }}
-            >
-              Train <span className="text-vortex-red">Every</span> Sport.
-            </motion.div>
-            <motion.p
-              className="text-lg text-gray-300"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25, duration: 0.7 }}
-            >
-              Pick your path. We&apos;ll build the athlete.
-            </motion.p>
-          </div>
-        </div>
-      </section>
-
       {/* Sport route tiles */}
-      <section className="section-padding bg-gray-200 border-t border-b border-gray-300">
+      <section
+        className="section-padding bg-gray-200 border-t border-b border-gray-300"
+        style={{ paddingTop: 'calc(var(--site-header-height) + 4rem)' }}
+      >
         <div className="container-custom">
           <motion.div
             className="text-center mb-12"
@@ -114,10 +66,10 @@ const Sports = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-4">
-              OUR <span className="text-vortex-red">SPORTS</span>
+              Train <span className="text-vortex-red">Every</span> Sport.
             </h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-              Three paths. One standard of development. Choose where you start.
+              Pick your path. We&apos;ll build the athlete.
             </p>
           </motion.div>
 
