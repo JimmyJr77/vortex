@@ -1450,6 +1450,8 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         reason: req.body?.reason ?? null,
         externalReference: req.body?.externalReference ?? null,
         createdByUserId: createdBy,
+        exceptionCategory: req.body?.exceptionCategory ?? null,
+        evidenceNote: req.body?.evidenceNote ?? null,
       })
       res.json({ success: true, data: refund })
     } catch (error) {

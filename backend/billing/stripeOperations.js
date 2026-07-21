@@ -76,10 +76,16 @@ export async function createBillingRefund(pool, {
   reason = null,
   externalReference = null,
   createdByUserId = null,
+  exceptionCategory = null,
+  evidenceNote = null,
 }) {
   await ensureStripeOperationsSchema(pool)
   const amount = Math.round(Number(amountCents) || 0)
   if (amount <= 0) throw new Error('Refund amount must be positive.')
+  const allowedExceptions = new Set(['duplicate_charge', 'vortex_cancellation', 'medical', 'relocation', 'owner_discretion'])
+  if (!allowedExceptions.has(exceptionCategory)) throw new Error('An approved refund exception category is required.')
+  if (!String(evidenceNote || '').trim()) throw new Error('Supporting evidence or an approval note is required.')
+  if (createdByUserId == null) throw new Error('Refund approval must identify an Owner/Admin user.')
 
   let payment = null
   if (paymentId != null) {
@@ -104,11 +110,12 @@ export async function createBillingRefund(pool, {
     `
       INSERT INTO billing_refund
         (family_billing_account_id, payment_id, amount_cents, reason, external_reference,
-         external_status, created_by_user_id)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+         external_status, created_by_user_id, exception_category, evidence_note,
+         approved_by_user_id, approved_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $7, now())
       RETURNING *
     `,
-    [accountId, paymentId, amount, reason, externalReference, usesStripe ? 'pending' : 'succeeded', createdByUserId],
+    [accountId, paymentId, amount, reason, externalReference, usesStripe ? 'pending' : 'succeeded', createdByUserId, exceptionCategory, String(evidenceNote).trim()],
   )
   const row = inserted.rows[0]
   if (!usesStripe) return row

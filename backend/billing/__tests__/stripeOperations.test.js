@@ -25,7 +25,26 @@ test('manual refund rejects an amount above the remaining payment balance', asyn
     },
   }
   await assert.rejects(
-    createBillingRefund(pool, { accountId: 3, paymentId: 8, amountCents: 7000 }),
+    createBillingRefund(pool, {
+      accountId: 3, paymentId: 8, amountCents: 7000,
+      exceptionCategory: 'duplicate_charge', evidenceNote: 'Payment processor shows the same charge twice.', createdByUserId: 2,
+    }),
     /exceeds the remaining refundable/i,
+  )
+})
+
+test('manual refund requires an approved exception, evidence, and Owner/Admin identity', async () => {
+  const pool = { query: async () => ({ rows: [] }) }
+  await assert.rejects(
+    createBillingRefund(pool, { accountId: 3, amountCents: 1000, createdByUserId: 2 }),
+    /exception category is required/i,
+  )
+  await assert.rejects(
+    createBillingRefund(pool, { accountId: 3, amountCents: 1000, exceptionCategory: 'medical', createdByUserId: 2 }),
+    /supporting evidence/i,
+  )
+  await assert.rejects(
+    createBillingRefund(pool, { accountId: 3, amountCents: 1000, exceptionCategory: 'medical', evidenceNote: 'Doctor note on file.' }),
+    /Owner\/Admin/i,
   )
 })
