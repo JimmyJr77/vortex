@@ -208,6 +208,11 @@ Status: `IN PROGRESS`
 - GA4 property `539662954` lists the canonical `purchase` event as a key event; it correctly reports **No stream data detected** because no production purchase has occurred.
 - GA4 is actively collecting website traffic and reports Paid Search sessions, so the property/stream is operational before the first purchase.
 - Google Ads conversion-screen inspection was blocked by the browser's ad-blocker warning; conversion receipt must therefore be confirmed with the first live transaction rather than inferred.
+- Google Ads account `8280672137` is linked to GA4 property `539662954`. GA4 key event `initial_enrollment_purchase` and Ads conversion **Vortex Athletics (web) initial_enrollment_purchase** were created for acquisition-only bidding.
+- **Vortex Athletics (web) initial_enrollment_purchase** is the sole primary Purchase action. General-revenue **Vortex Athletics (web) purchase** and obsolete `manual_event_PURCHASE` are Secondary, so outstanding balances cannot influence acquisition bidding.
+- GTM container `GTM-T38PSLXX` contained no purchase tag and its only Conversion Linker was malware-flagged by Google. The redundant linker was explicitly paused and published as live container Version 3, **Retire duplicate conversion linker**. Cross-domain linking remains implemented directly in the application's pre-load `gtag.js` configuration.
+- Code audit confirmed that the Stripe PaymentIntent is the preferred shared transaction ID, the server-side GA4 event is gated by a newly inserted payment row, and the browser-side `vortex_purchase` signal is gated by a one-time confirmation timestamp.
+- Eleven focused GA4, enrollment-payment, and webhook-lifecycle tests passed; the production frontend build also passed on July 20, 2026.
 - A fabricated payment will not be used to claim production payment or attribution verification.
 - The production verification procedure is documented in [FIRST_LIVE_PAYMENT_VERIFICATION.md](./FIRST_LIVE_PAYMENT_VERIFICATION.md).
 
@@ -215,3 +220,5 @@ Status: `IN PROGRESS`
 
 - Complete one legitimate customer checkout.
 - Verify the Stripe PaymentIntent, local payment/enrollment ledger, receipt delivery, GA4 `purchase`, and Google Ads conversion use the same transaction context without duplication.
+- Validate one canonical GA4 `purchase` and one acquisition-only `initial_enrollment_purchase` import in Google Ads with the first legitimate enrollment payment; no GTM purchase tag is required.
+- Test default-denied, analytics-only, marketing-only, accept-all, and withdrawn consent states against the direct GA4 tag and the now-empty/paused GTM container.

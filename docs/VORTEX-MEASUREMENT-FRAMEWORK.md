@@ -80,7 +80,7 @@ Event names and parameter meanings are immutable after release. Add a new parame
 | Account created | `sign_up` | Family account or invited parent signup completed | Secondary conversion |
 | Enrollment intent | `class_signup_submitted` or `begin_checkout` | Enrollment submitted or paid checkout began | Secondary conversion |
 | Revenue | `purchase` | Stripe payment was recorded exactly once | Primary reporting event |
-| Acquisition conversion | `vortex_purchase` dataLayer signal | First paid enrollment eligible for Ads conversion tag | Primary Google Ads conversion |
+| Acquisition conversion | GA4 `initial_enrollment_purchase` | First paid enrollment only | Primary Google Ads conversion |
 | Retention | Future server events | Recurring payment, active month, churn/reactivation | Value/LTV reporting; not acquisition count |
 
 The funnel is not required to be a single linear path. A phone lead, no-payment signup, legacy registration, and Stripe enrollment are valid branches and must be reported separately.
@@ -144,7 +144,7 @@ Revenue values are decimal major currency units in analytics (`199.00` USD), whi
 2. GA4 `purchase` emits only when the billing payment row reports `newly_inserted === true`.
 3. The browser dataLayer signal emits only when the confirmation endpoint reports `firstConfirmation === true`.
 4. Both signals share the same transaction ID.
-5. GTM must send `vortex_purchase` to Google Ads, not back into GA4. GA4 already receives the authoritative server event.
+5. Google Ads imports GA4 `initial_enrollment_purchase`, emitted only alongside a newly recorded initial enrollment. Canonical `purchase` remains the complete GA4 revenue ledger; `vortex_purchase` remains a fire-once browser diagnostic/future direct-tag signal and must not be sent back into GA4.
 6. Only `payment_type = initial_enrollment` is eligible for the acquisition primary conversion.
 7. `payment_type = outstanding_balance` is revenue, but never a new-customer acquisition conversion.
 8. Recurring renewals contribute to LTV/revenue reporting and must not repeatedly count as acquisitions.
@@ -183,6 +183,7 @@ The current source gates `vortex_purchase` on analytics consent. Before Ads laun
 | `sign_up` | Yes | Account creation |
 | `class_signup_submitted` | Yes, if operationally valuable | Completed no-payment registration |
 | `purchase` | Yes | Revenue transaction |
+| `initial_enrollment_purchase` | Yes | Acquisition-only first paid enrollment |
 | `phone_click` | Optional | Call intent; keep secondary |
 | `form_start`, `begin_checkout`, `select_item` | No | Funnel diagnostics |
 
@@ -190,7 +191,7 @@ The current source gates `vortex_purchase` on analytics consent. Before Ads laun
 
 | Conversion | Source | Action setting |
 |---|---|---|
-| Paid initial enrollment | GTM custom event `vortex_purchase` | **Primary**, count every transaction, use dynamic value/currency and transaction ID |
+| Paid initial enrollment | GA4 import of `initial_enrollment_purchase` | **Primary**, count every transaction, use GA4 value/currency and transaction ID |
 | Inquiry saved | GTM custom event `vortex_generate_lead` | Secondary initially; promote only if lead quality and dedupe are proven |
 | Phone click | GA4 import or GTM | Secondary; do not equate click with answered call |
 | Account signup | GA4 import | Secondary |
@@ -238,7 +239,7 @@ Statuses are deliberately separate: **Code**, **External configuration**, and **
 | Lead events | Implemented | `vortex_generate_lead` GTM tag not yet confirmed | GA4 `generate_lead` and GTM firing need test |
 | Enrollment funnel events | Implemented in current worktree | GA4 custom definitions/key events not confirmed | End-to-end test pending |
 | Server GA4 purchase | Implemented in current worktree | Requires `GA4_MEASUREMENT_ID` and `GA4_API_SECRET` in production | No live purchase validation yet |
-| Browser Ads purchase signal | Implemented in current worktree | Requires GTM trigger/tag and Google Ads conversion action | No live purchase validation yet |
+| Acquisition-only purchase | Implemented server-side as `initial_enrollment_purchase` | GA4 key event and Google Ads primary import configured | No live purchase validation yet |
 | Google Ads account/linking | Application-independent | Not confirmed | Not started/validated |
 | Lifetime value attribution | Partial foundations | Offline/value-import design not configured | Not validated |
 
@@ -246,13 +247,13 @@ Statuses are deliberately separate: **Code**, **External configuration**, and **
 
 Google Ads may launch only after the applicable gates are complete:
 
-- [ ] Confirm the GA4 property is linked to the intended Google Ads account.
-- [ ] Audit GTM container versions, triggers, variables, and consent requirements.
-- [ ] Confirm no duplicate GA4 configuration tag exists in GTM.
+- [x] Confirm the GA4 property is linked to the intended Google Ads account.
+- [x] Audit GTM container versions, triggers, variables, and consent requirements.
+- [x] Confirm no duplicate GA4 configuration tag exists in GTM.
 - [ ] Configure GA4 key events and needed custom dimensions.
 - [ ] Configure `vortex_generate_lead` as a GTM custom-event conversion signal.
-- [ ] Configure `vortex_purchase` with dynamic transaction ID, value, and currency.
-- [ ] Set paid initial enrollment as the only acquisition primary conversion.
+- [x] Import GA4 `initial_enrollment_purchase` into Google Ads with GA4 value, currency, and transaction ID.
+- [x] Set paid initial enrollment as the only acquisition primary conversion; canonical `purchase` and `manual_event_PURCHASE` are Secondary.
 - [ ] Add production `GA4_API_SECRET` and confirm the expected Measurement ID.
 - [ ] Validate one inquiry end to end in Tag Assistant, GA4 Realtime/DebugView, first-party analytics, and the backend inquiry record.
 - [ ] Validate one Stripe test purchase end to end, including exactly one GA4 `purchase` and one Ads conversion signal.

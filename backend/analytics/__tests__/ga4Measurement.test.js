@@ -128,3 +128,66 @@ test('emitStripePurchaseEvent suppresses replayed payments', async () => {
     globalThis.fetch = previousFetch
   }
 })
+
+test('emitStripePurchaseEvent sends canonical revenue and acquisition-only events for initial enrollment', async () => {
+  const previousFetch = globalThis.fetch
+  const requests = []
+  globalThis.fetch = async (_url, options) => {
+    requests.push(JSON.parse(options.body))
+    return { ok: true }
+  }
+  try {
+    await withGa4Env({ measurementId: 'G-TEST123', apiSecret: 'secret-value' }, async () => {
+      await emitStripePurchaseEvent(
+        { query: async () => ({ rows: [] }) },
+        {
+          payment: {
+            id: 2,
+            newly_inserted: true,
+            amount_cents: 2500,
+            stripe_payment_intent_id: 'pi_initial_123',
+          },
+          session: { id: 'cs_initial_123', metadata: { gaClientId: '123.456', gaSessionId: '789' } },
+          paymentType: 'initial_enrollment',
+        },
+      )
+
+      assert.deepEqual(
+        requests.map((request) => request.events[0].name).sort(),
+        ['initial_enrollment_purchase', 'purchase'],
+      )
+      for (const request of requests) {
+        assert.equal(request.events[0].params.transaction_id, 'pi_initial_123')
+        assert.equal(request.events[0].params.value, 25)
+        assert.equal(request.events[0].params.payment_type, 'initial_enrollment')
+      }
+    })
+  } finally {
+    globalThis.fetch = previousFetch
+  }
+})
+
+test('emitStripePurchaseEvent excludes outstanding balances from acquisition conversion', async () => {
+  const previousFetch = globalThis.fetch
+  const eventNames = []
+  globalThis.fetch = async (_url, options) => {
+    eventNames.push(JSON.parse(options.body).events[0].name)
+    return { ok: true }
+  }
+  try {
+    await withGa4Env({ measurementId: 'G-TEST123', apiSecret: 'secret-value' }, async () => {
+      await emitStripePurchaseEvent(
+        { query: async () => ({ rows: [] }) },
+        {
+          payment: { id: 3, newly_inserted: true, amount_cents: 5000, stripe_payment_intent_id: 'pi_balance_123' },
+          session: { id: 'cs_balance_123', metadata: { gaClientId: '123.456' } },
+          paymentType: 'outstanding_balance',
+        },
+      )
+
+      assert.deepEqual(eventNames, ['purchase'])
+    })
+  } finally {
+    globalThis.fetch = previousFetch
+  }
+})
