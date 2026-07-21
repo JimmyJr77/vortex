@@ -215,6 +215,8 @@ Status: `IN PROGRESS`
 - Eleven focused GA4, enrollment-payment, and webhook-lifecycle tests passed; the production frontend build also passed on July 20, 2026.
 - GitHub PR #13, **Separate acquisition purchase conversion**, merged to `main` as commit `2907c1b57bd2a4fe878673845767392d41f3cf37`.
 - Render manually deployed source `2907c1b` and promoted it to **Live** in 4m01s on July 20, 2026. The public `/api/health` endpoint subsequently returned `status: OK`, `dbConnected: true`, `schemaMigrationsTracked: true`, and `emailConfigured: true`.
+- Production consent testing exposed a missing withdrawal path. PR #14 added an always-available **Cookie settings** control and merged as `a0ae262b383973d5874fc06eba9ecf2fe91b735a`.
+- On July 20, 2026, production UI tests passed default-denied, analytics-only, marketing-only, accept-all, and withdrawn/necessary-only states. Each explicit selection persisted across reload, and visitors could reopen preferences after every state.
 - A fabricated payment will not be used to claim production payment or attribution verification.
 - The production verification procedure is documented in [FIRST_LIVE_PAYMENT_VERIFICATION.md](./FIRST_LIVE_PAYMENT_VERIFICATION.md).
 
@@ -223,4 +225,3 @@ Status: `IN PROGRESS`
 - Complete one legitimate customer checkout.
 - Verify the Stripe PaymentIntent, local payment/enrollment ledger, receipt delivery, GA4 `purchase`, and Google Ads conversion use the same transaction context without duplication.
 - Validate one canonical GA4 `purchase` and one acquisition-only `initial_enrollment_purchase` import in Google Ads with the first legitimate enrollment payment; no GTM purchase tag is required.
-- Test default-denied, analytics-only, marketing-only, accept-all, and withdrawn consent states against the direct GA4 tag and the now-empty/paused GTM container.
