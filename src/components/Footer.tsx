@@ -2,8 +2,8 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { getSiteEnrollHref } from '../utils/enrollSite'
 import { Mail, Phone, MapPin, Instagram, Facebook, ArrowUp } from 'lucide-react'
-import { TEAM_EMAIL } from '../config/contact'
-import { trackEvent } from '../utils/analyticsClient'
+import { JACKRABBIT_CLASS_REGISTRATION_URL, TEAM_EMAIL } from '../config/contact'
+import { trackEvent, trackOutboundClickEvent } from '../utils/analyticsClient'
 import { getHubSiteUrl } from '../utils/crossDomainConsent'
 import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
 import {
@@ -17,7 +17,7 @@ interface FooterProps {
   onLoginClick?: () => void
 }
 
-const Footer = ({ onContactClick: _onContactClick, onLoginClick }: FooterProps) => {
+const Footer = ({ onLoginClick }: FooterProps) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -33,7 +33,7 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick }: FooterProps) 
     },
     {
       name: 'Athleticism Accelerator',
-      href: getHubSiteUrl('/athleticism-accelerator'),
+      href: getHubSiteUrl('/vortex-athletics'),
     },
     { name: 'Fit & Flip', href: getHubSiteUrl('/strength-conditioning') },
     { name: 'Classes & Events', href: getHubSiteUrl('/read-board') },
@@ -153,6 +153,22 @@ const Footer = ({ onContactClick: _onContactClick, onLoginClick }: FooterProps) 
                     </button>
                   </li>
                 )}
+                <li>
+                  <a
+                    href={JACKRABBIT_CLASS_REGISTRATION_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() =>
+                      trackOutboundClickEvent('legacy_registration_click', window.location.pathname, {
+                        destination: 'jackrabbit_registration',
+                        source: 'footer',
+                      })
+                    }
+                    className="text-gray-300 hover:text-vortex-red transition-colors duration-300"
+                  >
+                    Jackrabbit Class Login
+                  </a>
+                </li>
               </motion.ul>
             </div>
 

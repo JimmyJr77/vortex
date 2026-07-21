@@ -1,13 +1,11 @@
 import { motion } from 'framer-motion'
-import { 
-  DollarSign, 
-  Clock, 
+import {
+  Clock,
   Target,
   BarChart3,
   CheckCircle,
   Zap,
   Shield,
-  Users,
   Activity,
   Tag
 } from 'lucide-react'
@@ -58,11 +56,6 @@ const Value = () => {
 
   const valuePropositions = [
     {
-      icon: DollarSign,
-      title: "Discounted Rates for Young Children",
-      description: "Special pricing available for early development athletes. Invest in foundational skills at accessible rates designed for growing families."
-    },
-    {
       icon: BarChart3,
       title: "Telemetry Data & Performance Tracking",
       description: "Advanced data collection refines training and monitors development in real-time. Track progress, identify strengths, and optimize weaknesses with precision analytics."
@@ -75,7 +68,7 @@ const Value = () => {
     {
       icon: Target,
       title: "Wider Range of Skills Development",
-      description: "Comprehensive athletic development across all 8 tenets. Not just gymnastics—complete movement intelligence that transfers to every sport and life."
+      description: "Comprehensive athletic development—complete movement intelligence that transfers to every sport."
     },
     {
       icon: Zap,
@@ -244,13 +237,13 @@ const Value = () => {
 
             <div className="text-center mt-8">
               <div className="text-lg text-gray-300 mb-2">
-                <span className="font-semibold text-vortex-red">Telemetry & Athlete Data:</span> $50 annually (first child)
+                <span className="font-semibold text-vortex-red">Telemetry & Athlete Data:</span> $85 annually (first child)
               </div>
               <div className="text-lg text-gray-300 mb-2">
-                <span className="font-semibold text-vortex-red">Additional Children:</span> $25 annually (50% discount)
+                <span className="font-semibold text-vortex-red">Additional Children:</span> $42.50 annually (50% discount)
               </div>
               <p className="text-gray-400 text-sm">
-                Lifetime access to advanced performance tracking, data analytics, and continuous development monitoring
+                Annual access to advanced performance tracking, data analytics, and continuous development monitoring. Access to the Vortex workout modal. Free Vortex T-shirt.
               </p>
             </div>
           </motion.div>
@@ -377,9 +370,9 @@ const Value = () => {
                   <h4 className="text-xl font-bold text-black">Telemetry Fee Discount</h4>
                 </div>
                 <p className="text-center text-gray-800">
-                  <span className="font-semibold">First child:</span> $50 annually
+                  <span className="font-semibold">First child:</span> $85 annually
                   <br />
-                  <span className="font-semibold text-vortex-red">Additional children:</span> $25 annually (50% off)
+                  <span className="font-semibold text-vortex-red">Additional children:</span> $42.50 annually (50% off)
                 </p>
               </motion.div>
             </div>
@@ -398,16 +391,7 @@ const Value = () => {
             viewport={{ once: true }}
           >
             <div className="bg-gradient-to-br from-vortex-red/10 to-vortex-red/5 rounded-2xl p-8 md:p-12 border-2 border-vortex-red/20">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="flex items-start space-x-4">
-                  <Users className="w-8 h-8 text-vortex-red flex-shrink-0" />
-                  <div>
-                    <h3 className="text-xl font-bold text-black mb-3">Small Group Excellence</h3>
-                    <p className="text-gray-700 leading-relaxed">
-                      More individualized attention, personalized feedback, and coach-to-athlete time means faster progress and better results.
-                    </p>
-                  </div>
-                </div>
+              <div className="mx-auto max-w-2xl">
                 <div className="flex items-start space-x-4">
                   <Shield className="w-8 h-8 text-vortex-red flex-shrink-0" />
                   <div>
@@ -427,4 +411,3 @@ const Value = () => {
 }
 
 export default Value
-

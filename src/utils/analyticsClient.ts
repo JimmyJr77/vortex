@@ -86,7 +86,7 @@ export const trackPageViewEvent = (path: string, options?: { googleAnalytics?: b
 
   const programPaths = [
     '/ninja',
-    '/athleticism-accelerator',
+    '/vortex-athletics',
     '/summer-athletic-training',
     '/strength-conditioning',
     '/gymnastics',

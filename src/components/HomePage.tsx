@@ -1,11 +1,13 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { getSiteEnrollHref } from '../utils/enrollSite'
 import { MapPin, Target, Info, Shield } from 'lucide-react'
 import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
-import About from './About'
+import RotatingOfferHeadline from './RotatingOfferHeadline'
+import About, { StrategicLocation } from './About'
 import Programs from './Programs'
 import Technology from './Technology'
 import { HOME_FAQS } from '../config/faqs'
@@ -13,9 +15,28 @@ import { HOME_FAQS } from '../config/faqs'
 interface HomePageProps {
   onSignUpClick?: () => void
   onHighlightsClick?: () => void
+  hideHero?: boolean
+  offerHeadlines?: Array<{
+    leading: string
+    emphasis: string
+    trailing?: string
+  }>
+  strategicLocationAfterOffers?: boolean
+  hideTrainingPhilosophy?: boolean
+  hideTechnology?: boolean
+  afterOffersContent?: ReactNode
 }
 
-const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
+const HomePage = ({
+  onSignUpClick,
+  onHighlightsClick,
+  hideHero = false,
+  offerHeadlines,
+  strategicLocationAfterOffers = false,
+  hideTrainingPhilosophy = true,
+  hideTechnology = false,
+  afterOffersContent,
+}: HomePageProps) => {
   const faqs = HOME_FAQS
 
   // YouTube embed: channel uploads playlist ID (UU...) + optional first video ID so the player shows a video (avoids Error 153).
@@ -113,74 +134,92 @@ const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
 
   return (
     <>
-      <Hero onHighlightsClick={onHighlightsClick} />
+      {!hideHero && <Hero onHighlightsClick={onHighlightsClick} />}
 
-      {/* What We Offer Section */}
-      <section className="section-padding bg-white">
-        <div className="container-custom">
-          <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-4">
-              WHAT YOUR ATHLETE WILL GET
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Comprehensive training that develops every aspect of athletic performance
-            </p>
-          </motion.div>
-
-          <motion.div
-            className="bg-white rounded-2xl p-8 md:p-12 mb-12 border border-vortex-red"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm md:text-base">
-              {[
-                'Ninja training', 'Acrobatics', 'Trampoline work', 'Resistance training',
-                'Plyometrics', 'Calisthenics', 'Isometrics', 'Reflex training',
-                'Neural priming', 'Rapid direction change', 'Mobility', 'Tendon conditioning',
-                'Eccentric training', 'Coordination games', 'Gymnastics',
-                'Tumbling & floor', 'Body control',
-                'Higher jumps', 'Faster Sprints', 'Dynamic movement'
-              ].map((item, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-vortex-red rounded-full flex-shrink-0" />
-                  <span className="text-gray-700">{item}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          {onSignUpClick && (
+      {offerHeadlines?.length ? (
+        <section className="section-padding bg-white">
+          <div className="container-custom">
+            <RotatingOfferHeadline headlines={offerHeadlines} />
+          </div>
+        </section>
+      ) : (
+        /* What We Offer Section */
+        <section className="section-padding bg-white">
+          <div className="container-custom">
             <motion.div
-              className="text-center"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <Link
-                to={getSiteEnrollHref()}
-                className="inline-block bg-vortex-red text-white px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105"
-              >
-                <motion.span
-                  className="inline-block"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Reserve Your Spot
-                </motion.span>
-              </Link>
+              <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-4">
+                WHAT YOUR ATHLETE WILL GET
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Comprehensive training that develops every aspect of athletic performance
+              </p>
             </motion.div>
-          )}
-        </div>
-      </section>
+
+            <motion.div
+              className="bg-white rounded-2xl p-8 md:p-12 mb-12 border border-vortex-red"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm md:text-base">
+                {[
+                  'Ninja training', 'Acrobatics', 'Trampoline work', 'Resistance training',
+                  'Plyometrics', 'Calisthenics', 'Isometrics', 'Reflex training',
+                  'Neural priming', 'Rapid direction change', 'Mobility', 'Tendon conditioning',
+                  'Eccentric training', 'Coordination games', 'Gymnastics',
+                  'Tumbling & floor', 'Body control',
+                  'Higher jumps', 'Faster Sprints', 'Dynamic movement'
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-vortex-red rounded-full flex-shrink-0" />
+                    <span className="text-gray-700">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {onSignUpClick && (
+              <motion.div
+                className="text-center"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+              >
+                <Link
+                  to={getSiteEnrollHref()}
+                  className="inline-block bg-vortex-red text-white px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105"
+                >
+                  <motion.span
+                    className="inline-block"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Reserve Your Spot
+                  </motion.span>
+                </Link>
+              </motion.div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {afterOffersContent}
+
+      {strategicLocationAfterOffers && (
+        <section className="section-padding border-y border-gray-200 bg-white">
+          <div className="container-custom">
+            <StrategicLocation />
+          </div>
+        </section>
+      )}
 
       <section className="section-padding bg-gray-200 border-t border-b border-gray-300">
         <div className="container-custom">
@@ -191,9 +230,6 @@ const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
             transition={{ duration: 0.7 }}
             viewport={{ once: true }}
           >
-            <p className="uppercase tracking-[0.3em] text-sm text-gray-500 mb-2">
-              Vortex Video Library
-            </p>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-black">
               Watch our coaches and athletes in action
             </h2>
@@ -321,11 +357,15 @@ const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
 
       <ParallaxGym />
 
-      <About onSignUpClick={onSignUpClick} />
+      <About
+        onSignUpClick={onSignUpClick}
+        hideStrategicLocation={strategicLocationAfterOffers}
+        hideDifference
+      />
       <Programs />
 
       {/* How Vortex Classes Are Built — Triad Selector Card */}
-      <section className="section-padding bg-white">
+      {!hideTrainingPhilosophy && <section className="section-padding bg-white">
         <div className="container-custom">
           <motion.div
             className="text-center mb-8"
@@ -424,13 +464,27 @@ const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
             </div>
           </motion.div>
         </div>
-      </section>
+      </section>}
 
-      <Technology />
+      {!hideTechnology && <Technology />}
 
       {/* Safety & Coaching Excellence */}
-      <section className="section-padding bg-vortex-red">
-        <div className="container-custom">
+      <section className="section-padding relative overflow-hidden bg-vortex-red">
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 58% 105% at 50% 50%, rgba(72, 0, 0, 0.68) 0%, rgba(115, 0, 0, 0.46) 32%, rgba(170, 0, 0, 0.18) 60%, transparent 82%), linear-gradient(90deg, rgba(255,255,255,0.08) 0%, transparent 18%, transparent 82%, rgba(255,255,255,0.08) 100%)',
+          }}
+        />
+        <div
+          className="pointer-events-none absolute inset-x-[8%] top-0 h-1/2 opacity-50"
+          style={{
+            background:
+              'radial-gradient(ellipse 70% 100% at 50% 0%, rgba(255,255,255,0.16), transparent 72%)',
+          }}
+        />
+        <div className="container-custom relative z-10">
           <motion.div
             className="mx-auto max-w-4xl rounded-3xl border-2 border-gray-200 bg-white p-8 shadow-lg md:p-12"
             initial={{ opacity: 0, y: 40 }}
@@ -467,36 +521,6 @@ const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
                   Every skill builds on the last. We don&apos;t rush progressions or skip steps — athletes master each level before advancing, reducing injury risk and building true competence.
                 </p>
               </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Fail Your Way to Success — quote on white background, no card */}
-      <section className="section-padding bg-white">
-        <div className="container-custom">
-          <motion.div
-            className="max-w-4xl mx-auto"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h3 className="text-2xl font-display font-bold text-black mb-6">
-              &ldquo;Fail Your Way to Success&rdquo;
-            </h3>
-            <p className="text-gray-700 text-lg leading-relaxed">
-              We teach children to find fun in overcoming adversity and achieving success through
-              a competitive edge. Our athletes are simultaneously pushed and cared for.
-            </p>
-
-            <div className="mt-12 pt-12 border-t border-gray-200">
-              <h3 className="text-2xl font-display font-bold text-black mb-4">
-                &ldquo;It&apos;s okay to lose. It&apos;s not okay to be okay with losing.&rdquo;
-              </h3>
-              <p className="text-gray-700 text-lg leading-relaxed">
-                Losing is part of growth—we accept it as feedback, not as fate. What we don&apos;t accept is settling. Our athletes learn to use every loss as fuel to get better, not as permission to stop caring.
-              </p>
             </div>
           </motion.div>
         </div>
@@ -635,4 +659,3 @@ const HomePage = ({ onSignUpClick, onHighlightsClick }: HomePageProps) => {
 }
 
 export default HomePage
-

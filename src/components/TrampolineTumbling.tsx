@@ -617,7 +617,7 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
                 </p>
               </div>
               <div className="flex justify-center lg:justify-end">
-                <Link to="/athleticism-accelerator">
+                <Link to="/vortex-athletics">
                   <motion.button
                     className="bg-vortex-red text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105 flex items-center space-x-2"
                     whileHover={{ scale: 1.05 }}
@@ -716,7 +716,7 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
               TRAINING <span className="text-vortex-red">METHODOLOGIES</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              All methodologies are <Link to="/athleticism-accelerator" className="text-vortex-red font-bold hover:underline">AA-Aligned™</Link>
+              All methodologies are <Link to="/vortex-athletics" className="text-vortex-red font-bold hover:underline">AA-Aligned™</Link>
             </p>
           </motion.div>
 
@@ -912,4 +912,3 @@ const TrampolineTumbling = ({ onSignUpClick: _onSignUpClick }: TrampolineTumblin
 }
 
 export default TrampolineTumbling
-

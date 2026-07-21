@@ -22,9 +22,46 @@ const D1Icon = ({ className }: { className?: string }) => (
 
 interface AboutProps {
   onSignUpClick?: () => void
+  hideStrategicLocation?: boolean
+  hideDifference?: boolean
 }
 
-const About = ({ onSignUpClick }: AboutProps) => {
+export const StrategicLocation = ({ className = '' }: { className?: string }) => (
+  <motion.div
+    className={`text-center ${className}`}
+    initial={{ opacity: 0, y: 50 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.8 }}
+    viewport={{ once: true }}
+  >
+    <h3 className="text-3xl font-display font-bold text-black mb-4">
+      STRATEGIC LOCATION
+    </h3>
+    <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-4">
+      Located in Bowie, MD, our facility serves athletes across central Maryland
+      and beyond.
+    </p>
+    <div className="text-center">
+      <p className="text-lg font-semibold text-vortex-red mb-2">
+        4961 Tesla Dr, Ste E, Bowie, MD 20715
+      </p>
+      <a
+        href="https://www.google.com/maps/place/Vortex+Athletics+and+Gymnastics/@38.9529792,-76.7165051,14z/data=!4m6!3m5!1s0x89b7ed0013e38567:0xd3ce87a1d2da30a5!8m2!3d38.9564345!4d-76.7076355!16s%2Fg%2F11mrrvn3bt?hl=en&entry=ttu"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center text-vortex-red hover:text-red-700 font-semibold transition-colors duration-300"
+      >
+        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        View on Google Maps
+      </a>
+    </div>
+  </motion.div>
+)
+
+const About = ({ onSignUpClick, hideStrategicLocation = false, hideDifference = false }: AboutProps) => {
   const features = [
     {
       icon: D1Icon,
@@ -34,7 +71,7 @@ const About = ({ onSignUpClick }: AboutProps) => {
     {
       icon: Cpu,
       title: "Technology-Driven",
-      description: "High-speed cameras, haptic feedback tools, and telemetry data create detailed athlete profiles for measurable growth."
+      description: "Film review, science backed development, and telemetry data create detailed athlete profiles for measurable growth."
     },
     {
       icon: Target,
@@ -51,6 +88,7 @@ const About = ({ onSignUpClick }: AboutProps) => {
   return (
     <section id="about" className="section-padding bg-white">
       <div className="container-custom">
+        {!hideDifference && <>
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 50 }}
@@ -74,7 +112,7 @@ const About = ({ onSignUpClick }: AboutProps) => {
             const isTechnologyDriven = feature.title === "Technology-Driven"
             const Content = (
               <motion.div
-                className="text-center p-6 rounded-2xl bg-gray-200 hover:bg-gray-300 transition-colors duration-300"
+                className="h-full min-h-[19rem] text-center p-6 rounded-2xl bg-gray-200 hover:bg-gray-300 transition-colors duration-300"
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
@@ -90,14 +128,15 @@ const About = ({ onSignUpClick }: AboutProps) => {
             )
 
             return isTechnologyDriven ? (
-              <a key={feature.title} href="#technology" className="block cursor-pointer">
+              <a key={feature.title} href="#technology" className="block h-full cursor-pointer">
                 {Content}
               </a>
             ) : (
-              <div key={feature.title}>{Content}</div>
+              <div key={feature.title} className="h-full">{Content}</div>
             )
           })}
         </div>
+        </>}
 
         {/* Mission Statement */}
         <motion.div
@@ -133,41 +172,36 @@ const About = ({ onSignUpClick }: AboutProps) => {
               </motion.span>
             </Link>
           )}
-        </motion.div>
 
-        {/* Location */}
-        <motion.div
-          className="mt-16 text-center"
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <h3 className="text-3xl font-display font-bold text-black mb-4">
-            STRATEGIC LOCATION
-          </h3>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-4">
-            Located in Bowie, MD, our facility serves athletes across central Maryland 
-            and beyond.
-          </p>
-          <div className="text-center">
-            <p className="text-lg font-semibold text-vortex-red mb-2">
-              4961 Tesla Dr, Ste E, Bowie, MD 20715
-            </p>
-            <a 
-              href="https://www.google.com/maps/place/Vortex+Athletics+and+Gymnastics/@38.9529792,-76.7165051,14z/data=!4m6!3m5!1s0x89b7ed0013e38567:0xd3ce87a1d2da30a5!8m2!3d38.9564345!4d-76.7076355!16s%2Fg%2F11mrrvn3bt?hl=en&entry=ttu"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center text-vortex-red hover:text-red-700 font-semibold transition-colors duration-300"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              View on Google Maps
-            </a>
+          <div className="mx-auto mt-14 max-w-5xl border-t border-white/20 pt-12">
+            <h2 className="mb-10 text-4xl font-display font-bold text-white md:text-5xl">
+              OUR MINDSET
+            </h2>
+            <div className="space-y-10 text-left">
+              <div>
+                <h3 className="mb-4 text-2xl font-display font-bold text-white">
+                  &ldquo;Fail Your Way to Success&rdquo;
+                </h3>
+                <p className="text-lg leading-relaxed text-gray-300">
+                  We teach children to find fun in overcoming adversity and achieving success
+                  through a competitive edge. Our athletes are simultaneously pushed and cared for.
+                </p>
+              </div>
+              <div className="border-t border-white/15 pt-10">
+                <h3 className="mb-4 text-2xl font-display font-bold text-white">
+                  &ldquo;It&apos;s okay to lose. It&apos;s not okay to be okay with losing.&rdquo;
+                </h3>
+                <p className="text-lg leading-relaxed text-gray-300">
+                  Losing is part of growth—we accept it as feedback, not as fate. What we don&apos;t
+                  accept is settling. Our athletes learn to use every loss as fuel to get better,
+                  not as permission to stop caring.
+                </p>
+              </div>
+            </div>
           </div>
         </motion.div>
+
+        {!hideStrategicLocation && <StrategicLocation className="mt-16" />}
       </div>
     </section>
   )

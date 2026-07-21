@@ -2,15 +2,32 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Zap, Target, TrendingUp, Shield, Users } from 'lucide-react'
 import { ENROLL_PATH } from '../config/enrollSites'
-import HeroPosterBackground from './HeroPosterBackground'
+import { StrategicLocation } from './About'
+import AcceleratorProgramTiles from './AcceleratorProgramTiles'
+import Hero from './Hero'
+import ParallaxGym from './ParallaxGym'
+import RotatingOfferHeadline from './RotatingOfferHeadline'
+import TrainingPhilosophy from './TrainingPhilosophy'
+import VortexDifference from './VortexDifference'
 import { TENETS, TRAINING_METHODOLOGIES, PHYSIOLOGICAL_EMPHASIS } from '../coach/taxonomy'
 
 interface AthleticismAcceleratorProps {
-  onSignUpClick: () => void
+  onHighlightsClick?: () => void
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAcceleratorProps) => {
+const ACCELERATOR_OFFER_HEADLINES = [
+  {
+    leading: 'JUMP HIGHER.\u00a0 THROW FARTHER.\u00a0 RUN FASTER.\u00a0 MOVE BETTER.',
+    emphasis: 'BE A BETTER ATHLETE.',
+  },
+  {
+    leading: "DON'T JUST PLAY AT THE TRAMPOLINE PARK, LEARN HOW TO",
+    emphasis: 'FLIP & TUMBLE',
+    trailing: 'LIKE AN ATHLETE',
+  },
+]
+
+const AthleticismAccelerator = ({ onHighlightsClick }: AthleticismAcceleratorProps) => {
   const tenets = TENETS
   const trainingMethodologies = TRAINING_METHODOLOGIES
 
@@ -23,158 +40,22 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Single keyword-focused H1 for SEO; visible hero headline is styled below. */}
-      <h1 className="sr-only">Youth Athletic Training in Bowie, MD</h1>
-      {/* Desktop: Full screen section with hero poster background */}
-      <section className="hidden md:block relative min-h-below-site-header w-full overflow-hidden pt-below-site-header" style={{ backgroundColor: 'transparent' }}>
-        <HeroPosterBackground overlayClassName="absolute inset-0 bg-black/40 z-[1] pointer-events-none" />
-
-        {/* Content Container - Top Layer */}
-        <div className="container-custom relative z-10 flex justify-center items-center min-h-below-site-header text-center">
-          <div>
-            <motion.div
-              className="text-5xl md:text-7xl font-display font-bold text-white mb-6"
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              Unlock the Full Spectrum of{' '}
-              <span className="text-vortex-red">Athleticism</span>
-            </motion.div>
-
-            <motion.p
-              className="text-2xl md:text-3xl text-gray-300 mb-12 max-w-3xl mx-auto"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-            >
-              Train Smarter. Move Better. Compete Stronger.
-            </motion.p>
-
-            <motion.div
-              className="flex flex-col items-center justify-center"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-            >
-              <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
-                <Link
-                  to={ENROLL_PATH}
-                  className="inline-flex items-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
-                >
-                  <motion.span
-                    className="inline-flex items-center gap-2"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Join the Accelerator
-                  </motion.span>
-                </Link>
-                <Link
-                  to="/read-board#schedule"
-                  className="inline-flex items-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
-                >
-                  View Class Schedule
-                </Link>
-              </div>
-
-              {/* Scroll Indicator */}
-              <motion.div
-                className="flex justify-center"
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-                  <motion.div
-                    className="w-1 h-3 bg-vortex-red rounded-full mt-2"
-                    animate={{ y: [0, 12, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Mobile: Hero section with title only */}
-      <section className="md:hidden relative h-[60vh] w-full overflow-hidden pt-below-site-header block">
-        <HeroPosterBackground />
-
-        <div className="absolute inset-0 z-10 w-full h-full flex items-center justify-center pointer-events-none">
-          <div className="container-custom text-center w-full pointer-events-auto">
-          <motion.div
-            className="text-4xl sm:text-5xl font-display font-bold text-white mb-6 px-4"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            Unlock the Full Spectrum of{' '}
-            <span className="text-vortex-red">Athleticism</span>
-          </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Mobile: Content section below hero */}
-      <section className="md:hidden bg-gradient-to-br from-black via-gray-900 to-black py-12">
+      <Hero onHighlightsClick={onHighlightsClick} />
+      <section className="section-padding bg-white">
         <div className="container-custom">
-          <div className="text-center">
-            <motion.p
-              className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-            >
-              Train Smarter. Move Better. Compete Stronger.
-            </motion.p>
-
-            <motion.div
-              className="flex flex-col items-center justify-center space-y-4 mb-8"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-            >
-              <Link
-                to={ENROLL_PATH}
-                className="inline-flex items-center justify-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105 w-full max-w-xs"
-              >
-                <motion.span
-                  className="inline-flex items-center justify-center gap-2"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Join the Accelerator
-                </motion.span>
-              </Link>
-              <Link
-                to="/read-board#schedule"
-                className="inline-flex items-center justify-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105 w-full max-w-xs"
-              >
-                View Class Schedule
-              </Link>
-            </motion.div>
-
-            {/* Scroll Indicator */}
-            <motion.div
-              className="flex justify-center mt-8"
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-                <motion.div
-                  className="w-1 h-3 bg-vortex-red rounded-full mt-2"
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-              </div>
-            </motion.div>
-          </div>
+          <RotatingOfferHeadline headlines={ACCELERATOR_OFFER_HEADLINES} />
         </div>
       </section>
+      <AcceleratorProgramTiles />
+      <section className="section-padding border-y border-gray-200 bg-white">
+        <div className="container-custom">
+          <StrategicLocation />
+        </div>
+      </section>
+      <ParallaxGym />
 
       {/* Program Overview */}
-      <section className="section-padding bg-white">
+      <section className="section-padding bg-white !pb-0">
         <div className="container-custom">
           <motion.div
             className="text-center mb-16"
@@ -197,7 +78,7 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
           </motion.div>
 
           <motion.div
-            className="bg-white border-2 border-vortex-red rounded-3xl p-8 md:p-12 mb-16"
+            className="bg-white border-2 border-vortex-red rounded-3xl p-8 md:p-12"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -225,21 +106,17 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
         </div>
       </section>
 
-      {/* Training Philosophy */}
+      {/* Vortex Difference + interactive training philosophy */}
       <section className="section-padding bg-white">
         <div className="container-custom">
-          <motion.div
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-6">
-              TRAINING <span className="text-vortex-red">PHILOSOPHY</span>
-            </h2>
-          </motion.div>
+          <VortexDifference />
+          <TrainingPhilosophy />
+        </div>
+      </section>
 
+      {/* Detailed tenets */}
+      <section className="section-padding bg-white">
+        <div className="container-custom">
           <motion.div
             className="text-left mb-16"
             initial={{ opacity: 0, y: 50 }}
@@ -504,4 +381,3 @@ const AthleticismAccelerator = ({ onSignUpClick: _onSignUpClick }: AthleticismAc
 }
 
 export default AthleticismAccelerator
-

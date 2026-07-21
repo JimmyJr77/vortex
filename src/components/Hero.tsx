@@ -18,7 +18,7 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0)
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
-  const [isVideoPlaying, _setIsVideoPlaying] = useState(false)
+  const [isVideoPlaying] = useState(false)
 
   const rotatingTexts = [
     {
@@ -163,7 +163,7 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
     <>
       {/* Single keyword-focused H1 for SEO; visible hero text rotates below. */}
       <h1 className="sr-only">
-        Youth Athletic Training &amp; Gymnastics in Bowie, MD
+        Youth Sports Performance Training in Bowie, MD
       </h1>
       {/* Desktop: Full screen section with everything overlaid on video */}
       <section className="hidden md:block relative min-h-below-site-header w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header">
@@ -287,7 +287,7 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                   Highlights
                 </motion.button>
               )}
-              <Link to="/athleticism-accelerator">
+              <Link to="/vortex-athletics">
                 <motion.button
                   className="btn-secondary group"
                   whileHover={{ scale: 1.05 }}
@@ -452,7 +452,7 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                   Highlights
                 </motion.button>
               )}
-              <Link to="/athleticism-accelerator" className="w-full max-w-xs">
+              <Link to="/vortex-athletics" className="w-full max-w-xs">
                 <motion.button
                   className="btn-secondary group w-full"
                   whileHover={{ scale: 1.05 }}

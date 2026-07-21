@@ -5,24 +5,30 @@ export interface HubRouteSeo {
   title: string
   description: string
   priority?: number
+  ogImage?: string
+  ogImageAlt?: string
 }
 
 export const HUB_HOME_SEO: HubRouteSeo = {
   path: '/',
-  title: 'Vortex Athletics | Youth Sports & Gymnastics, Bowie MD',
+  title: 'Youth Sports Training in Bowie, MD | Vortex Athletics',
   description:
-    'Gymnastics, ninja, and athletic training for kids and adults in Bowie, MD. Expert coaching and a modern facility. Book a free trial class.',
+    'Explore youth sports training in Bowie, MD, including sports conditioning, speed and agility, strength, Fit & Flip, and gymnastics programs.',
   priority: 1.0,
+  ogImage: `${HUB_ORIGIN}/multisport.jpeg`,
+  ogImageAlt: 'Young athletes training at Vortex Athletics in Bowie, Maryland',
 }
 
 export const HUB_ROUTES: HubRouteSeo[] = [
   HUB_HOME_SEO,
   {
-    path: '/sports',
-    title: 'Youth Sports Training in Bowie, MD | Vortex Athletics',
+    path: '/vortex-athletics',
+    title: 'Youth Sports Performance Training in Bowie, MD | Vortex',
     description:
-      'Explore Vortex sports in Bowie, MD: athleticism training, Fit & Flip, and gymnastics. Pick your path and book a free trial class.',
+      'Youth sports performance training in Bowie, MD. Build speed, agility, strength, explosiveness, conditioning, coordination, and body control.',
     priority: 0.9,
+    ogImage: `${HUB_ORIGIN}/speed.jpeg`,
+    ogImageAlt: 'Athlete completing speed training at Vortex Athletics in Bowie, Maryland',
   },
   {
     path: '/ninja',
@@ -36,13 +42,6 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     title: 'Fit & Flip | Adult Fitness & Acrobatics, Bowie MD',
     description:
       'Adult fitness, conditioning, and acrobatics in Bowie, MD. Functional strength and mobility for all levels. Try a class today.',
-    priority: 0.8,
-  },
-  {
-    path: '/athleticism-accelerator',
-    title: 'Youth Athletic Training in Bowie | Vortex Accelerator',
-    description:
-      'Sports performance training for young athletes in Bowie, MD. Build speed, power, and coordination across 8 tenets. Book an assessment.',
     priority: 0.8,
   },
   {
@@ -74,13 +73,6 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     priority: 0.8,
   },
   {
-    path: '/scheduling',
-    title: 'Enroll | Vortex Athletics Bowie',
-    description:
-      'Reserve your spot with Vortex Athletics enrollment in Bowie, MD. Choose your category, day, and time.',
-    priority: 0.8,
-  },
-  {
     path: '/support',
     title: 'Customer Support | Vortex Athletics',
     description:
@@ -106,11 +98,21 @@ export const HUB_ROUTES: HubRouteSeo[] = [
 const routeMap = new Map(HUB_ROUTES.map((route) => [route.path, route]))
 
 export const getHubSeoForPath = (pathname: string): SeoMeta => {
-  const route = routeMap.get(pathname) ?? HUB_HOME_SEO
+  const route = routeMap.get(pathname)
+  if (!route) {
+    return {
+      title: `Vortex Athletics | Bowie, MD`,
+      description: HUB_HOME_SEO.description,
+      canonical: buildCanonical(HUB_ORIGIN, pathname),
+      robots: 'noindex, follow',
+    }
+  }
   return {
     title: route.title,
     description: route.description,
     canonical: buildCanonical(HUB_ORIGIN, route.path),
+    ogImage: route.ogImage,
+    ogImageAlt: route.ogImageAlt,
   }
 }
 

@@ -193,7 +193,7 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
   const breadcrumbName: Record<string, string> = {
     '/ninja': 'Kids Ninja Classes',
     '/strength-conditioning': 'Fit & Flip Adult Fitness',
-    '/athleticism-accelerator': 'Athleticism Accelerator',
+    '/vortex-athletics': 'Vortex Athletics',
     '/summer-athletic-training': 'Summer Athletic Training',
     '/value': 'Why Vortex',
     '/read-board': 'Classes & Events',
@@ -219,12 +219,13 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
       }),
     )
   }
-  if (pathname === '/athleticism-accelerator') {
+  if (pathname === '/vortex-athletics') {
+    schema.push(sportsActivityLocationSchema(HUB_ORIGIN))
     schema.push(
       serviceSchema({
-        name: 'Youth Athletic Training (Athleticism Accelerator)',
+        name: 'Youth Sports Performance Training',
         description:
-          'Sports-performance training for young athletes in Bowie, MD across eight tenets of athleticism: speed, power, coordination, and injury-resistant movement.',
+          'Youth sports performance training in Bowie, MD focused on speed, agility, strength, explosiveness, conditioning, coordination, and body control.',
         url,
       }),
     )

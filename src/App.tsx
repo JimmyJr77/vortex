@@ -23,7 +23,6 @@ import { useSiteHighlights } from './hooks/useSiteHighlights'
 import HighlightsModal from './components/HighlightsModal'
 
 // Lazy-load heavy routes and portals so dev server / first paint stay fast
-const HomePage = lazyWithRetry(() => import('./components/HomePage'))
 const AthleticismAccelerator = lazyWithRetry(() => import('./components/AthleticismAccelerator'))
 const SummerAthleticTraining = lazyWithRetry(() => import('./components/SummerAthleticTraining'))
 const StrengthFitness = lazyWithRetry(() => import('./components/StrengthFitness'))
@@ -212,19 +211,24 @@ function App() {
           <Route 
             path="/" 
             element={
-              <HomePage
-                onSignUpClick={() => setIsContactFormOpen(true)}
-                onHighlightsClick={hasHighlights ? openHighlights : undefined}
-              />
-            } 
+              <Sports />
+            }
           />
           <Route
             path="/sports"
-            element={<Sports />}
+            element={<Navigate to="/" replace />}
           />
-          <Route 
-            path="/athleticism-accelerator" 
-            element={<AthleticismAccelerator onSignUpClick={handleContactClick} />} 
+          <Route
+            path="/vortex-athletics"
+            element={
+              <AthleticismAccelerator
+                onHighlightsClick={hasHighlights ? openHighlights : undefined}
+              />
+            }
+          />
+          <Route
+            path="/athleticism-accelerator"
+            element={<Navigate to="/vortex-athletics" replace />}
           />
           <Route
             path="/summer-athletic-training"

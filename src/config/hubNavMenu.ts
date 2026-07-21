@@ -10,8 +10,7 @@ export type HubNavMenuEntry =
 /** Hub site nav: programs, summer offerings, then sport sites. */
 export const HUB_NAV_MENU_ENTRIES: HubNavMenuEntry[] = [
   { kind: 'item', label: 'Home', to: '/' },
-  { kind: 'item', label: 'Sports', to: '/sports' },
-  { kind: 'item', label: 'Athleticism Accelerator', to: '/athleticism-accelerator' },
+  { kind: 'item', label: 'Vortex Athletics', to: '/vortex-athletics' },
   { kind: 'item', label: 'Fit & Flip', to: '/strength-conditioning' },
   { kind: 'divider' },
   { kind: 'item', label: 'Summer Athletic Program', to: '/summer-athletic-training' },

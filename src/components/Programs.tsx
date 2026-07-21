@@ -106,7 +106,7 @@ const Programs = () => {
                 aria-disabled={isNinjaOnHold || undefined}
               >
                 {program.title === "Athleticism Accelerator" ? (
-                  <Link to="/athleticism-accelerator">
+                  <Link to="/vortex-athletics">
                     {Content}
                   </Link>
                 ) : program.title === "Competitive Gymnastics" ? (
@@ -160,13 +160,8 @@ const Programs = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2">
             {[
-              {
-                icon: DollarSign,
-                title: "Discounted Rates for Young Children",
-                description: "Special pricing available for early development athletes. Invest in foundational skills at accessible rates designed for growing families."
-              },
               {
                 icon: BarChart3,
                 title: "Telemetry Data & Performance Tracking",
@@ -180,18 +175,13 @@ const Programs = () => {
               {
                 icon: Target,
                 title: "Wider Range of Skills Development",
-                description: "Comprehensive athletic development across all 8 tenets. Not just gymnastics—complete movement intelligence that transfers to every sport and life."
+                description: "Comprehensive athletic development—complete movement intelligence that transfers to every sport."
               },
               {
                 icon: Zap,
                 title: "Success-Driven Focus",
                 description: "Every session is designed for measurable progress. Our methodology prioritizes results through science-backed training and proven progression systems."
               },
-              {
-                icon: Dumbbell,
-                title: "Small Group Excellence",
-                description: "More individualized attention, personalized feedback, and coach-to-athlete time means faster progress and better results."
-              }
             ].map((value, index) => (
               <motion.div
                 key={value.title}
@@ -213,15 +203,26 @@ const Programs = () => {
             ))}
           </div>
 
-          <div className="text-center mt-12">
-            <div className="inline-flex items-center space-x-2 text-lg text-gray-300 mb-2">
-              <CheckCircle className="w-5 h-5 text-vortex-red" />
+          <div className="mx-auto mt-12 max-w-4xl text-center">
+            <div className="mb-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-lg">
+              <CheckCircle className="h-5 w-5 text-vortex-red" />
               <span className="font-semibold text-vortex-red">Telemetry & Athlete Data:</span>
-              <span>$50 annually</span>
+              <span className="font-semibold text-white">$85 annually</span>
             </div>
-            <p className="text-gray-400 text-sm">
-              Lifetime access to advanced performance tracking, data analytics, and continuous development monitoring
+            <p className="mt-2 text-sm leading-relaxed text-gray-400">
+              Annual access to advanced performance tracking, data analytics, and continuous development monitoring. Access to the Vortex workout modal. Free Vortex T-shirt.
             </p>
+
+            <div className="mt-8 border-t border-white/15 pt-8">
+              <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-lg font-semibold">
+                <DollarSign className="h-5 w-5 shrink-0 text-vortex-red" />
+                <span className="text-vortex-red">Stack Classes &amp; Cash:</span>
+                <span className="text-white">Up to 40% off with multiple class sign-ups.</span>
+              </div>
+              <p className="mt-2 text-sm text-gray-400">
+                Discounts may apply to individuals or families as they register for additional classes.
+              </p>
+            </div>
           </div>
         </motion.div>
       </div>

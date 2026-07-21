@@ -2,6 +2,26 @@
   "version": 2,
   "redirects": [
     {
+      "source": "/sports",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/athleticism-accelerator",
+      "destination": "/vortex-athletics",
+      "permanent": true
+    },
+    {
+      "source": "/scheduling",
+      "destination": "/enroll",
+      "permanent": true
+    },
+    {
+      "source": "/schedule",
+      "destination": "/enroll",
+      "permanent": true
+    },
+    {
       "source": "/gymnastics",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
       "destination": "https://vortex-gymnastics.com/",

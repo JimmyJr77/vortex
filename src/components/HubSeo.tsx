@@ -6,8 +6,8 @@ import SeoHead from './SeoHead'
 const HubSeo = () => {
   const { pathname } = useLocation()
   const seo = getHubSeoForPath(pathname)
-  // Preload the hero poster (LCP element) only on the home route.
-  const preloadImage = pathname === '/' ? '/main_hero_bg.png' : undefined
+  // The traditional Athletics page owns the full poster hero after the route swap.
+  const preloadImage = pathname === '/vortex-athletics' ? '/main_hero_bg.png' : undefined
   return (
     <SeoHead {...seo} schema={getHubSchema(pathname)} preloadImage={preloadImage} />
   )

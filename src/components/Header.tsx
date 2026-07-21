@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Menu, X } from 'lucide-react'
+import { LayoutGrid, Menu, UserCircle, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useSiteHeaderHeight } from '../hooks/useSiteHeaderHeight'
 import { Link, useLocation } from 'react-router-dom'
@@ -11,15 +11,11 @@ import {
 } from '../utils/ninjaProgram'
 import { HUB_HEADER_LOGO } from '../utils/seo'
 import { getSiteEnrollHref } from '../utils/enrollSite'
-import { trackOutboundClickEvent } from '../utils/analyticsClient'
-import {
-  JACKRABBIT_CLASS_REGISTRATION_URL,
-} from '../config/contact'
 
 interface HeaderProps {
   onContactClick: () => void
   onAdminLoginClick?: () => void
-  member?: any
+  member?: unknown
   onMemberDashboardClick?: () => void
 }
 
@@ -28,6 +24,15 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
   const headerRef = useRef<HTMLElement>(null)
   useSiteHeaderHeight(headerRef)
   const location = useLocation()
+  const showPrimaryActions = true
+  const hasMobilePrimaryActions = showPrimaryActions || Boolean(member && onMemberDashboardClick)
+  const handleProfileClick = () => {
+    if (member && onMemberDashboardClick) {
+      onMemberDashboardClick()
+      return
+    }
+    onAdminLoginClick?.()
+  }
 
   const linkClass = (active: boolean) =>
     `block ${
@@ -41,10 +46,14 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
     >
       <div className="container-custom">
         {/* Mobile Layout: Logo on top, buttons below */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between py-4 md:py-0 md:h-20">
+        <div className="flex flex-col min-[1075px]:flex-row min-[1075px]:items-center min-[1075px]:justify-between py-4 min-[1075px]:py-0 min-[1075px]:h-20">
           {/* Logo - Clickable - Full width on mobile, auto on desktop */}
-          <div className="flex items-center justify-between md:justify-start mb-4 md:mb-0">
-            <Link to="/" className="block">
+          <div
+            className={`flex items-center justify-between gap-5 px-1 min-[1075px]:justify-start min-[1075px]:px-0 ${
+              hasMobilePrimaryActions ? 'mb-4' : 'mb-0'
+            } min-[1075px]:mb-0`}
+          >
+            <Link to="/" className="block min-w-0 flex-1 min-[1075px]:flex-none">
               <motion.div 
                 className="flex items-center cursor-pointer"
                 whileHover={{ scale: 1.05 }}
@@ -52,57 +61,80 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
                 <img 
                   src={HUB_HEADER_LOGO} 
                   alt="Vortex Athletics" 
-                  className="h-10 md:h-12 w-auto"
+                  className="h-10 max-w-full w-auto min-[1075px]:h-12"
                 />
               </motion.div>
             </Link>
 
             {/* Hamburger Menu Button - Only visible on mobile, next to logo */}
-            <button
-              className="text-white hover:text-vortex-red transition-colors duration-300 md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-            </button>
+            <div className="flex shrink-0 items-center gap-5 min-[1075px]:hidden">
+              <button
+                type="button"
+                onClick={handleProfileClick}
+                className="text-white transition-colors duration-300 hover:text-vortex-red"
+                aria-label={member ? 'Open member portal' : 'Account login'}
+                title={member ? 'Member Portal' : 'Account Login'}
+              >
+                <UserCircle size={28} />
+              </button>
+              <button
+                type="button"
+                className="text-white hover:text-vortex-red transition-colors duration-300"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              >
+                {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+              </button>
+            </div>
           </div>
 
           {/* Primary Navigation Buttons - Below logo on mobile, to the right on desktop */}
-          <div className="flex items-center space-x-2 md:space-x-4 flex-wrap gap-2 md:gap-0">
-            {/* Inquire Button */}
-            <motion.button
-              onClick={onContactClick}
-              className="bg-vortex-red text-white px-4 py-2 md:px-5 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg flex-1 md:flex-none min-w-[80px] md:min-w-0"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Inquire
-            </motion.button>
+          <div className="flex items-center space-x-2 min-[1075px]:space-x-4 flex-wrap gap-2 min-[1075px]:gap-0">
+            {showPrimaryActions && (
+              <>
+                {/* Inquire Button */}
+                <motion.button
+                  onClick={onContactClick}
+                  className="bg-vortex-red text-white px-4 py-2 min-[1075px]:px-5 min-[1075px]:py-2.5 rounded-lg font-semibold text-xs min-[1075px]:text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg flex-1 min-[1075px]:flex-none min-w-[80px] min-[1075px]:min-w-0"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Inquire
+                </motion.button>
 
-            {/* Classes & Events Button */}
-            <Link to="/read-board" className="flex-1 md:flex-none min-w-[80px] md:min-w-0">
-              <motion.button
-                className="bg-white text-black px-4 py-2 md:px-5 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-300 hover:bg-gray-100 hover:scale-105 hover:shadow-lg w-full"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Classes & Events
-              </motion.button>
-            </Link>
+                {/* Classes & Events Button */}
+                <Link
+                  to="/read-board"
+                  className="min-w-[3rem] flex-none min-[1075px]:min-w-0"
+                  aria-label="Classes and Events"
+                  title="Classes & Events"
+                >
+                  <motion.button
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition-all duration-300 hover:bg-gray-100 hover:scale-105 hover:shadow-lg min-[1075px]:px-5 min-[1075px]:py-2.5 min-[1075px]:text-sm"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span className="hidden min-[1075px]:inline">Classes &amp; Events</span>
+                  </motion.button>
+                </Link>
+              </>
+            )}
 
             {/* Member Dashboard or Login Button */}
             {member && onMemberDashboardClick ? (
               <motion.button
                 onClick={onMemberDashboardClick}
-                className="bg-vortex-red text-white px-4 py-2 md:px-5 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg flex-1 md:flex-none min-w-[80px] md:min-w-0"
+                className="bg-vortex-red text-white px-4 py-2 min-[1075px]:px-5 min-[1075px]:py-2.5 rounded-lg font-semibold text-xs min-[1075px]:text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg flex-1 min-[1075px]:flex-none min-w-[80px] min-[1075px]:min-w-0"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 Member Portal
               </motion.button>
-            ) : (
+            ) : showPrimaryActions ? (
               <Link
                 to={getSiteEnrollHref()}
-                className="bg-vortex-red text-white px-4 py-2 md:px-5 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg inline-block flex-1 md:flex-none min-w-[80px] md:min-w-0 text-center"
+                className="bg-vortex-red text-white px-4 py-2 min-[1075px]:px-5 min-[1075px]:py-2.5 rounded-lg font-semibold text-xs min-[1075px]:text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg inline-block flex-1 min-[1075px]:flex-none min-w-[80px] min-[1075px]:min-w-0 text-center"
               >
                 <motion.span
                   className="inline-block"
@@ -112,12 +144,24 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
                   Enroll
                 </motion.span>
               </Link>
-            )}
+            ) : null}
+
+            <button
+              type="button"
+              onClick={handleProfileClick}
+              className="hidden text-white transition-colors duration-300 hover:text-vortex-red min-[1075px]:block"
+              aria-label={member ? 'Open member portal' : 'Account login'}
+              title={member ? 'Member Portal' : 'Account Login'}
+            >
+              <UserCircle size={28} />
+            </button>
 
             {/* Hamburger Menu Button - Only visible on desktop */}
             <button
-              className="text-white hover:text-vortex-red transition-colors duration-300 hidden md:block"
+              type="button"
+              className="text-white hover:text-vortex-red transition-colors duration-300 hidden min-[1075px]:block"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             >
               {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
@@ -196,21 +240,6 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
                   Account Login
                 </button>
               )}
-              <a
-                href={JACKRABBIT_CLASS_REGISTRATION_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => {
-                  trackOutboundClickEvent('legacy_registration_click', location.pathname, {
-                    destination: 'jackrabbit_registration',
-                    source: 'hub_header_menu',
-                  })
-                  setIsMenuOpen(false)
-                }}
-                className="block w-full text-left text-white hover:text-vortex-red transition-colors duration-300 font-medium"
-              >
-                Jackrabbit Class Login
-              </a>
               <button
                 onClick={() => {
                   onContactClick()
