@@ -354,25 +354,27 @@ Rows with a **GTM dataLayer event** also push a named event for GTM Custom Event
 | `checkout_cancelled` | Stripe cancel return (`?enrollment=cancelled` / `?billing=cancelled`) | `MemberDashboard` | — | `checkout_type` |
 | `billing_payment_return` | Stripe balance success return (`?billing=paid`) | `MemberDashboard` | — | `checkout_type: balance` |
 | `purchase` | **Server-side (authoritative):** Stripe webhook records a new `billing_payment` row | [ga4Measurement.js](../backend/analytics/ga4Measurement.js) via Measurement Protocol | — | `transaction_id` (PI id), `value`, `currency`, `payment_type` (`initial_enrollment` \| `outstanding_balance`), `enrollment_type`, `items` |
+| `initial_enrollment_purchase` | **Server-side acquisition companion:** emitted only with a newly recorded initial-enrollment payment | [ga4Measurement.js](../backend/analytics/ga4Measurement.js) via Measurement Protocol | — | Same Stripe-backed transaction/value/currency context as `purchase` |
 | *(browser purchase signal)* | First confirm after payment (`firstConfirmation` from backend; fire-once, refresh-safe) | `MemberDashboard` | `vortex_purchase` | `transaction_id`, `value`, `currency`, `enrollment_type`, `payment_type` |
 | `payment_failed` | Stripe `payment_intent.payment_failed` / `invoice.payment_failed` | server-side MP (skipped without stored client id) | — | `value`, `currency` |
 | `registration_receipt_view` | Receipt token page loads | `EnrollmentReceiptPage` | — | `program_name`, `enrollment_status` |
 | `legacy_registration_click` | Outbound Jackrabbit registration link | `Header`, `SportSiteMenuLinks` | — | `destination`, `source` |
 | `legacy_parent_portal_click` | Outbound Jackrabbit parent portal link | `WaiverSigningBlock` | — | `destination`, `source` |
 
-**Deduplication contract:** the webhook-side GA4 `purchase` and the browser `vortex_purchase` push share the same
-`transaction_id` (Stripe PaymentIntent id, fallback Checkout Session id). Server emission only fires when the
-`billing_payment` insert was new (`newly_inserted`); browser push only fires when the confirm endpoint returns
-`firstConfirmation: true` (stamped once in `stripe_pending_enrollment.client_confirmed_at`). One paid enrollment
-therefore produces exactly one GA4 purchase and one Ads-conversion push.
+**Deduplication contract:** server-side GA4 `purchase`, acquisition-only `initial_enrollment_purchase`, and the
+browser `vortex_purchase` diagnostic share the same `transaction_id` (Stripe PaymentIntent id, fallback Checkout
+Session id). Server emission only fires when the `billing_payment` insert was new (`newly_inserted`); the browser
+push only fires when confirmation returns `firstConfirmation: true`. One paid enrollment therefore produces one
+canonical GA4 purchase, one acquisition event imported by Ads, and at most one browser diagnostic signal.
 
 **Server env:** `GA4_MEASUREMENT_ID` + `GA4_API_SECRET` enable Measurement Protocol sends (no-op otherwise).
 GA client/session ids are captured from the `_ga` / `_ga_<stream>` cookies at checkout creation and stored in
 `stripe_pending_enrollment.payload.analytics` (enrollment) or Stripe session metadata (balance).
 
-**Google Ads guidance:** primary conversion = `vortex_purchase` with `payment_type = initial_enrollment`
-(via GTM). `generate_lead`, `sign_up`, `begin_checkout`, `phone_click`, `legacy_registration_click` are
-secondary/observational. `outstanding_balance` payments must not count toward acquisition bidding.
+**Google Ads guidance:** primary conversion = GA4 `initial_enrollment_purchase`. It carries the same
+Stripe-backed transaction id/value as canonical `purchase`, is deduplicated server-side, and is never emitted
+for outstanding-balance payments. Canonical `purchase`, `manual_event_PURCHASE`, `generate_lead`, `sign_up`,
+`begin_checkout`, `phone_click`, and `legacy_registration_click` are secondary/observational in Ads.
 
 ### 4.3 Consent rules per event
 

@@ -26,7 +26,7 @@ Use this procedure for the first legitimate customer payment. Do not manufacture
 2. The event uses the Stripe-backed transaction ID and correct value/currency.
 3. Program, class, enrollment type, athlete context, source, campaign, and landing-page parameters are present where applicable.
 4. GA4 does not receive a duplicate purchase when the success page reloads or the webhook is replayed.
-5. The designated Google Ads conversion imports/receives the purchase and retains the originating campaign attribution when a Google Ads click initiated the enrollment.
+5. Google Ads receives exactly one `initial_enrollment_purchase` conversion and retains the originating campaign attribution when a Google Ads click initiated the enrollment; canonical `purchase` remains Secondary in Ads.
 
 ## Sign-off
 

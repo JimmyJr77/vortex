@@ -157,19 +157,32 @@ export async function emitStripePurchaseEvent(pool, { payment, session, paymentT
         : undefined
     const items = paymentType === 'initial_enrollment' ? purchaseItemsFromPreview(context.preview) : []
 
-    await sendGa4MpEvent({
-      clientId,
-      sessionId: context.gaSessionId,
-      name: 'purchase',
-      params: {
-        transaction_id: transactionId,
-        value: valueCents / 100,
-        currency: 'USD',
-        payment_type: paymentType,
-        ...(enrollmentType ? { enrollment_type: enrollmentType } : {}),
-        ...(items.length ? { items } : {}),
-      },
-    })
+    const purchaseParams = {
+      transaction_id: transactionId,
+      value: valueCents / 100,
+      currency: 'USD',
+      payment_type: paymentType,
+      ...(enrollmentType ? { enrollment_type: enrollmentType } : {}),
+      ...(items.length ? { items } : {}),
+    }
+
+    // Keep `purchase` as the complete revenue ledger in GA4. Google Ads uses
+    // the acquisition-only companion event so outstanding-balance payments
+    // can never be mistaken for new-customer conversions.
+    const eventNames = [
+      'purchase',
+      ...(paymentType === 'initial_enrollment' ? ['initial_enrollment_purchase'] : []),
+    ]
+    await Promise.all(
+      eventNames.map((name) =>
+        sendGa4MpEvent({
+          clientId,
+          sessionId: context.gaSessionId,
+          name,
+          params: purchaseParams,
+        }),
+      ),
+    )
   } catch (err) {
     console.warn('[ga4-mp] purchase emit failed:', err?.message ?? err)
   }
