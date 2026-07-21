@@ -1,0 +1,7 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { syncDisputeCase, updateDisputeEvidence } from '../disputeOperations.js'
+
+test('dispute sync retains Stripe response deadline and billing ownership',async()=>{const calls=[];const pool={query:async(sql,params=[])=>{calls.push({sql:String(sql),params});if(String(sql).includes('FROM billing_payment'))return{rows:[{family_billing_account_id:7}]};return{rows:[{id:1,owner_email:'billing@vortexathletics.com'}]}}};const row=await syncDisputeCase(pool,{id:'dp_1',charge:'ch_1',amount:2500,currency:'usd',reason:'fraudulent',status:'needs_response',evidence_details:{due_by:1800000000}});assert.equal(row.owner_email,'billing@vortexathletics.com');const insert=calls.find(c=>c.sql.includes('INSERT INTO stripe_dispute_case'));assert.equal(insert.params[7],1800000000);assert.equal(insert.params[2],7)})
+
+test('evidence update requires a note and records reviewer',async()=>{const pool={query:async(_sql,params)=>({rows:[{id:params[0],evidence_status:params[1],updated_by_user_id:params[3]}]})};await assert.rejects(()=>updateDisputeEvidence(pool,{id:1,evidenceStatus:'ready',evidenceNote:'',userId:3}),/evidence note/i);const row=await updateDisputeEvidence(pool,{id:1,evidenceStatus:'ready',evidenceNote:'Signed enrollment agreement attached',userId:3});assert.equal(row.evidence_status,'ready');assert.equal(row.updated_by_user_id,3)})

@@ -21,8 +21,8 @@
 | 2 | Failed-payment alert with staff-reviewed suspend and restore actions | COMPLETE | PR #5; production commit `f2194d8`; Vercel passed; Render live and healthy; focused tests and production build passed. |
 | 3 | Billing-dashboard cancellation review, including multi-month programs | COMPLETE | PR #6; production commit `1835efc`; Vercel passed; Render live; eight focused tests and production build passed. |
 | 4 | Refund exception approval and supporting evidence | COMPLETE | PR #7; production commit `3b66c0d`; Vercel passed; Render live; focused tests and production build passed. |
-| 5 | Structured missed-class tracking on athlete profiles | IN PROGRESS | Athlete-profile ledger, approval states, staff review actions, and audit fields implemented locally; release verification underway. |
-| 6 | Dispute ownership, evidence workflow, and deadline visibility | PENDING | — |
+| 5 | Structured missed-class tracking on athlete profiles | COMPLETE | PR #8; production commit `4d4e4a2`; Vercel passed; Render live; production build passed. |
+| 6 | Dispute ownership, evidence workflow, and deadline visibility | IN PROGRESS | Billing-owned durable case queue, Stripe deadlines, evidence lifecycle, notes, and reviewer audit implemented locally. |
 | 7 | Automated reconciliation and unresolved operational alerts | PENDING | — |
 | 8 | First-live-payment and analytics attribution verification | PENDING | Requires a legitimate customer transaction. |
 
@@ -133,7 +133,7 @@ Section completed July 20, 2026.
 
 ## Section 5 — Missed-class tracking
 
-Status: `IN PROGRESS`
+Status: `COMPLETE`
 
 Approved behavior: missed classes are allowed only when approved, and every missed class is retained on the athlete profile.
 
@@ -147,4 +147,27 @@ Approved behavior: missed classes are allowed only when approved, and every miss
 ### Verification evidence
 
 - Full TypeScript production build passes locally.
+- GitHub PR [#8](https://github.com/JimmyJr77/vortex/pull/8) passed Vercel CI and merged as `4d4e4a2`.
+- Render deployed `4d4e4a2`, ran the missed-class migration, and reported `Live`.
+
+Section completed July 20, 2026.
+
+## Section 6 — Dispute ownership and evidence
+
+Status: `IN PROGRESS`
+
+Approved behavior: `billing@vortexathletics.com` owns dispute responses and all financial matters.
+
+### Implementation log
+
+- Mirrors Stripe dispute events into durable cases owned by the billing mailbox.
+- Records family mapping, amount, currency, reason, Stripe status, and Stripe evidence deadline.
+- Adds evidence lifecycle states with required notes and authenticated reviewer audit.
+- Adds a Billing dashboard case queue ordered by open status and nearest response deadline.
+- Automatically closes the operational alert when Stripe reports a won or lost dispute while retaining the case history.
+
+### Verification evidence
+
+- Focused dispute deadline, ownership, and evidence-audit tests pass.
+- Full production build passes locally.
 - Release and production verification pending.
