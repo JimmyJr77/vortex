@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Loader2, X } from 'lucide-react'
+import { Loader2, Pencil, X } from 'lucide-react'
 import {
   createClassEvent,
   updateClassEvent,
@@ -11,6 +11,8 @@ import DisciplineTagPicker from './DisciplineTagPicker'
 interface ProgramOption {
   id: number
   displayName: string
+  primarySportId?: number | null
+  isActive?: boolean
 }
 
 interface Props {
@@ -55,16 +57,23 @@ const ClassEventModal = ({
 }: Props) => {
   const [form, setForm] = useState<ClassEventFormData>(emptyForm())
   const [selectedProgramsId, setSelectedProgramsId] = useState(programsId)
+  const [programSelectorOpen, setProgramSelectorOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const showProgramDropdown = !lockProgram && availablePrograms.length > 0
+  const showProgramDropdown = !editing && !lockProgram && availablePrograms.length > 0
+  const canReselectProgram = Boolean(editing && availablePrograms.length > 0)
+  const selectedProgram = availablePrograms.find((program) => program.id === selectedProgramsId)
+  const selectedProgramName = selectedProgram?.displayName || programsDisplayName || 'Unassigned'
+  const selectedProgramActive = selectedProgram?.isActive ?? parentProgramActive
+  const selectedPrimarySportId = selectedProgram?.primarySportId ?? programPrimarySportId
 
   useEffect(() => {
     if (!open) return
     const resolvedProgramsId =
       editing?.programsId ?? editing?.categoryId ?? programsId
     setSelectedProgramsId(resolvedProgramsId)
+    setProgramSelectorOpen(false)
     if (editing) {
       setForm({
         displayName: editing.displayName,
@@ -102,8 +111,8 @@ const ClassEventModal = ({
       if (editing) {
         await updateClassEvent(editing.id, {
           ...payload,
-          ...(lockProgram ? {} : { programsId: selectedProgramsId }),
-          isActive: parentProgramActive ? form.isActive : false,
+          ...(!lockProgram || canReselectProgram ? { programsId: selectedProgramsId } : {}),
+          isActive: selectedProgramActive ? form.isActive : false,
         })
       } else {
         await createClassEvent(selectedProgramsId, {
@@ -134,9 +143,41 @@ const ClassEventModal = ({
             <h3 className="text-lg font-bold text-black">
               {editing ? 'Edit class or event' : 'Add class or event'}
             </h3>
-            {programsDisplayName && (
-              <p className="text-sm text-gray-500 mt-0.5">Program: {programsDisplayName}</p>
-            )}
+            <div className="mt-0.5 flex items-center gap-1 text-sm text-gray-500">
+              <span>Program:</span>
+              {programSelectorOpen ? (
+                <select
+                  autoFocus
+                  value={selectedProgramsId || ''}
+                  onChange={(e) => {
+                    setSelectedProgramsId(e.target.value ? Number(e.target.value) : 0)
+                    setProgramSelectorOpen(false)
+                  }}
+                  onBlur={() => setProgramSelectorOpen(false)}
+                  className="h-7 max-w-64 rounded border border-gray-300 bg-white px-2 text-sm text-gray-700"
+                  aria-label="Reselect program"
+                >
+                  {availablePrograms.map((program) => (
+                    <option key={program.id} value={program.id}>{program.displayName}</option>
+                  ))}
+                </select>
+              ) : (
+                <>
+                  <span>{selectedProgramName}</span>
+                  {canReselectProgram && (
+                    <button
+                      type="button"
+                      onClick={() => setProgramSelectorOpen(true)}
+                      className="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                      aria-label="Change program"
+                      title="Change program"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
           </div>
           <button type="button" onClick={onClose} className="p-1 text-gray-500 hover:text-gray-800" aria-label="Close">
             <X className="w-5 h-5" />
@@ -193,9 +234,9 @@ const ClassEventModal = ({
             </p>
             <DisciplineTagPicker
               programId={selectedProgramsId}
-              programDisplayName={programsDisplayName}
+              programDisplayName={selectedProgramName}
               showHeading={false}
-              excludeTagId={programPrimarySportId}
+              excludeTagId={selectedPrimarySportId}
             />
           </div>
           <div>
@@ -270,13 +311,13 @@ const ClassEventModal = ({
               <input
                 type="checkbox"
                 checked={form.isActive !== false}
-                disabled={!parentProgramActive}
+                disabled={!selectedProgramActive}
                 onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
                 className="w-4 h-4 text-vortex-red border-gray-300 rounded focus:ring-vortex-red disabled:opacity-50"
               />
               Active
             </label>
-            {!parentProgramActive && (
+            {!selectedProgramActive && (
               <p className="text-xs text-amber-700 mt-1">
                 This class cannot be active while its program is inactive.
               </p>

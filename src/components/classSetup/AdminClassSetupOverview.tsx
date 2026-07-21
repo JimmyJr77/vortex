@@ -2,13 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Loader2, Lock, Unlock } from 'lucide-react'
 import AdminClassSetupOverviewTable from './AdminClassSetupOverviewTable'
 import { fetchClassSetupOverview, type ClassSetupOverviewRow } from '../../utils/classSetupOverviewApi'
-import { type SchedulingNavigationIntent } from '../../utils/schedulingNavigation'
-
-interface Props {
-  onOpenScheduling?: (intent: SchedulingNavigationIntent) => void
-}
-
-const AdminClassSetupOverview = ({ onOpenScheduling }: Props) => {
+const AdminClassSetupOverview = () => {
   const [rows, setRows] = useState<ClassSetupOverviewRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -92,7 +86,6 @@ const AdminClassSetupOverview = ({ onOpenScheduling }: Props) => {
           rows={rows}
           unlocked={unlocked}
           onRefresh={load}
-          onOpenScheduling={onOpenScheduling}
         />
       )}
     </div>

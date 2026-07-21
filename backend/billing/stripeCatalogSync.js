@@ -22,6 +22,7 @@ import { normalizeMultiClassPassPackages } from '../programs/multiClassPass.js'
 const OPTION_LABELS = {
   per_class: 'Per class',
   per_hour: 'Per hour',
+  monthly_flat: 'Flat monthly fee',
   monthly_1x: 'Monthly @ 1× per week',
   monthly_2x: 'Monthly @ 2× per week',
   monthly_3x: 'Monthly @ 3× per week',

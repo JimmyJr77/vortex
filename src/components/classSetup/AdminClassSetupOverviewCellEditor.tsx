@@ -1,30 +1,38 @@
-import { useEffect, useMemo, useState } from 'react'
-import { ExternalLink } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import AdminClassSetupOverviewEditModal from './AdminClassSetupOverviewEditModal'
 import PrimarySportPicker from '../programs/PrimarySportPicker'
 import DisciplineTagPicker from '../programs/DisciplineTagPicker'
+import AdminSchedulingOfferings from '../scheduling/AdminSchedulingOfferings'
+import AdminSchedulingSlots from '../scheduling/AdminSchedulingSlots'
 import {
   archiveClassEvent,
+  fetchTopPrograms,
   updateClassEvent,
   updateTopProgram,
+  type TopProgram,
 } from '../../utils/programsApi'
 import {
-  adminUpdateOffering,
+  adminFetchOfferings,
+  adminFetchOrphanedSignups,
+  adminFetchSchedulingForm,
+  adminFetchSignups,
   adminUpdateSlotGroupMax,
+  type SchedulingFormDetail,
+  type SchedulingOffering,
+  type SchedulingOrphanedSignup,
+  type SchedulingSignup,
 } from '../../utils/schedulingApi'
 import {
+  PROGRAM_PRICING_OPTION_DEFS,
   normalizeProgramPricingOptions,
   type ProgramPricingOption,
   type ProgramPricingOptionKey,
 } from '../../utils/programPricingOptions'
-import { dateInputValue } from '../../utils/dateUtils'
 import {
   type ClassSetupOverviewRow,
-  type ClassSetupOffering,
   type ClassSetupSlotGroup,
 } from '../../utils/classSetupOverviewApi'
 import { type OverviewColumnId } from './overviewColumns'
-import { type SchedulingNavigationIntent } from '../../utils/schedulingNavigation'
 
 export interface EditTarget {
   row: ClassSetupOverviewRow
@@ -35,7 +43,6 @@ interface Props {
   target: EditTarget | null
   onClose: () => void
   onSaved: () => void
-  onOpenScheduling?: (intent: SchedulingNavigationIntent) => void
 }
 
 function TextField({
@@ -71,12 +78,6 @@ function TextField({
   )
 }
 
-function pricingOptionAmount(options: ProgramPricingOption[], key: ProgramPricingOptionKey): string {
-  const opt = options.find((o) => o.key === key)
-  if (!opt?.enabled || opt.amountCents <= 0) return ''
-  return (opt.amountCents / 100).toFixed(2)
-}
-
 function setPricingOptionAmount(
   options: ProgramPricingOption[],
   key: ProgramPricingOptionKey,
@@ -88,7 +89,7 @@ function setPricingOptionAmount(
   )
 }
 
-const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved, onOpenScheduling }: Props) => {
+const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) => {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -96,47 +97,34 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved, onOpenSch
   const columnId = target?.columnId
 
   const [textValue, setTextValue] = useState('')
+  const [selectedProgramsId, setSelectedProgramsId] = useState<number | null>(null)
+  const [programOptions, setProgramOptions] = useState<TopProgram[]>([])
+  const [programOptionsLoading, setProgramOptionsLoading] = useState(false)
   const [primarySportId, setPrimarySportId] = useState<number | null>(null)
   const [skillLevel, setSkillLevel] = useState<string>('')
   const [statusValue, setStatusValue] = useState<'Active' | 'Inactive' | 'Legacy'>('Active')
-  const [offeringsDraft, setOfferingsDraft] = useState<ClassSetupOffering[]>([])
-  const [offeringLabelsDraft, setOfferingLabelsDraft] = useState<Record<number, string>>({})
   const [spacesDraft, setSpacesDraft] = useState<ClassSetupSlotGroup[]>([])
   const [pricingDraft, setPricingDraft] = useState<ProgramPricingOption[]>([])
-  const [perClassDollars, setPerClassDollars] = useState('')
-  const [fee1xDollars, setFee1xDollars] = useState('')
-  const [monthlyOtherDollars, setMonthlyOtherDollars] = useState<Record<string, string>>({})
+  const [scheduleLoading, setScheduleLoading] = useState(false)
+  const [scheduleDetail, setScheduleDetail] = useState<SchedulingFormDetail | null>(null)
+  const [scheduleOfferings, setScheduleOfferings] = useState<SchedulingOffering[]>([])
+  const [selectedOffering, setSelectedOffering] = useState<SchedulingOffering | null>(null)
+  const [scheduleSignups, setScheduleSignups] = useState<SchedulingSignup[]>([])
+  const [scheduleOrphans, setScheduleOrphans] = useState<SchedulingOrphanedSignup[]>([])
 
   useEffect(() => {
     if (!row || !columnId) return
     setError(null)
     setTextValue('')
+    setSelectedProgramsId(row.programsId)
     setPrimarySportId(row.primarySportId)
     setSkillLevel(row.skillLevel ?? '')
     setStatusValue(row.status)
-    setOfferingsDraft(row.offerings.map((o) => ({ ...o })))
-    setOfferingLabelsDraft(Object.fromEntries(row.offerings.map((o) => [o.id, o.label ?? ''])))
     setSpacesDraft(row.slotGroups.map((g) => ({ ...g })))
     const options = normalizeProgramPricingOptions(row.pricingCostOptions)
     setPricingDraft(options)
-    setPerClassDollars(pricingOptionAmount(options, 'per_class'))
-    setFee1xDollars(pricingOptionAmount(options, 'monthly_1x'))
-    const other: Record<string, string> = {}
-    for (const opt of options) {
-      if (
-        opt.key !== 'per_class' &&
-        opt.key !== 'monthly_1x' &&
-        (opt.key.startsWith('monthly_') || opt.key.startsWith('unlimited_'))
-      ) {
-        other[opt.key] = opt.enabled && opt.amountCents > 0 ? (opt.amountCents / 100).toFixed(2) : ''
-      }
-    }
-    setMonthlyOtherDollars(other)
 
     switch (columnId) {
-      case 'program':
-        setTextValue(row.programName)
-        break
       case 'programDescription':
         setTextValue(row.programDescription ?? '')
         break
@@ -148,6 +136,59 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved, onOpenSch
         break
       default:
         break
+    }
+  }, [row, columnId])
+
+  const loadSchedule = useCallback(async (refreshOverview = false) => {
+    if (row?.formId == null) return
+    setScheduleLoading(true)
+    setError(null)
+    try {
+      const [detail, offerings, signups, orphans] = await Promise.all([
+        adminFetchSchedulingForm(row.formId),
+        adminFetchOfferings(row.formId),
+        adminFetchSignups(row.formId),
+        adminFetchOrphanedSignups(row.formId),
+      ])
+      setScheduleDetail(detail)
+      setScheduleOfferings(offerings)
+      setScheduleSignups(signups)
+      setScheduleOrphans(orphans)
+      setSelectedOffering((current) =>
+        offerings.find((offering) => offering.id === current?.id) ??
+        offerings.find((offering) => offering.isSelected) ??
+        offerings[0] ??
+        null,
+      )
+      if (refreshOverview) onSaved()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load schedule')
+    } finally {
+      setScheduleLoading(false)
+    }
+  }, [row?.formId, onSaved])
+
+  useEffect(() => {
+    if (columnId !== 'schedule') return
+    void loadSchedule(false)
+  }, [columnId, loadSchedule])
+
+  useEffect(() => {
+    if (!row || columnId !== 'program') return
+    let cancelled = false
+    setProgramOptionsLoading(true)
+    fetchTopPrograms(false)
+      .then((programs) => {
+        if (!cancelled) setProgramOptions(programs.filter((program) => !program.archived))
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load programs')
+      })
+      .finally(() => {
+        if (!cancelled) setProgramOptionsLoading(false)
+      })
+    return () => {
+      cancelled = true
     }
   }, [row, columnId])
 
@@ -166,16 +207,23 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved, onOpenSch
       skillLevel: 'Skill Level',
       spaces: 'Spaces',
       status: 'Status',
-      costPerClass: 'Cost per Class',
-      fee1x: '1× Fee',
-      costPerMonth: 'Cost per Month',
+      active: 'Status',
+      costPerClass: 'Pricing',
+      fee1x: 'Pricing',
+      costPerMonth: 'Pricing',
     }
     return `Edit ${labels[columnId] ?? columnId}`
   }, [columnId])
 
   const handleSave = async () => {
     if (!row || !columnId) return
-    if (!row.programsId && columnId !== 'className' && columnId !== 'classDescription' && columnId !== 'status') {
+    if (
+      !row.programsId &&
+      columnId !== 'className' &&
+      columnId !== 'classDescription' &&
+      columnId !== 'status' &&
+      columnId !== 'active'
+    ) {
       setError('This class has no parent program.')
       return
     }
@@ -191,8 +239,8 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved, onOpenSch
         case 'sportTags':
           break
         case 'program':
-          if (row.programsId == null) throw new Error('Missing program')
-          await updateTopProgram(row.programsId, { displayName: textValue.trim() })
+          if (selectedProgramsId == null) throw new Error('Select a program')
+          await updateClassEvent(row.classId, { programsId: selectedProgramsId })
           break
         case 'programDescription':
           if (row.programsId == null) throw new Error('Missing program')
@@ -210,28 +258,12 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved, onOpenSch
           })
           break
         case 'status':
+        case 'active':
           if (statusValue === 'Legacy') {
             await archiveClassEvent(row.classId, true)
           } else {
             if (row.classArchived) await archiveClassEvent(row.classId, false)
             await updateClassEvent(row.classId, { isActive: statusValue === 'Active' })
-          }
-          break
-        case 'offerings':
-          if (row.formId == null) throw new Error('No scheduling form for this class')
-          for (const offering of offeringsDraft) {
-            await adminUpdateOffering(offering.id, {
-              startDate: offering.startDate,
-              endDate: offering.evergreen ? null : offering.endDate,
-              evergreen: offering.evergreen,
-            })
-          }
-          break
-        case 'offeringDescription':
-          if (row.formId == null) throw new Error('No scheduling form for this class')
-          for (const offering of row.offerings) {
-            const label = offeringLabelsDraft[offering.id]?.trim() || null
-            await adminUpdateOffering(offering.id, { label })
           }
           break
         case 'spaces':
@@ -243,18 +275,9 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved, onOpenSch
         case 'fee1x':
         case 'costPerMonth': {
           if (row.programsId == null) throw new Error('Missing program')
-          let next = [...pricingDraft]
-          next = setPricingOptionAmount(next, 'per_class', perClassDollars)
-          next = setPricingOptionAmount(next, 'monthly_1x', fee1xDollars)
-          for (const [key, dollars] of Object.entries(monthlyOtherDollars)) {
-            next = setPricingOptionAmount(next, key as ProgramPricingOptionKey, dollars)
-          }
-          await updateTopProgram(row.programsId, { pricingCostOptions: next })
+          await updateTopProgram(row.programsId, { pricingCostOptions: pricingDraft })
           break
         }
-        case 'schedule':
-          onClose()
-          return
         default:
           break
       }
@@ -274,6 +297,8 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved, onOpenSch
   let body: React.ReactNode = null
   let saveDisabled = false
   let hideSave = false
+  let hideFooter = false
+  let wide = false
 
   switch (columnId) {
     case 'primarySport':
@@ -300,6 +325,27 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved, onOpenSch
       hideSave = true
       break
     case 'program':
+      body = (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Program</label>
+          <select
+            value={selectedProgramsId ?? ''}
+            onChange={(e) => setSelectedProgramsId(e.target.value ? Number(e.target.value) : null)}
+            disabled={programOptionsLoading}
+            className="w-full h-10 border border-gray-300 rounded-lg px-3 text-sm bg-white disabled:bg-gray-100"
+          >
+            <option value="">{programOptionsLoading ? 'Loading programs…' : 'Select a program…'}</option>
+            {programOptions.map((program) => (
+              <option key={program.id} value={program.id}>{program.displayName}</option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-gray-500">
+            Moving this class also moves its scheduling form to the selected program.
+          </p>
+        </div>
+      )
+      saveDisabled = programOptionsLoading || selectedProgramsId == null || selectedProgramsId === row.programsId
+      break
     case 'programDescription':
     case 'className':
     case 'classDescription':
@@ -332,6 +378,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved, onOpenSch
       )
       break
     case 'status':
+    case 'active':
       body = (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
@@ -348,112 +395,82 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved, onOpenSch
       )
       break
     case 'offerings':
-      body =
-        row.formId == null ? (
-          <p className="text-sm text-gray-500">No scheduling form yet. Create the class in Classes first.</p>
-        ) : offeringsDraft.length === 0 ? (
-          <p className="text-sm text-gray-500">No offerings yet.</p>
-        ) : (
-          <div className="space-y-3">
-            {offeringsDraft.map((offering, index) => (
-              <div key={offering.id} className="border border-gray-200 rounded-lg p-3 space-y-2">
-                <p className="text-xs font-medium text-gray-500">Offering {index + 1}</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="date"
-                    value={dateInputValue(offering.startDate)}
-                    onChange={(e) =>
-                      setOfferingsDraft((prev) =>
-                        prev.map((o) => (o.id === offering.id ? { ...o, startDate: e.target.value } : o)),
-                      )
-                    }
-                    className="border border-gray-300 rounded px-2 py-1 text-sm"
-                  />
-                  <input
-                    type="date"
-                    value={dateInputValue(offering.endDate)}
-                    disabled={offering.evergreen}
-                    onChange={(e) =>
-                      setOfferingsDraft((prev) =>
-                        prev.map((o) =>
-                          o.id === offering.id ? { ...o, endDate: e.target.value || null } : o,
-                        ),
-                      )
-                    }
-                    className="border border-gray-300 rounded px-2 py-1 text-sm disabled:bg-gray-100"
-                  />
-                </div>
-                <label className="flex items-center gap-2 text-sm text-gray-700">
-                  <input
-                    type="checkbox"
-                    checked={offering.evergreen}
-                    onChange={(e) =>
-                      setOfferingsDraft((prev) =>
-                        prev.map((o) =>
-                          o.id === offering.id
-                            ? { ...o, evergreen: e.target.checked, endDate: e.target.checked ? null : o.endDate }
-                            : o,
-                        ),
-                      )
-                    }
-                  />
-                  Ongoing (evergreen)
-                </label>
-              </div>
-            ))}
-          </div>
-        )
-      saveDisabled = row.formId == null || offeringsDraft.length === 0
-      break
     case 'offeringDescription':
       body =
-        row.offerings.length === 0 ? (
-          <p className="text-sm text-gray-500">No offerings yet.</p>
+        row.formId == null ? (
+          <p className="text-sm text-gray-500">No scheduling form is linked to this class.</p>
         ) : (
-          <div className="space-y-3">
-            {row.offerings.map((offering, index) => (
-              <div key={offering.id}>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Offering {index + 1} label</label>
-                <input
-                  type="text"
-                  value={offeringLabelsDraft[offering.id] ?? ''}
-                  onChange={(e) =>
-                    setOfferingLabelsDraft((prev) => ({ ...prev, [offering.id]: e.target.value }))
-                  }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                />
-              </div>
-            ))}
-          </div>
+          <AdminSchedulingOfferings
+            formId={row.formId}
+            classDisplayName={row.className}
+            selectedOfferingId={selectedOffering?.id ?? null}
+            onOfferingSelect={setSelectedOffering}
+            onOfferingSaved={onSaved}
+          />
         )
-      saveDisabled = row.offerings.length === 0
+      hideSave = true
+      hideFooter = true
+      wide = true
       break
     case 'schedule':
-      body = (
-        <div className="space-y-3">
-          <p className="text-sm text-gray-600">
-            Schedule edits are managed in the Timeslots builder. Open Scheduling to edit slot times and patterns.
-          </p>
-          {row.programsId != null && (
-            <button
-              type="button"
-              onClick={() => {
-                onOpenScheduling?.({
-                  programsId: row.programsId!,
-                  classEventId: row.classId,
-                  targetPanel: 'slots',
-                })
-                onClose()
-              }}
-              className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Open Timeslots
-            </button>
+      body = row.formId == null ? (
+        <p className="text-sm text-gray-500">No scheduling form is linked to this class.</p>
+      ) : scheduleLoading && !scheduleDetail ? (
+        <p className="py-8 text-center text-sm text-gray-500">Loading schedule editor…</p>
+      ) : scheduleDetail && selectedOffering ? (
+        <div className="space-y-4">
+          {scheduleOfferings.length > 1 && (
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-gray-600">Offering</label>
+              <select
+                value={selectedOffering.id}
+                onChange={(event) => setSelectedOffering(
+                  scheduleOfferings.find((offering) => offering.id === Number(event.target.value)) ?? null,
+                )}
+                className="h-10 w-full max-w-lg rounded-lg border border-gray-300 bg-white px-3 text-sm"
+              >
+                {scheduleOfferings.map((offering) => (
+                  <option key={offering.id} value={offering.id}>
+                    {offering.label || `${offering.startDate} – ${offering.endDate || 'Ongoing'}`}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
+          <AdminSchedulingSlots
+            formId={row.formId}
+            detail={scheduleDetail}
+            formStartDate={scheduleDetail.startDate ?? null}
+            formEndDate={scheduleDetail.endDate ?? null}
+            offeringId={selectedOffering.id}
+            offeringStartDate={selectedOffering.startDate}
+            offeringEndDate={selectedOffering.endDate}
+            setupContextPrimary={`${row.programName} · ${row.className}`}
+            offeringLabel={selectedOffering.label}
+            orphanedSignups={scheduleOrphans}
+            signups={scheduleSignups}
+            forms={[scheduleDetail]}
+            onRefresh={() => loadSchedule(true)}
+          />
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <p className="text-sm text-gray-600">Create an offering before adding schedule days and times.</p>
+          <AdminSchedulingOfferings
+            formId={row.formId}
+            classDisplayName={row.className}
+            selectedOfferingId={null}
+            onOfferingSelect={(offering) => {
+              setSelectedOffering(offering)
+              void loadSchedule(true)
+            }}
+            onOfferingSaved={() => loadSchedule(true)}
+          />
         </div>
       )
       hideSave = true
+      hideFooter = true
+      wide = true
       break
     case 'spaces':
       body =
@@ -489,42 +506,64 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved, onOpenSch
       saveDisabled = spacesDraft.length === 0
       break
     case 'costPerClass':
-      body = (
-        <>
-          {row.pricingOverridesProgram && (
-            <p className="text-xs text-amber-700 bg-amber-50 rounded px-2 py-1">
-              This class overrides program pricing in its scheduling form.
-            </p>
-          )}
-          <TextField label="Cost per class ($)" value={perClassDollars} onChange={setPerClassDollars} />
-        </>
-      )
-      break
     case 'fee1x':
-      body = (
-        <>
-          {row.pricingOverridesProgram && (
-            <p className="text-xs text-amber-700 bg-amber-50 rounded px-2 py-1">
-              Program-level fee; class may override via scheduling form.
-            </p>
-          )}
-          <TextField label="1× per week monthly fee ($)" value={fee1xDollars} onChange={setFee1xDollars} />
-        </>
-      )
-      break
     case 'costPerMonth':
       body = (
-        <div className="space-y-3">
-          {Object.entries(monthlyOtherDollars).map(([key, value]) => (
-            <TextField
-              key={key}
-              label={`${key.replace(/_/g, ' ')} ($)`}
-              value={value}
-              onChange={(next) => setMonthlyOtherDollars((prev) => ({ ...prev, [key]: next }))}
-            />
-          ))}
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            Pricing belongs to <strong>{row.programName}</strong>. Saving here updates every class and enrollment flow that uses this program.
+          </p>
+          {row.pricingOverridesProgram && (
+            <p className="rounded bg-amber-50 px-3 py-2 text-xs text-amber-700">
+              This class has a scheduling-form pricing override. Program prices below still update other classes using this program.
+            </p>
+          )}
+          <div className="grid gap-3 sm:grid-cols-2">
+            {PROGRAM_PRICING_OPTION_DEFS.map((definition) => {
+              const option = pricingDraft.find((item) => item.key === definition.key)
+              const dollars = option?.enabled && option.amountCents > 0
+                ? (option.amountCents / 100).toFixed(2)
+                : ''
+              return (
+                <div key={definition.key} className="rounded-lg border border-gray-200 p-3">
+                  <label className="mb-1 block text-xs font-semibold text-gray-700">
+                    {definition.label.replace(/^\$\s*/, '')}
+                  </label>
+                  <div className="relative">
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={dollars}
+                      onChange={(event) => setPricingDraft((current) =>
+                        setPricingOptionAmount(current, definition.key, event.target.value),
+                      )}
+                      className="h-10 w-full rounded-lg border border-gray-300 pl-7 pr-3 text-sm"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  {definition.key === 'per_offering' && option && (
+                    <select
+                      value={option.offeringLabel ?? 'offering'}
+                      onChange={(event) => setPricingDraft((current) => current.map((item) =>
+                        item.key === 'per_offering'
+                          ? { ...item, offeringLabel: event.target.value as 'offering' | 'event' }
+                          : item,
+                      ))}
+                      className="mt-2 h-9 w-full rounded-lg border border-gray-300 bg-white px-2 text-xs"
+                    >
+                      <option value="offering">Per offering</option>
+                      <option value="event">Per event</option>
+                    </select>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </div>
       )
+      wide = true
       break
     default:
       body = <p className="text-sm text-gray-500">This field cannot be edited.</p>
@@ -551,6 +590,8 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved, onOpenSch
           : handleSave
       }
       saveDisabled={saveDisabled}
+      wide={wide}
+      hideFooter={hideFooter}
     >
       {body}
     </AdminClassSetupOverviewEditModal>

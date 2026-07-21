@@ -4,7 +4,9 @@ import {
   archiveClassEvent,
   deleteClassEvent,
   fetchClassEvents,
+  fetchTopPrograms,
   type ClassEvent,
+  type TopProgram,
 } from '../../utils/programsApi'
 import ClassEventModal from './ClassEventModal'
 
@@ -34,13 +36,18 @@ const ClassEventsPanel = ({
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<ClassEvent | null>(null)
   const [actionId, setActionId] = useState<number | null>(null)
+  const [availablePrograms, setAvailablePrograms] = useState<TopProgram[]>([])
 
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const data = await fetchClassEvents({ programsId, archived: false })
+      const [data, programs] = await Promise.all([
+        fetchClassEvents({ programsId, archived: false }),
+        fetchTopPrograms(false),
+      ])
       setItems(data.filter((e) => !e.archived))
+      setAvailablePrograms(programs.filter((program) => !program.archived))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load')
     } finally {
@@ -229,6 +236,12 @@ const ClassEventsPanel = ({
         open={modalOpen}
         programsId={programsId}
         programsDisplayName={programsDisplayName}
+        availablePrograms={availablePrograms.map((program) => ({
+          id: program.id,
+          displayName: program.displayName,
+          primarySportId: program.primarySportId ?? null,
+          isActive: program.schedulingActive !== false,
+        }))}
         lockProgram
         editing={editing}
         onClose={() => {

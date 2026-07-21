@@ -51,11 +51,11 @@ export const OVERVIEW_COLUMNS: OverviewColumnDef[] = [
   { id: 'schedule', label: 'Schedule', editable: true, filterKind: 'text', minWidth: 160, defaultWidth: 220 },
   { id: 'skillLevel', label: 'Skill Level', editable: true, filterKind: 'skillLevel', minWidth: 100, defaultWidth: 120 },
   { id: 'spaces', label: 'Spaces', editable: true, filterKind: 'text', minWidth: 90, defaultWidth: 100 },
-  { id: 'status', label: 'Status', editable: true, filterKind: 'status', minWidth: 90, defaultWidth: 100 },
   { id: 'costPerClass', label: 'Cost per Class', editable: true, filterKind: 'currency', minWidth: 110, defaultWidth: 120 },
-  { id: 'fee1x', label: '1× Fee', editable: true, filterKind: 'currency', minWidth: 90, defaultWidth: 100 },
+  { id: 'fee1x', label: 'Monthly 1×/Week', editable: true, filterKind: 'currency', minWidth: 120, defaultWidth: 140 },
   { id: 'costPerMonth', label: 'Cost per Month', editable: true, filterKind: 'currency', minWidth: 130, defaultWidth: 160 },
-  { id: 'active', label: 'Active', editable: false, filterKind: 'text', minWidth: 80, defaultWidth: 90 },
+  { id: 'status', label: 'Status', editable: true, filterKind: 'status', minWidth: 90, defaultWidth: 100 },
+  { id: 'active', label: 'Active', editable: true, filterKind: 'text', minWidth: 80, defaultWidth: 90 },
   { id: 'enrollees', label: 'Enrollees', editable: false, filterKind: 'numeric', minWidth: 90, defaultWidth: 100 },
 ]
 

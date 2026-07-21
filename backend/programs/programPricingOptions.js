@@ -3,6 +3,7 @@ import { resolveProgramsSchema } from './schema.js'
 export const PROGRAM_PRICING_OPTION_KEYS = new Set([
   'per_class',
   'per_hour',
+  'monthly_flat',
   'monthly_1x',
   'monthly_2x',
   'monthly_3x',
@@ -82,7 +83,8 @@ export function effectiveDbRowFromPricingOption(baseRow, programRow, optionKey) 
 
 /**
  * When pricing_cost_options has no enabled rows, mirror admin UI by surfacing legacy
- * program columns (pricing_slot_cost_monthly_cents + pricing_cost_unit) as monthly_1x.
+ * program columns (pricing_slot_cost_monthly_cents + pricing_cost_unit) as a
+ * flat monthly fee. Legacy rows do not contain a weekly frequency.
  */
 export function hydrateProgramPricingOptionsFromLegacy(row = {}) {
   const normalized = normalizeProgramPricingOptions(
@@ -108,7 +110,7 @@ export function hydrateProgramPricingOptionsFromLegacy(row = {}) {
         : unit === 'per_offering'
           ? 'per_offering'
           : unit === 'per_month'
-            ? 'monthly_1x'
+            ? 'monthly_flat'
             : null
 
   if (!legacyKey) return normalized
@@ -152,6 +154,7 @@ export function deriveLegacyPricingFromOptions(options = []) {
   }
 
   const pick =
+    enabled.find((o) => o.key === 'monthly_flat') ??
     enabled.find((o) => o.key === 'monthly_1x') ??
     enabled.find((o) => o.key === 'per_class') ??
     enabled.find((o) => o.key === 'per_hour') ??

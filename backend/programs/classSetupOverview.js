@@ -46,10 +46,12 @@ function pricingDisplayFromOptions(options) {
   const enabled = (options ?? []).filter((o) => o.enabled && o.amountCents > 0)
   const find = (key) => enabled.find((o) => o.key === key) ?? null
   const perClass = find('per_class')
+  const monthlyFlat = find('monthly_flat')
   const monthly1x = find('monthly_1x')
   const monthlyOther = enabled.filter(
     (o) =>
       o.key !== 'per_class' &&
+      o.key !== 'monthly_flat' &&
       o.key !== 'monthly_1x' &&
       (o.key.startsWith('monthly_') || o.key.startsWith('unlimited_')),
   )
@@ -58,11 +60,18 @@ function pricingDisplayFromOptions(options) {
     costPerClass: perClass ? formatCents(perClass.amountCents) : null,
     fee1x: monthly1x ? formatCents(monthly1x.amountCents) : null,
     costPerMonthSummary:
-      monthlyOther.length > 0
-        ? monthlyOther
+      monthlyFlat || monthlyOther.length > 0
+        ? [
+            ...(monthlyFlat ? [{ ...monthlyFlat, key: 'flat_monthly' }] : []),
+            ...monthlyOther,
+          ]
             .map((o) => {
               const amount = formatCents(o.amountCents)
-              return amount ? `${amount} (${o.key})` : null
+              return amount
+                ? o.key === 'flat_monthly'
+                  ? `${amount}/mo`
+                  : `${amount} (${o.key})`
+                : null
             })
             .filter(Boolean)
             .join(' · ')

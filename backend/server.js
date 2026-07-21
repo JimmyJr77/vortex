@@ -11650,6 +11650,7 @@ app.put('/api/admin/programs/:id', async (req, res) => {
           }
         }
       }
+
     }
 
     const hasCategoryIdColumn = programCols.has('category_id')
@@ -11706,11 +11707,13 @@ app.put('/api/admin/programs/:id', async (req, res) => {
         const taxonomy = await resolveProgramTaxonomy()
         if (taxonomy.hasProgramIsActive) {
           const fkCol = taxonomy.programFkColumn
-          const classRow = await pool.query(
-            `SELECT ${fkCol} as parent_id FROM program WHERE id = $1`,
-            [id],
-          )
-          const parentId = classRow.rows[0]?.parent_id
+          const classRow = parentProgramId === undefined
+            ? await pool.query(
+                `SELECT ${fkCol} as parent_id FROM program WHERE id = $1`,
+                [id],
+              )
+            : null
+          const parentId = parentProgramId ?? classRow?.rows[0]?.parent_id
           if (parentId) {
             const parent = await pool.query(
               `SELECT is_active FROM ${taxonomy.programsTable} WHERE id = $1`,
@@ -11782,6 +11785,21 @@ app.put('/api/admin/programs/:id', async (req, res) => {
       WHERE id = $${paramCount}
       RETURNING ${returningClause}
     `, values)
+
+    if (result.rows.length > 0 && parentProgramId !== undefined) {
+      // Keep the class's scheduling form grouped under the same top-level
+      // program when an admin moves the class/event in Class Master or Edit.
+      try {
+        await pool.query(
+          `UPDATE scheduling_form
+           SET programs_id = $1, updated_at = CURRENT_TIMESTAMP
+           WHERE program_id = $2 AND deleted_at IS NULL`,
+          [parentProgramId, id],
+        )
+      } catch {
+        /* scheduling_form.programs_id is optional on legacy schemas */
+      }
+    }
 
     // Fetch parent program display name when linked
     if (result.rows.length > 0) {

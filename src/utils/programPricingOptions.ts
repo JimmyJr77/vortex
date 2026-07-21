@@ -1,6 +1,7 @@
 export type ProgramPricingOptionKey =
   | 'per_class'
   | 'per_hour'
+  | 'monthly_flat'
   | 'monthly_1x'
   | 'monthly_2x'
   | 'monthly_3x'
@@ -42,6 +43,7 @@ export const PROGRAM_PRICING_SECTION_LABELS: Record<ProgramPricingOptionSection,
 export const PROGRAM_PRICING_OPTION_DEFS: ProgramPricingOptionDef[] = [
   { key: 'per_class', section: 'single', label: '$ per class' },
   { key: 'per_hour', section: 'single', label: '$ per hour' },
+  { key: 'monthly_flat', section: 'other', label: '$ flat monthly fee' },
   { key: 'monthly_1x', section: 'weekly', label: '$ for mo @ 1× per week', timesPerWeek: 1 },
   { key: 'monthly_2x', section: 'weekly', label: '$ for mo @ 2× per week', timesPerWeek: 2 },
   { key: 'monthly_3x', section: 'weekly', label: '$ for mo @ 3× per week', timesPerWeek: 3 },
@@ -119,6 +121,7 @@ export function formatProgramPricingOptionLabel(opt: ProgramPricingOption): stri
   if (opt.key === 'per_offering') {
     return `${amount} per ${opt.offeringLabel ?? 'offering'}`
   }
+  if (opt.key === 'monthly_flat') return `${amount}/mo`
   if (def.label.startsWith('$ for mo')) {
     return `${amount}/mo @ ${def.timesPerWeek}×/wk`
   }
@@ -158,7 +161,7 @@ export function programPricingOptionsFromProgram(program: {
         : unit === 'per_offering'
           ? 'per_offering'
           : unit === 'per_month'
-            ? 'monthly_1x'
+            ? 'monthly_flat'
             : null
 
   if (!legacyKey) return normalized

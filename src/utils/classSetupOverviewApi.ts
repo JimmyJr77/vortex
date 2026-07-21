@@ -81,7 +81,10 @@ export function formatOfferingDescriptionsCell(offerings: ClassSetupOffering[]):
 
 export function formatScheduleCell(slotGroups: ClassSetupSlotGroup[]): string {
   if (slotGroups.length === 0) return '—'
-  return slotGroups.map((g) => g.scheduleLabel || '—').join('; ')
+  return slotGroups
+    .flatMap((group) => (group.scheduleLabel || '—').split(/\s*;\s*/))
+    .filter(Boolean)
+    .join('\n')
 }
 
 export function formatSpacesCell(slotGroups: ClassSetupSlotGroup[]): string {

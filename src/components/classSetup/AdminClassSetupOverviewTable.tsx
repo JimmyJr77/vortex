@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Search, X } from 'lucide-react'
+import { Archive, Loader2, Search, Trash2, X } from 'lucide-react'
 import OverviewColumnHeader, { ClearFiltersButton } from './OverviewColumnHeader'
 import AdminClassSetupOverviewCellEditor, { type EditTarget } from './AdminClassSetupOverviewCellEditor'
 import { useSpreadsheetResize } from './useSpreadsheetResize'
@@ -16,28 +16,29 @@ import {
   type SortConfig,
 } from './overviewColumns'
 import { type ClassSetupOverviewRow } from '../../utils/classSetupOverviewApi'
-import { type SchedulingNavigationIntent } from '../../utils/schedulingNavigation'
+import { archiveClassEvent, deleteClassEvent } from '../../utils/programsApi'
 
 interface Props {
   rows: ClassSetupOverviewRow[]
   unlocked: boolean
   onRefresh: () => void
-  onOpenScheduling?: (intent: SchedulingNavigationIntent) => void
 }
 
 const tdBase = 'px-3 py-2 align-top text-sm text-gray-900 border-b border-gray-100'
+const actionColumnWidth = 104
 
 const AdminClassSetupOverviewTable = ({
   rows,
   unlocked,
   onRefresh,
-  onOpenScheduling,
 }: Props) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ column: 'program', direction: 'asc' })
   const [filters, setFilters] = useState<ColumnFilters>({})
   const [smartFilter, setSmartFilter] = useState('')
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null)
   const [collapsedColumns, setCollapsedColumns] = useState<Set<OverviewColumnId>>(() => new Set())
+  const [pendingAction, setPendingAction] = useState<{ classId: number; kind: 'archive' | 'delete' } | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
   const { getColumnWidth, getRowHeight, startColumnResize, startRowResize } = useSpreadsheetResize()
 
   const toggleColumnCollapsed = (columnId: OverviewColumnId) => {
@@ -96,6 +97,37 @@ const AdminClassSetupOverviewTable = ({
     return undefined
   }
 
+  const handleArchive = async (row: ClassSetupOverviewRow) => {
+    if (!window.confirm(`Archive "${row.className}"? It will become inactive and remain in the database.`)) return
+    setPendingAction({ classId: row.classId, kind: 'archive' })
+    setActionError(null)
+    try {
+      await archiveClassEvent(row.classId, true)
+      await onRefresh()
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : 'Failed to archive class')
+    } finally {
+      setPendingAction(null)
+    }
+  }
+
+  const handleDelete = async (row: ClassSetupOverviewRow) => {
+    const enrolleeWarning = row.enrolleeCount > 0
+      ? ` This class currently has ${row.enrolleeCount} enrollee${row.enrolleeCount === 1 ? '' : 's'}.`
+      : ''
+    if (!window.confirm(`Permanently delete "${row.className}" from the database?${enrolleeWarning} This cannot be undone.`)) return
+    setPendingAction({ classId: row.classId, kind: 'delete' })
+    setActionError(null)
+    try {
+      await deleteClassEvent(row.classId)
+      await onRefresh()
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : 'Failed to delete class')
+    } finally {
+      setPendingAction(null)
+    }
+  }
+
   return (
     <>
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -130,6 +162,11 @@ const AdminClassSetupOverviewTable = ({
         </div>
       </div>
       <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
+        {actionError && (
+          <div className="border-b border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700" role="alert">
+            {actionError}
+          </div>
+        )}
         <table className="min-w-full border-collapse" style={{ tableLayout: 'fixed' }}>
           <thead>
             <tr>
@@ -148,6 +185,13 @@ const AdminClassSetupOverviewTable = ({
                   onToggleCollapsed={() => toggleColumnCollapsed(column.id)}
                 />
               ))}
+              <th
+                scope="col"
+                className="border-b border-l border-gray-200 bg-gray-50 px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-600"
+                style={{ width: actionColumnWidth, minWidth: actionColumnWidth }}
+              >
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -191,12 +235,43 @@ const AdminClassSetupOverviewTable = ({
                       </td>
                     )
                   })}
+                  <td
+                    className="border-b border-l border-gray-100 px-2 py-2 align-top"
+                    style={{ width: actionColumnWidth, minWidth: actionColumnWidth }}
+                  >
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => void handleArchive(row)}
+                        disabled={row.classArchived || pendingAction?.classId === row.classId}
+                        className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-35"
+                        aria-label={`Archive ${row.className}`}
+                        title={row.classArchived ? 'Already archived' : 'Archive class'}
+                      >
+                        {pendingAction?.classId === row.classId && pendingAction.kind === 'archive'
+                          ? <Loader2 className="h-4 w-4 animate-spin" />
+                          : <Archive className="h-4 w-4" />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void handleDelete(row)}
+                        disabled={pendingAction?.classId === row.classId}
+                        className="rounded p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-35"
+                        aria-label={`Permanently delete ${row.className}`}
+                        title="Permanently delete class"
+                      >
+                        {pendingAction?.classId === row.classId && pendingAction.kind === 'delete'
+                          ? <Loader2 className="h-4 w-4 animate-spin" />
+                          : <Trash2 className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               )
             })}
             {visibleRows.length === 0 && (
               <tr>
-                <td colSpan={OVERVIEW_COLUMNS.length} className="px-4 py-12 text-center text-sm text-gray-500">
+                <td colSpan={OVERVIEW_COLUMNS.length + 1} className="px-4 py-12 text-center text-sm text-gray-500">
                   No classes match the current filters.
                 </td>
               </tr>
@@ -209,7 +284,6 @@ const AdminClassSetupOverviewTable = ({
         target={editTarget}
         onClose={() => setEditTarget(null)}
         onSaved={onRefresh}
-        onOpenScheduling={onOpenScheduling}
       />
     </>
   )

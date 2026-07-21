@@ -1966,8 +1966,16 @@ export default function AdminClasses({
         open={showClassModal && (selectedCategoryForClass != null || editingClassEvent != null)}
         programsId={selectedCategoryForClass ?? editingClassEvent?.programsId ?? editingClassEvent?.categoryId ?? 0}
         programsDisplayName={
-          categories.find((c) => c.id === (selectedCategoryForClass ?? editingClassEvent?.categoryId))?.displayName
+          categories.find((c) => c.id === (selectedCategoryForClass ?? editingClassEvent?.categoryId ?? editingClassEvent?.programsId))?.displayName
         }
+        availablePrograms={categories
+          .filter((category) => !category.archived)
+          .map((category) => ({
+            id: category.id,
+            displayName: category.displayName,
+            primarySportId: category.primarySportId ?? null,
+            isActive: programIsActiveFlag(category),
+          }))}
         lockProgram={selectedCategoryForClass != null || editingClassEvent != null}
         parentProgramActive={
           (() => {
@@ -1998,4 +2006,3 @@ export default function AdminClasses({
     </>
   )
 }
-

@@ -401,15 +401,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
           />
         )
       case 'classSetupOverview':
-        return (
-          <AdminClassSetupOverview
-            onOpenScheduling={(intent) => {
-              setSchedulingIntent(intent)
-              setSchedulingNavKey((key) => key + 1)
-              goToSection('scheduling')
-            }}
-          />
-        )
+        return <AdminClassSetupOverview />
       case 'coaches':
         return <AdminCoaches isMasterAdmin={accessContext?.isMasterAdmin ?? false} />
       case 'classesEvents':
