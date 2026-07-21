@@ -22,8 +22,8 @@
 | 3 | Billing-dashboard cancellation review, including multi-month programs | COMPLETE | PR #6; production commit `1835efc`; Vercel passed; Render live; eight focused tests and production build passed. |
 | 4 | Refund exception approval and supporting evidence | COMPLETE | PR #7; production commit `3b66c0d`; Vercel passed; Render live; focused tests and production build passed. |
 | 5 | Structured missed-class tracking on athlete profiles | COMPLETE | PR #8; production commit `4d4e4a2`; Vercel passed; Render live; production build passed. |
-| 6 | Dispute ownership, evidence workflow, and deadline visibility | IN PROGRESS | Billing-owned durable case queue, Stripe deadlines, evidence lifecycle, notes, and reviewer audit implemented locally. |
-| 7 | Automated reconciliation and unresolved operational alerts | PENDING | — |
+| 6 | Dispute ownership, evidence workflow, and deadline visibility | COMPLETE | PR #9; production commit `d3d34f5`; Vercel passed; Render live; focused tests and production build passed. |
+| 7 | Automated reconciliation and unresolved operational alerts | IN PROGRESS | Daily reconciliation job, mismatch recovery, failed-webhook alerts, manual action, and dashboard implemented; deployment/config verification underway. |
 | 8 | First-live-payment and analytics attribution verification | PENDING | Requires a legitimate customer transaction. |
 
 ## Section 1 — Centralized financial communications
@@ -154,7 +154,7 @@ Section completed July 20, 2026.
 
 ## Section 6 — Dispute ownership and evidence
 
-Status: `IN PROGRESS`
+Status: `COMPLETE`
 
 Approved behavior: `billing@vortexathletics.com` owns dispute responses and all financial matters.
 
@@ -170,4 +170,25 @@ Approved behavior: `billing@vortexathletics.com` owns dispute responses and all 
 
 - Focused dispute deadline, ownership, and evidence-audit tests pass.
 - Full production build passes locally.
-- Release and production verification pending.
+- GitHub PR [#9](https://github.com/JimmyJr77/vortex/pull/9) passed Vercel CI and merged as `d3d34f5`.
+- Render deployed `d3d34f5`, ran the dispute-case migration, and reported `Live`.
+
+Section completed July 20, 2026.
+
+## Section 7 — Reconciliation and operational alerts
+
+Status: `IN PROGRESS`
+
+### Implementation log
+
+- Added an idempotent daily Stripe-to-ledger reconciliation job with a configurable lookback window.
+- Recovers successful Stripe payments missing from the local ledger when a family can be identified.
+- Creates critical alerts for amount mismatches, unmapped payments, open disputes, failed reconciliation runs, failed webhooks, and webhooks stuck processing.
+- Added persistent reconciliation run history and summary counters.
+- Added an authorized manual reconciliation action and Billing operations dashboard for latest-run, webhook, and alert status.
+- Added a Render cron blueprint scheduled daily at 07:15 UTC with explicit billing alert routing.
+
+### Verification evidence
+
+- Focused amount comparison test and full production build pass locally.
+- Release, Render cron creation, first successful run, and production dashboard verification pending.

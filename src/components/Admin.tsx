@@ -20,6 +20,7 @@ import AdminFamilyBilling from './AdminFamilyBilling'
 import BillingRecoveryAlerts from './billing/BillingRecoveryAlerts'
 import CancellationReviewPanel from './billing/CancellationReviewPanel'
 import DisputeCasesPanel from './billing/DisputeCasesPanel'
+import StripeOperationsPanel from './billing/StripeOperationsPanel'
 import AdminWaivers from './AdminWaivers'
 import AdminSettings from './admin/AdminSettings'
 import AdminCoaches from './AdminCoaches'
@@ -357,6 +358,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
             <BillingRecoveryAlerts />
             <CancellationReviewPanel />
             <DisputeCasesPanel />
+            <StripeOperationsPanel />
             <AdminFamilyBilling />
           </div>
         )

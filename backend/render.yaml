@@ -11,10 +11,46 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: BILLING_ALERT_EMAIL
+        value: billing@vortexathletics.com
+      - key: BILLING_REPLY_TO
+        value: billing@vortexathletics.com
       # Optional — portal message attachments, exercise media, form-review video
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
         sync: false
       - key: CLOUDINARY_API_SECRET
+        sync: false
+  - type: cron
+    name: vortex-stripe-reconciliation
+    runtime: node
+    rootDir: backend
+    schedule: "15 7 * * *"
+    buildCommand: npm install
+    startCommand: npm run stripe:reconcile
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: STRIPE_ENABLED
+        value: "true"
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: BILLING_ALERT_EMAIL
+        value: billing@vortexathletics.com
+      - key: BILLING_REPLY_TO
+        value: billing@vortexathletics.com
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: SMTP_REPLY_TO
         sync: false

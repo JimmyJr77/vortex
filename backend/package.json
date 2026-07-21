@@ -21,6 +21,7 @@
     "sync:golden-requirements": "node ../scripts/sync-golden-from-saved-requirements.mjs \"Test 3 - Reqs only\"",
     "billing:recurring": "node scheduling/runRecurringCharges.js",
     "stripe:sync-catalog": "node billing/runStripeCatalogSync.js",
+    "stripe:reconcile": "node billing/runStripeReconciliation.js",
     "bootstrap:staging-rehearsal": "node scripts/bootstrap-staging-rehearsal-accounts.mjs",
     "verify:module0": "node verify-module0.js",
     "list-tables": "DB_HOST=localhost DB_PORT=5432 DB_NAME=vortex_athletics DB_USER=postgres DB_PASSWORD=vortex2024 node list-all-tables.js",

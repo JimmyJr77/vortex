@@ -64,6 +64,7 @@ import {
 } from '../billing/billingAccessRecovery.js'
 import { listCancellationRequests, reviewCancellationRequest } from '../billing/cancellationReview.js'
 import { listDisputeCases, syncDisputeCase, updateDisputeEvidence } from '../billing/disputeOperations.js'
+import { getStripeOperationsDashboard, runStripeReconciliation } from '../billing/stripeReconciliation.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -2311,6 +2312,14 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       res.json({ received: true })
     } catch (err) {
       await failStripeWebhookEvent(pool, event, err)
+      const deliveryTimestamp = String(signature ?? '').match(/(?:^|,)t=(\d+)/)?.[1] ?? Date.now()
+      await recordStripeBillingAlert(pool, {
+        event: event ?? { id: `webhook-delivery:${deliveryTimestamp}` },
+        object: event?.data?.object ?? { id: event?.id ?? null },
+        alertType: 'webhook_failure',
+        severity: 'critical',
+        message: `Stripe webhook delivery failed: ${String(err?.message ?? err).slice(0, 300)}`,
+      }).catch(() => {})
       if (String(err?.message ?? '').includes('signature')) {
         logWebhookVerificationFailure(err, { rawBody, signature })
       } else {
@@ -2392,6 +2401,25 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       res.json({ success: true, data })
     } catch (error) {
       res.status(/not found/i.test(error?.message || '') ? 404 : 400).json({ success: false, message: error?.message || 'Failed to update dispute evidence.' })
+    }
+  })
+
+  app.get('/api/admin/stripe/operations', ...requirePermission(pool, jwtSecret, 'billing.view'), async (_req, res) => {
+    try {
+      res.json({ success: true, data: await getStripeOperationsDashboard(pool) })
+    } catch (error) {
+      console.error('[stripe] operations dashboard:', error)
+      res.status(500).json({ success: false, message: 'Failed to load Stripe operations.' })
+    }
+  })
+
+  app.post('/api/admin/stripe/reconcile', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
+    try {
+      const lookbackHours = Math.min(168, Math.max(1, Number(req.body?.lookbackHours ?? 48)))
+      res.json({ success: true, data: await runStripeReconciliation(pool, { lookbackHours }) })
+    } catch (error) {
+      console.error('[stripe] manual reconciliation:', error)
+      res.status(500).json({ success: false, message: error.message || 'Stripe reconciliation failed.' })
     }
   })
 
