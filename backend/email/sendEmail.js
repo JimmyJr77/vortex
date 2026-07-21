@@ -11,10 +11,11 @@ import {
   isTransactional,
   isMarketing,
   isSecurityCategory,
+  isFinancialCategory,
   findPromotionalContent,
   STREAM_TRANSACTIONAL,
 } from './emailCategories.js'
-import { POLICY, frontDeskReplyTo, categoryDisabled } from './emailPolicy.js'
+import { POLICY, frontDeskReplyTo, billingMailbox, categoryDisabled } from './emailPolicy.js'
 import {
   isSuppressed,
   addSuppression,
@@ -327,7 +328,8 @@ export async function sendEmail({
 }
 
 /** Validate Reply-To: must be a real address; never a no-reply. Falls back to front desk. */
-function resolveValidatedReplyTo(explicit, category) {
+export function resolveValidatedReplyTo(explicit, category) {
+  if (isFinancialCategory(category)) return billingMailbox()
   const candidate = explicit || frontDeskReplyTo()
   if (candidate) {
     const addr = extractEmailAddress(candidate)

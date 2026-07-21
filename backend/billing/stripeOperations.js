@@ -1,4 +1,5 @@
 import { sendEmail } from '../email/sendEmail.js'
+import { billingMailbox } from '../email/emailPolicy.js'
 import { getStripeClient, stripeEnabled } from './stripeBilling.js'
 
 let schemaEnsured = false
@@ -208,13 +209,14 @@ export async function recordStripeBillingAlert(pool, { event, object, alertType,
       JSON.stringify({ status: object?.status ?? null, reason: object?.reason ?? null, amount: object?.amount ?? object?.amount_due ?? null })],
   )
   const alert = inserted.rows[0] ?? null
-  const to = process.env.BILLING_ALERT_EMAIL || process.env.SMTP_REPLY_TO || process.env.SMTP_USER
+  const to = billingMailbox()
   if (alert && to) {
     await sendEmail({
       to,
       subject: `[Vortex billing] ${message}`,
       text: `${message}\nStripe object: ${object?.id ?? 'unknown'}\nAccount: ${accountId ?? 'unresolved'}`,
       html: `<p><strong>${message}</strong></p><p>Stripe object: ${object?.id ?? 'unknown'}<br>Family billing account: ${accountId ?? 'unresolved'}</p>`,
+      category: 'billing_alert',
       idempotencyKey: `stripe-alert-${event?.id ?? object?.id}`,
       skipPolicy: true,
     }).catch((error) => console.warn('[stripe] billing alert email:', error?.message ?? error))
