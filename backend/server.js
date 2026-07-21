@@ -9313,6 +9313,8 @@ app.post('/api/members/enrollments/:signupId/cancel', authenticateMember, async 
     const result = await requestMemberEnrollmentCancellation(pool, {
       signupId,
       allowedMemberIds,
+      requestedByUserId: userId,
+      reason: req.body?.reason || null,
     })
 
     res.json({
@@ -9320,7 +9322,7 @@ app.post('/api/members/enrollments/:signupId/cancel', authenticateMember, async 
       data: result,
       message: result.immediate
         ? 'Enrollment cancelled.'
-        : `Cancellation scheduled. Billing changes take effect on ${result.effectiveDate}.`,
+        : 'Cancellation request sent to Billing for review. Access and billing remain unchanged until approval.',
     })
   } catch (error) {
     const status =

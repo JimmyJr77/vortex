@@ -1062,14 +1062,18 @@ export async function loginSchedulingAuthFromMemberSession(
 
 export interface MemberEnrollmentCancelResult {
   signupId: number
+  requestId?: number
   effectiveDate: string | null
   immediate: boolean
+  pendingReview?: boolean
+  isFixedTerm?: boolean
 }
 
 /** Cancel a family member's scheduling enrollment. Billing changes on the 1st unless waitlisted. */
 export async function memberCancelEnrollment(
   signupId: number,
   memberToken: string,
+  reason?: string,
 ): Promise<MemberEnrollmentCancelResult> {
   const res = await fetch(`${getApiUrl()}/api/members/enrollments/${signupId}/cancel`, {
     method: 'POST',
@@ -1077,6 +1081,7 @@ export async function memberCancelEnrollment(
       'Content-Type': 'application/json',
       Authorization: `Bearer ${memberToken}`,
     },
+    body: JSON.stringify({ reason: reason?.trim() || null }),
   })
   return parseJson<MemberEnrollmentCancelResult>(res)
 }

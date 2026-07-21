@@ -31,8 +31,13 @@ function mockPool(state) {
       ) {
         return { rows: [] }
       }
-      if (text.includes('FROM scheduling_signup') && text.includes('WHERE id = $1')) {
+      if (text.includes('FROM scheduling_signup s') && text.includes('WHERE s.id = $1')) {
         return { rows: state.signup ? [state.signup] : [] }
+      }
+      if (text.includes('FROM enrollment_cancellation_request')) return { rows: [] }
+      if (text.includes('INSERT INTO enrollment_cancellation_request')) {
+        state.request = { id: 91, signup_id: params[0], recommended_effective_date: params[4] }
+        return { rows: [{ id: 91 }] }
       }
       if (text.includes('UPDATE scheduling_signup') && text.includes('cancel_effective_date')) {
         state.signup = { ...state.signup, cancel_effective_date: params[1] }
@@ -67,7 +72,7 @@ function mockPool(state) {
   }
 }
 
-test('requestMemberEnrollmentCancellation schedules cancel on the next billing 1st', async () => {
+test('requestMemberEnrollmentCancellation queues billing review without changing access', async () => {
   const state = {
     signup: {
       id: 42,
@@ -86,8 +91,11 @@ test('requestMemberEnrollmentCancellation schedules cancel on the next billing 1
   })
 
   assert.equal(result.immediate, false)
+  assert.equal(result.pendingReview, true)
+  assert.equal(result.requestId, 91)
   assert.equal(result.effectiveDate, nextEnrollmentBillingChangeDate())
-  assert.equal(state.signup?.cancel_effective_date, result.effectiveDate)
+  assert.equal(state.signup?.cancel_effective_date, null)
+  assert.equal(state.request?.recommended_effective_date, result.effectiveDate)
 })
 
 test('requestMemberEnrollmentCancellation cancels waitlisted signups immediately', async () => {

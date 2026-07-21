@@ -218,6 +218,7 @@ function MemberEnrollmentActionModal({
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [confirming, setConfirming] = useState(false)
+  const [reason, setReason] = useState('')
   const isWaitlisted = row.status.toLowerCase() === 'waitlisted'
   const pendingCancel = Boolean(row.cancel_effective_date)
 
@@ -225,7 +226,7 @@ function MemberEnrollmentActionModal({
     setBusy(true)
     setErr(null)
     try {
-      const result = await memberCancelEnrollment(row.id, memberToken)
+      const result = await memberCancelEnrollment(row.id, memberToken, reason)
       await onChanged(result)
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Failed to cancel enrollment')
@@ -270,7 +271,7 @@ function MemberEnrollmentActionModal({
               <p className="text-sm text-gray-600">
                 {isWaitlisted
                   ? 'This waitlisted spot can be removed immediately. No billing applies while waitlisted.'
-                  : 'Cancel this enrollment. You may continue attending through the current billing period. Billing changes take place on the 1st of each month — you will not be charged on the next billing date.'}
+                  : 'Request cancellation through Billing. Your enrollment and billing stay active until the request is reviewed. Recurring memberships normally end after the current paid period; fixed-term programs require individual review.'}
               </p>
 
               {confirming ? (
@@ -278,8 +279,17 @@ function MemberEnrollmentActionModal({
                   <p className="text-sm text-red-800">
                     {isWaitlisted
                       ? 'Remove this waitlist spot?'
-                      : 'Schedule cancellation? You will keep access until the next billing date on the 1st.'}
+                      : 'Send this request to Billing for review? No access or billing change occurs until it is approved.'}
                   </p>
+                  {!isWaitlisted && (
+                    <textarea
+                      value={reason}
+                      onChange={(event) => setReason(event.target.value)}
+                      placeholder="Reason for cancellation (optional)"
+                      rows={3}
+                      className="w-full rounded-md border border-red-200 bg-white px-3 py-2 text-sm text-gray-800"
+                    />
+                  )}
                   <div className="flex gap-2">
                     <button
                       type="button"
@@ -288,7 +298,7 @@ function MemberEnrollmentActionModal({
                       className="inline-flex items-center gap-1 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
                     >
                       {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserMinus className="w-4 h-4" />}
-                      {isWaitlisted ? 'Remove from waitlist' : 'Confirm cancellation'}
+                      {isWaitlisted ? 'Remove from waitlist' : 'Send to Billing'}
                     </button>
                     <button
                       type="button"
@@ -307,7 +317,7 @@ function MemberEnrollmentActionModal({
                   className="inline-flex items-center gap-1.5 rounded-md border border-red-200 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
                 >
                   <UserMinus className="w-4 h-4" />
-                  {isWaitlisted ? 'Leave waitlist' : 'Cancel enrollment'}
+                  {isWaitlisted ? 'Leave waitlist' : 'Request cancellation'}
                 </button>
               )}
             </>

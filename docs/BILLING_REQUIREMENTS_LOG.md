@@ -18,8 +18,8 @@
 | # | Section | Status | Completion evidence |
 |---|---|---|---|
 | 1 | Centralize financial alerts and replies through `billing@vortexathletics.com` | COMPLETE | PR #4; production commit `330e70f`; Render live and healthy; Stripe support email and Render variables verified; 15 focused tests passed. |
-| 2 | Failed-payment alert with staff-reviewed suspend and restore actions | IN PROGRESS | Current alert schema and admin Billing surface under implementation review. |
-| 3 | Billing-dashboard cancellation review, including multi-month programs | PENDING | — |
+| 2 | Failed-payment alert with staff-reviewed suspend and restore actions | COMPLETE | PR #5; production commit `f2194d8`; Vercel passed; Render live and healthy; focused tests and production build passed. |
+| 3 | Billing-dashboard cancellation review, including multi-month programs | IN PROGRESS | Durable review queue, member request flow, and staff decision surface implemented locally; release verification underway. |
 | 4 | Refund exception approval and supporting evidence | PENDING | — |
 | 5 | Structured missed-class tracking on athlete profiles | PENDING | — |
 | 6 | Dispute ownership, evidence workflow, and deadline visibility | PENDING | — |
@@ -58,7 +58,7 @@ Section completed July 20, 2026.
 
 ## Section 2 — Failed-payment suspension and restoration
 
-Status: `IN PROGRESS`
+Status: `COMPLETE`
 
 Approved behavior: honor Stripe Smart Retries for eight attempts over fourteen days, then create a staff alert with reviewed **Suspend access** and **Restore access** actions. Never suspend automatically. Every action must record actor, timestamp, reason, affected enrollments, and customer-notification result.
 
@@ -79,4 +79,29 @@ Approved behavior: honor Stripe Smart Retries for eight attempts over fourteen d
 
 - Focused service tests cover final-retry detection and exact subscription/signup suspension targeting.
 - TypeScript production build passed.
-- Production deployment and authenticated UI verification pending.
+- GitHub PR [#5](https://github.com/JimmyJr77/vortex/pull/5) passed Vercel CI and merged as `f2194d8`.
+- Render deployed `f2194d8`, reported `Live`, and `/api/health` confirmed email and database connectivity.
+
+Section completed July 20, 2026.
+
+## Section 3 — Cancellation review
+
+Status: `IN PROGRESS`
+
+Approved behavior: member cancellation requests go to the Billing dashboard for review. Recurring memberships normally remain active through the paid period and end without proration; fixed-term or multi-month programs must be visibly flagged for individual review. Waitlisted enrollments may be removed immediately because they have no active billing.
+
+### Implementation log
+
+- Added a durable cancellation-request record with pending, approved, declined, and withdrawn lifecycle states.
+- Kept enrollment access and billing unchanged while a request is pending.
+- Added family-entered cancellation context and clear member-portal language explaining review status.
+- Added a Billing dashboard queue showing athlete, class, billing email, requested reason, recommended end date, and fixed-term program end date.
+- Requires a staff review note for approval or decline and allows an authorized effective-date override.
+- On approval, schedules local enrollment and subscription termination without proration and synchronizes the Stripe subscription end date.
+- Preserves immediate cancellation for unbilled waitlist positions.
+
+### Verification evidence
+
+- Five focused enrollment cancellation tests passed.
+- Full TypeScript production build passed.
+- Service-level review decision tests, release, and production verification pending.

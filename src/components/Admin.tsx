@@ -18,6 +18,7 @@ import AdminSchools from './AdminSchools'
 import AdminAccess from './AdminAccess'
 import AdminFamilyBilling from './AdminFamilyBilling'
 import BillingRecoveryAlerts from './billing/BillingRecoveryAlerts'
+import CancellationReviewPanel from './billing/CancellationReviewPanel'
 import AdminWaivers from './AdminWaivers'
 import AdminSettings from './admin/AdminSettings'
 import AdminCoaches from './AdminCoaches'
@@ -353,6 +354,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
         return (
           <div className="space-y-6">
             <BillingRecoveryAlerts />
+            <CancellationReviewPanel />
             <AdminFamilyBilling />
           </div>
         )
