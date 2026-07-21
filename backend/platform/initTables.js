@@ -234,6 +234,7 @@ export async function initPlatformTables(pool) {
     '228_coaching_boot_constraint_canonical.sql',
     '229_coaching_exercise_progression.sql',
     '230_stripe_operations.sql',
+    '231_stripe_reconciliation.sql',
     '232_billing_access_recovery.sql',
     '233_enrollment_cancellation_review.sql',
     '234_refund_approval_evidence.sql',
