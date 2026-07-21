@@ -238,6 +238,7 @@ export async function initPlatformTables(pool) {
     '233_enrollment_cancellation_review.sql',
     '234_refund_approval_evidence.sql',
     '235_member_missed_class.sql',
+    '236_stripe_dispute_case.sql',
   ]
 
   for (const migrationFile of migrationFiles) {

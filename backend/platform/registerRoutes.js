@@ -63,6 +63,7 @@ import {
   recordPaymentRecoveryExhaustedAlert,
 } from '../billing/billingAccessRecovery.js'
 import { listCancellationRequests, reviewCancellationRequest } from '../billing/cancellationReview.js'
+import { listDisputeCases, syncDisputeCase, updateDisputeEvidence } from '../billing/disputeOperations.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -2245,13 +2246,22 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         event.type === 'charge.dispute.closed'
       ) {
         const dispute = event.data?.object ?? {}
-        await recordStripeBillingAlert(pool, {
-          event,
-          object: dispute,
-          alertType: 'dispute',
-          severity: event.type === 'charge.dispute.created' ? 'critical' : 'warning',
-          message: `Stripe dispute ${dispute.status ?? 'updated'} (${dispute.reason ?? 'reason unavailable'})`,
-        })
+        await syncDisputeCase(pool, dispute)
+        if (event.type === 'charge.dispute.closed' || ['won', 'lost'].includes(dispute.status)) {
+          await pool.query(
+            `UPDATE stripe_billing_alert SET resolved_at = now(), updated_at = now()
+             WHERE alert_type = 'dispute' AND stripe_object_id = $1 AND resolved_at IS NULL`,
+            [dispute.id],
+          )
+        } else {
+          await recordStripeBillingAlert(pool, {
+            event,
+            object: dispute,
+            alertType: 'dispute',
+            severity: 'critical',
+            message: `Stripe dispute ${dispute.status ?? 'updated'} (${dispute.reason ?? 'reason unavailable'})`,
+          })
+        }
       } else if (event.type === 'invoice.finalization_failed') {
         const invoice = event.data?.object ?? {}
         await recordStripeBillingAlert(pool, {
@@ -2366,6 +2376,22 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     } catch (error) {
       const message = error?.message || 'Failed to review cancellation request.'
       res.status(/not found/i.test(message) ? 404 : 400).json({ success: false, message })
+    }
+  })
+
+  app.get('/api/admin/billing/disputes', ...requirePermission(pool, jwtSecret, 'billing.view'), async (_req, res) => {
+    res.json({ success: true, data: await listDisputeCases(pool) })
+  })
+
+  app.patch('/api/admin/billing/disputes/:id/evidence', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
+    try {
+      const data = await updateDisputeEvidence(pool, {
+        id: Number(req.params.id), evidenceStatus: req.body?.evidenceStatus,
+        evidenceNote: req.body?.evidenceNote, userId: req.platformAuth?.user?.id ?? null,
+      })
+      res.json({ success: true, data })
+    } catch (error) {
+      res.status(/not found/i.test(error?.message || '') ? 404 : 400).json({ success: false, message: error?.message || 'Failed to update dispute evidence.' })
     }
   })
 
