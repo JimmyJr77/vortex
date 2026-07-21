@@ -62,6 +62,7 @@ import {
   applyBillingAccessAction,
   recordPaymentRecoveryExhaustedAlert,
 } from '../billing/billingAccessRecovery.js'
+import { listCancellationRequests, reviewCancellationRequest } from '../billing/cancellationReview.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -2294,6 +2295,31 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       res.json({ success: true, data: result.rows })
     } catch (error) {
       res.status(500).json({ success: false, message: 'Failed to load Stripe billing alerts.' })
+    }
+  })
+
+  app.get('/api/admin/billing/cancellation-requests', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
+    try {
+      const data = await listCancellationRequests(pool, { status: req.query.status || 'pending' })
+      res.json({ success: true, data })
+    } catch (error) {
+      res.status(500).json({ success: false, message: error?.message || 'Failed to load cancellation requests.' })
+    }
+  })
+
+  app.post('/api/admin/billing/cancellation-requests/:id/review', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
+    try {
+      const data = await reviewCancellationRequest(pool, {
+        requestId: Number(req.params.id),
+        decision: req.body?.decision,
+        effectiveDate: req.body?.effectiveDate || null,
+        reviewNote: req.body?.reviewNote,
+        reviewedByUserId: req.platformAuth?.user?.id ?? null,
+      })
+      res.json({ success: true, data })
+    } catch (error) {
+      const message = error?.message || 'Failed to review cancellation request.'
+      res.status(/not found/i.test(message) ? 404 : 400).json({ success: false, message })
     }
   })
 

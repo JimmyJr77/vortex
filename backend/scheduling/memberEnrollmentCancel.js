@@ -156,6 +156,8 @@ async function finalizeEnrollmentCancellation(pool, { signupId, previousStatus, 
 export async function requestMemberEnrollmentCancellation(pool, {
   signupId,
   allowedMemberIds,
+  requestedByUserId = null,
+  reason = null,
 }) {
   if (!allowedMemberIds?.length) {
     const err = new Error('Not authorized to cancel this enrollment')
@@ -171,9 +173,20 @@ export async function requestMemberEnrollmentCancellation(pool, {
 
   const existing = await pool.query(
     `
-      SELECT id, member_id, status, slot_group_id, cancel_effective_date, orphaned_at
-      FROM scheduling_signup
-      WHERE id = $1
+      SELECT s.id, s.member_id, s.status, s.slot_group_id, s.cancel_effective_date, s.orphaned_at,
+             COALESCE(o.end_date, sg.active_end, sf.end_date) AS program_end_date,
+             bs.family_billing_account_id
+      FROM scheduling_signup s
+      JOIN scheduling_form sf ON sf.id = s.form_id
+      LEFT JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
+      LEFT JOIN scheduling_offering o ON o.id = sg.offering_id
+      LEFT JOIN LATERAL (
+        SELECT family_billing_account_id
+        FROM billing_subscription
+        WHERE source_type = 'scheduling_signup' AND source_id = s.id::text
+        ORDER BY id DESC LIMIT 1
+      ) bs ON TRUE
+      WHERE s.id = $1
     `,
     [signupId],
   )
@@ -213,42 +226,34 @@ export async function requestMemberEnrollmentCancellation(pool, {
     return { signupId: Number(signup.id), effectiveDate: null, immediate: true }
   }
 
-  const effectiveDate = nextEnrollmentBillingChangeDate()
-  const client = await pool.connect()
-  try {
-    await client.query('BEGIN')
-    await client.query(
-      `
-        UPDATE scheduling_signup
-        SET cancel_effective_date = $2,
-            cancel_requested_at = now()
-        WHERE id = $1
-      `,
-      [signupId, effectiveDate],
-    )
-    await safeScheduleSubscriptionEnd(client, {
-      sourceType: 'scheduling_signup',
-      sourceId: signupId,
-      effectiveDate,
-    })
-    await client.query('COMMIT')
-  } catch (err) {
-    await client.query('ROLLBACK')
+  const duplicate = await pool.query(
+    `SELECT id FROM enrollment_cancellation_request WHERE signup_id = $1 AND status = 'pending'`,
+    [signupId],
+  )
+  if (duplicate.rows[0]) {
+    const err = new Error('A cancellation request is already awaiting billing review')
+    err.statusCode = 400
     throw err
-  } finally {
-    client.release()
   }
 
-  void syncStripeForBillingSource(pool, {
-    sourceType: 'scheduling_signup',
-    sourceId: signupId,
+  const effectiveDate = nextEnrollmentBillingChangeDate()
+  const programEndDate = signup.program_end_date ? String(signup.program_end_date).slice(0, 10) : null
+  const isFixedTerm = Boolean(programEndDate)
+  const inserted = await pool.query(
+    `INSERT INTO enrollment_cancellation_request (
+       signup_id, family_billing_account_id, requested_by_user_id, request_reason,
+       recommended_effective_date, is_fixed_term, program_end_date
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING id`,
+    [signupId, signup.family_billing_account_id ?? null, requestedByUserId, reason, effectiveDate, isFixedTerm, programEndDate],
+  )
+
+  return {
+    signupId: Number(signup.id),
+    requestId: Number(inserted.rows[0].id),
     effectiveDate,
     immediate: false,
-  }).catch((syncErr) => {
-    console.warn('[memberEnrollmentCancel] stripe sync:', syncErr?.message ?? syncErr)
-  })
-
-  scheduleFamilyDiscountResync(pool, signup.member_id != null ? Number(signup.member_id) : null)
-
-  return { signupId: Number(signup.id), effectiveDate, immediate: false }
+    pendingReview: true,
+    isFixedTerm,
+  }
 }
