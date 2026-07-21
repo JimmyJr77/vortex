@@ -206,7 +206,14 @@ export async function recordStripeBillingAlert(pool, { event, object, alertType,
      VALUES ($1, $2, $3, $4, $5, $6, $7)
      ON CONFLICT (stripe_event_id) DO NOTHING RETURNING *`,
     [event?.id ?? null, accountId, alertType, severity, object?.id ?? null, message,
-      JSON.stringify({ status: object?.status ?? null, reason: object?.reason ?? null, amount: object?.amount ?? object?.amount_due ?? null })],
+      JSON.stringify({
+        status: object?.status ?? null,
+        reason: object?.reason ?? null,
+        amount: object?.amount ?? object?.amount_due ?? null,
+        currency: object?.currency ?? null,
+        attemptCount: object?.attempt_count ?? null,
+        nextPaymentAttempt: object?.next_payment_attempt ?? null,
+      })],
   )
   const alert = inserted.rows[0] ?? null
   const to = billingMailbox()
