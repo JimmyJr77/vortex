@@ -19,8 +19,8 @@
 |---|---|---|---|
 | 1 | Centralize financial alerts and replies through `billing@vortexathletics.com` | COMPLETE | PR #4; production commit `330e70f`; Render live and healthy; Stripe support email and Render variables verified; 15 focused tests passed. |
 | 2 | Failed-payment alert with staff-reviewed suspend and restore actions | COMPLETE | PR #5; production commit `f2194d8`; Vercel passed; Render live and healthy; focused tests and production build passed. |
-| 3 | Billing-dashboard cancellation review, including multi-month programs | IN PROGRESS | Durable review queue, member request flow, and staff decision surface implemented locally; release verification underway. |
-| 4 | Refund exception approval and supporting evidence | PENDING | — |
+| 3 | Billing-dashboard cancellation review, including multi-month programs | COMPLETE | PR #6; production commit `1835efc`; Vercel passed; Render live; eight focused tests and production build passed. |
+| 4 | Refund exception approval and supporting evidence | IN PROGRESS | Owner/Admin identity, approved-exception classification, and evidence validation implemented locally; release verification underway. |
 | 5 | Structured missed-class tracking on athlete profiles | PENDING | — |
 | 6 | Dispute ownership, evidence workflow, and deadline visibility | PENDING | — |
 | 7 | Automated reconciliation and unresolved operational alerts | PENDING | — |
@@ -86,7 +86,7 @@ Section completed July 20, 2026.
 
 ## Section 3 — Cancellation review
 
-Status: `IN PROGRESS`
+Status: `COMPLETE`
 
 Approved behavior: member cancellation requests go to the Billing dashboard for review. Recurring memberships normally remain active through the paid period and end without proration; fixed-term or multi-month programs must be visibly flagged for individual review. Waitlisted enrollments may be removed immediately because they have no active billing.
 
@@ -104,4 +104,26 @@ Approved behavior: member cancellation requests go to the Billing dashboard for 
 
 - Five focused enrollment cancellation tests passed.
 - Full TypeScript production build passed.
-- Service-level review decision tests, release, and production verification pending.
+- GitHub PR [#6](https://github.com/JimmyJr77/vortex/pull/6) passed Vercel CI and merged as `1835efc`.
+- Render deployed `1835efc` and reported `Live` after its database migration and health checks.
+
+Section completed July 20, 2026.
+
+## Section 4 — Refund exception approval
+
+Status: `IN PROGRESS`
+
+Approved behavior: fees are non-refundable except duplicate charges, a Vortex cancellation, documented medical issues, relocation, or Owner discretion. Only an Owner/Admin may approve a refund, and every refund must preserve its exception category, supporting evidence or approval note, approver identity, and approval time.
+
+### Implementation log
+
+- Added structured exception categories matching the approved policy.
+- Requires supporting evidence or an Owner/Admin approval note before refund creation.
+- Requires the authenticated approving user and records approver identity and timestamp with the refund.
+- Blocks the Billing UI from issuing a refund until both exception and evidence fields are complete.
+- Retains Stripe idempotency, refundable-balance validation, and webhook synchronization.
+
+### Verification evidence
+
+- Focused validation tests and the full production build pass locally.
+- Release and production verification pending.

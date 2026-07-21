@@ -235,6 +235,9 @@ export default function AdminFamilyBilling() {
       await load()
     })
 
+  const [refundExceptionCategory, setRefundExceptionCategory] = useState('')
+  const [refundEvidenceNote, setRefundEvidenceNote] = useState('')
+
   const addRefund = () =>
     withSaving(async () => {
       if (!account || !refund.amount.trim()) return
@@ -245,10 +248,14 @@ export default function AdminFamilyBilling() {
           reason: refund.reason || null,
           paymentId: refund.paymentId ? Number(refund.paymentId) : null,
           externalReference: refund.externalReference || null,
+          exceptionCategory: refundExceptionCategory || null,
+          evidenceNote: refundEvidenceNote || null,
         }),
       })
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Failed to record refund')
       setRefund({ amount: '', reason: '', paymentId: '', externalReference: '' })
+      setRefundExceptionCategory('')
+      setRefundEvidenceNote('')
       await load()
     })
 
@@ -454,6 +461,15 @@ export default function AdminFamilyBilling() {
                 </div>
                 <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Amount dollars" value={refund.amount} onChange={(e) => setRefund((prev) => ({ ...prev, amount: e.target.value }))} />
                 <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Reason" value={refund.reason} onChange={(e) => setRefund((prev) => ({ ...prev, reason: e.target.value }))} />
+                <select required className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" value={refundExceptionCategory} onChange={(e) => setRefundExceptionCategory(e.target.value)}>
+                  <option value="">Select approved exception</option>
+                  <option value="duplicate_charge">Duplicate charge</option>
+                  <option value="vortex_cancellation">Vortex cancellation</option>
+                  <option value="medical">Documented medical issue</option>
+                  <option value="relocation">Relocation</option>
+                  <option value="owner_discretion">Owner discretion</option>
+                </select>
+                <textarea required rows={3} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Supporting evidence or Owner/Admin approval note" value={refundEvidenceNote} onChange={(e) => setRefundEvidenceNote(e.target.value)} />
                 <select className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" value={refund.paymentId} onChange={(e) => setRefund((prev) => ({ ...prev, paymentId: e.target.value }))}>
                   <option value="">Local ledger refund (no Stripe payment)</option>
                   {(account.payments ?? []).map((p) => (
@@ -462,7 +478,7 @@ export default function AdminFamilyBilling() {
                     </option>
                   ))}
                 </select>
-                <button type="button" onClick={() => void addRefund()} disabled={saving} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg disabled:opacity-60">
+                <button type="button" onClick={() => void addRefund()} disabled={saving || !refundExceptionCategory || !refundEvidenceNote.trim()} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg disabled:opacity-60">
                   Issue Refund
                 </button>
                 <div className="divide-y divide-gray-100">
