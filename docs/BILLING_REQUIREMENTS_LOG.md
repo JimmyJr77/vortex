@@ -205,6 +205,9 @@ Status: `IN PROGRESS`
 ### Current evidence
 
 - Stripe live-mode Payments currently shows **Start collecting payments** and no live transactions.
+- GA4 property `539662954` lists the canonical `purchase` event as a key event; it correctly reports **No stream data detected** because no production purchase has occurred.
+- GA4 is actively collecting website traffic and reports Paid Search sessions, so the property/stream is operational before the first purchase.
+- Google Ads conversion-screen inspection was blocked by the browser's ad-blocker warning; conversion receipt must therefore be confirmed with the first live transaction rather than inferred.
 - A fabricated payment will not be used to claim production payment or attribution verification.
 - The production verification procedure is documented in [FIRST_LIVE_PAYMENT_VERIFICATION.md](./FIRST_LIVE_PAYMENT_VERIFICATION.md).
 
