@@ -188,6 +188,7 @@ const dedupeHeadTags = (html, pageTitle) => {
 
 const prerenderAppRoutes = async () => {
   let chromium
+  let launchOptions = {}
   try {
     const playwright = await import('playwright')
     chromium = playwright.chromium
@@ -196,6 +197,16 @@ const prerenderAppRoutes = async () => {
       '[prerender] Playwright not installed; skipping route prerender. Run: npm i -D playwright',
     )
     return
+  }
+
+  if (process.env.VERCEL) {
+    const serverlessChromium = (await import('@sparticuz/chromium')).default
+    launchOptions = {
+      args: serverlessChromium.args,
+      executablePath: await serverlessChromium.executablePath(),
+      headless: true,
+    }
+    console.log('[prerender] Using serverless Chromium for Vercel')
   }
 
   const preview = spawn(
@@ -236,7 +247,7 @@ const prerenderAppRoutes = async () => {
       })),
     ]
 
-    const browser = await chromium.launch()
+    const browser = await chromium.launch(launchOptions)
     const page = await browser.newPage()
 
     const snapshots = []
@@ -257,7 +268,11 @@ const prerenderAppRoutes = async () => {
       console.log(`[prerender] Wrote ${outFile}`)
     }
   } catch (err) {
-    // Never fail the build because of prerendering; fall back to the SPA.
+    // Production depends on these snapshots for route-specific SEO. Do not
+    // silently deploy generic SPA HTML when Vercel prerendering regresses.
+    if (process.env.VERCEL) throw err
+
+    // Keep local builds usable when a developer has not installed Chromium.
     console.warn('[prerender] Route prerender failed, continuing build:', err?.message ?? err)
   } finally {
     preview.kill('SIGTERM')

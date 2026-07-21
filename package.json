@@ -26,7 +26,7 @@
     "pull-lfs": "bash scripts/pull-lfs.sh || echo 'Git LFS pull failed, continuing build'",
     "lint": "eslint .",
     "preview": "vite preview",
-    "vercel-build": "npm run prebuild && tsc -b && vite build && (npx playwright install --with-deps chromium || npx playwright install chromium || true) && PRERENDER=true npm run postbuild"
+    "vercel-build": "npm run prebuild && tsc -b && vite build && PRERENDER=true npm run postbuild"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
@@ -47,6 +47,7 @@
     "@aws-sdk/client-s3": "^3.975.0",
     "@eslint/js": "^9.36.0",
     "@playwright/test": "^1.61.0",
+    "@sparticuz/chromium": "147.0.0",
     "@types/node": "^24.9.1",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
