@@ -1244,6 +1244,93 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true })
   })
 
+  app.get('/api/admin/billing/family-lookup', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
+    const query = String(req.query?.q || '').trim()
+    if (!query) return res.json({ success: true, data: [] })
+
+    const facilityId = req.platformAuth.user.facility_id
+    const numericFamilyId = /^\d+$/.test(query) ? Number(query) : null
+    const searchPattern = `%${query}%`
+
+    try {
+      const result = await pool.query(
+        `
+          SELECT DISTINCT
+            f.id AS family_id,
+            f.family_name,
+            fba.id AS billing_account_id,
+            m.id AS member_id,
+            m.first_name,
+            m.last_name,
+            m.email,
+            m.phone,
+            m.address,
+            m.billing_street,
+            m.billing_city,
+            m.billing_state,
+            m.billing_zip
+          FROM family f
+          JOIN member m ON
+            m.family_id = f.id
+            OR EXISTS (
+              SELECT 1
+              FROM family_member fm
+              WHERE fm.family_id = f.id
+                AND fm.member_id = m.id
+                AND fm.is_active = TRUE
+            )
+          LEFT JOIN family_billing_account fba
+            ON fba.family_id = f.id
+            AND fba.is_active = TRUE
+          WHERE f.facility_id = $1
+            AND (
+              ($2::bigint IS NOT NULL AND f.id = $2)
+              OR CONCAT_WS(' ', m.first_name, m.last_name) ILIKE $3
+              OR COALESCE(m.email, '') ILIKE $3
+              OR COALESCE(m.phone, '') ILIKE $3
+              OR (
+                regexp_replace($4, '\\D', '', 'g') <> ''
+                AND regexp_replace(COALESCE(m.phone, ''), '\\D', '', 'g')
+                  LIKE '%' || regexp_replace($4, '\\D', '', 'g') || '%'
+              )
+              OR COALESCE(m.address, '') ILIKE $3
+              OR CONCAT_WS(' ', m.billing_street, m.billing_city, m.billing_state, m.billing_zip) ILIKE $3
+            )
+          ORDER BY f.id, m.last_name, m.first_name, m.id
+          LIMIT 100
+        `,
+        [facilityId, numericFamilyId, searchPattern, query],
+      )
+
+      const families = new Map()
+      for (const row of result.rows) {
+        const familyId = Number(row.family_id)
+        let family = families.get(familyId)
+        if (!family) {
+          family = {
+            familyId,
+            familyName: row.family_name,
+            billingAccountId: row.billing_account_id == null ? null : Number(row.billing_account_id),
+            matchedMembers: [],
+          }
+          families.set(familyId, family)
+        }
+        family.matchedMembers.push({
+          id: Number(row.member_id),
+          name: [row.first_name, row.last_name].filter(Boolean).join(' '),
+          email: row.email,
+          phone: row.phone,
+          address: row.address || [row.billing_street, row.billing_city, row.billing_state, row.billing_zip].filter(Boolean).join(', '),
+        })
+      }
+
+      res.json({ success: true, data: [...families.values()].slice(0, 25) })
+    } catch (err) {
+      console.error('[billing] family-lookup:', err)
+      res.status(500).json({ success: false, message: 'Failed to search family billing accounts' })
+    }
+  })
+
   app.get('/api/admin/families/:familyId/billing-account', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
     try {
       const familyId = Number(req.params.familyId)
@@ -2521,6 +2608,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             WHEN 'RELEASE_OF_LIABILITY' THEN 2
             WHEN 'MEDICAL_EMERGENCY' THEN 3
             WHEN 'PAYMENT_POLICY' THEN 4
+            WHEN 'MEDIA_RELEASE' THEN 5
             ELSE 99
           END,
           wt.name,

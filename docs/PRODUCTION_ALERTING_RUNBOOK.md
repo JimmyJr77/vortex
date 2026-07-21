@@ -12,6 +12,8 @@ Detect and respond to failures before clients are blocked from enrolling, signin
 - Database connectivity failures
 - Failed payment reconciliation write attempts
 - Failed transactional email sends
+- Stripe webhook events left failed or processing for more than 15 minutes
+- Unresolved Stripe disputes or successful payments missing/mismatched in the local ledger
 
 ## Optional High-Value Alerts
 
@@ -36,6 +38,7 @@ Detect and respond to failures before clients are blocked from enrolling, signin
 2. Check backend logs for `requestId` and correlate failing requests.
 3. Validate DB health and migration state via `/api/health`.
 4. If issue is external provider related (email/payment), degrade gracefully and notify operations.
+5. Open **Admin → Billing → Stripe operations** to inspect the affected Stripe object, then use **Reconcile now** after correcting the cause.
 
 ## Incident Severity
 

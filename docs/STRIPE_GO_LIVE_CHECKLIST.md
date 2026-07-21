@@ -10,6 +10,7 @@ Step-by-step guide to get billing working in **test mode** first, then live. Wor
 | 2 | Pay-at-enrollment via Stripe Checkout | Done |
 | 3 | Stripe Subscriptions for recurring tuition + invoice webhooks | Done — renewals mirror into the ledger; status changes synchronize |
 | 4 | Live keys, reconciliation job, Customer Portal | Live keys configured; endpoint verification and Customer Portal remain ops steps below |
+| 5 | Billing operations | Staff alert dashboard and daily reconciliation implemented; Render cron and sending-domain DNS require production configuration |
 
 ---
 
@@ -24,6 +25,9 @@ STRIPE_ENABLED=true
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...   # from stripe listen (step A3)
+STRIPE_EMAIL_DOMAIN=billing.vortexathletics.com
+STRIPE_EMAIL_DOMAIN_VERIFIED=false
+BILLING_ALERT_EMAIL=team@vortexathletics.com
 DATABASE_URL=...                  # or DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD
 ```
 
@@ -218,10 +222,30 @@ cd backend && npm run stripe:sync-catalog
 
 Uses whichever `STRIPE_SECRET_KEY` is in env — must be live key for live Products.
 
-### C5. Post go-live monitoring
+### C5. Branded Stripe sending domain
+
+1. In Stripe live mode, open **Settings → Business → Customer emails → Custom email domain**.
+2. Add `billing.vortexathletics.com` (recommended, so the root domain can keep its existing mail records).
+3. Publish every CNAME and DMARC record Stripe provides. Stripe generates account-specific targets, so do not copy placeholder DNS values.
+4. Wait for Stripe to show **Verified**, set it as the sending domain, and send a test receipt.
+5. Set `STRIPE_EMAIL_DOMAIN=billing.vortexathletics.com` and `STRIPE_EMAIL_DOMAIN_VERIFIED=true` on the backend and reconciliation cron services.
+
+Stripe periodically rechecks these DNS records and can fall back to `stripe.com` if they remain invalid. Keep the records after verification.
+
+### C6. Daily reconciliation and alerts
+
+The Render blueprint includes `vortex-stripe-reconciliation`, scheduled for **07:15 UTC daily**. Configure its `DATABASE_URL`, `STRIPE_SECRET_KEY`, `BILLING_ALERT_EMAIL`, and SMTP variables, then deploy the Blueprint.
+
+- Apply `231_stripe_reconciliation.sql` (or run all migrations).
+- Run once manually with `cd backend && npm run stripe:reconcile`.
+- In Admin → Billing, confirm the latest run is successful.
+- Use **Reconcile now** after webhook incidents or Stripe maintenance.
+- Subscribe the live webhook destination to dispute events and `invoice.finalization_failed` in addition to the existing payment, subscription, and refund events.
+
+### C7. Post go-live monitoring
 
 - Stripe Dashboard → Webhooks — watch for failures.
-- Admin family billing vs Stripe Payments — spot-check weekly.
+- Admin → Billing → Stripe operations — resolve disputes, webhook failures, and ledger mismatches.
 - See `PRODUCTION_ALERTING_RUNBOOK.md` for incident paths.
 
 ---

@@ -87,4 +87,83 @@ Acknowledgment
 
 By enrolling in any program at Vortex Athletics, the client acknowledges that they have read, understand, and agree to this Payment Policy and Auto-Draft Authorization.`,
   },
+  {
+    waiverType: 'MEDIA_RELEASE',
+    name: 'Media, Photography, Video, and Social Media Consent and Release',
+    version: '1.0',
+    body: `VORTEX ATHLETICS LLC
+MEDIA, PHOTOGRAPHY, VIDEO, AND SOCIAL MEDIA CONSENT, RELEASE, AND WAIVER
+
+This Media, Photography, Video, and Social Media Consent, Release, and Waiver ("Agreement") is made for the benefit of Vortex Athletics LLC, doing business as Vortex Athletics, together with its owners, affiliates, employees, coaches, contractors, photographers, videographers, agents, representatives, successors, and authorized promotional service providers (collectively, "Vortex Athletics" or "Vortex").
+
+For purposes of this Agreement, the "Covered Person" means each adult participant signing or identified in the enrollment, each athlete or participant identified in the enrollment, and each minor identified in the enrollment for whom the signer is a parent or legal guardian.
+
+1. Activities and Locations Covered
+
+This Agreement applies whenever a Covered Person is:
+
+• In, entering, leaving, or otherwise present at a facility owned, operated, leased, rented, or used by Vortex Athletics;
+• Participating in, attending, observing, or accompanying another person at any Vortex Athletics class, lesson, practice, training session, camp, clinic, competition, meet, exhibition, performance, party, community activity, promotional appearance, or other event; or
+• Present at an off-site or third-party venue where Vortex Athletics, its athletes, coaches, teams, staff, or representatives are participating, competing, performing, exhibiting, sponsoring, or otherwise officially present, subject to applicable law and the venue's rules.
+
+2. Authorization to Photograph and Record
+
+I knowingly and voluntarily authorize Vortex Athletics to photograph, film, videotape, livestream, audio record, interview, and otherwise capture a Covered Person's name; photograph, image, and likeness; voice and statements; athletic performance, participation, instruction, training, and activities; and appearance at or involvement with Vortex Athletics. These photographs, videos, recordings, and other materials are collectively referred to as the "Media."
+
+3. Authorization to Use the Media
+
+I grant Vortex Athletics a worldwide, royalty-free license, to the fullest extent permitted by law, to use, reproduce, edit, crop, format, caption, adapt, publish, display, distribute, transmit, livestream, archive, and otherwise communicate the Media in any format or medium now known or later developed.
+
+Authorized uses include Vortex Athletics' social media accounts and channels; website and online platforms; organic and paid digital advertising; printed advertising, brochures, flyers, posters, and signage; email and other communications; public relations, press releases, and media outreach; promotional, recruiting, community-engagement, and sponsorship materials; and instructional or educational content relating to Vortex Athletics and its programs. This Agreement authorizes use of the Media; it does not by itself authorize Vortex to send promotional text messages or emails where separate consent is required by law.
+
+Vortex Athletics may use the Media by itself or together with graphics, music, captions, logos, branding, or other materials. Vortex Athletics may provide the Media to authorized designers, marketing agencies, photographers, videographers, printers, technology providers, social media platforms, and similar service providers solely in connection with these authorized purposes.
+
+4. Integrated Nature of Media and Social Media
+
+I understand that the Vortex Athletics experience includes documenting athlete development, demonstrating instruction, recognizing progress, celebrating accomplishments, communicating team and program culture, building community, and sharing the Vortex experience with current and prospective families. Photography, video, and social-media storytelling are integrated components of Vortex Athletics programming and events, rather than a separate service.
+
+Media may be created during live instruction, practices, performances, competitions, group activities, and events. Because these activities frequently involve multiple athletes, coaches, families, and spectators, Vortex cannot reliably separate every individual or incidental appearance from participation or attendance. Accordingly, Vortex Athletics does not offer a completely media-free version of its programs or events; cannot guarantee that a Covered Person will be excluded from photographs, videos, livestreams, background footage, or group images; and makes acceptance of this Agreement a condition of enrollment and participation in Vortex Athletics programming and attendance in areas or at events where Vortex media activities take place, to the extent permitted by law.
+
+5. Respectful and Athlete-Centered Media Standards
+
+Vortex Athletics will exercise reasonable care and good-faith editorial judgment when capturing, selecting, editing, and publishing Media, particularly Media involving children and young athletes. Published Media will be intended to be tasteful, respectful, age-appropriate, responsibly presented, authentic, not materially misleading, supportive of the Covered Person's dignity and reputation, and selected to portray athletes, participants, and the Vortex community in a positive light.
+
+Vortex Athletics will not knowingly publish Media that is demeaning, humiliating, sexualized, materially misleading, or intended to embarrass a Covered Person. Vortex will not intentionally photograph or record in restrooms, changing rooms, locker rooms, private medical or treatment areas, or other locations where a person reasonably expects privacy. Vortex also will not intentionally disclose private contact information, medical information, school information, or similarly sensitive personal information in connection with the Media.
+
+Because preferences concerning appearance and presentation are subjective, Vortex cannot guarantee that every Covered Person will prefer every photograph or recording. Vortex will nevertheless apply these standards consistently and consider reasonable, good-faith concerns about a particular published item while retaining final editorial control.
+
+6. Editing, Identification, and Editorial Control
+
+Vortex Athletics may edit the Media for length, format, clarity, accessibility, branding, or presentation, provided that it does not knowingly use the Media in a materially false or misleading manner. Vortex may identify a Covered Person by first name, team, program, age group, competition level, or athletic accomplishment, or may use the Media without identification. Vortex will not identify a minor by full name in public-facing Media without a separate written authorization. Vortex is not required to use any Media and retains discretion concerning whether, when, where, and how authorized Media will be published.
+
+7. No Compensation or Approval Right
+
+I understand and agree that a Covered Person will not receive compensation, royalties, residuals, fees, or other payment for the capture or authorized use of the Media; I have no right to inspect or approve the Media, captions, finished materials, or particular uses before publication; participation does not guarantee that a Covered Person will be photographed, recorded, identified, or featured; and no separate promise concerning the Media is binding unless contained in a written agreement signed by an authorized Vortex Athletics representative.
+
+8. Ownership and Third-Party Distribution
+
+I understand that Vortex Athletics or a creator authorized by Vortex may own the copyright and other rights in the Media. Once Media is posted, livestreamed, printed, distributed, or otherwise made public, it may be copied, downloaded, saved, reposted, shared, archived, or distributed by third parties. Vortex cannot completely control third-party platforms or members of the public and cannot guarantee removal of copies outside its possession or control.
+
+9. Release and Waiver of Claims
+
+To the fullest extent permitted by Maryland law, I release and discharge Vortex Athletics from claims, demands, liabilities, damages, or causes of action arising from the capture or authorized use of the Media under this Agreement, including claims based on invasion of privacy; appropriation or misappropriation of name or likeness; right of publicity; lack of compensation; editing or formatting of the Media; or an authorized publication, display, distribution, or transmission of the Media.
+
+This release does not apply to conduct that cannot legally be waived, a use that materially exceeds this Agreement, or Vortex Athletics' gross negligence or willful misconduct.
+
+10. Duration and Requests Concerning Published Media
+
+This Agreement applies to Media captured while a Covered Person participates in or attends Vortex Athletics programming or events. The authorization remains effective indefinitely for Media already captured, created, published, distributed, archived, or incorporated into existing materials, to the fullest extent permitted by law.
+
+Vortex may consider a written request concerning future use of a particular item when the request raises a genuine safety, dignity, or privacy concern. This courtesy process does not create a general right to pre-approve, veto, or withdraw previously authorized Media, and Vortex cannot guarantee removal of materials already printed, distributed, shared, archived, or copied by third parties. Because media creation is integrated into Vortex programming, a legally effective withdrawal of consent regarding future capture may affect the Covered Person's ability to participate in or attend programs and events where media capture occurs.
+
+11. Maryland Law; Severability
+
+This Agreement is governed by Maryland law, without regard to conflict-of-law principles. If any provision is held invalid or unenforceable, it will be severed or reformed only to the minimum extent necessary, and the remaining provisions will continue in effect.
+
+12. Acknowledgment and Authority
+
+I certify that I have carefully read and understand this Agreement; have had an opportunity to ask questions before signing; enter into it knowingly and voluntarily; am at least eighteen years old; and, when signing for a minor, am the minor's parent or legal guardian and have legal authority to grant this consent and release on the minor's behalf.
+
+I understand that this is a legally binding media consent and release.`,
+  },
 ]

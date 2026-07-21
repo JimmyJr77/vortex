@@ -1335,6 +1335,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
               WHEN 'RELEASE_OF_LIABILITY' THEN 2
               WHEN 'MEDICAL_EMERGENCY' THEN 3
               WHEN 'PAYMENT_POLICY' THEN 4
+              WHEN 'MEDIA_RELEASE' THEN 5
               ELSE 99
             END,
             name

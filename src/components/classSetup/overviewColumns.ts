@@ -24,6 +24,7 @@ export type OverviewColumnId =
   | 'costPerClass'
   | 'fee1x'
   | 'costPerMonth'
+  | 'active'
   | 'enrollees'
 
 export type FilterKind = 'text' | 'numeric' | 'status' | 'skillLevel' | 'primarySport' | 'currency'
@@ -54,6 +55,7 @@ export const OVERVIEW_COLUMNS: OverviewColumnDef[] = [
   { id: 'costPerClass', label: 'Cost per Class', editable: true, filterKind: 'currency', minWidth: 110, defaultWidth: 120 },
   { id: 'fee1x', label: '1× Fee', editable: true, filterKind: 'currency', minWidth: 90, defaultWidth: 100 },
   { id: 'costPerMonth', label: 'Cost per Month', editable: true, filterKind: 'currency', minWidth: 130, defaultWidth: 160 },
+  { id: 'active', label: 'Active', editable: false, filterKind: 'text', minWidth: 80, defaultWidth: 90 },
   { id: 'enrollees', label: 'Enrollees', editable: false, filterKind: 'numeric', minWidth: 90, defaultWidth: 100 },
 ]
 
@@ -119,6 +121,8 @@ export function getCellDisplayValue(row: ClassSetupOverviewRow, columnId: Overvi
       return row.fee1x || '—'
     case 'costPerMonth':
       return row.costPerMonthSummary || '—'
+    case 'active':
+      return row.classIsActive ? 'Yes' : 'No'
     case 'enrollees':
       return String(row.enrolleeCount)
     default:
@@ -227,6 +231,34 @@ export function applyOverviewFilters(
       }
     }),
   )
+}
+
+function normalizeSmartFilterText(value: string): string {
+  return value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+}
+
+function smartFilterTerms(query: string): string[] {
+  const terms: string[] = []
+  const matcher = /"([^"]+)"|(\S+)/g
+  let match: RegExpExecArray | null
+  while ((match = matcher.exec(query)) !== null) {
+    const term = normalizeSmartFilterText(match[1] || match[2] || '').trim()
+    if (term) terms.push(term)
+  }
+  return terms
+}
+
+/** Match every search term anywhere across a Class Master row. Quoted text is treated as one phrase. */
+export function matchesOverviewSmartFilter(row: ClassSetupOverviewRow, query: string): boolean {
+  const terms = smartFilterTerms(query)
+  if (terms.length === 0) return true
+  const searchableText = normalizeSmartFilterText(
+    OVERVIEW_COLUMNS.map((column) => getCellDisplayValue(row, column.id)).join(' '),
+  )
+  return terms.every((term) => searchableText.includes(term))
 }
 
 export function hasActiveFilters(filters: ColumnFilters): boolean {

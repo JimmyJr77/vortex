@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react'
-import { initCrossDomainConsent, saveConsent, shouldShowCookieConsent } from '../utils/consent'
+import {
+  getStoredConsent,
+  initCrossDomainConsent,
+  saveConsent,
+  shouldShowCookieConsent,
+} from '../utils/consent'
 import { getHubSiteUrl } from '../utils/crossDomainConsent'
 
 const CookieConsent = () => {
@@ -33,7 +38,26 @@ const CookieConsent = () => {
     setVisible(false)
   }
 
-  if (!visible) return null
+  const openSettings = () => {
+    const stored = getStoredConsent()
+    setAnalytics(stored?.analytics ?? false)
+    setMarketing(stored?.marketing ?? false)
+    setShowSettings(true)
+    setVisible(true)
+  }
+
+  if (!visible) {
+    return (
+      <button
+        type="button"
+        onClick={openSettings}
+        className="fixed bottom-3 right-3 z-[90] rounded-full border border-gray-600 bg-black/90 px-3 py-2 text-xs font-medium text-white shadow-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-vortex-red"
+        aria-label="Open cookie settings"
+      >
+        Cookie settings
+      </button>
+    )
+  }
 
   return (
     <div

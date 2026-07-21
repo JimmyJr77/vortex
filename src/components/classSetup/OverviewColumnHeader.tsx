@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowDown, ArrowUp, ArrowUpDown, ListFilter, X } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, ListFilter, X } from 'lucide-react'
 import { type ClassSetupOverviewStatus } from '../../utils/classSetupOverviewApi'
 import {
   type ColumnFilter,
@@ -17,6 +17,8 @@ interface Props {
   onFilterChange: (columnId: OverviewColumnDef['id'], filter: ColumnFilter | undefined) => void
   onColumnResizeStart: (columnId: OverviewColumnDef['id'], clientX: number) => void
   width: number
+  collapsed: boolean
+  onToggleCollapsed: () => void
 }
 
 const STATUS_OPTIONS: ClassSetupOverviewStatus[] = ['Active', 'Inactive', 'Legacy']
@@ -174,6 +176,8 @@ const OverviewColumnHeader = ({
   onFilterChange,
   onColumnResizeStart,
   width,
+  collapsed,
+  onToggleCollapsed,
 }: Props) => {
   const [filterOpen, setFilterOpen] = useState(false)
   const isSorted = sortConfig.column === column.id
@@ -189,10 +193,21 @@ const OverviewColumnHeader = ({
 
   return (
     <th
-      className="relative px-3 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50 border-b border-gray-200"
-      style={{ width, minWidth: column.minWidth }}
+      className={`relative text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50 border-b border-gray-200 ${collapsed ? 'p-0 overflow-visible' : 'px-3 py-3'}`}
+      style={{ width, minWidth: collapsed ? 5 : column.minWidth }}
     >
-      <div className="flex items-center gap-1 pr-2">
+      {collapsed ? (
+        <button
+          type="button"
+          onClick={onToggleCollapsed}
+          className="absolute left-1/2 top-1/2 z-20 flex h-5 w-4 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded bg-gray-50 text-gray-600 shadow-sm hover:bg-gray-200"
+          title={`Expand ${column.label}`}
+          aria-label={`Expand ${column.label} column`}
+          aria-expanded="false"
+        >
+          <ChevronRight className="h-3 w-3" />
+        </button>
+      ) : <div className="flex items-center gap-1 pr-2">
         <span className="truncate">{column.label}</span>
         <button
           type="button"
@@ -223,8 +238,18 @@ const OverviewColumnHeader = ({
             />
           )}
         </div>
-      </div>
-      <button
+        <button
+          type="button"
+          onClick={onToggleCollapsed}
+          className="shrink-0 rounded p-0.5 text-gray-600 hover:bg-gray-200"
+          title={`Collapse ${column.label}`}
+          aria-label={`Collapse ${column.label} column`}
+          aria-expanded="true"
+        >
+          <ChevronLeft className="h-3 w-3" />
+        </button>
+      </div>}
+      {!collapsed && <button
         type="button"
         aria-label={`Resize ${column.label} column`}
         className="absolute top-0 right-0 h-full w-1.5 cursor-col-resize hover:bg-vortex-red/30"
@@ -232,7 +257,7 @@ const OverviewColumnHeader = ({
           e.preventDefault()
           onColumnResizeStart(column.id, e.clientX)
         }}
-      />
+      />}
     </th>
   )
 }

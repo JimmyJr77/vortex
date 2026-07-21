@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
@@ -112,7 +113,23 @@ const SchedulingCalendarView = ({
 }: SchedulingCalendarViewProps) => {
   const today = toDateString(new Date())
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set())
+  const [eventPreview, setEventPreview] = useState<{
+    event: SchedulingCalendarEvent
+    rect: DOMRect
+  } | null>(null)
+  const eventPreviewId = useId()
   const isDark = theme === 'dark'
+
+  useEffect(() => {
+    if (!eventPreview) return
+    const dismissPreview = () => setEventPreview(null)
+    window.addEventListener('scroll', dismissPreview, true)
+    window.addEventListener('resize', dismissPreview)
+    return () => {
+      window.removeEventListener('scroll', dismissPreview, true)
+      window.removeEventListener('resize', dismissPreview)
+    }
+  }, [eventPreview])
 
   const isEventInactive = (event: Pick<SchedulingCalendarEvent, 'classActive' | 'formActive'>) =>
     mode === 'admin' ? !event.classActive : !event.formActive
@@ -217,6 +234,60 @@ const SchedulingCalendarView = ({
     onEventClick?.(event)
   }
 
+  const showEventPreview = (event: SchedulingCalendarEvent, target: HTMLElement) => {
+    setEventPreview({ event, rect: target.getBoundingClientRect() })
+  }
+
+  const renderEventPreview = () => {
+    if (!eventPreview || typeof document === 'undefined') return null
+    const { event, rect } = eventPreview
+    const width = Math.min(320, window.innerWidth - 24)
+    const left = Math.max(12, Math.min(rect.left, window.innerWidth - width - 12))
+    const showAbove = rect.bottom + 280 > window.innerHeight && rect.top > 280
+    const ageLabel = event.ageMin != null || event.ageMax != null
+      ? event.ageMin != null && event.ageMax != null
+        ? `Ages ${event.ageMin}–${event.ageMax}`
+        : event.ageMin != null
+          ? `Ages ${event.ageMin}+`
+          : `Up to age ${event.ageMax}`
+      : null
+    const capacityLabel = event.isFull
+      ? `Full · ${event.signupCount}/${event.maxParticipants} enrolled`
+      : `${event.spotsRemaining} spot${event.spotsRemaining === 1 ? '' : 's'} open · ${event.signupCount}/${event.maxParticipants} enrolled`
+
+    return createPortal(
+      <div
+        id={eventPreviewId}
+        role="tooltip"
+        className={`pointer-events-none fixed z-[100] rounded-xl border p-3 shadow-xl ${
+          isDark ? 'border-gray-600 bg-gray-900 text-gray-100' : 'border-gray-200 bg-white text-gray-900'
+        }`}
+        style={{
+          width,
+          left,
+          ...(showAbove
+            ? { bottom: window.innerHeight - rect.top + 8 }
+            : { top: rect.bottom + 8 }),
+        }}
+      >
+        <div className="text-sm font-bold">{formatCalendarEventClassLabel(event)}</div>
+        <div className="mt-1 text-xs font-semibold text-vortex-red">
+          {parseDateString(event.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+          {' · '}{formatTime12(event.startTime)}–{formatTime12(event.endTime)}
+        </div>
+        <div className={`mt-2 space-y-1 text-xs ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+          {event.offeringLabel && <div><span className="font-semibold">Offering:</span> {event.offeringLabel}</div>}
+          {(ageLabel || event.skillLevel) && <div>{[ageLabel, event.skillLevel].filter(Boolean).join(' · ')}</div>}
+          <div>{capacityLabel}{event.waitlistCount > 0 ? ` · ${event.waitlistCount} waitlisted` : ''}</div>
+          {event.skillRequirements && <div><span className="font-semibold">Requirements:</span> {event.skillRequirements}</div>}
+          {event.classDescription && <p className="line-clamp-4 pt-1 leading-relaxed">{event.classDescription}</p>}
+          {isEventInactive(event) && <div className="font-semibold text-amber-600">Inactive</div>}
+        </div>
+      </div>,
+      document.body,
+    )
+  }
+
   const renderSignupButton = (event: SchedulingCalendarEvent, compact = false) => {
     if (mode !== 'public' || !event.enrollVisible) return null
     const url = schedulingSignupPath(event.formId)
@@ -241,6 +312,11 @@ const SchedulingCalendarView = ({
         key={event.id}
         type="button"
         onClick={() => handleEventAction(event)}
+        onMouseEnter={(e) => showEventPreview(event, e.currentTarget)}
+        onMouseLeave={() => setEventPreview(null)}
+        onFocus={(e) => showEventPreview(event, e.currentTarget)}
+        onBlur={() => setEventPreview(null)}
+        aria-describedby={eventPreview?.event.id === event.id ? eventPreviewId : undefined}
         className={`w-full text-left rounded px-1.5 py-0.5 text-[11px] leading-tight border transition-colors cursor-pointer ${
           inactive
             ? isDark
@@ -250,7 +326,6 @@ const SchedulingCalendarView = ({
               ? 'bg-vortex-red/20 border-vortex-red/30 text-gray-100 hover:bg-vortex-red/30'
               : 'bg-vortex-red/5 border-vortex-red/20 text-gray-800 hover:bg-vortex-red/10'
         }`}
-        title={[timeLabel, formatCalendarEventClassLabel(event)].filter(Boolean).join(' · ')}
       >
         <span className="font-medium text-vortex-red">{timeLabel}</span>
         <span className="block truncate font-medium">{formatCalendarEventClassLabel(event)}</span>
@@ -686,6 +761,7 @@ const SchedulingCalendarView = ({
           </ul>
         </div>
       )}
+      {renderEventPreview()}
     </div>
   )
 }

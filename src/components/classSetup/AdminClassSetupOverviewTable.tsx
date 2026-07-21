@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Search, X } from 'lucide-react'
 import OverviewColumnHeader, { ClearFiltersButton } from './OverviewColumnHeader'
 import AdminClassSetupOverviewCellEditor, { type EditTarget } from './AdminClassSetupOverviewCellEditor'
 import { useSpreadsheetResize } from './useSpreadsheetResize'
@@ -9,6 +10,7 @@ import {
   distinctPrimarySports,
   distinctSkillLevels,
   getCellDisplayValue,
+  matchesOverviewSmartFilter,
   type ColumnFilters,
   type OverviewColumnId,
   type SortConfig,
@@ -33,19 +35,32 @@ const AdminClassSetupOverviewTable = ({
 }: Props) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ column: 'program', direction: 'asc' })
   const [filters, setFilters] = useState<ColumnFilters>({})
+  const [smartFilter, setSmartFilter] = useState('')
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null)
+  const [collapsedColumns, setCollapsedColumns] = useState<Set<OverviewColumnId>>(() => new Set())
   const { getColumnWidth, getRowHeight, startColumnResize, startRowResize } = useSpreadsheetResize()
+
+  const toggleColumnCollapsed = (columnId: OverviewColumnId) => {
+    setCollapsedColumns((previous) => {
+      const next = new Set(previous)
+      if (next.has(columnId)) next.delete(columnId)
+      else next.add(columnId)
+      return next
+    })
+  }
 
   const skillLevelOptions = useMemo(() => distinctSkillLevels(rows), [rows])
   const primarySportOptions = useMemo(() => distinctPrimarySports(rows), [rows])
 
   const visibleRows = useMemo(() => {
-    const filtered = applyOverviewFilters(rows, filters)
+    const filtered = applyOverviewFilters(rows, filters).filter((row) =>
+      matchesOverviewSmartFilter(row, smartFilter),
+    )
     if (!sortConfig.column) return filtered
     return [...filtered].sort((a, b) =>
       compareOverviewRows(a, b, sortConfig.column!, sortConfig.direction),
     )
-  }, [rows, filters, sortConfig])
+  }, [rows, filters, smartFilter, sortConfig])
 
   const handleSort = (columnId: OverviewColumnId) => {
     setSortConfig((prev) => {
@@ -83,8 +98,36 @@ const AdminClassSetupOverviewTable = ({
 
   return (
     <>
-      <div className="mb-3">
-        <ClearFiltersButton filters={filters} onClear={() => setFilters({})} />
+      <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full sm:max-w-xl">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={smartFilter}
+            onChange={(event) => setSmartFilter(event.target.value)}
+            placeholder="Filter classes by name, program, sport, schedule, skill, status…"
+            aria-label="Smart filter Class Master"
+            className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-9 text-sm text-gray-900 outline-none transition focus:border-vortex-red focus:ring-2 focus:ring-vortex-red/15"
+          />
+          {smartFilter && (
+            <button
+              type="button"
+              onClick={() => setSmartFilter('')}
+              aria-label="Clear smart filter"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          {(smartFilter.trim() || visibleRows.length !== rows.length) && (
+            <span className="whitespace-nowrap text-xs text-gray-500">
+              {visibleRows.length} of {rows.length} classes
+            </span>
+          )}
+          <ClearFiltersButton filters={filters} onClear={() => setFilters({})} />
+        </div>
       </div>
       <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
         <table className="min-w-full border-collapse" style={{ tableLayout: 'fixed' }}>
@@ -100,7 +143,9 @@ const AdminClassSetupOverviewTable = ({
                   onSort={handleSort}
                   onFilterChange={handleFilterChange}
                   onColumnResizeStart={startColumnResize}
-                  width={getColumnWidth(column.id)}
+                  width={collapsedColumns.has(column.id) ? 5 : getColumnWidth(column.id)}
+                  collapsed={collapsedColumns.has(column.id)}
+                  onToggleCollapsed={() => toggleColumnCollapsed(column.id)}
                 />
               ))}
             </tr>
@@ -113,23 +158,25 @@ const AdminClassSetupOverviewTable = ({
                   {OVERVIEW_COLUMNS.map((column, columnIndex) => {
                     const value = getCellDisplayValue(row, column.id)
                     const editable = column.editable && unlocked
+                    const collapsed = collapsedColumns.has(column.id)
+                    const columnWidth = collapsed ? 5 : getColumnWidth(column.id)
                     return (
                       <td
                         key={column.id}
-                        className={`${tdBase} ${editable ? 'cursor-pointer hover:bg-vortex-red/5' : ''} ${
+                        className={`${collapsed ? 'p-0 border-b border-gray-100' : tdBase} ${editable && !collapsed ? 'cursor-pointer hover:bg-vortex-red/5' : ''} ${
                           columnIndex === 0 ? 'relative' : ''
                         }`}
                         style={{
-                          width: getColumnWidth(column.id),
-                          maxWidth: getColumnWidth(column.id),
+                          width: columnWidth,
+                          maxWidth: columnWidth,
                           height: rowHeight,
                           overflow: 'hidden',
                         }}
                         title={value}
-                        onClick={() => handleCellClick(row, column.id)}
+                        onClick={() => !collapsed && handleCellClick(row, column.id)}
                       >
-                        <div className="line-clamp-[8] whitespace-pre-wrap break-words">{value}</div>
-                        {columnIndex === 0 && (
+                        {!collapsed && <div className="line-clamp-[8] whitespace-pre-wrap break-words">{value}</div>}
+                        {columnIndex === 0 && !collapsed && (
                           <button
                             type="button"
                             aria-label="Resize row"
@@ -147,6 +194,13 @@ const AdminClassSetupOverviewTable = ({
                 </tr>
               )
             })}
+            {visibleRows.length === 0 && (
+              <tr>
+                <td colSpan={OVERVIEW_COLUMNS.length} className="px-4 py-12 text-center text-sm text-gray-500">
+                  No classes match the current filters.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

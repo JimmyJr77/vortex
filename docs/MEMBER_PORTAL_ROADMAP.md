@@ -144,6 +144,15 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
     enabled and the order preview has billable lines, **Confirm enrollment** redirects to Stripe
     Checkout via `POST /api/members/billing/enrollment-checkout-session`; webhook commits signups
     after payment (`stripe_pending_enrollment` + [stripeEnrollmentCheckout.js](../backend/billing/stripeEnrollmentCheckout.js)).
+    **Conversion tracking (2026-07):** both checkout-session endpoints accept an optional
+    `analytics: { gaClientId, gaSessionId }` (captured from `_ga` cookies) so the webhook can send a
+    server-side GA4 `purchase` with attribution ([ga4Measurement.js](../backend/analytics/ga4Measurement.js));
+    `POST /api/members/billing/confirm-enrollment-checkout` additionally returns
+    `firstConfirmation` (fire-once, stamped in `stripe_pending_enrollment.client_confirmed_at`) and a
+    `purchase` summary (`transactionId`, `valueCents`, `enrollmentType`) that the dashboard uses for
+    a one-time `vortex_purchase` GTM dataLayer push (Google Ads conversion). Stripe return params
+    (`?enrollment=paid|cancelled`, `?billing=paid|cancelled`) now emit analytics events in
+    [MemberDashboard.tsx](../src/components/MemberDashboard.tsx).
   - **Waivers**: `GET /api/members/waivers`, `POST /api/members/waivers/:templateId/accept`.
 - **[src/components/MemberLogin.tsx](../src/components/MemberLogin.tsx)** — modal login:
   `POST /api/members/login`, `POST /api/members/request-password-reset`.

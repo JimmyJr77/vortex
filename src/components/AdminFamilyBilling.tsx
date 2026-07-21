@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Loader2, Plus, Receipt, Repeat, Tag } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { AlertTriangle, CheckCircle2, Loader2, Plus, Receipt, RefreshCw, Repeat, Tag } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 
 interface MonthlyTotals {
@@ -123,6 +123,19 @@ interface BillingAccount {
   bundleUsage?: BundleUsage[]
 }
 
+interface FamilyLookupResult {
+  familyId: number
+  familyName: string
+  billingAccountId: number | null
+  matchedMembers: Array<{
+    id: number
+    name: string
+    email: string | null
+    phone: string | null
+    address: string | null
+  }>
+}
+
 interface BillingStatement {
   id: number
   statementDate: string
@@ -132,12 +145,40 @@ interface BillingStatement {
   lines: Array<{ id?: number; description: string; amount_cents: number }>
 }
 
+interface StripeAlert {
+  id: number
+  alert_type: string
+  severity: 'info' | 'warning' | 'critical'
+  message: string
+  stripe_object_id: string | null
+  created_at: string
+}
+
+interface StripeOperations {
+  stripeEnabled: boolean
+  emailDomain: string | null
+  emailDomainVerified: boolean
+  alerts: StripeAlert[]
+  webhookCounts: Record<string, number>
+  latestReconciliation: null | {
+    status: string
+    started_at: string
+    completed_at: string | null
+    stripe_payments_checked: number
+    payments_inserted: number
+    mismatches_found: number
+    disputes_checked: number
+    error_message: string | null
+  }
+}
+
 function money(cents: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((cents ?? 0) / 100)
 }
 
 export default function AdminFamilyBilling() {
   const [familyId, setFamilyId] = useState('')
+  const [lookupResults, setLookupResults] = useState<FamilyLookupResult[]>([])
   const [account, setAccount] = useState<BillingAccount | null>(null)
   const [statements, setStatements] = useState<BillingStatement[]>([])
   const [loading, setLoading] = useState(false)
@@ -148,15 +189,48 @@ export default function AdminFamilyBilling() {
   const [stripeEnabled, setStripeEnabled] = useState(false)
   const [payment, setPayment] = useState({ amount: '', method: '', note: '', externalReference: '', externalStatus: 'recorded' })
   const [refund, setRefund] = useState({ amount: '', reason: '', paymentId: '', externalReference: '' })
+  const [operations, setOperations] = useState<StripeOperations | null>(null)
+  const [operationsLoading, setOperationsLoading] = useState(false)
 
-  const load = async () => {
-    if (!familyId.trim()) return
+  const loadOperations = useCallback(async () => {
+    setOperationsLoading(true)
+    try {
+      const res = await adminApiRequest('/api/admin/stripe/operations')
+      if (!res.ok) throw new Error('Failed to load Stripe operations')
+      setOperations((await res.json()).data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load Stripe operations')
+    } finally {
+      setOperationsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void loadOperations() }, [loadOperations])
+
+  const reconcileNow = () =>
+    withSaving(async () => {
+      const res = await adminApiRequest('/api/admin/stripe/reconcile', {
+        method: 'POST',
+        body: JSON.stringify({ lookbackHours: 48 }),
+      })
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Reconciliation failed')
+      await loadOperations()
+    })
+
+  const resolveAlert = (id: number) =>
+    withSaving(async () => {
+      const res = await adminApiRequest(`/api/admin/stripe/billing-alerts/${id}/resolve`, { method: 'PATCH' })
+      if (!res.ok) throw new Error('Failed to resolve billing alert')
+      await loadOperations()
+    })
+
+  const loadFamily = async (resolvedFamilyId: number | string) => {
     setLoading(true)
     setError(null)
     try {
       const [accountRes, statementsRes, providerRes] = await Promise.all([
-        adminApiRequest(`/api/admin/families/${familyId}/billing-account`),
-        adminApiRequest(`/api/admin/families/${familyId}/statements`),
+        adminApiRequest(`/api/admin/families/${resolvedFamilyId}/billing-account`),
+        adminApiRequest(`/api/admin/families/${resolvedFamilyId}/statements`),
         adminApiRequest('/api/admin/billing/provider-config'),
       ])
       if (!accountRes.ok) throw new Error(`Billing account request failed: ${accountRes.status}`)
@@ -169,8 +243,35 @@ export default function AdminFamilyBilling() {
       setStatements(statementsJson.data ?? [])
       setPaymentProviderName(providerJson.data?.externalProcessorName || 'External Payment Processor')
       setStripeEnabled(providerJson.data?.stripeEnabled === true)
+      setFamilyId(String(resolvedFamilyId))
+      setLookupResults([])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load billing account')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const load = async () => {
+    const query = familyId.trim()
+    if (!query) return
+    setLoading(true)
+    setError(null)
+    setAccount(null)
+    setStatements([])
+    try {
+      const response = await adminApiRequest(`/api/admin/billing/family-lookup?q=${encodeURIComponent(query)}`)
+      if (!response.ok) throw new Error((await response.json().catch(() => ({}))).message || 'Family lookup failed')
+      const results = ((await response.json()).data ?? []) as FamilyLookupResult[]
+      const exactId = /^\d+$/.test(query) ? results.find((item) => item.familyId === Number(query)) : undefined
+      if (exactId || results.length === 1) {
+        await loadFamily((exactId ?? results[0]).familyId)
+        return
+      }
+      setLookupResults(results)
+      if (results.length === 0) setError('No family member or family ID matched that search.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to search family billing accounts')
     } finally {
       setLoading(false)
     }
@@ -196,7 +297,7 @@ export default function AdminFamilyBilling() {
         body: JSON.stringify(account),
       })
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Failed to save billing account')
-      await load()
+      await loadFamily(account.familyId)
     })
 
   const addCharge = () =>
@@ -213,7 +314,7 @@ export default function AdminFamilyBilling() {
       })
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Failed to add charge')
       setCharge({ memberId: '', description: '', amount: '', chargeType: 'one_time' })
-      await load()
+      await loadFamily(account.familyId)
     })
 
   const addPayment = () =>
@@ -232,7 +333,7 @@ export default function AdminFamilyBilling() {
       })
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Failed to record payment')
       setPayment({ amount: '', method: '', note: '', externalReference: '', externalStatus: 'recorded' })
-      await load()
+      await loadFamily(account.familyId)
     })
 
   const [refundExceptionCategory, setRefundExceptionCategory] = useState('')
@@ -256,7 +357,7 @@ export default function AdminFamilyBilling() {
       setRefund({ amount: '', reason: '', paymentId: '', externalReference: '' })
       setRefundExceptionCategory('')
       setRefundEvidenceNote('')
-      await load()
+      await loadFamily(account.familyId)
     })
 
   const setSubscriptionStatus = (id: number, status: string) =>
@@ -332,14 +433,74 @@ export default function AdminFamilyBilling() {
 
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
 
-      <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-3 sm:flex-row sm:items-end">
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Family ID</label>
+      <section className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="px-4 py-3 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="font-bold text-gray-900">Stripe operations</h3>
+            <p className="text-xs text-gray-500">Daily reconciliation, webhook health, disputes, and customer email identity.</p>
+          </div>
+          <button type="button" onClick={() => void reconcileNow()} disabled={saving || operationsLoading || !operations?.stripeEnabled} className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-sm text-white disabled:opacity-50">
+            <RefreshCw className={`w-4 h-4 ${saving ? 'animate-spin' : ''}`} /> Reconcile now
+          </button>
+        </div>
+        {operationsLoading && !operations ? (
+          <div className="p-4 text-sm text-gray-500 inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading operations…</div>
+        ) : operations && (
+          <div className="p-4 space-y-4">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-lg bg-gray-50 p-3 text-sm">
+                <div className="text-xs text-gray-500">Sending domain</div>
+                <div className="font-semibold text-gray-900">{operations.emailDomain || 'Not configured'}</div>
+                <div className={`text-xs ${operations.emailDomainVerified ? 'text-green-700' : 'text-amber-700'}`}>
+                  {operations.emailDomainVerified ? 'Verified in Stripe' : 'Verification required'}
+                </div>
+              </div>
+              <div className="rounded-lg bg-gray-50 p-3 text-sm">
+                <div className="text-xs text-gray-500">Latest reconciliation</div>
+                <div className="font-semibold text-gray-900">{operations.latestReconciliation?.status || 'Never run'}</div>
+                <div className="text-xs text-gray-500">{operations.latestReconciliation ? `${operations.latestReconciliation.stripe_payments_checked} checked · ${operations.latestReconciliation.payments_inserted} recovered` : 'Scheduled daily at 07:15 UTC'}</div>
+              </div>
+              <div className="rounded-lg bg-gray-50 p-3 text-sm">
+                <div className="text-xs text-gray-500">Webhooks · last 7 days</div>
+                <div className="font-semibold text-gray-900">{operations.webhookCounts.processed ?? 0} processed</div>
+                <div className={(operations.webhookCounts.failed ?? 0) > 0 ? 'text-xs text-red-700' : 'text-xs text-gray-500'}>{operations.webhookCounts.failed ?? 0} failed</div>
+              </div>
+            </div>
+            <div>
+              <div className="mb-2 flex items-center gap-2 font-semibold text-gray-900">
+                {operations.alerts.length ? <AlertTriangle className="w-4 h-4 text-red-600" /> : <CheckCircle2 className="w-4 h-4 text-green-600" />}
+                Open billing alerts ({operations.alerts.length})
+              </div>
+              <div className="divide-y divide-gray-100 rounded-lg border border-gray-200">
+                {operations.alerts.map((alert) => (
+                  <div key={alert.id} className="flex flex-col gap-2 p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <div className={alert.severity === 'critical' ? 'font-semibold text-red-700' : 'font-semibold text-amber-700'}>{alert.message}</div>
+                      <div className="text-xs text-gray-500">{alert.alert_type.replaceAll('_', ' ')} · {new Date(alert.created_at).toLocaleString()}{alert.stripe_object_id ? ` · ${alert.stripe_object_id}` : ''}</div>
+                    </div>
+                    <button type="button" onClick={() => void resolveAlert(alert.id)} disabled={saving} className="shrink-0 rounded-lg border border-gray-300 px-3 py-1.5 text-xs disabled:opacity-50">Mark resolved</button>
+                  </div>
+                ))}
+                {operations.alerts.length === 0 && <div className="p-3 text-sm text-gray-500">No unresolved Stripe alerts.</div>}
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <div className="bg-white border border-gray-200 rounded-xl p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="flex-1">
+          <label className="block text-xs font-semibold text-gray-600 mb-1">Find family billing</label>
           <input
-            className="h-10 rounded-lg border border-gray-300 px-3 text-sm"
+            className="h-10 w-full rounded-lg border border-gray-300 px-3 text-sm"
             value={familyId}
-            onChange={(e) => setFamilyId(e.target.value)}
-            placeholder="Enter family ID"
+            onChange={(e) => {
+              setFamilyId(e.target.value)
+              setLookupResults([])
+            }}
+            onKeyDown={(e) => { if (e.key === 'Enter') void load() }}
+            placeholder="Family ID, member name, phone, address, or email"
           />
         </div>
         <button
@@ -349,8 +510,31 @@ export default function AdminFamilyBilling() {
           className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-vortex-red text-white rounded-lg disabled:opacity-60"
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-          Load Billing
+          Search Billing
         </button>
+        </div>
+        {lookupResults.length > 0 && (
+          <div className="mt-4 divide-y divide-gray-100 overflow-hidden rounded-lg border border-gray-200">
+            {lookupResults.map((result) => (
+              <button
+                key={result.familyId}
+                type="button"
+                onClick={() => void loadFamily(result.familyId)}
+                className="block w-full px-4 py-3 text-left hover:bg-gray-50"
+              >
+                <div className="font-semibold text-gray-900">{result.familyName} <span className="font-normal text-gray-500">· Family #{result.familyId}</span></div>
+                {result.matchedMembers.map((member) => (
+                  <div key={member.id} className="mt-1 text-xs text-gray-600">
+                    {member.name || `Member #${member.id}`}
+                    {member.email ? ` · ${member.email}` : ''}
+                    {member.phone ? ` · ${member.phone}` : ''}
+                    {member.address ? ` · ${member.address}` : ''}
+                  </div>
+                ))}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {account && (

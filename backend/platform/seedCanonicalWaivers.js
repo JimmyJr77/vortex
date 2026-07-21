@@ -1,6 +1,6 @@
 import { CANONICAL_WAIVER_TEMPLATES } from './canonicalWaiverBodies.js'
 
-/** Idempotent seed/sync of four canonical waiver templates per facility. */
+/** Idempotent seed/sync of the canonical waiver templates per facility. */
 export async function seedCanonicalWaivers(pool) {
   const facilities = await pool.query(`SELECT id FROM facility`)
   for (const facility of facilities.rows) {

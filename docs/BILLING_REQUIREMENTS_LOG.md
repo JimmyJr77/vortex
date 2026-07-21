@@ -24,7 +24,7 @@
 | 5 | Structured missed-class tracking on athlete profiles | COMPLETE | PR #8; production commit `4d4e4a2`; Vercel passed; Render live; production build passed. |
 | 6 | Dispute ownership, evidence workflow, and deadline visibility | COMPLETE | PR #9; production commit `d3d34f5`; Vercel passed; Render live; focused tests and production build passed. |
 | 7 | Automated reconciliation and unresolved operational alerts | COMPLETE | PR #10; production commit `6faaf88`; backend and cron live; first production reconciliation succeeded in 18.7 seconds. |
-| 8 | First-live-payment and analytics attribution verification | PENDING | Requires a legitimate customer transaction. |
+| 8 | First-live-payment and analytics attribution verification | IN PROGRESS | Analytics release is live; final proof requires a legitimate customer transaction and consent-state matrix. |
 
 ## Section 1 — Centralized financial communications
 
@@ -213,6 +213,8 @@ Status: `IN PROGRESS`
 - GTM container `GTM-T38PSLXX` contained no purchase tag and its only Conversion Linker was malware-flagged by Google. The redundant linker was explicitly paused and published as live container Version 3, **Retire duplicate conversion linker**. Cross-domain linking remains implemented directly in the application's pre-load `gtag.js` configuration.
 - Code audit confirmed that the Stripe PaymentIntent is the preferred shared transaction ID, the server-side GA4 event is gated by a newly inserted payment row, and the browser-side `vortex_purchase` signal is gated by a one-time confirmation timestamp.
 - Eleven focused GA4, enrollment-payment, and webhook-lifecycle tests passed; the production frontend build also passed on July 20, 2026.
+- GitHub PR #13, **Separate acquisition purchase conversion**, merged to `main` as commit `2907c1b57bd2a4fe878673845767392d41f3cf37`.
+- Render manually deployed source `2907c1b` and promoted it to **Live** in 4m01s on July 20, 2026. The public `/api/health` endpoint subsequently returned `status: OK`, `dbConnected: true`, `schemaMigrationsTracked: true`, and `emailConfigured: true`.
 - A fabricated payment will not be used to claim production payment or attribution verification.
 - The production verification procedure is documented in [FIRST_LIVE_PAYMENT_VERIFICATION.md](./FIRST_LIVE_PAYMENT_VERIFICATION.md).
 

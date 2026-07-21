@@ -20,6 +20,7 @@ const WAIVER_TYPE_OPTIONS = [
   { value: 'RELEASE_OF_LIABILITY', label: 'Release of Liability' },
   { value: 'MEDICAL_EMERGENCY', label: 'Medical Emergencies' },
   { value: 'PAYMENT_POLICY', label: 'Payment Policies' },
+  { value: 'MEDIA_RELEASE', label: 'Media Release' },
 ]
 
 interface WaiverComplianceRow {
