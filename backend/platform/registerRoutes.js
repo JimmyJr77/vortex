@@ -58,6 +58,10 @@ import {
   syncStripeRefund,
 } from '../billing/stripeOperations.js'
 import { setStripeSubscriptionOperationalStatus } from '../billing/stripeSubscriptionSync.js'
+import {
+  applyBillingAccessAction,
+  recordPaymentRecoveryExhaustedAlert,
+} from '../billing/billingAccessRecovery.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -2241,6 +2245,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             }).catch(() => {})
           }
         }
+        if (event.type === 'invoice.payment_failed' && accountId) {
+          const failureReason = obj.last_payment_error?.message || obj.charges?.data?.[0]?.failure_message || null
+          await recordPaymentRecoveryExhaustedAlert(pool, { event, invoice: obj, accountId, failureReason })
+        }
       }
       await completeStripeWebhookEvent(pool, event)
       res.json({ received: true })
@@ -2258,7 +2266,30 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   app.get('/api/admin/stripe/billing-alerts', ...requirePermission(pool, jwtSecret, 'billing.view'), async (_req, res) => {
     try {
       const result = await pool.query(
-        `SELECT * FROM stripe_billing_alert WHERE resolved_at IS NULL ORDER BY created_at DESC LIMIT 100`,
+        `SELECT a.*,
+                COALESCE(
+                  (SELECT SUM(c.amount_cents) FROM billing_charge c WHERE c.family_billing_account_id = a.family_billing_account_id), 0
+                ) - COALESCE(
+                  (SELECT SUM(p.amount_cents) FROM billing_payment p WHERE p.family_billing_account_id = a.family_billing_account_id), 0
+                ) + COALESCE(
+                  (SELECT SUM(r.amount_cents) FROM billing_refund r WHERE r.family_billing_account_id = a.family_billing_account_id), 0
+                ) AS balance_cents,
+                COALESCE((
+                  SELECT jsonb_agg(jsonb_build_object(
+                    'subscriptionId', bs.id,
+                    'description', bs.description,
+                    'status', bs.status,
+                    'memberId', bs.member_id,
+                    'memberName', NULLIF(TRIM(CONCAT(m.first_name, ' ', m.last_name)), '')
+                  ) ORDER BY bs.id)
+                  FROM billing_subscription bs
+                  LEFT JOIN member m ON m.id = bs.member_id
+                  WHERE bs.family_billing_account_id = a.family_billing_account_id
+                    AND bs.status IN ('active', 'paused')
+                ), '[]'::jsonb) AS affected_enrollments
+         FROM stripe_billing_alert a
+         WHERE a.resolved_at IS NULL
+         ORDER BY a.created_at DESC LIMIT 100`,
       )
       res.json({ success: true, data: result.rows })
     } catch (error) {
@@ -2266,12 +2297,35 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  app.post('/api/admin/stripe/billing-alerts/:id/access', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
+    try {
+      const data = await applyBillingAccessAction(pool, {
+        alertId: Number(req.params.id),
+        action: req.body?.action,
+        reason: req.body?.reason,
+        actedByUserId: req.platformAuth?.user?.id ?? null,
+      })
+      res.json({ success: true, data })
+    } catch (error) {
+      const message = error?.message || 'Failed to update billing access.'
+      const status = /not found/i.test(message) ? 404 : 400
+      res.status(status).json({ success: false, message })
+    }
+  })
+
   app.patch('/api/admin/stripe/billing-alerts/:id/resolve', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
     const result = await pool.query(
-      `UPDATE stripe_billing_alert SET resolved_at = now(), updated_at = now() WHERE id = $1 RETURNING *`,
+      `UPDATE stripe_billing_alert SET action_status = 'resolved', resolved_at = now(), updated_at = now()
+       WHERE id = $1 AND action_status <> 'suspended' RETURNING *`,
       [Number(req.params.id)],
     )
-    if (!result.rows[0]) return res.status(404).json({ success: false, message: 'Billing alert not found.' })
+    if (!result.rows[0]) {
+      const existing = await pool.query(`SELECT action_status FROM stripe_billing_alert WHERE id = $1`, [Number(req.params.id)])
+      if (existing.rows[0]?.action_status === 'suspended') {
+        return res.status(409).json({ success: false, message: 'Restore access before resolving this alert.' })
+      }
+      return res.status(404).json({ success: false, message: 'Billing alert not found.' })
+    }
     res.json({ success: true, data: result.rows[0] })
   })
 

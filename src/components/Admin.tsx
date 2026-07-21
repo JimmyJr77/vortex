@@ -17,6 +17,7 @@ import AdminDbQueries from './AdminDbQueries'
 import AdminSchools from './AdminSchools'
 import AdminAccess from './AdminAccess'
 import AdminFamilyBilling from './AdminFamilyBilling'
+import BillingRecoveryAlerts from './billing/BillingRecoveryAlerts'
 import AdminWaivers from './AdminWaivers'
 import AdminSettings from './admin/AdminSettings'
 import AdminCoaches from './AdminCoaches'
@@ -349,7 +350,12 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
           />
         )
       case 'billing':
-        return <AdminFamilyBilling />
+        return (
+          <div className="space-y-6">
+            <BillingRecoveryAlerts />
+            <AdminFamilyBilling />
+          </div>
+        )
       case 'waivers':
         return <AdminWaivers />
       case 'insurance':

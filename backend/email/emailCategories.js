@@ -28,6 +28,7 @@ export const EMAIL_CATEGORIES = Object.freeze({
   payment_failed: STREAM_TRANSACTIONAL,
   refund_receipt: STREAM_TRANSACTIONAL,
   billing_alert: STREAM_TRANSACTIONAL,
+  billing_access: STREAM_TRANSACTIONAL,
   schedule_change: STREAM_TRANSACTIONAL,
   waiver_request: STREAM_TRANSACTIONAL,
   security_notification: STREAM_TRANSACTIONAL,
@@ -59,6 +60,7 @@ export const FINANCIAL_CATEGORIES = Object.freeze(
     'payment_failed',
     'refund_receipt',
     'billing_alert',
+    'billing_access',
   ]),
 )
 
