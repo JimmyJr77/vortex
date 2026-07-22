@@ -252,12 +252,16 @@ const OverviewColumnHeader = ({
       {!collapsed && <button
         type="button"
         aria-label={`Resize ${column.label} column`}
-        className="absolute top-0 right-0 h-full w-1.5 cursor-col-resize hover:bg-vortex-red/30"
+        title={`Drag to resize ${column.label}`}
+        className="group/resize absolute -right-1 top-0 z-20 h-full w-3 cursor-col-resize touch-none"
         onMouseDown={(e) => {
           e.preventDefault()
+          e.stopPropagation()
           onColumnResizeStart(column.id, e.clientX)
         }}
-      />}
+      >
+        <span className="absolute bottom-1 top-1 left-1/2 w-px -translate-x-1/2 bg-gray-300 transition-colors group-hover/resize:w-0.5 group-hover/resize:bg-vortex-red" />
+      </button>}
     </th>
   )
 }

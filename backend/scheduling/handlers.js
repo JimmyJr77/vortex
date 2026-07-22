@@ -2924,10 +2924,29 @@ export function createSchedulingHandlers(pool) {
 
     async listAdminForms(_req, res) {
       try {
+        const { resolveProgramsSchema } = await import('../programs/schema.js')
+        const schema = await resolveProgramsSchema(pool)
         const result = await pool.query(
-          'SELECT * FROM scheduling_form WHERE deleted_at IS NULL ORDER BY created_at DESC',
+          `SELECT sf.*,
+             CASE
+               WHEN p.id IS NOT NULL THEN p.${schema.programFkColumn}
+               ELSE sf.programs_id
+             END AS resolved_programs_id
+           FROM scheduling_form sf
+           LEFT JOIN program p ON p.id = sf.program_id
+           WHERE sf.deleted_at IS NULL
+           ORDER BY sf.created_at DESC`,
         )
-        res.json({ success: true, data: result.rows.map(mapFormRow) })
+        res.json({
+          success: true,
+          data: result.rows.map((row) =>
+            mapFormRow({
+              ...row,
+              programs_id:
+                row.resolved_programs_id != null ? Number(row.resolved_programs_id) : null,
+            }),
+          ),
+        })
       } catch (err) {
         console.error('[scheduling] listAdminForms:', err)
         res.status(500).json({ success: false, message: 'Failed to load forms' })
@@ -4551,6 +4570,7 @@ export function createSchedulingHandlers(pool) {
         let detail = null
         let slotLabel = ''
         let mandateWaiver = false
+        let memberId = null
 
         try {
           await client.query('BEGIN')
@@ -4558,7 +4578,7 @@ export function createSchedulingHandlers(pool) {
           const orphanRes = await client.query(
             `
             SELECT * FROM scheduling_signup
-            WHERE id = $1 AND orphaned_at IS NOT NULL AND re_enrolled_at IS NULL
+            WHERE id = $1
             FOR UPDATE
             `,
             [req.params.id],
@@ -4568,12 +4588,36 @@ export function createSchedulingHandlers(pool) {
             return res.status(404).json({ success: false, message: 'Orphaned signup not found' })
           }
           const orphan = orphanRes.rows[0]
+          if (orphan.re_enrolled_signup_id != null) {
+            const existingRes = await client.query(
+              'SELECT * FROM scheduling_signup WHERE id = $1',
+              [orphan.re_enrolled_signup_id],
+            )
+            if (existingRes.rows.length > 0) {
+              const existing = existingRes.rows[0]
+              const existingPositions = await computeSignupPositions(
+                client,
+                existing.slot_group_id,
+                existing.id,
+              )
+              await client.query('COMMIT')
+              return res.json({
+                success: true,
+                message: 'Athlete is already re-enrolled.',
+                data: mapSignupRow(existing, existingPositions),
+              })
+            }
+          }
+          if (orphan.orphaned_at == null || orphan.re_enrolled_at != null) {
+            await client.query('ROLLBACK')
+            return res.status(404).json({ success: false, message: 'Orphaned signup not found' })
+          }
           responses =
             orphan.responses && Object.keys(orphan.responses).length > 0
               ? orphan.responses
               : orphan.field_responses || {}
 
-          let memberId = orphan.member_id != null ? Number(orphan.member_id) : null
+          memberId = orphan.member_id != null ? Number(orphan.member_id) : null
           if (!memberId) {
             const email = String(responses.email || orphan.email || '').trim()
             if (email) {

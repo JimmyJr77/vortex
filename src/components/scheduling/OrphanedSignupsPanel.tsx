@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Loader2, X } from 'lucide-react'
 import {
   adminDeleteOrphanedSignup,
@@ -47,6 +47,7 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
   const [submitting, setSubmitting] = useState(false)
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const reEnrollInFlight = useRef(false)
 
   const activeForms = forms.filter((f) => f.isActive)
 
@@ -113,7 +114,8 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
   }
 
   const handleReEnroll = async () => {
-    if (!reEnrollTarget || !targetFormId || !slotGroupId) return
+    if (reEnrollInFlight.current || !reEnrollTarget || !targetFormId || !slotGroupId) return
+    reEnrollInFlight.current = true
     setSubmitting(true)
     setError(null)
     try {
@@ -126,6 +128,7 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to re-enroll')
     } finally {
+      reEnrollInFlight.current = false
       setSubmitting(false)
     }
   }

@@ -423,13 +423,20 @@ export function registerProgramsAdminRoutes(app, pool) {
       `, [schema.programsTable])
       const hasDescription = columnCheck.rows.length > 0
       const hasSchedulingCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
+      const classMasterActiveSelect = `EXISTS (
+        SELECT 1
+        FROM program class_event
+        WHERE class_event.${schema.programFkColumn} = p.id
+          AND COALESCE(class_event.archived, FALSE) = FALSE
+          AND COALESCE(class_event.is_active, TRUE) = TRUE
+      ) as "schedulingActive"`
       const schedCols = hasSchedulingCols
-        ? `, scheduling_active as "schedulingActive",
+        ? `, ${classMasterActiveSelect},
            scheduling_enroll_sites as "schedulingEnrollSites",
            scheduling_signup_fields as "schedulingSignupFields",
            scheduling_mandate_waiver as "schedulingMandateWaiver",
            scheduling_overview_saved_at as "schedulingOverviewSavedAt"`
-        : `, FALSE as "schedulingActive", NULL as "schedulingEnrollSites", NULL as "schedulingSignupFields",
+        : `, ${classMasterActiveSelect}, NULL as "schedulingEnrollSites", NULL as "schedulingSignupFields",
            FALSE as "schedulingMandateWaiver", NULL as "schedulingOverviewSavedAt"`
       let query = `
         SELECT p.id, p.name, p.display_name as "displayName", p.abridged_name as "abridgedName",

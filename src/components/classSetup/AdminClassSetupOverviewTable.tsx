@@ -52,6 +52,10 @@ const AdminClassSetupOverviewTable = ({
 
   const skillLevelOptions = useMemo(() => distinctSkillLevels(rows), [rows])
   const primarySportOptions = useMemo(() => distinctPrimarySports(rows), [rows])
+  const renderedColumnWidths = OVERVIEW_COLUMNS.map((column) =>
+    collapsedColumns.has(column.id) ? 5 : getColumnWidth(column.id),
+  )
+  const tableWidth = renderedColumnWidths.reduce((total, width) => total + width, actionColumnWidth)
 
   const visibleRows = useMemo(() => {
     const filtered = applyOverviewFilters(rows, filters).filter((row) =>
@@ -167,10 +171,19 @@ const AdminClassSetupOverviewTable = ({
             {actionError}
           </div>
         )}
-        <table className="min-w-full border-collapse" style={{ tableLayout: 'fixed' }}>
+        <table
+          className="border-collapse"
+          style={{ tableLayout: 'fixed', width: tableWidth, minWidth: '100%' }}
+        >
+          <colgroup>
+            {OVERVIEW_COLUMNS.map((column, index) => (
+              <col key={column.id} style={{ width: renderedColumnWidths[index] }} />
+            ))}
+            <col style={{ width: actionColumnWidth }} />
+          </colgroup>
           <thead>
             <tr>
-              {OVERVIEW_COLUMNS.map((column) => (
+              {OVERVIEW_COLUMNS.map((column, columnIndex) => (
                 <OverviewColumnHeader
                   key={column.id}
                   column={column}
@@ -180,7 +193,7 @@ const AdminClassSetupOverviewTable = ({
                   onSort={handleSort}
                   onFilterChange={handleFilterChange}
                   onColumnResizeStart={startColumnResize}
-                  width={collapsedColumns.has(column.id) ? 5 : getColumnWidth(column.id)}
+                  width={renderedColumnWidths[columnIndex]}
                   collapsed={collapsedColumns.has(column.id)}
                   onToggleCollapsed={() => toggleColumnCollapsed(column.id)}
                 />
@@ -203,7 +216,7 @@ const AdminClassSetupOverviewTable = ({
                     const value = getCellDisplayValue(row, column.id)
                     const editable = column.editable && unlocked
                     const collapsed = collapsedColumns.has(column.id)
-                    const columnWidth = collapsed ? 5 : getColumnWidth(column.id)
+                    const columnWidth = renderedColumnWidths[columnIndex]
                     return (
                       <td
                         key={column.id}

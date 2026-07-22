@@ -6,6 +6,7 @@ import {
   type ClassSetupOverviewRow,
   type ClassSetupOverviewStatus,
 } from '../../utils/classSetupOverviewApi'
+import { compareSkillLevels, formatSkillLevel } from '../../utils/classDisplayUtils'
 
 export type OverviewColumnId =
   | 'classId'
@@ -110,7 +111,7 @@ export function getCellDisplayValue(row: ClassSetupOverviewRow, columnId: Overvi
     case 'schedule':
       return formatScheduleCell(row.slotGroups)
     case 'skillLevel':
-      return row.skillLevel || '—'
+      return formatSkillLevel(row.skillLevel)
     case 'spaces':
       return formatSpacesCell(row.slotGroups)
     case 'status':
@@ -158,6 +159,9 @@ export function compareOverviewRows(
     }
     case 'costPerMonth':
       cmp = compareStrings(a.costPerMonthSummary ?? '', b.costPerMonthSummary ?? '')
+      break
+    case 'skillLevel':
+      cmp = compareSkillLevels(a.skillLevel, b.skillLevel)
       break
     default:
       cmp = compareStrings(getCellDisplayValue(a, column), getCellDisplayValue(b, column))
@@ -218,7 +222,7 @@ export function applyOverviewFilters(
         case 'multi':
           if (filter.values.length === 0) return true
           if (col.id === 'skillLevel') {
-            const skill = row.skillLevel || '—'
+            const skill = formatSkillLevel(row.skillLevel)
             return filter.values.includes(skill)
           }
           if (col.id === 'primarySport') {
@@ -274,7 +278,7 @@ export function hasActiveFilters(filters: ColumnFilters): boolean {
 }
 
 export function distinctSkillLevels(rows: ClassSetupOverviewRow[]): string[] {
-  return [...new Set(rows.map((r) => r.skillLevel || '—'))].sort(compareStrings)
+  return [...new Set(rows.map((r) => formatSkillLevel(r.skillLevel)))].sort(compareStrings)
 }
 
 export function distinctPrimarySports(rows: ClassSetupOverviewRow[]): string[] {

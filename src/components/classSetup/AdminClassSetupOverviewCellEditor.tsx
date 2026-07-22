@@ -368,7 +368,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
             onChange={(e) => setSkillLevel(e.target.value)}
             className="w-full h-10 border border-gray-300 rounded-lg px-3 text-sm bg-white"
           >
-            <option value="">None</option>
+            <option value="">All levels</option>
             <option value="EARLY_STAGE">Early stage</option>
             <option value="BEGINNER">Beginner</option>
             <option value="INTERMEDIATE">Intermediate</option>
