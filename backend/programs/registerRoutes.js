@@ -122,14 +122,13 @@ async function createSchedulingFormForClassEvent(pool, classEvent, programsId, s
     const hasSchedCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
     if (hasSchedCols) {
       const progRes = await pool.query(
-        `SELECT scheduling_signup_fields, scheduling_mandate_waiver, scheduling_active
+        `SELECT scheduling_signup_fields, scheduling_mandate_waiver
          FROM ${schema.programsTable} WHERE id = $1`,
         [programsId],
       )
       if (progRes.rows[0]) {
         signupFields = progRes.rows[0].scheduling_signup_fields
         mandateWaiver = Boolean(progRes.rows[0].scheduling_mandate_waiver)
-        isActive = Boolean(progRes.rows[0].scheduling_active)
       }
     }
   }
@@ -423,21 +422,15 @@ export function registerProgramsAdminRoutes(app, pool) {
       `, [schema.programsTable])
       const hasDescription = columnCheck.rows.length > 0
       const hasSchedulingCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
-      const classMasterActiveSelect = hasSchedulingCols
-        ? `(COALESCE(p.scheduling_active, FALSE) OR EXISTS (
-            SELECT 1
-            FROM program class_event
-            WHERE class_event.${schema.programFkColumn} = p.id
-              AND COALESCE(class_event.archived, FALSE) = FALSE
-              AND COALESCE(class_event.is_active, TRUE) = TRUE
-          )) as "schedulingActive"`
-        : `EXISTS (
-            SELECT 1
-            FROM program class_event
-            WHERE class_event.${schema.programFkColumn} = p.id
-              AND COALESCE(class_event.archived, FALSE) = FALSE
-              AND COALESCE(class_event.is_active, TRUE) = TRUE
-          ) as "schedulingActive"`
+      // Class Master is the sole source of truth for Scheduling program activity.
+      // Do not fall back to the removed programs.scheduling_active control.
+      const classMasterActiveSelect = `EXISTS (
+        SELECT 1
+        FROM program class_event
+        WHERE class_event.${schema.programFkColumn} = p.id
+          AND COALESCE(class_event.archived, FALSE) = FALSE
+          AND COALESCE(class_event.is_active, TRUE) = TRUE
+      ) as "schedulingActive"`
       const schedCols = hasSchedulingCols
         ? `, ${classMasterActiveSelect},
            scheduling_enroll_sites as "schedulingEnrollSites",

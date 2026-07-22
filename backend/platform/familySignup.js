@@ -334,7 +334,12 @@ function formatSignupPriceLabel(cents, costUnit) {
   return `$${formatted}${unitSuffix}`
 }
 
-/** Class (program row) has an active scheduling form with at least one signup slot group + time slot. */
+/**
+ * Class (program row) has a scheduling form with at least one active signup slot.
+ *
+ * Class Setup is the source of truth for availability. scheduling_form.is_active is
+ * a derived legacy flag and must not hide an otherwise active class from signup.
+ */
 function sqlClassHasSignupSlots(programAlias) {
   return `
     EXISTS (
@@ -347,7 +352,6 @@ function sqlClassHasSignupSlots(programAlias) {
         AND ts.is_active = TRUE
       WHERE sf.program_id = ${programAlias}.id
         AND sf.deleted_at IS NULL
-        AND sf.is_active = TRUE
     )
   `
 }
@@ -369,12 +373,21 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
       INNER JOIN ${schema.programsTable} pr ON pr.id = p.${schema.programFkColumn}
       WHERE sf.program_id = $1
         AND sf.deleted_at IS NULL
-        AND sf.is_active = TRUE
         AND COALESCE(p.archived, FALSE) = FALSE
         AND COALESCE(p.is_active, TRUE) = TRUE
         AND COALESCE(pr.archived, FALSE) = FALSE
         ${activeParentClause}
-      ORDER BY sf.id
+        AND EXISTS (
+          SELECT 1
+          FROM scheduling_slot_group sg
+          INNER JOIN scheduling_time_slot ts
+            ON ts.form_id = sf.id
+            AND ts.slot_group_id = sg.id
+            AND ts.is_active = TRUE
+          WHERE sg.form_id = sf.id
+            AND sg.is_active = TRUE
+        )
+      ORDER BY sf.is_active DESC, sf.id DESC
       LIMIT 1
     `,
     [classEventId],
@@ -1246,8 +1259,24 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
             p.display_name,
             sf.id AS scheduling_form_id
           FROM program p
-          INNER JOIN scheduling_form sf
-            ON sf.program_id = p.id AND sf.deleted_at IS NULL AND sf.is_active = TRUE
+          INNER JOIN LATERAL (
+            SELECT candidate.id
+            FROM scheduling_form candidate
+            WHERE candidate.program_id = p.id
+              AND candidate.deleted_at IS NULL
+              AND EXISTS (
+                SELECT 1
+                FROM scheduling_slot_group sg
+                INNER JOIN scheduling_time_slot ts
+                  ON ts.form_id = candidate.id
+                  AND ts.slot_group_id = sg.id
+                  AND ts.is_active = TRUE
+                WHERE sg.form_id = candidate.id
+                  AND sg.is_active = TRUE
+              )
+            ORDER BY candidate.is_active DESC, candidate.id DESC
+            LIMIT 1
+          ) sf ON TRUE
           WHERE p.${schema.programFkColumn} = $1
             AND COALESCE(p.is_active, TRUE) = TRUE
             AND COALESCE(p.archived, FALSE) = FALSE

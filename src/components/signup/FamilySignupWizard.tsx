@@ -11,6 +11,12 @@ import SchoolAutocompleteInput from '../scheduling/SchoolAutocompleteInput'
 import FamilySearchCombobox, { type FamilySearchOption } from './FamilySearchCombobox'
 import WaiverSigningBlock, { validateWaiverSigning, type PublicWaiverTemplate } from './WaiverSigningBlock'
 import { flushEvents, trackEvent } from '../../utils/analyticsClient'
+import type { ProgramPricingOptionKey } from '../../utils/programPricingOptions'
+import {
+  clearPublicEnrollmentCart,
+  loadPublicEnrollmentCart,
+} from '../../utils/publicEnrollmentCart'
+import { pendingEnrollmentsToRows } from './signupEnrollmentUtils'
 
 type WizardMode = 'public' | 'admin' | 'minor-start' | 'admin-edit'
 type EmailSource = 'parent' | 'youth'
@@ -134,6 +140,7 @@ interface EnrollmentRow {
   schedulingFormId?: number
   slotGroupId?: number
   timeSlotId?: number
+  selectedPricingOptionKey?: ProgramPricingOptionKey
   locked?: boolean
 }
 
@@ -252,6 +259,10 @@ export default function FamilySignupWizard({
   const [enrollments, setEnrollments] = useState<EnrollmentRow[]>([])
   const [enrollPrefill, setEnrollPrefill] = useState<EnrollPrefill | null>(null)
   const prefillApplied = useRef(false)
+  const [publicCartSelections] = useState(() =>
+    mode === 'public' && !returnTo ? loadPublicEnrollmentCart() : [],
+  )
+  const publicCartApplied = useRef(false)
   const [waivers, setWaivers] = useState<PublicWaiverTemplate[]>([])
   const [checkedTemplateIds, setCheckedTemplateIds] = useState<number[]>([])
   const [agreeAll, setAgreeAll] = useState(false)
@@ -495,12 +506,52 @@ export default function FamilySignupWizard({
     ])
   }, [enrollPrefill, loadClassesForProgram, loadOfferingsForClass])
 
+  const applyPublicEnrollmentCart = useCallback(async () => {
+    if (publicCartSelections.length === 0 || publicCartApplied.current || enrollPrefill) return
+    publicCartApplied.current = true
+    const groupedRows = pendingEnrollmentsToRows(publicCartSelections)
+    const programsIds = [...new Set(groupedRows
+      .map((row) => Number(row.programsId))
+      .filter(Number.isFinite))]
+    const classEventIds = [...new Set(groupedRows
+      .map((row) => Number(row.classEventId))
+      .filter(Number.isFinite))]
+
+    await Promise.all(programsIds.map((programsId) => loadClassesForProgram(programsId)))
+    await Promise.all(classEventIds.map((classEventId) => loadOfferingsForClass(classEventId)))
+    setEnrollments(groupedRows.map((row) => ({
+      ...row,
+      memberClientId: '',
+      selectedPricingOptionKey: publicCartSelections.find(
+        (item) => item.classEventId === Number(row.classEventId),
+      )?.selectedPricingOptionKey,
+    })))
+  }, [
+    enrollPrefill,
+    loadClassesForProgram,
+    loadOfferingsForClass,
+    publicCartSelections,
+  ])
+
   useEffect(() => {
     const onEnrollmentStep = (step === 2 && isMinorStart) || (step === 3 && !isMinorStart)
     if (onEnrollmentStep && enrollPrefill) {
       void applyEnrollPrefill()
     }
   }, [step, isMinorStart, enrollPrefill, applyEnrollPrefill])
+
+  useEffect(() => {
+    const onEnrollmentStep = step === 3 && !isMinorStart
+    if (onEnrollmentStep && publicCartSelections.length > 0 && !enrollPrefill) {
+      void applyPublicEnrollmentCart()
+    }
+  }, [
+    applyPublicEnrollmentCart,
+    enrollPrefill,
+    isMinorStart,
+    publicCartSelections.length,
+    step,
+  ])
 
   useEffect(() => {
     const onEnrollmentStep = isMinorStart ? step === 2 : step === 3
@@ -959,6 +1010,7 @@ export default function FamilySignupWizard({
         className: classOption?.displayName || classOption?.name,
         classActiveDates: pack?.classActiveDates ?? undefined,
         daysPerWeek: 1,
+        selectedPricingOptionKey: row.selectedPricingOptionKey,
       }
 
       if (row.selectedSlotKeys.length > 0) {
@@ -1029,6 +1081,7 @@ export default function FamilySignupWizard({
         next.schedulingFormId = undefined
         next.slotGroupId = undefined
         next.timeSlotId = undefined
+        next.selectedPricingOptionKey = undefined
         if (patch.programsId !== '') void loadClassesForProgram(Number(patch.programsId))
       }
       if (patch.classEventId !== undefined && patch.classEventId !== row.classEventId) {
@@ -1036,6 +1089,7 @@ export default function FamilySignupWizard({
         next.selectedSlotKeys = []
         next.slotGroupId = undefined
         next.timeSlotId = undefined
+        next.selectedPricingOptionKey = undefined
         if (patch.classEventId !== '') {
           void loadOfferingsForClass(Number(patch.classEventId))
           const cls = classesByProgram[Number(next.programsId)]?.find((c) => c.id === Number(patch.classEventId))
@@ -1132,6 +1186,7 @@ export default function FamilySignupWizard({
           })
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Signup failed')
+      if (publicCartSelections.length > 0) clearPublicEnrollmentCart()
       if (isPublicFunnel) {
         trackEvent('sign_up', window.location.pathname, {
           properties: {
@@ -1246,6 +1301,15 @@ export default function FamilySignupWizard({
           {enrollPrefill.offeringId ? ' (offering selected)' : ''}
           <span className="block mt-1 text-blue-800">
             You can remove this enrollment or add more classes below.
+          </span>
+        </div>
+      )}
+      {!enrollPrefill && publicCartSelections.length > 0 && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
+          Your {publicCartSelections.length}{' '}
+          {publicCartSelections.length === 1 ? 'selected class time is' : 'selected class times are'} ready.
+          <span className="block mt-1 text-blue-800">
+            Choose who each class is for. You can still change schedules or add more classes below.
           </span>
         </div>
       )}

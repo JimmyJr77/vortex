@@ -916,7 +916,9 @@ async function loadFormDetail(
   const form = formRes.rows[0]
   if (form.deleted_at) return null
   if (!includeInactive) {
-    if (!form.is_active) {
+    // Class-backed forms inherit availability from Class Setup. The form flag
+    // remains meaningful only for standalone scheduling forms.
+    if (form.program_id == null && !form.is_active) {
       return null
     }
 
@@ -1318,12 +1320,21 @@ export function createSchedulingHandlers(pool) {
           LEFT JOIN ${schema.programsTable} pr ON pr.id = p.${schema.programFkColumn}
           WHERE sf.deleted_at IS NULL
             AND sf.program_id IS NOT NULL
-            AND sf.is_active = TRUE
             AND p.archived = FALSE
             AND p.is_active = TRUE
             AND p.${schema.programFkColumn} IS NOT NULL
             AND pr.archived = FALSE
             ${parentProgramActiveClause}
+            AND EXISTS (
+              SELECT 1
+              FROM scheduling_slot_group sg
+              INNER JOIN scheduling_time_slot ts
+                ON ts.form_id = sf.id
+                AND ts.slot_group_id = sg.id
+                AND ts.is_active = TRUE
+              WHERE sg.form_id = sf.id
+                AND sg.is_active = TRUE
+            )
           ORDER BY pr.display_name NULLS LAST, p.display_name NULLS LAST, sf.title ASC
           `,
         )
@@ -1412,16 +1423,12 @@ export function createSchedulingHandlers(pool) {
           return res.status(400).json({ success: false, message: error.details[0].message })
         }
 
-        const formRes = await pool.query(
-          'SELECT id, programs_id FROM scheduling_form WHERE id = $1 AND deleted_at IS NULL AND is_active = TRUE',
-          [formId],
-        )
-        if (formRes.rows.length === 0) {
+        const requestedForm = await loadFormDetail(pool, formId)
+        if (!requestedForm) {
           return res.status(404).json({ success: false, message: 'Scheduling form not found' })
         }
 
-        const programsId =
-          formRes.rows[0].programs_id != null ? Number(formRes.rows[0].programs_id) : null
+        const programsId = requestedForm.programsId
 
         let signedUpSlotKeys = new Set()
         if (value.email) {
@@ -1447,26 +1454,40 @@ export function createSchedulingHandlers(pool) {
           }
         }
 
-        const { resolveProgramsSchema, hasProgramSchedulingColumns } = await import(
-          '../programs/schema.js'
-        )
+        const { resolveProgramsSchema } = await import('../programs/schema.js')
         const schema = await resolveProgramsSchema(pool)
-        const hasSchedCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
-        const programActiveClause = hasSchedCols
-          ? `(sf.programs_id IS NULL OR COALESCE(pr.scheduling_active, TRUE) = TRUE)`
-          : 'TRUE'
+        const parentActiveColumn = await pool.query(
+          `SELECT 1 FROM information_schema.columns
+           WHERE table_name = $1 AND column_name = 'is_active' LIMIT 1`,
+          [schema.programsTable],
+        )
+        const activeParentClause =
+          parentActiveColumn.rows.length > 0 ? 'AND COALESCE(pr.is_active, TRUE) = TRUE' : ''
 
         const siblingRes = await pool.query(
           programsId != null
             ? `
               SELECT sf.id
               FROM scheduling_form sf
-              LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
+              INNER JOIN program class_event ON class_event.id = sf.program_id
+              INNER JOIN ${schema.programsTable} pr
+                ON pr.id = class_event.${schema.programFkColumn}
               WHERE sf.deleted_at IS NULL
-                AND sf.is_active = TRUE
-                AND sf.program_id IS NOT NULL
-                AND sf.programs_id = $1
-                AND ${programActiveClause}
+                AND class_event.${schema.programFkColumn} = $1
+                AND COALESCE(class_event.archived, FALSE) = FALSE
+                AND COALESCE(class_event.is_active, TRUE) = TRUE
+                AND COALESCE(pr.archived, FALSE) = FALSE
+                ${activeParentClause}
+                AND EXISTS (
+                  SELECT 1
+                  FROM scheduling_slot_group sg
+                  INNER JOIN scheduling_time_slot ts
+                    ON ts.form_id = sf.id
+                    AND ts.slot_group_id = sg.id
+                    AND ts.is_active = TRUE
+                  WHERE sg.form_id = sf.id
+                    AND sg.is_active = TRUE
+                )
               ORDER BY sf.title, sf.id
               `
             : `

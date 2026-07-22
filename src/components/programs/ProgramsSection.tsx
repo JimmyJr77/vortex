@@ -72,16 +72,22 @@ function sortPrograms(programs: TopProgram[], mode: ProgramSortMode): TopProgram
 
 function programListItemClass(selected: boolean, schedulingActive: boolean, compact: boolean): string {
   if (compact) {
+    if (schedulingActive) {
+      return `w-full text-left rounded-lg px-4 py-3 border transition-colors border-green-300 bg-green-50 text-green-950 font-semibold hover:border-green-400 ${
+        selected ? 'ring-2 ring-vortex-red ring-offset-1' : ''
+      }`
+    }
     if (selected) {
       return 'w-full text-left rounded-lg px-4 py-3 border transition-colors border-vortex-red bg-red-50 text-black font-semibold'
-    }
-    if (schedulingActive) {
-      return 'w-full text-left rounded-lg px-4 py-3 border transition-colors border-green-300 bg-green-50 text-gray-900 hover:border-green-400'
     }
     return 'w-full text-left rounded-lg px-4 py-3 border transition-colors border-gray-200 hover:border-gray-400 text-gray-700'
   }
   return `flex items-center justify-between gap-3 px-4 py-3 border-t border-gray-100 first:border-t-0 ${
-    selected ? 'bg-red-50' : schedulingActive ? 'bg-green-50/60' : 'hover:bg-gray-50'
+    schedulingActive
+      ? `bg-green-50/60 ${selected ? 'ring-2 ring-inset ring-vortex-red' : ''}`
+      : selected
+        ? 'bg-red-50'
+        : 'hover:bg-gray-50'
   }`
 }
 
@@ -315,10 +321,15 @@ const ProgramsSection = ({
                 {compact ? (
                   <button
                     type="button"
-                    className="w-full text-left"
+                    className="w-full text-left flex items-center justify-between gap-2"
                     onClick={() => onSelectProgram?.(selected ? null : program)}
                   >
-                    {program.displayName}
+                    <span>{program.displayName}</span>
+                    {schedulingActive && (
+                      <span className="shrink-0 rounded-full bg-green-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-green-900">
+                        Active
+                      </span>
+                    )}
                   </button>
                 ) : (
                   <>

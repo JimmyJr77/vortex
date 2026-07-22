@@ -78,13 +78,26 @@ export async function listPublicClassesOffered(pool) {
       p.age_min AS "ageMin",
       p.age_max AS "ageMax",
       p.skill_requirements AS "skillRequirements",
-      sf.id AS "formId",
-      sf.is_active AS form_is_active
+      sf.id AS "formId"
     FROM program p
-    LEFT JOIN scheduling_form sf
-      ON sf.program_id = p.id
-      AND sf.deleted_at IS NULL
-      AND sf.is_active = TRUE
+    LEFT JOIN LATERAL (
+      SELECT candidate.id
+      FROM scheduling_form candidate
+      WHERE candidate.program_id = p.id
+        AND candidate.deleted_at IS NULL
+        AND EXISTS (
+          SELECT 1
+          FROM scheduling_slot_group sg
+          INNER JOIN scheduling_time_slot ts
+            ON ts.form_id = candidate.id
+            AND ts.slot_group_id = sg.id
+            AND ts.is_active = TRUE
+          WHERE sg.form_id = candidate.id
+            AND sg.is_active = TRUE
+        )
+      ORDER BY candidate.is_active DESC, candidate.id DESC
+      LIMIT 1
+    ) sf ON TRUE
     LEFT JOIN ${schema.programsTable} pr ON pr.id = p.${schema.programFkColumn}
     WHERE p.archived = FALSE
       AND p.is_active = TRUE
@@ -102,7 +115,9 @@ export async function listPublicClassesOffered(pool) {
       classesByProgram.set(programsId, [])
     }
     const formId = row.formId != null ? Number(row.formId) : null
-    const enrollVisible = formId != null && row.form_is_active === true
+    // The class status in Class Setup is authoritative; an attached active
+    // schedule makes the class enrollable regardless of the legacy form flag.
+    const enrollVisible = formId != null
 
     classesByProgram.get(programsId).push({
       id: Number(row.id),
