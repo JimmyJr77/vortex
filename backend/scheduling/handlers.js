@@ -1241,12 +1241,13 @@ const orderPreviewSchema = Joi.object({
   formId: Joi.number().integer().required(),
   email: Joi.string().email().optional(),
   signupAuthToken: Joi.string().trim().optional(),
+  anonymousEstimate: Joi.boolean().default(false),
   signups: Joi.array().items(signupItemSchema).max(20).default([]),
   promoCodes: Joi.array().items(Joi.string().trim().max(100)).max(10).default([]),
   currentSchool: Joi.string().trim().allow('', null).max(200).optional(),
   graduationYear: Joi.number().integer().min(2000).max(2100).allow(null).optional(),
 }).custom((val, helpers) => {
-  if (!val.signupAuthToken && !val.email) {
+  if (!val.signupAuthToken && !val.email && !val.anonymousEstimate) {
     return helpers.error('any.custom', { message: 'Email or sign-in session is required' })
   }
   return val

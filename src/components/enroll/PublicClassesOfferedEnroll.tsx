@@ -27,6 +27,10 @@ import {
 } from '../../utils/publicEnrollmentCart'
 import { trackEvent } from '../../utils/analyticsClient'
 import {
+  fetchSignupOrderPreview,
+  type SignupOrderPreview,
+} from '../../utils/schedulingApi'
+import {
   slotOptionKey,
   type SignupClassCatalog,
 } from '../signup/signupEnrollmentUtils'
@@ -54,6 +58,14 @@ interface CatalogClass {
   ageMin: number | null
   ageMax: number | null
   programName: string
+}
+
+interface MultiClassDiscountRow {
+  ruleId: number
+  name: string
+  amountCents: number
+  qualifiedLabel: string | null
+  nextTierHint: string | null
 }
 
 const UNSPECIFIED_SPORT = '__unspecified_sport__'
@@ -111,6 +123,63 @@ function estimateProgramSubtotal(
     : { cents: null, detail: 'Price confirmed during enrollment' }
 }
 
+function summarizeMultiClassDiscount(preview: SignupOrderPreview | null) {
+  const grouped = new Map<number, MultiClassDiscountRow>()
+  const add = (
+    ruleId: number,
+    name: string,
+    amountCents: number,
+    qualifiedLabel?: string | null,
+    nextTierHint?: string | null,
+  ) => {
+    const current = grouped.get(ruleId)
+    if (current) {
+      current.amountCents += amountCents
+      current.qualifiedLabel ||= qualifiedLabel ?? null
+      current.nextTierHint ||= nextTierHint ?? null
+      return
+    }
+    grouped.set(ruleId, {
+      ruleId,
+      name,
+      amountCents,
+      qualifiedLabel: qualifiedLabel ?? null,
+      nextTierHint: nextTierHint ?? null,
+    })
+  }
+
+  if (preview?.discounts?.enabled) {
+    for (const line of preview.discounts.lines) {
+      for (const applied of line.applied) {
+        if (applied.type !== 'multi_class') continue
+        add(
+          applied.ruleId,
+          applied.name,
+          applied.amountCents,
+          applied.qualifiedLabel,
+          applied.nextTierHint,
+        )
+      }
+    }
+    for (const applied of preview.discounts.orderDiscounts) {
+      if (applied.type !== 'multi_class') continue
+      add(
+        applied.ruleId,
+        applied.name,
+        applied.amountCents,
+        applied.qualifiedLabel,
+        applied.nextTierHint,
+      )
+    }
+  }
+
+  const rows = [...grouped.values()]
+  return {
+    rows,
+    totalCents: rows.reduce((sum, row) => sum + row.amountCents, 0),
+  }
+}
+
 export default function PublicClassesOfferedEnroll({
   apiUrl,
   programs,
@@ -130,6 +199,9 @@ export default function PublicClassesOfferedEnroll({
   const [selectedPricingByProgram, setSelectedPricingByProgram] = useState<
     Record<number, ProgramPricingOptionKey>
   >({})
+  const [discountPreview, setDiscountPreview] = useState<SignupOrderPreview | null>(null)
+  const [discountPreviewLoading, setDiscountPreviewLoading] = useState(false)
+  const [discountPreviewUnavailable, setDiscountPreviewUnavailable] = useState(false)
 
   const classesWithForm = useMemo<CatalogClass[]>(() => {
     const result: CatalogClass[] = []
@@ -266,6 +338,61 @@ export default function PublicClassesOfferedEnroll({
     })
     return { rows, knownTotal, hasUnknown }
   }, [cartByProgram, programs, selectedPricingByProgram])
+
+  useEffect(() => {
+    if (cart.length === 0) {
+      setDiscountPreview(null)
+      setDiscountPreviewLoading(false)
+      setDiscountPreviewUnavailable(false)
+      return
+    }
+
+    let active = true
+    setDiscountPreview(null)
+    setDiscountPreviewLoading(true)
+    setDiscountPreviewUnavailable(false)
+    const timer = window.setTimeout(() => {
+      void fetchSignupOrderPreview({
+        formId: cart[0].schedulingFormId,
+        anonymousEstimate: true,
+        signups: cart.map((item) => ({
+          formId: item.schedulingFormId,
+          slotGroupId: item.slotGroupId,
+          timeSlotId: item.timeSlotId,
+          selectedPricingOptionKey:
+            selectedPricingByProgram[item.programsId] ??
+            defaultPricingKey(programs.find((program) => program.id === item.programsId)),
+        })),
+      })
+        .then((preview) => {
+          if (!active) return
+          setDiscountPreview(preview)
+          setDiscountPreviewUnavailable(false)
+        })
+        .catch(() => {
+          if (!active) return
+          setDiscountPreview(null)
+          setDiscountPreviewUnavailable(true)
+        })
+        .finally(() => {
+          if (active) setDiscountPreviewLoading(false)
+        })
+    }, 200)
+
+    return () => {
+      active = false
+      window.clearTimeout(timer)
+    }
+  }, [cart, programs, selectedPricingByProgram])
+
+  const multiClassDiscount = useMemo(
+    () => summarizeMultiClassDiscount(discountPreview),
+    [discountPreview],
+  )
+  const estimatedTotalAfterDiscount = Math.max(
+    0,
+    pricingBreakdown.knownTotal - multiClassDiscount.totalCents,
+  )
 
   useEffect(() => {
     savePublicEnrollmentCart(cart.map((item) => ({
@@ -512,10 +639,28 @@ export default function PublicClassesOfferedEnroll({
                 <span className="font-semibold text-gray-900">{row.cents == null ? 'To be confirmed' : money(row.cents)}</span>
               </div>
             ))}
+            {discountPreviewLoading && (
+              <div className="flex items-center justify-between gap-4 text-sm text-gray-500">
+                <span className="inline-flex items-center gap-2"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Calculating multi-class discount</span>
+              </div>
+            )}
+            {multiClassDiscount.rows.map((row) => (
+              <div key={row.ruleId} className="flex items-start justify-between gap-4 text-sm">
+                <div>
+                  <span className="font-semibold text-green-800">{row.name}</span>
+                  {row.qualifiedLabel && <span className="block text-xs text-green-700">{row.qualifiedLabel}</span>}
+                  {row.nextTierHint && <span className="block text-xs text-gray-500">{row.nextTierHint}</span>}
+                </div>
+                <span className="font-semibold text-green-800">−{money(row.amountCents)}</span>
+              </div>
+            ))}
+            {discountPreviewUnavailable && cart.length > 1 && (
+              <p className="text-xs text-gray-500">Multi-class savings will be confirmed during account setup.</p>
+            )}
             <div className="flex items-center justify-between gap-4 border-t border-gray-200 pt-3">
               <span className="font-bold text-gray-900">Estimated total</span>
               <span className="text-lg font-bold text-vortex-red">
-                {money(pricingBreakdown.knownTotal)}{pricingBreakdown.hasUnknown ? ' + pending prices' : ''}
+                {money(estimatedTotalAfterDiscount)}{pricingBreakdown.hasUnknown ? ' + pending prices' : ''}
               </span>
             </div>
           </div>

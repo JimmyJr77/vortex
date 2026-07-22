@@ -921,6 +921,7 @@ export async function fetchSignupOrderPreview(payload: {
   formId: number
   email?: string
   signupAuthToken?: string
+  anonymousEstimate?: boolean
   signups: Array<{
     lineType?: 'slot' | 'multi_class_pass'
     formId?: number
@@ -942,6 +943,7 @@ export async function fetchSignupOrderPreview(payload: {
       formId: payload.formId,
       email: payload.email?.trim().toLowerCase(),
       signupAuthToken: payload.signupAuthToken,
+      anonymousEstimate: payload.anonymousEstimate ?? false,
       signups: payload.signups,
       promoCodes: payload.promoCodes ?? [],
       currentSchool: payload.currentSchool ?? null,
