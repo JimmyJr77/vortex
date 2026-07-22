@@ -49,10 +49,6 @@ const GymnasticsHeader = ({
     { name: 'Trampoline & Tumbling', to: '/trampoline-tumbling', indented: true },
     { name: 'Rhythmic Gymnastics', to: '/rhythmic-gymnastics', indented: true },
     { name: 'Mommy & Me', to: '/artistic-gymnastics-early', indented: true },
-    { name: 'All Levels Welcome', textOnly: true },
-    { name: 'Early Development', to: '/artistic-gymnastics-early', indented: true },
-    { name: 'Ages 6-12', to: '/artistic-gymnastics-6-12', indented: true },
-    { name: 'Ages 13-18', to: '/artistic-gymnastics-13-18', indented: true },
   ]
 
   const isNavItemActive = (to: string, isHome?: boolean) => {
@@ -202,30 +198,20 @@ const GymnasticsHeader = ({
               Home
             </a>
 
-            {menuItems.map((item) => {
-              if ('textOnly' in item) {
-                return (
-                  <span key={item.name} className="block text-white font-medium">
-                    {item.name}
-                  </span>
-                )
-              }
-
-              return (
-                <Link
-                  key={item.name}
-                  to={item.to}
-                  onClick={closeMenu}
-                  className={`block ${item.indented ? 'pl-4' : ''} ${
-                    isNavItemActive(item.to, item.isHome)
-                      ? 'text-vortex-red'
-                      : 'text-white'
-                  } hover:text-vortex-red transition-colors duration-300 font-medium`}
-                >
-                  {item.name}
-                </Link>
-              )
-            })}
+            {menuItems.map((item) => (
+              <Link
+                key={item.name}
+                to={item.to}
+                onClick={closeMenu}
+                className={`block ${item.indented ? 'pl-4' : ''} ${
+                  isNavItemActive(item.to, item.isHome)
+                    ? 'text-vortex-red'
+                    : 'text-white'
+                } hover:text-vortex-red transition-colors duration-300 font-medium`}
+              >
+                {item.name}
+              </Link>
+            ))}
 
             <SpecialPageNavSection
               pages={specialPages}

@@ -38,6 +38,7 @@ import { issueEmailVerification } from './email/emailVerificationService.js'
 import { refreshMemberProfileComplete } from './members/createMemberStub.js'
 import { registerDevMemberRoutes } from './members/devMemberRoutes.js'
 import { DEV_TEST_FLAG } from './members/seedDevTestMembers.js'
+import { runCatalogRepairMigrations } from './programs/runCatalogRepairMigrations.js'
 import { initPlatformTables } from './platform/initTables.js'
 import { registerPlatformRoutes } from './platform/registerRoutes.js'
 import { registerFamilySignupRoutes, createPortalFamilyMember } from './platform/familySignup.js'
@@ -821,6 +822,7 @@ export const initDatabase = async () => {
     console.log('✅ Module 1 (Programs & Classes) schema initialized')
 
     await ensureProgramCategoriesSchema()
+    await runCatalogRepairMigrations(pool)
 
     // ============================================================
     // MODULE 2: Unified Member Table (replaces app_user and athlete)
