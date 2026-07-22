@@ -60,7 +60,7 @@ interface CatalogClass {
   programName: string
 }
 
-interface MultiClassDiscountRow {
+interface AppliedDiscountRow {
   ruleId: number
   name: string
   amountCents: number
@@ -123,8 +123,8 @@ function estimateProgramSubtotal(
     : { cents: null, detail: 'Price confirmed during enrollment' }
 }
 
-function summarizeMultiClassDiscount(preview: SignupOrderPreview | null) {
-  const grouped = new Map<number, MultiClassDiscountRow>()
+function summarizeAppliedDiscounts(preview: SignupOrderPreview | null) {
+  const grouped = new Map<number, AppliedDiscountRow>()
   const add = (
     ruleId: number,
     name: string,
@@ -151,7 +151,6 @@ function summarizeMultiClassDiscount(preview: SignupOrderPreview | null) {
   if (preview?.discounts?.enabled) {
     for (const line of preview.discounts.lines) {
       for (const applied of line.applied) {
-        if (applied.type !== 'multi_class') continue
         add(
           applied.ruleId,
           applied.name,
@@ -162,7 +161,6 @@ function summarizeMultiClassDiscount(preview: SignupOrderPreview | null) {
       }
     }
     for (const applied of preview.discounts.orderDiscounts) {
-      if (applied.type !== 'multi_class') continue
       add(
         applied.ruleId,
         applied.name,
@@ -385,13 +383,13 @@ export default function PublicClassesOfferedEnroll({
     }
   }, [cart, programs, selectedPricingByProgram])
 
-  const multiClassDiscount = useMemo(
-    () => summarizeMultiClassDiscount(discountPreview),
+  const appliedDiscount = useMemo(
+    () => summarizeAppliedDiscounts(discountPreview),
     [discountPreview],
   )
   const estimatedTotalAfterDiscount = Math.max(
     0,
-    pricingBreakdown.knownTotal - multiClassDiscount.totalCents,
+    pricingBreakdown.knownTotal - appliedDiscount.totalCents,
   )
 
   useEffect(() => {
@@ -641,10 +639,10 @@ export default function PublicClassesOfferedEnroll({
             ))}
             {discountPreviewLoading && (
               <div className="flex items-center justify-between gap-4 text-sm text-gray-500">
-                <span className="inline-flex items-center gap-2"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Calculating multi-class discount</span>
+                <span className="inline-flex items-center gap-2"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Calculating available discounts</span>
               </div>
             )}
-            {multiClassDiscount.rows.map((row) => (
+            {appliedDiscount.rows.map((row) => (
               <div key={row.ruleId} className="flex items-start justify-between gap-4 text-sm">
                 <div>
                   <span className="font-semibold text-green-800">{row.name}</span>
@@ -655,7 +653,7 @@ export default function PublicClassesOfferedEnroll({
               </div>
             ))}
             {discountPreviewUnavailable && cart.length > 1 && (
-              <p className="text-xs text-gray-500">Multi-class savings will be confirmed during account setup.</p>
+              <p className="text-xs text-gray-500">Available savings will be confirmed during account setup.</p>
             )}
             <div className="flex items-center justify-between gap-4 border-t border-gray-200 pt-3">
               <span className="font-bold text-gray-900">Estimated total</span>
