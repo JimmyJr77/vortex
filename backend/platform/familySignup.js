@@ -353,12 +353,28 @@ function sqlClassHasSignupSlots(programAlias) {
 }
 
 async function loadClassEnrollmentCatalog(pool, classEventId) {
+  const schema = await resolveProgramsSchema(pool)
+  const parentActiveColumn = await pool.query(
+    `SELECT 1 FROM information_schema.columns
+     WHERE table_name = $1 AND column_name = 'is_active' LIMIT 1`,
+    [schema.programsTable],
+  )
+  const activeParentClause =
+    parentActiveColumn.rows.length > 0 ? 'AND COALESCE(pr.is_active, TRUE) = TRUE' : ''
   const formRes = await pool.query(
     `
-      SELECT *
-      FROM scheduling_form
-      WHERE program_id = $1 AND deleted_at IS NULL AND is_active = TRUE
-      ORDER BY id
+      SELECT sf.*, p.${schema.programFkColumn} AS resolved_programs_id
+      FROM scheduling_form sf
+      INNER JOIN program p ON p.id = sf.program_id
+      INNER JOIN ${schema.programsTable} pr ON pr.id = p.${schema.programFkColumn}
+      WHERE sf.program_id = $1
+        AND sf.deleted_at IS NULL
+        AND sf.is_active = TRUE
+        AND COALESCE(p.archived, FALSE) = FALSE
+        AND COALESCE(p.is_active, TRUE) = TRUE
+        AND COALESCE(pr.archived, FALSE) = FALSE
+        ${activeParentClause}
+      ORDER BY sf.id
       LIMIT 1
     `,
     [classEventId],
@@ -367,6 +383,8 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
     return { formId: null, offerings: [], scheduleOptions: [], classActiveDates: null }
   }
   const form = formRes.rows[0]
+  form.programs_id =
+    form.resolved_programs_id != null ? Number(form.resolved_programs_id) : null
   const formId = Number(form.id)
   const { effective } = await loadEffectivePricingForForm(pool, form)
   const priceCents = Number(effective.costAmountCents ?? 0)
@@ -1273,12 +1291,12 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
           SELECT
             sf.id AS form_id,
             sf.program_id AS class_event_id,
-            sf.programs_id,
+            p.${schema.programFkColumn} AS programs_id,
             p.display_name AS class_display_name,
             pr.display_name AS program_display_name
           FROM scheduling_form sf
           LEFT JOIN program p ON p.id = sf.program_id
-          LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
+          LEFT JOIN ${schema.programsTable} pr ON pr.id = p.${schema.programFkColumn}
           WHERE sf.id = $1 AND sf.deleted_at IS NULL
         `,
         [formId],

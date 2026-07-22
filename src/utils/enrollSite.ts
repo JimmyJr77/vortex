@@ -20,7 +20,7 @@ export function getEnrollCatalogDefault(): EnrollCatalogDefault {
   const site = getCurrentEnrollSiteKey()
   if (site === 'gymnastics') return { type: 'sport', value: 'Gymnastics' }
   if (site === 'basketball') return { type: 'sport', value: 'Basketball' }
-  return { type: 'program', value: 'Athleticism Accelerator' }
+  return { type: 'sport', value: 'Athleticism Accelerator' }
 }
 
 interface SiteEnrollHrefOptions {

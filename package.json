@@ -13,6 +13,7 @@
     "postbuild": "node scripts/prerender.mjs",
     "test:management": "node scripts/management-smoke-check.mjs",
     "test:launch": "node scripts/launch-smoke-check.mjs",
+    "test:enrollment-catalog": "node scripts/verify-enrollment-catalog.mjs",
     "rehearsal:business": "node scripts/business-rehearsal.mjs",
     "rehearsal:signoff": "node scripts/business-signoff-export.mjs",
     "bootstrap:staging-rehearsal": "npm run bootstrap:staging-rehearsal --prefix backend",

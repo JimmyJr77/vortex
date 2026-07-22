@@ -183,8 +183,27 @@ export async function loadProgramPricingRow(pool, programsId) {
   return result.rows[0] ?? null
 }
 
+/**
+ * Resolve a form's parent program from its Class Master row. scheduling_form.programs_id is a
+ * denormalized convenience column and can be stale on older records, so it must not decide pricing.
+ */
+export async function resolveFormProgramsId(pool, formRow) {
+  if (formRow?.program_id != null) {
+    const schema = await resolveProgramsSchema(pool)
+    const result = await pool.query(
+      `SELECT ${schema.programFkColumn} AS programs_id FROM program WHERE id = $1 LIMIT 1`,
+      [Number(formRow.program_id)],
+    )
+    if (result.rows.length > 0) {
+      const value = result.rows[0].programs_id
+      return value != null ? Number(value) : null
+    }
+  }
+  return formRow?.programs_id != null ? Number(formRow.programs_id) : null
+}
+
 export async function loadEffectivePricingForForm(pool, formRow) {
-  const programsId = formRow?.programs_id != null ? Number(formRow.programs_id) : null
+  const programsId = await resolveFormProgramsId(pool, formRow)
   const programRow = hydrateProgramPricingRow(
     programsId != null ? await loadProgramPricingRow(pool, programsId) : null,
   )

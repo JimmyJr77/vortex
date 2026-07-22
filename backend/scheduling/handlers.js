@@ -59,6 +59,7 @@ import { persistFreePassRedemptions } from './freePassEngine.js'
 import {
   loadEffectivePricingForForm,
   loadProgramPricingRow,
+  resolveFormProgramsId,
   resolveEffectiveFormPricing,
 } from '../programs/pricingDefaults.js'
 import {
@@ -518,10 +519,18 @@ function buildProgramClassOptionsFromDetail(detail, { signedUpSlotKeys = null } 
 
 async function loadFormProgramsId(pool, formId) {
   const res = await pool.query(
-    'SELECT programs_id FROM scheduling_form WHERE id = $1',
+    'SELECT program_id, programs_id FROM scheduling_form WHERE id = $1',
     [formId],
   )
-  return res.rows[0]?.programs_id != null ? Number(res.rows[0].programs_id) : null
+  return res.rows[0] ? resolveFormProgramsId(pool, res.rows[0]) : null
+}
+
+async function hydrateFormClassMasterProgramsId(pool, formRow) {
+  if (!formRow) return formRow
+  return {
+    ...formRow,
+    programs_id: await resolveFormProgramsId(pool, formRow),
+  }
 }
 
 async function issueSignupAuthForForm(pool, formId, member) {
@@ -541,7 +550,7 @@ async function resolveSignupEntryForInsert(pool, entry) {
     err.code = 'FORM_UNAVAILABLE'
     throw err
   }
-  const formRow = formRes.rows[0]
+  const formRow = await hydrateFormClassMasterProgramsId(pool, formRes.rows[0])
   const detail = await loadFormDetail(pool, entry.formId)
   if (!detail) {
     const err = new Error('Scheduling form not available')
@@ -910,6 +919,34 @@ async function loadFormDetail(
     if (!form.is_active) {
       return null
     }
+
+    if (form.program_id != null) {
+      const { resolveProgramsSchema } = await import('../programs/schema.js')
+      const schema = await resolveProgramsSchema(pool)
+      const parentActiveColumn = await pool.query(
+        `SELECT 1 FROM information_schema.columns
+         WHERE table_name = $1 AND column_name = 'is_active' LIMIT 1`,
+        [schema.programsTable],
+      )
+      const activeParentClause =
+        parentActiveColumn.rows.length > 0 ? 'AND COALESCE(pr.is_active, TRUE) = TRUE' : ''
+      const activeClass = await pool.query(
+        `SELECT p.${schema.programFkColumn} AS programs_id
+         FROM program p
+         INNER JOIN ${schema.programsTable} pr ON pr.id = p.${schema.programFkColumn}
+         WHERE p.id = $1
+           AND COALESCE(p.archived, FALSE) = FALSE
+           AND COALESCE(p.is_active, TRUE) = TRUE
+           AND COALESCE(pr.archived, FALSE) = FALSE
+           ${activeParentClause}
+         LIMIT 1`,
+        [Number(form.program_id)],
+      )
+      if (activeClass.rows.length === 0) return null
+      form.programs_id = Number(activeClass.rows[0].programs_id)
+    }
+  } else if (form.program_id != null) {
+    form.programs_id = await resolveFormProgramsId(pool, form)
   }
 
   const slotParams = [formId]
@@ -1256,6 +1293,15 @@ export function createSchedulingHandlers(pool) {
       try {
         const { resolveProgramsSchema } = await import('../programs/schema.js')
         const schema = await resolveProgramsSchema(pool)
+        const programActiveColumn = await pool.query(
+          `SELECT 1 FROM information_schema.columns
+           WHERE table_name = $1 AND column_name = 'is_active' LIMIT 1`,
+          [schema.programsTable],
+        )
+        const parentProgramActiveClause =
+          programActiveColumn.rows.length > 0
+            ? 'AND COALESCE(pr.is_active, TRUE) = TRUE'
+            : ''
 
         const result = await pool.query(
           `
@@ -1266,14 +1312,18 @@ export function createSchedulingHandlers(pool) {
               NULLIF(TRIM(pr.display_name), ''),
               NULLIF(TRIM(pr.name), '')
             ) AS program_display_name,
-            COALESCE(sf.programs_id, p.${schema.programFkColumn}) AS resolved_programs_id
+            p.${schema.programFkColumn} AS resolved_programs_id
           FROM scheduling_form sf
           LEFT JOIN program p ON p.id = sf.program_id
-          LEFT JOIN ${schema.programsTable} pr
-            ON pr.id = COALESCE(sf.programs_id, p.${schema.programFkColumn})
+          LEFT JOIN ${schema.programsTable} pr ON pr.id = p.${schema.programFkColumn}
           WHERE sf.deleted_at IS NULL
             AND sf.program_id IS NOT NULL
             AND sf.is_active = TRUE
+            AND p.archived = FALSE
+            AND p.is_active = TRUE
+            AND p.${schema.programFkColumn} IS NOT NULL
+            AND pr.archived = FALSE
+            ${parentProgramActiveClause}
           ORDER BY pr.display_name NULLS LAST, p.display_name NULLS LAST, sf.title ASC
           `,
         )
@@ -1856,7 +1906,7 @@ export function createSchedulingHandlers(pool) {
         if (formRes.rows.length === 0) {
           return res.status(404).json({ success: false, message: 'Scheduling form not available' })
         }
-        const formRow = formRes.rows[0]
+        const formRow = await hydrateFormClassMasterProgramsId(pool, formRes.rows[0])
 
         let memberId = null
         if (value.signupAuthToken) {
@@ -1950,7 +2000,7 @@ export function createSchedulingHandlers(pool) {
         if (formRes.rows.length === 0) {
           return res.status(404).json({ success: false, message: 'Scheduling form not available' })
         }
-        const formRow = formRes.rows[0]
+        const formRow = await hydrateFormClassMasterProgramsId(pool, formRes.rows[0])
         const auth = verifySignupAuthToken(value.signupAuthToken, value.formId, {
           programsId: formRow.programs_id != null ? Number(formRow.programs_id) : null,
         })
@@ -2152,7 +2202,7 @@ export function createSchedulingHandlers(pool) {
         if (formRes.rows.length === 0 || formRes.rows[0].deleted_at || !formRes.rows[0].is_active) {
           return res.status(404).json({ success: false, message: 'Scheduling form not available' })
         }
-        const formRow = formRes.rows[0]
+        const formRow = await hydrateFormClassMasterProgramsId(pool, formRes.rows[0])
         const detail = await loadFormDetail(pool, value.formId)
         if (!detail) {
           return res.status(404).json({ success: false, message: 'Scheduling form not available' })
@@ -3665,7 +3715,7 @@ export function createSchedulingHandlers(pool) {
         if (formRes.rows.length === 0 || formRes.rows[0].deleted_at || !formRes.rows[0].is_active) {
           return res.status(404).json({ success: false, message: 'Scheduling form not available' })
         }
-        const formRow = formRes.rows[0]
+        const formRow = await hydrateFormClassMasterProgramsId(pool, formRes.rows[0])
         const detail = await loadFormDetail(pool, value.formId)
         if (!detail) {
           return res.status(404).json({ success: false, message: 'Scheduling form not available' })
@@ -4544,7 +4594,7 @@ export function createSchedulingHandlers(pool) {
             await client.query('ROLLBACK')
             return res.status(404).json({ success: false, message: 'Target scheduling form not available' })
           }
-          const formRow = formRes.rows[0]
+          const formRow = await hydrateFormClassMasterProgramsId(client, formRes.rows[0])
 
           detail = await loadFormDetail(client, targetFormId)
           if (!detail) {
