@@ -423,13 +423,21 @@ export function registerProgramsAdminRoutes(app, pool) {
       `, [schema.programsTable])
       const hasDescription = columnCheck.rows.length > 0
       const hasSchedulingCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
-      const classMasterActiveSelect = `EXISTS (
-        SELECT 1
-        FROM program class_event
-        WHERE class_event.${schema.programFkColumn} = p.id
-          AND COALESCE(class_event.archived, FALSE) = FALSE
-          AND COALESCE(class_event.is_active, TRUE) = TRUE
-      ) as "schedulingActive"`
+      const classMasterActiveSelect = hasSchedulingCols
+        ? `(COALESCE(p.scheduling_active, FALSE) OR EXISTS (
+            SELECT 1
+            FROM program class_event
+            WHERE class_event.${schema.programFkColumn} = p.id
+              AND COALESCE(class_event.archived, FALSE) = FALSE
+              AND COALESCE(class_event.is_active, TRUE) = TRUE
+          )) as "schedulingActive"`
+        : `EXISTS (
+            SELECT 1
+            FROM program class_event
+            WHERE class_event.${schema.programFkColumn} = p.id
+              AND COALESCE(class_event.archived, FALSE) = FALSE
+              AND COALESCE(class_event.is_active, TRUE) = TRUE
+          ) as "schedulingActive"`
       const schedCols = hasSchedulingCols
         ? `, ${classMasterActiveSelect},
            scheduling_enroll_sites as "schedulingEnrollSites",
@@ -714,9 +722,20 @@ export function registerProgramsAdminRoutes(app, pool) {
               ? normalizeEnrollSites(value.schedulingEnrollSites, false)
               : normalizeEnrollSites(null, value.schedulingActive)
           await pool.query(
-            `UPDATE scheduling_form
-             SET is_active = $1, enroll_sites = $2, updated_at = CURRENT_TIMESTAMP
-             WHERE programs_id = $3 AND deleted_at IS NULL`,
+            `UPDATE scheduling_form sf
+             SET is_active = $1,
+                 enroll_sites = $2,
+                 programs_id = $3,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE sf.deleted_at IS NULL
+               AND (
+                 sf.program_id IN (
+                   SELECT class_event.id
+                   FROM program class_event
+                   WHERE class_event.${schema.programFkColumn} = $3
+                 )
+                 OR (sf.program_id IS NULL AND sf.programs_id = $3)
+               )`,
             [enrollSites.length > 0, enrollSites, req.params.id],
           )
         }
