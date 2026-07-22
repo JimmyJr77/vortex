@@ -40,7 +40,7 @@ const AthleticismAccelerator = ({ onHighlightsClick }: AthleticismAcceleratorPro
 
   return (
     <div className="min-h-screen bg-white">
-      <Hero onHighlightsClick={onHighlightsClick} />
+      <Hero onHighlightsClick={onHighlightsClick} hideAcceleratorCta />
       <section className="section-padding bg-white">
         <div className="container-custom">
           <RotatingOfferHeadline headlines={ACCELERATOR_OFFER_HEADLINES} />
@@ -55,10 +55,10 @@ const AthleticismAccelerator = ({ onHighlightsClick }: AthleticismAcceleratorPro
       <ParallaxGym />
 
       {/* Program Overview */}
-      <section className="section-padding bg-white !pb-0">
+      <section className="section-padding bg-white">
         <div className="container-custom">
           <motion.div
-            className="text-center mb-16"
+            className="text-center"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -77,32 +77,6 @@ const AthleticismAccelerator = ({ onHighlightsClick }: AthleticismAcceleratorPro
             </p>
           </motion.div>
 
-          <motion.div
-            className="bg-white border-2 border-vortex-red rounded-3xl p-8 md:p-12"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h3 className="text-2xl font-display font-bold text-black mb-6">
-              Integrated Across Every Program
-            </h3>
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              Whether your athlete plays football, basketball, competes in track & field, or trains in 
-              gymnastics, the Athleticism Accelerator principles will drive your child toward peak performance. We ensure a holistic approach to athletic development – building strength while 
-              training flexibility, developing speed while enhancing balance. No athlete leaves with 
-              weak links in their athletic chain.
-            </p>
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              Through biomechanics sensors, movement AI, and personalized programming, we track and adapt 
-              training to maximize each athlete's potential across all eight tenets. This isn't just gymnastics 
-              training – it's comprehensive athletic development that will make your child a better athlete, 
-              regardless of their primary sport.
-            </p>
-            <p className="text-lg text-gray-700 leading-relaxed">
-              But if you want your athlete to most fully excel in a focused training regimen geared toward athletic development, the Athletic Accelerator program is your go to training regimen. This is not a series of random workouts strung together into a program. This is a calculated and targeted development plan to get the most out of your athlete.
-            </p>
-          </motion.div>
         </div>
       </section>
 

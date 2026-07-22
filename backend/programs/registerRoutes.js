@@ -159,12 +159,7 @@ async function createSchedulingFormForClassEvent(pool, classEvent, programsId, s
 export function registerProgramsPublicRoutes(app, pool) {
   app.get('/api/public/classes-offered', async (req, res) => {
     try {
-      const { isEnrollSiteKey } = await import('../scheduling/enrollSites.js')
-      const site = String(req.query.site || 'athletics')
-      if (!isEnrollSiteKey(site)) {
-        return res.status(400).json({ success: false, message: 'Invalid enroll site' })
-      }
-      const data = await listPublicClassesOffered(pool, site)
+      const data = await listPublicClassesOffered(pool)
       res.json({ success: true, data })
     } catch (err) {
       console.error('[programs] public classes-offered:', err)

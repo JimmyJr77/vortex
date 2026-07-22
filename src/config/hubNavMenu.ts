@@ -1,29 +1,22 @@
-import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
 import { NINJA_PROGRAM_ON_HOLD } from '../utils/ninjaProgram'
 import { getStubSportSiteUrl } from '../utils/sportSite'
+import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
 
 export type HubNavMenuEntry =
-  | { kind: 'item'; label: string; to: string; onHold?: boolean }
+  | { kind: 'item'; label: string; to: string; onHold?: boolean; indented?: boolean }
   | { kind: 'item'; label: string; href: string; external: true }
+  | { kind: 'specialPages' }
   | { kind: 'divider' }
 
 /** Hub site nav: programs, summer offerings, then sport sites. */
 export const HUB_NAV_MENU_ENTRIES: HubNavMenuEntry[] = [
-  { kind: 'item', label: 'Home', to: '/' },
   { kind: 'item', label: 'Vortex Athletics', to: '/vortex-athletics' },
-  { kind: 'item', label: 'Fit & Flip', to: '/strength-conditioning' },
-  { kind: 'divider' },
-  { kind: 'item', label: 'Summer Athletic Program', to: '/summer-athletic-training' },
-  {
-    kind: 'item',
-    label: 'Summer Gymnastics Program',
-    href: getGymnasticsSiteUrl('/summer-camp-26'),
-    external: true,
-  },
+  { kind: 'item', label: 'Fit & Flip', to: '/strength-conditioning', indented: true },
+  { kind: 'specialPages' },
   { kind: 'divider' },
   {
     kind: 'item',
-    label: 'Gymnastics',
+    label: 'Vortex Gymnastics',
     href: getGymnasticsSiteUrl(),
     external: true,
   },

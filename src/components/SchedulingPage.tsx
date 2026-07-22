@@ -21,6 +21,7 @@ import {
   type ClassSkillLevelFilter,
 } from '../utils/classDisplayUtils'
 import { trackEvent } from '../utils/analyticsClient'
+import { getEnrollCatalogDefault } from '../utils/enrollSite'
 import SchedulingSignupEmbed from './SchedulingSignupEmbed'
 
 function parseOptionalInt(raw: string | null): number | null | undefined {
@@ -95,10 +96,23 @@ function classMatchesLevel(skillLevel: string | null, filter: ClassSkillLevelFil
   return filter === 'all' || skillLevel == null || skillLevel === filter
 }
 
+function normalizeFilterName(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/trampoline/g, 'tramp')
+    .replace(/tumbling/g, 'tumble')
+    .replace(/[^a-z0-9]+/g, '')
+}
+
 const SchedulingPage = () => {
+  const catalogDefault = useMemo(() => getEnrollCatalogDefault(), [])
   const [searchParams] = useSearchParams()
   const urlFormId = useMemo(() => parseOptionalInt(searchParams.get('form')) ?? null, [searchParams])
   const urlProgramsId = useMemo(() => parseOptionalInt(searchParams.get('programsId')), [searchParams])
+  const urlSportFilter = searchParams.get('sportFilter')
+  const urlProgramName = searchParams.get('program')
   const urlOfferingId = useMemo(() => parseOptionalInt(searchParams.get('offeringId')), [searchParams])
   const urlSlotGroupId = useMemo(() => parseOptionalInt(searchParams.get('slotGroupId')), [searchParams])
   const urlTimeSlotId = useMemo(() => parseOptionalInt(searchParams.get('timeSlotId')), [searchParams])
@@ -114,7 +128,9 @@ const SchedulingPage = () => {
     shouldOpenSignupDirectly ? urlFormId : null,
   )
   const [searchQuery, setSearchQuery] = useState('')
-  const [sportFilter, setSportFilter] = useState('all')
+  const [sportFilter, setSportFilter] = useState(
+    urlSportFilter || (catalogDefault.type === 'sport' ? catalogDefault.value : 'all'),
+  )
   const [programFilter, setProgramFilter] = useState<number | 'all'>('all')
   const [levelFilter, setLevelFilter] = useState<ClassSkillLevelFilter>('all')
   const [focusedFormId, setFocusedFormId] = useState<number | null>(
@@ -150,11 +166,30 @@ const SchedulingPage = () => {
           catalog.some((program) => program.programsId === urlProgramsId)
         ) {
           setProgramFilter(urlProgramsId)
+        } else if (urlProgramName) {
+          const requestedName = normalizeFilterName(urlProgramName)
+          const requestedProgram = catalog.find(
+            (program) => {
+              const programName = normalizeFilterName(program.displayName)
+              return (
+                programName === requestedName ||
+                programName.includes(requestedName) ||
+                requestedName.includes(programName)
+              )
+            },
+          )
+          if (requestedProgram) setProgramFilter(requestedProgram.programsId)
+        } else if (catalogDefault.type === 'program') {
+          const defaultProgram = catalog.find(
+            (program) =>
+              program.displayName.trim().toLowerCase() === catalogDefault.value.toLowerCase(),
+          )
+          if (defaultProgram) setProgramFilter(defaultProgram.programsId)
         }
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load enroll options'))
       .finally(() => setLoading(false))
-  }, [urlFormId, urlProgramsId, shouldOpenSignupDirectly])
+  }, [urlFormId, urlProgramsId, urlProgramName, shouldOpenSignupDirectly, catalogDefault])
 
   useEffect(() => {
     if (urlEmail) saveSchedulingMemberEmail(urlEmail)
@@ -169,6 +204,25 @@ const SchedulingPage = () => {
     }
     return { named: [...named].sort((a, b) => a.localeCompare(b)), hasUnspecified }
   }, [programs])
+
+  const programOptions = useMemo(() => {
+    if (sportFilter === 'all') return programs
+    return programs.filter(
+      (program) => (program.primarySportName ?? UNSPECIFIED_SPORT) === sportFilter,
+    )
+  }, [programs, sportFilter])
+
+  const handleSportFilterChange = useCallback(
+    (nextSport: string) => {
+      setSportFilter(nextSport)
+      setFocusedFormId(null)
+      if (programFilter === 'all') return
+      const selectedProgram = programs.find((program) => program.programsId === programFilter)
+      const selectedSport = selectedProgram?.primarySportName ?? UNSPECIFIED_SPORT
+      if (nextSport !== 'all' && selectedSport !== nextSport) setProgramFilter('all')
+    },
+    [programFilter, programs],
+  )
 
   const filteredPrograms = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
@@ -281,8 +335,8 @@ const SchedulingPage = () => {
               <input type="search" value={searchQuery} onChange={(event) => { setSearchQuery(event.target.value); setFocusedFormId(null) }} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm" />
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Sport</span><select value={sportFilter} onChange={(event) => { setSportFilter(event.target.value); setFocusedFormId(null) }} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All sports</option>{sportOptions.named.map((sport) => <option key={sport} value={sport}>{sport}</option>)}{sportOptions.hasUnspecified && <option value={UNSPECIFIED_SPORT}>Unspecified sport</option>}</select></label>
-              <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Program</span><select value={programFilter === 'all' ? 'all' : String(programFilter)} onChange={(event) => { setProgramFilter(event.target.value === 'all' ? 'all' : Number(event.target.value)); setFocusedFormId(null) }} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All programs</option>{programs.map((program) => <option key={program.programsId} value={program.programsId}>{program.displayName}</option>)}</select></label>
+              <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Sport</span><select value={sportFilter} onChange={(event) => handleSportFilterChange(event.target.value)} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All sports</option>{sportOptions.named.map((sport) => <option key={sport} value={sport}>{sport}</option>)}{sportOptions.hasUnspecified && <option value={UNSPECIFIED_SPORT}>Unspecified sport</option>}</select></label>
+              <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Program</span><select value={programFilter === 'all' ? 'all' : String(programFilter)} onChange={(event) => { setProgramFilter(event.target.value === 'all' ? 'all' : Number(event.target.value)); setFocusedFormId(null) }} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All programs</option>{programOptions.map((program) => <option key={program.programsId} value={program.programsId}>{program.displayName}</option>)}</select></label>
               <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Experience level</span><select value={levelFilter} onChange={(event) => { setLevelFilter(event.target.value as ClassSkillLevelFilter); setFocusedFormId(null) }} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm">{CLASS_SKILL_LEVEL_FILTER_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
             </div>
           </div>

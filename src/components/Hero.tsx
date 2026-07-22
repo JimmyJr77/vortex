@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
 import HeroSportsMenu from './HeroSportsMenu'
+import useSpecialPages from '../hooks/useSpecialPages'
+import { isSpecialPageAvailable, specialPagesForPlacement } from '../types/specialPages'
 
 // YouTube video ID to play when "Play Video" is clicked (change this to your desired video)
 const HERO_YOUTUBE_VIDEO_ID = 'bvGYBIgc_H8'
@@ -12,9 +14,16 @@ const summerTrainingHeroCtaClass =
 
 interface HeroProps {
   onHighlightsClick?: () => void
+  hideAcceleratorCta?: boolean
 }
 
-const Hero = ({ onHighlightsClick }: HeroProps) => {
+const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
+  const { pages: specialPages } = useSpecialPages()
+  const showSummerTraining =
+    isSpecialPageAvailable(specialPages, 'summer-athletic-program', 'hub') &&
+    specialPagesForPlacement(specialPages, 'hub', 'hero').some(
+      (page) => page.key === 'summer-athletic-program',
+    )
   const [currentTextIndex, setCurrentTextIndex] = useState(0)
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
@@ -287,15 +296,17 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                   Highlights
                 </motion.button>
               )}
-              <Link to="/vortex-athletics">
-                <motion.button
-                  className="btn-secondary group"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Athleticism Accelerator
-                </motion.button>
-              </Link>
+              {!hideAcceleratorCta && (
+                <Link to="/vortex-athletics">
+                  <motion.button
+                    className="btn-secondary group"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Athleticism Accelerator
+                  </motion.button>
+                </Link>
+              )}
               <Link to="/strength-conditioning">
                 <motion.button
                   className="btn-secondary group"
@@ -305,10 +316,12 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                   Fit & Flip
                 </motion.button>
               </Link>
+              {showSummerTraining && (
+                <Link to="/summer-athletic-training" className={summerTrainingHeroCtaClass}>
+                  Summer Training
+                </Link>
+              )}
               <HeroSportsMenu />
-              <Link to="/summer-athletic-training" className={summerTrainingHeroCtaClass}>
-                Summer Training
-              </Link>
             </motion.div>
 
             {/* Scroll Indicator */}
@@ -452,15 +465,17 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                   Highlights
                 </motion.button>
               )}
-              <Link to="/vortex-athletics" className="w-full max-w-xs">
-                <motion.button
-                  className="btn-secondary group w-full"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Athleticism Accelerator
-                </motion.button>
-              </Link>
+              {!hideAcceleratorCta && (
+                <Link to="/vortex-athletics" className="w-full max-w-xs">
+                  <motion.button
+                    className="btn-secondary group w-full"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Athleticism Accelerator
+                  </motion.button>
+                </Link>
+              )}
               <Link to="/strength-conditioning" className="w-full max-w-xs">
                 <motion.button
                   className="btn-secondary group w-full"
@@ -470,13 +485,15 @@ const Hero = ({ onHighlightsClick }: HeroProps) => {
                   Fit & Flip
                 </motion.button>
               </Link>
+              {showSummerTraining && (
+                <Link
+                  to="/summer-athletic-training"
+                  className={`${summerTrainingHeroCtaClass} w-full max-w-xs`}
+                >
+                  Summer Training
+                </Link>
+              )}
               <HeroSportsMenu fullWidth />
-              <Link
-                to="/summer-athletic-training"
-                className={`${summerTrainingHeroCtaClass} w-full max-w-xs`}
-              >
-                Summer Training
-              </Link>
             </motion.div>
 
             {/* Scroll Indicator */}

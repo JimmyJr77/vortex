@@ -5,6 +5,8 @@ import { useSiteHeaderHeight } from '../hooks/useSiteHeaderHeight'
 import { Link, useLocation } from 'react-router-dom'
 import { HUB_NAV_MENU_ENTRIES } from '../config/hubNavMenu'
 import NavMenuDivider, { NAV_MENU_DIVIDER_CLASS } from './NavMenuDivider'
+import SpecialPageNavSection from './SpecialPageNavSection'
+import useSpecialPages from '../hooks/useSpecialPages'
 import {
   NINJA_HOLD_TITLE,
   ninjaOnHoldNavClass,
@@ -24,6 +26,7 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
   const headerRef = useRef<HTMLElement>(null)
   useSiteHeaderHeight(headerRef)
   const location = useLocation()
+  const { pages: specialPages } = useSpecialPages()
   const showPrimaryActions = true
   const hasMobilePrimaryActions = showPrimaryActions || Boolean(member && onMemberDashboardClick)
   const handleProfileClick = () => {
@@ -110,7 +113,7 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
                   title="Classes & Events"
                 >
                   <motion.button
-                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition-all duration-300 hover:bg-gray-100 hover:scale-105 hover:shadow-lg min-[1075px]:px-5 min-[1075px]:py-2.5 min-[1075px]:text-sm"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border-0 bg-white px-3 py-2 text-xs font-semibold text-black transition-all duration-300 hover:bg-gray-100 hover:scale-105 hover:shadow-lg min-[1075px]:px-5 min-[1075px]:py-2.5 min-[1075px]:text-sm"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -183,6 +186,16 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
               if (entry.kind === 'divider') {
                 return <NavMenuDivider key={`divider-${index}`} />
               }
+              if (entry.kind === 'specialPages') {
+                return (
+                  <SpecialPageNavSection
+                    key="special-pages"
+                    pages={specialPages}
+                    siteKey="hub"
+                    onNavigate={() => setIsMenuOpen(false)}
+                  />
+                )
+              }
 
               if ('onHold' in entry && entry.onHold) {
                 return (
@@ -218,7 +231,7 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
                   key={entry.label}
                   to={entry.to}
                   onClick={() => setIsMenuOpen(false)}
-                  className={linkClass(location.pathname === entry.to)}
+                  className={`${linkClass(location.pathname === entry.to)} ${entry.indented ? 'pl-4' : ''}`}
                 >
                   {entry.label}
                 </Link>
@@ -249,6 +262,13 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
               >
                 Inquire
               </button>
+              <Link
+                to={getSiteEnrollHref()}
+                onClick={() => setIsMenuOpen(false)}
+                className="block text-white hover:text-vortex-red transition-colors duration-300 font-medium"
+              >
+                Enroll
+              </Link>
             </div>
           </div>
         </motion.nav>

@@ -2,9 +2,6 @@ import { motion } from 'framer-motion'
 import {
   ArrowRight,
   Calendar,
-  MapPin,
-  Mail,
-  Phone,
   Sparkles,
   Star,
 } from 'lucide-react'
@@ -429,30 +426,6 @@ const SummerCamp2026LandingPage = ({ onInquireClick }: SummerCamp2026LandingPage
         </div>
       </section>
 
-      {/* Contact */}
-      <section className="py-14 bg-black border-t border-neutral-800">
-        <div className="container-custom">
-          <div className="max-w-2xl mx-auto bg-white text-black rounded-2xl border-4 border-vortex-red p-8 md:p-10">
-            <h2 className="text-2xl font-display font-bold text-vortex-red mb-6">
-              Vortex Gymnastics
-            </h2>
-            <ul className="space-y-4 text-neutral-800">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-vortex-red shrink-0 mt-0.5" />a
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-vortex-red shrink-0" />a
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-vortex-red shrink-0" />a
-              </li>
-            </ul>
-            <p className="mt-6 text-sm text-neutral-500">
-              vortex-gymnastics.com · Summer Camp 2026
-            </p>
-          </div>
-        </div>
-      </section>
     </main>
   )
 }

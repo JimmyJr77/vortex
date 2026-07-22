@@ -6,6 +6,8 @@ import SportSiteMenuLinks from '../sport/SportSiteMenuLinks'
 import type { StubSiteConfig } from '../../config/stubSites'
 import { getSportBrandName, getSportHomeUrl } from '../../utils/sportSite'
 import { HUB_HEADER_LOGO } from '../../utils/seo'
+import useSpecialPages from '../../hooks/useSpecialPages'
+import SpecialPageNavSection from '../SpecialPageNavSection'
 
 interface StubHeaderProps {
   config: StubSiteConfig
@@ -19,6 +21,7 @@ const StubHeader = ({
   onAdminLoginClick,
 }: StubHeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { pages: specialPages } = useSpecialPages()
   const sportBrandName = getSportBrandName(config.sportLabel)
   const sportHomeHref = getSportHomeUrl(config)
 
@@ -96,6 +99,7 @@ const StubHeader = ({
                 closeMenu()
               }}
             />
+            <SpecialPageNavSection pages={specialPages} siteKey={config.key} onNavigate={closeMenu} />
           </div>
         </motion.nav>
       </div>

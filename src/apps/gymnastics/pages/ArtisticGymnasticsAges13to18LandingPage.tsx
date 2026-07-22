@@ -112,13 +112,13 @@ const ArtisticGymnasticsAges13to18Landing = ({ onSignUpClick }: ArtisticGymnasti
 
             to={getSiteEnrollHref()}
 
-            className="inline-flex items-center justify-center gap-3 bg-vortex-red text-white px-12 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group mx-auto"
+            className="inline-flex w-full max-w-sm items-center justify-center bg-vortex-red text-white px-6 py-6 rounded-xl font-bold text-xl shadow-2xl transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-red-500/50 group mx-auto sm:w-auto sm:min-w-[21rem] sm:px-12"
 
           >
 
             <motion.span
 
-              className="inline-block"
+              className="inline-flex items-center justify-center gap-3 whitespace-nowrap"
 
               whileHover={{ scale: 1.05 }}
 

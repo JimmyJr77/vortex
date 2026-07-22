@@ -12,6 +12,9 @@ const ROTATING_GYM_IMAGES = [
 export default function ParallaxGym() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const [useCompactLayout, setUseCompactLayout] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false,
+  )
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start end', 'end start'],
@@ -27,17 +30,32 @@ export default function ParallaxGym() {
     return () => window.clearInterval(timer)
   }, [])
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)')
+    const updateLayout = () => setUseCompactLayout(mediaQuery.matches)
+    updateLayout()
+    mediaQuery.addEventListener('change', updateLayout)
+    return () => mediaQuery.removeEventListener('change', updateLayout)
+  }, [])
+
   const activeImage = ROTATING_GYM_IMAGES[activeImageIndex]
 
   return (
-    <section ref={containerRef} className="relative h-screen overflow-hidden bg-black">
-      <motion.div className="absolute inset-0" style={{ y: backgroundY }}>
+    <section ref={containerRef} className="relative h-[100svh] min-h-[38rem] overflow-hidden bg-black">
+      <motion.div
+        className="absolute inset-0 flex items-center"
+        style={{ y: useCompactLayout ? 0 : backgroundY }}
+      >
         <AnimatePresence mode="popLayout">
           <motion.img
             key={activeImage.src}
             src={activeImage.src}
             alt={activeImage.alt}
-            className="absolute inset-0 h-full w-full object-cover"
+            className={
+              useCompactLayout
+                ? 'relative h-auto w-full object-contain'
+                : 'absolute inset-0 h-full w-full object-cover'
+            }
             initial={{ opacity: 0, scale: 1.04 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}

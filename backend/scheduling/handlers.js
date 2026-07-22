@@ -899,7 +899,7 @@ async function sendDemotionEmails(db, demotedRows) {
 async function loadFormDetail(
   pool,
   formId,
-  { includeInactive = false, site = null } = {},
+  { includeInactive = false } = {},
 ) {
   const formRes = await pool.query('SELECT * FROM scheduling_form WHERE id = $1', [formId])
   if (formRes.rows.length === 0) return null
@@ -907,10 +907,7 @@ async function loadFormDetail(
   const form = formRes.rows[0]
   if (form.deleted_at) return null
   if (!includeInactive) {
-    if (site) {
-      const { rowVisibleOnEnrollSite } = await import('./enrollSites.js')
-      if (!rowVisibleOnEnrollSite(form.enroll_sites, form.is_active, site)) return null
-    } else if (!form.is_active) {
+    if (!form.is_active) {
       return null
     }
   }
@@ -1257,29 +1254,8 @@ export function createSchedulingHandlers(pool) {
   return {
     async listPublicForms(req, res) {
       try {
-        const { isEnrollSiteKey, enrollSiteVisibleSql } = await import('./enrollSites.js')
-        const site = String(req.query.site || 'athletics')
-        if (!isEnrollSiteKey(site)) {
-          return res.status(400).json({ success: false, message: 'Invalid enroll site' })
-        }
-
-        const { resolveProgramsSchema, hasProgramSchedulingColumns } = await import(
-          '../programs/schema.js'
-        )
+        const { resolveProgramsSchema } = await import('../programs/schema.js')
         const schema = await resolveProgramsSchema(pool)
-        const hasSchedCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
-        const programActiveClause = hasSchedCols
-          ? `(COALESCE(sf.programs_id, p.${schema.programFkColumn}) IS NULL OR ${enrollSiteVisibleSql({
-              sitesColumn: 'pr.scheduling_enroll_sites',
-              legacyColumn: 'pr.scheduling_active',
-              siteParam: '$1',
-            })})`
-          : 'TRUE'
-        const formActiveClause = enrollSiteVisibleSql({
-          sitesColumn: 'sf.enroll_sites',
-          legacyColumn: 'sf.is_active',
-          siteParam: '$1',
-        })
 
         const result = await pool.query(
           `
@@ -1297,11 +1273,9 @@ export function createSchedulingHandlers(pool) {
             ON pr.id = COALESCE(sf.programs_id, p.${schema.programFkColumn})
           WHERE sf.deleted_at IS NULL
             AND sf.program_id IS NOT NULL
-            AND ${formActiveClause}
-            AND ${programActiveClause}
+            AND sf.is_active = TRUE
           ORDER BY pr.display_name NULLS LAST, p.display_name NULLS LAST, sf.title ASC
           `,
-          [site],
         )
         res.json({
           success: true,
@@ -1323,12 +1297,6 @@ export function createSchedulingHandlers(pool) {
 
     async getPublicForm(req, res) {
       try {
-        const { isEnrollSiteKey } = await import('./enrollSites.js')
-        const site = String(req.query.site || 'athletics')
-        if (!isEnrollSiteKey(site)) {
-          return res.status(400).json({ success: false, message: 'Invalid enroll site' })
-        }
-
         const formId = Number(req.params.id)
 
         if (req.query.fromEvent === '1') {
@@ -1344,7 +1312,7 @@ export function createSchedulingHandlers(pool) {
           }
         }
 
-        const detail = await loadFormDetail(pool, formId, { site })
+        const detail = await loadFormDetail(pool, formId)
         if (!detail) {
           return res.status(404).json({ success: false, message: 'Scheduling form not found' })
         }
@@ -1358,14 +1326,8 @@ export function createSchedulingHandlers(pool) {
     /** Other bookable class options under the same parent program. */
     async listPublicOfferings(req, res) {
       try {
-        const { isEnrollSiteKey } = await import('./enrollSites.js')
-        const site = String(req.query.site || 'athletics')
-        if (!isEnrollSiteKey(site)) {
-          return res.status(400).json({ success: false, message: 'Invalid enroll site' })
-        }
-
         const formId = Number(req.params.formId)
-        const detail = await loadFormDetail(pool, formId, { site })
+        const detail = await loadFormDetail(pool, formId)
         if (!detail) {
           return res.status(404).json({ success: false, message: 'Scheduling form not found' })
         }
@@ -2885,12 +2847,6 @@ export function createSchedulingHandlers(pool) {
           return res.status(400).json({ success: false, message: 'Invalid programId' })
         }
 
-        const { isEnrollSiteKey } = await import('./enrollSites.js')
-        const site = String(req.query.site || 'athletics')
-        if (!isEnrollSiteKey(site)) {
-          return res.status(400).json({ success: false, message: 'Invalid enroll site' })
-        }
-
         const data = await loadSchedulingCalendar(pool, {
           startDate: range.startDate,
           endDate: range.endDate,
@@ -2898,7 +2854,6 @@ export function createSchedulingHandlers(pool) {
           programId,
           formActive: 'active',
           publicOnly: true,
-          site,
         })
         res.json({ success: true, data })
       } catch (err) {

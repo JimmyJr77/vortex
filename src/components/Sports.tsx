@@ -153,14 +153,14 @@ const Sports = () => {
           </motion.div>
 
           <motion.div
-            className="mb-8 flex flex-col items-center gap-5 min-[1075px]:flex-row min-[1075px]:gap-8"
+            className="mb-16 flex flex-col items-center gap-16 min-[1075px]:flex-row min-[1075px]:gap-8"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65 }}
             viewport={{ once: true }}
           >
             <motion.div
-              className="aspect-[1600/607] w-full min-w-0 overflow-hidden rounded-xl border-2 border-white bg-black shadow-lg min-[1075px]:w-auto min-[1075px]:basis-0 md:rounded-2xl"
+              className="relative aspect-[1600/607] w-full min-w-0 min-[1075px]:w-auto min-[1075px]:basis-0"
               animate={{
                 flexGrow: hoveredBanner === 'athletics' ? 1.08 : hoveredBanner === 'gymnastics' ? 0.92 : 1,
               }}
@@ -168,9 +168,13 @@ const Sports = () => {
               onMouseEnter={() => setHoveredBanner('athletics')}
               onMouseLeave={() => setHoveredBanner(null)}
             >
+              <div
+                className="pointer-events-none absolute inset-0 translate-y-10 rounded-xl bg-white md:rounded-2xl"
+                aria-hidden="true"
+              />
               <Link
                 to="/vortex-athletics"
-                className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-vortex-red"
+                className="relative z-10 block h-full overflow-hidden rounded-xl border-2 border-white bg-black shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-vortex-red md:rounded-2xl"
                 onFocus={() => setHoveredBanner('athletics')}
                 onBlur={() => setHoveredBanner(null)}
               >
@@ -182,9 +186,12 @@ const Sports = () => {
                   decoding="async"
                 />
               </Link>
+              <p className="absolute inset-x-0 top-full z-20 flex h-10 items-center justify-center px-3 text-center text-base font-bold text-vortex-red sm:text-lg">
+                Conditioning &amp; Athleticism Training
+              </p>
             </motion.div>
             <motion.div
-              className="aspect-[1600/607] w-full min-w-0 overflow-hidden rounded-xl border-2 border-white bg-black shadow-lg min-[1075px]:w-auto min-[1075px]:basis-0 md:rounded-2xl"
+              className="relative aspect-[1600/607] w-full min-w-0 min-[1075px]:w-auto min-[1075px]:basis-0"
               animate={{
                 flexGrow: hoveredBanner === 'gymnastics' ? 1.08 : hoveredBanner === 'athletics' ? 0.92 : 1,
               }}
@@ -192,9 +199,13 @@ const Sports = () => {
               onMouseEnter={() => setHoveredBanner('gymnastics')}
               onMouseLeave={() => setHoveredBanner(null)}
             >
+              <div
+                className="pointer-events-none absolute inset-0 translate-y-10 rounded-xl bg-white md:rounded-2xl"
+                aria-hidden="true"
+              />
               <a
                 href={getGymnasticsSiteUrl()}
-                className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-vortex-red"
+                className="relative z-10 block h-full overflow-hidden rounded-xl border-2 border-white bg-black shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-vortex-red md:rounded-2xl"
                 onFocus={() => setHoveredBanner('gymnastics')}
                 onBlur={() => setHoveredBanner(null)}
               >
@@ -206,6 +217,9 @@ const Sports = () => {
                   decoding="async"
                 />
               </a>
+              <p className="absolute inset-x-0 top-full z-20 flex h-10 items-center justify-center px-3 text-center text-base font-bold text-vortex-red sm:text-lg">
+                Team and Developmental Gymnastics
+              </p>
             </motion.div>
           </motion.div>
 

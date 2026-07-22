@@ -9,6 +9,8 @@ import HeroScrollHint from '../HeroScrollHint'
 import { useGymnasticsHeroRotation } from '../useGymnasticsHeroRotation'
 import { getSiteEnrollHref } from '../../../utils/enrollSite'
 import { GYMNASTICS_FAQS } from '../../../config/gymnasticsFaqs'
+import useSpecialPages from '../../../hooks/useSpecialPages'
+import { isSpecialPageAvailable } from '../../../types/specialPages'
 import {
   ArrowRight,
   Sparkles,
@@ -18,6 +20,8 @@ import {
   Music,
   Zap,
   Users,
+  LayoutGrid,
+  ChevronDown,
 } from 'lucide-react'
 
 const HERO_IMAGES = [
@@ -51,7 +55,47 @@ const heroSecondaryCtaClass = 'btn-secondary inline-flex items-center justify-ce
 const summerCampHeroCtaClass =
   `${heroCtaClass} border-2 border-yellow-400 bg-yellow-400 text-black font-bold hover:bg-yellow-300 hover:border-yellow-300 shadow-lg`
 
-const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: GymnasticsProps) => {
+const HERO_ENROLL_PROGRAMS = [
+  'Mommy & Me',
+  'Preschool',
+  'Developmental Gymnastics',
+  'Trampoline & Tumbling',
+  'Vortex Gymnastics Team',
+  'Adult Fitness & Gymnastics',
+] as const
+
+const HeroEnrollDropdown = () => (
+  <details className="group relative w-full max-w-xs sm:w-auto sm:max-w-none">
+    <summary
+      className={`${heroSecondaryCtaClass} w-full cursor-pointer list-none [&::-webkit-details-marker]:hidden`}
+    >
+      Enroll Now
+      <ChevronDown
+        className="h-5 w-5 shrink-0 transition-transform duration-200 group-open:rotate-180"
+        aria-hidden="true"
+      />
+    </summary>
+    <div className="absolute left-1/2 top-full z-40 mt-2 w-72 max-w-[calc(100vw-2rem)] -translate-x-1/2 overflow-hidden rounded-xl border border-gray-200 bg-white py-2 text-left shadow-2xl">
+      {HERO_ENROLL_PROGRAMS.map((programName) => (
+        <Link
+          key={programName}
+          to={getSiteEnrollHref({ programName })}
+          className="block px-4 py-3 font-semibold text-gray-900 transition-colors hover:bg-red-50 hover:text-vortex-red"
+        >
+          {programName}
+        </Link>
+      ))}
+    </div>
+  </details>
+)
+
+const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
+  const { pages: specialPages } = useSpecialPages()
+  const showSummerCamp = isSpecialPageAvailable(
+    specialPages,
+    'summer-gymnastics-program',
+    'gymnastics',
+  ) && specialPages.find((page) => page.key === 'summer-gymnastics-program')?.heroSiteKeys.includes('gymnastics')
   const { index: heroIndex, slide: heroSlide, slides: heroSlides, setIndex: setHeroIndex } =
     useGymnasticsHeroRotation()
 
@@ -173,21 +217,19 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                       Highlights
                     </motion.button>
                   )}
-                  <Link to={getSiteEnrollHref()} className={heroSecondaryCtaClass}>
-                    <motion.span
-                      className="inline-block"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Enroll Now
-                    </motion.span>
+                  <HeroEnrollDropdown />
+                  <Link
+                    to="/read-board#schedule"
+                    className={`${heroSecondaryCtaClass} border-white text-white hover:bg-white hover:text-black`}
+                  >
+                    <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    Classes &amp; Events
                   </Link>
-                  <Link to="/read-board#schedule" className={heroSecondaryCtaClass}>
-                    View Class Schedule
-                  </Link>
-                  <Link to="/summer-camp-26" className={summerCampHeroCtaClass}>
-                    Summer Camp
-                  </Link>
+                  {showSummerCamp && (
+                    <Link to="/summer-camp-26" className={summerCampHeroCtaClass}>
+                      Summer Camp
+                    </Link>
+                  )}
                 </div>
               </motion.div>
             </div>
@@ -268,27 +310,22 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                   Highlights
                 </motion.button>
               )}
-              <Link to={getSiteEnrollHref()} className={`${heroSecondaryCtaClass} w-full max-w-xs`}>
-                <motion.span
-                  className="inline-block"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Enroll Now
-                </motion.span>
-              </Link>
+              <HeroEnrollDropdown />
               <Link
                 to="/read-board#schedule"
-                className={`${heroSecondaryCtaClass} w-full max-w-xs`}
+                className={`${heroSecondaryCtaClass} w-full max-w-xs border-white text-white hover:bg-white hover:text-black`}
               >
-                View Class Schedule
+                <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden="true" />
+                Classes &amp; Events
               </Link>
-              <Link
-                to="/summer-camp-26"
-                className={`${summerCampHeroCtaClass} w-full max-w-xs`}
-              >
-                Summer Camp
-              </Link>
+              {showSummerCamp && (
+                <Link
+                  to="/summer-camp-26"
+                  className={`${summerCampHeroCtaClass} w-full max-w-xs`}
+                >
+                  Summer Camp
+                </Link>
+              )}
             </motion.div>
             <div className="md:hidden shrink-0 flex justify-center pt-8 pb-2">
               <HeroScrollHint />
@@ -471,7 +508,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
               Gymnastics <span className="text-vortex-red">Disciplines</span>
             </h2>
             <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-              Explore our competitive and developmental gymnastics programs — including Acro, Artistic, Rhythmic, Trampoline & Tumbling, and Aerobic. Each discipline develops the full athlete through the Athleticism Accelerator.
+              Our developmental gymnastics program covers the full range of gymnastics disciplines—Acro, Artistic, Rhythmic, Trampoline &amp; Tumbling, and Aerobic—to help shape well rounded gymnasts who are ready to specialize at the next level.
             </p>
           </motion.div>
         </div>
@@ -497,7 +534,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
                   <p className="text-white/90 font-semibold mb-2">{disc.tagline}</p>
                   <p className="text-white/85 leading-relaxed text-sm md:text-base">{disc.description}</p>
                 </div>
-                <div className="flex flex-col sm:flex-row flex-shrink-0 gap-3">
+                <div className="flex flex-col flex-shrink-0 gap-3">
                   {disc.to && (
                     <Link
                       to={disc.to}
@@ -558,16 +595,17 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
             </Link>
             <Link
               to="/read-board#schedule"
-              className="inline-block border-2 border-vortex-red bg-transparent text-vortex-red px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
+              className="inline-flex items-center justify-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
             >
-              View Class Schedules
+              <LayoutGrid className="h-5 w-5 shrink-0" aria-hidden="true" />
+              Classes &amp; Events
             </Link>
           </motion.div>
         </div>
       </section>
 
       {/* Summer camp promo */}
-      <section className="section-padding bg-vortex-red">
+      {showSummerCamp && <section className="section-padding bg-vortex-red">
         <div className="container-custom text-center">
           <motion.h2
             className="text-3xl md:text-4xl font-display font-bold text-white mb-4"
@@ -589,7 +627,7 @@ const Gymnastics = ({ onSignUpClick: _onSignUpClick, onHighlightsClick }: Gymnas
             <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
-      </section>
+      </section>}
 
       {/* FAQ */}
       <section id="faq" className="section-padding bg-gray-50">

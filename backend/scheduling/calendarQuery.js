@@ -47,7 +47,6 @@ export function parseCalendarDateRange(query) {
  *   programId?: number | null,
  *   formActive?: 'all' | 'active' | 'inactive', // admin: filters program.is_active (class status)
  *   publicOnly?: boolean,
- *   site?: string,
  * }} options
  */
 export async function loadSchedulingCalendar(pool, options) {
@@ -58,7 +57,6 @@ export async function loadSchedulingCalendar(pool, options) {
     programId = null,
     formActive = 'all',
     publicOnly = false,
-    site = 'athletics',
   } = options
 
   const { resolveProgramsSchema, hasProgramSchedulingColumns } = await import('../programs/schema.js')
@@ -76,9 +74,6 @@ export async function loadSchedulingCalendar(pool, options) {
   if (publicOnly) {
     filters.push('sf.is_active = TRUE')
     filters.push('p.is_active = TRUE')
-    if (hasSchedCols) {
-      filters.push('(pr.id IS NULL OR COALESCE(pr.scheduling_active, TRUE) = TRUE)')
-    }
   } else if (formActive === 'active') {
     filters.push('p.is_active = TRUE')
   } else if (formActive === 'inactive') {
@@ -152,7 +147,7 @@ export async function loadSchedulingCalendar(pool, options) {
     params,
   )
 
-  return expandCalendarRange({ startDate, endDate, rows: result.rows, site })
+  return expandCalendarRange({ startDate, endDate, rows: result.rows })
 }
 
 /**
@@ -161,11 +156,7 @@ export async function loadSchedulingCalendar(pool, options) {
 export async function loadPublicSchedulingClasses(pool) {
   const { resolveProgramsSchema, hasProgramSchedulingColumns } = await import('../programs/schema.js')
   const schema = await resolveProgramsSchema(pool)
-  const hasSchedCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
-
-  const schedClause = hasSchedCols
-    ? 'AND (pr.id IS NULL OR COALESCE(pr.scheduling_active, TRUE) = TRUE)'
-    : ''
+  await hasProgramSchedulingColumns(pool, schema.programsTable)
 
   const result = await pool.query(
     `
@@ -183,7 +174,6 @@ export async function loadPublicSchedulingClasses(pool) {
       AND p.archived = FALSE
       AND p.is_active = TRUE
       AND (pr.id IS NULL OR pr.archived = FALSE)
-      ${schedClause}
     ORDER BY pr.display_name NULLS LAST, p.display_name
     `,
   )

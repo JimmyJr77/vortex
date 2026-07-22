@@ -10,6 +10,9 @@ interface DisciplineLandingPageProps {
 
 const DisciplineLandingPage = ({ config }: DisciplineLandingPageProps) => {
   const { theme } = config
+  const enrollHref = getSiteEnrollHref(
+    config.slug === 'trampoline-tumbling' ? { programName: config.title } : undefined,
+  )
 
   return (
     <div className="min-h-screen bg-white">
@@ -46,7 +49,7 @@ const DisciplineLandingPage = ({ config }: DisciplineLandingPageProps) => {
             transition={{ delay: 0.4 }}
           >
             <Link
-              to={getSiteEnrollHref()}
+              to={enrollHref}
               className={`inline-flex items-center gap-2 text-white px-10 py-4 rounded-xl font-bold text-lg transition-all ${theme.enrollButton}`}
             >
               Enroll Now
@@ -141,7 +144,7 @@ const DisciplineLandingPage = ({ config }: DisciplineLandingPageProps) => {
             Enroll online or contact us to find the right class level for your athlete.
           </p>
           <Link
-            to={getSiteEnrollHref()}
+            to={enrollHref}
             className="inline-flex items-center gap-2 bg-vortex-red text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-red-700 transition-all"
           >
             Enroll Now

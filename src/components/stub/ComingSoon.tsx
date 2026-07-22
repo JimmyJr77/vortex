@@ -18,6 +18,9 @@ import {
 } from '../../utils/portalSession'
 import { useSiteHighlights } from '../../hooks/useSiteHighlights'
 import HighlightsModal from '../HighlightsModal'
+import useSpecialPages from '../../hooks/useSpecialPages'
+import { specialPagesForPlacement } from '../../types/specialPages'
+import { getSpecialPageHref } from '../../utils/specialPageLinks'
 
 const Admin = lazyWithRetry(() => import('../Admin'))
 const MemberDashboard = lazyWithRetry(() => import('../MemberDashboard'))
@@ -77,6 +80,8 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
     close: closeHighlights,
     hasHighlights,
   } = useSiteHighlights({ homePageOnly: true })
+  const { pages: specialPages } = useSpecialPages()
+  const heroSpecialPages = specialPagesForPlacement(specialPages, config.key, 'hero')
 
   useEffect(() => {
     const storedToken = localStorage.getItem('vortex_member_token')
@@ -203,6 +208,15 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
               >
                 Explore Vortex Athletics
               </a>
+              {heroSpecialPages.map((page) => (
+                <a
+                  key={page.key}
+                  href={getSpecialPageHref(page, config.key)}
+                  className="border-2 border-yellow-400 bg-yellow-400 text-black px-8 py-4 rounded-lg font-bold text-base md:text-lg transition-all duration-300 hover:bg-yellow-300 hover:scale-105 inline-block"
+                >
+                  {page.title}
+                </a>
+              ))}
             </div>
           </motion.div>
         </div>

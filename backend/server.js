@@ -540,6 +540,30 @@ export const initDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_highlights_sort_order ON highlights(sort_order)
     `)
 
+    // Special campaign pages and their per-domain navigation/hero placement.
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS special_pages (
+        page_key VARCHAR(100) PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        path TEXT NOT NULL,
+        canonical_site_key VARCHAR(50) NOT NULL,
+        enabled BOOLEAN NOT NULL DEFAULT TRUE,
+        site_keys JSONB NOT NULL DEFAULT '[]'::jsonb,
+        nav_site_keys JSONB NOT NULL DEFAULT '[]'::jsonb,
+        hero_site_keys JSONB NOT NULL DEFAULT '[]'::jsonb,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+    await pool.query(`
+      INSERT INTO special_pages
+        (page_key, title, path, canonical_site_key, enabled, site_keys, nav_site_keys, hero_site_keys)
+      VALUES
+        ('summer-athletic-program', 'Summer Athletic Program', '/summer-athletic-training', 'hub', TRUE, '["hub"]', '["hub"]', '["hub"]'),
+        ('summer-gymnastics-program', 'Summer Gymnastics Program', '/summer-camp-26', 'gymnastics', TRUE, '["hub", "gymnastics"]', '["hub", "gymnastics"]', '["gymnastics"]')
+      ON CONFLICT (page_key) DO NOTHING
+    `)
+
     // Admins table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS admins (
@@ -2702,7 +2726,7 @@ function legacyAdminPermissionFor(req) {
     if (method === 'DELETE' && path.startsWith('/members')) return 'members.delete'
     return 'members.edit'
   }
-  if (path.startsWith('/programs') || path.startsWith('/categories') || path.startsWith('/classes') || path.startsWith('/events') || path.startsWith('/highlights')) {
+  if (path.startsWith('/programs') || path.startsWith('/categories') || path.startsWith('/classes') || path.startsWith('/events') || path.startsWith('/highlights') || path.startsWith('/special-pages')) {
     return method === 'GET' ? 'classes.view' : 'classes.manage'
   }
   if (path.startsWith('/scheduling') || path.startsWith('/calendar') || path.startsWith('/signups') || path.startsWith('/waitlist')) {
@@ -10307,6 +10331,81 @@ app.get('/api/admin/events/:id/log', async (req, res) => {
       success: false,
       message: 'Internal server error'
     })
+  }
+})
+
+// ========== SPECIAL PAGE ENDPOINTS ==========
+
+const SPECIAL_PAGE_SITE_KEYS = new Set([
+  'hub', 'gymnastics', 'basketball', 'lacrosse', 'conditioning', 'football',
+  'track', 'fit', 'athlete', 'soccer', 'reps',
+])
+
+const mapSpecialPageRow = (row) => ({
+  key: row.key,
+  title: row.title,
+  path: row.path,
+  canonicalSiteKey: row.canonicalSiteKey,
+  enabled: row.enabled,
+  siteKeys: Array.isArray(row.siteKeys) ? row.siteKeys : [],
+  navSiteKeys: Array.isArray(row.navSiteKeys) ? row.navSiteKeys : [],
+  heroSiteKeys: Array.isArray(row.heroSiteKeys) ? row.heroSiteKeys : [],
+})
+
+const SPECIAL_PAGE_SELECT = `
+  SELECT page_key AS "key", title, path,
+    canonical_site_key AS "canonicalSiteKey", enabled,
+    site_keys AS "siteKeys", nav_site_keys AS "navSiteKeys",
+    hero_site_keys AS "heroSiteKeys"
+  FROM special_pages
+`
+
+app.get('/api/special-pages', async (_req, res) => {
+  try {
+    const result = await pool.query(`${SPECIAL_PAGE_SELECT} ORDER BY created_at ASC`)
+    res.json({ success: true, pages: result.rows.map(mapSpecialPageRow) })
+  } catch (error) {
+    console.error('Get public special pages error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
+  }
+})
+
+app.get('/api/admin/special-pages', async (_req, res) => {
+  try {
+    const result = await pool.query(`${SPECIAL_PAGE_SELECT} ORDER BY created_at ASC`)
+    res.json({ success: true, pages: result.rows.map(mapSpecialPageRow) })
+  } catch (error) {
+    console.error('Get admin special pages error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
+  }
+})
+
+app.put('/api/admin/special-pages/:key', async (req, res) => {
+  try {
+    const pageKey = String(req.params.key || '')
+    const { enabled, siteKeys, navSiteKeys, heroSiteKeys } = req.body || {}
+    if (typeof enabled !== 'boolean' || !Array.isArray(siteKeys) || !Array.isArray(navSiteKeys) || !Array.isArray(heroSiteKeys)) {
+      return res.status(400).json({ success: false, message: 'Invalid special page settings' })
+    }
+    const cleanSites = [...new Set(siteKeys.filter((key) => SPECIAL_PAGE_SITE_KEYS.has(key)))]
+    const cleanNav = [...new Set(navSiteKeys.filter((key) => cleanSites.includes(key)))]
+    const cleanHero = [...new Set(heroSiteKeys.filter((key) => cleanSites.includes(key)))]
+    const result = await pool.query(
+      `UPDATE special_pages
+       SET enabled = $2, site_keys = $3::jsonb, nav_site_keys = $4::jsonb,
+           hero_site_keys = $5::jsonb, updated_at = CURRENT_TIMESTAMP
+       WHERE page_key = $1
+       RETURNING page_key AS "key", title, path,
+         canonical_site_key AS "canonicalSiteKey", enabled,
+         site_keys AS "siteKeys", nav_site_keys AS "navSiteKeys",
+         hero_site_keys AS "heroSiteKeys"`,
+      [pageKey, enabled, JSON.stringify(cleanSites), JSON.stringify(cleanNav), JSON.stringify(cleanHero)],
+    )
+    if (!result.rows[0]) return res.status(404).json({ success: false, message: 'Special page not found' })
+    res.json({ success: true, page: mapSpecialPageRow(result.rows[0]) })
+  } catch (error) {
+    console.error('Update special page error:', error)
+    res.status(500).json({ success: false, message: 'Internal server error' })
   }
 })
 

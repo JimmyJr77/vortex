@@ -2,25 +2,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { ChevronRight, Loader2 } from 'lucide-react'
 import {
   fetchClassEvents,
-  fetchClassEventSchedulingFormId,
-  updateTopProgram,
   type ClassEvent,
   type TopProgram,
 } from '../../utils/programsApi'
-import {
-  adminFetchOfferings,
-  adminSetSchedulingFormEnrollSites,
-} from '../../utils/schedulingApi'
-import {
-  ALL_ENROLL_SITES,
-  enrollSitesFromRecord,
-  type EnrollSiteKey,
-} from '../../config/enrollSites'
-import EnrollSiteVisibilityControls from './EnrollSiteVisibilityControls'
-import {
-  buildProgramSchedulingUpdatePayload,
-  getSchedulingEnrollApiCapabilities,
-} from '../../utils/schedulingEnrollApi'
+import { adminFetchOfferings } from '../../utils/schedulingApi'
 
 interface Props {
   program: TopProgram
@@ -30,17 +15,6 @@ interface Props {
 }
 
 type SetupStatus = 'none' | 'partial' | 'ready'
-
-function programEnrollSites(program: TopProgram): EnrollSiteKey[] {
-  return enrollSitesFromRecord(program.schedulingEnrollSites, program.schedulingActive)
-}
-
-function classEnrollSites(classEvent: ClassEvent): EnrollSiteKey[] {
-  return enrollSitesFromRecord(
-    classEvent.schedulingFormEnrollSites ?? undefined,
-    classEvent.schedulingFormActive,
-  )
-}
 
 async function classSetupStatus(classEvent: ClassEvent): Promise<SetupStatus> {
   if (!classEvent.schedulingFormId) return 'none'
@@ -55,23 +29,13 @@ async function classSetupStatus(classEvent: ClassEvent): Promise<SetupStatus> {
 
 const AdminSchedulingOverview = ({
   program,
-  onSaved,
   onSelectClassEvent,
   onOpenOfferings,
 }: Props) => {
-  const [programEnrollSiteSelection, setProgramEnrollSiteSelection] = useState<EnrollSiteKey[]>(
-    () => programEnrollSites(program),
-  )
-  const [savingProgram, setSavingProgram] = useState(false)
-  const [programError, setProgramError] = useState<string | null>(null)
   const [classEvents, setClassEvents] = useState<ClassEvent[]>([])
   const [setupByClassId, setSetupByClassId] = useState<Record<number, SetupStatus>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [savingClassId, setSavingClassId] = useState<number | null>(null)
-  const [bulkSavingClasses, setBulkSavingClasses] = useState(false)
-
-  const programVisible = programEnrollSiteSelection.length > 0
 
   const loadData = useCallback(async (opts?: { silent?: boolean }) => {
     if (!opts?.silent) {
@@ -98,101 +62,13 @@ const AdminSchedulingOverview = ({
   }, [program.id])
 
   useEffect(() => {
-    setProgramEnrollSiteSelection(programEnrollSites(program))
-  }, [program.id, program.schedulingActive, program.schedulingEnrollSites])
-
-  useEffect(() => {
     void loadData()
   }, [program.id, loadData])
-
-  const saveClassEnrollSites = async (classEvent: ClassEvent, enrollSites: EnrollSiteKey[]) => {
-    let formId = classEvent.schedulingFormId
-    if (!formId) {
-      formId = await fetchClassEventSchedulingFormId(classEvent.id)
-    }
-    await adminSetSchedulingFormEnrollSites(formId, enrollSites)
-    setClassEvents((prev) =>
-      prev.map((ev) =>
-        ev.id === classEvent.id
-          ? {
-              ...ev,
-              schedulingFormId: formId,
-              schedulingFormActive: enrollSites.length > 0,
-              schedulingFormEnrollSites: enrollSites,
-            }
-          : ev,
-      ),
-    )
-  }
-
-  const handleProgramEnrollSitesChange = async (sites: EnrollSiteKey[]) => {
-    setProgramError(null)
-    const previousSites = programEnrollSiteSelection
-
-    const capabilities = await getSchedulingEnrollApiCapabilities()
-    const { payload } = buildProgramSchedulingUpdatePayload(
-      sites,
-      capabilities.schedulingEnrollSites,
-    )
-
-    setProgramEnrollSiteSelection(sites)
-    setSavingProgram(true)
-
-    try {
-      const updated = await updateTopProgram(program.id, payload)
-
-      const capabilitiesAfter = await getSchedulingEnrollApiCapabilities()
-      const nextSites = capabilitiesAfter.schedulingEnrollSites
-        ? programEnrollSites(updated)
-        : sites
-
-      setProgramEnrollSiteSelection(nextSites)
-      onSaved({
-        ...updated,
-        schedulingActive: nextSites.length > 0,
-        schedulingEnrollSites: nextSites,
-      })
-      await loadData({ silent: true })
-    } catch (e) {
-      setProgramEnrollSiteSelection(previousSites)
-      setProgramError(e instanceof Error ? e.message : 'Failed to update program visibility')
-    } finally {
-      setSavingProgram(false)
-    }
-  }
-
-  const handleClassEnrollSitesChange = async (
-    classEvent: ClassEvent,
-    sites: EnrollSiteKey[],
-  ) => {
-    setSavingClassId(classEvent.id)
-    try {
-      await saveClassEnrollSites(classEvent, sites)
-    } catch (e) {
-      alert(e instanceof Error ? e.message : 'Failed to update class enroll visibility')
-    } finally {
-      setSavingClassId(null)
-    }
-  }
-
-  const handleBulkClassEnrollSites = async (sites: EnrollSiteKey[]) => {
-    if (classEvents.length === 0 || !programVisible) return
-    setBulkSavingClasses(true)
-    try {
-      await Promise.all(classEvents.map((classEvent) => saveClassEnrollSites(classEvent, sites)))
-    } catch (e) {
-      alert(e instanceof Error ? e.message : 'Failed to update class visibility')
-    } finally {
-      setBulkSavingClasses(false)
-    }
-  }
 
   const handleClassClick = async (classEvent: ClassEvent) => {
     await onSelectClassEvent(classEvent)
     onOpenOfferings()
   }
-
-  const classVisibilityDisabled = !programVisible || bulkSavingClasses
 
   if (loading) {
     return (
@@ -206,7 +82,6 @@ const AdminSchedulingOverview = ({
   return (
     <div className="space-y-8 w-full">
       {error && <p className="text-sm text-red-600">{error}</p>}
-      {programError && <p className="text-sm text-red-600">{programError}</p>}
 
       <section className="rounded-xl border border-gray-200 bg-gray-50 px-5 py-4 space-y-3">
         <div>
@@ -221,46 +96,11 @@ const AdminSchedulingOverview = ({
             Edit title and description in Admin → Classes → Programs.
           </p>
         </div>
-        <EnrollSiteVisibilityControls
-          sites={programEnrollSiteSelection}
-          disabled={savingProgram}
-          onChange={(sites) => void handleProgramEnrollSitesChange(sites)}
-        />
-        {!programVisible && (
-          <p className="text-xs text-gray-500">
-            This program and its classes are hidden from public enroll pages until you select at
-            least one site. Turning visibility back on selects all classes on all sites by default
-            — adjust which ones to show below.
-          </p>
-        )}
       </section>
 
       <section>
         <h4 className="text-base font-bold text-black mb-3">Classes &amp; Events</h4>
-        <p className="text-sm text-gray-600 mb-3 flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span>Select a class to configure offerings and timeslots.</span>
-          {classEvents.length > 0 && (
-            <span className="inline-flex items-center gap-1 text-xs">
-              <button
-                type="button"
-                disabled={classVisibilityDisabled}
-                onClick={() => void handleBulkClassEnrollSites([...ALL_ENROLL_SITES])}
-                className="text-vortex-red hover:underline disabled:opacity-40 disabled:no-underline disabled:cursor-not-allowed"
-              >
-                Select all sites
-              </button>
-              <span className="text-gray-400">|</span>
-              <button
-                type="button"
-                disabled={classVisibilityDisabled}
-                onClick={() => void handleBulkClassEnrollSites([])}
-                className="text-vortex-red hover:underline disabled:opacity-40 disabled:no-underline disabled:cursor-not-allowed"
-              >
-                Clear all sites
-              </button>
-            </span>
-          )}
-        </p>
+        <p className="text-sm text-gray-600 mb-3">Select a class to configure offerings and timeslots.</p>
         {classEvents.length === 0 ? (
           <p className="text-sm text-gray-600">No classes yet. Add classes in Admin → Classes.</p>
         ) : (
@@ -286,17 +126,6 @@ const AdminSchedulingOverview = ({
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
                   </button>
-                  <div
-                    className="px-4 pb-3 border-t border-gray-100 pt-3"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <EnrollSiteVisibilityControls
-                      sites={classEnrollSites(classEvent)}
-                      disabled={classVisibilityDisabled || savingClassId === classEvent.id}
-                      layout="inline"
-                      onChange={(sites) => void handleClassEnrollSitesChange(classEvent, sites)}
-                    />
-                  </div>
                 </li>
               )
             })}

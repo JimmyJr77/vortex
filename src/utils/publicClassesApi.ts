@@ -1,5 +1,4 @@
 import { getApiUrl } from './api'
-import { getCurrentEnrollSiteKey } from './enrollSite'
 import type { ProgramPricingOption } from './programPricingOptions'
 import type { MultiClassPassPackage } from './multiClassPassPackages'
 
@@ -31,8 +30,7 @@ export interface ClassesOfferedResponse {
 }
 
 export async function fetchClassesOffered(): Promise<ClassesOfferedResponse> {
-  const site = getCurrentEnrollSiteKey()
-  const res = await fetch(`${getApiUrl()}/api/public/classes-offered?site=${encodeURIComponent(site)}`)
+  const res = await fetch(`${getApiUrl()}/api/public/classes-offered`)
   const data = await res.json()
   if (!res.ok || !data.success) {
     throw new Error(data.message || 'Failed to load classes offered')

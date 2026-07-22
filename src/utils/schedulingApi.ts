@@ -1,7 +1,6 @@
 import { adminApiRequest, getApiUrl } from './api'
 import { dateInputValue } from './dateUtils'
 import { ENROLL_PATH, type EnrollSiteKey } from '../config/enrollSites'
-import { getCurrentEnrollSiteKey } from './enrollSite'
 import {
   adaptFormEnrollSitesBody,
   getSchedulingEnrollApiCapabilities,
@@ -869,12 +868,8 @@ async function parseJson<T>(response: Response): Promise<T> {
   return data.data as T
 }
 
-export async function fetchPublicSchedulingForms(
-  site: EnrollSiteKey = getCurrentEnrollSiteKey(),
-): Promise<SchedulingFormSummary[]> {
-  const res = await fetch(
-    `${getApiUrl()}/api/scheduling/forms?site=${encodeURIComponent(site)}`,
-  )
+export async function fetchPublicSchedulingForms(): Promise<SchedulingFormSummary[]> {
+  const res = await fetch(`${getApiUrl()}/api/scheduling/forms`)
   return parseJson(res)
 }
 
@@ -985,21 +980,16 @@ export async function fetchMySchedulingFormIds(email: string): Promise<number[]>
 
 export async function fetchPublicSchedulingOfferings(
   formId: number,
-  site: EnrollSiteKey = getCurrentEnrollSiteKey(),
 ): Promise<SchedulingOffering[]> {
-  const params = new URLSearchParams()
-  params.set('site', site)
-  const qs = params.toString() ? `?${params.toString()}` : ''
-  const res = await fetch(`${getApiUrl()}/api/scheduling/forms/${formId}/offerings${qs}`)
+  const res = await fetch(`${getApiUrl()}/api/scheduling/forms/${formId}/offerings`)
   return parseJson(res)
 }
 
 export async function fetchPublicSchedulingForm(
   id: number,
-  options?: { fromEvent?: boolean; site?: EnrollSiteKey },
+  options?: { fromEvent?: boolean },
 ): Promise<SchedulingFormDetail> {
   const params = new URLSearchParams()
-  params.set('site', options?.site ?? getCurrentEnrollSiteKey())
   if (options?.fromEvent) params.set('fromEvent', '1')
   const qs = params.toString() ? `?${params.toString()}` : ''
   const res = await fetch(`${getApiUrl()}/api/scheduling/forms/${id}${qs}`)
@@ -1715,7 +1705,6 @@ export async function fetchPublicSchedulingCalendar(params: {
   if (params.programId != null) {
     qs.set('programId', String(params.programId))
   }
-  qs.set('site', getCurrentEnrollSiteKey())
   const res = await fetch(`${getApiUrl()}/api/scheduling/calendar?${qs.toString()}`)
   return parseJson(res)
 }

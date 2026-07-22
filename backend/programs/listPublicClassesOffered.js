@@ -1,12 +1,7 @@
 /**
  * Public classes-offered overview grouped by top-level program.
  */
-export async function listPublicClassesOffered(pool, site = 'athletics') {
-  const { isEnrollSiteKey, rowVisibleOnEnrollSite } = await import('../scheduling/enrollSites.js')
-  if (!isEnrollSiteKey(site)) {
-    site = 'athletics'
-  }
-
+export async function listPublicClassesOffered(pool) {
   const { resolveProgramsSchema, hasProgramSchedulingColumns, ensureProgramPricingColumns, ensurePrimaryDisciplineTagColumn } =
     await import('./schema.js')
   await ensureProgramPricingColumns(pool)
@@ -104,13 +99,7 @@ export async function listPublicClassesOffered(pool, site = 'athletics') {
       classesByProgram.set(programsId, [])
     }
     const formId = row.formId != null ? Number(row.formId) : null
-    const formVisible =
-      formId != null && rowVisibleOnEnrollSite(row.enroll_sites, row.form_is_active, site)
-    const programVisible =
-      row.programs_id == null ||
-      !hasSchedCols ||
-      rowVisibleOnEnrollSite(row.scheduling_enroll_sites, row.scheduling_active ?? true, site)
-    const enrollVisible = formVisible && programVisible
+    const enrollVisible = formId != null && row.form_is_active === true
 
     classesByProgram.get(programsId).push({
       id: Number(row.id),

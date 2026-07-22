@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import NavMenuDivider from '../NavMenuDivider'
 import SportSiteHubMenuLogo from './SportSiteHubMenuLogo'
-import { JACKRABBIT_CLASS_REGISTRATION_URL } from '../../config/contact'
-import { trackOutboundClickEvent } from '../../utils/analyticsClient'
+import { getSiteEnrollHref } from '../../utils/enrollSite'
+import { getHubSiteUrl } from '../../utils/crossDomainConsent'
 
 export interface SportSiteMenuLinksProps {
   sportBrandName: string
@@ -16,6 +16,8 @@ export interface SportSiteMenuLinksProps {
   includeSportHome?: boolean
   /** When false, parent renders {@link SportSiteHubMenuLogo} (e.g. gymnastics nav). */
   includeHubLogo?: boolean
+  /** When false, the parent renders the hub Home link at the top of its custom nav. */
+  includeHubHome?: boolean
 }
 
 /**
@@ -30,6 +32,7 @@ const SportSiteMenuLinks = ({
   onInquireClick,
   includeSportHome = true,
   includeHubLogo = true,
+  includeHubHome = true,
 }: SportSiteMenuLinksProps) => {
   const linkClass =
     'block w-full text-left text-white hover:text-vortex-red transition-colors duration-300 font-medium'
@@ -46,6 +49,11 @@ const SportSiteMenuLinks = ({
 
   return (
     <>
+      {includeHubHome && (
+        <a href={getHubSiteUrl()} onClick={onNavigate} className={linkClass}>
+          Home
+        </a>
+      )}
       {includeSportHome && (
         <>
           {homeLink}
@@ -56,24 +64,12 @@ const SportSiteMenuLinks = ({
         <button type="button" onClick={onAdminLoginClick} className={linkClass}>
           Account Login
         </button>
-        <a
-          href={JACKRABBIT_CLASS_REGISTRATION_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => {
-            trackOutboundClickEvent('legacy_registration_click', window.location.pathname, {
-              destination: 'jackrabbit_registration',
-              source: 'sport_site_menu',
-            })
-            onNavigate?.()
-          }}
-          className={linkClass}
-        >
-          Jackrabbit Class Login
-        </a>
         <button type="button" onClick={onInquireClick} className={linkClass}>
           Inquire
         </button>
+        <Link to={getSiteEnrollHref()} onClick={onNavigate} className={linkClass}>
+          Enroll
+        </Link>
       </div>
       {includeHubLogo && <SportSiteHubMenuLogo onNavigate={onNavigate} />}
     </>

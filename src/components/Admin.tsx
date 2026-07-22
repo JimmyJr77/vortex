@@ -8,6 +8,7 @@ import AdminClasses from './AdminClasses'
 import AdminEvents from './AdminEvents'
 import AdminAnalytics from './AdminAnalytics'
 import AdminHighlights from './AdminHighlights'
+import AdminSpecialPages from './AdminSpecialPages'
 import AdminScheduling from './AdminScheduling'
 import AdminCalendar from './scheduling/AdminCalendar'
 import AdminPricing from './AdminPricing'
@@ -77,7 +78,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
+type TabType = 'users' | 'analytics' | 'membership' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
 
 export type GroupId = 'home' | 'messaging' | 'faqLibrary' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'dataAnalysis' | 'preferences' | 'settings'
 
@@ -108,7 +109,8 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }>
   { id: 'signups', label: 'Enrollments', permission: 'scheduling.view' },
   { id: 'multiClassPasses', label: 'Multi-Class Passes', permission: 'scheduling.view' },
   { id: 'eventSignups', label: 'Signups', permission: 'scheduling.view' },
-  { id: 'highlights', label: 'Highlights', permission: 'classes.view' },
+  { id: 'specialPages', label: 'Special Pages', permission: 'classes.view' },
+  { id: 'highlights', label: 'Popups', permission: 'classes.view' },
   { id: 'events', label: 'Events', permission: 'classes.view' },
   { id: 'dbQueries', label: 'Database Queries', permission: 'admin_access.manage' },
   { id: 'email', label: 'Email', permission: 'admin_access.manage' },
@@ -137,7 +139,7 @@ const GROUPS: GroupDef[] = [
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, sections: ['calendar'] },
   { id: 'pricingBilling', label: 'Pricing & Billing', icon: CreditCard, sections: ['pricing', 'billing'] },
   { id: 'legal', label: 'Legal', icon: FileText, sections: ['waivers', 'insurance'] },
-  { id: 'highlightsEvents', label: 'Highlights & Events', icon: Sparkles, sections: ['highlights', 'events'] },
+  { id: 'highlightsEvents', label: 'Pages & Popups', icon: Sparkles, sections: ['specialPages', 'highlights', 'events'] },
   { id: 'dataAnalysis', label: 'Database & Analysis', icon: Database, sections: ['analytics', 'dbQueries', 'schools'] },
   { id: 'preferences', label: 'Preferences', icon: Bell, sections: ['preferences'] },
   { id: 'settings', label: 'Settings', icon: Settings, sections: ['email'] },
@@ -408,6 +410,8 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
         return <AdminClasses spreadsheetOnly />
       case 'highlights':
         return <AdminHighlights />
+      case 'specialPages':
+        return <AdminSpecialPages />
       case 'events':
         return <AdminEvents programs={programs} categories={categories} adminInfo={adminInfo} />
       case 'admins':

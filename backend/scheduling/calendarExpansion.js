@@ -1,17 +1,9 @@
-import { rowVisibleOnEnrollSite } from './enrollSites.js'
 import { buildOfferingByIdFromRows, formatDateOnly, resolveSlotActiveDates } from './slotActiveDates.js'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-function computeEnrollVisible(row, site) {
-  const formVisible = rowVisibleOnEnrollSite(row.enroll_sites, row.form_is_active, site)
-  if (!formVisible) return false
-  if (row.programs_id == null) return true
-  return rowVisibleOnEnrollSite(
-    row.scheduling_enroll_sites,
-    row.scheduling_active ?? true,
-    site,
-  )
+function computeEnrollVisible(row) {
+  return row.form_is_active === true
 }
 
 function formatTime(t) {
@@ -66,7 +58,7 @@ function getWeekLetterForDate(dateStr, anchorStr, weekLetters) {
   return sorted[idx]
 }
 
-function mapRowToContext(row, site = 'athletics', offeringById = null) {
+function mapRowToContext(row, offeringById = null) {
   const form = {
     start_date: row.form_start_date,
     end_date: row.form_end_date,
@@ -120,7 +112,7 @@ function mapRowToContext(row, site = 'athletics', offeringById = null) {
     offeringStartDate: offeringStart,
     offeringEndDate: offeringEnd,
     formActive: Boolean(row.form_is_active),
-    enrollVisible: computeEnrollVisible(row, site),
+    enrollVisible: computeEnrollVisible(row),
     classActive: row.class_is_active == null ? true : Boolean(row.class_is_active),
     slotGroupActive: Boolean(row.sg_is_active),
     slotActive: Boolean(row.is_active),
@@ -219,9 +211,9 @@ function buildTbdPayload(ctx) {
 /**
  * Expand flat DB rows into calendar events for a date range (inclusive).
  */
-export function expandCalendarRange({ startDate, endDate, rows, site = 'athletics' }) {
+export function expandCalendarRange({ startDate, endDate, rows }) {
   const offeringById = buildOfferingByIdFromRows(rows)
-  const contexts = rows.map((row) => mapRowToContext(row, site, offeringById))
+  const contexts = rows.map((row) => mapRowToContext(row, offeringById))
   const weekLettersByGroup = new Map()
   for (const ctx of contexts) {
     if (!weekLettersByGroup.has(ctx.slotGroupId)) {
