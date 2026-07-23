@@ -2,10 +2,16 @@
  * Public classes-offered overview grouped by top-level program.
  */
 export async function listPublicClassesOffered(pool) {
-  const { resolveProgramsSchema, ensureProgramPricingColumns, ensurePrimaryDisciplineTagColumn } =
+  const {
+    resolveProgramsSchema,
+    ensureProgramPricingColumns,
+    ensurePrimaryDisciplineTagColumn,
+    ensureProgramDropInColumns,
+  } =
     await import('./schema.js')
   await ensureProgramPricingColumns(pool)
   await ensurePrimaryDisciplineTagColumn(pool)
+  await ensureProgramDropInColumns(pool)
   const schema = await resolveProgramsSchema(pool)
 
   const programActiveColumn = await pool.query(
@@ -44,7 +50,8 @@ export async function listPublicClassesOffered(pool) {
       COALESCE(p.pricing_slot_cost_monthly_cents, 0) AS "pricingSlotCostMonthlyCents",
       COALESCE(p.pricing_cost_unit, 'per_month') AS "pricingCostUnit",
       COALESCE(p.multi_class_pass_packages, '[]'::jsonb) AS "multiClassPassPackages",
-      primary_dt.name AS "primarySportName"
+      primary_dt.name AS "primarySportName",
+      COALESCE(p.exclude_from_drop_ins, FALSE) AS "excludeFromDropIns"
     FROM ${schema.programsTable} p
     LEFT JOIN discipline_tag primary_dt ON primary_dt.id = p.primary_discipline_tag_id
     WHERE p.archived = FALSE
@@ -146,6 +153,7 @@ export async function listPublicClassesOffered(pool) {
         displayName: prog.displayName,
         description: prog.description ?? null,
         primarySportName: prog.primarySportName ?? null,
+        excludeFromDropIns: Boolean(prog.excludeFromDropIns),
         pricingCostOptions: pricing.pricingCostOptions,
         multiClassPassPackages: pricing.multiClassPassPackages,
         classes,

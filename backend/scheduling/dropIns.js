@@ -116,6 +116,8 @@ async function memberBenefits(pool, member) {
 }
 
 export async function initDropInTables(pool) {
+  const { ensureProgramDropInColumns } = await import('../programs/schema.js')
+  await ensureProgramDropInColumns(pool)
   await pool.query(`
     CREATE TABLE IF NOT EXISTS drop_in_registration (
       id BIGSERIAL PRIMARY KEY,
@@ -170,6 +172,7 @@ async function loadCatalog(pool, member) {
        AND COALESCE(p.archived, FALSE)=FALSE
        AND COALESCE(top.is_active, TRUE)=TRUE
        AND COALESCE(top.archived, FALSE)=FALSE
+       AND COALESCE(top.exclude_from_drop_ins, FALSE)=FALSE
      ORDER BY primary_dt.name, top.display_name, p.display_name,
               ts.day_of_week, ts.specific_date, ts.start_time
   `)
@@ -260,7 +263,9 @@ export function registerDropInRoutes(app, pool) {
                (SELECT COUNT(*) FROM scheduling_signup s WHERE s.slot_group_id=sg.id AND s.status='confirmed')::int AS monthly_enrolled
           FROM scheduling_slot_group sg JOIN scheduling_form sf ON sf.id=sg.form_id
           LEFT JOIN program p ON p.id=sf.program_id LEFT JOIN programs top ON top.id=COALESCE(sf.programs_id,p.programs_id)
-         WHERE sg.id=$1 AND sg.is_active=TRUE FOR UPDATE`, [slotGroupId])
+         WHERE sg.id=$1 AND sg.is_active=TRUE
+           AND COALESCE(top.exclude_from_drop_ins, FALSE)=FALSE
+         FOR UPDATE`, [slotGroupId])
       if (!slot.rows[0]) { await client.query('ROLLBACK'); return res.status(404).json({ success: false, message: 'Class not found.' }) }
       const existing = await client.query(`SELECT COUNT(*)::int AS count FROM drop_in_registration WHERE slot_group_id=$1 AND class_date=$2 AND status=ANY($3)`, [slotGroupId, classDate, ACTIVE_REGISTRATION_STATUSES])
       if (Number(slot.rows[0].monthly_enrolled) + Number(existing.rows[0].count) >= Number(slot.rows[0].max_participants)) {

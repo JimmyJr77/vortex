@@ -14,6 +14,7 @@ export type OverviewColumnId =
   | 'sportTags'
   | 'program'
   | 'programDescription'
+  | 'excludeFromDropIns'
   | 'className'
   | 'classDescription'
   | 'offerings'
@@ -45,6 +46,7 @@ export const OVERVIEW_COLUMNS: OverviewColumnDef[] = [
   { id: 'sportTags', label: 'Sport Tags', editable: true, filterKind: 'text', minWidth: 120, defaultWidth: 150 },
   { id: 'program', label: 'Program', editable: true, filterKind: 'text', minWidth: 120, defaultWidth: 160 },
   { id: 'programDescription', label: 'Program Description', editable: true, filterKind: 'text', minWidth: 160, defaultWidth: 200 },
+  { id: 'excludeFromDropIns', label: 'Exclude from Drop-ins', editable: true, filterKind: 'text', minWidth: 140, defaultWidth: 160 },
   { id: 'className', label: 'Class', editable: true, filterKind: 'text', minWidth: 120, defaultWidth: 160 },
   { id: 'classDescription', label: 'Class Description', editable: true, filterKind: 'text', minWidth: 160, defaultWidth: 200 },
   { id: 'offerings', label: 'Offerings', editable: true, filterKind: 'text', minWidth: 140, defaultWidth: 180 },
@@ -100,6 +102,8 @@ export function getCellDisplayValue(row: ClassSetupOverviewRow, columnId: Overvi
       return row.programName || '—'
     case 'programDescription':
       return row.programDescription?.trim() || '—'
+    case 'excludeFromDropIns':
+      return row.excludeFromDropIns ? 'Yes' : 'No'
     case 'className':
       return row.className || '—'
     case 'classDescription':

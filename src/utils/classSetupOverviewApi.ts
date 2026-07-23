@@ -35,6 +35,7 @@ export interface ClassSetupOverviewRow {
   programDescription: string | null
   programArchived: boolean
   programIsActive: boolean
+  excludeFromDropIns: boolean
   primarySportId: number | null
   primarySportName: string | null
   sportTags: string

@@ -101,6 +101,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
   const [programOptions, setProgramOptions] = useState<TopProgram[]>([])
   const [programOptionsLoading, setProgramOptionsLoading] = useState(false)
   const [primarySportId, setPrimarySportId] = useState<number | null>(null)
+  const [excludeFromDropIns, setExcludeFromDropIns] = useState(false)
   const [skillLevel, setSkillLevel] = useState<string>('')
   const [statusValue, setStatusValue] = useState<'Active' | 'Inactive' | 'Legacy'>('Active')
   const [spacesDraft, setSpacesDraft] = useState<ClassSetupSlotGroup[]>([])
@@ -118,6 +119,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
     setTextValue('')
     setSelectedProgramsId(row.programsId)
     setPrimarySportId(row.primarySportId)
+    setExcludeFromDropIns(row.excludeFromDropIns)
     setSkillLevel(row.skillLevel ?? '')
     setStatusValue(row.status)
     setSpacesDraft(row.slotGroups.map((g) => ({ ...g })))
@@ -199,6 +201,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       sportTags: 'Sport Tags',
       program: 'Program',
       programDescription: 'Program Description',
+      excludeFromDropIns: 'Exclude from Drop-ins',
       className: 'Class',
       classDescription: 'Class Description',
       offerings: 'Offerings',
@@ -228,6 +231,23 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       return
     }
 
+    const programLevelColumns: OverviewColumnId[] = [
+      'primarySport',
+      'programDescription',
+      'excludeFromDropIns',
+      'costPerClass',
+      'fee1x',
+      'costPerMonth',
+    ]
+    if (
+      programLevelColumns.includes(columnId) &&
+      !window.confirm(
+        `This is a program-level setting. Saving it will apply to all classes in “${row.programName}”. Continue?`,
+      )
+    ) {
+      return
+    }
+
     setSaving(true)
     setError(null)
     try {
@@ -245,6 +265,10 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
         case 'programDescription':
           if (row.programsId == null) throw new Error('Missing program')
           await updateTopProgram(row.programsId, { description: textValue.trim() || null })
+          break
+        case 'excludeFromDropIns':
+          if (row.programsId == null) throw new Error('Missing program')
+          await updateTopProgram(row.programsId, { excludeFromDropIns })
           break
         case 'className':
           await updateClassEvent(row.classId, { displayName: textValue.trim() })
@@ -358,6 +382,30 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
         />
       )
       saveDisabled = !textValue.trim() && columnId !== 'programDescription' && columnId !== 'classDescription'
+      break
+    case 'excludeFromDropIns':
+      body = (
+        <div className="space-y-3">
+          <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-4">
+            <input
+              type="checkbox"
+              checked={excludeFromDropIns}
+              onChange={(event) => setExcludeFromDropIns(event.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600"
+            />
+            <span>
+              <span className="block text-sm font-medium text-gray-900">Exclude from drop-ins</span>
+              <span className="mt-1 block text-xs text-gray-500">
+                Hide this program’s classes and dates from the single-day drop-in flow.
+              </span>
+            </span>
+          </label>
+          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            This is a program-level setting. Saving it will apply to all classes in <strong>{row.programName}</strong>.
+          </p>
+        </div>
+      )
+      saveDisabled = excludeFromDropIns === row.excludeFromDropIns
       break
     case 'skillLevel':
       body = (

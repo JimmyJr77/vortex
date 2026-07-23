@@ -1,5 +1,5 @@
 import Joi from 'joi'
-import { ensureDisciplineTagsSchema, ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns, ensureProgramsSchedulingSchema, ensureAbridgedNameColumns, hasProgramSchedulingColumns, mapProgramRow, resolveAbridgedName, resolveProgramsSchema } from './schema.js'
+import { ensureDisciplineTagsSchema, ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns, ensureProgramDropInColumns, ensureProgramsSchedulingSchema, ensureAbridgedNameColumns, hasProgramSchedulingColumns, mapProgramRow, resolveAbridgedName, resolveProgramsSchema } from './schema.js'
 import { consolidateClasses } from './reconcile.js'
 import { deleteTopProgramCascade } from './deleteTopProgram.js'
 import { listPublicClassesOffered } from './listPublicClassesOffered.js'
@@ -31,6 +31,7 @@ const topProgramSchema = Joi.object({
   abridgedName: Joi.string().max(255).optional().allow('', null),
   description: Joi.string().max(1000).optional().allow('', null),
   primarySportId: Joi.number().integer().allow(null).optional(),
+  excludeFromDropIns: Joi.boolean().optional(),
 })
 
 const classEventSchema = Joi.object({
@@ -86,6 +87,7 @@ const topProgramUpdateSchema = Joi.object({
   pricingPromoCodes: Joi.array().items(Joi.string().trim().max(100)).optional(),
   pricingCostOptions: Joi.array().items(pricingCostOptionSchema).optional(),
   multiClassPassPackages: Joi.array().items(multiClassPassPackageSchema).optional(),
+  excludeFromDropIns: Joi.boolean().optional(),
 })
 
 /** Strip legacy/extra pricing fields before Joi validation. */
@@ -178,6 +180,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       await ensurePrimaryDisciplineTagColumn(pool)
       await ensureProgramPricingColumns(pool)
       await ensureAbridgedNameColumns(pool)
+      await ensureProgramDropInColumns(pool)
       const schema = await resolveProgramsSchema(pool)
       const programsId = Number(req.params.programsId)
       const { archived } = req.query
@@ -412,6 +415,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       await ensurePrimaryDisciplineTagColumn(pool)
       await ensureProgramPricingColumns(pool)
       await ensureAbridgedNameColumns(pool)
+      await ensureProgramDropInColumns(pool)
       const { ensureDiscountEngineSchema } = await import('./schema.js')
       await ensureDiscountEngineSchema(pool)
       const schema = await resolveProgramsSchema(pool)
@@ -443,6 +447,7 @@ export function registerProgramsAdminRoutes(app, pool) {
         SELECT p.id, p.name, p.display_name as "displayName", p.abridged_name as "abridgedName",
           ${hasDescription ? 'p.description,' : 'NULL as description,'}
           p.archived, p.created_at as "createdAt", p.updated_at as "updatedAt",
+          COALESCE(p.exclude_from_drop_ins, FALSE) as "excludeFromDropIns",
           primary_dt.id as "primarySportId",
           primary_dt.name as "primarySportName",
           p.pricing_max_slots_per_user as "pricingMaxSlotsPerUser",
@@ -485,6 +490,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       await ensurePrimaryDisciplineTagColumn(pool)
       await ensureProgramPricingColumns(pool)
       await ensureAbridgedNameColumns(pool)
+      await ensureProgramDropInColumns(pool)
       const schema = await resolveProgramsSchema(pool)
       const facilityId = await getFacilityId(pool)
       if (!facilityId) return res.status(500).json({ success: false, message: 'No facility found' })
@@ -508,20 +514,21 @@ export function registerProgramsAdminRoutes(app, pool) {
 
       const result = await pool.query(
         hasDescription
-          ? `INSERT INTO ${schema.programsTable} (facility_id, name, display_name, abridged_name, description${schedInsert})
-             VALUES ($1, $2, $3, $4, $5${schedValues})
+          ? `INSERT INTO ${schema.programsTable} (facility_id, name, display_name, abridged_name, description, exclude_from_drop_ins${schedInsert})
+             VALUES ($1, $2, $3, $4, $5, $6${schedValues})
              RETURNING id, name, display_name as "displayName", abridged_name as "abridgedName", description, archived,
-               created_at as "createdAt", updated_at as "updatedAt"${schedReturn}`
-          : `INSERT INTO ${schema.programsTable} (facility_id, name, display_name, abridged_name${schedInsert})
-             VALUES ($1, $2, $3, $4${schedValues})
+               exclude_from_drop_ins as "excludeFromDropIns", created_at as "createdAt", updated_at as "updatedAt"${schedReturn}`
+          : `INSERT INTO ${schema.programsTable} (facility_id, name, display_name, abridged_name, exclude_from_drop_ins${schedInsert})
+             VALUES ($1, $2, $3, $4, $5${schedValues})
              RETURNING id, name, display_name as "displayName", abridged_name as "abridgedName", NULL as description, archived,
-               created_at as "createdAt", updated_at as "updatedAt"${schedReturn}`,
+               exclude_from_drop_ins as "excludeFromDropIns", created_at as "createdAt", updated_at as "updatedAt"${schedReturn}`,
         [
           facilityId,
           value.name.toUpperCase().replace(/\s+/g, '_'),
           value.displayName,
           abridgedName,
           ...(hasDescription ? [value.description || null] : []),
+          value.excludeFromDropIns === true,
         ],
       )
       const created = result.rows[0]
@@ -551,6 +558,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       await ensurePrimaryDisciplineTagColumn(pool)
       await ensureProgramPricingColumns(pool)
       await ensureAbridgedNameColumns(pool)
+      await ensureProgramDropInColumns(pool)
       if (value.pricingCostUnit !== undefined || value.pricingSlotCostMonthlyCents !== undefined) {
         const { ensureDiscountEngineSchema } = await import('./schema.js')
         await ensureDiscountEngineSchema(pool)
@@ -586,6 +594,10 @@ export function registerProgramsAdminRoutes(app, pool) {
       if (value.archived !== undefined) {
         updates.push(`archived = $${n++}`)
         values.push(value.archived)
+      }
+      if (value.excludeFromDropIns !== undefined) {
+        updates.push(`exclude_from_drop_ins = $${n++}`)
+        values.push(value.excludeFromDropIns)
       }
       const hasSchedulingCols = await hasProgramSchedulingColumns(pool, schema.programsTable)
       if (hasSchedulingCols) {
@@ -701,7 +713,8 @@ export function registerProgramsAdminRoutes(app, pool) {
           : ''
         const result = await pool.query(
           `UPDATE ${schema.programsTable} SET ${updates.join(', ')} WHERE id = $${n}
-           RETURNING id, name, display_name as "displayName", abridged_name as "abridgedName", description, archived${returnSched}`,
+           RETURNING id, name, display_name as "displayName", abridged_name as "abridgedName", description, archived,
+             exclude_from_drop_ins as "excludeFromDropIns"${returnSched}`,
           values,
         )
         if (result.rows.length === 0) {

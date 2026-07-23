@@ -46,6 +46,7 @@ interface Category {
   primarySportName?: string | null
   archived: boolean
   isActive?: boolean
+  excludeFromDropIns?: boolean
   createdAt: string
   updatedAt: string
 }
@@ -705,8 +706,8 @@ export default function AdminClasses({
       
       // Fetch both archived and active categories
       const [activeResponse, archivedResponse] = await Promise.all([
-        adminApiRequest('/api/admin/categories?archived=false'),
-        adminApiRequest('/api/admin/categories?archived=true')
+        adminApiRequest('/api/admin/programs-top?archived=false'),
+        adminApiRequest('/api/admin/programs-top?archived=true')
       ])
       
       if (!activeResponse.ok || !archivedResponse.ok) {
@@ -802,7 +803,7 @@ export default function AdminClasses({
       }
       const abridgedName = categoryFormData.abridgedName?.trim() || displayName
       const name = displayName.toUpperCase().replace(/\s+/g, '_')
-      const response = await adminApiRequest('/api/admin/categories', {
+      const response = await adminApiRequest('/api/admin/programs-top', {
         method: 'POST',
         body: JSON.stringify({
           name,
@@ -810,13 +811,14 @@ export default function AdminClasses({
           abridgedName,
           description: categoryFormData.description,
           primarySportId: categoryFormData.primarySportId ?? null,
+          excludeFromDropIns: categoryFormData.excludeFromDropIns === true,
         })
       })
       
       if (response.ok) {
         await fetchAllCategories()
         await fetchAllPrograms()
-        setCategoryFormData({ displayName: '', abridgedName: '', description: '', primarySportId: null })
+        setCategoryFormData({ displayName: '', abridgedName: '', description: '', primarySportId: null, excludeFromDropIns: false })
         setShowCategoryModal(false)
         setEditingCategoryId(null)
       } else {
@@ -833,7 +835,7 @@ export default function AdminClasses({
     if (!editingCategoryId) return
     
     try {
-      const response = await adminApiRequest(`/api/admin/categories/${editingCategoryId}`, {
+      const response = await adminApiRequest(`/api/admin/programs-top/${editingCategoryId}`, {
         method: 'PUT',
         body: JSON.stringify({
           displayName: categoryFormData.displayName,
@@ -842,6 +844,7 @@ export default function AdminClasses({
           description: categoryFormData.description,
           isActive: categoryFormData.isActive,
           primarySportId: categoryFormData.primarySportId ?? null,
+          excludeFromDropIns: categoryFormData.excludeFromDropIns === true,
         }),
       })
       
@@ -1232,7 +1235,7 @@ export default function AdminClasses({
               type="button"
               onClick={() => {
                 setEditingCategoryId(null)
-                setCategoryFormData({ displayName: '', abridgedName: '', description: '', primarySportId: null })
+                setCategoryFormData({ displayName: '', abridgedName: '', description: '', primarySportId: null, excludeFromDropIns: false })
                 setShowCategoryModal(true)
               }}
               className="inline-flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
@@ -1531,6 +1534,7 @@ export default function AdminClasses({
                                         category.primarySportId != null
                                           ? Number(category.primarySportId)
                                           : null,
+                                      excludeFromDropIns: category.excludeFromDropIns === true,
                                     })
                                     setShowCategoryModal(true)
                                   }}
@@ -1918,6 +1922,18 @@ export default function AdminClasses({
                     placeholder="Optional description for this program"
                   />
                 </div>
+                <label className="flex items-start gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <input
+                    type="checkbox"
+                    checked={categoryFormData.excludeFromDropIns === true}
+                    onChange={(e) => setCategoryFormData({ ...categoryFormData, excludeFromDropIns: e.target.checked })}
+                    className="mt-1 h-4 w-4 rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
+                  />
+                  <span>
+                    <span className="block text-sm font-semibold text-gray-900">Exclude from drop-ins</span>
+                    <span className="block text-xs text-gray-600">Hide every class in this program from the public single-day drop-in catalog.</span>
+                  </span>
+                </label>
                 {editingCategoryId && (
                   <div>
                     <ActiveToggle

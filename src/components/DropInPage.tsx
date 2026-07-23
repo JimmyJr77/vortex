@@ -31,7 +31,7 @@ export default function DropInPage() {
   useEffect(() => {
     Promise.all([fetchClassesOffered(), fetchDropIns(form.email || undefined)]).then(([catalog, data]) => {
       const dropInClassById = new Map((data.classes ?? []).map((row) => [row.classId, row]))
-      setClasses(catalog.programs.flatMap((program) => program.classes
+      setClasses(catalog.programs.filter((program) => !program.excludeFromDropIns).flatMap((program) => program.classes
         .filter((classItem) => classItem.formId != null)
         .map((classItem): DropInClass => dropInClassById.get(classItem.id) ?? ({
           formId: Number(classItem.formId), classId: classItem.id,

@@ -162,6 +162,20 @@ export async function ensureAbridgedNameColumns(pool) {
   abridgedNameReady = true
 }
 
+let programDropInColumnsReady = false
+
+export async function ensureProgramDropInColumns(pool) {
+  if (programDropInColumnsReady) return
+  const fs = await import('fs')
+  const path = await import('path')
+  const { fileURLToPath } = await import('url')
+  const __dirname = path.dirname(fileURLToPath(import.meta.url))
+  const migrationPath = path.join(__dirname, '../migrations/240_program_drop_in_exclusion.sql')
+  if (!fs.existsSync(migrationPath)) return
+  await pool.query(fs.readFileSync(migrationPath, 'utf8'))
+  programDropInColumnsReady = true
+}
+
 let discountEngineReady = false
 
 async function runDiscountMigrationFile(pool, migrationsDir, filename) {

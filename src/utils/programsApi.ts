@@ -22,6 +22,7 @@ export interface TopProgram {
   displayName: string
   abridgedName?: string | null
   description?: string | null
+  excludeFromDropIns?: boolean
   primarySportId?: number | null
   primarySportName?: string | null
   pricingMaxSlotsPerUser?: number | null
@@ -121,6 +122,7 @@ export async function createTopProgram(payload: {
   abridgedName?: string | null
   description?: string | null
   primarySportId?: number | null
+  excludeFromDropIns?: boolean
 }): Promise<TopProgram> {
   const res = await adminApiRequest('/api/admin/programs-top', {
     method: 'POST',
@@ -151,6 +153,7 @@ export async function updateTopProgram(
     pricingPromoCodes: string[]
     pricingCostOptions: ProgramPricingOption[]
     multiClassPassPackages: MultiClassPassPackage[]
+    excludeFromDropIns: boolean
   }>,
 ): Promise<TopProgram> {
   const [schedulingCapabilities, pricingCapabilities] = await Promise.all([
@@ -170,8 +173,8 @@ export async function updateTopProgram(
   }
   if (apiPayload.multiClassPassPackages) {
     if (!pricingCapabilities.multiClassPassPackages) {
-      const { multiClassPassPackages: _removed, ...rest } = apiPayload
-      apiPayload = rest as typeof apiPayload
+      apiPayload = { ...apiPayload }
+      delete apiPayload.multiClassPassPackages
     } else {
       apiPayload = {
         ...apiPayload,
@@ -217,8 +220,9 @@ export async function updateTopProgram(
       multiClassPassPackagesRejected(message)
     ) {
       markProgramPricingCostOptionsUnsupported()
-      const { multiClassPassPackages: _removed, ...rest } = payload
-      apiPayload = adaptProgramPricingUpdateForApi(rest, pricingCapabilities.pricingCostOptions)
+      const payloadWithoutPackages = { ...payload }
+      delete payloadWithoutPackages.multiClassPassPackages
+      apiPayload = adaptProgramPricingUpdateForApi(payloadWithoutPackages, pricingCapabilities.pricingCostOptions)
       apiPayload = adaptProgramSchedulingUpdateForApi(apiPayload, schedulingCapabilities.schedulingEnrollSites)
       res = await adminApiRequest(`/api/admin/programs-top/${id}`, {
         method: 'PUT',

@@ -20,6 +20,7 @@ export interface PublicProgramOffered {
   displayName: string
   description: string | null
   primarySportName?: string | null
+  excludeFromDropIns?: boolean
   pricingCostOptions?: ProgramPricingOption[]
   multiClassPassPackages?: MultiClassPassPackage[]
   classes: PublicClassOffered[]

@@ -6,6 +6,7 @@ import {
   ensureDisciplineTagsSchema,
   ensurePrimaryDisciplineTagColumn,
   ensureProgramPricingColumns,
+  ensureProgramDropInColumns,
   ensureProgramsSchedulingSchema,
   resolveProgramsSchema,
 } from './schema.js'
@@ -85,6 +86,7 @@ export async function buildClassSetupOverview(pool) {
   await ensureDisciplineTagsSchema(pool)
   await ensurePrimaryDisciplineTagColumn(pool)
   await ensureProgramPricingColumns(pool)
+  await ensureProgramDropInColumns(pool)
 
   const schema = await resolveProgramsSchema(pool)
   const { programsTable, programFkColumn } = schema
@@ -117,6 +119,7 @@ export async function buildClassSetupOverview(pool) {
         pr.display_name AS program_name,
         ${programDescriptionSelect}
         pr.archived AS program_archived,
+        COALESCE(pr.exclude_from_drop_ins, FALSE) AS exclude_from_drop_ins,
         ${programIsActiveSelect}
         primary_dt.id AS primary_sport_id,
         primary_dt.name AS primary_sport_name,
@@ -260,6 +263,7 @@ export async function buildClassSetupOverview(pool) {
       programDescription: row.program_description ?? null,
       programArchived,
       programIsActive,
+      excludeFromDropIns: Boolean(row.exclude_from_drop_ins),
       primarySportId: row.primary_sport_id != null ? Number(row.primary_sport_id) : null,
       primarySportName: row.primary_sport_name ?? null,
       sportTags: row.sport_tags ?? '',
