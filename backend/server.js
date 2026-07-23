@@ -16,6 +16,7 @@ import { initAnalyticsTables } from './analytics/initTables.js'
 import { registerAnalyticsRoutes } from './analytics/registerRoutes.js'
 import { initSchedulingTables } from './scheduling/initTables.js'
 import { registerSchedulingRoutes } from './scheduling/registerRoutes.js'
+import { initDropInTables, registerDropInRoutes } from './scheduling/dropIns.js'
 import { registerProgramsAdminRoutes, registerProgramsPublicRoutes } from './programs/registerRoutes.js'
 import { registerCampRegistrationRoutes } from './campRegistrations/registerRoutes.js'
 import { applyRegistrationAttribution } from './analytics/adminHandlers.js'
@@ -381,6 +382,7 @@ export const initDatabase = async () => {
 
     await initAnalyticsTables(pool)
     await initSchedulingTables(pool)
+    await initDropInTables(pool)
 
     // Newsletter subscribers table
     await pool.query(`
@@ -2580,6 +2582,7 @@ app.use('/api/admin', async (req, res, next) => {
 // Analytics & consent (public + admin)
 registerAnalyticsRoutes(app, pool)
 registerSchedulingRoutes(app, pool)
+registerDropInRoutes(app, pool)
 registerProgramsPublicRoutes(app, pool)
 registerProgramsAdminRoutes(app, pool)
 registerPlatformRoutes(app, pool, { jwtSecret: JWT_SECRET })

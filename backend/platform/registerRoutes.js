@@ -48,7 +48,7 @@ import { syncAllCatalog, getCatalogSyncStatus } from '../billing/stripeCatalogSy
 import { emitStripePurchaseEvent, emitStripePaymentFailedEvent } from '../analytics/ga4Measurement.js'
 import { buildBillingAccountView } from '../billing/billingAccountView.js'
 import { chargeDisplayCategory } from '../billing/billingPeriodView.js'
-import { notifyPaymentReceipt, notifyPaymentFailed } from '../email/memberNotifications.js'
+import { notifyPaymentReceipt, notifyPaymentFailed, notifyRefundReceipt } from '../email/memberNotifications.js'
 import {
   beginStripeWebhookEvent,
   completeStripeWebhookEvent,
@@ -1563,7 +1563,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     )
     const paymentRow = payment.rows[0]
     res.json({ success: true, data: mapPayment(paymentRow) })
-    notifyPaymentReceipt(pool, { account, payment: paymentRow }).catch(() => {})
+    notifyPaymentReceipt(pool, {
+      account,
+      payment: paymentRow,
+      billingUrl: `${publicAppUrl()}/?billing=portal-return`,
+    }).catch(() => {})
   })
 
   app.post('/api/admin/families/:familyId/refunds', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
@@ -1587,6 +1591,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         evidenceNote: req.body?.evidenceNote ?? null,
       })
       res.json({ success: true, data: refund })
+      notifyRefundReceipt(pool, {
+        account,
+        refund,
+        billingUrl: `${publicAppUrl()}/?billing=portal-return`,
+      }).catch(() => {})
     } catch (error) {
       console.error('[stripe] refund:', error)
       res.status(400).json({ success: false, message: error?.message ?? 'Refund failed.' })
@@ -2304,7 +2313,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         if (insertedPayment && accountId) {
           const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [accountId])
           if (acct.rows[0]) {
-            notifyPaymentReceipt(pool, { account: acct.rows[0], payment: insertedPayment }).catch(() => {})
+            notifyPaymentReceipt(pool, {
+              account: acct.rows[0],
+              payment: insertedPayment,
+              billingUrl: `${publicAppUrl()}/?billing=portal-return`,
+            }).catch(() => {})
           }
         }
       } else if (event.type === 'invoice.paid') {
@@ -2312,7 +2325,13 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         const payment = await recordPaidStripeInvoice(pool, invoice)
         if (payment) {
           const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [payment.family_billing_account_id])
-          if (acct.rows[0]) notifyPaymentReceipt(pool, { account: acct.rows[0], payment }).catch(() => {})
+          if (acct.rows[0]) {
+            notifyPaymentReceipt(pool, {
+              account: acct.rows[0],
+              payment,
+              billingUrl: `${publicAppUrl()}/?billing=portal-return`,
+            }).catch(() => {})
+          }
         }
       } else if (
         event.type === 'customer.subscription.created' ||
@@ -2327,7 +2346,24 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         event.type === 'refund.updated' ||
         event.type === 'refund.failed'
       ) {
-        await syncStripeRefund(pool, event.data?.object ?? {})
+        const refund = await syncStripeRefund(pool, event.data?.object ?? {})
+        // App-created refunds send immediately after the admin action. Only
+        // notify here for refunds originated directly in Stripe to avoid two receipts.
+        const originatedInVortex = Boolean(event.data?.object?.metadata?.vortexRefundId)
+        if (refund?.external_status === 'succeeded' && !originatedInVortex) {
+          const acct = await pool.query(
+            `SELECT * FROM family_billing_account WHERE id = $1`,
+            [refund.family_billing_account_id],
+          )
+          if (acct.rows[0]) {
+            notifyRefundReceipt(pool, {
+              account: acct.rows[0],
+              refund,
+              billingUrl: `${publicAppUrl()}/?billing=portal-return`,
+              idempotencyKey: `stripe-refund-receipt-${event.id}`,
+            }).catch(() => {})
+          }
+        }
       } else if (
         event.type === 'charge.dispute.created' ||
         event.type === 'charge.dispute.updated' ||

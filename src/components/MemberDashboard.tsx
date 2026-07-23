@@ -328,6 +328,7 @@ export default function MemberDashboard({
   const [enrollmentConfirmMessage, setEnrollmentConfirmMessage] = useState<string | null>(null)
   const [enrollmentConfirmError, setEnrollmentConfirmError] = useState<string | null>(null)
   const [enrollmentConfirming, setEnrollmentConfirming] = useState(false)
+  const [billingReturnMessage, setBillingReturnMessage] = useState<string | null>(null)
   const [hiddenMemberTabs, setHiddenMemberTabs] = useState<MemberTab[]>([])
   const [memberTabOrder, setMemberTabOrder] = useState<MemberTab[]>(NAV.map((item) => item.tab))
   const [memberNavLayout, setMemberNavLayout] = useState<PortalNavLayoutItem[]>(NAV.map((item) => ({ type: 'tab', key: item.tab })))
@@ -1123,14 +1124,25 @@ export default function MemberDashboard({
     const enrollmentStatus = params.get('enrollment')
     const billingStatus = params.get('billing')
 
-    if (billingStatus === 'update') {
+    if (billingStatus === 'update' || billingStatus === 'portal-return') {
       setActiveTab('billing')
+      setBillingReturnMessage(
+        billingStatus === 'update'
+          ? 'Update your payment method below to keep your account current.'
+          : 'Payment settings updated. Review your billing activity below.',
+      )
       const url = new URL(window.location.href)
       url.searchParams.delete('billing')
       window.history.replaceState({}, '', url.pathname + url.search + url.hash)
     }
 
     if (billingStatus === 'paid' || billingStatus === 'cancelled') {
+      setActiveTab('billing')
+      setBillingReturnMessage(
+        billingStatus === 'paid'
+          ? 'Payment received. Your billing activity will update as soon as processing completes.'
+          : 'Checkout was cancelled. No payment was submitted; you can try again when ready.',
+      )
       trackEvent(
         billingStatus === 'paid' ? 'billing_payment_return' : 'checkout_cancelled',
         window.location.pathname,
@@ -1741,7 +1753,7 @@ export default function MemberDashboard({
         </div>
       </div>
 
-      {(enrollmentConfirming || enrollmentConfirmMessage || enrollmentConfirmError) && !messagingFullscreen && (
+      {(enrollmentConfirming || enrollmentConfirmMessage || enrollmentConfirmError || billingReturnMessage) && !messagingFullscreen && (
         <div className="container-admin pt-4">
           <div
             className={`rounded-lg border px-4 py-3 text-sm flex items-start justify-between gap-3 ${
@@ -1749,6 +1761,8 @@ export default function MemberDashboard({
                 ? 'border-blue-200 bg-blue-50 text-blue-900'
                 : enrollmentConfirmError
                   ? 'border-red-200 bg-red-50 text-red-900'
+                  : billingReturnMessage?.startsWith('Payment received')
+                    ? 'border-green-200 bg-green-50 text-green-900'
                   : enrollmentConfirmMessage?.includes('complete')
                     ? 'border-green-200 bg-green-50 text-green-900'
                     : 'border-amber-200 bg-amber-50 text-amber-900'
@@ -1757,12 +1771,15 @@ export default function MemberDashboard({
             <span className="min-w-0">
               {enrollmentConfirming
                 ? 'Confirming your enrollment payment…'
-                : enrollmentConfirmError ?? enrollmentConfirmMessage}
+                : enrollmentConfirmError ?? enrollmentConfirmMessage ?? billingReturnMessage}
             </span>
             {!enrollmentConfirming && (
               <button
                 type="button"
-                onClick={dismissEnrollmentBanner}
+                onClick={() => {
+                  dismissEnrollmentBanner()
+                  setBillingReturnMessage(null)
+                }}
                 className="shrink-0 rounded p-0.5 text-current opacity-60 hover:opacity-100"
                 aria-label="Dismiss"
               >

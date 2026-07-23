@@ -3,6 +3,7 @@ import { sendFamilyMemberAddedEmail } from './familyMemberAddedEmail.js'
 import { issueEnrollmentReceipt } from './enrollmentReceiptService.js'
 import { sendPaymentReceiptEmail } from './paymentReceiptEmail.js'
 import { sendPaymentFailedEmail } from './paymentFailedEmail.js'
+import { sendRefundReceiptEmail } from './refundReceiptEmail.js'
 import {
   resolveMemberContactEmail,
   listFamilyGuardianEmails,
@@ -143,7 +144,7 @@ async function resolvePayerRecipient(pool, account) {
   return { to, guardianName }
 }
 
-export async function notifyPaymentReceipt(pool, { account, payment, bestEffort = true }) {
+export async function notifyPaymentReceipt(pool, { account, payment, billingUrl = null, bestEffort = true }) {
   try {
     if (!account?.id || !payment) return { sent: false, skipped: true }
 
@@ -176,6 +177,7 @@ export async function notifyPaymentReceipt(pool, { account, payment, bestEffort 
       paidAt: payment.paid_at ?? null,
       reference: payment.external_reference ?? null,
       balanceAfterCents,
+      billingUrl,
     })
     return { sent: result.sent === true, email: to }
   } catch (err) {
@@ -215,6 +217,32 @@ export async function notifyPaymentFailed(pool, { account, amountCents, reason =
   } catch (err) {
     if (bestEffort) {
       console.warn('[memberNotifications] payment failed notice error:', err?.message || err)
+      return { sent: false, reason: 'error' }
+    }
+    throw err
+  }
+}
+
+export async function notifyRefundReceipt(pool, { account, refund, billingUrl = null, idempotencyKey = null, bestEffort = true }) {
+  try {
+    if (!account?.id || !refund || refund.external_status !== 'succeeded') {
+      return { sent: false, skipped: true }
+    }
+    const { to, guardianName } = await resolvePayerRecipient(pool, account)
+    if (!to) return { sent: false, skipped: true, reason: 'no_recipient' }
+    const result = await sendRefundReceiptEmail({
+      to,
+      guardianName,
+      amountCents: Number(refund.amount_cents ?? 0),
+      reason: refund.reason ?? null,
+      reference: refund.external_reference ?? refund.stripe_refund_id ?? null,
+      billingUrl,
+      idempotencyKey: idempotencyKey ?? `refund-receipt-${refund.id}`,
+    })
+    return { sent: result.sent === true, email: to }
+  } catch (err) {
+    if (bestEffort) {
+      console.warn('[memberNotifications] refund receipt failed:', err?.message || err)
       return { sent: false, reason: 'error' }
     }
     throw err

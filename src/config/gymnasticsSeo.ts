@@ -38,6 +38,12 @@ export const GYMNASTICS_ROUTES: GymnasticsRouteSeo[] = [
     canonicalPath: '/',
   },
   {
+    path: '/beginner-gymnastics',
+    title: 'Beginner Gymnastics Classes for Kids | Bowie, MD',
+    description:
+      'Beginner gymnastics classes for kids in Bowie, MD. No experience needed—build balance, strength, coordination, and confidence safely. Find a class.',
+  },
+  {
     path: '/artistic-gymnastics-early',
     title: 'Preschool Gymnastics (Ages 2-5) in Bowie, MD',
     description:

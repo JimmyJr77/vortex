@@ -22,6 +22,7 @@ function money(cents) {
  *   paidAt?: string | Date | null
  *   reference?: string | null
  *   balanceAfterCents?: number | null
+ *   billingUrl?: string | null
  * }} params
  */
 export async function sendPaymentReceiptEmail({
@@ -32,6 +33,7 @@ export async function sendPaymentReceiptEmail({
   paidAt = null,
   reference = null,
   balanceAfterCents = null,
+  billingUrl = null,
 }) {
   if (!isEmailConfigured()) {
     console.warn('[paymentReceiptEmail] SMTP not configured; skipping send')
@@ -60,6 +62,7 @@ export async function sendPaymentReceiptEmail({
     ...detailLines,
     '',
     'This is your receipt for the payment above.',
+    billingUrl ? `View billing activity: ${billingUrl}` : '',
     '',
     '— Vortex Athletics',
   ].join('\n')
@@ -76,6 +79,7 @@ export async function sendPaymentReceiptEmail({
     <p>We received your payment of <strong>${money(amountCents)}</strong> to Vortex Athletics. Thank you!</p>
     <table style="margin:12px 0;border-collapse:collapse;">${rows}</table>
     <p style="color:#555;font-size:14px;">This is your receipt for the payment above.</p>
+    ${billingUrl ? `<p><a href="${escapeHtml(billingUrl)}">View billing activity</a></p>` : ''}
     <p>— Vortex Athletics</p>
   `
 

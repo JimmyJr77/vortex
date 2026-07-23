@@ -50,6 +50,7 @@ const TrampolineTumblingGymnasticsPage = lazyWithRetry(
   () => import('./pages/TrampolineTumblingGymnasticsPage'),
 )
 const AerobicGymnasticsPage = lazyWithRetry(() => import('./pages/AerobicGymnasticsPage'))
+const BeginnerGymnasticsPage = lazyWithRetry(() => import('./pages/BeginnerGymnasticsPage'))
 // Account creation and post-enrollment routes must exist on this host too:
 // SchedulingSignupEmbed redirects new users to a same-origin /signup/family,
 // which previously 404'd here and broke the enroll funnel (and split GA sessions
@@ -58,6 +59,7 @@ const SignupFamilyPage = lazyWithRetry(() => import('../../components/signup/Sig
 const SignupInvitePage = lazyWithRetry(() => import('../../components/signup/SignupInvitePage'))
 const VerifyEmailPage = lazyWithRetry(() => import('../../components/VerifyEmailPage'))
 const EnrollmentReceiptPage = lazyWithRetry(() => import('../../components/EnrollmentReceiptPage'))
+const DropInPage = lazyWithRetry(() => import('../../components/DropInPage'))
 const MemberDashboard = lazyWithRetry(() => import('../../components/MemberDashboard'))
 const CoachDashboard = lazyWithRetry(() => import('../../components/CoachDashboard'))
 const Admin = lazyWithRetry(() => import('../../components/Admin'))
@@ -290,6 +292,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
           <Route path="/camp_interest" element={<CampInterestPage />} />
           <Route path="/camp_interest/thank-you" element={<CampInterestThankYouPage />} />
           <Route path="/enroll" element={<SchedulingPage />} />
+          <Route path="/drop-in" element={<DropInPage />} />
           <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
           <Route path="/schedule" element={<Navigate to="/enroll" replace />} />
           <Route path="/signup/family" element={<SignupFamilyPage />} />
@@ -320,6 +323,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
             path="/aerobic-gymnastics"
             element={<AerobicGymnasticsPage onSignUpClick={handleContactClick} />}
           />
+          <Route path="/beginner-gymnastics" element={<BeginnerGymnasticsPage />} />
         </Routes>
       </Suspense>
       <ContactForm

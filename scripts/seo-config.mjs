@@ -11,6 +11,7 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/value', priority: '0.7', changefreq: 'monthly' },
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
   { path: '/enroll', priority: '0.8', changefreq: 'weekly' },
+  { path: '/drop-in', priority: '0.8', changefreq: 'daily' },
   { path: '/support', priority: '0.5', changefreq: 'monthly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
@@ -30,10 +31,12 @@ export const GYMNASTICS_ORIGIN = 'https://vortex-gymnastics.com'
  */
 export const GYMNASTICS_SITEMAP_ENTRIES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
+  { path: '/beginner-gymnastics', priority: '0.9', changefreq: 'monthly' },
   { path: '/artistic-gymnastics-early', priority: '0.8', changefreq: 'monthly' },
   { path: '/artistic-gymnastics-6-12', priority: '0.8', changefreq: 'monthly' },
   { path: '/artistic-gymnastics-13-18', priority: '0.8', changefreq: 'monthly' },
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
+  { path: '/drop-in', priority: '0.8', changefreq: 'daily' },
   { path: '/summer-camp-26', priority: '0.9', changefreq: 'weekly' },
   { path: '/acro-gymnastics', priority: '0.8', changefreq: 'monthly' },
   { path: '/artistic-gymnastics', priority: '0.8', changefreq: 'monthly' },
@@ -51,6 +54,7 @@ export const GYMNASTICS_SITEMAP_ENTRIES = [
  */
 export const GYMNASTICS_PRERENDER_PATHS = [
   '/gymnastics',
+  '/beginner-gymnastics',
   '/artistic-gymnastics-early',
   '/artistic-gymnastics-6-12',
   '/artistic-gymnastics-13-18',

@@ -29,6 +29,7 @@ Vortex is a strong, modern brand with a serious technical SEO problem and a larg
 ### 1.1 Implementation status (this optimization pass)
 
 **Resolved / shipped:**
+- **Dedicated beginner-gymnastics search landing page.** `/beginner-gymnastics` now targets the high-intent “beginner gymnastics classes” query with substantial parent-focused copy, clear enrollment CTAs, local service-area content, internal program links, visible FAQs, `FAQPage` + `Course` + location schema, sitemap inclusion, and production prerendering.
 - **Prerendering live in production.** `vercel-build` sets `PRERENDER=true`; `scripts/prerender.mjs` snapshots all hub + gymnastics routes to dedicated static HTML, with non-Chromium baseline files generated first so a Playwright failure never produces 404s.
 - **Host-aware Vercel routing.** `vercel.json` is filesystem-first; `vortex-gymnastics.com` serves dedicated `_gym/index.html` and `_gym/read-board.html` so each domain gets its own title/canonical/OG/schema for shared paths (`/`, `/read-board`).
 - **Structured data on every route** (`src/utils/schema.ts`): `Organization`, `WebSite`, `SportsActivityLocation` (geo + opening hours + `hasMap` + `priceRange` + `areaServed`), `BreadcrumbList`, `Course`, `Service`, `FAQPage`.

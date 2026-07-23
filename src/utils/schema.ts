@@ -9,6 +9,7 @@ import {
 } from '../config/contact'
 import { HOME_FAQS, type Faq } from '../config/faqs'
 import { GYMNASTICS_FAQS } from '../config/gymnasticsFaqs'
+import { BEGINNER_GYMNASTICS_FAQS } from '../config/beginnerGymnasticsFaqs'
 import { SUMMER_CAMP_2026_WEEKS } from '../apps/gymnastics/data/summerCamp2026'
 import { SUMMER_CAMP_FAQS } from '../config/summerCampFaqs'
 import { GYMNASTICS_ORIGIN } from '../config/gymnasticsSeo'
@@ -301,6 +302,11 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
   }
 
   const programs: Record<string, { name: string; description: string }> = {
+    '/beginner-gymnastics': {
+      name: 'Beginner Gymnastics Classes for Kids',
+      description:
+        'Beginner gymnastics classes for kids in Bowie, MD. No experience needed; athletes build balance, coordination, strength, confidence, and safe movement foundations.',
+    },
     '/artistic-gymnastics-early': {
       name: 'Preschool Gymnastics (Ages 2-5)',
       description:
@@ -358,6 +364,10 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
         providerOrigin: origin,
       }),
     )
+    if (pathname === '/beginner-gymnastics') {
+      schema.push(faqPageSchema(BEGINNER_GYMNASTICS_FAQS))
+      schema.push(sportsActivityLocationSchema(origin))
+    }
   }
 
   return schema

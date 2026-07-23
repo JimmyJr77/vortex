@@ -38,6 +38,7 @@ const SignupFamilyPage = lazyWithRetry(() => import('./components/signup/SignupF
 const SignupInvitePage = lazyWithRetry(() => import('./components/signup/SignupInvitePage'))
 const VerifyEmailPage = lazyWithRetry(() => import('./components/VerifyEmailPage'))
 const EnrollmentReceiptPage = lazyWithRetry(() => import('./components/EnrollmentReceiptPage'))
+const DropInPage = lazyWithRetry(() => import('./components/DropInPage'))
 const SupportPage = lazyWithRetry(() => import('./components/legal/SupportPage'))
 const PrivacyPolicyPage = lazyWithRetry(() => import('./components/legal/PrivacyPolicyPage'))
 const TermsOfServicePage = lazyWithRetry(() => import('./components/legal/TermsOfServicePage'))
@@ -89,8 +90,13 @@ function App() {
       try {
         setMemberToken(storedToken)
         setMember(JSON.parse(storedMember))
-        // Don't auto-show dashboard, let them browse the site
-        setShowMemberDashboard(false)
+        // Stripe returns must enter the portal so checkout confirmation, billing
+        // refresh, and recovery messaging actually run. Ordinary visits still
+        // remain on the public site.
+        const returnParams = new URLSearchParams(location.search)
+        const isStripeReturn = returnParams.has('billing') || returnParams.has('enrollment')
+        setActivePortal(isStripeReturn ? 'member' : 'website')
+        setShowMemberDashboard(isStripeReturn)
       } catch (error) {
         console.error('Error parsing stored member data:', error)
         clearPortalSession()
@@ -99,12 +105,14 @@ function App() {
 
     captureUtmFromLocation()
     trackPageView(location.pathname)
-  }, [location.pathname])
+  }, [location.pathname, location.search])
 
-  // Deep link from emails (e.g. waiver requests): ?login=1 opens the login modal.
+  // Deep links that require account context open login when the session expired.
   useEffect(() => {
     const params = new URLSearchParams(location.search)
-    if (params.get('login') === '1' && !localStorage.getItem('vortex_member_token')) {
+    const requiresAccount =
+      params.get('login') === '1' || params.has('billing') || params.has('enrollment')
+    if (requiresAccount && !localStorage.getItem('vortex_member_token')) {
       setIsLoginOpen(true)
     }
   }, [location.search])
@@ -267,6 +275,7 @@ function App() {
             path="/enroll"
             element={<SchedulingPage />}
           />
+          <Route path="/drop-in" element={<DropInPage />} />
           <Route
             path="/signup/family"
             element={<SignupFamilyPage />}
