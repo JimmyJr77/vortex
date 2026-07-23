@@ -130,20 +130,29 @@ export async function initDropInTables(pool) {
 async function loadCatalog(pool, member) {
   const benefits = await memberBenefits(pool, member)
   const result = await pool.query(`
-    SELECT sg.id AS slot_group_id, sf.id AS form_id, sf.title AS class_name,
+    SELECT sg.id AS slot_group_id, sf.id AS form_id,
            sg.schedule_mode, sg.max_participants, sg.active_start, sg.active_end,
            ts.day_of_week, ts.specific_date, ts.start_time, ts.end_time,
-           p.display_name AS program_name, top.display_name AS sport_name,
+           p.id AS class_id, p.display_name AS class_name, p.skill_level,
+           p.age_min, p.age_max,
+           top.id AS program_id, top.display_name AS program_name,
+           primary_dt.name AS sport_name,
            COALESCE(top.pricing_cost_options, '[]'::jsonb) AS pricing_options,
            COALESCE(top.pricing_slot_cost_monthly_cents, sf.slot_cost_monthly_cents, 0) AS fallback_monthly_cents,
            (SELECT COUNT(*) FROM scheduling_signup s WHERE s.slot_group_id=sg.id AND s.status IN ('confirmed','waitlisted'))::int AS enrolled
       FROM scheduling_slot_group sg
       JOIN scheduling_form sf ON sf.id=sg.form_id AND sf.deleted_at IS NULL
       JOIN scheduling_time_slot ts ON ts.slot_group_id=sg.id AND ts.is_active=TRUE
-      LEFT JOIN program p ON p.id=sf.program_id
-      LEFT JOIN programs top ON top.id=COALESCE(sf.programs_id, p.programs_id)
-     WHERE sg.is_active=TRUE AND sf.is_active=TRUE
-     ORDER BY top.display_name, sf.title, ts.day_of_week, ts.start_time
+      JOIN program p ON p.id=sf.program_id
+      JOIN programs top ON top.id=COALESCE(sf.programs_id, p.programs_id)
+      LEFT JOIN discipline_tag primary_dt ON primary_dt.id=top.primary_discipline_tag_id
+     WHERE sg.is_active=TRUE
+       AND COALESCE(p.is_active, TRUE)=TRUE
+       AND COALESCE(p.archived, FALSE)=FALSE
+       AND COALESCE(top.is_active, TRUE)=TRUE
+       AND COALESCE(top.archived, FALSE)=FALSE
+     ORDER BY primary_dt.name, top.display_name, p.display_name,
+              ts.day_of_week, ts.specific_date, ts.start_time
   `)
   const sessions = []
   for (const row of result.rows) {
@@ -159,8 +168,13 @@ async function loadCatalog(pool, member) {
       const occupied = Number(row.enrolled) + Number(dropIns.rows[0]?.count || 0)
       const price = calculateDropInPrice({ monthlyCents, annualMember: benefits.annualMember, discountPercent: benefits.discountPercent })
       sessions.push({
-        slotGroupId: Number(row.slot_group_id), formId: Number(row.form_id), className: row.class_name,
-        programName: row.program_name, sportName: row.sport_name, date,
+        slotGroupId: Number(row.slot_group_id), formId: Number(row.form_id),
+        classId: Number(row.class_id), className: row.class_name,
+        programId: Number(row.program_id), programName: row.program_name,
+        sportName: row.sport_name, skillLevel: row.skill_level,
+        ageMin: row.age_min != null ? Number(row.age_min) : null,
+        ageMax: row.age_max != null ? Number(row.age_max) : null,
+        date,
         startTime: String(row.start_time).slice(0, 5), endTime: String(row.end_time).slice(0, 5),
         maxParticipants: Number(row.max_participants), enrolled: occupied,
         spotsRemaining: Math.max(0, Number(row.max_participants) - occupied), isFull: occupied >= Number(row.max_participants),

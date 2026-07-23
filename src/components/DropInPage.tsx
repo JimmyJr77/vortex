@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { CalendarDays, CheckCircle2, Loader2, Ticket } from 'lucide-react'
 import { fetchDropIns, registerDropIn, type DropInBenefits, type DropInSession } from '../utils/dropInApi'
 import { getLoggedInMemberEmail } from '../utils/portalSession'
+import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, formatAgeRange, formatSkillLevel, type ClassSkillLevelFilter } from '../utils/classDisplayUtils'
 
 const money = (cents: number) => `$${(cents / 100).toFixed(2)}`
 const prettyDate = (date: string) => new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(new Date(`${date}T12:00:00`))
@@ -16,6 +17,10 @@ export default function DropInPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sportFilter, setSportFilter] = useState('all')
+  const [programFilter, setProgramFilter] = useState<number | 'all'>('all')
+  const [levelFilter, setLevelFilter] = useState<ClassSkillLevelFilter>('all')
   const [result, setResult] = useState<Awaited<ReturnType<typeof registerDropIn>> | null>(null)
   const [form, setForm] = useState({ firstName: '', lastName: '', email: getLoggedInMemberEmail() ?? '', phone: '', useFreeTrial: true })
 
@@ -29,14 +34,29 @@ export default function DropInPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const sportOptions = useMemo(() => [...new Set(sessions.map((row) => row.sportName).filter(Boolean) as string[])].sort(), [sessions])
+  const programOptions = useMemo(() => {
+    const map = new Map<number, string>()
+    for (const row of sessions) {
+      if (sportFilter === 'all' || row.sportName === sportFilter) map.set(row.programId, row.programName ?? 'Program')
+    }
+    return [...map.entries()].sort((a, b) => a[1].localeCompare(b[1]))
+  }, [sessions, sportFilter])
+
   const grouped = useMemo(() => {
     const map = new Map<string, DropInSession[]>()
-    for (const session of sessions) {
+    const query = searchQuery.trim().toLowerCase()
+    for (const session of sessions.filter((row) =>
+      (sportFilter === 'all' || row.sportName === sportFilter) &&
+      (programFilter === 'all' || row.programId === programFilter) &&
+      (levelFilter === 'all' || row.skillLevel == null || row.skillLevel === levelFilter) &&
+      (!query || [row.sportName, row.programName, row.className, row.skillLevel].filter(Boolean).join(' ').toLowerCase().includes(query)),
+    )) {
       const key = [session.sportName, session.programName, session.className].filter(Boolean).join(' · ')
       map.set(key, [...(map.get(key) ?? []), session])
     }
     return [...map.entries()]
-  }, [sessions])
+  }, [levelFilter, programFilter, searchQuery, sessions, sportFilter])
 
   async function submit(event: FormEvent) {
     event.preventDefault()
@@ -64,11 +84,19 @@ export default function DropInPage() {
         <div className="rounded-xl border bg-white p-4"><div className="text-sm text-gray-500">Free trial</div><div className="font-bold">{benefits.trialAvailable ? 'Available' : 'Already used'}</div></div>
         <div className="rounded-xl border bg-white p-4"><div className="text-sm text-gray-500">Annual member credits</div><div className="font-bold">{benefits.annualCreditsRemaining} remaining</div></div>
       </div>}
+      {!loading && sessions.length > 0 && <div className="mb-8 rounded-2xl border bg-white p-5 shadow-sm">
+        <div className="grid gap-3 md:grid-cols-4">
+          <label className="text-sm font-semibold text-gray-700">Search<input className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" placeholder="Class or program" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></label>
+          <label className="text-sm font-semibold text-gray-700">Sport<select className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={sportFilter} onChange={(event) => { setSportFilter(event.target.value); setProgramFilter('all') }}><option value="all">All sports</option>{sportOptions.map((sport) => <option key={sport} value={sport}>{sport}</option>)}</select></label>
+          <label className="text-sm font-semibold text-gray-700">Program<select className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={programFilter} onChange={(event) => setProgramFilter(event.target.value === 'all' ? 'all' : Number(event.target.value))}><option value="all">All programs</option>{programOptions.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>
+          <label className="text-sm font-semibold text-gray-700">Skill level<select className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={levelFilter} onChange={(event) => setLevelFilter(event.target.value as ClassSkillLevelFilter)}><option value="all">All levels</option>{CLASS_SKILL_LEVEL_FILTER_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+        </div>
+      </div>}
       {loading && <div className="flex min-h-64 items-center justify-center"><Loader2 className="h-9 w-9 animate-spin text-vortex-red" /></div>}
       {!loading && grouped.length === 0 && <div className="rounded-xl border bg-white p-10 text-center text-gray-600">No drop-in dates are currently available.</div>}
       <div className="space-y-6">
         {grouped.map(([name, rows]) => <article key={name} className="overflow-hidden rounded-2xl border bg-white shadow-sm">
-          <header className="border-b bg-gray-50 px-5 py-4"><h2 className="font-display text-xl font-bold">{name}</h2></header>
+          <header className="border-b bg-gray-50 px-5 py-4"><h2 className="font-display text-xl font-bold">{name}</h2><p className="mt-1 text-sm text-gray-600">{[rows[0]?.skillLevel ? formatSkillLevel(rows[0].skillLevel) : null, formatAgeRange(rows[0]?.ageMin ?? null, rows[0]?.ageMax ?? null)].filter(Boolean).join(' · ')}</p></header>
           <div className="divide-y">{rows.map((session) => <div key={`${session.slotGroupId}:${session.date}`} className="grid items-center gap-4 p-5 md:grid-cols-[1fr_auto_auto]">
             <div><div className="flex items-center gap-2 font-bold"><CalendarDays className="h-4 w-4 text-vortex-red" /> {prettyDate(session.date)}</div><div className="mt-1 text-sm text-gray-600">{prettyTime(session.startTime)}–{prettyTime(session.endTime)} · {session.enrolled} of {session.maxParticipants} enrolled</div></div>
             <div className="md:text-right"><div className="text-xl font-bold">{money(session.totalCents)}</div><div className="text-xs text-gray-500">single class{session.discountCents > 0 ? ` · ${money(session.discountCents)} member savings` : ''}</div></div>

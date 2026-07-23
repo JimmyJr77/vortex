@@ -4,9 +4,14 @@ import { getMemberSessionToken } from './portalSession'
 export interface DropInSession {
   slotGroupId: number
   formId: number
+  classId: number
   className: string
+  programId: number
   programName: string | null
   sportName: string | null
+  skillLevel: string | null
+  ageMin: number | null
+  ageMax: number | null
   date: string
   startTime: string
   endTime: string
