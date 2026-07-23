@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { resolveJwtSecret } from '../auth/jwtSecret.js'
+import { formatDateOnly, resolveSlotActiveDates } from './slotActiveDates.js'
 
 const ACTIVE_REGISTRATION_STATUSES = ['confirmed', 'payment_pending']
 
@@ -146,6 +147,9 @@ async function loadCatalog(pool, member) {
   const result = await pool.query(`
     SELECT sg.id AS slot_group_id, sf.id AS form_id,
            sg.schedule_mode, sg.max_participants, sg.active_start, sg.active_end,
+           sg.offering_id, sg.inherits_offering_dates, sg.dates_tbd,
+           sf.start_date AS form_start_date, sf.end_date AS form_end_date,
+           offering.start_date AS offering_start_date, offering.end_date AS offering_end_date,
            ts.day_of_week, ts.specific_date, ts.start_time, ts.end_time,
            p.id AS class_id, p.display_name AS class_name, p.description AS class_description, p.skill_level,
            p.age_min, p.age_max,
@@ -160,6 +164,7 @@ async function loadCatalog(pool, member) {
       JOIN program p ON p.id=sf.program_id
       JOIN programs top ON top.id=COALESCE(sf.programs_id, p.programs_id)
       LEFT JOIN discipline_tag primary_dt ON primary_dt.id=top.primary_discipline_tag_id
+      LEFT JOIN scheduling_offering offering ON offering.id=sg.offering_id
      WHERE sg.is_active=TRUE
        AND COALESCE(p.is_active, TRUE)=TRUE
        AND COALESCE(p.archived, FALSE)=FALSE
@@ -171,7 +176,16 @@ async function loadCatalog(pool, member) {
   const sessions = []
   const classesById = new Map()
   for (const row of result.rows) {
-    const dates = row.specific_date ? [String(row.specific_date).slice(0, 10)] : nextDates(row.day_of_week)
+    const offeringById = row.offering_id == null ? null : new Map([[Number(row.offering_id), {
+      start_date: row.offering_start_date,
+      end_date: row.offering_end_date,
+    }]])
+    const activeDates = resolveSlotActiveDates(row, {
+      start_date: row.form_start_date,
+      end_date: row.form_end_date,
+    }, offeringById)
+    const specificDate = formatDateOnly(row.specific_date)
+    const dates = specificDate ? [specificDate] : nextDates(row.day_of_week)
     const monthlyCents = monthlyCentsFromOptions(row.pricing_options, row.fallback_monthly_cents)
     const price = calculateDropInPrice({ monthlyCents, annualMember: benefits.annualMember, discountPercent: benefits.discountPercent })
     if (!classesById.has(Number(row.class_id))) {
@@ -186,8 +200,9 @@ async function loadCatalog(pool, member) {
       })
     }
     for (const date of dates) {
-      if (row.active_start && date < String(row.active_start).slice(0, 10)) continue
-      if (row.active_end && date > String(row.active_end).slice(0, 10)) continue
+      if (activeDates.datesTbd) continue
+      if (activeDates.activeStart && date < activeDates.activeStart) continue
+      if (activeDates.activeEnd && date > activeDates.activeEnd) continue
       const dropIns = await pool.query(
         `SELECT COUNT(*)::int AS count FROM drop_in_registration WHERE slot_group_id=$1 AND class_date=$2 AND status=ANY($3)`,
         [row.slot_group_id, date, ACTIVE_REGISTRATION_STATUSES],
