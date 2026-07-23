@@ -6,8 +6,10 @@ export interface DropInSession {
   formId: number
   classId: number
   className: string
+  classDescription: string | null
   programId: number
   programName: string | null
+  programDescription: string | null
   sportName: string | null
   skillLevel: string | null
   ageMin: number | null
