@@ -18,6 +18,20 @@ export function calculateDropInPrice({ monthlyCents, annualMember, discountPerce
   }
 }
 
+export function calculateDropInAvailability({ maxParticipants, monthlyEnrolled, dropInEnrolled }) {
+  const maximum = Math.max(0, Number(maxParticipants) || 0)
+  const monthly = Math.max(0, Number(monthlyEnrolled) || 0)
+  const dropIns = Math.max(0, Number(dropInEnrolled) || 0)
+  const totalAttending = monthly + dropIns
+  return {
+    monthlyEnrolled: monthly,
+    dropInEnrolled: dropIns,
+    totalAttending,
+    spotsRemaining: Math.max(0, maximum - totalAttending),
+    isFull: totalAttending >= maximum,
+  }
+}
+
 function nextDates(dayOfWeek, count = 6) {
   const result = []
   const cursor = new Date()
@@ -139,7 +153,7 @@ async function loadCatalog(pool, member) {
            primary_dt.name AS sport_name,
            COALESCE(top.pricing_cost_options, '[]'::jsonb) AS pricing_options,
            COALESCE(top.pricing_slot_cost_monthly_cents, sf.slot_cost_monthly_cents, 0) AS fallback_monthly_cents,
-           (SELECT COUNT(*) FROM scheduling_signup s WHERE s.slot_group_id=sg.id AND s.status IN ('confirmed','waitlisted'))::int AS enrolled
+           (SELECT COUNT(*) FROM scheduling_signup s WHERE s.slot_group_id=sg.id AND s.status='confirmed')::int AS monthly_enrolled
       FROM scheduling_slot_group sg
       JOIN scheduling_form sf ON sf.id=sg.form_id AND sf.deleted_at IS NULL
       JOIN scheduling_time_slot ts ON ts.slot_group_id=sg.id AND ts.is_active=TRUE
@@ -155,9 +169,22 @@ async function loadCatalog(pool, member) {
               ts.day_of_week, ts.specific_date, ts.start_time
   `)
   const sessions = []
+  const classesById = new Map()
   for (const row of result.rows) {
     const dates = row.specific_date ? [String(row.specific_date).slice(0, 10)] : nextDates(row.day_of_week)
     const monthlyCents = monthlyCentsFromOptions(row.pricing_options, row.fallback_monthly_cents)
+    const price = calculateDropInPrice({ monthlyCents, annualMember: benefits.annualMember, discountPercent: benefits.discountPercent })
+    if (!classesById.has(Number(row.class_id))) {
+      classesById.set(Number(row.class_id), {
+        formId: Number(row.form_id), classId: Number(row.class_id), className: row.class_name,
+        classDescription: row.class_description, programId: Number(row.program_id),
+        programName: row.program_name, programDescription: row.program_description,
+        sportName: row.sport_name, skillLevel: row.skill_level,
+        ageMin: row.age_min != null ? Number(row.age_min) : null,
+        ageMax: row.age_max != null ? Number(row.age_max) : null,
+        monthlyCents, ...price,
+      })
+    }
     for (const date of dates) {
       if (row.active_start && date < String(row.active_start).slice(0, 10)) continue
       if (row.active_end && date > String(row.active_end).slice(0, 10)) continue
@@ -165,8 +192,11 @@ async function loadCatalog(pool, member) {
         `SELECT COUNT(*)::int AS count FROM drop_in_registration WHERE slot_group_id=$1 AND class_date=$2 AND status=ANY($3)`,
         [row.slot_group_id, date, ACTIVE_REGISTRATION_STATUSES],
       )
-      const occupied = Number(row.enrolled) + Number(dropIns.rows[0]?.count || 0)
-      const price = calculateDropInPrice({ monthlyCents, annualMember: benefits.annualMember, discountPercent: benefits.discountPercent })
+      const availability = calculateDropInAvailability({
+        maxParticipants: row.max_participants,
+        monthlyEnrolled: row.monthly_enrolled,
+        dropInEnrolled: dropIns.rows[0]?.count,
+      })
       sessions.push({
         slotGroupId: Number(row.slot_group_id), formId: Number(row.form_id),
         classId: Number(row.class_id), className: row.class_name,
@@ -178,13 +208,13 @@ async function loadCatalog(pool, member) {
         ageMax: row.age_max != null ? Number(row.age_max) : null,
         date,
         startTime: String(row.start_time).slice(0, 5), endTime: String(row.end_time).slice(0, 5),
-        maxParticipants: Number(row.max_participants), enrolled: occupied,
-        spotsRemaining: Math.max(0, Number(row.max_participants) - occupied), isFull: occupied >= Number(row.max_participants),
+        maxParticipants: Number(row.max_participants), ...availability,
+        enrolled: availability.totalAttending,
         monthlyCents, ...price,
       })
     }
   }
-  return { sessions, benefits }
+  return { classes: [...classesById.values()], sessions, benefits }
 }
 
 export function registerDropInRoutes(app, pool) {
@@ -212,13 +242,13 @@ export function registerDropInRoutes(app, pool) {
         SELECT sg.id, sg.form_id, sg.max_participants, sf.title,
                COALESCE(top.pricing_cost_options,'[]'::jsonb) AS pricing_options,
                COALESCE(top.pricing_slot_cost_monthly_cents, sf.slot_cost_monthly_cents, 0) AS fallback_monthly_cents,
-               (SELECT COUNT(*) FROM scheduling_signup s WHERE s.slot_group_id=sg.id AND s.status IN ('confirmed','waitlisted'))::int AS enrolled
+               (SELECT COUNT(*) FROM scheduling_signup s WHERE s.slot_group_id=sg.id AND s.status='confirmed')::int AS monthly_enrolled
           FROM scheduling_slot_group sg JOIN scheduling_form sf ON sf.id=sg.form_id
           LEFT JOIN program p ON p.id=sf.program_id LEFT JOIN programs top ON top.id=COALESCE(sf.programs_id,p.programs_id)
          WHERE sg.id=$1 AND sg.is_active=TRUE FOR UPDATE`, [slotGroupId])
       if (!slot.rows[0]) { await client.query('ROLLBACK'); return res.status(404).json({ success: false, message: 'Class not found.' }) }
       const existing = await client.query(`SELECT COUNT(*)::int AS count FROM drop_in_registration WHERE slot_group_id=$1 AND class_date=$2 AND status=ANY($3)`, [slotGroupId, classDate, ACTIVE_REGISTRATION_STATUSES])
-      if (Number(slot.rows[0].enrolled) + Number(existing.rows[0].count) >= Number(slot.rows[0].max_participants)) {
+      if (Number(slot.rows[0].monthly_enrolled) + Number(existing.rows[0].count) >= Number(slot.rows[0].max_participants)) {
         await client.query('ROLLBACK'); return res.status(409).json({ success: false, message: 'That class is full.' })
       }
       if (useFreeTrial && !benefits.trialAvailable) { await client.query('ROLLBACK'); return res.status(409).json({ success: false, message: 'The one-time free trial has already been used.' }) }

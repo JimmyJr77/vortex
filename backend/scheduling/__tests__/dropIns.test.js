@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { calculateDropInPrice } from '../dropIns.js'
+import { calculateDropInAvailability, calculateDropInPrice } from '../dropIns.js'
 
 test('non-member drop-in is monthly tuition divided by three', () => {
   assert.deepEqual(calculateDropInPrice({ monthlyCents: 15000, annualMember: false }), {
@@ -26,4 +26,24 @@ test('free benefits retain the price breakdown but charge zero', () => {
 
 test('non-members do not receive an account discount', () => {
   assert.equal(calculateDropInPrice({ monthlyCents: 12000, annualMember: false, discountPercent: 50 }).discountPercent, 0)
+})
+
+test('monthly enrollments establish the drop-in capacity baseline', () => {
+  assert.deepEqual(calculateDropInAvailability({ maxParticipants: 10, monthlyEnrolled: 7, dropInEnrolled: 2 }), {
+    monthlyEnrolled: 7,
+    dropInEnrolled: 2,
+    totalAttending: 9,
+    spotsRemaining: 1,
+    isFull: false,
+  })
+})
+
+test('monthly over-enrollment is allowed but leaves no drop-in capacity', () => {
+  assert.deepEqual(calculateDropInAvailability({ maxParticipants: 10, monthlyEnrolled: 12, dropInEnrolled: 0 }), {
+    monthlyEnrolled: 12,
+    dropInEnrolled: 0,
+    totalAttending: 12,
+    spotsRemaining: 0,
+    isFull: true,
+  })
 })

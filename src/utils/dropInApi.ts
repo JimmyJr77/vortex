@@ -1,8 +1,7 @@
 import { getApiUrl } from './api'
 import { getMemberSessionToken } from './portalSession'
 
-export interface DropInSession {
-  slotGroupId: number
+export interface DropInClass {
   formId: number
   classId: number
   className: string
@@ -14,18 +13,25 @@ export interface DropInSession {
   skillLevel: string | null
   ageMin: number | null
   ageMax: number | null
-  date: string
-  startTime: string
-  endTime: string
-  maxParticipants: number
-  enrolled: number
-  spotsRemaining: number
-  isFull: boolean
   monthlyCents: number
   baseCents: number
   discountPercent: number
   discountCents: number
   totalCents: number
+}
+
+export interface DropInSession extends DropInClass {
+  slotGroupId: number
+  date: string
+  startTime: string
+  endTime: string
+  maxParticipants: number
+  monthlyEnrolled: number
+  dropInEnrolled: number
+  totalAttending: number
+  enrolled: number
+  spotsRemaining: number
+  isFull: boolean
 }
 
 export interface DropInBenefits {
@@ -40,7 +46,7 @@ function authHeaders(): HeadersInit {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
-export async function fetchDropIns(email?: string): Promise<{ sessions: DropInSession[]; benefits: DropInBenefits }> {
+export async function fetchDropIns(email?: string): Promise<{ classes: DropInClass[]; sessions: DropInSession[]; benefits: DropInBenefits }> {
   const query = email ? `?email=${encodeURIComponent(email)}` : ''
   const response = await fetch(`${getApiUrl()}/api/public/drop-ins${query}`, { headers: authHeaders() })
   const body = await response.json()
