@@ -13,6 +13,7 @@ const BOOT_SUPERSEDED_MIGRATIONS = new Set([
   '111_coaching_output_phase_infrastructure.sql',
   '120_coaching_capacity_phase_infrastructure.sql',
   '128_coaching_control_resilience_phase_infrastructure.sql',
+  '196_coaching_kicking_athletes_infrastructure_and_seed.sql',
   '202_coaching_exercise_difficulty_profile.sql',
   '207_coaching_exercise_difficulty_reviewed.sql',
 ])
