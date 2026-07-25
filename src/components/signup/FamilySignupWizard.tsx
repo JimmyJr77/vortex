@@ -195,6 +195,7 @@ interface FamilySignupWizardProps {
   returnTo?: string | null
   onComplete?: (result: unknown) => void
   onCancel?: () => void
+  pendingDropInId?: string | null
 }
 
 function mapApiMemberToForm(
@@ -237,6 +238,7 @@ export default function FamilySignupWizard({
   returnTo = null,
   onComplete,
   onCancel,
+  pendingDropInId = null,
 }: FamilySignupWizardProps) {
   const apiUrl = getApiUrl()
   const isAdmin = mode === 'admin'
@@ -1067,6 +1069,7 @@ export default function FamilySignupWizard({
         acceptedTemplateIds: checkedTemplateIds,
         paymentPolicyAcknowledged,
       },
+      pendingDropInId: pendingDropInId && /^\d+$/.test(pendingDropInId) ? Number(pendingDropInId) : null,
     }
   }
 

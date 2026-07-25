@@ -1439,6 +1439,34 @@ export async function adminIssueMemberFreePass(
   return parseJson(res)
 }
 
+export interface MemberDropInBenefits {
+  annualMember: boolean
+  annualCycleStartedAt: string | null
+  annualCycleExpiresAt: string | null
+  annualCreditsGranted: number
+  annualCreditsRemaining: number
+  adminCreditsRemaining: number
+  freePassesRemaining: number
+  trialAvailable: boolean
+  discountPercent: number
+}
+
+export async function adminFetchMemberDropInBenefits(memberId: number): Promise<MemberDropInBenefits> {
+  const res = await adminApiRequest(`/api/admin/scheduling/members/${memberId}/drop-in-benefits`)
+  return parseJson(res)
+}
+
+export async function adminAddMemberDropInCredits(
+  memberId: number,
+  quantity: number,
+): Promise<MemberDropInBenefits> {
+  const res = await adminApiRequest(`/api/admin/scheduling/members/${memberId}/drop-in-credits`, {
+    method: 'POST',
+    body: JSON.stringify({ quantity }),
+  })
+  return parseJson(res)
+}
+
 export async function adminSimulateFreePasses(payload: {
   promoCodes?: string[]
   isFirstTimeEnrollee?: boolean

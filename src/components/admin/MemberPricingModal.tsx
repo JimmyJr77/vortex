@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Loader2, X } from 'lucide-react'
 import {
+  adminAddMemberDropInCredits,
+  adminFetchMemberDropInBenefits,
   adminFetchFreePasses,
   adminFetchMemberFreePasses,
   adminFetchMemberPricingSummary,
   adminIssueMemberFreePass,
   type FreePassTemplate,
   type MemberFreePassGrant,
+  type MemberDropInBenefits,
   type MemberPricingSummary,
   type SignupOrderPreview,
 } from '../../utils/schedulingApi'
@@ -119,15 +122,19 @@ function MemberGrantsPanel({
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | ''>('')
   const [issuing, setIssuing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [dropInBenefits, setDropInBenefits] = useState<MemberDropInBenefits | null>(null)
+  const [creditQuantity, setCreditQuantity] = useState(1)
 
   const loadGrants = useCallback(async () => {
     try {
-      const [g, t] = await Promise.all([
+      const [g, t, benefits] = await Promise.all([
         adminFetchMemberFreePasses(memberId),
         adminFetchFreePasses(),
+        adminFetchMemberDropInBenefits(memberId),
       ])
       setGrants(g)
       setTemplates(t.filter((p) => p.active))
+      setDropInBenefits(benefits)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load passes')
     }
@@ -153,9 +160,34 @@ function MemberGrantsPanel({
     }
   }
 
+  const addDropInCredits = async () => {
+    setIssuing(true)
+    setError(null)
+    try {
+      const benefits = await adminAddMemberDropInCredits(memberId, creditQuantity)
+      setDropInBenefits(benefits)
+      setCreditQuantity(1)
+      onIssued()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to add drop-in credits')
+    } finally {
+      setIssuing(false)
+    }
+  }
+
   return (
     <div className="mt-5 pt-4 border-t border-gray-100">
       <h4 className="text-sm font-semibold text-gray-900 mb-2">Free pass grants</h4>
+      {dropInBenefits && (
+        <div className="mb-3 rounded-lg bg-gray-50 p-3 text-xs text-gray-700">
+          <div>Lifetime trial: <strong>{dropInBenefits.trialAvailable ? 'available' : 'used'}</strong></div>
+          <div>Annual credits: <strong>{dropInBenefits.annualCreditsRemaining} remaining</strong></div>
+          <div>Admin drop-in credits: <strong>{dropInBenefits.adminCreditsRemaining} remaining</strong></div>
+          {dropInBenefits.annualCycleExpiresAt && (
+            <div>Annual renewal: <strong>{new Date(dropInBenefits.annualCycleExpiresAt).toLocaleDateString()}</strong></div>
+          )}
+        </div>
+      )}
       {grants.length > 0 ? (
         <ul className="space-y-1 text-sm mb-3">
           {grants.map((g) => (
@@ -193,6 +225,27 @@ function MemberGrantsPanel({
           className="h-9 px-3 text-sm bg-vortex-red text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
         >
           {issuing ? '…' : 'Issue'}
+        </button>
+      </div>
+      <div className="mt-3 flex gap-2 items-end">
+        <label className="flex-1 text-xs text-gray-500">
+          Add unrestricted drop-in credits
+          <input
+            type="number"
+            min={1}
+            max={100}
+            value={creditQuantity}
+            onChange={(e) => setCreditQuantity(Math.max(1, Math.min(100, Number(e.target.value) || 1)))}
+            className="mt-1 h-9 w-full rounded-lg border border-gray-300 px-2 text-sm"
+          />
+        </label>
+        <button
+          type="button"
+          disabled={issuing}
+          onClick={() => void addDropInCredits()}
+          className="h-9 rounded-lg bg-gray-900 px-3 text-sm text-white disabled:opacity-50"
+        >
+          Add credits
         </button>
       </div>
       {error && <p className="text-xs text-red-600 mt-2">{error}</p>}

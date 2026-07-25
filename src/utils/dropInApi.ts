@@ -13,6 +13,7 @@ export interface DropInClass {
   skillLevel: string | null
   ageMin: number | null
   ageMax: number | null
+  excludedFromDropIns?: boolean
   monthlyCents: number
   baseCents: number
   discountPercent: number
@@ -22,6 +23,10 @@ export interface DropInClass {
 
 export interface DropInSession extends DropInClass {
   slotGroupId: number
+  offeringId?: number | null
+  scheduleDayOfWeek?: number | null
+  activeStart?: string | null
+  activeEnd?: string | null
   date: string
   startTime: string
   endTime: string
@@ -36,7 +41,12 @@ export interface DropInSession extends DropInClass {
 
 export interface DropInBenefits {
   annualMember: boolean
+  annualCycleStartedAt?: string | null
+  annualCycleExpiresAt?: string | null
+  annualCreditsGranted?: number
   annualCreditsRemaining: number
+  adminCreditsRemaining: number
+  freePassesRemaining?: number
   trialAvailable: boolean
   discountPercent: number
 }
@@ -46,9 +56,8 @@ function authHeaders(): HeadersInit {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
-export async function fetchDropIns(email?: string): Promise<{ classes: DropInClass[]; sessions: DropInSession[]; benefits: DropInBenefits }> {
-  const query = email ? `?email=${encodeURIComponent(email)}` : ''
-  const response = await fetch(`${getApiUrl()}/api/public/drop-ins${query}`, { headers: authHeaders() })
+export async function fetchDropIns(): Promise<{ classes: DropInClass[]; sessions: DropInSession[]; benefits: DropInBenefits }> {
+  const response = await fetch(`${getApiUrl()}/api/public/drop-ins`, { headers: authHeaders() })
   const body = await response.json()
   if (!response.ok || !body.success) throw new Error(body.message || 'Failed to load drop-in classes')
   return body.data
@@ -62,6 +71,7 @@ export async function registerDropIn(input: {
   email: string
   phone?: string
   useFreeTrial: boolean
+  promoCode?: string
 }) {
   const response = await fetch(`${getApiUrl()}/api/public/drop-ins/register`, {
     method: 'POST',
@@ -73,7 +83,7 @@ export async function registerDropIn(input: {
   return body.data as {
     id: number
     status: string
-    benefitType: 'paid' | 'free_trial' | 'annual_credit'
+    benefitType: 'paid' | 'free_trial' | 'annual_credit' | 'admin_credit' | 'free_pass' | 'promo_code'
     totalCents: number
     accountRequired: boolean
     signupUrl: string | null

@@ -817,6 +817,62 @@ export async function createPortalFamilyMember(client, {
   return member
 }
 
+export async function finalizePendingDropIn(client, pendingDropInId, { primaryEmail, createdMembers }) {
+  if (pendingDropInId == null) return null
+  const pending = await client.query(
+    `SELECT d.*, sf.title
+       FROM drop_in_registration d
+       JOIN scheduling_form sf ON sf.id = d.form_id
+      WHERE d.id = $1 AND d.status = 'account_required' AND d.member_id IS NULL
+        AND (d.expires_at IS NULL OR d.expires_at > now())
+      FOR UPDATE`,
+    [pendingDropInId],
+  )
+  const row = pending.rows[0]
+  if (!row) throw new Error('Pending drop-in registration was not found or has already been completed.')
+  if (String(row.email).trim().toLowerCase() !== String(primaryEmail).trim().toLowerCase()) {
+    throw new Error('The family account email must match the pending drop-in registration.')
+  }
+
+  const firstName = String(row.first_name).trim().toLowerCase()
+  const lastName = String(row.last_name).trim().toLowerCase()
+  const match = createdMembers.find(({ member }) =>
+    String(member.first_name).trim().toLowerCase() === firstName
+    && String(member.last_name).trim().toLowerCase() === lastName,
+  )
+  if (!match) {
+    throw new Error(`Add ${row.first_name} ${row.last_name} to the family account to confirm the pending drop-in.`)
+  }
+
+  const memberId = Number(match.member.id)
+  await client.query(
+    `UPDATE drop_in_registration
+        SET member_id = $2, status = 'confirmed', updated_at = now()
+      WHERE id = $1`,
+    [pendingDropInId, memberId],
+  )
+
+  if (row.benefit_type === 'paid' && Number(row.amount_cents) > 0) {
+    const account = await client.query(
+      `SELECT id FROM family_billing_account WHERE family_id = $1 AND is_active = TRUE LIMIT 1`,
+      [match.member.family_id],
+    )
+    if (!account.rows[0]) throw new Error('Family billing account not found for pending drop-in.')
+    const baseCents = Number(row.base_price_cents)
+    const amountCents = Number(row.amount_cents)
+    await client.query(
+      `INSERT INTO billing_charge
+         (family_billing_account_id, member_id, source_type, source_id, description,
+          amount_cents, gross_amount_cents, discount_amount_cents, charge_type, billing_interval,
+          service_period_start, service_period_end)
+       VALUES ($1,$2,'drop_in',$3,$4,$5,$6,$7,'one_time','one_time',$8,$8)
+       ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING`,
+      [account.rows[0].id, memberId, String(row.id), `${row.title} drop-in — ${formatDateOnly(row.class_date)}`, amountCents, baseCents, Math.max(0, baseCents - amountCents), formatDateOnly(row.class_date)],
+    )
+  }
+  return { id: Number(row.id), memberId, status: 'confirmed', benefitType: row.benefit_type }
+}
+
 async function processFamilySignup(client, payload, options = {}) {
   const {
     facilityId: explicitFacilityId = null,
@@ -1024,6 +1080,11 @@ async function processFamilySignup(client, payload, options = {}) {
     if (receipt) enrollmentReceipts.push(receipt)
   }
 
+  const completedDropIn = await finalizePendingDropIn(client, payload.pendingDropInId, {
+    primaryEmail,
+    createdMembers,
+  })
+
   await recordWaiverAcceptances(client, {
     memberIds: allMemberIds,
     acceptedTemplateIds,
@@ -1045,6 +1106,7 @@ async function processFamilySignup(client, payload, options = {}) {
     primaryEmail: String(primaryAdult.email || '').trim(),
     primaryName: String(primaryAdult.firstName || '').trim(),
     enrollmentReceipts,
+    completedDropIn,
   }
 }
 
