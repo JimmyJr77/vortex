@@ -1,12 +1,8 @@
-import { StrictMode } from 'react'
+import { StrictMode, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import './index.css'
-import App from './App.tsx'
-import GymnasticsApp from './apps/gymnastics/GymnasticsApp.tsx'
-import ComingSoon from './components/stub/ComingSoon.tsx'
-import SchedulingPage from './components/SchedulingPage.tsx'
 import {
   isStubPreviewOnNonStubHost,
   resolveStubSite,
@@ -20,7 +16,14 @@ import { updateGoogleConsent } from './utils/googleAnalytics.ts'
 import { captureConsentIdFromUrl } from './utils/crossDomainConsent.ts'
 import { getStoredConsent, initCrossDomainConsent } from './utils/consent.ts'
 import { ChunkLoadErrorBoundary } from './components/ChunkLoadErrorBoundary.tsx'
-import { clearChunkReloadFlag, initChunkLoadRecovery } from './utils/chunkLoadRecovery.ts'
+import { clearChunkReloadFlag, initChunkLoadRecovery, lazyWithRetry } from './utils/chunkLoadRecovery.ts'
+
+const SchedulingPage = lazyWithRetry(() => import('./components/SchedulingPage.tsx'))
+const ComingSoon = lazyWithRetry(() => import('./components/stub/ComingSoon.tsx'))
+const App = lazyWithRetry(() => import('./App.tsx'))
+const GymnasticsApp = lazyWithRetry(() => import('./apps/gymnastics/GymnasticsApp.tsx'))
+
+const appLoader = <div className="min-h-screen bg-black" aria-busy="true" />
 
 initChunkLoadRecovery()
 clearChunkReloadFlag()
@@ -82,9 +85,11 @@ if (stubSite?.key === 'gymnastics') {
     <StrictMode>
       <ChunkLoadErrorBoundary>
         <HelmetProvider>
-          <BrowserRouter>
-            <GymnasticsApp isPreview={stubPreview} />
-          </BrowserRouter>
+          <Suspense fallback={appLoader}>
+            <BrowserRouter>
+              <GymnasticsApp isPreview={stubPreview} />
+            </BrowserRouter>
+          </Suspense>
         </HelmetProvider>
       </ChunkLoadErrorBoundary>
     </StrictMode>,
@@ -95,12 +100,14 @@ if (stubSite?.key === 'gymnastics') {
       <ChunkLoadErrorBoundary>
         <HelmetProvider>
           <BrowserRouter>
-            <Routes>
-              <Route path="/enroll" element={<SchedulingPage />} />
-              <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
-              <Route path="/schedule" element={<Navigate to="/enroll" replace />} />
-              <Route path="*" element={<ComingSoon config={stubSite} isPreview={stubPreview} />} />
-            </Routes>
+            <Suspense fallback={appLoader}>
+              <Routes>
+                <Route path="/enroll" element={<SchedulingPage />} />
+                <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
+                <Route path="/schedule" element={<Navigate to="/enroll" replace />} />
+                <Route path="*" element={<ComingSoon config={stubSite} isPreview={stubPreview} />} />
+              </Routes>
+            </Suspense>
           </BrowserRouter>
         </HelmetProvider>
       </ChunkLoadErrorBoundary>
@@ -111,9 +118,11 @@ if (stubSite?.key === 'gymnastics') {
     <StrictMode>
       <ChunkLoadErrorBoundary>
         <HelmetProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <Suspense fallback={appLoader}>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </Suspense>
         </HelmetProvider>
       </ChunkLoadErrorBoundary>
     </StrictMode>,

@@ -72,19 +72,30 @@ async function ensureStripeCustomer(pool, stripe, account) {
  * Create a hosted Stripe Checkout Session for the outstanding balance.
  * @returns {{url:string}|null} null when Stripe is disabled/unavailable.
  */
-export async function createCheckoutSession(pool, { account, balanceCents, successUrl, cancelUrl, analytics = null }) {
-  const stripe = await getStripe()
-  if (!stripe || !account || balanceCents <= 0) return null
-  const customerId = await ensureStripeCustomer(pool, stripe, account)
-  const session = await stripe.checkout.sessions.create({
+export function buildBalanceCheckoutParams({
+  account,
+  customerId,
+  balanceCents,
+  successUrl,
+  cancelUrl,
+  analytics = null,
+  nowMs = Date.now(),
+}) {
+  const amount = Math.round(Number(balanceCents) || 0)
+  if (!account?.id || !customerId || amount <= 0) {
+    throw new Error('A billing account, Stripe customer, and positive balance are required.')
+  }
+  return {
     mode: 'payment',
     customer: customerId,
+    client_reference_id: `family-billing-account:${account.id}`,
+    expires_at: Math.floor(nowMs / 1000) + 24 * 60 * 60,
     line_items: [
       {
         quantity: 1,
         price_data: {
           currency: 'usd',
-          unit_amount: balanceCents,
+          unit_amount: amount,
           product_data: { name: 'Vortex Athletics account balance' },
         },
       },
@@ -93,12 +104,31 @@ export async function createCheckoutSession(pool, { account, balanceCents, succe
     cancel_url: cancelUrl,
     metadata: {
       familyBillingAccountId: String(account.id),
-      // GA4 attribution for the webhook-side purchase event (no pending row for balance checkout).
       ...(analytics?.gaClientId ? { gaClientId: String(analytics.gaClientId).slice(0, 100) } : {}),
       ...(analytics?.gaSessionId ? { gaSessionId: String(analytics.gaSessionId).slice(0, 100) } : {}),
     },
-  })
-  return { url: session.url }
+  }
+}
+
+export async function createCheckoutSession(pool, { account, balanceCents, successUrl, cancelUrl, analytics = null }) {
+  const stripe = await getStripe()
+  if (!stripe || !account || balanceCents <= 0) return null
+  const customerId = await ensureStripeCustomer(pool, stripe, account)
+  const session = await stripe.checkout.sessions.create(
+    buildBalanceCheckoutParams({
+      account,
+      customerId,
+      balanceCents,
+      successUrl,
+      cancelUrl,
+      analytics,
+    }),
+  )
+  return {
+    id: session.id,
+    url: session.url,
+    expiresAt: session.expires_at ? new Date(session.expires_at * 1000).toISOString() : null,
+  }
 }
 
 /** Create a short-lived Stripe Customer Portal session for payment-method management. */

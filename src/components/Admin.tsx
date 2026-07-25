@@ -30,6 +30,9 @@ import AdminEventSignups from './AdminEventSignups'
 import AdminInsurance from './AdminInsurance'
 import AdminMessagesPanel from './admin/AdminMessagesPanel'
 import AdminHomePanel from './admin/AdminHomePanel'
+import AdminMarketingVisibility from './admin/AdminMarketingVisibility'
+import AdminOpportunities from './AdminOpportunities'
+import AdminCompetitors from './admin/AdminCompetitors'
 import MessagingFaqMasterPanel from './messaging/MessagingFaqMasterPanel'
 import HorizontalScrollContainer from './HorizontalScrollContainer'
 import PortalNavButtons from './PortalNavButtons'
@@ -39,7 +42,7 @@ import {
   NOTIFICATION_NAV_EVENT,
   type NotificationNavigateDetail,
 } from '../utils/notificationNavigation'
-import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, CreditCard, FileText, Sparkles, Database, Settings, Menu, X, MessageSquare, Bell, CircleHelp } from 'lucide-react'
+import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, CreditCard, FileText, Sparkles, Database, Settings, Menu, X, MessageSquare, Bell, CircleHelp, Megaphone, Target } from 'lucide-react'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import type { PortalId } from '../utils/portalSession'
 
@@ -78,9 +81,9 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'users' | 'analytics' | 'membership' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
+type TabType = 'users' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
 
-export type GroupId = 'home' | 'messaging' | 'faqLibrary' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'dataAnalysis' | 'preferences' | 'settings'
+export type GroupId = 'home' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
 
 interface AccessContext {
   permissions: string[]
@@ -90,6 +93,7 @@ interface AccessContext {
 }
 
 const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }> = [
+  { id: 'opportunities', label: 'Research board', permission: 'analytics.view' },
   { id: 'admins', label: 'Admins', permission: 'admins.manage' },
   { id: 'membership', label: 'Vortex Accounts', permission: 'members.view' },
   { id: 'messages', label: 'Messages' },
@@ -116,6 +120,8 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string }>
   { id: 'email', label: 'Email', permission: 'admin_access.manage' },
   { id: 'schools', label: 'Schools', permission: 'schools.view' },
   { id: 'analytics', label: 'Analytics & Engagement', permission: 'analytics.view' },
+  { id: 'marketing', label: 'Marketing & Visibility', permission: 'analytics.view' },
+  { id: 'competitors', label: 'Competitors', permission: 'analytics.view' },
   { id: 'preferences', label: 'Preferences' },
 ]
 
@@ -130,6 +136,7 @@ interface GroupDef {
 
 const GROUPS: GroupDef[] = [
   { id: 'home', label: 'Home', icon: Home, sections: [] },
+  { id: 'opportunityResearch', label: 'Opportunities', icon: Target, sections: ['opportunities'] },
   { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages'] },
   { id: 'faqLibrary', label: 'FAQ library', icon: CircleHelp, sections: ['faqs'] },
   { id: 'accounts', label: 'Accounts', icon: Users, sections: ['admins', 'membership', 'access'] },
@@ -140,6 +147,7 @@ const GROUPS: GroupDef[] = [
   { id: 'pricingBilling', label: 'Pricing & Billing', icon: CreditCard, sections: ['pricing', 'billing'] },
   { id: 'legal', label: 'Legal', icon: FileText, sections: ['waivers', 'insurance'] },
   { id: 'highlightsEvents', label: 'Pages & Popups', icon: Sparkles, sections: ['specialPages', 'highlights', 'events'] },
+  { id: 'marketingVisibility', label: 'Marketing & Visibility', icon: Megaphone, sections: ['marketing', 'competitors'] },
   { id: 'dataAnalysis', label: 'Database & Analysis', icon: Database, sections: ['analytics', 'dbQueries', 'schools'] },
   { id: 'preferences', label: 'Preferences', icon: Bell, sections: ['preferences'] },
   { id: 'settings', label: 'Settings', icon: Settings, sections: ['email'] },
@@ -345,8 +353,14 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
 
   const renderSection = () => {
     switch (activeTab) {
+      case 'opportunities':
+        return <AdminOpportunities />
       case 'analytics':
         return <AdminAnalytics />
+      case 'marketing':
+        return <AdminMarketingVisibility canManage={Boolean(accessContext?.isMasterAdmin || accessContext?.permissions.includes('marketing.manage'))} />
+      case 'competitors':
+        return <AdminCompetitors />
       case 'access':
         return (
           <AdminAccess

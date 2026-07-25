@@ -1,0 +1,275 @@
+/**
+ * Canonical Vortex workout contracts.
+ *
+ * This module deliberately has no database or AI dependency. It is the boundary
+ * shared by deterministic generation, AI intent interpretation, persistence,
+ * validation, and evaluation.
+ */
+
+export const WORKOUT_SCHEMA_VERSION = '1.0.0'
+export const GENERATOR_VERSION = 'canonical-deterministic-1'
+
+export const SESSION_PHASE_ORDER = Object.freeze([
+  'prepare_and_access',
+  'movement_intelligence',
+  'output',
+  'capacity',
+  'resilience',
+  'sustained_capacity',
+  'restore',
+])
+
+export const EXERCISE_STATUSES = Object.freeze([
+  'draft',
+  'review',
+  'published',
+  'deprecated',
+  'archived',
+])
+
+export const SCORE_FIELDS = Object.freeze([
+  'contentConfidence',
+  'scoringConfidence',
+  'mediaConfidence',
+  'technicalComplexity',
+  'relativeStrengthDemand',
+  'absoluteLoadDemand',
+  'mobilityDemand',
+  'balanceDemand',
+  'stabilityDemand',
+  'coordinationDemand',
+  'speedDemand',
+  'decisionDemand',
+  'workCapacityDemand',
+  'impact',
+  'eccentricTissueStress',
+  'jointStress',
+  'spinalLoading',
+  'gripDemand',
+  'inversionDemand',
+  'fearConfidenceBarrier',
+  'supervisionDemand',
+  'spottingDemand',
+  'failureConsequence',
+  'baseOverallDifficulty',
+])
+
+const PUBLISHED_REQUIRED_DIFFICULTY_FIELDS = Object.freeze([
+  'technicalComplexity',
+  'supervisionDemand',
+  'failureConsequence',
+  'impact',
+  'baseOverallDifficulty',
+])
+
+export function score100(value, { nullable = true, field = 'score' } = {}) {
+  if (value == null || value === '') {
+    if (nullable) return null
+    throw new TypeError(`${field} is required`)
+  }
+  const number = Number(value)
+  if (!Number.isInteger(number) || number < 1 || number > 100) {
+    throw new RangeError(`${field} must be an integer from 1 to 100 or null`)
+  }
+  return number
+}
+
+/**
+ * Initial traceable conversion only. Converted values remain unreviewed until
+ * recalibrated against anchor exercises and approved by a coach.
+ */
+export function convertLegacyScore(value, scale, zeroMeaning = 'missing') {
+  if (value == null || value === '') {
+    return { value: null, legacyValue: value ?? null, legacyScale: scale, confidence: 20, reviewRequired: true }
+  }
+  const number = Number(value)
+  if (!Number.isFinite(number)) throw new TypeError('legacy score must be numeric or null')
+  if (number === 0) {
+    if (!['missing', 'negligible'].includes(zeroMeaning)) throw new TypeError('zeroMeaning must be missing or negligible')
+    return {
+      value: zeroMeaning === 'missing' ? null : 1,
+      legacyValue: 0,
+      legacyScale: scale,
+      confidence: 25,
+      reviewRequired: true,
+    }
+  }
+  if (scale !== 5 && scale !== 10) throw new TypeError('legacy scale must be 5 or 10')
+  if (!Number.isInteger(number) || number < 1 || number > scale) {
+    throw new RangeError(`legacy ${scale}-point score must be between 1 and ${scale}`)
+  }
+  return {
+    value: number * (scale === 5 ? 20 : 10),
+    legacyValue: number,
+    legacyScale: scale,
+    confidence: 40,
+    reviewRequired: true,
+  }
+}
+
+function stringList(value) {
+  return [...new Set((Array.isArray(value) ? value : []).map(String).map((v) => v.trim()).filter(Boolean))]
+}
+
+function integer(value, field, { min, max, fallback = null } = {}) {
+  if (value == null || value === '') return fallback
+  const number = Number(value)
+  if (!Number.isInteger(number) || (min != null && number < min) || (max != null && number > max)) {
+    throw new RangeError(`${field} must be an integer${min != null ? ` >= ${min}` : ''}${max != null ? ` and <= ${max}` : ''}`)
+  }
+  return number
+}
+
+function quantityMap(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return Object.freeze({})
+  return Object.freeze(Object.fromEntries(
+    Object.entries(value).map(([key, quantity]) => [
+      String(key),
+      integer(quantity, `equipmentQuantities.${key}`, { min: 0, max: 1000 }),
+    ]),
+  ))
+}
+
+function normalizeCohorts(value) {
+  if (value == null) return Object.freeze([])
+  if (!Array.isArray(value)) throw new TypeError('athleteCohorts must be an array')
+  return Object.freeze(value.map((raw, index) => {
+    if (!raw || typeof raw !== 'object') throw new TypeError(`athleteCohorts[${index}] must be an object`)
+    const key = String(raw.key ?? '').trim()
+    if (!key) throw new TypeError(`athleteCohorts[${index}].key is required`)
+    const ageMin = integer(raw.ageMin, `athleteCohorts[${index}].ageMin`, { min: 5, max: 99 })
+    const ageMax = integer(raw.ageMax, `athleteCohorts[${index}].ageMax`, { min: 5, max: 99 })
+    if (ageMin > ageMax) throw new RangeError(`athleteCohorts[${index}] ageMin must not exceed ageMax`)
+    return Object.freeze({
+      key,
+      label: String(raw.label ?? key),
+      ageMin,
+      ageMax,
+      skillLevel: String(raw.skillLevel ?? 'beginner'),
+      maxDifficulty: score100(raw.maxDifficulty ?? 60, {
+        nullable: false,
+        field: `athleteCohorts[${index}].maxDifficulty`,
+      }),
+    })
+  }))
+}
+
+function normalizeTumblingBlock(value) {
+  if (value == null) return null
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new TypeError('tumblingBlock must be an object')
+  const placement = value.placement === 'end' ? 'end' : 'beginning'
+  return Object.freeze({
+    placement,
+    minutes: integer(value.minutes ?? 30, 'tumblingBlock.minutes', { min: 5, max: 60 }),
+  })
+}
+
+export function normalizeWorkoutIntent(raw = {}) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new TypeError('workout intent must be an object')
+  const durationMinutes = integer(raw.durationMinutes, 'durationMinutes', { min: 15, max: 240 })
+  const athleteCount = integer(raw.athleteCount, 'athleteCount', { min: 1, max: 100 })
+  const coachCount = integer(raw.coachCount, 'coachCount', { min: 1, max: 20 })
+  const ageMin = integer(raw.ageMin, 'ageMin', { min: 5, max: 99 })
+  const ageMax = integer(raw.ageMax, 'ageMax', { min: 5, max: 99 })
+  if (ageMin > ageMax) throw new RangeError('ageMin must not exceed ageMax')
+  const fatigueBudgets = raw.fatigueBudgets && typeof raw.fatigueBudgets === 'object'
+    ? raw.fatigueBudgets
+    : {}
+  const fatigueDefault = ageMax <= 12 ? 65 : ageMax <= 17 ? 75 : 85
+
+  const equipmentAvailable = stringList(raw.equipmentAvailable)
+  const equipmentRequired = stringList(raw.equipmentRequired)
+  const equipmentAvoid = stringList(raw.equipmentAvoid)
+  const requiredAvoidOverlap = equipmentRequired.filter((key) => equipmentAvoid.includes(key))
+  if (requiredAvoidOverlap.length) {
+    throw new RangeError(`equipment cannot be both required and avoided: ${requiredAvoidOverlap.join(', ')}`)
+  }
+  const unavailableRequired = equipmentRequired.filter((key) => !equipmentAvailable.includes(key))
+  if (unavailableRequired.length) {
+    throw new RangeError(`required equipment is not available: ${unavailableRequired.join(', ')}`)
+  }
+
+  return Object.freeze({
+    schemaVersion: WORKOUT_SCHEMA_VERSION,
+    mode: raw.mode === 'ai_assisted' ? 'ai_assisted' : 'deterministic',
+    objective: String(raw.objective || 'general_athletic_development'),
+    durationMinutes,
+    athleteCount,
+    coachCount,
+    ageMin,
+    ageMax,
+    trainingAgeMonths: integer(raw.trainingAgeMonths, 'trainingAgeMonths', { min: 0, max: 1200, fallback: 0 }),
+    skillLevel: String(raw.skillLevel || 'beginner'),
+    randomSeed: String(raw.randomSeed ?? 'vortex-default'),
+    equipmentAvailable,
+    equipmentQuantities: quantityMap(raw.equipmentQuantities),
+    equipmentRequired,
+    equipmentAvoid,
+    movementAvoid: stringList(raw.movementAvoid),
+    bodyRegionAvoid: stringList(raw.bodyRegionAvoid),
+    exerciseInclude: stringList(raw.exerciseInclude),
+    exerciseAvoid: stringList(raw.exerciseAvoid),
+    recentExerciseIds: stringList(raw.recentExerciseIds),
+    modifiers: stringList(raw.modifiers),
+    limitations: stringList(raw.limitations),
+    athleteCohorts: normalizeCohorts(raw.athleteCohorts),
+    tumblingBlock: normalizeTumblingBlock(raw.tumblingBlock),
+    space: Object.freeze({
+      environment: String(raw.space?.environment || 'indoor'),
+      floorAreaSquareFeet: integer(raw.space?.floorAreaSquareFeet, 'space.floorAreaSquareFeet', { min: 1, fallback: null }),
+      laneLengthFeet: integer(raw.space?.laneLengthFeet, 'space.laneLengthFeet', { min: 1, fallback: null }),
+    }),
+    maxDifficulty: score100(raw.maxDifficulty ?? 60, { nullable: false, field: 'maxDifficulty' }),
+    maxTechnicalRisk: score100(raw.maxTechnicalRisk ?? 60, { nullable: false, field: 'maxTechnicalRisk' }),
+    maxHighImpactContacts: integer(raw.maxHighImpactContacts, 'maxHighImpactContacts', {
+      min: 0,
+      max: 500,
+      fallback: ageMax <= 12 ? 40 : 60,
+    }),
+    fatigueBudgets: Object.freeze({
+      grip: score100(fatigueBudgets.grip ?? fatigueDefault, { nullable: false, field: 'fatigueBudgets.grip' }),
+      localMuscle: score100(fatigueBudgets.localMuscle ?? fatigueDefault, { nullable: false, field: 'fatigueBudgets.localMuscle' }),
+      spinalLoading: score100(fatigueBudgets.spinalLoading ?? Math.max(45, fatigueDefault - 10), { nullable: false, field: 'fatigueBudgets.spinalLoading' }),
+      eccentricStress: score100(fatigueBudgets.eccentricStress ?? Math.max(50, fatigueDefault - 5), { nullable: false, field: 'fatigueBudgets.eccentricStress' }),
+      impactAccumulation: score100(fatigueBudgets.impactAccumulation ?? Math.max(45, fatigueDefault - 10), { nullable: false, field: 'fatigueBudgets.impactAccumulation' }),
+      technicalSensitivity: score100(fatigueBudgets.technicalSensitivity ?? Math.max(50, fatigueDefault - 5), { nullable: false, field: 'fatigueBudgets.technicalSensitivity' }),
+    }),
+    assumptions: stringList(raw.assumptions),
+  })
+}
+
+export function validateExerciseCard(card) {
+  const errors = []
+  if (!card || typeof card !== 'object') return { valid: false, errors: ['card must be an object'] }
+  for (const field of ['id', 'slug', 'canonicalName', 'cardVersion', 'schemaVersion', 'status']) {
+    if (card[field] == null || card[field] === '') errors.push(`${field} is required`)
+  }
+  if (!EXERCISE_STATUSES.includes(card.status)) errors.push('status is invalid')
+  if (!card.familyId) errors.push('familyId is required')
+  if (!Array.isArray(card.deliveryProfiles) || card.deliveryProfiles.length === 0) errors.push('deliveryProfiles are required')
+  for (const field of SCORE_FIELDS) {
+    try { score100(card.difficulty?.[field] ?? card[field], { field }) } catch (error) { errors.push(error.message) }
+  }
+  if (card.status === 'published') {
+    if (!card.media?.approvedVideoUrl) errors.push('published cards require an approved demonstration video')
+    if (!card.approvedBy) errors.push('published cards require approvedBy')
+    if (card.contentConfidence == null || card.scoringConfidence == null || card.mediaConfidence == null) {
+      errors.push('published cards require content, scoring, and media confidence')
+    }
+    for (const field of PUBLISHED_REQUIRED_DIFFICULTY_FIELDS) {
+      if (card.difficulty?.[field] == null) errors.push(`published cards require difficulty.${field}`)
+    }
+  }
+  return { valid: errors.length === 0, errors }
+}
+
+export function assertCanonicalPhaseOrder(phaseKeys) {
+  let previous = -1
+  for (const key of phaseKeys) {
+    const index = SESSION_PHASE_ORDER.indexOf(key)
+    if (index < 0) throw new RangeError(`unknown phase key: ${key}`)
+    if (index <= previous) throw new RangeError('phases must be unique and in canonical order')
+    previous = index
+  }
+  return true
+}

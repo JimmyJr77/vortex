@@ -76,7 +76,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 1,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Supported hip rotation drill', 'Half-kneeling reach', 'Quadruped rotation', 'Smaller-range standing rotation']::text[]
@@ -154,7 +154,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 1,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Supported hip rotation drill', 'Half-kneeling reach', 'Quadruped rotation', 'Smaller-range standing rotation']::text[]
@@ -232,7 +232,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 1,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Supported hip rotation drill', 'Half-kneeling reach', 'Quadruped rotation', 'Smaller-range standing rotation']::text[]
@@ -310,7 +310,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 1,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Supported hip rotation drill', 'Half-kneeling reach', 'Quadruped rotation', 'Smaller-range standing rotation']::text[]
@@ -388,7 +388,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 1,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Supported hip rotation drill', 'Half-kneeling reach', 'Quadruped rotation', 'Smaller-range standing rotation']::text[]
@@ -466,7 +466,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 1,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Supported hip rotation drill', 'Half-kneeling reach', 'Quadruped rotation', 'Smaller-range standing rotation']::text[]
@@ -544,7 +544,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 1,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Supported hip rotation drill', 'Half-kneeling reach', 'Quadruped rotation', 'Smaller-range standing rotation']::text[]
@@ -622,7 +622,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 1,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Supported hip rotation drill', 'Half-kneeling reach', 'Quadruped rotation', 'Smaller-range standing rotation']::text[]
@@ -700,7 +700,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 1,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Supported hip rotation drill', 'Half-kneeling reach', 'Quadruped rotation', 'Smaller-range standing rotation']::text[]
@@ -778,7 +778,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 1,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Supported hip rotation drill', 'Half-kneeling reach', 'Quadruped rotation', 'Smaller-range standing rotation']::text[]
@@ -856,7 +856,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Tall-kneeling Pallof hold', 'Dead bug brace', 'Side plank hold', 'Shorter lever anti-rotation press']::text[]
@@ -934,7 +934,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Tall-kneeling Pallof hold', 'Dead bug brace', 'Side plank hold', 'Shorter lever anti-rotation press']::text[]
@@ -1012,7 +1012,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Tall-kneeling Pallof hold', 'Dead bug brace', 'Side plank hold', 'Shorter lever anti-rotation press']::text[]
@@ -1090,7 +1090,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Tall-kneeling Pallof hold', 'Dead bug brace', 'Side plank hold', 'Shorter lever anti-rotation press']::text[]
@@ -1168,7 +1168,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Tall-kneeling Pallof hold', 'Dead bug brace', 'Side plank hold', 'Shorter lever anti-rotation press']::text[]
@@ -1246,7 +1246,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Tall-kneeling Pallof hold', 'Dead bug brace', 'Side plank hold', 'Shorter lever anti-rotation press']::text[]
@@ -1324,7 +1324,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Tall-kneeling Pallof hold', 'Dead bug brace', 'Side plank hold', 'Shorter lever anti-rotation press']::text[]
@@ -1402,7 +1402,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 0,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Tall-kneeling Pallof hold', 'Dead bug brace', 'Side plank hold', 'Shorter lever anti-rotation press']::text[]
@@ -1480,7 +1480,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 1,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Supported hip rotation drill', 'Half-kneeling reach', 'Quadruped rotation', 'Smaller-range standing rotation']::text[]
@@ -1558,7 +1558,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Tall-kneeling Pallof hold', 'Dead bug brace', 'Side plank hold', 'Shorter lever anti-rotation press']::text[]
@@ -1792,7 +1792,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Band-resisted version', 'Bodyweight pattern', 'Half-kneeling cable variation', 'Lower-load split-stance variation']::text[]
@@ -1870,7 +1870,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Band-resisted version', 'Bodyweight pattern', 'Half-kneeling cable variation', 'Lower-load split-stance variation']::text[]
@@ -1948,7 +1948,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Band-resisted version', 'Bodyweight pattern', 'Half-kneeling cable variation', 'Lower-load split-stance variation']::text[]
@@ -2026,7 +2026,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Band-resisted version', 'Bodyweight pattern', 'Half-kneeling cable variation', 'Lower-load split-stance variation']::text[]
@@ -2104,7 +2104,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.', 'Medicine ball weight and rebound path are safe for the athlete and environment.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Band-resisted version', 'Bodyweight pattern', 'Half-kneeling cable variation', 'Lower-load split-stance variation']::text[]
@@ -2182,7 +2182,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Band-resisted version', 'Bodyweight pattern', 'Half-kneeling cable variation', 'Lower-load split-stance variation']::text[]
@@ -2260,7 +2260,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 1,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Supported hip rotation drill', 'Half-kneeling reach', 'Quadruped rotation', 'Smaller-range standing rotation']::text[]
@@ -2338,7 +2338,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Band-resisted version', 'Bodyweight pattern', 'Half-kneeling cable variation', 'Lower-load split-stance variation']::text[]
@@ -2386,7 +2386,7 @@ JOIN coaching.phase_order_slot pos ON pos.key = 'med_ball_rotational_scoop_toss'
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'med-ball-rotational-scoop-toss';
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'throws',
+  volume_unit = 'attempts',
   default_sets = 3,
   default_reps = 4,
   default_distance = NULL::integer,
@@ -2416,7 +2416,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.', 'Athlete is fresh enough for high-speed power or COD quality.', 'Landing, throwing, or cutting space is clear.', 'Medicine ball weight and rebound path are safe for the athlete and environment.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Standing rotational scoop toss', 'Static stance throw', 'Step-and-stick version', 'Lower-load medicine ball']::text[]
@@ -2464,7 +2464,7 @@ JOIN coaching.phase_order_slot pos ON pos.key = 'med_ball_shot_put_throw' AND po
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'med-ball-shot-put-throw';
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'throws',
+  volume_unit = 'attempts',
   default_sets = 3,
   default_reps = 4,
   default_distance = NULL::integer,
@@ -2494,7 +2494,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.', 'Athlete is fresh enough for high-speed power or COD quality.', 'Landing, throwing, or cutting space is clear.', 'Medicine ball weight and rebound path are safe for the athlete and environment.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Standing rotational scoop toss', 'Static stance throw', 'Step-and-stick version', 'Lower-load medicine ball']::text[]
@@ -2542,7 +2542,7 @@ JOIN coaching.phase_order_slot pos ON pos.key = 'med_ball_step_behind_rotational
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'med-ball-step-behind-rotational-throw';
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'throws',
+  volume_unit = 'attempts',
   default_sets = 3,
   default_reps = 4,
   default_distance = NULL::integer,
@@ -2572,7 +2572,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.', 'Athlete is fresh enough for high-speed power or COD quality.', 'Landing, throwing, or cutting space is clear.', 'Medicine ball weight and rebound path are safe for the athlete and environment.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Standing rotational scoop toss', 'Static stance throw', 'Step-and-stick version', 'Lower-load medicine ball']::text[]
@@ -2620,7 +2620,7 @@ JOIN coaching.phase_order_slot pos ON pos.key = 'med_ball_shuffle_to_rotation_th
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'med-ball-shuffle-to-rotation-throw';
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'throws',
+  volume_unit = 'attempts',
   default_sets = 3,
   default_reps = 4,
   default_distance = NULL::integer,
@@ -2650,7 +2650,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.', 'Athlete is fresh enough for high-speed power or COD quality.', 'Landing, throwing, or cutting space is clear.', 'Medicine ball weight and rebound path are safe for the athlete and environment.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Standing rotational scoop toss', 'Static stance throw', 'Step-and-stick version', 'Lower-load medicine ball']::text[]
@@ -2698,7 +2698,7 @@ JOIN coaching.phase_order_slot pos ON pos.key = 'med_ball_countermovement_rotati
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'med-ball-countermovement-rotational-throw';
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'throws',
+  volume_unit = 'attempts',
   default_sets = 3,
   default_reps = 4,
   default_distance = NULL::integer,
@@ -2728,7 +2728,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.', 'Athlete is fresh enough for high-speed power or COD quality.', 'Landing, throwing, or cutting space is clear.', 'Medicine ball weight and rebound path are safe for the athlete and environment.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Standing rotational scoop toss', 'Static stance throw', 'Step-and-stick version', 'Lower-load medicine ball']::text[]
@@ -2776,7 +2776,7 @@ JOIN coaching.phase_order_slot pos ON pos.key = 'med_ball_slam_to_rotational_thr
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'med-ball-slam-to-rotational-throw';
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'throws',
+  volume_unit = 'attempts',
   default_sets = 3,
   default_reps = 4,
   default_distance = NULL::integer,
@@ -2806,7 +2806,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.', 'Athlete is fresh enough for high-speed power or COD quality.', 'Landing, throwing, or cutting space is clear.', 'Medicine ball weight and rebound path are safe for the athlete and environment.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Standing rotational scoop toss', 'Static stance throw', 'Step-and-stick version', 'Lower-load medicine ball']::text[]
@@ -2854,7 +2854,7 @@ JOIN coaching.phase_order_slot pos ON pos.key = 'half_kneeling_rotational_med_ba
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'half-kneeling-rotational-med-ball-throw';
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'throws',
+  volume_unit = 'attempts',
   default_sets = 3,
   default_reps = 4,
   default_distance = NULL::integer,
@@ -2884,7 +2884,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.', 'Athlete is fresh enough for high-speed power or COD quality.', 'Landing, throwing, or cutting space is clear.', 'Medicine ball weight and rebound path are safe for the athlete and environment.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Standing rotational scoop toss', 'Static stance throw', 'Step-and-stick version', 'Lower-load medicine ball']::text[]
@@ -2932,7 +2932,7 @@ JOIN coaching.phase_order_slot pos ON pos.key = 'med_ball_overhead_to_side_slam'
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'med-ball-overhead-to-side-slam';
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'throws',
+  volume_unit = 'attempts',
   default_sets = 3,
   default_reps = 4,
   default_distance = NULL::integer,
@@ -2962,7 +2962,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.', 'Athlete is fresh enough for high-speed power or COD quality.', 'Landing, throwing, or cutting space is clear.', 'Medicine ball weight and rebound path are safe for the athlete and environment.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Standing rotational scoop toss', 'Static stance throw', 'Step-and-stick version', 'Lower-load medicine ball']::text[]
@@ -3010,7 +3010,7 @@ JOIN coaching.phase_order_slot pos ON pos.key = 'partner_rotational_scoop_toss_p
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'partner-rotational-scoop-toss';
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'throws',
+  volume_unit = 'attempts',
   default_sets = 3,
   default_reps = 4,
   default_distance = NULL::integer,
@@ -3040,7 +3040,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.', 'Athlete is fresh enough for high-speed power or COD quality.', 'Landing, throwing, or cutting space is clear.', 'Medicine ball weight and rebound path are safe for the athlete and environment.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Standing rotational scoop toss', 'Static stance throw', 'Step-and-stick version', 'Lower-load medicine ball']::text[]
@@ -3088,7 +3088,7 @@ JOIN coaching.phase_order_slot pos ON pos.key = 'med_ball_rebound_rotational_cat
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'med-ball-rebound-rotational-catch-and-throw';
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'throws',
+  volume_unit = 'attempts',
   default_sets = 3,
   default_reps = 4,
   default_distance = NULL::integer,
@@ -3118,7 +3118,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.', 'Athlete is fresh enough for high-speed power or COD quality.', 'Landing, throwing, or cutting space is clear.', 'Medicine ball weight and rebound path are safe for the athlete and environment.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Standing rotational scoop toss', 'Static stance throw', 'Step-and-stick version', 'Lower-load medicine ball']::text[]
@@ -3196,7 +3196,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 1,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Supported hip rotation drill', 'Half-kneeling reach', 'Quadruped rotation', 'Smaller-range standing rotation']::text[]
@@ -3274,7 +3274,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 1,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Supported hip rotation drill', 'Half-kneeling reach', 'Quadruped rotation', 'Smaller-range standing rotation']::text[]
@@ -3352,7 +3352,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.', 'Athlete is fresh enough for high-speed power or COD quality.', 'Landing, throwing, or cutting space is clear.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Standing rotational scoop toss', 'Static stance throw', 'Step-and-stick version', 'Lower-load medicine ball']::text[]
@@ -3430,7 +3430,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Tall-kneeling Pallof hold', 'Dead bug brace', 'Side plank hold', 'Shorter lever anti-rotation press']::text[]
@@ -3898,7 +3898,7 @@ UPDATE coaching.exercise_safety_profile s SET
   risk_level = 2,
   impact_level = 1,
   requires_spotting = FALSE,
-  requires_coach_supervision = 'optional_to_recommended',
+  requires_coach_supervision = 'recommended',
   readiness_checks = ARRAY['Athlete can rotate through pain-free range without pinching or guarding.', 'Athlete can brace and breathe without breath holding or rib flare.', 'Athlete understands the start, finish, reset, and stop command.', 'Athlete is fresh enough for high-speed power or COD quality.', 'Landing, throwing, or cutting space is clear.']::text[],
   contraindications = ARRAY['Current spine, hip, shoulder, knee, or ankle pain aggravated by rotation.', 'Uncontrolled dizziness, balance loss, or symptoms during turning.', 'Inability to follow spacing, throw, landing, or stop commands.']::text[],
   common_substitutions = ARRAY['Standing rotational scoop toss', 'Static stance throw', 'Step-and-stick version', 'Lower-load medicine ball']::text[]
@@ -3913,7 +3913,7 @@ WHERE t.exercise_id = e.id
   AND t.facet_type IN ('tenet', 'methodology', 'physiology', 'pattern', 'equipment', 'body_region');
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'tenet', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'tenet', f.id, v.weight
 FROM (VALUES
   ('9090-hip-switch-with-reach', 'flexibility', 4),
   ('9090-hip-switch-with-reach', 'coordination', 4),
@@ -4124,10 +4124,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.tenet f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'methodology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'methodology', f.id, v.weight
 FROM (VALUES
   ('9090-hip-switch-with-reach', 'mobility_flexibility', 5),
   ('9090-hip-switch-with-reach', 'neural', 3),
@@ -4292,10 +4293,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.methodology f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'physiology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'physiology', f.id, v.weight
 FROM (VALUES
   ('9090-hip-switch-with-reach', 'neural_output_readiness', 4),
   ('9090-hip-switch-with-reach', 'control_stability', 3),
@@ -4431,10 +4433,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.physiological_emphasis f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'pattern', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'pattern', f.id, v.weight
 FROM (VALUES
   ('9090-hip-switch-with-reach', 'rotate', 5),
   ('9090-hip-switch-with-reach', 'brace', 3),
@@ -4579,10 +4582,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.movement_pattern f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'equipment', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'equipment', f.id, v.weight
 FROM (VALUES
   ('9090-hip-switch-with-reach', 'mat', 5),
   ('half-kneeling-t-spine-rotation', 'mat', 5),
@@ -4665,10 +4669,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.equipment f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'body_region', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'body_region', f.id, v.weight
 FROM (VALUES
   ('9090-hip-switch-with-reach', 'hip', 5),
   ('9090-hip-switch-with-reach', 'core', 3),
@@ -4870,6 +4875,7 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.body_region f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 UPDATE coaching.exercise_scaling_profile sp SET

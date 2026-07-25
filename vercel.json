@@ -319,6 +319,16 @@
       "dest": "/_gym/read-board.html"
     },
     {
+      "src": "/drop-in",
+      "has": [{ "type": "host", "value": "vortex-gymnastics.com" }],
+      "dest": "/_gym/drop-in.html"
+    },
+    {
+      "src": "/drop-in",
+      "has": [{ "type": "host", "value": "www.vortex-gymnastics.com" }],
+      "dest": "/_gym/drop-in.html"
+    },
+    {
       "handle": "filesystem"
     },
     {

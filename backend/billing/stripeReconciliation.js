@@ -20,6 +20,44 @@ export function paymentAmountsMismatch(localAmountCents, stripeAmountCents) {
   return Number(localAmountCents) !== Number(stripeAmountCents)
 }
 
+export function buildStripeReadiness({
+  enabled,
+  secretKey,
+  webhookSecrets,
+  latestReconciliation,
+  failedWebhookCount,
+  criticalAlertCount,
+  emailDomainVerified,
+  now = new Date(),
+}) {
+  const key = String(secretKey ?? '').trim()
+  const mode = key.startsWith('sk_live_') ? 'live' : key.startsWith('sk_test_') ? 'test' : 'unconfigured'
+  const webhookConfigured = String(webhookSecrets ?? '')
+    .split(',')
+    .some((value) => value.trim().startsWith('whsec_'))
+  const latestCompletedAt =
+    latestReconciliation?.completed_at ?? latestReconciliation?.completedAt ?? null
+  const reconciliationFresh = Boolean(
+    latestCompletedAt &&
+      now.getTime() - new Date(latestCompletedAt).getTime() <= 26 * 60 * 60 * 1000 &&
+      latestReconciliation?.status === 'succeeded',
+  )
+  const checks = [
+    { key: 'stripe_enabled', label: 'Stripe collection enabled', passed: Boolean(enabled) },
+    { key: 'api_key', label: `${mode === 'live' ? 'Live' : 'Test'} API key configured`, passed: mode !== 'unconfigured' },
+    { key: 'webhook_signing', label: 'Webhook signing secret configured', passed: webhookConfigured },
+    { key: 'reconciliation', label: 'Successful reconciliation within 26 hours', passed: reconciliationFresh },
+    { key: 'webhook_failures', label: 'No failed webhooks in the last 7 days', passed: Number(failedWebhookCount) === 0 },
+    { key: 'critical_alerts', label: 'No unresolved critical billing alerts', passed: Number(criticalAlertCount) === 0 },
+    { key: 'email_domain', label: 'Stripe customer email domain verified', passed: Boolean(emailDomainVerified) },
+  ]
+  return {
+    mode,
+    readyForLivePayments: mode === 'live' && checks.every((check) => check.passed),
+    checks,
+  }
+}
+
 async function accountIdForPaymentIntent(pool, intent) {
   const metadataId = Number(intent?.metadata?.familyBillingAccountId)
   if (Number.isFinite(metadataId) && metadataId > 0) return metadataId
@@ -148,18 +186,48 @@ export async function runStripeReconciliation(pool, { lookbackHours = 48 } = {})
 
 export async function getStripeOperationsDashboard(pool) {
   await ensureSchema(pool)
-  const [alerts, latestRun, webhookCounts] = await Promise.all([
+  const [alerts, recentRuns, webhookCounts, webhookIncidents] = await Promise.all([
     pool.query(`SELECT * FROM stripe_billing_alert WHERE resolved_at IS NULL ORDER BY created_at DESC LIMIT 100`),
-    pool.query(`SELECT * FROM stripe_reconciliation_run ORDER BY started_at DESC LIMIT 1`),
+    pool.query(`SELECT * FROM stripe_reconciliation_run ORDER BY started_at DESC LIMIT 10`),
     pool.query(`SELECT status, COUNT(*)::int AS count FROM stripe_webhook_event
       WHERE received_at >= now() - interval '7 days' GROUP BY status`),
+    pool.query(
+      `SELECT event_id, event_type, status, attempts,
+              LEFT(COALESCE(last_error, ''), 500) AS last_error,
+              received_at, processed_at, updated_at
+       FROM stripe_webhook_event
+       WHERE status = 'failed'
+          OR (status = 'processing' AND updated_at < now() - interval '15 minutes')
+       ORDER BY updated_at DESC
+       LIMIT 25`,
+    ),
   ])
+  const enabled = stripeEnabled()
+  const latestReconciliation = recentRuns.rows[0] ?? null
+  const webhookCountsMap = Object.fromEntries(webhookCounts.rows.map((row) => [row.status, Number(row.count)]))
+  const emailDomainVerified = process.env.STRIPE_EMAIL_DOMAIN_VERIFIED === 'true'
+  const readiness = buildStripeReadiness({
+    enabled,
+    secretKey: process.env.STRIPE_SECRET_KEY,
+    webhookSecrets: [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_WEBHOOK_SECRETS]
+      .filter(Boolean)
+      .join(','),
+    latestReconciliation,
+    failedWebhookCount: webhookCountsMap.failed ?? 0,
+    criticalAlertCount: alerts.rows.filter((alert) => alert.severity === 'critical').length,
+    emailDomainVerified,
+  })
   return {
-    stripeEnabled: stripeEnabled(),
+    stripeEnabled: enabled,
+    stripeMode: readiness.mode,
+    readyForLivePayments: readiness.readyForLivePayments,
+    readinessChecks: readiness.checks,
     emailDomain: process.env.STRIPE_EMAIL_DOMAIN || null,
-    emailDomainVerified: process.env.STRIPE_EMAIL_DOMAIN_VERIFIED === 'true',
+    emailDomainVerified,
     alerts: alerts.rows,
-    latestReconciliation: latestRun.rows[0] ?? null,
-    webhookCounts: Object.fromEntries(webhookCounts.rows.map((row) => [row.status, Number(row.count)])),
+    latestReconciliation,
+    recentReconciliations: recentRuns.rows,
+    webhookCounts: webhookCountsMap,
+    webhookIncidents: webhookIncidents.rows,
   }
 }

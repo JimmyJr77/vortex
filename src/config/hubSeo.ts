@@ -73,6 +73,20 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     priority: 0.8,
   },
   {
+    path: '/drop-in',
+    title: 'Drop-In Youth Classes in Bowie, MD | Vortex',
+    description:
+      'Book a single gymnastics, fitness, or youth athletic training class in Bowie, MD without monthly enrollment. Browse live drop-in openings.',
+    priority: 0.8,
+  },
+  {
+    path: '/contact',
+    title: 'Contact Vortex Athletics | Bowie, MD Gym & Training',
+    description:
+      'Visit Vortex Athletics at 4961 Tesla Dr in Bowie, MD. Call (443) 422-4794 or ask about gymnastics, youth training, trials, and enrollment.',
+    priority: 0.7,
+  },
+  {
     path: '/support',
     title: 'Customer Support | Vortex Athletics',
     description:

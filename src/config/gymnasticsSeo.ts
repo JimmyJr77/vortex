@@ -93,6 +93,18 @@ export const GYMNASTICS_ROUTES: GymnasticsRouteSeo[] = [
       'Upcoming gymnastics classes, camps, and open gyms at Vortex Gymnastics in Bowie, MD. Register your athlete today.',
   },
   {
+    path: '/drop-in',
+    title: 'Gymnastics Drop-In Classes in Bowie, MD | Vortex',
+    description:
+      'Book one available gymnastics class in Bowie, MD without monthly enrollment. Browse live dates, age groups, levels, and drop-in openings.',
+  },
+  {
+    path: '/homeschool-gymnastics',
+    title: 'Homeschool Gymnastics & PE Classes | Bowie, MD',
+    description:
+      'Daytime homeschool gymnastics and PE in Bowie, MD. Build strength, coordination, confidence, and friendships. Check current class availability.',
+  },
+  {
     path: '/acro-gymnastics',
     title: 'Acrobatic Gymnastics (Acro) in Bowie, MD | Vortex Gymnastics',
     description:
@@ -139,7 +151,17 @@ export const getGymnasticsSeoForPath = (
   pathname: string,
   options?: { robots?: string },
 ): SeoMeta => {
-  const route = routeMap.get(pathname) ?? GYMNASTICS_ROUTES[0]
+  const route = routeMap.get(pathname)
+  if (!route) {
+    return {
+      title: 'Vortex Gymnastics | Bowie, MD',
+      description: GYMNASTICS_ROUTES[0].description,
+      canonical: buildCanonical(GYMNASTICS_ORIGIN, pathname),
+      ogImage: GYMNASTICS_OG_IMAGE,
+      ogImageAlt: 'Vortex Gymnastics',
+      robots: options?.robots ?? 'noindex, follow',
+    }
+  }
   return {
     title: route.title,
     description: route.description,

@@ -4,6 +4,7 @@ import { issueEnrollmentReceipt } from './enrollmentReceiptService.js'
 import { sendPaymentReceiptEmail } from './paymentReceiptEmail.js'
 import { sendPaymentFailedEmail } from './paymentFailedEmail.js'
 import { sendRefundReceiptEmail } from './refundReceiptEmail.js'
+import { sendPaymentRequestEmail } from './paymentRequestEmail.js'
 import {
   resolveMemberContactEmail,
   listFamilyGuardianEmails,
@@ -144,7 +145,45 @@ async function resolvePayerRecipient(pool, account) {
   return { to, guardianName }
 }
 
-export async function notifyPaymentReceipt(pool, { account, payment, billingUrl = null, bestEffort = true }) {
+export async function notifyPaymentRequest(pool, {
+  account,
+  amountCents,
+  checkoutUrl,
+  expiresAt = null,
+  idempotencyKey = null,
+  bestEffort = true,
+}) {
+  try {
+    if (!account?.id || !checkoutUrl || Number(amountCents) <= 0) {
+      return { sent: false, skipped: true }
+    }
+    const { to, guardianName } = await resolvePayerRecipient(pool, account)
+    if (!to) return { sent: false, skipped: true, reason: 'no_recipient' }
+    const result = await sendPaymentRequestEmail({
+      to,
+      guardianName,
+      amountCents,
+      checkoutUrl,
+      expiresAt,
+      idempotencyKey,
+    })
+    return { sent: result.sent === true, email: to }
+  } catch (err) {
+    if (bestEffort) {
+      console.warn('[memberNotifications] payment request failed:', err?.message || err)
+      return { sent: false, reason: 'error' }
+    }
+    throw err
+  }
+}
+
+export async function notifyPaymentReceipt(pool, {
+  account,
+  payment,
+  billingUrl = null,
+  idempotencyKey = null,
+  bestEffort = true,
+}) {
   try {
     if (!account?.id || !payment) return { sent: false, skipped: true }
 
@@ -178,6 +217,7 @@ export async function notifyPaymentReceipt(pool, { account, payment, billingUrl 
       reference: payment.external_reference ?? null,
       balanceAfterCents,
       billingUrl,
+      idempotencyKey,
     })
     return { sent: result.sent === true, email: to }
   } catch (err) {

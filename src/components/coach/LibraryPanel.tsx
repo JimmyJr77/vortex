@@ -3,8 +3,9 @@ import ExerciseLibrary from './ExerciseLibrary'
 import SkillLibraryPanel from './SkillLibraryPanel'
 import ProgrammingLibraryPanel from './ProgrammingLibraryPanel'
 import GamesLibraryPanel from './GamesLibraryPanel'
+import { CanonicalCardLibraryPanel } from './CanonicalCardLibraryPanel'
 
-type LibraryTab = 'exercises' | 'skills' | 'programming' | 'games'
+type LibraryTab = 'exercises' | 'canonical' | 'skills' | 'programming' | 'games'
 
 export default function LibraryPanel() {
   const [tab, setTab] = useState<LibraryTab>('exercises')
@@ -23,6 +24,9 @@ export default function LibraryPanel() {
           <button type="button" onClick={() => setTab('exercises')} className={tabClass('exercises')}>
             Exercise Library
           </button>
+          <button type="button" onClick={() => setTab('canonical')} className={tabClass('canonical')}>
+            Canonical Governance
+          </button>
           <button type="button" onClick={() => setTab('skills')} className={tabClass('skills')}>
             Skill Library
           </button>
@@ -35,6 +39,7 @@ export default function LibraryPanel() {
         </nav>
       </div>
       {tab === 'exercises' && <ExerciseLibrary />}
+      {tab === 'canonical' && <CanonicalCardLibraryPanel />}
       {tab === 'skills' && <SkillLibraryPanel />}
       {tab === 'programming' && <ProgrammingLibraryPanel />}
       {tab === 'games' && <GamesLibraryPanel />}

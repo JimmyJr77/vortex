@@ -28,7 +28,10 @@ import type {
   PhaseFocusTarget,
 } from '../../coach/types'
 import { applyProgrammingMethodDefaults } from '../../coach/programmingBlockDefaults'
+import { CanonicalWorkoutGeneratorPanel } from './CanonicalWorkoutGeneratorPanel'
 import { splitVariantLabel, splitVariantTextTone, splitVariantsForItem } from '../../coach/splitVariants'
+import { CANONICAL_PHASE_ORDER, phaseDisplayName } from '../../coach/sessionPhaseKeys'
+import { focusKeysForPhase } from '../../../backend/platform/focusApplicability.js'
 import SmartCombobox, { type ComboboxOption } from './SmartCombobox'
 
 const FOCUS_LABELS: Record<FocusFacetType, string> = {
@@ -47,17 +50,32 @@ const OTHER_KIND_LABELS: Record<OtherPhaseKind, string> = {
 
 function phaseName(taxonomy: ReturnType<typeof useTaxonomy>['taxonomy'], phaseKey: string) {
   if (phaseKey === 'other') return 'Other'
-  return taxonomy?.sessionPhases?.find((p) => p.key === phaseKey)?.name ?? phaseKey
+  return taxonomy?.sessionPhases?.find((p) => p.key === phaseKey)?.name ?? phaseDisplayName(phaseKey)
 }
 
 function rowsWithLabels(rows: NeedsEnginePhaseRowState[], taxonomy: ReturnType<typeof useTaxonomy>['taxonomy']): NeedsEnginePhaseRowState[] {
-  return rows.map((r) => ({
-    ...r,
-    label: r.label ?? (r.phaseKey === 'other'
-      ? OTHER_KIND_LABELS[r.otherKind ?? 'skills']
-      : phaseName(taxonomy, r.phaseKey)),
-    focusFacetType: r.focusTargets?.[0]?.facetType ?? '',
-  }))
+  return rows.map((r) => {
+    const focusTargets = taxonomy
+      ? (r.focusTargets ?? []).filter((target) =>
+        focusFacetList(target.facetType, taxonomy, r.phaseKey)
+          ?.some((item) => taxonomyFacetIdsMatch(item.id, target.facetId)),
+      )
+      : (r.focusTargets ?? [])
+    const requestedFocusType = focusTargets[0]?.facetType ?? r.focusFacetType ?? ''
+    const focusFacetType = requestedFocusType && (
+      !taxonomy || (focusFacetList(requestedFocusType, taxonomy, r.phaseKey)?.length ?? 0) > 0
+    )
+      ? requestedFocusType
+      : ''
+    return {
+      ...r,
+      label: r.label ?? (r.phaseKey === 'other'
+        ? OTHER_KIND_LABELS[r.otherKind ?? 'skills']
+        : phaseName(taxonomy, r.phaseKey)),
+      focusTargets,
+      focusFacetType,
+    }
+  })
 }
 
 function focusTargetWeight(facetType: FocusFacetType | '' | undefined): number {
@@ -82,9 +100,16 @@ function focusFacetList(
   phaseKey?: string,
 ) {
   if (!taxonomy) return undefined
-  if (facetType === 'tenet') return taxonomy.tenets
-  if (facetType === 'methodology') return taxonomy.methodologies
-  if (facetType === 'physiology') return taxonomy.physiology
+  if (facetType === 'tenet' || facetType === 'methodology' || facetType === 'physiology') {
+    const items = facetType === 'tenet'
+      ? taxonomy.tenets
+      : facetType === 'methodology'
+        ? taxonomy.methodologies
+        : taxonomy.physiology
+    if (!phaseKey || phaseKey === 'other') return items
+    const allowedKeys = new Set(focusKeysForPhase(phaseKey, facetType))
+    return items.filter((item) => allowedKeys.has(item.key))
+  }
   if (facetType === 'order_slot') {
     return taxonomy.phaseOrderSlots?.filter(
       (s) => !phaseKey || phaseKey === 'other' || s.phase_key === phaseKey,
@@ -217,23 +242,20 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     [taxonomy?.bodyRegions],
   )
 
+  const sessionPhaseOptions = useMemo(
+    () => taxonomy?.sessionPhases?.length
+      ? taxonomy.sessionPhases.map((phase) => ({ key: phase.key, name: phase.name }))
+      : CANONICAL_PHASE_ORDER.map((key) => ({ key, name: phaseDisplayName(key) })),
+    [taxonomy?.sessionPhases],
+  )
+
   const focusOptionsFor = useCallback((facetType: FocusFacetType | '', phaseKey: string): ComboboxOption[] => {
     if (!facetType || !taxonomy) return []
-    if (facetType === 'tenet') {
-      return (taxonomy.tenets ?? []).map((t) => ({ id: Number(t.id), label: t.name }))
-    }
-    if (facetType === 'methodology') {
-      return (taxonomy.methodologies ?? []).map((t) => ({ id: Number(t.id), label: t.name }))
-    }
-    if (facetType === 'physiology') {
-      return (taxonomy.physiology ?? []).map((t) => ({ id: Number(t.id), label: t.name }))
-    }
-    if (facetType === 'order_slot') {
-      return (taxonomy.phaseOrderSlots ?? [])
-        .filter((s) => !phaseKey || phaseKey === 'other' || s.phase_key === phaseKey)
-        .map((s) => ({ id: Number(s.id), label: s.name, meta: s.phase_key }))
-    }
-    return []
+    return (focusFacetList(facetType, taxonomy, phaseKey) ?? []).map((item) => ({
+      id: Number(item.id),
+      label: item.name,
+      meta: 'phase_key' in item ? item.phase_key : undefined,
+    }))
   }, [taxonomy])
 
   const loadTemplates = useCallback(async () => {
@@ -336,7 +358,13 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     try {
       await coachFetch('/api/coach/phase-templates', {
         method: 'POST',
-        body: JSON.stringify({ name, phase_plan_json: phaseRows.map(({ focusFacetType: _, ...row }) => row) }),
+        body: JSON.stringify({
+          name,
+          phase_plan_json: phaseRows.map(({ focusFacetType, ...row }) => {
+            void focusFacetType
+            return row
+          }),
+        }),
       })
       setSaveModalOpen(false)
       setSaveTemplateName('')
@@ -709,6 +737,8 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
         </button>
       </div>
 
+      <CanonicalWorkoutGeneratorPanel />
+
       <div className="flex flex-col sm:flex-row sm:items-end gap-2 bg-white border border-gray-200 rounded-xl p-3">
         <label className="flex-1 text-sm">
           <span className="block font-semibold text-gray-700 mb-1">Saved session</span>
@@ -1009,9 +1039,11 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
             <div className="space-y-2">
               {phaseRows.map((row, i) => {
                 const focusType = row.focusFacetType ?? ''
-                const focusSelections: ComboboxOption[] = (row.focusTargets ?? []).map((t) =>
-                  focusTargetToComboboxOption(t, row.phaseKey, taxonomy),
-                )
+                const availableFocusTypes = (Object.entries(FOCUS_LABELS) as [FocusFacetType, string][])
+                  .filter(([facetType]) => focusOptionsFor(facetType, row.phaseKey).length > 0)
+                const focusSelections: ComboboxOption[] = (row.focusTargets ?? [])
+                  .filter((target) => target.facetType === focusType)
+                  .map((target) => focusTargetToComboboxOption(target, row.phaseKey, taxonomy))
                 const focusOptionsForRow = focusType
                   ? focusOptionsFor(focusType, row.phaseKey).map((o) => ({
                     id: `${focusType}:${o.id}`,
@@ -1033,13 +1065,13 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                               phaseKey,
                               label,
                               otherKind: phaseKey === 'other' ? (row.otherKind ?? 'skills') : undefined,
-                              focusFacetType: phaseKey === 'other' ? '' : row.focusFacetType,
-                              focusTargets: phaseKey === 'other' ? [] : row.focusTargets,
+                              focusFacetType: '',
+                              focusTargets: [],
                             })
                           }}
                           className="border border-gray-300 rounded px-2 py-1 min-w-0"
                         >
-                          {(taxonomy?.sessionPhases ?? []).map((p) => <option key={p.key} value={p.key}>{p.name}</option>)}
+                          {sessionPhaseOptions.map((p) => <option key={p.key} value={p.key}>{p.name}</option>)}
                           <option value="other">Other</option>
                         </select>
                         {isOther ? (
@@ -1053,11 +1085,14 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                         ) : (
                           <select
                             value={focusType}
-                            onChange={(e) => updateRow(i, { focusFacetType: e.target.value as FocusFacetType | '' })}
+                            onChange={(e) => updateRow(i, {
+                              focusFacetType: e.target.value as FocusFacetType | '',
+                              focusTargets: [],
+                            })}
                             className="border border-gray-300 rounded px-2 py-1 text-sm min-w-0"
                           >
                             <option value="">Focus…</option>
-                            {(Object.entries(FOCUS_LABELS) as [FocusFacetType, string][]).map(([k, v]) => (
+                            {availableFocusTypes.map(([k, v]) => (
                               <option key={k} value={k}>{v}</option>
                             ))}
                           </select>

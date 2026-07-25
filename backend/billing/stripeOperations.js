@@ -7,9 +7,45 @@ let schemaEnsured = false
 export async function ensureStripeOperationsSchema(pool) {
   if (schemaEnsured) return
   const fs = await import('fs')
-  const migrationPath = new URL('../migrations/230_stripe_operations.sql', import.meta.url)
-  await pool.query(fs.readFileSync(migrationPath, 'utf8'))
+  for (const relativePath of [
+    '../migrations/230_stripe_operations.sql',
+    '../migrations/250_stripe_alert_resolution_audit.sql',
+  ]) {
+    const migrationPath = new URL(relativePath, import.meta.url)
+    await pool.query(fs.readFileSync(migrationPath, 'utf8'))
+  }
   schemaEnsured = true
+}
+
+export async function resolveStripeBillingAlert(pool, {
+  alertId,
+  resolutionNote,
+  resolvedByUserId,
+}) {
+  const note = String(resolutionNote ?? '').trim()
+  if (!note) throw new Error('A resolution note is required.')
+  if (resolvedByUserId == null) throw new Error('Authenticated resolver identity is required.')
+  await ensureStripeOperationsSchema(pool)
+  const result = await pool.query(
+    `UPDATE stripe_billing_alert
+     SET action_status = 'resolved',
+         resolved_at = now(),
+         resolved_by_user_id = $2,
+         resolution_note = $3,
+         updated_at = now()
+     WHERE id = $1 AND action_status <> 'suspended'
+     RETURNING *`,
+    [Number(alertId), resolvedByUserId, note],
+  )
+  if (result.rows[0]) return result.rows[0]
+  const existing = await pool.query(
+    `SELECT action_status FROM stripe_billing_alert WHERE id = $1`,
+    [Number(alertId)],
+  )
+  if (existing.rows[0]?.action_status === 'suspended') {
+    throw new Error('Restore access before resolving this alert.')
+  }
+  throw new Error('Billing alert not found.')
 }
 
 export async function beginStripeWebhookEvent(pool, event) {

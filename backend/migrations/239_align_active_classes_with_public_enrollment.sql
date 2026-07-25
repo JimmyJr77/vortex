@@ -3,6 +3,9 @@
 -- schedule are made public; inactive, archived, unassigned, and zero-slot rows
 -- remain unavailable.
 
+ALTER TABLE programs
+  ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
+
 UPDATE scheduling_form sf
 SET programs_id = class_event.programs_id,
     is_active = TRUE,

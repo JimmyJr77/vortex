@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vortexathletics.com/schemas/workout-intent-v1.json",
+  "title": "Vortex Workout Intent v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "mode", "objective", "durationMinutes", "athleteCount", "coachCount", "ageMin", "ageMax", "randomSeed"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "mode": { "enum": ["deterministic", "ai_assisted"] },
+    "objective": { "type": "string", "minLength": 1 },
+    "durationMinutes": { "type": "integer", "minimum": 15, "maximum": 240 },
+    "athleteCount": { "type": "integer", "minimum": 1, "maximum": 100 },
+    "coachCount": { "type": "integer", "minimum": 1, "maximum": 20 },
+    "ageMin": { "type": "integer", "minimum": 5, "maximum": 99 },
+    "ageMax": { "type": "integer", "minimum": 5, "maximum": 99 },
+    "trainingAgeMonths": { "type": "integer", "minimum": 0, "maximum": 1200 },
+    "skillLevel": { "type": "string" },
+    "randomSeed": { "type": "string", "minLength": 1 },
+    "equipmentAvailable": { "$ref": "#/$defs/stringSet" },
+    "equipmentRequired": { "$ref": "#/$defs/stringSet" },
+    "equipmentAvoid": { "$ref": "#/$defs/stringSet" },
+    "equipmentQuantities": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 1000 }
+    },
+    "movementAvoid": { "$ref": "#/$defs/stringSet" },
+    "bodyRegionAvoid": { "$ref": "#/$defs/stringSet" },
+    "exerciseInclude": { "$ref": "#/$defs/stringSet" },
+    "exerciseAvoid": { "$ref": "#/$defs/stringSet" },
+    "recentExerciseIds": { "$ref": "#/$defs/stringSet" },
+    "modifiers": { "$ref": "#/$defs/stringSet" },
+    "limitations": { "$ref": "#/$defs/stringSet" },
+    "athleteCohorts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "label", "ageMin", "ageMax", "skillLevel", "maxDifficulty"],
+        "properties": {
+          "key": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 },
+          "ageMin": { "type": "integer", "minimum": 5, "maximum": 99 },
+          "ageMax": { "type": "integer", "minimum": 5, "maximum": 99 },
+          "skillLevel": { "type": "string" },
+          "maxDifficulty": { "$ref": "#/$defs/score100" }
+        }
+      }
+    },
+    "tumblingBlock": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["placement", "minutes"],
+          "properties": {
+            "placement": { "enum": ["beginning", "end"] },
+            "minutes": { "type": "integer", "minimum": 5, "maximum": 60 }
+          }
+        }
+      ]
+    },
+    "maxDifficulty": { "$ref": "#/$defs/score100" },
+    "maxTechnicalRisk": { "$ref": "#/$defs/score100" },
+    "maxHighImpactContacts": { "type": "integer", "minimum": 0, "maximum": 500 },
+    "fatigueBudgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["grip", "localMuscle", "spinalLoading", "eccentricStress", "impactAccumulation", "technicalSensitivity"],
+      "properties": {
+        "grip": { "$ref": "#/$defs/score100" },
+        "localMuscle": { "$ref": "#/$defs/score100" },
+        "spinalLoading": { "$ref": "#/$defs/score100" },
+        "eccentricStress": { "$ref": "#/$defs/score100" },
+        "impactAccumulation": { "$ref": "#/$defs/score100" },
+        "technicalSensitivity": { "$ref": "#/$defs/score100" }
+      }
+    },
+    "assumptions": { "$ref": "#/$defs/stringSet" },
+    "space": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["environment"],
+      "properties": {
+        "environment": { "type": "string" },
+        "floorAreaSquareFeet": { "type": ["integer", "null"], "minimum": 1 },
+        "laneLengthFeet": { "type": ["integer", "null"], "minimum": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "score100": { "type": "integer", "minimum": 1, "maximum": 100 },
+    "stringSet": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+  }
+}

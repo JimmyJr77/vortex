@@ -23,6 +23,7 @@ function money(cents) {
  *   reference?: string | null
  *   balanceAfterCents?: number | null
  *   billingUrl?: string | null
+ *   idempotencyKey?: string | null
  * }} params
  */
 export async function sendPaymentReceiptEmail({
@@ -34,6 +35,7 @@ export async function sendPaymentReceiptEmail({
   reference = null,
   balanceAfterCents = null,
   billingUrl = null,
+  idempotencyKey = null,
 }) {
   if (!isEmailConfigured()) {
     console.warn('[paymentReceiptEmail] SMTP not configured; skipping send')
@@ -83,6 +85,6 @@ export async function sendPaymentReceiptEmail({
     <p>— Vortex Athletics</p>
   `
 
-  await sendEmail({ to, subject, text, html, category: 'payment_receipt' })
+  await sendEmail({ to, subject, text, html, category: 'payment_receipt', idempotencyKey })
   return { sent: true }
 }

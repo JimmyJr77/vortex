@@ -6,7 +6,6 @@ import {
   GYMNASTICS_SITEMAP_ENTRIES,
   HUB_ORIGIN,
   HUB_SITEMAP_ENTRIES,
-  STUB_SEO_ENTRIES,
 } from './seo-config.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -35,25 +34,21 @@ const gymnasticsUrls = GYMNASTICS_SITEMAP_ENTRIES.map((entry) => {
   )
 })
 
-const stubUrls = STUB_SEO_ENTRIES.map((stub) =>
-  urlEntry(stub.canonical, '0.6', 'monthly'),
-)
-
 const wrapUrlset = (urls) => `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join('\n')}
 </urlset>
 `
 
-// Per-host sitemaps so each domain only lists its own URLs (no cross-domain mixing).
-// Hub sitemap (vortexathletics.com) carries the hub pages plus the coming-soon
-// stub domains; gymnastics gets its own sitemap referenced from its robots.txt line.
-const hubSitemap = wrapUrlset([...hubUrls, ...stubUrls])
+// Per-host sitemaps must contain only URLs owned by that hostname. Placeholder
+// sport domains are intentionally excluded until each has its own substantive
+// content and same-origin sitemap.
+const hubSitemap = wrapUrlset(hubUrls)
 const gymnasticsSitemap = wrapUrlset(gymnasticsUrls)
 
 writeFileSync(join(publicDir, 'sitemap.xml'), hubSitemap, 'utf8')
 writeFileSync(join(publicDir, 'sitemap-gymnastics.xml'), gymnasticsSitemap, 'utf8')
 console.log(
-  `Generated sitemap.xml with ${hubUrls.length + stubUrls.length} URLs and ` +
+  `Generated sitemap.xml with ${hubUrls.length} URLs and ` +
     `sitemap-gymnastics.xml with ${gymnasticsUrls.length} URLs`,
 )

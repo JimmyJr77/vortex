@@ -23,6 +23,25 @@ const EXCLUDED_FROM_ALL = new Set([
 const INSERTED_AFTER = {
   '002_module_1_programs_classes.sql': ['add_class_iteration_table.sql'],
   '004_add_user_id_to_athlete.sql': ['add_athlete_program_table.sql'],
+  // Migration 030 adds coaching columns to scheduling_form, so a fresh
+  // database must create the scheduling tables before numbered migrations
+  // advance past the coaching foundation.
+  '029_coaching_video_submission_assign.sql': [
+    'add_scheduling_tables.sql',
+    'refactor_scheduling_v2.sql',
+  ],
+  '030_coach_class_scheduling_form.sql': [
+    'add_scheduling_form_deleted_at.sql',
+    'add_slot_groups.sql',
+    'add_scheduling_offerings.sql',
+  ],
+  '051_scheduling_slot_group_inherits_offering.sql': [
+    'add_categories_levels_tables.sql',
+    'unify_programs_scheduling.sql',
+  ],
+  '087_coaching_phase_order_slot_education.sql': [
+    'add_program_pricing_defaults.sql',
+  ],
 }
 
 const ADDON_MIGRATION_ORDER = [
@@ -312,6 +331,7 @@ async function main() {
 
     if (arg === '--all') {
       await ensureFreshDbPrerequisites(client)
+      await ensureRuntimeBaseTables(client)
     }
 
     const migrations = arg === '--all' ? listMigrationsForAll() : { core: [arg], addon: [] }
@@ -321,7 +341,6 @@ async function main() {
     }
 
     if (arg === '--all' && migrations.addon.length > 0) {
-      await ensureRuntimeBaseTables(client)
       for (const migrationFile of migrations.addon) {
         await runMigration(client, migrationFile)
       }

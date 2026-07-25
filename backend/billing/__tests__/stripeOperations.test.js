@@ -1,6 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { beginStripeWebhookEvent, createBillingRefund } from '../stripeOperations.js'
+import {
+  beginStripeWebhookEvent,
+  createBillingRefund,
+  resolveStripeBillingAlert,
+} from '../stripeOperations.js'
 
 test('webhook claim treats an already processed event as a replay', async () => {
   const pool = {
@@ -47,4 +51,36 @@ test('manual refund requires an approved exception, evidence, and Owner/Admin id
     createBillingRefund(pool, { accountId: 3, amountCents: 1000, exceptionCategory: 'medical', evidenceNote: 'Doctor note on file.' }),
     /Owner\/Admin/i,
   )
+})
+
+test('billing alert resolution requires a note and authenticated actor', async () => {
+  const pool = { query: async () => ({ rows: [] }) }
+  await assert.rejects(
+    resolveStripeBillingAlert(pool, { alertId: 3, resolutionNote: '', resolvedByUserId: 9 }),
+    /resolution note is required/i,
+  )
+  await assert.rejects(
+    resolveStripeBillingAlert(pool, { alertId: 3, resolutionNote: 'Reconciled to Stripe.', resolvedByUserId: null }),
+    /resolver identity is required/i,
+  )
+})
+
+test('billing alert resolution stores the actor and note', async () => {
+  const calls = []
+  const pool = {
+    async query(sql, params = []) {
+      calls.push({ sql: String(sql), params })
+      if (String(sql).includes('UPDATE stripe_billing_alert')) {
+        return { rows: [{ id: 3, resolved_by_user_id: params[1], resolution_note: params[2] }] }
+      }
+      return { rows: [] }
+    },
+  }
+  const resolved = await resolveStripeBillingAlert(pool, {
+    alertId: 3,
+    resolutionNote: '  Reconciled to Stripe and verified the ledger.  ',
+    resolvedByUserId: 9,
+  })
+  assert.equal(resolved.resolved_by_user_id, 9)
+  assert.equal(resolved.resolution_note, 'Reconciled to Stripe and verified the ledger.')
 })

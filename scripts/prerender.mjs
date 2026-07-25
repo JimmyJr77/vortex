@@ -5,6 +5,7 @@
  */
 import { spawn } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { createServer } from 'node:net'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
@@ -19,8 +20,25 @@ import {
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = join(__dirname, '..')
 const distDir = join(rootDir, 'dist')
-const previewPort = 4173
-const previewOrigin = `http://127.0.0.1:${previewPort}`
+let previewPort = 0
+let previewOrigin = ''
+
+const findAvailablePort = () =>
+  new Promise((resolve, reject) => {
+    const server = createServer()
+    server.unref()
+    server.on('error', reject)
+    server.listen(0, '127.0.0.1', () => {
+      const address = server.address()
+      if (!address || typeof address === 'string') {
+        server.close()
+        reject(new Error('Could not allocate a local prerender port'))
+        return
+      }
+      const port = address.port
+      server.close((err) => (err ? reject(err) : resolve(port)))
+    })
+  })
 
 const escapeAttr = (value) =>
   String(value)
@@ -183,10 +201,21 @@ const dedupeHeadTags = (html, pageTitle) => {
   let out = html.replace(/<title>[\s\S]*?<\/title>/gi, '')
   out = out.replace(/<head>/i, `<head><title>${escapeAttr(pageTitle)}</title>`)
   out = keepLastMatch(out, /<meta\s+name=["']description["'][^>]*>/gi)
+  out = keepLastMatch(out, /<link\s+rel=["']canonical["'][^>]*>/gi)
+  out = keepLastMatch(out, /<meta\s+name=["']robots["'][^>]*>/gi)
+  for (const property of ['og:title', 'og:description', 'og:url', 'og:image', 'og:image:alt', 'og:type', 'og:locale', 'og:site_name']) {
+    out = keepLastMatch(out, new RegExp(`<meta\\s+property=["']${property}["'][^>]*>`, 'gi'))
+  }
+  for (const name of ['twitter:card', 'twitter:title', 'twitter:description', 'twitter:image', 'twitter:image:alt']) {
+    out = keepLastMatch(out, new RegExp(`<meta\\s+name=["']${name}["'][^>]*>`, 'gi'))
+  }
   return out
 }
 
 const prerenderAppRoutes = async () => {
+  previewPort = await findAvailablePort()
+  previewOrigin = `http://127.0.0.1:${previewPort}`
+
   let chromium
   let launchOptions = {}
   try {
@@ -248,16 +277,38 @@ const prerenderAppRoutes = async () => {
     ]
 
     const browser = await chromium.launch(launchOptions)
-    const page = await browser.newPage()
-
     const snapshots = []
+    const failures = []
     for (const target of targets) {
-      await page.goto(target.url, { waitUntil: 'networkidle', timeout: 60000 })
-      await page.waitForSelector('#root', { timeout: 30000 })
-      const pageTitle = await page.title()
-      let html = dedupeHeadTags(await page.content(), pageTitle)
-      if (target.stripNoindex) html = stripNoindexRobots(html)
-      snapshots.push({ outFile: target.outFile, html })
+      let lastError
+      for (let attempt = 1; attempt <= 2; attempt += 1) {
+        const page = await browser.newPage()
+        try {
+          await page.goto(target.url, { waitUntil: 'networkidle', timeout: 60000 })
+          // The SPA container is empty in source HTML and may not itself have a
+          // rendered box. "attached" proves React has a mount target without
+          // incorrectly requiring the container element to be visually visible.
+          await page.waitForSelector('#root', { state: 'attached', timeout: 30000 })
+          await page.waitForFunction(
+            () => document.querySelector('#root')?.childElementCount > 0,
+            { timeout: 30000 },
+          )
+          const pageTitle = await page.title()
+          let html = dedupeHeadTags(await page.content(), pageTitle)
+          if (target.stripNoindex) html = stripNoindexRobots(html)
+          snapshots.push({ outFile: target.outFile, html })
+          lastError = null
+          break
+        } catch (err) {
+          lastError = err
+          if (attempt === 1) console.warn(`[prerender] Retrying ${target.url} in a fresh page`)
+        } finally {
+          await page.close().catch(() => {})
+        }
+      }
+      if (lastError) {
+        failures.push(`${target.url}: ${lastError?.message ?? lastError}`)
+      }
     }
 
     await browser.close()
@@ -267,10 +318,16 @@ const prerenderAppRoutes = async () => {
       writeFileSync(outFile, html, 'utf8')
       console.log(`[prerender] Wrote ${outFile}`)
     }
+
+    if (failures.length > 0) {
+      throw new Error(
+        `Failed to prerender ${failures.length}/${targets.length} routes:\n${failures.join('\n')}`,
+      )
+    }
   } catch (err) {
     // Production depends on these snapshots for route-specific SEO. Do not
     // silently deploy generic SPA HTML when Vercel prerendering regresses.
-    if (process.env.VERCEL) throw err
+    if (process.env.VERCEL || process.env.PRERENDER_STRICT === 'true') throw err
 
     // Keep local builds usable when a developer has not installed Chromium.
     console.warn('[prerender] Route prerender failed, continuing build:', err?.message ?? err)

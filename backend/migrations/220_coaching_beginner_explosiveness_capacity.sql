@@ -44,7 +44,6 @@ ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = GREATEST(
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
 SELECT e.id, 'equipment', eq.id, 3
 FROM coaching.exercise e
-JOIN coaching.equipment eq ON eq.key = v.equip_key
 JOIN (VALUES
   ('med-ball-chest-pass', 'medicine_ball'),
   ('med-ball-scoop-toss', 'medicine_ball'),
@@ -53,6 +52,7 @@ JOIN (VALUES
   ('kettlebell-deadlift-trap-bar-deadlift', 'trap_bar'),
   ('step-up', 'box')
 ) AS v(slug, equip_key) ON e.slug = v.slug
+JOIN coaching.equipment eq ON eq.key = v.equip_key
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 -- Youth beginner difficulty tuning (D3–6 band for ages 8–14)

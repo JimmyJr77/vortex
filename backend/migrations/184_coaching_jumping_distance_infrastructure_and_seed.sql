@@ -1173,26 +1173,26 @@ SELECT e.id, sp.id, COALESCE(m.fit_weight, 5), COALESCE(m.role, 'primary'), m.sl
   COALESCE(m.freshness_required, FALSE), COALESCE(m.fatigue_sensitivity, 2), COALESCE(m.fatigue_cost, 2),
   COALESCE(m.technical_complexity, 2), COALESCE(m.impact_level, 1), COALESCE(m.intensity_ceiling, 'moderate')
 FROM (VALUES
-  ('distance-jump-snap-down-to-stick', 'resilience', 'snap_down_to_stick', 4, 'primary', FALSE, 3, 2, 3, 2, 'moderate_control'),
-  ('distance-jump-drop-landing-to-stick', 'resilience', 'drop_landing_to_stick', 4, 'primary', FALSE, 3, 2, 3, 3, 'moderate_control'),
-  ('single-leg-landing-stick', 'resilience', 'single_leg_landing_stick', 4, 'primary', FALSE, 3, 2, 3, 3, 'moderate_control'),
-  ('low-box-step-off-to-horizontal-stick', 'resilience', 'low_box_step_off_to_horizontal_stick', 4, 'primary', FALSE, 3, 2, 3, 3, 'moderate_control'),
+  ('distance-jump-snap-down-to-stick', 'resilience', 'snap_down_to_stick', 4, 'primary', FALSE, 3, 2, 3, 2, 'moderate'),
+  ('distance-jump-drop-landing-to-stick', 'resilience', 'drop_landing_to_stick', 4, 'primary', FALSE, 3, 2, 3, 3, 'moderate'),
+  ('single-leg-landing-stick', 'resilience', 'single_leg_landing_stick', 4, 'primary', FALSE, 3, 2, 3, 3, 'moderate'),
+  ('low-box-step-off-to-horizontal-stick', 'resilience', 'low_box_step_off_to_horizontal_stick', 4, 'primary', FALSE, 3, 2, 3, 3, 'moderate'),
   ('distance-jump-ankle-pogo-in-place', 'output', 'ankle_pogo_in_place', 5, 'primary', TRUE, 5, 4, 4, 2, 'high'),
   ('forward-backward-line-pogo', 'output', 'forward_backward_line_pogo', 5, 'primary', TRUE, 5, 4, 4, 2, 'high'),
   ('distance-jump-single-leg-pogo-in-place', 'output', 'single_leg_pogo_in_place', 5, 'primary', TRUE, 5, 4, 4, 3, 'high'),
-  ('ankling-walk', 'movement_intelligence', 'ankling_walk', 5, 'primary', TRUE, 4, 2, 4, 1, 'technical'),
-  ('distance-jump-tibialis-raise', 'resilience', 'tibialis_raise', 4, 'primary', FALSE, 3, 2, 3, 0, 'moderate_control'),
-  ('hip-airplane-stick', 'movement_intelligence', 'hip_airplane_stick', 5, 'primary', TRUE, 4, 2, 4, 1, 'technical'),
+  ('ankling-walk', 'movement_intelligence', 'ankling_walk', 5, 'primary', TRUE, 4, 2, 4, 1, 'moderate'),
+  ('distance-jump-tibialis-raise', 'resilience', 'tibialis_raise', 4, 'primary', FALSE, 3, 2, 3, 0, 'moderate'),
+  ('hip-airplane-stick', 'movement_intelligence', 'hip_airplane_stick', 5, 'primary', TRUE, 4, 2, 4, 1, 'moderate'),
   ('wall-drive-march', 'prepare_and_access', 'wall_drive_march', 4, 'primary', FALSE, 2, 1, 2, 0, 'low'),
   ('distance-jump-wall-drive-switch', 'prepare_and_access', 'wall_drive_switch', 4, 'primary', FALSE, 2, 1, 2, 1, 'low'),
-  ('a-march-to-projection', 'movement_intelligence', 'a_march_to_projection', 5, 'primary', TRUE, 4, 2, 4, 1, 'technical'),
-  ('a-skip-for-approach-rhythm', 'movement_intelligence', 'a_skip_for_approach_rhythm', 5, 'primary', TRUE, 4, 2, 4, 2, 'technical'),
-  ('distance-jump-straight-leg-bound-march', 'movement_intelligence', 'straight_leg_bound_march', 5, 'primary', TRUE, 4, 2, 4, 2, 'technical'),
+  ('a-march-to-projection', 'movement_intelligence', 'a_march_to_projection', 5, 'primary', TRUE, 4, 2, 4, 1, 'moderate'),
+  ('a-skip-for-approach-rhythm', 'movement_intelligence', 'a_skip_for_approach_rhythm', 5, 'primary', TRUE, 4, 2, 4, 2, 'moderate'),
+  ('distance-jump-straight-leg-bound-march', 'movement_intelligence', 'straight_leg_bound_march', 5, 'primary', TRUE, 4, 2, 4, 2, 'moderate'),
   ('mini-hurdle-wicket-run-in', 'output', 'mini_hurdle_wicket_run_in', 5, 'primary', TRUE, 5, 4, 4, 2, 'high'),
   ('falling-start-to-10-meters', 'output', 'falling_start_to_10_meters', 5, 'primary', TRUE, 5, 4, 4, 2, 'high'),
   ('three-point-acceleration-build-up', 'output', 'three_point_acceleration_build_up', 5, 'primary', TRUE, 5, 4, 4, 3, 'high'),
-  ('long-jump-checkmark-run-up', 'movement_intelligence', 'long_jump_checkmark_run_up', 5, 'primary', TRUE, 4, 2, 4, 1, 'technical'),
-  ('penultimate-step-rhythm-drill', 'movement_intelligence', 'penultimate_step_rhythm_drill', 5, 'primary', TRUE, 4, 2, 4, 2, 'technical'),
+  ('long-jump-checkmark-run-up', 'movement_intelligence', 'long_jump_checkmark_run_up', 5, 'primary', TRUE, 4, 2, 4, 1, 'moderate'),
+  ('penultimate-step-rhythm-drill', 'movement_intelligence', 'penultimate_step_rhythm_drill', 5, 'primary', TRUE, 4, 2, 4, 2, 'moderate'),
   ('distance-jump-squat-jump-to-stick', 'output', 'squat_jump_to_stick', 5, 'primary', TRUE, 5, 4, 4, 3, 'high'),
   ('distance-jump-countermovement-jump-to-stick', 'output', 'countermovement_jump_to_stick', 5, 'primary', TRUE, 5, 4, 4, 3, 'high'),
   ('distance-jump-broad-jump-to-stick', 'output', 'broad_jump_to_stick', 5, 'primary', TRUE, 5, 4, 4, 4, 'high'),
@@ -1213,14 +1213,14 @@ FROM (VALUES
   ('single-leg-rebound-hop', 'output', 'single_leg_rebound_hop', 5, 'primary', TRUE, 5, 4, 4, 5, 'high'),
   ('hop-step-jump-phase-series', 'output', 'hop_step_jump_phase_series', 5, 'primary', TRUE, 5, 4, 4, 5, 'high'),
   ('triple-jump-walk-in-bound-series', 'output', 'triple_jump_walk_in_bound_series', 5, 'primary', TRUE, 5, 4, 4, 5, 'high'),
-  ('distance-jump-trap-bar-deadlift', 'capacity', 'trap_bar_deadlift', 4, 'primary', FALSE, 3, 3, 3, 1, 'moderate_heavy'),
-  ('distance-jump-rear-foot-elevated-split-squat', 'capacity', 'rear_foot_elevated_split_squat', 4, 'primary', FALSE, 3, 3, 3, 1, 'moderate_heavy'),
-  ('step-up-to-knee-drive', 'capacity', 'step_up_to_knee_drive', 4, 'primary', FALSE, 3, 3, 3, 1, 'moderate_heavy'),
-  ('distance-jump-single-leg-romanian-deadlift', 'capacity', 'single_leg_romanian_deadlift', 4, 'primary', FALSE, 3, 3, 3, 0, 'moderate_heavy'),
-  ('distance-jump-hip-thrust', 'capacity', 'hip_thrust', 4, 'primary', FALSE, 3, 3, 3, 0, 'moderate_heavy'),
-  ('distance-jump-standing-calf-raise', 'capacity', 'standing_calf_raise', 4, 'primary', FALSE, 3, 3, 3, 0, 'moderate_heavy'),
-  ('distance-jump-bent-knee-soleus-raise', 'capacity', 'bent_knee_soleus_raise', 4, 'primary', FALSE, 3, 3, 3, 0, 'moderate_heavy'),
-  ('distance-jump-nordic-hamstring-eccentric', 'resilience', 'nordic_hamstring_eccentric', 4, 'primary', FALSE, 3, 2, 3, 0, 'moderate_control'),
+  ('distance-jump-trap-bar-deadlift', 'capacity', 'trap_bar_deadlift', 4, 'primary', FALSE, 3, 3, 3, 1, 'moderate_to_high'),
+  ('distance-jump-rear-foot-elevated-split-squat', 'capacity', 'rear_foot_elevated_split_squat', 4, 'primary', FALSE, 3, 3, 3, 1, 'moderate_to_high'),
+  ('step-up-to-knee-drive', 'capacity', 'step_up_to_knee_drive', 4, 'primary', FALSE, 3, 3, 3, 1, 'moderate_to_high'),
+  ('distance-jump-single-leg-romanian-deadlift', 'capacity', 'single_leg_romanian_deadlift', 4, 'primary', FALSE, 3, 3, 3, 0, 'moderate_to_high'),
+  ('distance-jump-hip-thrust', 'capacity', 'hip_thrust', 4, 'primary', FALSE, 3, 3, 3, 0, 'moderate_to_high'),
+  ('distance-jump-standing-calf-raise', 'capacity', 'standing_calf_raise', 4, 'primary', FALSE, 3, 3, 3, 0, 'moderate_to_high'),
+  ('distance-jump-bent-knee-soleus-raise', 'capacity', 'bent_knee_soleus_raise', 4, 'primary', FALSE, 3, 3, 3, 0, 'moderate_to_high'),
+  ('distance-jump-nordic-hamstring-eccentric', 'resilience', 'nordic_hamstring_eccentric', 4, 'primary', FALSE, 3, 2, 3, 0, 'moderate'),
   ('distance-jump-medicine-ball-scoop-toss', 'output', 'medicine_ball_scoop_toss', 5, 'primary', TRUE, 5, 4, 4, 0, 'high'),
   ('medicine-ball-overhead-back-throw', 'output', 'medicine_ball_overhead_back_throw', 5, 'primary', TRUE, 5, 4, 4, 0, 'high')
 ) AS m(slug, phase_key, slot, fit_weight, role, freshness_required, fatigue_sensitivity, fatigue_cost, technical_complexity, impact_level, intensity_ceiling)
@@ -1287,8 +1287,8 @@ FROM (VALUES
   ('distance-jump-standing-calf-raise', 'reps', 3, 10, 35, 75, NULL, 110, 5, 7),
   ('distance-jump-bent-knee-soleus-raise', 'reps', 3, 10, 35, 75, NULL, 110, 5, 7),
   ('distance-jump-nordic-hamstring-eccentric', 'reps', 3, 4, 35, 90, NULL, 125, 5, 7),
-  ('distance-jump-medicine-ball-scoop-toss', 'throws', 3, 4, 15, 75, NULL, 90, 6, 8),
-  ('medicine-ball-overhead-back-throw', 'throws', 3, 4, 15, 75, NULL, 90, 6, 8)
+  ('distance-jump-medicine-ball-scoop-toss', 'attempts', 3, 4, 15, 75, NULL, 90, 6, 8),
+  ('medicine-ball-overhead-back-throw', 'attempts', 3, 4, 15, 75, NULL, 90, 6, 8)
 ) AS m(slug, unit, sets, reps, work, rest, distance, est, rpe_min, rpe_max)
 JOIN coaching.exercise e ON e.slug = m.slug
 WHERE NOT EXISTS (SELECT 1 FROM coaching.exercise_dosage_profile d WHERE d.exercise_id = e.id AND d.profile_name = 'Default');
@@ -1851,4 +1851,3 @@ WHERE NOT EXISTS (
   SELECT 1 FROM coaching.exercise_scaling_profile sp
   WHERE sp.exercise_id = e.id AND sp.cohort_key = 'pregnancy_postpartum'
 );
-

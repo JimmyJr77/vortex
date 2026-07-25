@@ -12,6 +12,7 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
   { path: '/enroll', priority: '0.8', changefreq: 'weekly' },
   { path: '/drop-in', priority: '0.8', changefreq: 'daily' },
+  { path: '/contact', priority: '0.7', changefreq: 'monthly' },
   { path: '/support', priority: '0.5', changefreq: 'monthly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
@@ -37,6 +38,7 @@ export const GYMNASTICS_SITEMAP_ENTRIES = [
   { path: '/artistic-gymnastics-13-18', priority: '0.8', changefreq: 'monthly' },
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
   { path: '/drop-in', priority: '0.8', changefreq: 'daily' },
+  { path: '/homeschool-gymnastics', priority: '0.9', changefreq: 'monthly' },
   { path: '/summer-camp-26', priority: '0.9', changefreq: 'weekly' },
   { path: '/acro-gymnastics', priority: '0.8', changefreq: 'monthly' },
   { path: '/artistic-gymnastics', priority: '0.8', changefreq: 'monthly' },
@@ -55,6 +57,7 @@ export const GYMNASTICS_SITEMAP_ENTRIES = [
 export const GYMNASTICS_PRERENDER_PATHS = [
   '/gymnastics',
   '/beginner-gymnastics',
+  '/homeschool-gymnastics',
   '/artistic-gymnastics-early',
   '/artistic-gymnastics-6-12',
   '/artistic-gymnastics-13-18',
@@ -94,6 +97,16 @@ export const GYMNASTICS_HOST_PAGES = [
     canonical: `${GYMNASTICS_ORIGIN}/read-board`,
     ogImage: GYMNASTICS_OG_IMAGE,
     ogImageAlt: 'Vortex Gymnastics',
+  },
+  {
+    path: '/drop-in',
+    outFile: '_gym/drop-in.html',
+    title: 'Gymnastics Drop-In Classes in Bowie, MD | Vortex',
+    description:
+      'Book one available gymnastics class in Bowie, MD without monthly enrollment. Browse live dates, age groups, levels, and drop-in openings.',
+    canonical: `${GYMNASTICS_ORIGIN}/drop-in`,
+    ogImage: GYMNASTICS_OG_IMAGE,
+    ogImageAlt: 'Vortex Gymnastics drop-in classes in Bowie, Maryland',
   },
 ]
 

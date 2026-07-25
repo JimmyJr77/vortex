@@ -14,6 +14,8 @@ import { randomUUID } from 'crypto'
 import { fileURLToPath } from 'url'
 import { initAnalyticsTables } from './analytics/initTables.js'
 import { registerAnalyticsRoutes } from './analytics/registerRoutes.js'
+import { initMarketingTables } from './marketing/initTables.js'
+import { registerMarketingRoutes } from './marketing/registerRoutes.js'
 import { initSchedulingTables } from './scheduling/initTables.js'
 import { registerSchedulingRoutes } from './scheduling/registerRoutes.js'
 import { initDropInTables, registerDropInRoutes } from './scheduling/dropIns.js'
@@ -58,6 +60,7 @@ import { startMessageThreadAutoArchiveScheduler } from './platform/messageThread
 import { registerEmailPool } from './email/emailDeliveryStore.js'
 import { registerEmailUnsubscribeRoutes } from './email/marketingUnsubscribe.js'
 import { resolveJwtSecret } from './auth/jwtSecret.js'
+import { initOpportunityTables, registerOpportunityRoutes } from './opportunities/registerRoutes.js'
 
 const { Pool } = pkg
 
@@ -383,6 +386,7 @@ export const initDatabase = async () => {
     await initAnalyticsTables(pool)
     await initSchedulingTables(pool)
     await initDropInTables(pool)
+    await initOpportunityTables(pool)
 
     // Newsletter subscribers table
     await pool.query(`
@@ -1043,7 +1047,15 @@ export const initDatabase = async () => {
       console.warn('[initDatabase] Could not create index on emergency_contact.member_id (column may not exist):', indexError.message)
     }
 
-    await initPlatformTables(pool)
+    if (process.env.SKIP_PLATFORM_BOOT_MIGRATIONS === 'true') {
+      console.log('[initDatabase] Skipping heavyweight platform boot migrations by configuration')
+    } else {
+      await initPlatformTables(pool)
+    }
+    // Marketing RBAC seeds depend on the role/permission tables created by the
+    // platform migration set. Keep this after initPlatformTables so a brand-new
+    // environment can boot without a partial marketing migration failure.
+    await initMarketingTables(pool)
     
     // Function to update family_is_active status
     await pool.query(`
@@ -2543,6 +2555,8 @@ function legacyAdminPermissionFor(req) {
   }
   if (path.startsWith('/schools')) return method === 'GET' ? 'schools.view' : 'schools.manage'
   if (path.startsWith('/analytics')) return 'analytics.view'
+  if (path.startsWith('/marketing')) return method === 'GET' ? 'analytics.view' : 'marketing.manage'
+  if (path.startsWith('/opportunities')) return 'analytics.view'
   if (path.startsWith('/db-queries') || path.startsWith('/database')) return 'admin_access.manage'
   if (path.startsWith('/email')) return 'admin_access.manage'
   return null
@@ -2581,10 +2595,12 @@ app.use('/api/admin', async (req, res, next) => {
 
 // Analytics & consent (public + admin)
 registerAnalyticsRoutes(app, pool)
+registerMarketingRoutes(app, pool)
 registerSchedulingRoutes(app, pool)
 registerDropInRoutes(app, pool)
 registerProgramsPublicRoutes(app, pool)
 registerProgramsAdminRoutes(app, pool)
+registerOpportunityRoutes(app, pool)
 registerPlatformRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerFamilySignupRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerEmailUnsubscribeRoutes(app)

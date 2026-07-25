@@ -10,6 +10,7 @@ import {
 import { HOME_FAQS, type Faq } from '../config/faqs'
 import { GYMNASTICS_FAQS } from '../config/gymnasticsFaqs'
 import { BEGINNER_GYMNASTICS_FAQS } from '../config/beginnerGymnasticsFaqs'
+import { DROP_IN_FAQS, HOMESCHOOL_GYMNASTICS_FAQS } from '../config/localSeoFaqs'
 import { SUMMER_CAMP_2026_WEEKS } from '../apps/gymnastics/data/summerCamp2026'
 import { SUMMER_CAMP_FAQS } from '../config/summerCampFaqs'
 import { GYMNASTICS_ORIGIN } from '../config/gymnasticsSeo'
@@ -198,6 +199,8 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
     '/summer-athletic-training': 'Summer Athletic Training',
     '/value': 'Why Vortex',
     '/read-board': 'Classes & Events',
+    '/drop-in': 'Drop-In Classes',
+    '/contact': 'Contact & Location',
     '/support': 'Customer Support',
     '/privacy-policy': 'Privacy Policy',
     '/terms-of-service': 'Terms of Service',
@@ -251,6 +254,21 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
       }),
     )
   }
+  if (pathname === '/drop-in') {
+    schema.push(sportsActivityLocationSchema(HUB_ORIGIN))
+    schema.push(faqPageSchema(DROP_IN_FAQS))
+    schema.push(
+      serviceSchema({
+        name: 'Single-Day Drop-In Youth Classes',
+        description:
+          'Single-day gymnastics, fitness, and youth athletic training classes in Bowie, MD without a monthly enrollment.',
+        url,
+      }),
+    )
+  }
+  if (pathname === '/contact') {
+    schema.push(sportsActivityLocationSchema(HUB_ORIGIN))
+  }
 
   return schema
 }
@@ -275,6 +293,27 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
   }
 
   const url = buildCanonical(origin, pathname)
+
+  if (pathname === '/drop-in') {
+    schema.push(
+      breadcrumbSchema([
+        crumb(origin, 'Home', '/'),
+        crumb(origin, 'Gymnastics Drop-In Classes', pathname),
+      ]),
+    )
+    schema.push(sportsActivityLocationSchema(origin))
+    schema.push(faqPageSchema(DROP_IN_FAQS))
+    schema.push(
+      courseSchema({
+        name: 'Gymnastics Drop-In Classes',
+        description:
+          'Book a single available gymnastics class in Bowie, MD without starting a monthly enrollment.',
+        url,
+        providerOrigin: origin,
+      }),
+    )
+    return schema
+  }
 
   if (pathname === '/summer-camp-26') {
     schema.push(
@@ -302,6 +341,11 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
   }
 
   const programs: Record<string, { name: string; description: string }> = {
+    '/homeschool-gymnastics': {
+      name: 'Homeschool Gymnastics & Physical Education',
+      description:
+        'Daytime homeschool gymnastics and physical education in Bowie, MD focused on strength, coordination, confidence, and social movement.',
+    },
     '/beginner-gymnastics': {
       name: 'Beginner Gymnastics Classes for Kids',
       description:
@@ -366,6 +410,10 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
     )
     if (pathname === '/beginner-gymnastics') {
       schema.push(faqPageSchema(BEGINNER_GYMNASTICS_FAQS))
+      schema.push(sportsActivityLocationSchema(origin))
+    }
+    if (pathname === '/homeschool-gymnastics') {
+      schema.push(faqPageSchema(HOMESCHOOL_GYMNASTICS_FAQS))
       schema.push(sportsActivityLocationSchema(origin))
     }
   }

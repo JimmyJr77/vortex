@@ -19,7 +19,10 @@
     "bootstrap:staging-rehearsal": "npm run bootstrap:staging-rehearsal --prefix backend",
     "test:integration:backend": "node --test backend/tests/integration/*.test.mjs",
     "test:e2e:smoke": "playwright test --config=playwright.config.ts",
+    "test:seo-release": "node scripts/verify-seo-release.mjs",
+    "test:seo-live": "node scripts/verify-seo-release.mjs --live",
     "ci:checks": "npm run test:management && npm run test:launch && node --check \"backend/server.js\" && node --check \"backend/platform/registerRoutes.js\"",
+    "marketing:export": "node backend/marketing/exportImplementation.js",
     "needs-engine:sync-golden": "node scripts/sync-golden-from-saved-requirements.mjs \"Test 3 - Reqs only\"",
     "needs-engine:eval": "node scripts/evaluate-prescription-quality.mjs",
     "needs-engine:eval:baseline": "node scripts/evaluate-prescription-quality.mjs --tier=baseline",
@@ -27,7 +30,7 @@
     "pull-lfs": "bash scripts/pull-lfs.sh || echo 'Git LFS pull failed, continuing build'",
     "lint": "eslint .",
     "preview": "vite preview",
-    "vercel-build": "npm run prebuild && tsc -b && vite build && PRERENDER=true npm run postbuild"
+    "vercel-build": "npm run prebuild && tsc -b && vite build && PRERENDER=true PRERENDER_STRICT=true npm run postbuild && npm run test:seo-release"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",

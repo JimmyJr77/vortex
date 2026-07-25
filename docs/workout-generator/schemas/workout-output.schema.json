@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vortexathletics.com/schemas/workout-output-v1.json",
+  "title": "Vortex Workout Output v1",
+  "type": "object",
+  "required": ["schemaVersion", "workoutId", "generatorVersion", "libraryVersion", "ruleVersion", "mode", "randomSeed", "intent", "phases", "validation", "diagnostics", "qualityEvaluation", "overallQualityScore"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "workoutId": { "type": "string" },
+    "generatorVersion": { "type": "string" },
+    "libraryVersion": { "type": "string" },
+    "ruleVersion": { "type": "string" },
+    "mode": { "enum": ["deterministic", "ai_assisted"] },
+    "randomSeed": { "type": "string" },
+    "generatedAt": { "type": ["string", "null"], "format": "date-time" },
+    "intent": { "type": "object" },
+    "assumptions": { "type": "array", "items": { "type": "string" } },
+    "overallQualityScore": { "$ref": "#/$defs/score" },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["phaseKey", "targetMinutes", "estimatedMinutes", "prescriptions", "phaseQualityScore"],
+        "properties": {
+          "phaseKey": { "$ref": "#/$defs/phase" },
+          "targetMinutes": { "type": "number", "exclusiveMinimum": 0 },
+          "estimatedMinutes": { "type": "number", "minimum": 0 },
+          "phaseQualityScore": { "$ref": "#/$defs/score" },
+          "containsTumbling": { "type": "boolean" },
+          "tumblingPlacement": { "type": ["string", "null"], "enum": ["beginning", "end", null] },
+          "prescriptions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["exerciseId", "variantId", "familyId", "deliveryProfileId", "movementPatterns", "bodyRegions", "difficulty", "dose", "logistics", "qualityGate", "stopRules", "videoUrl", "selectionScore", "predictedChallengeScore", "predictedChallengeByCohort", "technicalRiskScore", "impactScore"],
+              "properties": {
+                "exerciseId": { "type": "string" },
+                "variantId": { "type": "string" },
+                "familyId": { "type": "string" },
+                "deliveryProfileId": { "type": "string" },
+                "movementPatterns": { "type": "array", "items": { "type": "string" } },
+                "bodyRegions": { "type": "array", "items": { "type": "string" } },
+                "difficulty": { "type": "object" },
+                "dose": { "type": "object" },
+                "logistics": { "type": "object" },
+                "qualityGate": { "type": ["string", "object", "null"] },
+                "stopRules": { "type": "array", "items": { "type": "string" } },
+                "videoUrl": { "type": "string", "minLength": 1 },
+                "selectionScore": {
+                  "type": "object",
+                  "required": ["total", "components"],
+                  "properties": {
+                    "total": { "type": "number", "minimum": 1, "maximum": 100 },
+                    "components": { "type": "object" }
+                  }
+                },
+                "predictedChallengeScore": { "$ref": "#/$defs/score" },
+                "predictedChallengeByCohort": {
+                  "type": "object",
+                  "additionalProperties": { "$ref": "#/$defs/score" }
+                },
+                "technicalRiskScore": { "$ref": "#/$defs/score" },
+                "impactScore": { "$ref": "#/$defs/score" },
+                "methodologyKey": { "type": ["string", "null"] },
+                "appliedModifiers": { "type": "array", "items": { "type": "string" } },
+                "cohortScaling": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["status", "errors", "warnings", "passedHardConstraints", "durationReconciliation", "impactBudget", "fatigueBudget"],
+      "properties": {
+        "status": { "enum": ["passed", "failed"] },
+        "errors": { "type": "array", "items": { "type": "string" } },
+        "warnings": { "type": "array", "items": { "type": "string" } },
+        "passedHardConstraints": { "type": "boolean" },
+        "durationReconciliation": {
+          "type": "object",
+          "required": ["requestedMinutes", "estimatedMinutes", "toleranceMinutes"]
+        },
+        "impactBudget": {
+          "type": "object",
+          "required": ["highImpactContacts", "maximumHighImpactContacts"]
+        },
+        "fatigueBudget": {
+          "type": "object",
+          "required": ["cumulative", "maximum", "withinBudget"],
+          "properties": {
+            "cumulative": { "type": "object", "additionalProperties": { "type": "number", "minimum": 0 } },
+            "maximum": { "type": "object", "additionalProperties": { "$ref": "#/$defs/score" } },
+            "withinBudget": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "diagnostics": { "type": "object" },
+    "qualityEvaluation": {
+      "type": "object",
+      "required": ["overallScore", "safetyScore", "logisticsScore", "hardConstraintFailures", "categories"],
+      "properties": {
+        "overallScore": { "$ref": "#/$defs/score" },
+        "safetyScore": { "$ref": "#/$defs/score" },
+        "logisticsScore": { "$ref": "#/$defs/score" },
+        "hardConstraintFailures": { "type": "integer", "minimum": 0 },
+        "categories": {
+          "type": "object",
+          "minProperties": 38,
+          "maxProperties": 38,
+          "additionalProperties": {
+            "oneOf": [
+              { "$ref": "#/$defs/score" },
+              { "type": "null" }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "score": { "type": "integer", "minimum": 1, "maximum": 100 },
+    "phase": { "enum": ["prepare_and_access", "movement_intelligence", "output", "capacity", "resilience", "sustained_capacity", "restore"] }
+  }
+}

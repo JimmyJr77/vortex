@@ -25,6 +25,7 @@ export const EMAIL_CATEGORIES = Object.freeze({
   registration_confirmation: STREAM_TRANSACTIONAL,
   enrollment_receipt: STREAM_TRANSACTIONAL,
   payment_receipt: STREAM_TRANSACTIONAL,
+  payment_request: STREAM_TRANSACTIONAL,
   payment_failed: STREAM_TRANSACTIONAL,
   refund_receipt: STREAM_TRANSACTIONAL,
   billing_alert: STREAM_TRANSACTIONAL,
@@ -57,6 +58,7 @@ export const FINANCIAL_CATEGORIES = Object.freeze(
   new Set([
     'enrollment_receipt',
     'payment_receipt',
+    'payment_request',
     'payment_failed',
     'refund_receipt',
     'billing_alert',

@@ -3,6 +3,43 @@
 -- 50 total cards (24 insert, 26 merge-only hydration).
 -- Cluster: 'Top 50 Jumping Athletes (For Height) Exercise Library'
 
+-- This library introduces a unilateral strength subrole. Preserve the existing
+-- controlled vocabulary while extending its check constraint before hydrating
+-- cards in migration 183.
+DO $$
+DECLARE
+  constraint_definition TEXT;
+BEGIN
+  SELECT pg_get_constraintdef(oid)
+  INTO constraint_definition
+  FROM pg_constraint
+  WHERE conrelid = 'coaching.exercise'::regclass
+    AND conname = 'exercise_phase_subrole_check';
+
+  IF constraint_definition IS NOT NULL
+    AND position('upper_body_trunk_elasticity' IN constraint_definition) = 0 THEN
+    ALTER TABLE coaching.exercise DROP CONSTRAINT exercise_phase_subrole_check;
+    constraint_definition := regexp_replace(
+      constraint_definition,
+      '\)\)$',
+      ' OR phase_subrole = ANY (ARRAY['
+      || '''breathing_downshift'',''conditioning_circuit'',''coordinate'','
+      || '''depth_reactive_jump'',''frontal_plane_lower_body_strength'','
+      || '''lateral_lower_body_strength'',''lower_body_strength'','
+      || '''multidirectional_elastic_control'',''multidirectional_elastic_power'','
+      || '''perception_action_skill'',''posterior_chain_strength'','
+      || '''reactive_agility_output'',''reactive_jump'','
+      || '''rotational_force_transfer_strength'',''single_leg_elastic_control'','
+      || '''single_leg_lower_body_strength'',''single_leg_strength'','
+      || '''upper_body_pull_strength'',''upper_body_trunk_elasticity'','
+      || '''vertical_elastic_power'']::TEXT[])))'
+    );
+    EXECUTE
+      'ALTER TABLE coaching.exercise ADD CONSTRAINT exercise_phase_subrole_check '
+      || constraint_definition;
+  END IF;
+END $$;
+
 INSERT INTO coaching.equipment (key, name, sort_order) VALUES
   ('basketball_hoop', 'Basketball Hoop / Rim', 115),
   ('net', 'Volleyball Net', 116),
@@ -973,4 +1010,3 @@ WHERE NOT EXISTS (
   SELECT 1 FROM coaching.exercise_scaling_profile sp
   WHERE sp.exercise_id = e.id AND sp.cohort_key = 'pregnancy_postpartum'
 );
-

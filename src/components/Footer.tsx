@@ -37,6 +37,8 @@ const Footer = ({ onLoginClick }: FooterProps) => {
     },
     { name: 'Fit & Flip', href: getHubSiteUrl('/strength-conditioning') },
     { name: 'Classes & Events', href: getHubSiteUrl('/read-board') },
+    { name: 'Drop-In Classes', href: getHubSiteUrl('/drop-in') },
+    { name: 'Contact & Location', href: getHubSiteUrl('/contact') },
     { name: 'FAQ', href: getHubSiteUrl('/#faq') },
   ]
 

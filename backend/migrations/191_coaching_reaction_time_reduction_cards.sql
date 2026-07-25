@@ -431,7 +431,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -444,7 +444,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'coach_point_step_reaction', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'coach_point_step_reaction' AND pos.phase_id = sp.id
@@ -455,7 +455,7 @@ WHERE e.slug = 'coach-point-step-reaction'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -470,7 +470,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -556,7 +556,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 3,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -569,7 +569,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'command_tap_and_go', pos.order_index,
   TRUE, 5, 1,
-  3, 1, 'moderate-low'
+  3, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'command_tap_and_go' AND pos.phase_id = sp.id
@@ -580,7 +580,7 @@ WHERE e.slug = 'command-tap-and-go'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -595,7 +595,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -806,7 +806,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 3,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -819,7 +819,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'color_cone_touch_on_call', pos.order_index,
   TRUE, 5, 1,
-  3, 1, 'moderate-low'
+  3, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'color_cone_touch_on_call' AND pos.phase_id = sp.id
@@ -830,7 +830,7 @@ WHERE e.slug = 'color-cone-touch-on-call'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -845,7 +845,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -1306,7 +1306,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -1319,7 +1319,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'reactive_stick_drop_catch', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'reactive_stick_drop_catch' AND pos.phase_id = sp.id
@@ -1330,7 +1330,7 @@ WHERE e.slug = 'reactive-stick-drop-catch'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -1345,7 +1345,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -1431,7 +1431,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -1444,7 +1444,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'single_hand_tennis_ball_drop_catch', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'single_hand_tennis_ball_drop_catch' AND pos.phase_id = sp.id
@@ -1455,7 +1455,7 @@ WHERE e.slug = 'single-hand-tennis-ball-drop-catch'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -1470,7 +1470,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -1556,7 +1556,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -1569,7 +1569,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'two_ball_number_call_catch', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'two_ball_number_call_catch' AND pos.phase_id = sp.id
@@ -1580,7 +1580,7 @@ WHERE e.slug = 'two-ball-number-call-catch'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -1595,7 +1595,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -1681,7 +1681,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -1694,7 +1694,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'color_call_tennis_ball_catch_single_leg_balance', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'color_call_tennis_ball_catch_single_leg_balance' AND pos.phase_id = sp.id
@@ -1705,7 +1705,7 @@ WHERE e.slug = 'color-call-tennis-ball-catch-on-single-leg-balance'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -1720,7 +1720,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -1806,7 +1806,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -1819,7 +1819,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'partner_random_bounce_catch_balance_reset', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'partner_random_bounce_catch_balance_reset' AND pos.phase_id = sp.id
@@ -1830,7 +1830,7 @@ WHERE e.slug = 'partner-random-bounce-catch-with-balance-reset'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -1845,7 +1845,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -1931,7 +1931,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -1944,7 +1944,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'wall_toss_shoulder_check', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'wall_toss_shoulder_check' AND pos.phase_id = sp.id
@@ -1955,7 +1955,7 @@ WHERE e.slug = 'wall-toss-with-shoulder-check'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -1970,7 +1970,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -2056,7 +2056,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -2069,7 +2069,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'ball_drop_lateral_shuffle_catch', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'ball_drop_lateral_shuffle_catch' AND pos.phase_id = sp.id
@@ -2080,7 +2080,7 @@ WHERE e.slug = 'ball-drop-lateral-shuffle-catch'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -2095,7 +2095,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -2181,7 +2181,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 3,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -2194,7 +2194,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'over_shoulder_tennis_ball_track_stick', pos.order_index,
   TRUE, 5, 1,
-  4, 3, 'moderate-low'
+  4, 3, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'over_shoulder_tennis_ball_track_stick' AND pos.phase_id = sp.id
@@ -2205,7 +2205,7 @@ WHERE e.slug = 'over-shoulder-tennis-ball-track-and-stick'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -2220,7 +2220,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -2306,7 +2306,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -2319,7 +2319,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'high_low_catch_decision', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'high_low_catch_decision' AND pos.phase_id = sp.id
@@ -2330,7 +2330,7 @@ WHERE e.slug = 'high-low-catch-decision-drill'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -2345,7 +2345,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -2431,7 +2431,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -2444,7 +2444,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'reactive_med_ball_target_pass', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'reactive_med_ball_target_pass' AND pos.phase_id = sp.id
@@ -2455,7 +2455,7 @@ WHERE e.slug = 'reactive-med-ball-target-pass'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -2470,7 +2470,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -2556,7 +2556,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -2569,7 +2569,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'partner_mirror_shuffle', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'partner_mirror_shuffle' AND pos.phase_id = sp.id
@@ -2580,7 +2580,7 @@ WHERE e.slug = 'partner-mirror-shuffle'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -2595,7 +2595,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -2681,7 +2681,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -2694,7 +2694,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'partner_mirror_tag_burst', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'partner_mirror_tag_burst' AND pos.phase_id = sp.id
@@ -2705,7 +2705,7 @@ WHERE e.slug = 'partner-mirror-tag-burst'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -2720,7 +2720,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -2806,7 +2806,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -2819,7 +2819,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'partner_shadow_defense_drill', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'partner_shadow_defense_drill' AND pos.phase_id = sp.id
@@ -2830,7 +2830,7 @@ WHERE e.slug = 'partner-shadow-defense-drill'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -2845,7 +2845,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -3681,7 +3681,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -3694,7 +3694,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'partner_low_level_reactive_agility_box', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'partner_low_level_reactive_agility_box' AND pos.phase_id = sp.id
@@ -3705,7 +3705,7 @@ WHERE e.slug = 'partner-low-level-reactive-agility-box'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -3720,7 +3720,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -3806,7 +3806,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 3,
   impact_level = 3,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -3819,7 +3819,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'cone_color_call_cut', pos.order_index,
   TRUE, 5, 1,
-  3, 3, 'moderate-low'
+  3, 3, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'cone_color_call_cut' AND pos.phase_id = sp.id
@@ -3830,7 +3830,7 @@ WHERE e.slug = 'cone-color-call-cut'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -3845,7 +3845,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -4806,7 +4806,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 3,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -4819,7 +4819,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'multi_cone_scan_and_go', pos.order_index,
   TRUE, 5, 1,
-  3, 1, 'moderate-low'
+  3, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'multi_cone_scan_and_go' AND pos.phase_id = sp.id
@@ -4830,7 +4830,7 @@ WHERE e.slug = 'multi-cone-scan-and-go'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -4845,7 +4845,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -4931,7 +4931,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -4944,7 +4944,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'closeout_to_catch_redirect', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'closeout_to_catch_redirect' AND pos.phase_id = sp.id
@@ -4955,7 +4955,7 @@ WHERE e.slug = 'closeout-to-catch-redirect'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -4970,7 +4970,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -5056,7 +5056,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -5069,7 +5069,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'reactive_hand_foot_pattern_grid', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'reactive_hand_foot_pattern_grid' AND pos.phase_id = sp.id
@@ -5080,7 +5080,7 @@ WHERE e.slug = 'reactive-hand-foot-pattern-grid'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -5095,7 +5095,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -5181,7 +5181,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 3,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -5194,7 +5194,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'crawling_direction_call', pos.order_index,
   TRUE, 5, 1,
-  3, 1, 'moderate-low'
+  3, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'crawling_direction_call' AND pos.phase_id = sp.id
@@ -5205,7 +5205,7 @@ WHERE e.slug = 'crawling-direction-call'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -5220,7 +5220,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -5306,7 +5306,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 3,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -5319,7 +5319,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'bear_to_crab_switch_on_cue', pos.order_index,
   TRUE, 5, 1,
-  3, 1, 'moderate-low'
+  3, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'bear_to_crab_switch_on_cue' AND pos.phase_id = sp.id
@@ -5330,7 +5330,7 @@ WHERE e.slug = 'bear-to-crab-switch-on-cue'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -5345,7 +5345,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -5431,7 +5431,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -5444,7 +5444,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'low_line_partner_tag', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'low_line_partner_tag' AND pos.phase_id = sp.id
@@ -5455,7 +5455,7 @@ WHERE e.slug = 'low-line-partner-tag'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -5470,7 +5470,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -5556,7 +5556,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 3,
   impact_level = 3,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -5569,7 +5569,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'boundary_recovery_drill', pos.order_index,
   TRUE, 5, 1,
-  3, 3, 'moderate-low'
+  3, 3, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'boundary_recovery_drill' AND pos.phase_id = sp.id
@@ -5580,7 +5580,7 @@ WHERE e.slug = 'boundary-recovery-drill'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -5595,7 +5595,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -5681,7 +5681,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -5694,7 +5694,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'blind_side_shoulder_check_to_move', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'blind_side_shoulder_check_to_move' AND pos.phase_id = sp.id
@@ -5705,7 +5705,7 @@ WHERE e.slug = 'blind-side-shoulder-check-to-move'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -5720,7 +5720,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -5806,7 +5806,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -5819,7 +5819,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'three_sixty_awareness_catch_safe_twist', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'three_sixty_awareness_catch_safe_twist' AND pos.phase_id = sp.id
@@ -5830,7 +5830,7 @@ WHERE e.slug = 'three-sixty-awareness-catch-with-safe-twist'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -5845,7 +5845,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -5931,7 +5931,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -5944,7 +5944,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'small_sided_keep_away_footwork', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'small_sided_keep_away_footwork' AND pos.phase_id = sp.id
@@ -5955,7 +5955,7 @@ WHERE e.slug = 'small-sided-keep-away-footwork'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -5970,7 +5970,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -6056,7 +6056,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 3,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -6069,7 +6069,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'collision_avoidance_lane_change', pos.order_index,
   TRUE, 5, 1,
-  4, 3, 'moderate-low'
+  4, 3, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'collision_avoidance_lane_change' AND pos.phase_id = sp.id
@@ -6080,7 +6080,7 @@ WHERE e.slug = 'collision-avoidance-lane-change'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -6095,7 +6095,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e
@@ -6181,7 +6181,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 1,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'moderate-low',
+  intensity_ceiling = 'low_to_moderate',
   notes = 'Use after the general warm-up while the nervous system is fresh and before fatigue-heavy strength, conditioning, or long competitive play. Keep cues crisp and stop before decision quality drops.'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -6194,7 +6194,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'low_speed_chaos_box_reset', pos.order_index,
   TRUE, 5, 1,
-  4, 1, 'moderate-low'
+  4, 1, 'low_to_moderate'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
 JOIN coaching.phase_order_slot pos ON pos.key = 'low_speed_chaos_box_reset' AND pos.phase_id = sp.id
@@ -6205,7 +6205,7 @@ WHERE e.slug = 'low-speed-chaos-box-reset'
   );
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'cues',
+  volume_unit = 'attempts',
   default_sets = 2,
   default_reps = 6,
   default_work_seconds = 15,
@@ -6220,7 +6220,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, 'cues', 2, 6,
+SELECT e.id, 'Default', TRUE, 'attempts', 2, 6,
   15, 30, NULL,
   45, 3, 6
 FROM coaching.exercise e

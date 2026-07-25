@@ -39,6 +39,7 @@ const SignupInvitePage = lazyWithRetry(() => import('./components/signup/SignupI
 const VerifyEmailPage = lazyWithRetry(() => import('./components/VerifyEmailPage'))
 const EnrollmentReceiptPage = lazyWithRetry(() => import('./components/EnrollmentReceiptPage'))
 const DropInPage = lazyWithRetry(() => import('./components/DropInPage'))
+const ContactLocationPage = lazyWithRetry(() => import('./components/ContactLocationPage'))
 const SupportPage = lazyWithRetry(() => import('./components/legal/SupportPage'))
 const PrivacyPolicyPage = lazyWithRetry(() => import('./components/legal/PrivacyPolicyPage'))
 const TermsOfServicePage = lazyWithRetry(() => import('./components/legal/TermsOfServicePage'))
@@ -276,6 +277,10 @@ function App() {
             element={<SchedulingPage />}
           />
           <Route path="/drop-in" element={<DropInPage />} />
+          <Route
+            path="/contact"
+            element={<ContactLocationPage onInquireClick={handleContactClick} />}
+          />
           <Route
             path="/signup/family"
             element={<SignupFamilyPage />}

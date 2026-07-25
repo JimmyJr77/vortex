@@ -1,5 +1,35 @@
 -- Durable per-member drop-in benefits. The annual cycle is anchored to the
 -- member's actual annual-fee payment anniversary, never to January 1.
+-- The application normally creates this table during scheduling startup. Keep
+-- the migration self-contained so a clean `run-migration.js --all` database
+-- does not depend on application boot order.
+CREATE TABLE IF NOT EXISTS drop_in_registration (
+  id BIGSERIAL PRIMARY KEY,
+  member_id BIGINT REFERENCES member(id) ON DELETE SET NULL,
+  form_id BIGINT NOT NULL REFERENCES scheduling_form(id) ON DELETE CASCADE,
+  slot_group_id BIGINT NOT NULL REFERENCES scheduling_slot_group(id) ON DELETE CASCADE,
+  class_date DATE NOT NULL,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  benefit_type TEXT NOT NULL DEFAULT 'paid'
+    CHECK (benefit_type IN ('paid','free_trial','annual_credit')),
+  base_price_cents INTEGER NOT NULL DEFAULT 0,
+  discount_percent NUMERIC(5,2) NOT NULL DEFAULT 0,
+  amount_cents INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'confirmed'
+    CHECK (status IN ('account_required','payment_pending','confirmed','attended','cancelled')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (member_id, slot_group_id, class_date)
+);
+CREATE INDEX IF NOT EXISTS idx_drop_in_slot_date
+  ON drop_in_registration(slot_group_id, class_date, status);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_drop_in_lifetime_trial_member
+  ON drop_in_registration(member_id)
+  WHERE benefit_type='free_trial' AND member_id IS NOT NULL AND status <> 'cancelled';
+
 CREATE TABLE IF NOT EXISTS member_drop_in_entitlement (
   member_id                    BIGINT PRIMARY KEY REFERENCES member(id) ON DELETE CASCADE,
   lifetime_trial_granted       INTEGER NOT NULL DEFAULT 1 CHECK (lifetime_trial_granted >= 0),

@@ -3384,7 +3384,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'alternate_bounds_height_distance', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'alternate_bounds_height_distance' AND pos.phase_id = sp.id
@@ -3518,7 +3518,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'single_leg_triple_hop_to_stick', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'single_leg_triple_hop_to_stick' AND pos.phase_id = sp.id
@@ -3652,7 +3652,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'repeated_broad_jump_sprint_out', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'repeated_broad_jump_sprint_out' AND pos.phase_id = sp.id
@@ -3786,7 +3786,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'bounds_to_decel_gate', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'bounds_to_decel_gate' AND pos.phase_id = sp.id
@@ -3920,7 +3920,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'lateral_bound_rebound_series', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'lateral_bound_rebound_series' AND pos.phase_id = sp.id
@@ -4054,7 +4054,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'tuck_jump_to_lateral_stick', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'tuck_jump_to_lateral_stick' AND pos.phase_id = sp.id
@@ -4188,7 +4188,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'low_hurdle_hop_continuous_with_turn', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'low_hurdle_hop_continuous_with_turn' AND pos.phase_id = sp.id
@@ -4322,7 +4322,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'hurdle_hop_to_broad_jump', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'hurdle_hop_to_broad_jump' AND pos.phase_id = sp.id
@@ -4456,7 +4456,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'depth_drop_lateral_rebound', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'depth_drop_lateral_rebound' AND pos.phase_id = sp.id
@@ -4590,7 +4590,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'depth_drop_broad_rebound', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'depth_drop_broad_rebound' AND pos.phase_id = sp.id
@@ -4724,7 +4724,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'reactive_45_degree_hop_to_cut', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'reactive_45_degree_hop_to_cut' AND pos.phase_id = sp.id
@@ -4858,7 +4858,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'crossover_bound_reacceleration', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'crossover_bound_reacceleration' AND pos.phase_id = sp.id
@@ -4992,7 +4992,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'partner_chase_bound_start', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'partner_chase_bound_start' AND pos.phase_id = sp.id
@@ -5126,7 +5126,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'shuffle_bound_sprint', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'shuffle_bound_sprint' AND pos.phase_id = sp.id
@@ -5260,7 +5260,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'backpedal_turn_hop_and_go', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'backpedal_turn_hop_and_go' AND pos.phase_id = sp.id
@@ -5394,7 +5394,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'curved_sprint_bound_series', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'curved_sprint_bound_series' AND pos.phase_id = sp.id
@@ -5528,7 +5528,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'zigzag_bound_rebound_course', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'zigzag_bound_rebound_course' AND pos.phase_id = sp.id
@@ -5662,7 +5662,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'one_eighty_jump_rebound_sprint_out', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'one_eighty_jump_rebound_sprint_out' AND pos.phase_id = sp.id
@@ -5796,7 +5796,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'single_leg_lateral_rebound_to_cut', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'single_leg_lateral_rebound_to_cut' AND pos.phase_id = sp.id
@@ -5930,7 +5930,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'reaction_ball_drop_hop_and_go', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'reaction_ball_drop_hop_and_go' AND pos.phase_id = sp.id
@@ -6064,7 +6064,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'med_ball_scoop_toss_broad_rebound', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'med_ball_scoop_toss_broad_rebound' AND pos.phase_id = sp.id
@@ -6198,7 +6198,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'med_ball_rotational_toss_lateral_bound', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'med_ball_rotational_toss_lateral_bound' AND pos.phase_id = sp.id
@@ -6332,7 +6332,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'resisted_band_assisted_rebound_jump', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'resisted_band_assisted_rebound_jump' AND pos.phase_id = sp.id
@@ -6466,7 +6466,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'low_hurdle_hop_reactive_color_call', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'low_hurdle_hop_reactive_color_call' AND pos.phase_id = sp.id
@@ -6600,7 +6600,7 @@ INSERT INTO coaching.exercise_phase_profile (
 )
 SELECT e.id, sp.id, 5, 'primary', 'mirror_bound_and_cut_duel', pos.order_index,
   TRUE, 5, 4,
-  4, 4, 'very_high_quality_only'
+  4, 4, 'high_to_max'
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'output'
 JOIN coaching.phase_order_slot pos ON pos.key = 'mirror_bound_and_cut_duel' AND pos.phase_id = sp.id
@@ -6710,7 +6710,7 @@ WHERE t.exercise_id = e.id
   AND t.facet_type IN ('tenet', 'methodology', 'physiology', 'pattern', 'equipment', 'body_region');
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'tenet', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'tenet', f.id, v.weight
 FROM (VALUES
   ('snap-down-to-low-vertical-rebound', 'explosiveness', 5),
   ('snap-down-to-low-vertical-rebound', 'speed', 4),
@@ -6915,10 +6915,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.tenet f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'methodology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'methodology', f.id, v.weight
 FROM (VALUES
   ('snap-down-to-low-vertical-rebound', 'plyometrics', 5),
   ('snap-down-to-low-vertical-rebound', 'speed_power', 4),
@@ -7073,10 +7074,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.methodology f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'physiology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'physiology', f.id, v.weight
 FROM (VALUES
   ('snap-down-to-low-vertical-rebound', 'ssc_stiffness', 5),
   ('snap-down-to-low-vertical-rebound', 'rate_of_force_development', 4),
@@ -7281,10 +7283,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.physiological_emphasis f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'pattern', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'pattern', f.id, v.weight
 FROM (VALUES
   ('snap-down-to-low-vertical-rebound', 'jump', 5),
   ('snap-down-to-low-vertical-rebound', 'land', 4),
@@ -7471,10 +7474,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.movement_pattern f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'equipment', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'equipment', f.id, v.weight
 FROM (VALUES
   ('snap-down-to-low-vertical-rebound', 'none', 5),
   ('low-box-drop-to-quarter-squat-rebound', 'low_box', 5),
@@ -7538,10 +7542,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.equipment f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'body_region', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'body_region', f.id, v.weight
 FROM (VALUES
   ('snap-down-to-low-vertical-rebound', 'ankle', 5),
   ('snap-down-to-low-vertical-rebound', 'knee', 4),
@@ -7751,6 +7756,7 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.body_region f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 UPDATE coaching.exercise_scaling_profile sp SET load_guidance = v.guidance

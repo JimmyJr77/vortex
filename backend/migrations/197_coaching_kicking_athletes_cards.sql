@@ -2374,7 +2374,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 0,
-  intensity_ceiling = 'moderate-high',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -2452,7 +2452,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 0,
-  intensity_ceiling = 'moderate-high',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -2530,7 +2530,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 0,
-  intensity_ceiling = 'moderate-high',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -2608,7 +2608,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 0,
-  intensity_ceiling = 'moderate-high',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -2686,7 +2686,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 0,
-  intensity_ceiling = 'moderate-high',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -2764,7 +2764,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 2,
   impact_level = 0,
-  intensity_ceiling = 'moderate-high',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -2842,7 +2842,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 0,
-  intensity_ceiling = 'moderate-high',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -2920,7 +2920,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 0,
-  intensity_ceiling = 'moderate-high',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -2998,7 +2998,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 0,
-  intensity_ceiling = 'moderate-high',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -3076,7 +3076,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 2,
   impact_level = 0,
-  intensity_ceiling = 'moderate-high',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -3909,7 +3909,7 @@ WHERE t.exercise_id = e.id
   AND t.facet_type IN ('tenet', 'methodology', 'physiology', 'pattern', 'equipment', 'body_region');
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'tenet', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'tenet', f.id, v.weight
 FROM (VALUES
   ('9090-hip-switch-with-reach', 'flexibility', 5),
   ('9090-hip-switch-with-reach', 'body_control', 3),
@@ -4113,10 +4113,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.tenet f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'methodology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'methodology', f.id, v.weight
 FROM (VALUES
   ('9090-hip-switch-with-reach', 'mobility_flexibility', 5),
   ('9090-hip-switch-with-reach', 'neural', 3),
@@ -4300,10 +4301,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.methodology f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'physiology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'physiology', f.id, v.weight
 FROM (VALUES
   ('9090-hip-switch-with-reach', 'neural_output_readiness', 5),
   ('9090-hip-switch-with-reach', 'control_stability', 3),
@@ -4466,10 +4468,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.physiological_emphasis f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'pattern', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'pattern', f.id, v.weight
 FROM (VALUES
   ('9090-hip-switch-with-reach', 'rotate', 5),
   ('9090-hip-switch-with-reach', 'brace', 3),
@@ -4592,10 +4595,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.movement_pattern f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'equipment', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'equipment', f.id, v.weight
 FROM (VALUES
   ('9090-hip-switch-with-reach', 'none', 5),
   ('9090-hip-switch-with-reach', 'mat', 3),
@@ -4692,10 +4696,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.equipment f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'body_region', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'body_region', f.id, v.weight
 FROM (VALUES
   ('9090-hip-switch-with-reach', 'hip', 5),
   ('9090-hip-switch-with-reach', 'core', 3),
@@ -4865,6 +4870,7 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.body_region f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 UPDATE coaching.exercise_scaling_profile sp SET

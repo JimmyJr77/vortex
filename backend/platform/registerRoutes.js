@@ -48,13 +48,19 @@ import { syncAllCatalog, getCatalogSyncStatus } from '../billing/stripeCatalogSy
 import { emitStripePurchaseEvent, emitStripePaymentFailedEvent } from '../analytics/ga4Measurement.js'
 import { buildBillingAccountView } from '../billing/billingAccountView.js'
 import { chargeDisplayCategory } from '../billing/billingPeriodView.js'
-import { notifyPaymentReceipt, notifyPaymentFailed, notifyRefundReceipt } from '../email/memberNotifications.js'
+import {
+  notifyPaymentReceipt,
+  notifyPaymentFailed,
+  notifyRefundReceipt,
+  notifyPaymentRequest,
+} from '../email/memberNotifications.js'
 import {
   beginStripeWebhookEvent,
   completeStripeWebhookEvent,
   createBillingRefund,
   failStripeWebhookEvent,
   recordStripeBillingAlert,
+  resolveStripeBillingAlert,
   syncStripeRefund,
 } from '../billing/stripeOperations.js'
 import { setStripeSubscriptionOperationalStatus } from '../billing/stripeSubscriptionSync.js'
@@ -65,6 +71,15 @@ import {
 import { listCancellationRequests, reviewCancellationRequest } from '../billing/cancellationReview.js'
 import { listDisputeCases, syncDisputeCase, updateDisputeEvidence } from '../billing/disputeOperations.js'
 import { getStripeOperationsDashboard, runStripeReconciliation } from '../billing/stripeReconciliation.js'
+import {
+  beginBillingAdminAction,
+  finishBillingAdminAction,
+  listBillingAdminActions,
+} from '../billing/billingAdminActions.js'
+import {
+  validateManualChargeInput,
+  validateManualPaymentInput,
+} from '../billing/billingManualControls.js'
 
 function tokenFrom(req) {
   const authHeader = req.headers.authorization
@@ -1447,24 +1462,29 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     const familyId = Number(req.params.familyId)
     const account = await ensureBillingAccount(pool, familyId)
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
-    const amountCents = Number(req.body?.amountCents)
-    if (!Number.isFinite(amountCents) || !req.body?.description) {
-      return res.status(400).json({ success: false, message: 'description and amountCents are required.' })
+    let validated
+    try {
+      validated = validateManualChargeInput({
+        description: req.body?.description,
+        amountCents: req.body?.amountCents,
+        chargeType: req.body?.chargeType,
+        grossAmountCents: req.body?.grossAmountCents,
+        discountAmountCents: req.body?.discountAmountCents,
+        createdByUserId: req.platformAuth?.user?.id ?? null,
+      })
+    } catch (error) {
+      return res.status(400).json({ success: false, message: error.message })
     }
-    const allowedChargeTypes = ['one_time', 'recurring', 'adjustment', 'refund', 'credit']
-    const chargeType = allowedChargeTypes.includes(req.body?.chargeType) ? req.body.chargeType : 'one_time'
-    const billingInterval = req.body?.billingInterval === 'month' ? 'month' : 'one_time'
-    const roundedAmount = Math.round(amountCents)
-    const grossAmount = req.body?.grossAmountCents != null ? Math.round(Number(req.body.grossAmountCents)) : roundedAmount
-    const discountAmount = req.body?.discountAmountCents != null ? Math.round(Number(req.body.discountAmountCents)) : 0
+    const billingInterval = validated.chargeType === 'recurring' ? 'month' : 'one_time'
     const charge = await pool.query(
       `
         INSERT INTO billing_charge (
           family_billing_account_id, member_id, source_type, source_id,
           description, amount_cents, gross_amount_cents, discount_amount_cents,
-          charge_type, billing_interval, service_period_start, service_period_end
+          charge_type, billing_interval, service_period_start, service_period_end,
+          created_by_user_id
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         RETURNING *
       `,
       [
@@ -1472,14 +1492,15 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         req.body?.memberId ?? null,
         req.body?.sourceType ?? 'manual',
         req.body?.sourceId ?? null,
-        req.body.description,
-        roundedAmount,
-        grossAmount,
-        discountAmount,
-        chargeType,
+        validated.description,
+        validated.amount,
+        validated.gross,
+        validated.discount,
+        validated.chargeType,
         billingInterval,
         req.body?.servicePeriodStart ?? null,
         req.body?.servicePeriodEnd ?? null,
+        validated.createdByUserId,
       ],
     )
     res.json({ success: true, data: mapCharge(charge.rows[0]) })
@@ -1511,6 +1532,171 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: payments.rows.map(mapPayment) })
   })
 
+  app.get('/api/admin/families/:familyId/billing-actions', ...requirePermission(pool, jwtSecret, 'billing.view'), async (req, res) => {
+    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+    if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
+    res.json({ success: true, data: await listBillingAdminActions(pool, account.id) })
+  })
+
+  app.post('/api/admin/families/:familyId/payment-link', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
+    if (!isStripeEnabled()) {
+      return res.status(503).json({ success: false, message: 'Stripe is not enabled.' })
+    }
+    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+    if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
+    const view = await buildBillingAccountView(pool, account, { memberScopeId: null })
+    const balanceCents = Math.round(Number(view.balanceCents) || 0)
+    if (balanceCents <= 0) {
+      return res.status(400).json({ success: false, message: 'This account has no outstanding balance.' })
+    }
+
+    let action = null
+    try {
+      const base = publicAppUrl()
+      const session = await createCheckoutSession(pool, {
+        account,
+        balanceCents,
+        successUrl: `${base}/?billing=paid`,
+        cancelUrl: `${base}/?billing=cancelled`,
+      })
+      if (!session?.url) throw new Error('Stripe did not return a checkout URL.')
+      action = await beginBillingAdminAction(pool, {
+        accountId: account.id,
+        actionType: 'payment_link_sent',
+        amountCents: balanceCents,
+        stripeObjectId: session.id ?? null,
+        initiatedByUserId: req.platformAuth?.user?.id ?? null,
+        details: { expiresAt: session.expiresAt },
+      })
+      const delivery = await notifyPaymentRequest(pool, {
+        account,
+        amountCents: balanceCents,
+        checkoutUrl: session.url,
+        expiresAt: session.expiresAt,
+        idempotencyKey: `admin-payment-request-${action.id}`,
+        bestEffort: false,
+      })
+      if (!delivery.sent) {
+        await finishBillingAdminAction(pool, action.id, {
+          status: 'failed',
+          errorMessage: delivery.reason || 'No billing recipient was available.',
+        })
+        return res.status(422).json({
+          success: false,
+          message: 'The secure link was created, but no billing email could receive it.',
+          data: { url: session.url, expiresAt: session.expiresAt },
+        })
+      }
+      const completed = await finishBillingAdminAction(pool, action.id, {
+        status: 'succeeded',
+        recipientEmail: delivery.email,
+        details: { recipientEmail: delivery.email },
+      })
+      res.json({
+        success: true,
+        data: {
+          url: session.url,
+          expiresAt: session.expiresAt,
+          amountCents: balanceCents,
+          recipientEmail: delivery.email,
+          action: completed,
+        },
+      })
+    } catch (error) {
+      if (action?.id) {
+        await finishBillingAdminAction(pool, action.id, {
+          status: 'failed',
+          errorMessage: String(error?.message ?? error).slice(0, 1000),
+        }).catch(() => {})
+      }
+      console.error('[stripe] admin payment link:', error)
+      res.status(500).json({ success: false, message: error?.message || 'Failed to send payment link.' })
+    }
+  })
+
+  app.post('/api/admin/families/:familyId/payments/:paymentId/resend-receipt', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
+    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+    if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
+    const paymentResult = await pool.query(
+      `SELECT * FROM billing_payment WHERE id = $1 AND family_billing_account_id = $2`,
+      [Number(req.params.paymentId), account.id],
+    )
+    const payment = paymentResult.rows[0]
+    if (!payment) return res.status(404).json({ success: false, message: 'Payment not found.' })
+    const action = await beginBillingAdminAction(pool, {
+      accountId: account.id,
+      actionType: 'payment_receipt_resent',
+      amountCents: Number(payment.amount_cents),
+      paymentId: payment.id,
+      initiatedByUserId: req.platformAuth?.user?.id ?? null,
+    })
+    try {
+      const delivery = await notifyPaymentReceipt(pool, {
+        account,
+        payment,
+        billingUrl: `${publicAppUrl()}/?billing=portal-return`,
+        bestEffort: false,
+        idempotencyKey: `admin-payment-receipt-${action.id}`,
+      })
+      if (!delivery.sent) throw new Error(delivery.reason || 'No billing recipient was available.')
+      await finishBillingAdminAction(pool, action.id, {
+        status: 'succeeded',
+        recipientEmail: delivery.email,
+        details: { recipientEmail: delivery.email },
+      })
+      res.json({ success: true, data: { recipientEmail: delivery.email } })
+    } catch (error) {
+      await finishBillingAdminAction(pool, action.id, {
+        status: 'failed',
+        errorMessage: String(error?.message ?? error).slice(0, 1000),
+      }).catch(() => {})
+      res.status(422).json({ success: false, message: error?.message || 'Failed to resend receipt.' })
+    }
+  })
+
+  app.post('/api/admin/families/:familyId/refunds/:refundId/resend-receipt', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
+    const account = await ensureBillingAccount(pool, Number(req.params.familyId))
+    if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
+    const refundResult = await pool.query(
+      `SELECT * FROM billing_refund WHERE id = $1 AND family_billing_account_id = $2`,
+      [Number(req.params.refundId), account.id],
+    )
+    const refund = refundResult.rows[0]
+    if (!refund) return res.status(404).json({ success: false, message: 'Refund not found.' })
+    if (refund.external_status !== 'succeeded') {
+      return res.status(409).json({ success: false, message: 'Only completed refunds can receive a receipt.' })
+    }
+    const action = await beginBillingAdminAction(pool, {
+      accountId: account.id,
+      actionType: 'refund_receipt_resent',
+      amountCents: Number(refund.amount_cents),
+      refundId: refund.id,
+      initiatedByUserId: req.platformAuth?.user?.id ?? null,
+    })
+    try {
+      const delivery = await notifyRefundReceipt(pool, {
+        account,
+        refund,
+        billingUrl: `${publicAppUrl()}/?billing=portal-return`,
+        idempotencyKey: `admin-refund-receipt-${action.id}`,
+        bestEffort: false,
+      })
+      if (!delivery.sent) throw new Error(delivery.reason || 'No billing recipient was available.')
+      await finishBillingAdminAction(pool, action.id, {
+        status: 'succeeded',
+        recipientEmail: delivery.email,
+        details: { recipientEmail: delivery.email },
+      })
+      res.json({ success: true, data: { recipientEmail: delivery.email } })
+    } catch (error) {
+      await finishBillingAdminAction(pool, action.id, {
+        status: 'failed',
+        errorMessage: String(error?.message ?? error).slice(0, 1000),
+      }).catch(() => {})
+      res.status(422).json({ success: false, message: error?.message || 'Failed to resend receipt.' })
+    }
+  })
+
   app.get('/api/admin/billing/provider-config', ...requirePermission(pool, jwtSecret, 'billing.view'), async (_req, res) => {
     const provider = process.env.PAYMENTS_PROVIDER || 'external'
     const stripeEnabled = process.env.STRIPE_ENABLED === 'true'
@@ -1527,9 +1713,16 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   app.post('/api/admin/families/:familyId/payments', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
     const account = await ensureBillingAccount(pool, Number(req.params.familyId))
     if (!account) return res.status(404).json({ success: false, message: 'Family not found.' })
-    const amountCents = Number(req.body?.amountCents)
-    if (!Number.isFinite(amountCents) || amountCents <= 0) {
-      return res.status(400).json({ success: false, message: 'Positive amountCents is required.' })
+    let validated
+    try {
+      validated = validateManualPaymentInput({
+        amountCents: req.body?.amountCents,
+        method: req.body?.method,
+        note: req.body?.note ?? req.body?.notes,
+        recordedByUserId: req.platformAuth?.user?.id ?? null,
+      })
+    } catch (error) {
+      return res.status(400).json({ success: false, message: error.message })
     }
     const payment = await pool.query(
       `
@@ -1543,22 +1736,24 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           external_reference,
           external_status,
           stripe_customer_id,
-          stripe_payment_intent_id
+          stripe_payment_intent_id,
+          recorded_by_user_id
         )
-        VALUES ($1, $2, COALESCE($3::timestamptz, now()), $4, $5, $6, $7, $8, $9, $10)
+        VALUES ($1, $2, COALESCE($3::timestamptz, now()), $4, $5, $6, $7, $8, $9, $10, $11)
         RETURNING *
       `,
       [
         account.id,
-        amountCents,
+        validated.amount,
         req.body?.paidAt ?? req.body?.paymentDate ?? null,
-        req.body?.method ?? null,
-        req.body?.note ?? req.body?.notes ?? null,
+        validated.method,
+        validated.note,
         req.body?.externalProcessor ?? process.env.PAYMENTS_PROVIDER ?? 'external',
         req.body?.externalReference ?? null,
         req.body?.externalStatus ?? 'recorded',
         req.body?.stripeCustomerId ?? null,
         req.body?.stripePaymentIntentId ?? null,
+        validated.recordedByUserId,
       ],
     )
     const paymentRow = payment.rows[0]
@@ -2563,19 +2758,18 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   })
 
   app.patch('/api/admin/stripe/billing-alerts/:id/resolve', ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
-    const result = await pool.query(
-      `UPDATE stripe_billing_alert SET action_status = 'resolved', resolved_at = now(), updated_at = now()
-       WHERE id = $1 AND action_status <> 'suspended' RETURNING *`,
-      [Number(req.params.id)],
-    )
-    if (!result.rows[0]) {
-      const existing = await pool.query(`SELECT action_status FROM stripe_billing_alert WHERE id = $1`, [Number(req.params.id)])
-      if (existing.rows[0]?.action_status === 'suspended') {
-        return res.status(409).json({ success: false, message: 'Restore access before resolving this alert.' })
-      }
-      return res.status(404).json({ success: false, message: 'Billing alert not found.' })
+    try {
+      const data = await resolveStripeBillingAlert(pool, {
+        alertId: Number(req.params.id),
+        resolutionNote: req.body?.resolutionNote,
+        resolvedByUserId: req.platformAuth?.user?.id ?? null,
+      })
+      res.json({ success: true, data })
+    } catch (error) {
+      const message = error?.message || 'Failed to resolve billing alert.'
+      const status = /not found/i.test(message) ? 404 : /restore access/i.test(message) ? 409 : 400
+      res.status(status).json({ success: false, message })
     }
-    res.json({ success: true, data: result.rows[0] })
   })
 
   app.get('/api/members/billing/statements', authMiddleware(pool, jwtSecret), async (req, res) => {

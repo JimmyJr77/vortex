@@ -608,27 +608,27 @@ SELECT e.id, sp.id, COALESCE(m.fit_weight, 5), 'primary', m.slot, pos.order_inde
   COALESCE(m.technical_complexity, 3), COALESCE(m.impact_level, 2), COALESCE(m.intensity_ceiling, 'moderate')
 FROM (VALUES
   ('random-gate-acceleration', 'output', 'random_gate_acceleration', 5, TRUE, 5, 3, 4, 2, 'high'),
-  ('color-cone-touch-on-call', 'movement_intelligence', 'color_cone_touch_on_call', 5, TRUE, 5, 1, 3, 1, 'moderate-low'),
+  ('color-cone-touch-on-call', 'movement_intelligence', 'color_cone_touch_on_call', 5, TRUE, 5, 1, 3, 1, 'low_to_moderate'),
   ('clap-cue-drop-step', 'output', 'clap_cue_drop_step', 5, TRUE, 5, 3, 3, 2, 'high'),
   ('light-visual-cue-sprint-start', 'output', 'light_visual_cue_sprint_start', 5, TRUE, 5, 3, 3, 2, 'high'),
   ('whistle-to-decel-stick', 'output', 'whistle_to_decel_stick', 5, TRUE, 5, 3, 3, 3, 'high'),
-  ('single-hand-tennis-ball-drop-catch', 'movement_intelligence', 'single_hand_tennis_ball_drop_catch', 5, TRUE, 5, 1, 4, 1, 'moderate-low'),
-  ('high-low-catch-decision-drill', 'movement_intelligence', 'high_low_catch_decision', 5, TRUE, 5, 1, 4, 1, 'moderate-low'),
+  ('single-hand-tennis-ball-drop-catch', 'movement_intelligence', 'single_hand_tennis_ball_drop_catch', 5, TRUE, 5, 1, 4, 1, 'low_to_moderate'),
+  ('high-low-catch-decision-drill', 'movement_intelligence', 'high_low_catch_decision', 5, TRUE, 5, 1, 4, 1, 'low_to_moderate'),
   ('reactive-y-cut', 'output', 'reactive_y_cut', 5, TRUE, 5, 3, 4, 3, 'high'),
   ('lateral-shuffle-decel-stick-on-cue', 'output', 'lateral_shuffle_decel_stick_on_cue', 5, TRUE, 5, 3, 3, 3, 'high'),
   ('backpedal-to-sprint-turn-on-signal', 'output', 'backpedal_to_sprint_turn_on_signal', 5, TRUE, 5, 3, 4, 2, 'high'),
   ('drop-step-crossover-go-on-cue', 'output', 'drop_step_crossover_go_on_cue', 5, TRUE, 5, 3, 4, 2, 'high'),
   ('reactive-5-10-5-finish-on-signal', 'output', 'reactive_5_10_5_finish_on_signal', 5, TRUE, 5, 3, 4, 3, 'high'),
   ('reactive-hop-to-cut', 'output', 'reactive_hop_to_cut', 5, TRUE, 5, 3, 4, 3, 'high'),
-  ('multi-cone-scan-and-go', 'movement_intelligence', 'multi_cone_scan_and_go', 5, TRUE, 5, 1, 3, 1, 'moderate-low'),
-  ('bear-to-crab-switch-on-cue', 'movement_intelligence', 'bear_to_crab_switch_on_cue', 5, TRUE, 5, 1, 3, 1, 'moderate-low'),
-  ('low-line-partner-tag', 'movement_intelligence', 'low_line_partner_tag', 5, TRUE, 5, 1, 4, 1, 'moderate-low'),
-  ('boundary-recovery-drill', 'movement_intelligence', 'boundary_recovery_drill', 5, TRUE, 5, 1, 3, 3, 'moderate-low'),
-  ('blind-side-shoulder-check-to-move', 'movement_intelligence', 'blind_side_shoulder_check_to_move', 5, TRUE, 5, 1, 4, 1, 'moderate-low'),
-  ('three-sixty-awareness-catch-with-safe-twist', 'movement_intelligence', 'three_sixty_awareness_catch_safe_twist', 5, TRUE, 5, 1, 4, 1, 'moderate-low'),
-  ('small-sided-keep-away-footwork', 'movement_intelligence', 'small_sided_keep_away_footwork', 5, TRUE, 5, 1, 4, 1, 'moderate-low'),
-  ('collision-avoidance-lane-change', 'movement_intelligence', 'collision_avoidance_lane_change', 5, TRUE, 5, 1, 4, 3, 'moderate-low'),
-  ('low-speed-chaos-box-reset', 'movement_intelligence', 'low_speed_chaos_box_reset', 5, TRUE, 5, 1, 4, 1, 'moderate-low')
+  ('multi-cone-scan-and-go', 'movement_intelligence', 'multi_cone_scan_and_go', 5, TRUE, 5, 1, 3, 1, 'low_to_moderate'),
+  ('bear-to-crab-switch-on-cue', 'movement_intelligence', 'bear_to_crab_switch_on_cue', 5, TRUE, 5, 1, 3, 1, 'low_to_moderate'),
+  ('low-line-partner-tag', 'movement_intelligence', 'low_line_partner_tag', 5, TRUE, 5, 1, 4, 1, 'low_to_moderate'),
+  ('boundary-recovery-drill', 'movement_intelligence', 'boundary_recovery_drill', 5, TRUE, 5, 1, 3, 3, 'low_to_moderate'),
+  ('blind-side-shoulder-check-to-move', 'movement_intelligence', 'blind_side_shoulder_check_to_move', 5, TRUE, 5, 1, 4, 1, 'low_to_moderate'),
+  ('three-sixty-awareness-catch-with-safe-twist', 'movement_intelligence', 'three_sixty_awareness_catch_safe_twist', 5, TRUE, 5, 1, 4, 1, 'low_to_moderate'),
+  ('small-sided-keep-away-footwork', 'movement_intelligence', 'small_sided_keep_away_footwork', 5, TRUE, 5, 1, 4, 1, 'low_to_moderate'),
+  ('collision-avoidance-lane-change', 'movement_intelligence', 'collision_avoidance_lane_change', 5, TRUE, 5, 1, 4, 3, 'low_to_moderate'),
+  ('low-speed-chaos-box-reset', 'movement_intelligence', 'low_speed_chaos_box_reset', 5, TRUE, 5, 1, 4, 1, 'low_to_moderate')
 ) AS m(slug, phase_key, slot, fit_weight, freshness_required, fatigue_sensitivity, fatigue_cost, technical_complexity, impact_level, intensity_ceiling)
 JOIN coaching.exercise e ON e.slug = m.slug
 JOIN coaching.session_phase sp ON sp.key = m.phase_key
@@ -646,27 +646,27 @@ INSERT INTO coaching.exercise_dosage_profile (
 SELECT e.id, 'Default', TRUE, m.unit, m.sets, m.reps, m.work, m.rest, m.distance, m.est, m.rpe_min, m.rpe_max
 FROM (VALUES
   ('random-gate-acceleration', 'reps', 4, 4, 8, 60, NULL, 68, 6, 8),
-  ('color-cone-touch-on-call', 'cues', 2, 6, 15, 30, NULL, 45, 3, 6),
+  ('color-cone-touch-on-call', 'attempts', 2, 6, 15, 30, NULL, 45, 3, 6),
   ('clap-cue-drop-step', 'reps', 4, 4, 8, 60, NULL, 68, 6, 8),
   ('light-visual-cue-sprint-start', 'reps', 4, 4, 8, 60, NULL, 68, 6, 8),
   ('whistle-to-decel-stick', 'reps', 4, 4, 8, 60, NULL, 68, 6, 8),
-  ('single-hand-tennis-ball-drop-catch', 'cues', 2, 6, 15, 30, NULL, 45, 3, 6),
-  ('high-low-catch-decision-drill', 'cues', 2, 6, 15, 30, NULL, 45, 3, 6),
+  ('single-hand-tennis-ball-drop-catch', 'attempts', 2, 6, 15, 30, NULL, 45, 3, 6),
+  ('high-low-catch-decision-drill', 'attempts', 2, 6, 15, 30, NULL, 45, 3, 6),
   ('reactive-y-cut', 'reps', 4, 4, 8, 60, NULL, 68, 6, 8),
   ('lateral-shuffle-decel-stick-on-cue', 'reps', 4, 4, 8, 60, NULL, 68, 6, 8),
   ('backpedal-to-sprint-turn-on-signal', 'reps', 4, 4, 8, 60, NULL, 68, 6, 8),
   ('drop-step-crossover-go-on-cue', 'reps', 4, 4, 8, 60, NULL, 68, 6, 8),
   ('reactive-5-10-5-finish-on-signal', 'reps', 4, 4, 8, 60, NULL, 68, 6, 8),
   ('reactive-hop-to-cut', 'reps', 4, 4, 8, 60, NULL, 68, 6, 8),
-  ('multi-cone-scan-and-go', 'cues', 2, 6, 15, 30, NULL, 45, 3, 6),
-  ('bear-to-crab-switch-on-cue', 'cues', 2, 6, 15, 30, NULL, 45, 3, 6),
-  ('low-line-partner-tag', 'cues', 2, 6, 15, 30, NULL, 45, 3, 6),
-  ('boundary-recovery-drill', 'cues', 2, 6, 15, 30, NULL, 45, 3, 6),
-  ('blind-side-shoulder-check-to-move', 'cues', 2, 6, 15, 30, NULL, 45, 3, 6),
-  ('three-sixty-awareness-catch-with-safe-twist', 'cues', 2, 6, 15, 30, NULL, 45, 3, 6),
-  ('small-sided-keep-away-footwork', 'cues', 2, 6, 15, 30, NULL, 45, 3, 6),
-  ('collision-avoidance-lane-change', 'cues', 2, 6, 15, 30, NULL, 45, 3, 6),
-  ('low-speed-chaos-box-reset', 'cues', 2, 6, 15, 30, NULL, 45, 3, 6)
+  ('multi-cone-scan-and-go', 'attempts', 2, 6, 15, 30, NULL, 45, 3, 6),
+  ('bear-to-crab-switch-on-cue', 'attempts', 2, 6, 15, 30, NULL, 45, 3, 6),
+  ('low-line-partner-tag', 'attempts', 2, 6, 15, 30, NULL, 45, 3, 6),
+  ('boundary-recovery-drill', 'attempts', 2, 6, 15, 30, NULL, 45, 3, 6),
+  ('blind-side-shoulder-check-to-move', 'attempts', 2, 6, 15, 30, NULL, 45, 3, 6),
+  ('three-sixty-awareness-catch-with-safe-twist', 'attempts', 2, 6, 15, 30, NULL, 45, 3, 6),
+  ('small-sided-keep-away-footwork', 'attempts', 2, 6, 15, 30, NULL, 45, 3, 6),
+  ('collision-avoidance-lane-change', 'attempts', 2, 6, 15, 30, NULL, 45, 3, 6),
+  ('low-speed-chaos-box-reset', 'attempts', 2, 6, 15, 30, NULL, 45, 3, 6)
 ) AS m(slug, unit, sets, reps, work, rest, distance, est, rpe_min, rpe_max)
 JOIN coaching.exercise e ON e.slug = m.slug
 WHERE NOT EXISTS (SELECT 1 FROM coaching.exercise_dosage_profile d WHERE d.exercise_id = e.id AND d.profile_name = 'Default');

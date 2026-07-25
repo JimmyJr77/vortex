@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { AlertTriangle, CheckCircle2, Loader2, Plus, Receipt, RefreshCw, Repeat, Tag } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Copy, Link2, Loader2, Mail, Plus, Receipt, RefreshCw, Repeat, Tag } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 
 interface MonthlyTotals {
@@ -156,6 +156,9 @@ interface StripeAlert {
 
 interface StripeOperations {
   stripeEnabled: boolean
+  stripeMode?: 'live' | 'test' | 'unconfigured'
+  readyForLivePayments?: boolean
+  readinessChecks?: Array<{ key: string; label: string; passed: boolean }>
   emailDomain: string | null
   emailDomainVerified: boolean
   alerts: StripeAlert[]
@@ -170,6 +173,38 @@ interface StripeOperations {
     disputes_checked: number
     error_message: string | null
   }
+  recentReconciliations?: Array<{
+    id: number
+    status: string
+    started_at: string
+    completed_at: string | null
+    stripe_payments_checked: number
+    payments_inserted: number
+    mismatches_found: number
+    disputes_checked: number
+    error_message: string | null
+  }>
+  webhookIncidents?: Array<{
+    event_id: string
+    event_type: string
+    status: 'processing' | 'failed'
+    attempts: number
+    last_error: string | null
+    received_at: string
+    updated_at: string
+  }>
+}
+
+interface BillingAdminAction {
+  id: number
+  action_type: 'payment_link_sent' | 'payment_receipt_resent' | 'refund_receipt_resent'
+  status: 'processing' | 'succeeded' | 'failed'
+  amount_cents: number | null
+  recipient_email: string | null
+  stripe_object_id: string | null
+  details?: { recipientEmail?: string | null; expiresAt?: string | null }
+  error_message: string | null
+  created_at: string
 }
 
 function money(cents: number): string {
@@ -181,9 +216,12 @@ export default function AdminFamilyBilling() {
   const [lookupResults, setLookupResults] = useState<FamilyLookupResult[]>([])
   const [account, setAccount] = useState<BillingAccount | null>(null)
   const [statements, setStatements] = useState<BillingStatement[]>([])
+  const [billingActions, setBillingActions] = useState<BillingAdminAction[]>([])
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [lastPaymentLink, setLastPaymentLink] = useState<string | null>(null)
   const [charge, setCharge] = useState({ memberId: '', description: '', amount: '', chargeType: 'one_time' })
   const [paymentProviderName, setPaymentProviderName] = useState('External Payment Processor')
   const [stripeEnabled, setStripeEnabled] = useState(false)
@@ -219,8 +257,13 @@ export default function AdminFamilyBilling() {
 
   const resolveAlert = (id: number) =>
     withSaving(async () => {
-      const res = await adminApiRequest(`/api/admin/stripe/billing-alerts/${id}/resolve`, { method: 'PATCH' })
-      if (!res.ok) throw new Error('Failed to resolve billing alert')
+      const resolutionNote = window.prompt('Resolution note (required):')?.trim()
+      if (!resolutionNote) return
+      const res = await adminApiRequest(`/api/admin/stripe/billing-alerts/${id}/resolve`, {
+        method: 'PATCH',
+        body: JSON.stringify({ resolutionNote }),
+      })
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Failed to resolve billing alert')
       await loadOperations()
     })
 
@@ -228,21 +271,25 @@ export default function AdminFamilyBilling() {
     setLoading(true)
     setError(null)
     try {
-      const [accountRes, statementsRes, providerRes] = await Promise.all([
+      const [accountRes, statementsRes, providerRes, actionsRes] = await Promise.all([
         adminApiRequest(`/api/admin/families/${resolvedFamilyId}/billing-account`),
         adminApiRequest(`/api/admin/families/${resolvedFamilyId}/statements`),
         adminApiRequest('/api/admin/billing/provider-config'),
+        adminApiRequest(`/api/admin/families/${resolvedFamilyId}/billing-actions`),
       ])
       if (!accountRes.ok) throw new Error(`Billing account request failed: ${accountRes.status}`)
       if (!statementsRes.ok) throw new Error(`Statements request failed: ${statementsRes.status}`)
       if (!providerRes.ok) throw new Error(`Provider request failed: ${providerRes.status}`)
+      if (!actionsRes.ok) throw new Error(`Billing actions request failed: ${actionsRes.status}`)
       const accountJson = await accountRes.json()
       const statementsJson = await statementsRes.json()
       const providerJson = await providerRes.json()
+      const actionsJson = await actionsRes.json()
       setAccount(accountJson.data)
       setStatements(statementsJson.data ?? [])
       setPaymentProviderName(providerJson.data?.externalProcessorName || 'External Payment Processor')
       setStripeEnabled(providerJson.data?.stripeEnabled === true)
+      setBillingActions(actionsJson.data ?? [])
       setFamilyId(String(resolvedFamilyId))
       setLookupResults([])
     } catch (err) {
@@ -259,6 +306,7 @@ export default function AdminFamilyBilling() {
     setError(null)
     setAccount(null)
     setStatements([])
+    setBillingActions([])
     try {
       const response = await adminApiRequest(`/api/admin/billing/family-lookup?q=${encodeURIComponent(query)}`)
       if (!response.ok) throw new Error((await response.json().catch(() => ({}))).message || 'Family lookup failed')
@@ -280,6 +328,7 @@ export default function AdminFamilyBilling() {
   const withSaving = async (fn: () => Promise<void>) => {
     setSaving(true)
     setError(null)
+    setSuccessMessage(null)
     try {
       await fn()
     } catch (err) {
@@ -333,6 +382,47 @@ export default function AdminFamilyBilling() {
       })
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'Failed to record payment')
       setPayment({ amount: '', method: '', note: '', externalReference: '', externalStatus: 'recorded' })
+      await loadFamily(account.familyId)
+    })
+
+  const sendPaymentLink = () =>
+    withSaving(async () => {
+      if (!account) return
+      const res = await adminApiRequest(`/api/admin/families/${account.familyId}/payment-link`, {
+        method: 'POST',
+      })
+      const body = await res.json().catch(() => ({}))
+      if (body.data?.url) setLastPaymentLink(body.data.url)
+      if (!res.ok) throw new Error(body.message || 'Failed to create payment link')
+      setSuccessMessage(
+        `Secure ${money(body.data.amountCents)} payment link sent to ${body.data.recipientEmail}.`,
+      )
+      await loadFamily(account.familyId)
+    })
+
+  const resendPaymentReceipt = (paymentId: number) =>
+    withSaving(async () => {
+      if (!account) return
+      const res = await adminApiRequest(
+        `/api/admin/families/${account.familyId}/payments/${paymentId}/resend-receipt`,
+        { method: 'POST' },
+      )
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.message || 'Failed to resend payment receipt')
+      setSuccessMessage(`Payment receipt resent to ${body.data.recipientEmail}.`)
+      await loadFamily(account.familyId)
+    })
+
+  const resendRefundReceipt = (refundId: number) =>
+    withSaving(async () => {
+      if (!account) return
+      const res = await adminApiRequest(
+        `/api/admin/families/${account.familyId}/refunds/${refundId}/resend-receipt`,
+        { method: 'POST' },
+      )
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.message || 'Failed to resend refund receipt')
+      setSuccessMessage(`Refund receipt resent to ${body.data.recipientEmail}.`)
       await loadFamily(account.familyId)
     })
 
@@ -432,6 +522,22 @@ export default function AdminFamilyBilling() {
       </div>
 
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
+      {successMessage && <div className="rounded-lg bg-green-50 text-green-800 px-4 py-3 text-sm">{successMessage}</div>}
+      {lastPaymentLink && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-950">
+          <div className="font-semibold">Latest secure payment link</div>
+          <div className="mt-1 flex items-center gap-2">
+            <span className="min-w-0 flex-1 truncate">{lastPaymentLink}</span>
+            <button
+              type="button"
+              className="inline-flex shrink-0 items-center gap-1 rounded border border-blue-300 bg-white px-2 py-1"
+              onClick={() => void navigator.clipboard.writeText(lastPaymentLink)}
+            >
+              <Copy className="h-3.5 w-3.5" /> Copy
+            </button>
+          </div>
+        </div>
+      )}
 
       <section className="bg-white border border-gray-200 rounded-xl overflow-hidden">
         <div className="px-4 py-3 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
@@ -447,6 +553,33 @@ export default function AdminFamilyBilling() {
           <div className="p-4 text-sm text-gray-500 inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading operations…</div>
         ) : operations && (
           <div className="p-4 space-y-4">
+            <div className={`rounded-lg border p-3 ${operations.readyForLivePayments ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50'}`}>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <div className="font-semibold text-gray-900">
+                    Stripe {operations.stripeMode ?? 'unconfigured'} mode
+                  </div>
+                  <div className="text-xs text-gray-600">
+                    {operations.readyForLivePayments
+                      ? 'All automated production-readiness checks are passing.'
+                      : 'One or more production-readiness checks need attention.'}
+                  </div>
+                </div>
+                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${operations.readyForLivePayments ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-900'}`}>
+                  {operations.readyForLivePayments ? 'Ready' : 'Attention required'}
+                </span>
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {(operations.readinessChecks ?? []).map((check) => (
+                  <div key={check.key} className="flex items-center gap-2 text-xs text-gray-700">
+                    {check.passed
+                      ? <CheckCircle2 className="h-4 w-4 shrink-0 text-green-700" />
+                      : <AlertTriangle className="h-4 w-4 shrink-0 text-amber-700" />}
+                    {check.label}
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="rounded-lg bg-gray-50 p-3 text-sm">
                 <div className="text-xs text-gray-500">Sending domain</div>
@@ -482,6 +615,52 @@ export default function AdminFamilyBilling() {
                   </div>
                 ))}
                 {operations.alerts.length === 0 && <div className="p-3 text-sm text-gray-500">No unresolved Stripe alerts.</div>}
+              </div>
+            </div>
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div>
+                <div className="mb-2 font-semibold text-gray-900">Recent reconciliations</div>
+                <div className="divide-y divide-gray-100 rounded-lg border border-gray-200">
+                  {(operations.recentReconciliations ?? []).map((run) => (
+                    <div key={run.id} className="p-3 text-xs">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-semibold text-gray-900">
+                          Run #{run.id} · {new Date(run.started_at).toLocaleString()}
+                        </span>
+                        <span className={run.status === 'succeeded' ? 'text-green-700' : run.status === 'failed' ? 'text-red-700' : 'text-amber-700'}>
+                          {run.status}
+                        </span>
+                      </div>
+                      <div className="mt-1 text-gray-500">
+                        {run.stripe_payments_checked} payments checked · {run.payments_inserted} recovered · {run.mismatches_found} mismatches · {run.disputes_checked} disputes
+                      </div>
+                      {run.error_message && <div className="mt-1 break-words text-red-700">{run.error_message}</div>}
+                    </div>
+                  ))}
+                  {(operations.recentReconciliations ?? []).length === 0 && (
+                    <div className="p-3 text-sm text-gray-500">No reconciliation runs recorded.</div>
+                  )}
+                </div>
+              </div>
+              <div>
+                <div className="mb-2 font-semibold text-gray-900">Webhook incidents</div>
+                <div className="divide-y divide-gray-100 rounded-lg border border-gray-200">
+                  {(operations.webhookIncidents ?? []).map((incident) => (
+                    <div key={incident.event_id} className="p-3 text-xs">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="min-w-0 truncate font-semibold text-gray-900">{incident.event_type}</span>
+                        <span className={incident.status === 'failed' ? 'text-red-700' : 'text-amber-700'}>
+                          {incident.status} · {incident.attempts} attempt{incident.attempts === 1 ? '' : 's'}
+                        </span>
+                      </div>
+                      <div className="mt-1 break-all text-gray-500">{incident.event_id} · {new Date(incident.updated_at).toLocaleString()}</div>
+                      {incident.last_error && <div className="mt-1 break-words text-red-700">{incident.last_error}</div>}
+                    </div>
+                  ))}
+                  {(operations.webhookIncidents ?? []).length === 0 && (
+                    <div className="p-3 text-sm text-gray-500">No failed or stale webhook events.</div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -568,6 +747,22 @@ export default function AdminFamilyBilling() {
                 <div className="text-lg font-bold text-black">{money(account.balanceCents ?? 0)}</div>
               </div>
             </div>
+            {stripeEnabled && (
+              <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-gray-100 pt-4">
+                <button
+                  type="button"
+                  onClick={() => void sendPaymentLink()}
+                  disabled={saving || (account.balanceCents ?? 0) <= 0}
+                  className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  <Link2 className="h-4 w-4" />
+                  Send secure balance link
+                </button>
+                <p className="text-xs text-gray-500">
+                  Sends the verified account balance through a 24-hour Stripe Checkout link and records the action.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="grid gap-5 lg:grid-cols-[minmax(320px,400px)_1fr]">
@@ -629,10 +824,10 @@ export default function AdminFamilyBilling() {
                   {!stripeEnabled && ' Stripe wiring exists but is disabled.'}
                 </div>
                 <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Amount dollars" value={payment.amount} onChange={(e) => setPayment((prev) => ({ ...prev, amount: e.target.value }))} />
-                <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Method" value={payment.method} onChange={(e) => setPayment((prev) => ({ ...prev, method: e.target.value }))} />
-                <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Note" value={payment.note} onChange={(e) => setPayment((prev) => ({ ...prev, note: e.target.value }))} />
+                <input required className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Method (required)" value={payment.method} onChange={(e) => setPayment((prev) => ({ ...prev, method: e.target.value }))} />
+                <input required className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Reconciliation or payment note (required)" value={payment.note} onChange={(e) => setPayment((prev) => ({ ...prev, note: e.target.value }))} />
                 <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="External payment reference" value={payment.externalReference} onChange={(e) => setPayment((prev) => ({ ...prev, externalReference: e.target.value }))} />
-                <button type="button" onClick={() => void addPayment()} disabled={saving} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg disabled:opacity-60">
+                <button type="button" onClick={() => void addPayment()} disabled={saving || !payment.method.trim() || !payment.note.trim()} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg disabled:opacity-60">
                   Record Payment
                 </button>
               </div>
@@ -667,9 +862,16 @@ export default function AdminFamilyBilling() {
                 </button>
                 <div className="divide-y divide-gray-100">
                   {refunds.map((r) => (
-                    <div key={r.id} className="py-2 text-sm flex justify-between gap-3">
+                    <div key={r.id} className="py-2 text-sm flex items-center justify-between gap-3">
                       <span>{new Date(r.createdAt).toLocaleDateString()} {r.reason ? `· ${r.reason}` : ''}{r.externalStatus ? ` · ${r.externalStatus}` : ''}</span>
-                      <span className={`font-semibold ${r.externalStatus === 'failed' ? 'text-red-700' : ''}`}>{money(r.amountCents)}</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`font-semibold ${r.externalStatus === 'failed' ? 'text-red-700' : ''}`}>{money(r.amountCents)}</span>
+                        {r.externalStatus === 'succeeded' && (
+                          <button type="button" onClick={() => void resendRefundReceipt(r.id)} disabled={saving} className="rounded border border-gray-300 p-1.5" aria-label="Resend refund receipt">
+                            <Mail className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -885,16 +1087,45 @@ export default function AdminFamilyBilling() {
                 <div className="px-4 py-3 border-b border-gray-100 font-semibold">Payments ({payments.length})</div>
                 <div className="divide-y divide-gray-100">
                   {payments.map((item) => (
-                    <div key={item.id} className="px-4 py-3 text-sm flex justify-between gap-3">
+                    <div key={item.id} className="px-4 py-3 text-sm flex items-center justify-between gap-3">
                       <span className="text-gray-600">
                         {new Date(item.paidAt).toLocaleDateString()} {item.method ? `· ${item.method}` : ''}
                         {item.externalReference ? ` · Ref ${item.externalReference}` : ''}
                         {item.externalStatus ? ` · ${item.externalStatus}` : ''}
                       </span>
-                      <span className="font-semibold">{money(item.amountCents)}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{money(item.amountCents)}</span>
+                        <button type="button" onClick={() => void resendPaymentReceipt(item.id)} disabled={saving} className="rounded border border-gray-300 p-1.5" aria-label="Resend payment receipt">
+                          <Mail className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                   {payments.length === 0 && <div className="p-4 text-sm text-gray-500">No payments recorded.</div>}
+                </div>
+              </div>
+
+              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                <div className="px-4 py-3 border-b border-gray-100 font-semibold">Customer-service audit trail</div>
+                <div className="divide-y divide-gray-100">
+                  {billingActions.map((action) => (
+                    <div key={action.id} className="px-4 py-3 text-sm">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-medium text-gray-900">{action.action_type.replaceAll('_', ' ')}</span>
+                        <span className={action.status === 'failed' ? 'text-red-700' : action.status === 'succeeded' ? 'text-green-700' : 'text-amber-700'}>
+                          {action.status}
+                        </span>
+                      </div>
+                      <div className="mt-1 text-xs text-gray-500">
+                        {new Date(action.created_at).toLocaleString()}
+                        {action.amount_cents != null ? ` · ${money(action.amount_cents)}` : ''}
+                        {action.recipient_email || action.details?.recipientEmail ? ` · ${action.recipient_email || action.details?.recipientEmail}` : ''}
+                        {action.stripe_object_id ? ` · ${action.stripe_object_id}` : ''}
+                      </div>
+                      {action.error_message && <div className="mt-1 text-xs text-red-700">{action.error_message}</div>}
+                    </div>
+                  ))}
+                  {billingActions.length === 0 && <div className="p-4 text-sm text-gray-500">No customer-service billing actions yet.</div>}
                 </div>
               </div>
             </div>

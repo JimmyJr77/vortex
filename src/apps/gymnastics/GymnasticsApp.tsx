@@ -51,6 +51,7 @@ const TrampolineTumblingGymnasticsPage = lazyWithRetry(
 )
 const AerobicGymnasticsPage = lazyWithRetry(() => import('./pages/AerobicGymnasticsPage'))
 const BeginnerGymnasticsPage = lazyWithRetry(() => import('./pages/BeginnerGymnasticsPage'))
+const HomeschoolGymnasticsPage = lazyWithRetry(() => import('./pages/HomeschoolGymnasticsPage'))
 // Account creation and post-enrollment routes must exist on this host too:
 // SchedulingSignupEmbed redirects new users to a same-origin /signup/family,
 // which previously 404'd here and broke the enroll funnel (and split GA sessions
@@ -324,6 +325,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
             element={<AerobicGymnasticsPage onSignUpClick={handleContactClick} />}
           />
           <Route path="/beginner-gymnastics" element={<BeginnerGymnasticsPage />} />
+          <Route path="/homeschool-gymnastics" element={<HomeschoolGymnasticsPage />} />
         </Routes>
       </Suspense>
       <ContactForm

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vortexathletics.com/schemas/exercise-card-v1.json",
+  "title": "Vortex Canonical Exercise Card v1",
+  "type": "object",
+  "required": ["id", "slug", "canonicalName", "cardVersion", "schemaVersion", "status", "familyId", "difficulty", "athleteSupport", "coachSupport", "supportOperations", "deliveryProfiles"],
+  "properties": {
+    "id": { "type": ["string", "integer"] },
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "canonicalName": { "type": "string", "minLength": 1 },
+    "displayName": { "type": "string" },
+    "aliases": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+    "cardVersion": { "type": "integer", "minimum": 1 },
+    "schemaVersion": { "const": "1.0.0" },
+    "status": { "enum": ["draft", "review", "published", "deprecated", "archived"] },
+    "familyId": { "type": ["string", "integer"] },
+    "variantId": { "type": ["string", "integer"] },
+    "contentConfidence": { "$ref": "#/$defs/nullableScore" },
+    "scoringConfidence": { "$ref": "#/$defs/nullableScore" },
+    "mediaConfidence": { "$ref": "#/$defs/nullableScore" },
+    "difficulty": {
+      "type": "object",
+      "required": ["technicalComplexity", "supervisionDemand", "failureConsequence", "impact", "baseOverallDifficulty"],
+      "additionalProperties": { "$ref": "#/$defs/nullableScore" }
+    },
+    "movementPatterns": { "$ref": "#/$defs/stringSet" },
+    "bodyRegions": { "$ref": "#/$defs/stringSet" },
+    "equipment": { "type": "object" },
+    "environment": { "type": "object" },
+    "population": { "type": "object" },
+    "athleteSupport": {
+      "type": "object",
+      "required": ["whyItMatters", "primaryCue", "expectedSensations", "unexpectedSensations", "painGuidance", "selfChecks", "accessibility", "mediaAlternatives"]
+    },
+    "coachSupport": {
+      "type": "object",
+      "required": ["observationChecklist", "faultCorrections", "demonstrationPlan", "groupManagement", "modificationDecisionTree", "doNotUseWhen"]
+    },
+    "supportOperations": {
+      "type": "object",
+      "required": ["issueCategories", "supportEscalation", "retentionPolicy", "changeImpactPolicy"]
+    },
+    "media": {
+      "type": "object",
+      "properties": { "approvedVideoUrl": { "type": "string", "format": "uri" } }
+    },
+    "deliveryProfiles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "phaseKey", "role", "phaseSuitability", "purpose", "qualityGate", "stopRules", "dosage"],
+        "properties": {
+          "id": { "type": ["string", "integer"] },
+          "phaseKey": { "$ref": "#/$defs/phase" },
+          "role": { "enum": ["primary", "secondary", "conditional", "avoid"] },
+          "phaseSuitability": { "$ref": "#/$defs/score" },
+          "purpose": { "type": "string" },
+          "qualityGate": { "type": "string" },
+          "stopRules": { "$ref": "#/$defs/stringSet" },
+          "dosage": { "type": "object" }
+          ,"timeModel": { "type": "object" }
+          ,"doseScaling": { "type": "object" }
+          ,"measurement": { "type": "object" }
+          ,"supportPrompts": { "type": "object" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "score": { "type": "integer", "minimum": 1, "maximum": 100 },
+    "nullableScore": { "type": ["integer", "null"], "minimum": 1, "maximum": 100 },
+    "stringSet": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+    "phase": { "enum": ["prepare_and_access", "movement_intelligence", "output", "capacity", "resilience", "sustained_capacity", "restore"] }
+  }
+}

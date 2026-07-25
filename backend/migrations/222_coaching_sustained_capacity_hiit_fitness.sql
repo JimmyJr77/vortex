@@ -130,7 +130,6 @@ ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = GREATEST(
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
 SELECT e.id, 'equipment', eq.id, 5
 FROM coaching.exercise e
-JOIN coaching.equipment eq ON eq.key = v.equip_key
 JOIN (VALUES
   ('med-ball-squat-press-hiit-fitness', 'medicine_ball'),
   ('med-ball-slam-reset-hiit-fitness', 'medicine_ball'),
@@ -139,6 +138,7 @@ JOIN (VALUES
   ('cone-lateral-shuffle-hiit-fitness', 'cones'),
   ('bar-hang-squat-hold-hiit-fitness', 'bar')
 ) AS v(slug, equip_key) ON e.slug = v.slug
+JOIN coaching.equipment eq ON eq.key = v.equip_key
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 -- Sustained capacity primary profiles

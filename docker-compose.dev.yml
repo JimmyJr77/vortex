@@ -11,6 +11,15 @@ services:
     environment:
       DB_HOST: postgres
       NODE_ENV: development
+      # .env.local may contain hosted database URLs for maintenance scripts.
+      # Docker development must consistently use the local Postgres service.
+      DATABASE_URL: ""
+      DB_URL: ""
+      EXTERNAL_DB_URL: ""
+      LOCAL_DEV_SEED: "true"
+      # The persistent local database is migrated explicitly. Replaying the
+      # coaching/platform seed catalog blocks the API from listening for minutes.
+      SKIP_PLATFORM_BOOT_MIGRATIONS: "true"
     volumes:
       - ./backend:/app
       - backend_node_modules:/app/node_modules

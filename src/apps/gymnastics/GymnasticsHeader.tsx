@@ -47,9 +47,11 @@ const GymnasticsHeader = ({
     { name: 'Vortex Gymnastics Team', to: '/artistic-gymnastics-13-18', indented: true },
     { name: 'Developmental Gymnastics', to: '/artistic-gymnastics-6-12', indented: true },
     { name: 'Beginner Gymnastics', to: '/beginner-gymnastics', indented: true },
+    { name: 'Homeschool Gymnastics & PE', to: '/homeschool-gymnastics', indented: true },
     { name: 'Trampoline & Tumbling', to: '/trampoline-tumbling', indented: true },
     { name: 'Rhythmic Gymnastics', to: '/rhythmic-gymnastics', indented: true },
     { name: 'Mommy & Me', to: '/artistic-gymnastics-early', indented: true },
+    { name: 'Drop-In Classes', to: '/drop-in', indented: true },
   ]
 
   const isNavItemActive = (to: string, isHome?: boolean) => {

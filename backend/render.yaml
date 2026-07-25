@@ -11,6 +11,26 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        value: https://www.vortexathletics.com
+      - key: PUBLIC_APP_URL
+        value: https://www.vortexathletics.com
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: EMAIL_REPLY_TO
+        value: frontdesk@vortexathletics.com
       - key: BILLING_ALERT_EMAIL
         value: billing@vortexathletics.com
       - key: BILLING_REPLY_TO

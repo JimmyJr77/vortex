@@ -3,6 +3,14 @@
 -- historically updated by scheduling_form.programs_id, so drifted rows were
 -- silently skipped and stayed hidden from /enroll.
 
+ALTER TABLE programs
+  ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  ADD COLUMN IF NOT EXISTS scheduling_active BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS scheduling_enroll_sites TEXT[];
+
+ALTER TABLE scheduling_form
+  ADD COLUMN IF NOT EXISTS enroll_sites TEXT[];
+
 UPDATE scheduling_form sf
 SET programs_id = class_event.programs_id,
     updated_at = CURRENT_TIMESTAMP

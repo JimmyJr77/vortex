@@ -9,6 +9,7 @@ const CampInterestPage = () => {
         title="Summer Camp Inquiry | Vortex Gymnastics, Bowie MD"
         description="Tell us about your camper's interest in Vortex Gymnastics Summer Camp. We'll follow up with everything you need to get registered."
         canonical={`${GYMNASTICS_ORIGIN}/camp_interest`}
+        robots="noindex, follow"
       />
       <section className="bg-gray-50 pt-below-site-header pb-16 px-4">
         <div className="max-w-2xl mx-auto text-center mb-10 mt-10 md:mt-14">

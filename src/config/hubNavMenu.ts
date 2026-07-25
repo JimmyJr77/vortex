@@ -12,6 +12,8 @@ export type HubNavMenuEntry =
 export const HUB_NAV_MENU_ENTRIES: HubNavMenuEntry[] = [
   { kind: 'item', label: 'Vortex Athletics', to: '/vortex-athletics' },
   { kind: 'item', label: 'Fit & Flip', to: '/strength-conditioning', indented: true },
+  { kind: 'item', label: 'Drop-In Classes', to: '/drop-in', indented: true },
+  { kind: 'item', label: 'Contact & Location', to: '/contact' },
   { kind: 'specialPages' },
   { kind: 'divider' },
   {

@@ -1,20 +1,21 @@
-import { describe, expect, it } from 'vitest'
+import assert from 'node:assert/strict'
+import { describe, it } from 'node:test'
 import { isHighlightNotification } from '../notificationHighlight.js'
 
 describe('isHighlightNotification', () => {
   it('includes @mentions', () => {
-    expect(isHighlightNotification('message_mention', { mentioned: true })).toBe(true)
+    assert.equal(isHighlightNotification('message_mention', { mentioned: true }), true)
   })
 
   it('includes critical messages', () => {
-    expect(isHighlightNotification('message', { critical: true, thread_id: 1 })).toBe(true)
+    assert.equal(isHighlightNotification('message', { critical: true, thread_id: 1 }), true)
   })
 
   it('excludes routine thread replies', () => {
-    expect(isHighlightNotification('message', { thread_id: 1, message_id: 2 })).toBe(false)
+    assert.equal(isHighlightNotification('message', { thread_id: 1, message_id: 2 }), false)
   })
 
   it('includes other kinds like assignments', () => {
-    expect(isHighlightNotification('assignment', {})).toBe(true)
+    assert.equal(isHighlightNotification('assignment', {}), true)
   })
 })

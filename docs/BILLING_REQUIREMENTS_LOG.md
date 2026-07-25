@@ -225,3 +225,40 @@ Status: `IN PROGRESS`
 - Complete one legitimate customer checkout.
 - Verify the Stripe PaymentIntent, local payment/enrollment ledger, receipt delivery, GA4 `purchase`, and Google Ads conversion use the same transaction context without duplication.
 - Validate one canonical GA4 `purchase` and one acquisition-only `initial_enrollment_purchase` import in Google Ads with the first legitimate enrollment payment; no GTM purchase tag is required.
+
+## Section 9 — Admin collection and customer-service controls
+
+Status: `CODE COMPLETE — LIVE ACCEPTANCE PENDING`
+
+### Implementation log
+
+- Added an authorized admin action that sends the exact current ledger balance through a
+  24-hour Stripe Checkout link; staff cannot enter an arbitrary collection amount.
+- Added payment- and refund-receipt resend controls.
+- Added a durable billing customer-service action log containing actor, account, action,
+  amount, related records, Stripe object, delivery outcome, and error.
+- Added an admin-visible, non-secret readiness checklist covering live/test mode, webhook
+  signing, reconciliation freshness, webhook failures, critical alerts, and Stripe customer
+  email-domain verification.
+- Added recent reconciliation and failed/stale webhook incident history plus mandatory
+  resolver identity and resolution notes for manually closed operational alerts.
+- Added sign/type validation and authenticated actor attribution for manual charges, credits,
+  and payments; refunds remain isolated to the evidence-gated refund workflow.
+- Documented customer transparency, event coverage, incident response, and live acceptance
+  in [STRIPE_PRODUCTION_READINESS.md](./STRIPE_PRODUCTION_READINESS.md).
+
+### Verification evidence
+
+- Thirty-four focused Stripe operations, checkout invariants, manual-ledger controls, webhook security, lifecycle, reconciliation,
+  readiness, admin-audit, and email-policy tests pass locally.
+- ESLint passes on all changed Stripe, email, route, and billing admin files.
+- Repository-wide TypeScript verification and the full production frontend build pass.
+
+### Remaining production gate
+
+- Apply migration `249_billing_admin_action_log.sql` through the normal deployment migration
+  path.
+- Apply migration `250_stripe_alert_resolution_audit.sql`.
+- Apply migration `251_manual_billing_audit.sql`.
+- Confirm the live Stripe operations card reports every readiness check as passing.
+- Complete the legitimate transaction acceptance gate in Section 8.
