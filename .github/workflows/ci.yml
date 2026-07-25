@@ -31,10 +31,10 @@ jobs:
         run: npm run test:e2e:smoke
 
       - name: Run backend integration tests (staging-gated)
-        if: ${{ vars.RUN_INTEGRATION_TESTS == 'true' && secrets.INTEGRATION_BASE_URL != '' }}
         env:
           RUN_INTEGRATION_TESTS: "true"
           INTEGRATION_BASE_URL: ${{ secrets.INTEGRATION_BASE_URL }}
+        if: ${{ vars.RUN_INTEGRATION_TESTS == 'true' && env.INTEGRATION_BASE_URL != '' }}
         run: npm run test:integration:backend
 
       - name: Build frontend
