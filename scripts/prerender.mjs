@@ -230,8 +230,14 @@ const prerenderAppRoutes = async () => {
 
   if (process.env.VERCEL) {
     const serverlessChromium = (await import('@sparticuz/chromium')).default
+    // @sparticuz/chromium includes Lambda-oriented single-process flags. In
+    // Vercel's build container they can cause Chromium to exit immediately
+    // after launch, before Playwright can create its first page.
+    const vercelChromiumArgs = serverlessChromium.args.filter(
+      (arg) => arg !== '--single-process' && arg !== '--in-process-gpu',
+    )
     launchOptions = {
-      args: serverlessChromium.args,
+      args: vercelChromiumArgs,
       executablePath: await serverlessChromium.executablePath(),
       headless: true,
     }
