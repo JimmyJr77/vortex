@@ -290,7 +290,7 @@ const prerenderAppRoutes = async () => {
       for (let attempt = 1; attempt <= 2; attempt += 1) {
         const page = await browser.newPage()
         try {
-          await page.goto(target.url, { waitUntil: 'networkidle', timeout: 60000 })
+          await page.goto(target.url, { waitUntil: 'domcontentloaded', timeout: 60000 })
           // The SPA container is empty in source HTML and may not itself have a
           // rendered box. "attached" proves React has a mount target without
           // incorrectly requiring the container element to be visually visible.
@@ -299,6 +299,9 @@ const prerenderAppRoutes = async () => {
             () => document.querySelector('#root')?.childElementCount > 0,
             { timeout: 30000 },
           )
+          // Helmet and lazy route effects settle immediately after the first
+          // committed render. Do not wait for background API polling to idle.
+          await page.waitForTimeout(250)
           const pageTitle = await page.title()
           let html = dedupeHeadTags(await page.content(), pageTitle)
           if (target.stripNoindex) html = stripNoindexRobots(html)
