@@ -61,14 +61,6 @@ const OBJECTIVE_TEMPLATES_60 = {
     { phaseKey: 'sustained_capacity', minutes: 2 },
     { phaseKey: 'restore', minutes: 1 },
   ],
-  skill_tumbling_priority: [
-    { phaseKey: 'prepare_and_access', minutes: 8 },
-    { phaseKey: 'movement_intelligence', minutes: 22, contains_tumbling: true },
-    { phaseKey: 'output', minutes: 10 },
-    { phaseKey: 'capacity', minutes: 12 },
-    { phaseKey: 'resilience', minutes: 6 },
-    { phaseKey: 'restore', minutes: 2 },
-  ],
   mobility_control_priority: [
     { phaseKey: 'prepare_and_access', minutes: 12 },
     { phaseKey: 'movement_intelligence', minutes: 8 },
@@ -229,7 +221,6 @@ export function buildPhasePlan(inputs = {}) {
       minutes: phaseKey === 'prepare_and_access' ? (built?.minutes ?? pinnedPrepare) : minutes,
       label: existing?.label,
       pinned: phaseKey === 'prepare_and_access',
-      contains_tumbling: built?.contains_tumbling ?? existing?.contains_tumbling,
       focusTargets: existing?.focusTargets ?? [],
       otherKind: existing?.otherKind,
       otherItemIds: existing?.otherItemIds ?? [],

@@ -19,6 +19,7 @@
     "repair:failed-seeds": "node scripts/repair-failed-seed-migrations.mjs",
     "audit:boot-migrations": "node scripts/audit-boot-migration-failures.mjs",
     "audit:canonical-library": "node scripts/audit-canonical-exercise-library.mjs",
+    "audit:needs-engine-library": "node scripts/audit-needs-engine-exercise-library.mjs",
     "check:canonical-release": "node scripts/check-canonical-release-readiness.mjs",
     "eval:prescription": "node ../scripts/evaluate-prescription-quality.mjs",
     "sync:golden-requirements": "node ../scripts/sync-golden-from-saved-requirements.mjs \"Test 3 - Reqs only\"",

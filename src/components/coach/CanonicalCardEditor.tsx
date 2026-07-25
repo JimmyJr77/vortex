@@ -402,6 +402,16 @@ export function CanonicalCardEditor({ source, onClose, onSaved }: CanonicalCardE
               <label className="text-sm">Variant name<input disabled={!editable} value={variant.displayName} onChange={(event) => updateVariant({ displayName: event.target.value })} className="mt-1 w-full rounded border border-gray-300 px-3 py-2 disabled:bg-gray-100" /></label>
               <label className="text-sm">Profile key<input disabled={!editable} value={profile.profileKey} onChange={(event) => updateProfile({ profileKey: event.target.value })} className="mt-1 w-full rounded border border-gray-300 px-3 py-2 disabled:bg-gray-100" /></label>
               <label className="text-sm">Canonical phase<select disabled={!editable} value={profile.phaseKey} onChange={(event) => updateProfile({ phaseKey: event.target.value })} className="mt-1 w-full rounded border border-gray-300 px-3 py-2 disabled:bg-gray-100">{PHASES.map((phase) => <option key={phase}>{phase}</option>)}</select></label>
+              <label className="text-sm md:col-span-2">Equipment for this exact version
+                <input
+                  disabled={!editable}
+                  value={profile.equipmentRequired.join(', ')}
+                  onChange={(event) => updateProfile({ equipmentRequired: splitList(event.target.value) })}
+                  placeholder="Taxonomy keys, or none for bodyweight"
+                  className="mt-1 w-full rounded border border-gray-300 px-3 py-2 disabled:bg-gray-100"
+                />
+                <span className="mt-1 block text-xs text-gray-500">This overrides the card-level equipment for this variant and delivery profile.</span>
+              </label>
             </div>
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
               {DIFFICULTY_FIELDS.map((field) => (

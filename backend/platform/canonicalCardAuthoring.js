@@ -413,6 +413,13 @@ export function evaluateCanonicalCardReadiness(raw, { mediaReview = null } = {})
       if (Object.keys(profile.dosage).length === 0) {
         issues.push({ code: 'dosage', path: `${profileBase}.dosage`, message: 'A contextual dosage rule is required.' })
       }
+      if (profile.equipmentRequired.length === 0) {
+        issues.push({
+          code: 'equipment_declaration',
+          path: `${profileBase}.equipmentRequired`,
+          message: 'Declare the equipment for this exact variant/profile, or use "none" for bodyweight.',
+        })
+      }
       for (const [field, code] of [
         ['timeModel', 'time_model'],
         ['doseScaling', 'dose_scaling'],

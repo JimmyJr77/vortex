@@ -193,14 +193,6 @@ test('G15 mixed younger and older cohorts receive variants', () => {
   assert.ok(output.phases.every((phase) => phase.prescriptions.every((item) => item.cohortScaling.younger && item.cohortScaling.older)))
 })
 
-test('G16 tumbling block plus Accelerator work reserves 30 minutes', () => {
-  const output = generate({ durationMinutes: 90, objective: 'skill_tumbling_priority', tumblingBlock: { minutes: 30, placement: 'beginning' } })
-  const movement = output.phases.find((phase) => phase.phaseKey === 'movement_intelligence')
-  assert.equal(movement.targetMinutes, 30)
-  assert.equal(movement.containsTumbling, true)
-  assert.equal(movement.tumblingPlacement, 'beginning')
-})
-
 test('G17 60, 90, and 120 minute versions reconcile duration', () => {
   for (const durationMinutes of [60, 90, 120]) {
     const output = generate({ durationMinutes, randomSeed: `duration-${durationMinutes}` })

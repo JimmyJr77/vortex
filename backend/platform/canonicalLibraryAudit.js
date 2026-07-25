@@ -185,6 +185,21 @@ function additionalChecks({ card, definition, relationships, calibrations }) {
       message: 'Contextual dosage, instructions, adaptation, quality gates, and stop rules are complete.',
     },
     {
+      id: 'CARD-EQUIPMENT-04',
+      category: 'equipment',
+      priority: 'P0',
+      status: profiles.length > 0 && profiles.every((profile) => profile.equipmentRequired.length > 0)
+        ? 'passed'
+        : 'failed',
+      evidence: {
+        undeclaredProfiles: profiles
+          .filter((profile) => profile.equipmentRequired.length === 0)
+          .map((profile) => ({ id: profile.id, profileKey: profile.profileKey })),
+        noEquipmentSentinel: 'none',
+      },
+      message: 'Every exact variant delivery profile declares its equipment, using "none" for bodyweight.',
+    },
+    {
       id: 'CARD-PROVENANCE-01',
       category: 'provenance',
       priority: 'P1',

@@ -55,20 +55,6 @@ function buildPlanFromWizard(
     plan = phasePlanForObjective(objective, duration)
   }
 
-  if (format.tumbling_minutes && format.tumbling_minutes > 0) {
-    plan = plan.map((p) =>
-      p.phaseKey === 'movement_intelligence'
-        ? { ...p, minutes: format.tumbling_minutes!, contains_tumbling: true, label: 'Skill / Tumbling' }
-        : p,
-    )
-    const skillIdx = plan.findIndex((p) => p.phaseKey === 'movement_intelligence')
-    const overflow = plan.reduce((s, p) => s + p.minutes, 0) - duration
-    if (overflow > 0 && skillIdx >= 0) {
-      const capIdx = plan.findIndex((p) => p.phaseKey === 'capacity')
-      if (capIdx >= 0) plan[capIdx] = { ...plan[capIdx], minutes: Math.max(1, plan[capIdx].minutes - overflow) }
-    }
-  }
-
   if (format.add_on_focus && format.add_on_minutes && format.add_on_minutes > 0) {
     plan = applyAddOnToPlan(plan, format.add_on_focus, format.add_on_minutes)
   }
@@ -157,10 +143,6 @@ export default function WorkoutSetupWizard({ workout, onApply, onComplete, onClo
                 <select value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2">
                   {[60, 90, 120].map((m) => <option key={m} value={m}>{m} min</option>)}
                 </select>
-              </label>
-              <label className="block text-sm">
-                <span className="font-semibold text-gray-700">Tumbling block (minutes)</span>
-                <input type="number" value={format.tumbling_minutes ?? ''} onChange={(e) => setFormat({ ...format, tumbling_minutes: e.target.value ? Number(e.target.value) : undefined })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Optional — overrides skill phase budget" />
               </label>
               <label className="block text-sm">
                 <span className="font-semibold text-gray-700">Add-on focus</span>

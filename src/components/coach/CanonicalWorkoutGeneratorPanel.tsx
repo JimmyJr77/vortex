@@ -97,7 +97,6 @@ const OBJECTIVES = [
   ['explosiveness_power_priority', 'Explosiveness / power'],
   ['strength_priority', 'Strength'],
   ['agility_priority', 'Agility'],
-  ['skill_tumbling_priority', 'Skill / tumbling'],
   ['mobility_control_priority', 'Mobility / control'],
   ['fitness_priority', 'Conditioning'],
   ['recovery_low_intensity', 'Recovery / low intensity'],

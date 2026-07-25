@@ -445,6 +445,7 @@ export interface SplitAlternate {
   age_min?: number | null
   age_max?: number | null
   difficulty_cap?: number | null
+  equipment_ids?: number[]
 }
 
 export interface WorkoutItem {
@@ -536,7 +537,7 @@ export interface Workout {
     minutes: number
     label?: string
     focusTargets?: PhaseFocusTarget[]
-    otherKind?: 'skills' | 'games' | 'tramp_tumble'
+    otherKind?: 'skills' | 'games'
     otherItemIds?: number[]
     pinned?: boolean
   }>
@@ -548,7 +549,7 @@ export interface Workout {
   blocks: WorkoutBlock[]
 }
 
-export type FocusFacetType = 'tenet' | 'methodology' | 'physiology' | 'order_slot'
+export type FocusFacetType = 'tenet' | 'methodology' | 'physiology' | 'pattern' | 'body_region' | 'order_slot'
 
 export interface PhaseFocusTarget {
   facetType: FocusFacetType
@@ -574,6 +575,8 @@ export interface CoachPhaseTemplate {
 export interface NeedsEngineRequirementsSnapshot {
   workMode: 'exercise' | 'skill'
   sessionObjective: string
+  specificGoal?: string
+  muscleFocus?: Array<{ id: string | number; label: string; meta?: string }>
   sessionMinutes: number
   customMinutes: number | ''
   sportId: number | ''
@@ -584,6 +587,8 @@ export interface NeedsEngineRequirementsSnapshot {
   audienceSplits: AudienceSplit[]
   equipmentUsePolicy: 'must_use' | 'use_only'
   allowBodyweight: boolean
+  /** Empty means the full equipment catalog is available. */
+  equipmentAvailable?: Array<{ id: string | number; label: string; meta?: string }>
   /** @deprecated Loaded from legacy snapshots only */
   equipmentMode?: 'use' | 'avoid'
   equipmentUse: Array<{ id: string | number; label: string; meta?: string }>
@@ -613,9 +618,8 @@ export interface NeedsEnginePhaseRow {
   minutes: number
   label?: string
   pinned?: boolean
-  contains_tumbling?: boolean
   focusTargets?: PhaseFocusTarget[]
-  otherKind?: 'skills' | 'games' | 'tramp_tumble'
+  otherKind?: 'skills' | 'games'
   otherItemIds?: number[]
   otherItemLabels?: string[]
 }
@@ -718,10 +722,16 @@ export interface PrescribedBlock {
   label: string
   phase_key?: string | null
   phase_id?: number | null
-  other_kind?: 'skills' | 'games' | 'tramp_tumble' | null
+  other_kind?: 'skills' | 'games' | null
   focus_targets?: PhaseFocusTarget[]
+  derived_focus_targets?: Array<PhaseFocusTarget & {
+    derivedFromWork?: boolean
+    evidenceScore?: number
+  }>
   target_minutes: number
   estimated_minutes: number
+  exercise_minutes?: number
+  transition_minutes?: number
   fill_pct?: number
   items: Array<{
     exercise_id: number | null
@@ -729,6 +739,10 @@ export interface PrescribedBlock {
     sets: number
     reps?: number | null
     work_seconds?: number | null
+    volume_unit?: string | null
+    distance?: number | null
+    contacts?: number | null
+    rounds?: number | null
     rest_seconds?: number | null
     est_seconds_per_set: number
     score: number
@@ -739,6 +753,7 @@ export interface PrescribedBlock {
     scaling_rationale?: string | null
     difficulty?: ExerciseDifficultyProfile | null
     age_fit?: 'good' | 'stretch' | 'over_cap'
+    equipment_ids?: number[]
     per_split?: SplitAlternate[]
     split_alternates_json?: SplitAlternate[]
   }>
@@ -973,4 +988,3 @@ export interface Game {
   is_published?: boolean
   visibility?: string
 }
-

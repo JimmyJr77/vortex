@@ -6,9 +6,9 @@ export {
   defaultPhaseRows,
 } from '../../backend/platform/phaseArchitect.js'
 
-export type FocusFacetType = 'tenet' | 'methodology' | 'physiology' | 'order_slot'
+export type FocusFacetType = 'tenet' | 'methodology' | 'physiology' | 'pattern' | 'body_region' | 'order_slot'
 
-export type OtherPhaseKind = 'skills' | 'games' | 'tramp_tumble'
+export type OtherPhaseKind = 'skills' | 'games'
 
 export type WorkMode = 'exercise' | 'skill'
 
@@ -23,7 +23,6 @@ export interface NeedsEnginePhaseRow {
   minutes: number
   label?: string
   pinned?: boolean
-  contains_tumbling?: boolean
   focusTargets?: PhaseFocusTarget[]
   otherKind?: OtherPhaseKind
   otherItemIds?: number[]

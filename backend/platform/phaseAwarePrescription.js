@@ -14,6 +14,7 @@ import {
   exerciseAllowedUseOnly,
   equipmentUsePolicyFromBody,
   equipmentUseIdsFromBody,
+  equipmentAvailableIdsFromBody,
   effectiveEquipmentAvoidIds,
   loadBodyweightEquipmentIds,
 } from './equipmentAvoidPolicy.js'
@@ -50,10 +51,43 @@ import {
 
 function itemSecondsFromExercise(ex, item) {
   const sets = Number(item?.sets ?? ex.default_sets) || 3
-  const work = Number(item?.work_seconds ?? ex.default_work_seconds) || Number(ex.est_seconds_per_set) || 45
+  const work = Number(item?.work_seconds ?? ex.default_work_seconds)
+    || Number(item?.est_seconds_per_set ?? ex.est_seconds_per_set)
+    || 45
   const restRaw = item?.rest_seconds ?? ex.default_rest_seconds
   const rest = restRaw != null && restRaw !== '' ? Number(restRaw) : 30
   return sets * work + sets * rest
+}
+
+function candidateDose(candidate) {
+  const profiles = candidate?.dosageProfiles ?? []
+  const dosage = profiles.find((profile) => profile.is_default)
+    ?? profiles.find((profile) => String(profile.profile_name).toLowerCase() === 'default')
+    ?? profiles[0]
+    ?? {}
+  const reps = dosage.default_reps ?? candidate.exercise.default_reps ?? null
+  const explicitWork = dosage.default_work_seconds ?? candidate.exercise.default_work_seconds ?? null
+  const distance = dosage.default_distance ?? null
+  const contacts = dosage.default_contacts ?? null
+  const volumeUnit = dosage.volume_unit ?? (reps != null ? 'reps' : 'seconds')
+  const sets = dosage.default_sets ?? candidate.exercise.default_sets ?? 3
+  const rounds = dosage.default_rounds ?? (volumeUnit === 'rounds' ? sets : null)
+  const countIsEncodedBySets = volumeUnit === 'attempts' || volumeUnit === 'rounds'
+  const fallbackWork = !countIsEncodedBySets
+    && reps == null && distance == null && contacts == null && rounds == null
+    ? Math.min(60, Math.max(15, Number(dosage.est_seconds_per_set ?? candidate.exercise.est_seconds_per_set) || 30))
+    : null
+  return {
+    volume_unit: volumeUnit,
+    sets,
+    reps,
+    work_seconds: explicitWork ?? fallbackWork,
+    distance,
+    contacts,
+    rounds,
+    rest_seconds: dosage.default_rest_seconds ?? candidate.exercise.default_rest_seconds ?? 30,
+    est_seconds_per_set: dosage.est_seconds_per_set ?? candidate.exercise.est_seconds_per_set ?? 45,
+  }
 }
 
 function mergeCapsMax(...capObjects) {
@@ -110,15 +144,29 @@ function difficultyProximityBonus(difficulty, poolCapOverall) {
 
 async function resolveTargetFacetIds(pool, targets) {
   const resolved = []
+  const tableMap = {
+    tenet: 'tenet',
+    methodology: 'methodology',
+    physiology: 'physiological_emphasis',
+    pattern: 'movement_pattern',
+    body_region: 'body_region',
+    order_slot: 'phase_order_slot',
+  }
   for (const target of targets) {
     const facetType = target.facetType ?? target.facet_type
-    if (target.facetId != null && facetType === 'order_slot' && !target.facetKey && !target.key) {
+    const table = tableMap[facetType]
+    if (target.facetId != null && table && !target.facetKey && !target.key) {
       const row = await pool.query(
-        `SELECT key FROM coaching.phase_order_slot WHERE id = $1 LIMIT 1`,
+        `SELECT key, name FROM coaching.${table} WHERE id = $1 LIMIT 1`,
         [Number(target.facetId)],
       )
       if (row.rows[0]?.key) {
-        resolved.push({ ...target, facetType, facetKey: row.rows[0].key })
+        resolved.push({
+          ...target,
+          facetType,
+          facetKey: row.rows[0].key,
+          facetName: row.rows[0].name ?? row.rows[0].key,
+        })
         continue
       }
     }
@@ -128,22 +176,73 @@ async function resolveTargetFacetIds(pool, targets) {
     }
     const key = target.facetKey ?? target.key
     if (!key || !facetType) continue
-    const tableMap = {
-      tenet: 'tenet',
-      methodology: 'methodology',
-      physiology: 'physiological_emphasis',
-      order_slot: 'phase_order_slot',
-    }
-    const table = tableMap[facetType]
     if (!table) continue
-    const row = await pool.query(`SELECT id, key FROM coaching.${table} WHERE key = $1 LIMIT 1`, [String(key)])
+    const row = await pool.query(`SELECT id, key, name FROM coaching.${table} WHERE key = $1 LIMIT 1`, [String(key)])
     if (row.rows[0]?.id) {
-      const entry = { ...target, facetType, facetId: Number(row.rows[0].id) }
-      if (facetType === 'order_slot') entry.facetKey = row.rows[0].key
+      const entry = {
+        ...target,
+        facetType,
+        facetId: Number(row.rows[0].id),
+        facetKey: row.rows[0].key,
+        facetName: row.rows[0].name ?? row.rows[0].key,
+      }
       resolved.push(entry)
     }
   }
   return resolved
+}
+
+const DERIVED_PHASE_KEYS = new Set(['prepare_and_access', 'restore'])
+const WORK_PHASE_WEIGHTS = Object.freeze({
+  movement_intelligence: 2,
+  output: 5,
+  capacity: 4,
+  resilience: 3,
+  sustained_capacity: 3,
+  other: 2,
+})
+
+function workDerivedFocusTargets(resultBlocks, tagMap) {
+  const totals = new Map()
+  for (const block of resultBlocks) {
+    if (DERIVED_PHASE_KEYS.has(block.phase_key)) continue
+    const phaseWeight = WORK_PHASE_WEIGHTS[block.phase_key] ?? 1
+    for (const item of block.items ?? []) {
+      const exerciseIds = new Set([
+        item.exercise_id,
+        ...(item.per_split ?? item.split_alternates_json ?? []).map((variant) => variant.exercise_id),
+      ])
+      for (const exerciseId of exerciseIds) {
+        if (!exerciseId) continue
+        for (const tag of tagMap.get(String(exerciseId)) ?? []) {
+          if (tag.facetType !== 'body_region' && tag.facetType !== 'pattern') continue
+          const key = `${tag.facetType}:${tag.facetId}`
+          totals.set(key, {
+            facetType: tag.facetType,
+            facetId: Number(tag.facetId),
+            score: (totals.get(key)?.score ?? 0) + phaseWeight * Math.max(1, Number(tag.weight) || 1),
+          })
+        }
+      }
+    }
+  }
+
+  const top = (facetType, limit, weight) => [...totals.values()]
+    .filter((target) => target.facetType === facetType)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((target) => ({
+      facetType: target.facetType,
+      facetId: target.facetId,
+      weight,
+      derivedFromWork: true,
+      evidenceScore: target.score,
+    }))
+
+  return [
+    ...top('body_region', 4, 8),
+    ...top('pattern', 3, 5),
+  ]
 }
 
 async function loadFacetKeyMaps(pool) {
@@ -185,6 +284,34 @@ function scoreTargets(tags, targets) {
     if (match) score += match.weight * (Number(target.weight) || 3)
   }
   return score
+}
+
+const STRICT_FOCUS_PHASES = new Set(['output', 'capacity', 'resilience', 'sustained_capacity'])
+const STRICT_FOCUS_FACETS = new Set(['methodology', 'pattern', 'body_region'])
+
+function matchesRequiredPhaseFocus(tags, targets, phaseKey) {
+  if (!STRICT_FOCUS_PHASES.has(phaseKey)) return true
+  const priorityTargets = targets.filter((target) => (
+    STRICT_FOCUS_FACETS.has(target.facetType)
+    && Number(target.weight ?? 0) >= 5
+  ))
+  if (priorityTargets.length === 0) return true
+
+  const grouped = new Map()
+  for (const target of priorityTargets) {
+    const rows = grouped.get(target.facetType) ?? []
+    rows.push(Number(target.facetId))
+    grouped.set(target.facetType, rows)
+  }
+  // Match at least one selected value in every emphasized facet category.
+  // This prevents a generic phase-fit tag from overwhelming an explicit
+  // methodology, movement-pattern, or muscle-group request.
+  for (const [facetType, facetIds] of grouped) {
+    if (!tags.some((tag) => tag.facetType === facetType && facetIds.includes(Number(tag.facetId)))) {
+      return false
+    }
+  }
+  return true
 }
 
 function matchesOrderSlot(exercise, profile, slotKey) {
@@ -415,6 +542,39 @@ function normalizeExerciseName(name) {
   return String(name ?? '').toLowerCase().replace(/\s+/g, ' ').trim()
 }
 
+function equipmentIdsForCandidate(candidate) {
+  return [...new Set((candidate?.tags ?? [])
+    .filter((tag) => tag.facetType === 'equipment')
+    .map((tag) => Number(tag.facetId))
+    .filter(Number.isFinite))]
+}
+
+function humanizeKey(value) {
+  return String(value ?? '').replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
+function buildSelectionRationale(candidate, phaseKey, targets, caps) {
+  const matched = targets.filter((target) => candidate.tags.some((tag) => (
+    tag.facetType === target.facetType && Number(tag.facetId) === Number(target.facetId)
+  )))
+  const focus = [...new Set(matched
+    .filter((target) => ['tenet', 'methodology', 'pattern', 'body_region'].includes(target.facetType))
+    .map((target) => target.facetName ?? target.facetKey)
+    .filter(Boolean))]
+    .slice(0, 4)
+  const parts = [
+    `Fits ${humanizeKey(phaseKey)}`,
+    focus.length > 0 ? `matches ${focus.map(humanizeKey).join(', ')}` : null,
+  ]
+  if (candidate.requiredEquipmentMatch) parts.push('contributes required equipment coverage')
+  const difficulty = Number(candidate.difficulty?.overall)
+  const cap = Number(caps?.maxOverall)
+  if (Number.isFinite(difficulty) && Number.isFinite(cap)) {
+    parts.push(`difficulty ${Math.round(difficulty * 10)}/100 within ${Math.round(cap * 10)}/100 cap`)
+  }
+  return `${parts.filter(Boolean).join('; ')}.`
+}
+
 function buildSplitVariantEntry(split, candidate, {
   variantType,
   substituted = false,
@@ -430,6 +590,7 @@ function buildSplitVariantEntry(split, candidate, {
     difficulty_cap: split.caps?.maxOverall ?? null,
     exercise_id: Number(candidate.exercise.id),
     exercise_name: candidate.exercise.name,
+    equipment_ids: equipmentIdsForCandidate(candidate),
     difficulty: candidate.difficulty ?? null,
     substituted: substituted || variantType === 'substituted',
     variant_type: variantType,
@@ -572,6 +733,7 @@ function buildPoolForPhase({
       if (sustainedCapacityExcluded(phaseKey, c.exercise, c.tags, methodologyKeyById, intentKeyById, resolvedPhaseTargets)) {
         return null
       }
+      if (!matchesRequiredPhaseFocus(c.tags, resolvedPhaseTargets, phaseKey)) return null
 
       let phaseTargetScore = scoreTargets(c.tags, resolvedPhaseTargets)
       for (const t of resolvedPhaseTargets) {
@@ -722,7 +884,13 @@ async function fillPhaseItems({
       }
     }
 
-    const cost = itemSecondsFromExercise(c.exercise, {})
+    const dose = candidateDose(c)
+    const cost = itemSecondsFromExercise(c.exercise, {
+      sets: dose.sets,
+      work_seconds: dose.work_seconds,
+      rest_seconds: dose.rest_seconds,
+      est_seconds_per_set: dose.est_seconds_per_set,
+    })
     if (usedSeconds + cost > budgetSeconds) {
       if (items.length === 0 && minItems > 0) {
         // Allow one oversize item so the phase is not empty.
@@ -769,11 +937,16 @@ async function fillPhaseItems({
       fill_pass: fillPass,
       exercise_id: Number(c.exercise.id),
       exercise_name: c.exercise.name,
-      sets: c.exercise.default_sets ?? 3,
-      reps: c.exercise.default_reps,
-      rest_seconds: c.exercise.default_rest_seconds ?? 30,
-      work_seconds: c.exercise.default_work_seconds,
-      est_seconds_per_set: c.exercise.est_seconds_per_set,
+      equipment_ids: equipmentIdsForCandidate(c),
+      volume_unit: dose.volume_unit,
+      sets: dose.sets,
+      reps: dose.reps,
+      work_seconds: dose.work_seconds,
+      distance: dose.distance,
+      contacts: dose.contacts,
+      rounds: dose.rounds,
+      rest_seconds: dose.rest_seconds,
+      est_seconds_per_set: dose.est_seconds_per_set,
       score: Number(c.score.toFixed(2)),
       phase_fit: c.profile.fitWeight,
       difficulty: c.difficulty,
@@ -784,7 +957,7 @@ async function fillPhaseItems({
       split_resolve_warnings: splitResolveWarnings.length > 0 ? splitResolveWarnings : undefined,
       selection_rationale: sustainedRelaxedPoolFill
         ? 'Relaxed sustained pool fill — limited library match.'
-        : (why?.training_purpose ?? `Selected for ${phase?.name ?? phaseKey} (score ${c.score.toFixed(1)}).`),
+        : buildSelectionRationale(c, phaseKey, resolvedPhaseTargets, caps),
       placement_rationale: why?.phase_rationale ?? c.profile.notes ?? `Placed in ${phase?.name ?? phaseKey} based on phase fit.`,
       scaling_rationale: cohortScaling ?? why?.scaling_rationale ?? null,
     })
@@ -889,6 +1062,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   const { methodologyKeyById, intentKeyById, sportIdByKey } = await loadFacetKeyMaps(pool)
 
   const equipmentUseIds = equipmentUseIdsFromBody(body)
+  const equipmentAvailableIds = equipmentAvailableIdsFromBody(body)
   const equipmentUsePolicy = equipmentUsePolicyFromBody(body)
   const allowBodyweight = body.allowBodyweight !== false && body.allow_bodyweight !== false
   let equipmentAvoidIds = effectiveEquipmentAvoidIds(body)
@@ -900,7 +1074,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   )
 
   let bodyweightEquipIds = new Set()
-  if (equipmentUsePolicy === 'use_only' && equipmentUseIds.length > 0) {
+  if ((equipmentUsePolicy === 'use_only' && equipmentUseIds.length > 0) || equipmentAvailableIds.length > 0) {
     bodyweightEquipIds = await loadBodyweightEquipmentIds(pool)
   }
 
@@ -931,6 +1105,15 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     : Array.isArray(body.blocks) && body.blocks.length > 0
       ? body.blocks
       : [{ phaseKey: 'capacity', label: 'Main Work', minutes: 30 }]
+  const phasePlanOrder = new Map()
+  phasePlan.forEach((block, index) => {
+    const key = block.phaseKey ?? block.phase_key ?? block.phase ?? 'other'
+    if (!phasePlanOrder.has(key)) phasePlanOrder.set(key, index)
+  })
+  const generationPlan = [
+    ...phasePlan.filter((block) => !DERIVED_PHASE_KEYS.has(block.phaseKey ?? block.phase_key ?? block.phase)),
+    ...phasePlan.filter((block) => DERIVED_PHASE_KEYS.has(block.phaseKey ?? block.phase_key ?? block.phase)),
+  ]
 
   const phaseRows = await pool.query(`SELECT id, key, name FROM coaching.session_phase`)
   const phaseByKey = new Map(phaseRows.rows.map((p) => [p.key, p]))
@@ -947,6 +1130,11 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   if (sportId) {
     params.push(sportId)
     where.push(`(e.sport_id = $${params.length} OR e.sport_id IS NULL)`)
+  } else {
+    // "Universal" means general-purpose programming, not every sport-specific
+    // card in the facility. Explicit sport cards only enter the pool when that
+    // sport is selected.
+    where.push(`e.sport_id IS NULL`)
   }
   if (level && level !== 'N/A') {
     const skillSql = buildSkillLevelSql(level, params.length + 1)
@@ -1011,6 +1199,9 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   const idToExercise = new Map(candidates.rows.map((r) => [Number(r.id), r]))
   const useEquip = new Set(equipmentUseIds)
   const useOnly = equipmentUsePolicy === 'use_only' && useEquip.size > 0
+  const availableEquip = new Set(equipmentAvailableIds)
+  const allowedEquip = useOnly ? useEquip : availableEquip
+  const equipmentBoundaryActive = allowedEquip.size > 0
   const avoidEquip = expandedAvoidEquip
   const usedPatterns = new Map()
   const usedPatternsByPhase = new Map()
@@ -1041,7 +1232,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
         }
       }
 
-      if (useOnly && !exerciseAllowedUseOnly(equipTags, useEquip, allowBodyweight, bodyweightEquipIds)) {
+      if (equipmentBoundaryActive && !exerciseAllowedUseOnly(equipTags, allowedEquip, allowBodyweight, bodyweightEquipIds)) {
         constraintReport.equipment_avoid.excluded_count += 1
         if (equipmentExcludedSamples.length < 8) equipmentExcludedSamples.push(ex.name)
         return null
@@ -1077,6 +1268,7 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       score *= sportContextMultiplier(ex, sportKey, sportIdByKey)
 
       const scalingProfiles = bundle.scalingProfiles.get(String(ex.id)) ?? []
+      const dosageProfiles = bundle.dosageProfiles.get(String(ex.id)) ?? []
       return {
         exercise: ex,
         tags,
@@ -1084,6 +1276,8 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
         profiles,
         difficulty,
         scalingProfiles,
+        dosageProfiles,
+        requiredEquipmentMatch: equipTags.some((tag) => useEquip.has(tag.facetId)),
         bundleRow: attachProgrammingToExercise(ex, bundle, null),
       }
     })
@@ -1099,22 +1293,9 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   const phaseRationales = []
   const splitVariantWarnings = new Set()
 
-  for (const block of phasePlan) {
+  for (const block of generationPlan) {
     const phaseKey = block.phaseKey ?? block.phase_key ?? block.phase
     const otherKind = block.otherKind ?? block.other_kind
-
-    if (otherKind === 'tramp_tumble' || phaseKey === 'other_tramp_tumble') {
-      resultBlocks.push({
-        label: block.label || 'Tramp & Tumble',
-        phase_key: 'other',
-        other_kind: 'tramp_tumble',
-        focus_targets: block.focusTargets ?? [],
-        target_minutes: Number(block.minutes) || 15,
-        estimated_minutes: Number(block.minutes) || 15,
-        items: [],
-      })
-      continue
-    }
 
     if (otherKind === 'skills' || otherKind === 'games') {
       const itemIds = block.otherItemIds ?? block.other_item_ids ?? []
@@ -1192,7 +1373,13 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     const phaseTargets = Array.isArray(block.focusTargets ?? block.focus_targets)
       ? (block.focusTargets ?? block.focus_targets)
       : []
-    let resolvedPhaseTargets = await resolveTargetFacetIds(pool, phaseTargets)
+    const derivedWorkTargets = DERIVED_PHASE_KEYS.has(phaseKey)
+      ? workDerivedFocusTargets(resultBlocks, tagMap)
+      : []
+    let resolvedPhaseTargets = await resolveTargetFacetIds(pool, [
+      ...derivedWorkTargets,
+      ...phaseTargets,
+    ])
     const implicitHints = implicitPhaseFocusHints(audience.sessionObjective, phaseKey, phaseTargets.length)
     if (implicitHints.length > 0) {
       resolvedPhaseTargets = await resolveTargetFacetIds(pool, [...resolvedPhaseTargets, ...implicitHints])
@@ -1370,7 +1557,16 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
 
     usedPatternsByPhase.set(phaseKey, phasePatternUsed)
 
-    const estimatedMinutes = Math.round(fillResult.usedSeconds / 60)
+    const transitionSeconds = fillResult.items.length > 0
+      ? Math.min(
+          Math.max(0, budgetSeconds - fillResult.usedSeconds),
+          Math.max(30, (fillResult.items.length - 1) * 30),
+        )
+      : 0
+    const reconciledSeconds = Math.min(budgetSeconds, fillResult.usedSeconds + transitionSeconds)
+    const exerciseMinutes = Math.round(fillResult.usedSeconds / 60)
+    const transitionMinutes = Math.round((transitionSeconds / 60) * 10) / 10
+    const estimatedMinutes = Math.round(reconciledSeconds / 60)
     const fillPct = blockMinutes > 0 ? Math.round((estimatedMinutes / blockMinutes) * 100) : 0
     const progressionLaneUnassignedDeepPool = SPLIT_PROGRESSION_PHASE_KEYS.has(phaseKey)
       && poolForPhase.length >= 20
@@ -1382,6 +1578,8 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       phase_key: phaseKey,
       target_minutes: blockMinutes,
       estimated_minutes: estimatedMinutes,
+      exercise_minutes: exerciseMinutes,
+      transition_minutes: transitionMinutes,
       fill_pct: fillPct,
       skipped_candidates: fillResult.skippedCandidates,
       split_rejects: fillResult.splitRejects,
@@ -1411,7 +1609,8 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       label: block.label || phase?.name || 'Block',
       phase_key: phaseKey,
       phase_id: phase?.id ?? null,
-      focus_targets: phaseTargets,
+      focus_targets: resolvedPhaseTargets,
+      derived_focus_targets: derivedWorkTargets,
       target_minutes: blockMinutes,
       estimated_minutes: estimatedMinutes,
       fill_pct: fillPct,
@@ -1419,26 +1618,46 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     })
   }
 
+  resultBlocks.sort((left, right) => (
+    (phasePlanOrder.get(left.phase_key) ?? Number.MAX_SAFE_INTEGER)
+    - (phasePlanOrder.get(right.phase_key) ?? Number.MAX_SAFE_INTEGER)
+  ))
+
   // "must_use" is a coverage requirement: every selected equipment item must
   // appear at least once. "use_only" is an allow-list and must not reject an
   // otherwise valid session merely because one allowed item was not selected.
   if (equipmentUsePolicy === 'must_use' && useEquip.size > 0) {
-    const usedEquipIds = new Set()
-    for (const block of resultBlocks) {
-      for (const item of block.items) {
-        const tags = tagMap.get(String(item.exercise_id)) ?? []
-        for (const t of tags) {
-          if (t.facetType === 'equipment' && useEquip.has(t.facetId)) usedEquipIds.add(t.facetId)
+    const versionLabels = splitProfiles.length > 0
+      ? splitProfiles.map((split) => split.label)
+      : [null]
+    const missingByVersion = []
+    for (const splitLabel of versionLabels) {
+      const usedEquipIds = new Set()
+      for (const block of resultBlocks) {
+        for (const item of block.items) {
+          const selected = splitLabel == null
+            ? item
+            : ((item.per_split ?? item.split_alternates_json ?? [])
+                .find((variant) => variant.split_label === splitLabel) ?? item)
+          const tags = tagMap.get(String(selected.exercise_id)) ?? []
+          for (const tag of tags) {
+            if (tag.facetType === 'equipment' && useEquip.has(tag.facetId)) usedEquipIds.add(tag.facetId)
+          }
         }
       }
+      const missing = [...useEquip].filter((id) => !usedEquipIds.has(id))
+      if (missing.length > 0) missingByVersion.push({ split_label: splitLabel, equipment_ids: missing })
     }
-    const missing = [...useEquip].filter((id) => !usedEquipIds.has(id))
+    const missing = [...new Set(missingByVersion.flatMap((row) => row.equipment_ids))]
     if (missing.length > 0) {
       const names = await pool.query(`SELECT id, name FROM coaching.equipment WHERE id = ANY($1::bigint[])`, [missing])
       throw new PrescriptionError(
         'No workout satisfies required equipment for this session.',
         'unsatisfiable_equipment',
-        { unsatisfiable_equipment: names.rows.map((r) => ({ id: Number(r.id), name: r.name })) },
+        {
+          unsatisfiable_equipment: names.rows.map((r) => ({ id: Number(r.id), name: r.name })),
+          unsatisfied_versions: missingByVersion,
+        },
       )
     }
   }

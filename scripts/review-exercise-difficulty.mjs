@@ -27,6 +27,8 @@ dotenv.config({ path: path.join(root, '.env.local') })
 
 const dryRun = process.argv.includes('--dry-run')
 const migrationOnly = process.argv.includes('--migration-only')
+const missingOnly = process.argv.includes('--missing-only')
+const outputArg = process.argv.find((arg) => arg.startsWith('--output='))
 
 function resolveSsl(connectionString) {
   if (process.env.DATABASE_SSL === 'false') return false
@@ -102,6 +104,11 @@ async function main() {
     LEFT JOIN coaching.exercise_safety_profile s ON s.exercise_id = e.id
     LEFT JOIN coaching.exercise_regimen_rule r ON r.exercise_id = e.id
     WHERE e.archived = FALSE
+      ${missingOnly ? `AND NOT EXISTS (
+        SELECT 1
+        FROM coaching.exercise_difficulty_profile existing
+        WHERE existing.exercise_id = e.id
+      )` : ''}
     ORDER BY e.id, p.fit_weight DESC NULLS LAST
   `)
 
@@ -130,8 +137,12 @@ async function main() {
     ].join(','))
   }
 
-  const migrationPath = path.join(root, 'backend/migrations/216_coaching_exercise_difficulty_v3_reviewed.sql')
-  const csvPath = path.join(root, 'docs/exercise-difficulty-review.csv')
+  const migrationPath = outputArg
+    ? path.resolve(root, outputArg.slice('--output='.length))
+    : path.join(root, 'backend/migrations/216_coaching_exercise_difficulty_v3_reviewed.sql')
+  const csvPath = missingOnly
+    ? path.join(root, 'docs/exercise-difficulty-missing-review.csv')
+    : path.join(root, 'docs/exercise-difficulty-review.csv')
   fs.writeFileSync(migrationPath, buildMigrationSql(reviews))
   fs.writeFileSync(csvPath, csvLines.join('\n') + '\n')
 

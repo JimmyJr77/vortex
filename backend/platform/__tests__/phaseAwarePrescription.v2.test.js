@@ -108,6 +108,126 @@ test('use-only equipment is an allow-list and does not require every allowed ite
   assert.equal(result.blocks[0].phase_key, 'capacity')
 })
 
+test('prepare and restore are generated from the completed work-phase body regions', async () => {
+  const exercises = [
+    { id: 1, name: 'Leg Power', slug: 'leg-power', primary_phase_key: 'output' },
+    { id: 2, name: 'Leg Prep', slug: 'leg-prep', primary_phase_key: 'prepare_and_access' },
+    { id: 3, name: 'Shoulder Prep', slug: 'shoulder-prep', primary_phase_key: 'prepare_and_access' },
+    { id: 4, name: 'Leg Restore', slug: 'leg-restore', primary_phase_key: 'restore' },
+    { id: 5, name: 'Shoulder Restore', slug: 'shoulder-restore', primary_phase_key: 'restore' },
+  ].map((exercise) => ({
+    ...exercise,
+    programming_kind: 'exercise',
+    default_sets: 1,
+    default_reps: null,
+    default_rest_seconds: 0,
+    default_work_seconds: 60,
+    est_seconds_per_set: 60,
+    facility_id: 1,
+    archived: false,
+    is_published: true,
+  }))
+  const phaseProfiles = [
+    { exercise_id: 1, phase_id: 2, phase_key: 'output', role: 'primary' },
+    { exercise_id: 2, phase_id: 1, phase_key: 'prepare_and_access', role: 'primary' },
+    { exercise_id: 3, phase_id: 1, phase_key: 'prepare_and_access', role: 'primary' },
+    { exercise_id: 4, phase_id: 3, phase_key: 'restore', role: 'primary' },
+    { exercise_id: 5, phase_id: 3, phase_key: 'restore', role: 'primary' },
+  ].map((profile) => ({
+    ...profile,
+    fit_weight: 10,
+    order_slot: null,
+    notes: null,
+    impact_level: 0,
+    order_index: 1,
+    freshness_required: false,
+    fatigue_sensitivity: 1,
+    fatigue_cost: 1,
+    technical_complexity: 1,
+    intensity_ceiling: 'low',
+  }))
+  const tags = exercises.flatMap((exercise) => [
+    {
+      exercise_id: exercise.id,
+      facet_type: 'body_region',
+      facet_id: [1, 2, 4].includes(exercise.id) ? 101 : 202,
+      weight: 5,
+    },
+    {
+      exercise_id: exercise.id,
+      facet_type: 'pattern',
+      facet_id: [1, 2, 4].includes(exercise.id) ? 301 : 302,
+      weight: 4,
+    },
+  ])
+  const pool = mockPool([
+    (sql) => {
+      if (sql.includes('FROM coaching.session_phase')) {
+        return { rows: [
+          { id: 1, key: 'prepare_and_access', name: 'Prepare & Access' },
+          { id: 2, key: 'output', name: 'Output' },
+          { id: 3, key: 'restore', name: 'Restore' },
+        ] }
+      }
+      if (sql.includes('FROM coaching.exercise e WHERE')) return { rows: exercises }
+      if (sql.includes('FROM coaching.exercise_tag')) return { rows: tags }
+      if (sql.includes('FROM coaching.exercise_phase_profile')) return { rows: phaseProfiles }
+      if (sql.includes('FROM coaching.exercise_difficulty_profile')) {
+        return { rows: exercises.map((exercise) => ({
+          exercise_id: exercise.id,
+          technical: 2,
+          load: 2,
+          overall: 2,
+          recommended_age_min: null,
+          recommended_age_max: null,
+          attention_demand: null,
+          notes: null,
+          source: 'test',
+        })) }
+      }
+      if (sql.includes('FROM coaching.exercise_scaling_profile')) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise_dosage_profile')) {
+        return { rows: [{
+          exercise_id: 1,
+          profile_name: 'Default',
+          is_default: true,
+          volume_unit: 'reps',
+          default_sets: 2,
+          default_reps: 8,
+          default_work_seconds: null,
+          default_rest_seconds: 10,
+          est_seconds_per_set: 20,
+        }] }
+      }
+      if (sql.includes('FROM coaching.exercise_safety_profile')) return { rows: [] }
+      if (sql.includes('FROM coaching.exercise_regimen_rule')) return { rows: [] }
+      if (sql.includes("entity_type = 'exercise'")) return { rows: [] }
+    },
+    ...baseHandlers(),
+  ])
+
+  const result = await runPhaseAwarePrescription(pool, 1, {
+    phasePlan: [
+      { phaseKey: 'prepare_and_access', minutes: 1, label: 'Prepare' },
+      { phaseKey: 'output', minutes: 1, label: 'Output' },
+      { phaseKey: 'restore', minutes: 1, label: 'Restore' },
+    ],
+  })
+
+  assert.deepEqual(result.blocks.map((block) => block.phase_key), [
+    'prepare_and_access',
+    'output',
+    'restore',
+  ])
+  assert.equal(result.blocks[0].items[0].exercise_name, 'Leg Prep')
+  assert.equal(result.blocks[1].items[0].sets, 2)
+  assert.equal(result.blocks[1].items[0].reps, 8)
+  assert.equal(result.blocks[2].items[0].exercise_name, 'Leg Restore')
+  assert.ok(result.blocks[0].derived_focus_targets.some(
+    (target) => target.facetType === 'body_region' && target.facetId === 101,
+  ))
+})
+
 test('enablePreflight throws unsatisfiable_requirements before generation', async () => {
   const pool = mockPool([...baseHandlers()])
   await assert.rejects(
@@ -129,17 +249,6 @@ test('enablePreflight throws unsatisfiable_requirements before generation', asyn
       return true
     },
   )
-})
-
-test('tramp_tumble Other block emits placeholder with no items', async () => {
-  const pool = mockPool([...baseHandlers()])
-  const result = await runPhaseAwarePrescription(pool, 1, {
-    phasePlan: [{ phaseKey: 'other', otherKind: 'tramp_tumble', minutes: 12, label: 'Tramp block' }],
-  })
-  assert.equal(result.blocks.length, 1)
-  assert.equal(result.blocks[0].other_kind, 'tramp_tumble')
-  assert.equal(result.blocks[0].items.length, 0)
-  assert.equal(result.blocks[0].estimated_minutes, 12)
 })
 
 test('audience splits emit per-group exercise variants', async () => {

@@ -6,7 +6,6 @@ export type SessionObjective =
   | 'explosiveness_power_priority'
   | 'strength_priority'
   | 'agility_priority'
-  | 'skill_tumbling_priority'
   | 'mobility_control_priority'
   | 'fitness_priority'
   | 'recovery_low_intensity'
@@ -15,8 +14,6 @@ export interface PhasePlanRow {
   phaseKey: string
   minutes: number
   label?: string
-  contains_tumbling?: boolean
-  containsTumbling?: boolean
   add_on_focus?: string
   addOnFocus?: string
 }
@@ -30,7 +27,6 @@ export function normalizePhasePlanRow(raw: Record<string, unknown>): PhasePlanRo
     phaseKey,
     minutes,
     label: raw.label != null ? String(raw.label) : undefined,
-    contains_tumbling: Boolean(raw.contains_tumbling ?? raw.containsTumbling),
     add_on_focus: raw.add_on_focus != null ? String(raw.add_on_focus) : raw.addOnFocus != null ? String(raw.addOnFocus) : undefined,
   }
 }
@@ -85,14 +81,6 @@ const OBJECTIVE_TEMPLATES_60: Record<SessionObjective, PhasePlanRow[]> = {
     { phaseKey: 'resilience', minutes: 7 },
     { phaseKey: 'sustained_capacity', minutes: 2 },
     { phaseKey: 'restore', minutes: 1 },
-  ],
-  skill_tumbling_priority: [
-    { phaseKey: 'prepare_and_access', minutes: 8 },
-    { phaseKey: 'movement_intelligence', minutes: 22, contains_tumbling: true },
-    { phaseKey: 'output', minutes: 10 },
-    { phaseKey: 'capacity', minutes: 12 },
-    { phaseKey: 'resilience', minutes: 6 },
-    { phaseKey: 'restore', minutes: 2 },
   ],
   mobility_control_priority: [
     { phaseKey: 'prepare_and_access', minutes: 12 },
@@ -218,7 +206,6 @@ export const SESSION_OBJECTIVE_OPTIONS: Array<{ value: SessionObjective; label: 
   { value: 'explosiveness_power_priority', label: 'Explosiveness / power priority' },
   { value: 'strength_priority', label: 'Strength priority' },
   { value: 'agility_priority', label: 'Agility priority' },
-  { value: 'skill_tumbling_priority', label: 'Skill / tumbling priority' },
   { value: 'mobility_control_priority', label: 'Mobility / control priority' },
   { value: 'fitness_priority', label: 'Sustained Capacity priority' },
   { value: 'recovery_low_intensity', label: 'Recovery / low intensity' },

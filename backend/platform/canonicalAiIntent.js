@@ -78,7 +78,6 @@ export function validatedAiInterpretationToIntent(aiOutput, deterministicDefault
   const athlete = aiOutput.athleteProfile
   const facility = aiOutput.facilityProfile
   const soft = aiOutput.softPreferences
-  const phasePreferences = aiOutput.phasePreferences ?? {}
   try {
     return normalizeWorkoutIntent({
       ...deterministicDefaults,
@@ -107,12 +106,6 @@ export function validatedAiInterpretationToIntent(aiOutput, deterministicDefault
         floorAreaSquareFeet: facility.space?.floorAreaSquareFeet ?? deterministicDefaults.space?.floorAreaSquareFeet,
         laneLengthFeet: facility.space?.laneLengthFeet ?? deterministicDefaults.space?.laneLengthFeet,
       },
-      tumblingBlock: phasePreferences.tumblingMinutes != null
-        ? {
-            minutes: phasePreferences.tumblingMinutes,
-            placement: phasePreferences.tumblingPlacement ?? 'beginning',
-          }
-        : deterministicDefaults.tumblingBlock,
       maxDifficulty: hard.maxDifficulty ?? deterministicDefaults.maxDifficulty,
       maxTechnicalRisk: hard.maxTechnicalRisk ?? deterministicDefaults.maxTechnicalRisk,
       randomSeed: deterministicDefaults.randomSeed,

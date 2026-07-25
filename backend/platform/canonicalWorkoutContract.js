@@ -154,16 +154,6 @@ function normalizeCohorts(value) {
   }))
 }
 
-function normalizeTumblingBlock(value) {
-  if (value == null) return null
-  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new TypeError('tumblingBlock must be an object')
-  const placement = value.placement === 'end' ? 'end' : 'beginning'
-  return Object.freeze({
-    placement,
-    minutes: integer(value.minutes ?? 30, 'tumblingBlock.minutes', { min: 5, max: 60 }),
-  })
-}
-
 export function normalizeWorkoutIntent(raw = {}) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new TypeError('workout intent must be an object')
   const durationMinutes = integer(raw.durationMinutes, 'durationMinutes', { min: 15, max: 240 })
@@ -213,7 +203,6 @@ export function normalizeWorkoutIntent(raw = {}) {
     modifiers: stringList(raw.modifiers),
     limitations: stringList(raw.limitations),
     athleteCohorts: normalizeCohorts(raw.athleteCohorts),
-    tumblingBlock: normalizeTumblingBlock(raw.tumblingBlock),
     space: Object.freeze({
       environment: String(raw.space?.environment || 'indoor'),
       floorAreaSquareFeet: integer(raw.space?.floorAreaSquareFeet, 'space.floorAreaSquareFeet', { min: 1, fallback: null }),

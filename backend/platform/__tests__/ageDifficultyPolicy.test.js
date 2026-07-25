@@ -18,6 +18,11 @@ test('computeOverallDifficulty uses max of load and technical', () => {
   assert.equal(computeOverallDifficulty(3, 7, 5), 5)
 })
 
+test('computeOverallDifficulty preserves decimal precision for 100-point UI scores', () => {
+  assert.equal(computeOverallDifficulty(6.7, 5.2), 6.7)
+  assert.equal(computeOverallDifficulty(4, 5, 7.3), 7.3)
+})
+
 test('resolveAgeBand for 6-8 returns youth_intermediate caps', () => {
   const band = resolveAgeBand(6, 8)
   assert.equal(band.maxOverall, 5)

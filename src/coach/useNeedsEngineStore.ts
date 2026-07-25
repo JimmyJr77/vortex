@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { defaultPhaseRows, type NeedsEnginePhaseRow, type WorkMode } from './phaseArchitect'
+import { defaultPhaseRows, type FocusFacetType, type NeedsEnginePhaseRow, type WorkMode } from './phaseArchitect'
 import { SESSION_OBJECTIVE_OPTIONS, type SessionObjective } from './phasePlan'
 import type { AudienceSplit, PrescriptionResult, ProgrammingMethod, NeedsEngineRequirementsSnapshot, NeedsEngineRequirementsSnapshotLegacy } from './types'
 
@@ -10,7 +10,7 @@ export interface NeedsEngineComboboxOption {
 }
 
 export interface NeedsEnginePhaseRowState extends NeedsEnginePhaseRow {
-  focusFacetType?: '' | 'tenet' | 'methodology' | 'physiology' | 'order_slot'
+  focusFacetType?: '' | FocusFacetType
 }
 
 function defaultPhaseRowState(): NeedsEnginePhaseRowState[] {
@@ -24,6 +24,8 @@ export function defaultNeedsEngineState() {
   return {
     workMode: 'exercise' as WorkMode,
     sessionObjective: 'general_athletic_development' as SessionObjective,
+    specificGoal: '' as import('./specificGoalPresets').SpecificGoalKey,
+    muscleFocus: [] as NeedsEngineComboboxOption[],
     sessionMinutes: 60,
     customMinutes: '' as number | '',
     sportId: '' as number | '',
@@ -34,6 +36,7 @@ export function defaultNeedsEngineState() {
     audienceSplits: [] as AudienceSplit[],
     equipmentUsePolicy: 'must_use' as 'must_use' | 'use_only',
     allowBodyweight: true,
+    equipmentAvailable: [] as NeedsEngineComboboxOption[],
     equipmentUse: [] as NeedsEngineComboboxOption[],
     equipmentAvoid: [] as NeedsEngineComboboxOption[],
     avoidTokens: [] as NeedsEngineComboboxOption[],
@@ -58,6 +61,8 @@ export function snapshotNeedsEngineState(
   return {
     workMode: state.workMode,
     sessionObjective: state.sessionObjective,
+    specificGoal: state.specificGoal,
+    muscleFocus: state.muscleFocus,
     sessionMinutes: state.sessionMinutes,
     customMinutes: state.customMinutes,
     sportId: state.sportId,
@@ -68,10 +73,15 @@ export function snapshotNeedsEngineState(
     audienceSplits: state.audienceSplits,
     equipmentUsePolicy: state.equipmentUsePolicy,
     allowBodyweight: state.allowBodyweight,
+    equipmentAvailable: state.equipmentAvailable,
     equipmentUse: state.equipmentUse,
     equipmentAvoid: state.equipmentAvoid,
     avoidTokens: state.avoidTokens,
-    phaseRows: state.phaseRows.map(({ focusFacetType: _, ...row }) => row),
+    phaseRows: state.phaseRows.map((phaseRow) => {
+      const row: NeedsEnginePhaseRowState = { ...phaseRow }
+      delete row.focusFacetType
+      return row
+    }),
     userEditedPrepare: state.userEditedPrepare,
     nlPrompt: state.nlPrompt,
   }
@@ -83,6 +93,8 @@ export function applyNeedsEngineSnapshot(
   return {
     workMode: snapshot.workMode,
     sessionObjective: snapshot.sessionObjective as SessionObjective,
+    specificGoal: (snapshot.specificGoal ?? '') as import('./specificGoalPresets').SpecificGoalKey,
+    muscleFocus: snapshot.muscleFocus ?? [],
     sessionMinutes: snapshot.sessionMinutes,
     customMinutes: snapshot.customMinutes,
     sportId: snapshot.sportId,
@@ -94,6 +106,7 @@ export function applyNeedsEngineSnapshot(
     equipmentUsePolicy: snapshot.equipmentUsePolicy
       ?? (snapshot.equipmentMode === 'avoid' || snapshot.equipmentMode === 'use' ? 'must_use' : 'must_use'),
     allowBodyweight: snapshot.allowBodyweight !== false,
+    equipmentAvailable: snapshot.equipmentAvailable ?? [],
     equipmentUse: snapshot.equipmentUse,
     equipmentAvoid: snapshot.equipmentAvoid,
     avoidTokens: snapshot.avoidTokens,

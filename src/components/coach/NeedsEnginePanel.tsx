@@ -4,6 +4,12 @@ import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import { useCoachBuilderStore } from '../../coach/useCoachBuilderStore'
 import { listNeedsEngineRequirements, saveNeedsEngineRequirements } from '../../coach/needsEngineRequirementsStorage'
+import {
+  deleteEquipmentSetup,
+  listSavedEquipmentSetups,
+  saveEquipmentSetup,
+  type SavedEquipmentSetup,
+} from '../../coach/equipmentSetupsStorage'
 import { useNeedsEngineStore, type NeedsEnginePhaseRowState, snapshotNeedsEngineState, applyNeedsEngineSnapshot } from '../../coach/useNeedsEngineStore'
 import {
   buildPhasePlan,
@@ -15,6 +21,12 @@ import {
   type OtherPhaseKind,
 } from '../../coach/phaseArchitect'
 import { SESSION_OBJECTIVE_OPTIONS, type SessionObjective } from '../../coach/phasePlan'
+import {
+  buildSpecificGoalPlan,
+  SPECIFIC_GOAL_PRESETS,
+  specificGoalPreset,
+  type SpecificGoalKey,
+} from '../../coach/specificGoalPresets'
 import { standardDifficultyCap, suggestedDifficultyCap } from '../../coach/ageDifficultyPolicy'
 import type {
   AudienceSplit,
@@ -38,13 +50,14 @@ const FOCUS_LABELS: Record<FocusFacetType, string> = {
   tenet: 'Tenet',
   methodology: 'Methodology',
   physiology: 'Physiology',
+  pattern: 'Movement Pattern',
+  body_region: 'Muscle Group',
   order_slot: 'Movement Slot',
 }
 
 const OTHER_KIND_LABELS: Record<OtherPhaseKind, string> = {
   skills: 'Skills',
   games: 'Games',
-  tramp_tumble: 'Tramp & Tumble',
 }
 
 
@@ -84,6 +97,35 @@ function focusTargetWeight(facetType: FocusFacetType | '' | undefined): number {
   return 4
 }
 
+function difficultyTo100(value: number | null | undefined): number | null {
+  if (value == null || !Number.isFinite(Number(value))) return null
+  return Math.round(Number(value) * 10)
+}
+
+function difficultyFrom100(value: string): number | '' {
+  if (!value) return ''
+  const score = Number(value)
+  return Number.isFinite(score) ? Math.min(100, Math.max(1, score)) / 10 : ''
+}
+
+function prescribedDoseLabel(item: {
+  sets: number
+  reps?: number | null
+  work_seconds?: number | null
+  distance?: number | null
+  contacts?: number | null
+  rounds?: number | null
+  volume_unit?: string | null
+}): string {
+  if (item.reps != null) return `${item.sets}×${item.reps}`
+  if (item.contacts != null) return `${item.sets}×${item.contacts} contacts`
+  if (item.distance != null) return `${item.sets}×${item.distance} distance`
+  if (item.rounds != null) return `${item.rounds} rounds`
+  if (item.volume_unit === 'attempts') return `${item.sets} attempts`
+  if (item.work_seconds != null) return `${item.sets}×${item.work_seconds}s`
+  return `${item.sets} sets`
+}
+
 /** Taxonomy rows from Postgres/JSON may use string ids; focus targets store numeric facetId. */
 function taxonomyFacetIdsMatch(
   taxonomyId: number | string | null | undefined,
@@ -115,6 +157,8 @@ function focusFacetList(
       (s) => !phaseKey || phaseKey === 'other' || s.phase_key === phaseKey,
     )
   }
+  if (facetType === 'pattern') return taxonomy.patterns
+  if (facetType === 'body_region') return taxonomy.bodyRegions
   return undefined
 }
 
@@ -179,6 +223,8 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
   const {
     workMode,
     sessionObjective,
+    specificGoal,
+    muscleFocus,
     sessionMinutes,
     customMinutes,
     sportId,
@@ -189,6 +235,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     audienceSplits,
     equipmentUsePolicy,
     allowBodyweight,
+    equipmentAvailable,
     equipmentUse,
     equipmentAvoid,
     avoidTokens,
@@ -220,6 +267,10 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
   const [hasPrescription, setHasPrescription] = useState(Boolean(result))
   const [error, setError] = useState<string | null>(null)
   const [nlLoading, setNlLoading] = useState(false)
+  const [equipmentSetups, setEquipmentSetups] = useState<SavedEquipmentSetup[]>([])
+  const [selectedEquipmentSetupId, setSelectedEquipmentSetupId] = useState('')
+  const [equipmentSetupName, setEquipmentSetupName] = useState('')
+  const [savingEquipmentSetup, setSavingEquipmentSetup] = useState(false)
 
   const setPhaseRows = useCallback((next: NeedsEnginePhaseRowState[] | ((rows: NeedsEnginePhaseRowState[]) => NeedsEnginePhaseRowState[])) => {
     patch({ phaseRows: typeof next === 'function' ? next(useNeedsEngineStore.getState().phaseRows) : next })
@@ -237,8 +288,22 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     [taxonomy?.equipment],
   )
 
+  const selectableEquipmentUseOptions = useMemo(
+    () => equipmentAvailable.length > 0 ? equipmentAvailable : equipmentOptions,
+    [equipmentAvailable, equipmentOptions],
+  )
+
+  useEffect(() => {
+    setEquipmentSetups(listSavedEquipmentSetups())
+  }, [])
+
   const bodyRegionOptions = useMemo<ComboboxOption[]>(
     () => (taxonomy?.bodyRegions ?? []).map((br) => ({ id: `br:${br.id}`, label: br.name, meta: 'body region' })),
+    [taxonomy?.bodyRegions],
+  )
+
+  const muscleGroupOptions = useMemo<ComboboxOption[]>(
+    () => (taxonomy?.bodyRegions ?? []).map((br) => ({ id: br.id, label: br.name, meta: 'muscle group' })),
     [taxonomy?.bodyRegions],
   )
 
@@ -265,10 +330,11 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
         coachFetch<CoachPhaseTemplate[]>('/api/coach/phase-templates'),
         listNeedsEngineRequirements(),
       ])
-      setSystemTemplates(system)
+      setSystemTemplates(system.filter((template) => !/tumbl|tramp/i.test(template.key)))
       setSavedTemplates(saved.filter((t) => {
         const plan = t.phase_plan as unknown
-        return !(typeof plan === 'object' && plan !== null && (plan as { __kind?: string }).__kind === 'needs_engine_requirements')
+        return !/tumbl|tramp/i.test(t.name)
+          && !(typeof plan === 'object' && plan !== null && (plan as { __kind?: string }).__kind === 'needs_engine_requirements')
       }))
       setSavedRequirements(requirements)
     } catch (err) {
@@ -329,6 +395,32 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     })
     patch({ phaseRows: rowsWithLabels(plan as NeedsEnginePhaseRow[], taxonomy), architectAdjustments: adjustments })
   }
+
+  const applySpecificGoal = useCallback((goal: SpecificGoalKey, selectedMuscles = muscleFocus, duration = effectiveMinutes) => {
+    if (!goal) {
+      patch({ specificGoal: '', muscleFocus: selectedMuscles, architectAdjustments: [] })
+      return
+    }
+    const preset = specificGoalPreset(goal)
+    if (!preset || !taxonomy) {
+      patch({ specificGoal: goal, muscleFocus: selectedMuscles })
+      return
+    }
+    const muscleIds = selectedMuscles.map((item) => Number(item.id)).filter(Number.isFinite)
+    const plan = buildSpecificGoalPlan(preset.key, duration, taxonomy, muscleIds)
+    patch({
+      specificGoal: goal,
+      muscleFocus: selectedMuscles,
+      sessionObjective: preset.objective,
+      phaseRows: rowsWithLabels(plan, taxonomy),
+      userEditedPrepare: false,
+      selectedTemplateKey: '',
+      architectAdjustments: [
+        `${preset.label} preset applied at ${duration} minutes.`,
+        'Prepare & Access and Restore remain work-derived; muscle emphasis is applied to the work phases.',
+      ],
+    })
+  }, [effectiveMinutes, muscleFocus, patch, taxonomy])
 
   const loadTemplatePlan = (key: string) => {
     patch({ selectedTemplateKey: key })
@@ -485,6 +577,9 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       : []
     patch({ result: null, blockProgramming: [] })
     try {
+      if (equipmentUsePolicy === 'use_only' && equipmentUse.length === 0) {
+        throw new Error('Select at least one item in Equipment [Use only].')
+      }
       const avoid = parseAvoidPayload()
       const capsOverride = difficultyOverride !== ''
         ? { maxOverall: Number(difficultyOverride), maxTechnical: Number(difficultyOverride), maxLoad: Number(difficultyOverride) }
@@ -503,6 +598,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           ageMax: s.ageMax,
           difficultyOverride: s.difficultyOverride ?? suggestedDifficultyCap(s.ageMin, s.ageMax),
         })),
+        equipmentAvailableIds: equipmentAvailable.map((e) => Number(e.id)).filter(Number.isFinite),
         equipmentUseIds: equipmentUse.map((e) => Number(e.id)).filter(Number.isFinite),
         equipmentUsePolicy,
         allowBodyweight,
@@ -511,6 +607,8 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           : equipmentAvoid.map((e) => Number(e.id)).filter(Number.isFinite),
         ...avoid,
         sessionObjective,
+        specificGoal: specificGoal || null,
+        muscleFocusIds: muscleFocus.map((item) => Number(item.id)).filter(Number.isFinite),
         durationMinutes: effectiveMinutes,
         phasePlan: phaseRows.map((r) => ({
           phaseKey: r.phaseKey,
@@ -519,7 +617,6 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           focusTargets: r.focusTargets ?? [],
           otherKind: r.otherKind,
           otherItemIds: r.otherItemIds ?? [],
-          contains_tumbling: r.contains_tumbling,
           pinned: r.pinned,
         })),
         regenerationSeed: Date.now(),
@@ -536,6 +633,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       const progPicks = await Promise.all(
         phaseRows.map(async (b) => {
           if (b.phaseKey === 'other') return null
+          if (!['capacity', 'resilience', 'sustained_capacity'].includes(b.phaseKey)) return null
           try {
             const methodologyTarget = (b.focusTargets ?? []).find((t) => t.facetType === 'methodology')
             const methodologyRow = methodologyTarget
@@ -567,13 +665,21 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
         details?: {
           code?: string
           unsatisfiable_equipment?: Array<{ name: string }>
+          unsatisfied_versions?: Array<{ split_label?: string | null }>
           violations?: Array<{ exercise_name: string; block_label?: string }>
           blocking_requirements?: Array<{ message: string }>
           suggested_relaxations?: Array<{ suggestion: string }>
         }
       }
       if (e.status === 422 && e.details?.unsatisfiable_equipment?.length) {
-        setError(`No workout exists for that equipment: ${e.details.unsatisfiable_equipment.map((x) => x.name).join(', ')}`)
+        const equipmentNames = e.details.unsatisfiable_equipment.map((x) => x.name).join(', ')
+        const splitNames = e.details.unsatisfied_versions
+          ?.map((version) => version.split_label)
+          .filter((label): label is string => Boolean(label))
+        setError(
+          `Required equipment could not be placed with the current session constraints: ${equipmentNames}.`
+          + (splitNames?.length ? ` Affected workout versions: ${splitNames.join(', ')}.` : ''),
+        )
       } else if (e.status === 422 && e.details?.violations?.length) {
         setError(`Prescription includes avoided equipment: ${e.details.violations.map((x) => x.exercise_name).join(', ')}`)
       } else if (e.status === 422 && e.details?.blocking_requirements?.length) {
@@ -721,6 +827,36 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
   const selectAllEquipmentAvoid = () => patch({ equipmentAvoid: [...equipmentOptions] })
   const deselectAllEquipmentAvoid = () => patch({ equipmentAvoid: [] })
 
+  const applyEquipmentSetup = (id: string) => {
+    setSelectedEquipmentSetupId(id)
+    const setup = equipmentSetups.find((row) => row.id === id)
+    if (!setup) return
+    const available = setup.equipment.filter((saved) =>
+      equipmentOptions.some((option) => String(option.id) === String(saved.id)),
+    )
+    const availableIds = new Set(available.map((option) => String(option.id)))
+    patch({
+      equipmentAvailable: available,
+      equipmentUse: equipmentUse.filter((option) => availableIds.has(String(option.id))),
+    })
+  }
+
+  const handleSaveEquipmentSetup = () => {
+    try {
+      setEquipmentSetups(saveEquipmentSetup(equipmentSetupName, equipmentAvailable))
+      setEquipmentSetupName('')
+      setSavingEquipmentSetup(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to save equipment setup.')
+    }
+  }
+
+  const handleDeleteEquipmentSetup = () => {
+    if (!selectedEquipmentSetupId) return
+    setEquipmentSetups(deleteEquipmentSetup(selectedEquipmentSetupId))
+    setSelectedEquipmentSetupId('')
+  }
+
   const handleReset = () => {
     if (result && !window.confirm('Clear the Needs Engine form and prescription?')) return
     resetNeedsEngine()
@@ -811,17 +947,55 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
           <div className="grid grid-cols-2 gap-3">
             <label className="text-sm col-span-2">
               <span className="block font-semibold text-gray-700 mb-1">Session objective</span>
-              <select value={sessionObjective} onChange={(e) => patch({ sessionObjective: e.target.value as SessionObjective })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+              <select value={sessionObjective} onChange={(e) => patch({ sessionObjective: e.target.value as SessionObjective, specificGoal: '' })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
                 {SESSION_OBJECTIVE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </label>
+            <div className="text-sm col-span-2 rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-3">
+              <label>
+                <span className="block font-semibold text-gray-700 mb-1">Specific Goal preset</span>
+                <select
+                  value={specificGoal}
+                  onChange={(e) => applySpecificGoal(e.target.value as SpecificGoalKey)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white"
+                >
+                  <option value="">Custom / no preset</option>
+                  {SPECIFIC_GOAL_PRESETS.map((preset) => (
+                    <option key={preset.key} value={preset.key}>{preset.label}</option>
+                  ))}
+                </select>
+              </label>
+              {specificGoalPreset(specificGoal) && (
+                <div className="text-xs text-gray-600 space-y-1">
+                  <p>{specificGoalPreset(specificGoal)?.description}</p>
+                  <p><span className="font-semibold text-gray-700">Recommended session:</span> {specificGoalPreset(specificGoal)?.recommendedMinutes}</p>
+                  <p><span className="font-semibold text-gray-700">Programming:</span> {specificGoalPreset(specificGoal)?.coachingSpecifics}</p>
+                </div>
+              )}
+              <div>
+                <span className="block font-semibold text-gray-700 mb-1">Muscle groups to emphasize</span>
+                <SmartCombobox
+                  options={muscleGroupOptions}
+                  selected={muscleFocus}
+                  onChange={(selected) => applySpecificGoal(specificGoal, selected)}
+                  placeholder="Optional muscle-group focus…"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Applied to the work phases; preparation and restoration are generated from the resulting workload.
+                </p>
+              </div>
+            </div>
             <label className="text-sm">
               <span className="block font-semibold text-gray-700 mb-1">Session length</span>
               <select
                 value={customMinutes !== '' ? 'custom' : sessionMinutes}
                 onChange={(e) => {
                   if (e.target.value === 'custom') patch({ customMinutes: sessionMinutes })
-                  else patch({ customMinutes: '', sessionMinutes: Number(e.target.value) })
+                  else {
+                    const minutes = Number(e.target.value)
+                    patch({ customMinutes: '', sessionMinutes: minutes })
+                    if (specificGoal) applySpecificGoal(specificGoal, muscleFocus, minutes)
+                  }
                 }}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2"
               >
@@ -832,7 +1006,18 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
             {customMinutes !== '' && (
               <label className="text-sm">
                 <span className="block font-semibold text-gray-700 mb-1">Custom minutes</span>
-                <input type="number" min={15} max={180} value={customMinutes} onChange={(e) => patch({ customMinutes: e.target.value ? Number(e.target.value) : '' })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                <input
+                  type="number"
+                  min={15}
+                  max={180}
+                  value={customMinutes}
+                  onChange={(e) => {
+                    const minutes = e.target.value ? Number(e.target.value) : ''
+                    patch({ customMinutes: minutes })
+                    if (specificGoal && minutes !== '') applySpecificGoal(specificGoal, muscleFocus, minutes)
+                  }}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                />
               </label>
             )}
             <label className="text-sm">
@@ -864,17 +1049,18 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
             {(ageMinNum != null || ageMaxNum != null) && (
               <div className="col-span-2 flex flex-wrap items-center gap-2">
                 <span className="text-xs rounded-full bg-blue-50 text-blue-800 px-2.5 py-1 font-medium">
-                  Standard difficulty: {standardCap}/10
+                  Standard difficulty: {difficultyTo100(standardCap)}/100
                 </span>
                 <label className="text-xs flex items-center gap-1">
                   Override
                   <input
                     type="number"
                     min={1}
-                    max={10}
-                    value={difficultyOverride}
-                    onChange={(e) => patch({ difficultyOverride: e.target.value ? Number(e.target.value) : '' })}
-                    className="w-14 border border-gray-300 rounded px-2 py-0.5"
+                    max={100}
+                    step={1}
+                    value={difficultyOverride === '' ? '' : difficultyTo100(difficultyOverride) ?? ''}
+                    onChange={(e) => patch({ difficultyOverride: difficultyFrom100(e.target.value) })}
+                    className="w-16 border border-gray-300 rounded px-2 py-0.5"
                     placeholder="—"
                   />
                 </label>
@@ -915,9 +1101,10 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                   <input
                     type="number"
                     min={1}
-                    max={10}
-                    value={split.difficultyOverride ?? suggestedDifficultyCap(split.ageMin, split.ageMax)}
-                    onChange={(e) => updateSplitCap(i, e.target.value ? Number(e.target.value) : null)}
+                    max={100}
+                    step={1}
+                    value={difficultyTo100(split.difficultyOverride ?? suggestedDifficultyCap(split.ageMin, split.ageMax)) ?? ''}
+                    onChange={(e) => updateSplitCap(i, e.target.value ? Number(e.target.value) / 10 : null)}
                     className="border border-gray-300 rounded px-2 py-1"
                     title="Difficulty cap"
                   />
@@ -943,15 +1130,108 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
 
           {/* Equipment */}
           <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              <span className="text-sm font-semibold text-gray-700">Equipment</span>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span className="text-sm font-semibold text-gray-800">Equipment <span className="text-vortex-red">[Available]</span></span>
+                  <p className="text-xs text-gray-500">Sets the equipment pool the workout can choose from.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSavingEquipmentSetup((open) => !open)}
+                  className="text-xs font-medium text-vortex-red hover:underline"
+                >
+                  Save setup
+                </button>
+              </div>
+
+              <div className="flex gap-2">
+                <select
+                  value={selectedEquipmentSetupId}
+                  onChange={(event) => applyEquipmentSetup(event.target.value)}
+                  className="min-w-0 flex-1 rounded border border-gray-300 bg-white px-2 py-1.5 text-xs"
+                  aria-label="Saved equipment setup"
+                >
+                  <option value="">Saved equipment setups…</option>
+                  {equipmentSetups.map((setup) => (
+                    <option key={setup.id} value={setup.id}>{setup.name}</option>
+                  ))}
+                </select>
+                {selectedEquipmentSetupId && (
+                  <button
+                    type="button"
+                    onClick={handleDeleteEquipmentSetup}
+                    className="rounded border border-gray-300 bg-white p-1.5 text-gray-500 hover:text-red-600"
+                    aria-label="Delete saved equipment setup"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+
+              {savingEquipmentSetup && (
+                <div className="flex gap-2">
+                  <input
+                    value={equipmentSetupName}
+                    onChange={(event) => setEquipmentSetupName(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault()
+                        handleSaveEquipmentSetup()
+                      }
+                    }}
+                    placeholder="Setup name (for example, Main gym)"
+                    className="min-w-0 flex-1 rounded border border-gray-300 bg-white px-2 py-1.5 text-xs"
+                    autoFocus
+                  />
+                  <button type="button" onClick={handleSaveEquipmentSetup} className="rounded bg-vortex-red px-3 py-1.5 text-xs font-medium text-white">
+                    Save
+                  </button>
+                </div>
+              )}
+
+              <SmartCombobox
+                options={equipmentOptions}
+                selected={equipmentAvailable}
+                onChange={(selected) => {
+                  const availableIds = new Set(selected.map((option) => String(option.id)))
+                  patch({
+                    equipmentAvailable: selected,
+                    equipmentUse: equipmentUse.filter((option) => availableIds.has(String(option.id))),
+                  })
+                  setSelectedEquipmentSetupId('')
+                }}
+                placeholder="All catalog equipment is available until a selection is made."
+              />
+              {equipmentAvailable.length === 0 && (
+                <p className="rounded border border-amber-200 bg-amber-50 px-2.5 py-2 text-xs text-amber-800">
+                  No availability setup selected: the generator will treat every catalog equipment item as available.
+                </p>
+              )}
+              <label className="text-xs flex items-center gap-1.5 text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={allowBodyweight}
+                  onChange={(e) => patch({ allowBodyweight: e.target.checked })}
+                  className="rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
+                />
+                Bodyweight / no-equipment exercises are available
+              </label>
+            </div>
+
+            <div className="rounded-lg border border-gray-200 p-3 space-y-3">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <span className="text-sm font-semibold text-gray-800">
+                  Equipment <span className="text-vortex-red">[{equipmentUsePolicy === 'must_use' ? 'Must use' : 'Use only'}]</span>
+                </span>
+                <span className="text-xs text-gray-500">Selection behavior:</span>
               <div className="inline-flex rounded border border-gray-300 overflow-hidden text-xs">
                 <button
                   type="button"
                   onClick={() => patch({ equipmentUsePolicy: 'must_use' })}
                   className={`px-2 py-1 ${equipmentUsePolicy === 'must_use' ? 'bg-vortex-red text-white' : 'bg-white'}`}
                 >
-                  Must Use
+                  Must use
                 </button>
                 <button
                   type="button"
@@ -961,34 +1241,27 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                   Use only
                 </button>
               </div>
-              {equipmentUsePolicy === 'use_only' && (
-                <label className="text-xs flex items-center gap-1.5 text-gray-700">
-                  <input
-                    type="checkbox"
-                    checked={allowBodyweight}
-                    onChange={(e) => patch({ allowBodyweight: e.target.checked })}
-                    className="rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
-                  />
-                  Allow bodyweight
-                </label>
-              )}
             </div>
             <SmartCombobox
-              options={equipmentOptions}
+              options={selectableEquipmentUseOptions}
               selected={equipmentUse}
               onChange={(sel) => patch({ equipmentUse: sel })}
               placeholder={
                 equipmentUsePolicy === 'use_only'
-                  ? 'Only exercises using this equipment (and bodyweight if allowed) will be selected.'
-                  : 'Required equipment must appear in session; other equipment may also be used.'
+                  ? 'Only this equipment may be used; every selected item does not have to appear.'
+                  : 'Every selected item must appear; other available equipment may also be used.'
               }
-              allowCustom
-              onCustomAdd={(text) => ({ id: `custom:${text}`, label: text })}
             />
+              <p className="text-xs text-gray-500">
+                {equipmentUsePolicy === 'use_only'
+                  ? `Nothing outside this list will be prescribed${allowBodyweight ? ', except bodyweight.' : '.'}`
+                  : 'These items are guaranteed requirements, not the complete allowed list.'}
+              </p>
+            </div>
 
             <div className={equipmentUsePolicy === 'use_only' ? 'opacity-50 pointer-events-none' : ''}>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-2">
-                <span className="text-sm font-semibold text-gray-700">Equipment</span>
+                <span className="text-sm font-semibold text-gray-700">Additional equipment exclusions</span>
                 <div className="inline-flex rounded border border-gray-300 overflow-hidden text-xs">
                   <span className="px-2 py-1 bg-vortex-red text-white">Don&apos;t Use</span>
                 </div>
@@ -1143,9 +1416,6 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                               allowCustom={false}
                             />
                           )}
-                          {row.otherKind === 'tramp_tumble' && (
-                            <span className="text-xs text-gray-500">Placeholder time block — no exercise selection.</span>
-                          )}
                         </div>
                       )}
                       {!isOther && (focusType || focusSelections.length > 0) && (
@@ -1226,7 +1496,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                   <div className="font-semibold text-blue-900">Audience profile</div>
                   <p className="text-xs text-blue-800 mt-1">
                     {result.audience_profile.ageBandLabel}
-                    {' · '}Max difficulty {result.audience_profile.caps.maxOverall}/10
+                    {' · '}Max difficulty {difficultyTo100(result.audience_profile.caps.maxOverall)}/100
                     {result.audience_profile.scalingCohort ? ` · Cohort ${result.audience_profile.scalingCohort.replace(/_/g, ' ')}` : ''}
                     {result.audience_profile.impliedSkillLevel ? ` · ${result.audience_profile.impliedSkillLevel}` : ''}
                   </p>
@@ -1283,7 +1553,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                       <li key={split.label}>
                         <span className="font-medium">{split.label}</span>
                         {split.ageMin != null || split.ageMax != null ? ` (ages ${split.ageMin ?? '?'}-${split.ageMax ?? '?'})` : ''}
-                        {' · '}cap {split.caps.maxOverall}/10
+                        {' · '}cap {difficultyTo100(split.caps.maxOverall)}/100
                       </li>
                     ))}
                   </ul>
@@ -1308,6 +1578,11 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                       )}
                     </span>
                   </div>
+                  {Number(b.transition_minutes ?? 0) > 0 && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      {b.exercise_minutes}m exercise dose + {b.transition_minutes}m transitions, setup, and coaching resets
+                    </p>
+                  )}
                   {focusLabels.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-1">
                       {focusLabels.map((label) => (
@@ -1337,9 +1612,9 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                       return (
                       <li key={`${it.exercise_id}-${j}`} className={`text-sm border-t border-gray-50 first:border-t-0 pt-2 first:pt-0 ${it.age_fit === 'over_cap' || it.age_fit === 'stretch' ? 'bg-amber-50/80 -mx-2 px-2 rounded' : ''}`}>
                         <div className="flex items-center justify-between gap-2 flex-wrap">
-                          <span className="text-gray-700">{it.exercise_name} <span className="text-gray-400">{it.sets}x{it.reps ?? '-'}</span></span>
+                          <span className="text-gray-700">{it.exercise_name} <span className="text-gray-400">{prescribedDoseLabel(it)}</span></span>
                           <span className="flex items-center gap-2 text-xs">
-                            {it.difficulty?.overall != null && <span className="text-gray-600">D{it.difficulty.overall}/10</span>}
+                            {it.difficulty?.overall != null && <span className="text-gray-600">D{difficultyTo100(it.difficulty.overall)}/100</span>}
                             {it.age_fit === 'good' && <span className="text-green-700">Age OK</span>}
                             {it.age_fit === 'stretch' && <span className="text-amber-700">Stretch</span>}
                             {it.age_fit === 'over_cap' && <span className="text-amber-800 font-medium">Over cap</span>}
@@ -1367,7 +1642,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                                       </span>
                                     </td>
                                     <td className="px-2 py-1 text-gray-500">
-                                      {ps.difficulty?.overall != null ? `D${ps.difficulty.overall}/10` : '—'}
+                                      {ps.difficulty?.overall != null ? `D${difficultyTo100(ps.difficulty.overall)}/100` : '—'}
                                       {ps.scaling_guidance ? ` · ${ps.scaling_guidance}` : ''}
                                     </td>
                                   </tr>
@@ -1379,7 +1654,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                         {it.selection_rationale && <p className="text-xs text-gray-500 mt-1">{it.selection_rationale}</p>}
                       </li>
                     )})}
-                    {b.items.length === 0 && <li className="text-xs text-gray-400">{b.other_kind === 'tramp_tumble' ? 'Reserved time block.' : 'No matching exercises.'}</li>}
+                    {b.items.length === 0 && <li className="text-xs text-gray-400">No matching exercises.</li>}
                   </ul>
                 </div>
                 )

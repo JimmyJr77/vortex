@@ -113,9 +113,9 @@ function SessionModelMinutes({ row }: { row: EducationContent }) {
     <div className="px-5 pb-4 text-sm border-t border-gray-100">
       <p className="text-gray-500 mb-2 pt-3"><HighlightText text="Phase allocation" /></p>
       <ul className="space-y-1 text-gray-700">
-        {plan.map((block: { phase?: string; minutes?: number; contains_tumbling?: boolean; add_on_focus?: string }, i: number) => (
+        {plan.map((block: { phase?: string; minutes?: number; add_on_focus?: string }, i: number) => (
           <li key={`${block.phase}-${i}`}>
-            <HighlightText text={`${phaseDisplayName(block.phase) || block.phase?.replace(/_/g, ' ')} — ${block.minutes} min${block.contains_tumbling ? ' (tumbling block)' : ''}${block.add_on_focus ? ` (${block.add_on_focus.replace(/_/g, ' ')})` : ''}`} />
+            <HighlightText text={`${phaseDisplayName(block.phase) || block.phase?.replace(/_/g, ' ')} — ${block.minutes} min${block.add_on_focus ? ` (${block.add_on_focus.replace(/_/g, ' ')})` : ''}`} />
           </li>
         ))}
       </ul>
@@ -327,8 +327,6 @@ export default function FrameworkPanel() {
   const sessionModelKeys = [
     'master_session_order',
     'session_60_general',
-    'session_90_tumbling_first',
-    'session_90_tumbling_end',
     'session_120_speed_addon',
     'session_120_fitness_addon',
     'addon_speed_placement',

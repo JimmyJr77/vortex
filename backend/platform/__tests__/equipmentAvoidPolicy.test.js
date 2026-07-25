@@ -6,9 +6,15 @@ import {
   EQUIPMENT_AVOID_ALIASES,
   exerciseAllowedUseOnly,
   equipmentUsePolicyFromBody,
+  equipmentAvailableIdsFromBody,
   effectiveEquipmentAvoidIds,
   equipmentAvoidActiveForBody,
 } from '../equipmentAvoidPolicy.js'
+
+test('equipmentAvailableIdsFromBody normalizes camel and snake case ids', () => {
+  assert.deepEqual(equipmentAvailableIdsFromBody({ equipmentAvailableIds: ['7', 9, 'bad'] }), [7, 9])
+  assert.deepEqual(equipmentAvailableIdsFromBody({ equipment_available_ids: [11] }), [11])
+})
 
 test('bar avoid alias includes pull_up_bar keys', () => {
   assert.ok(EQUIPMENT_AVOID_ALIASES.bar.includes('pull_up_bar'))

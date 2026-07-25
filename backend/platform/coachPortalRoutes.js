@@ -101,6 +101,7 @@ import {
   saveCoachNeedsEngineRequirements,
   deleteCoachNeedsEngineRequirements,
 } from './phaseAwarePrescription.js'
+import { textMentionsEquipment } from './equipmentNameMatching.js'
 import {
   parseAgeRangeFromText,
   parseSessionObjectiveFromText,
@@ -4055,7 +4056,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         pool.query(`SELECT id, name FROM coaching.methodology`),
         pool.query(`SELECT id, name FROM coaching.physiological_emphasis`),
         pool.query(`SELECT id, name FROM coaching.sport`),
-        pool.query(`SELECT id, name FROM coaching.equipment`),
+        pool.query(`SELECT id, key, name FROM coaching.equipment`),
         pool.query(`SELECT id, key, name FROM coaching.session_phase ORDER BY order_index`),
       ])
 
@@ -4069,7 +4070,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         ...matchFacet(methodologies, 'methodology', 4),
         ...matchFacet(physiology, 'physiology', 3),
       ]
-      const equipmentIds = equipment.rows.filter((r) => lower.includes(String(r.name).toLowerCase())).map((r) => Number(r.id))
+      const equipmentIds = equipment.rows.filter((row) => textMentionsEquipment(prompt, row)).map((row) => Number(row.id))
       const sport = sports.rows.find((r) => lower.includes(String(r.name).toLowerCase()))
       const matchedPhase = sessionPhases.rows.find((r) => lower.includes(String(r.name).toLowerCase()))
       const PHASE_KEYWORDS = {

@@ -34,6 +34,12 @@ export function equipmentUseIdsFromBody(body) {
     .filter(Number.isFinite)
 }
 
+export function equipmentAvailableIdsFromBody(body) {
+  return (body?.equipmentAvailableIds ?? body?.equipment_available_ids ?? [])
+    .map(Number)
+    .filter(Number.isFinite)
+}
+
 /** Don't-use list applies only under must_use; use_only ignores explicit avoids. */
 export function effectiveEquipmentAvoidIds(body) {
   if (equipmentUsePolicyFromBody(body) === 'use_only') return []

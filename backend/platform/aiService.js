@@ -80,7 +80,7 @@ const WORKOUT_INTENT_OUTPUT_SCHEMA = {
   required: [
     'originalRequest', 'interpretedObjective', 'hardConstraints',
     'softPreferences', 'athleteProfile', 'facilityProfile',
-    'phasePreferences', 'uncertainties', 'assumptions', 'confidence',
+    'uncertainties', 'assumptions', 'confidence',
     'clarificationRequired', 'clarificationQuestion',
   ],
   properties: {
@@ -90,7 +90,7 @@ const WORKOUT_INTENT_OUTPUT_SCHEMA = {
       enum: [
         'general_athletic_development', 'speed_priority',
         'explosiveness_power_priority', 'strength_priority', 'agility_priority',
-        'skill_tumbling_priority', 'mobility_control_priority',
+        'mobility_control_priority',
         'fitness_priority', 'recovery_low_intensity',
       ],
     },
@@ -155,15 +155,6 @@ const WORKOUT_INTENT_OUTPUT_SCHEMA = {
             laneLengthFeet: { type: ['integer', 'null'], minimum: 1 },
           },
         },
-      },
-    },
-    phasePreferences: {
-      type: 'object',
-      additionalProperties: false,
-      required: ['tumblingPlacement', 'tumblingMinutes'],
-      properties: {
-        tumblingPlacement: { type: ['string', 'null'], enum: ['beginning', 'end', null] },
-        tumblingMinutes: { type: ['integer', 'null'], minimum: 5, maximum: 60 },
       },
     },
     uncertainties: { type: 'array', items: { type: 'string' } },

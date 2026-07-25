@@ -94,6 +94,21 @@ test('publication readiness reports contextual profile omissions by path', () =>
   assert.ok(result.issues.some((issue) => issue.path.endsWith('dosage')))
 })
 
+test('publication readiness requires equipment on each exact variant profile', () => {
+  const card = publishableCard()
+  card.variants[0].profiles[0].equipmentRequired = []
+  const result = evaluateCanonicalCardReadiness(card, {
+    mediaReview: {
+      url: card.approvedVideoUrl,
+      linkStatus: 'healthy',
+      exactVariantMatch: true,
+      demonstrationQualityScore: 90,
+    },
+  })
+  assert.equal(result.ready, false)
+  assert.ok(result.issues.some((issue) => issue.code === 'equipment_declaration'))
+})
+
 test('lifecycle prevents direct draft publication and published editing', () => {
   assert.equal(assertCardStatusTransition('draft', 'review'), true)
   assert.equal(assertCardStatusTransition('review', 'published'), true)

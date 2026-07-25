@@ -38,7 +38,9 @@ function list(value) {
 }
 
 function requiredEquipment(card, profile) {
-  return [...new Set([...list(card.equipment?.required), ...list(profile?.equipmentRequired)])]
+  const profileEquipment = list(profile?.equipmentRequired)
+  const declared = profileEquipment.length > 0 ? profileEquipment : list(card.equipment?.required)
+  return [...new Set(declared.filter((key) => key !== 'none' && key !== 'bodyweight'))]
 }
 
 function intersection(a, b) {
@@ -456,29 +458,12 @@ export function generateCanonicalWorkout(rawIntent, library, options = {}) {
   if (!Array.isArray(library) || library.length === 0) {
     throw new CanonicalGenerationError('exercise library is empty', 'empty_library')
   }
-  let { plan, adjustments } = buildPhasePlan({
+  const { plan, adjustments } = buildPhasePlan({
     durationMinutes: intent.durationMinutes,
     sessionObjective: intent.objective,
     ageMin: intent.ageMin,
     ageMax: intent.ageMax,
   })
-  if (intent.tumblingBlock) {
-    const movementIndex = plan.findIndex((phase) => phase.phaseKey === 'movement_intelligence')
-    const capacityIndex = plan.findIndex((phase) => phase.phaseKey === 'capacity')
-    if (movementIndex < 0 || capacityIndex < 0) {
-      throw new CanonicalGenerationError('tumbling block requires movement intelligence and capacity phases', 'unsatisfiable_tumbling')
-    }
-    const delta = intent.tumblingBlock.minutes - plan[movementIndex].minutes
-    if (delta > 0 && plan[capacityIndex].minutes - delta < 1) {
-      throw new CanonicalGenerationError('tumbling block exceeds available session time', 'unsatisfiable_tumbling')
-    }
-    plan = plan.map((phase, index) => {
-      if (index === movementIndex) return { ...phase, minutes: intent.tumblingBlock.minutes, contains_tumbling: true }
-      if (index === capacityIndex) return { ...phase, minutes: phase.minutes - delta }
-      return phase
-    }).filter((phase) => phase.minutes > 0)
-    adjustments = [...adjustments, `Tumbling ${intent.tumblingBlock.placement}: ${intent.tumblingBlock.minutes} min`]
-  }
   assertCanonicalPhaseOrder(plan.map((phase) => phase.phaseKey))
 
   const usedFamilies = new Set()
@@ -564,8 +549,6 @@ export function generateCanonicalWorkout(rawIntent, library, options = {}) {
       )).join('; '),
       stationSynchronizationPlan,
       phaseRationale: `Selected the highest eligible phase-aware delivery profile for ${intent.objective}.`,
-      containsTumbling: Boolean(phase.contains_tumbling),
-      tumblingPlacement: phase.contains_tumbling ? intent.tumblingBlock?.placement ?? null : null,
       phaseQualityScore: Math.round(averageScore),
     }
   })

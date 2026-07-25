@@ -86,7 +86,7 @@ export function parseSessionObjectiveFromText(text) {
   if (/\b(speed|sprint|fast)\b/.test(lower)) return 'speed_priority'
   if (/\b(power|explosive|plyo)\b/.test(lower)) return 'explosiveness_power_priority'
   if (/\b(agility|cutting|change of direction)\b/.test(lower)) return 'agility_priority'
-  if (/\b(tumbling|skill|gymnastics)\b/.test(lower)) return 'skill_tumbling_priority'
+  if (/\b(skill|gymnastics)\b/.test(lower)) return 'general_athletic_development'
   if (/\b(mobility|flexibility|stretch)\b/.test(lower)) return 'mobility_control_priority'
   if (/\b(fitness|conditioning|cardio)\b/.test(lower)) return 'fitness_priority'
   if (/\b(recovery|low intensity|reset)\b/.test(lower)) return 'recovery_low_intensity'
