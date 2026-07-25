@@ -299,6 +299,7 @@ const prerenderAppRoutes = async () => {
             () => document.querySelector('#root')?.childElementCount > 0,
             { timeout: 30000 },
           )
+          await page.waitForSelector('h1', { state: 'attached', timeout: 30000 })
           // Helmet and lazy route effects settle immediately after the first
           // committed render. Do not wait for background API polling to idle.
           await page.waitForTimeout(250)
