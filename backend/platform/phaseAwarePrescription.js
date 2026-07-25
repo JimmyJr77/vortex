@@ -1419,7 +1419,10 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     })
   }
 
-  if (useEquip.size > 0) {
+  // "must_use" is a coverage requirement: every selected equipment item must
+  // appear at least once. "use_only" is an allow-list and must not reject an
+  // otherwise valid session merely because one allowed item was not selected.
+  if (equipmentUsePolicy === 'must_use' && useEquip.size > 0) {
     const usedEquipIds = new Set()
     for (const block of resultBlocks) {
       for (const item of block.items) {

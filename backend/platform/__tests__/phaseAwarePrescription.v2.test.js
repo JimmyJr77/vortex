@@ -91,6 +91,23 @@ test('unsatisfiable equipment Use returns PrescriptionError 422 payload', async 
   )
 })
 
+test('use-only equipment is an allow-list and does not require every allowed item', async () => {
+  const pool = mockPool([
+    ...baseHandlers(),
+    (sql) => {
+      if (sql.includes('FROM coaching.exercise e WHERE')) return { rows: [] }
+    },
+  ])
+  const result = await runPhaseAwarePrescription(pool, 1, {
+    equipmentUsePolicy: 'use_only',
+    equipmentUseIds: [99],
+    allowBodyweight: true,
+    phasePlan: [{ phaseKey: 'capacity', minutes: 20, label: 'Main' }],
+  })
+  assert.equal(result.blocks.length, 1)
+  assert.equal(result.blocks[0].phase_key, 'capacity')
+})
+
 test('enablePreflight throws unsatisfiable_requirements before generation', async () => {
   const pool = mockPool([...baseHandlers()])
   await assert.rejects(

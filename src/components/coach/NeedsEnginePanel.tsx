@@ -565,14 +565,21 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       const e = err as Error & {
         status?: number
         details?: {
+          code?: string
           unsatisfiable_equipment?: Array<{ name: string }>
           violations?: Array<{ exercise_name: string; block_label?: string }>
+          blocking_requirements?: Array<{ message: string }>
+          suggested_relaxations?: Array<{ suggestion: string }>
         }
       }
       if (e.status === 422 && e.details?.unsatisfiable_equipment?.length) {
         setError(`No workout exists for that equipment: ${e.details.unsatisfiable_equipment.map((x) => x.name).join(', ')}`)
       } else if (e.status === 422 && e.details?.violations?.length) {
         setError(`Prescription includes avoided equipment: ${e.details.violations.map((x) => x.exercise_name).join(', ')}`)
+      } else if (e.status === 422 && e.details?.blocking_requirements?.length) {
+        const reasons = e.details.blocking_requirements.map((item) => item.message).join(' ')
+        const relaxations = e.details.suggested_relaxations?.map((item) => item.suggestion).join(' ')
+        setError(`${reasons}${relaxations ? ` Suggested change: ${relaxations}` : ''}`)
       } else {
         setError(e.message || 'Prescription failed')
       }

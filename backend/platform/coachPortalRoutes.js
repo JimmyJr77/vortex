@@ -1652,11 +1652,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     try {
       ok(res, await runPrescription(req.platformAuth.user.facility_id, req.body || {}))
     } catch (error) {
-      if (error instanceof PrescriptionError && error.code === 'unsatisfiable_equipment') {
-        return bad(res, error.message, 422, error.details)
-      }
-      if (error instanceof PrescriptionError && error.code === 'violates_equipment_avoid') {
-        return bad(res, error.message, 422, error.details)
+      if (error instanceof PrescriptionError) {
+        return bad(res, error.message, 422, { code: error.code, ...error.details })
       }
       bad(res, error.message, 500)
     }
