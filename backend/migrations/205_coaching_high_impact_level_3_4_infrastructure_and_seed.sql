@@ -3,30 +3,8 @@
 -- 50 total cards (50 insert, 0 merge).
 -- Library: Top 50 High-Impact Level 3-4 Exercise Library
 
-ALTER TABLE coaching.exercise DROP CONSTRAINT IF EXISTS exercise_phase_subrole_check;
-ALTER TABLE coaching.exercise ADD CONSTRAINT exercise_phase_subrole_check
-  CHECK (phase_subrole IS NULL OR phase_subrole IN (
-    'raise', 'mobilize', 'activate', 'integrate', 'potentiate_bridge',
-    'shape_position_intelligence', 'shape_control', 'inversion_foundation', 'rolling_transition',
-    'locomotion_coordination', 'rotation_inversion_tumbling_foundations', 'coordinate',
-    'locomotion_sprint_mechanics', 'balance_coordination_rhythm', 'perception_action_reactive_movement',
-    'acceleration_start_speed', 'max_velocity_exposure', 'elastic_stiffness_plyometric_rudiments',
-    'jump_throw_explosive_power', 'deceleration_cod_power', 'reactive_agility_tumbling_output',
-    'single_leg_elastic_control', 'reactive_jump', 'multidirectional_elastic_power',
-    'multidirectional_elastic_control', 'depth_reactive_jump', 'vertical_elastic_power',
-    'upper_body_trunk_elasticity',
-    'squat_knee_dominant_strength', 'hinge_posterior_chain_strength', 'upper_body_push_strength',
-    'pull_hang_grip_strength', 'carry_trunk_loaded_bracing_strength', 'frontal_plane_lower_body_strength',
-    'rotational_force_transfer_strength',
-    'tissue_capacity_isometric_eccentric_accessory', 'landing_braking_control',
-    'single_leg_balance_foot_ankle_hip_control', 'trunk_pelvis_anti_movement_control',
-    'scapular_wrist_hand_support_resilience', 'slow_eccentric_isometric_joint_resilience',
-    'conditioning_intervals', 'bodyweight_strength_endurance', 'low_amplitude_elastic_conditioning',
-    'crawl_carry_repeatability', 'breathing_downshift'
-  ));
-
-INSERT INTO coaching.phase_subrole (key, name, description, sort_order, phase_id)
-SELECT v.key, v.name, v.description, v.sort_order, sp.id
+INSERT INTO coaching.phase_subrole (phase_id, key, name, description, order_index)
+SELECT sp.id, v.key, v.name, v.description, v.order_index
 FROM coaching.session_phase sp
 CROSS JOIN (VALUES
   ('single_leg_elastic_control', 'Single-Leg Elastic Control', 'Unilateral hop, bound, and stick progressions with landing accountability.', 340),
@@ -36,13 +14,12 @@ CROSS JOIN (VALUES
   ('depth_reactive_jump', 'Depth Reactive Jump', 'Depth-drop and reactive rebound progressions.', 344),
   ('vertical_elastic_power', 'Vertical Elastic Power', 'High vertical plyometric contacts with controlled finish.', 345),
   ('upper_body_trunk_elasticity', 'Upper-Body / Trunk Elasticity', 'Medicine-ball and trunk-linked elastic output.', 346)
-) AS v(key, name, description, sort_order)
+) AS v(key, name, description, order_index)
 WHERE sp.key = 'output'
-ON CONFLICT (key) DO UPDATE SET
+ON CONFLICT (phase_id, key) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
-  sort_order = EXCLUDED.sort_order,
-  phase_id = EXCLUDED.phase_id;
+  order_index = EXCLUDED.order_index;
 
 -- output high-impact level 3-4 slots
 INSERT INTO coaching.phase_order_slot (key, name, description, phase_id, order_index, freshness_sensitivity, subrole_key)
@@ -123,7 +100,7 @@ SELECT
   (SELECT id FROM coaching.sport WHERE key = 'fitness'),
   d.skill::public.skill_level,
   d.age_min,
-  d.sets, d.reps, d.work, d.rest, d.est,
+  d.sets, d.reps, d.work::integer, d.rest, d.est,
   TRUE, 'facility', d.participant,
   d.summary, d.coach_lang, d.athlete_lang,
   d.family, d.phase_key, d.subrole, d.slot,
@@ -184,7 +161,7 @@ CROSS JOIN public.facility f
 ON CONFLICT (facility_id, slug) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'tenet', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'tenet', f.id, v.weight
 FROM (VALUES
   ('snap-down-to-low-vertical-rebound', 'explosiveness', 5),
   ('snap-down-to-low-vertical-rebound', 'speed', 4),
@@ -389,10 +366,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.tenet f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'methodology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'methodology', f.id, v.weight
 FROM (VALUES
   ('snap-down-to-low-vertical-rebound', 'plyometrics', 5),
   ('snap-down-to-low-vertical-rebound', 'speed_power', 4),
@@ -547,10 +525,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.methodology f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'physiology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'physiology', f.id, v.weight
 FROM (VALUES
   ('snap-down-to-low-vertical-rebound', 'ssc_stiffness', 5),
   ('snap-down-to-low-vertical-rebound', 'rate_of_force_development', 4),
@@ -755,10 +734,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.physiological_emphasis f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'pattern', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'pattern', f.id, v.weight
 FROM (VALUES
   ('snap-down-to-low-vertical-rebound', 'jump', 5),
   ('snap-down-to-low-vertical-rebound', 'land', 4),
@@ -945,10 +925,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.movement_pattern f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'equipment', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'equipment', f.id, v.weight
 FROM (VALUES
   ('snap-down-to-low-vertical-rebound', 'none', 5),
   ('low-box-drop-to-quarter-squat-rebound', 'low_box', 5),
@@ -1012,10 +993,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.equipment f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'body_region', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'body_region', f.id, v.weight
 FROM (VALUES
   ('snap-down-to-low-vertical-rebound', 'ankle', 5),
   ('snap-down-to-low-vertical-rebound', 'knee', 4),
@@ -1225,6 +1207,7 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.body_region f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_phase_profile (
@@ -1260,31 +1243,31 @@ FROM (VALUES
   ('partner-point-hop-to-stick', 'output', 'partner_point_hop_to_stick', 'primary', 5, TRUE, 5, 3, 3, 3, 'high'),
   ('medicine-ball-catch-to-low-hop-and-stick', 'output', 'med_ball_catch_low_hop_stick', 'primary', 5, TRUE, 5, 3, 3, 3, 'high'),
   ('split-stance-reactive-hop-switch', 'output', 'split_stance_reactive_hop_switch', 'primary', 5, TRUE, 5, 3, 3, 3, 'high'),
-  ('alternate-bounds-for-height-and-distance', 'output', 'alternate_bounds_height_distance', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('single-leg-triple-hop-to-stick', 'output', 'single_leg_triple_hop_to_stick', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('repeated-broad-jump-to-sprint-out', 'output', 'repeated_broad_jump_sprint_out', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('bounds-to-decel-gate', 'output', 'bounds_to_decel_gate', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('lateral-bound-rebound-series', 'output', 'lateral_bound_rebound_series', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('tuck-jump-to-lateral-stick', 'output', 'tuck_jump_to_lateral_stick', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('low-hurdle-hop-continuous-with-turn', 'output', 'low_hurdle_hop_continuous_with_turn', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('hurdle-hop-to-broad-jump', 'output', 'hurdle_hop_to_broad_jump', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('depth-drop-to-lateral-rebound', 'output', 'depth_drop_lateral_rebound', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('depth-drop-to-broad-rebound', 'output', 'depth_drop_broad_rebound', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('reactive-45-degree-hop-to-cut', 'output', 'reactive_45_degree_hop_to_cut', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('crossover-bound-to-re-acceleration', 'output', 'crossover_bound_reacceleration', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('partner-chase-bound-start', 'output', 'partner_chase_bound_start', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('shuffle-to-bound-to-sprint', 'output', 'shuffle_bound_sprint', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('backpedal-turn-to-hop-and-go', 'output', 'backpedal_turn_hop_and_go', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('curved-sprint-bound-series', 'output', 'curved_sprint_bound_series', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('zigzag-bound-rebound-course', 'output', 'zigzag_bound_rebound_course', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('180-jump-rebound-to-sprint-out', 'output', 'one_eighty_jump_rebound_sprint_out', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('single-leg-lateral-rebound-to-cut', 'output', 'single_leg_lateral_rebound_to_cut', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('reaction-ball-drop-to-hop-and-go', 'output', 'reaction_ball_drop_hop_and_go', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('medicine-ball-scoop-toss-to-broad-rebound', 'output', 'med_ball_scoop_toss_broad_rebound', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('medicine-ball-rotational-toss-to-lateral-bound', 'output', 'med_ball_rotational_toss_lateral_bound', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('resisted-band-assisted-rebound-jump', 'output', 'resisted_band_assisted_rebound_jump', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('low-hurdle-hop-to-reactive-color-call', 'output', 'low_hurdle_hop_reactive_color_call', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only'),
-  ('mirror-bound-and-cut-duel', 'output', 'mirror_bound_and_cut_duel', 'primary', 5, TRUE, 5, 4, 4, 4, 'very_high_quality_only')
+  ('alternate-bounds-for-height-and-distance', 'output', 'alternate_bounds_height_distance', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('single-leg-triple-hop-to-stick', 'output', 'single_leg_triple_hop_to_stick', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('repeated-broad-jump-to-sprint-out', 'output', 'repeated_broad_jump_sprint_out', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('bounds-to-decel-gate', 'output', 'bounds_to_decel_gate', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('lateral-bound-rebound-series', 'output', 'lateral_bound_rebound_series', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('tuck-jump-to-lateral-stick', 'output', 'tuck_jump_to_lateral_stick', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('low-hurdle-hop-continuous-with-turn', 'output', 'low_hurdle_hop_continuous_with_turn', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('hurdle-hop-to-broad-jump', 'output', 'hurdle_hop_to_broad_jump', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('depth-drop-to-lateral-rebound', 'output', 'depth_drop_lateral_rebound', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('depth-drop-to-broad-rebound', 'output', 'depth_drop_broad_rebound', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('reactive-45-degree-hop-to-cut', 'output', 'reactive_45_degree_hop_to_cut', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('crossover-bound-to-re-acceleration', 'output', 'crossover_bound_reacceleration', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('partner-chase-bound-start', 'output', 'partner_chase_bound_start', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('shuffle-to-bound-to-sprint', 'output', 'shuffle_bound_sprint', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('backpedal-turn-to-hop-and-go', 'output', 'backpedal_turn_hop_and_go', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('curved-sprint-bound-series', 'output', 'curved_sprint_bound_series', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('zigzag-bound-rebound-course', 'output', 'zigzag_bound_rebound_course', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('180-jump-rebound-to-sprint-out', 'output', 'one_eighty_jump_rebound_sprint_out', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('single-leg-lateral-rebound-to-cut', 'output', 'single_leg_lateral_rebound_to_cut', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('reaction-ball-drop-to-hop-and-go', 'output', 'reaction_ball_drop_hop_and_go', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('medicine-ball-scoop-toss-to-broad-rebound', 'output', 'med_ball_scoop_toss_broad_rebound', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('medicine-ball-rotational-toss-to-lateral-bound', 'output', 'med_ball_rotational_toss_lateral_bound', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('resisted-band-assisted-rebound-jump', 'output', 'resisted_band_assisted_rebound_jump', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('low-hurdle-hop-to-reactive-color-call', 'output', 'low_hurdle_hop_reactive_color_call', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max'),
+  ('mirror-bound-and-cut-duel', 'output', 'mirror_bound_and_cut_duel', 'primary', 5, TRUE, 5, 4, 4, 4, 'high_to_max')
 ) AS m(slug, phase_key, slot, role, fit_weight, freshness_required, fatigue_sensitivity, fatigue_cost, technical_complexity, impact_level, intensity_ceiling)
 JOIN coaching.exercise e ON e.slug = m.slug
 JOIN coaching.session_phase sp ON sp.key = m.phase_key
@@ -1299,7 +1282,7 @@ INSERT INTO coaching.exercise_dosage_profile (
   exercise_id, profile_name, is_default, volume_unit, default_sets, default_reps,
   default_work_seconds, default_rest_seconds, default_distance, est_seconds_per_set, default_rpe_min, default_rpe_max
 )
-SELECT e.id, 'Default', TRUE, m.unit, m.sets, m.reps, m.work, m.rest, NULL::integer, m.est, m.rpe_min, m.rpe_max
+SELECT e.id, 'Default', TRUE, m.unit, m.sets, m.reps, m.work::integer, m.rest, NULL::integer, m.est, m.rpe_min, m.rpe_max
 FROM (VALUES
   ('snap-down-to-low-vertical-rebound', 'contacts', 3, 5, NULL, 75, 35, 6, 8),
   ('low-box-drop-to-quarter-squat-rebound', 'reps', 3, 4, NULL, 105, 35, 6, 8),
@@ -1922,7 +1905,7 @@ VALUES (
   'All 50 exercises are authored as Output-phase, high-impact options. They are not Prepare & Access warm-up prep. They should be placed after access and movement-intelligence work while the nervous system is fresh, before heavy strength, conditioning, or high-volume sport work. Every set ends when contact quality, posture, projection, braking alignment, decision quality, or reset speed degrades.',
   'Do not use as warm-up prep, conditioning finisher, or volume chase. Progress one variable at a time and stop when landings get loud, slow, or misaligned.'
 )
-ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
+ON CONFLICT (entity_type, entity_key) WHERE entity_id IS NULL DO UPDATE SET
   title = EXCLUDED.title,
   short_summary = EXCLUDED.short_summary,
   what_it_is = EXCLUDED.what_it_is,

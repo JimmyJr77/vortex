@@ -6310,7 +6310,7 @@ WHERE t.exercise_id = e.id
   AND t.facet_type IN ('tenet', 'methodology', 'physiology', 'pattern', 'equipment', 'body_region');
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'tenet', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'tenet', f.id, v.weight
 FROM (VALUES
   ('partner-medicine-ball-chest-pass', 'explosiveness', 5),
   ('partner-medicine-ball-chest-pass', 'coordination', 4),
@@ -6501,10 +6501,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.tenet f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'methodology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'methodology', f.id, v.weight
 FROM (VALUES
   ('partner-medicine-ball-chest-pass', 'plyometrics', 4),
   ('partner-medicine-ball-chest-pass', 'neural', 4),
@@ -6659,10 +6660,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.methodology f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'physiology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'physiology', f.id, v.weight
 FROM (VALUES
   ('partner-medicine-ball-chest-pass', 'neural_output_readiness', 5),
   ('partner-medicine-ball-chest-pass', 'perception_action_skill', 3),
@@ -6810,10 +6812,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.physiological_emphasis f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'pattern', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'pattern', f.id, v.weight
 FROM (VALUES
   ('partner-medicine-ball-chest-pass', 'push', 5),
   ('partner-medicine-ball-overhead-toss', 'push', 5),
@@ -6888,10 +6891,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.movement_pattern f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'equipment', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'equipment', f.id, v.weight
 FROM (VALUES
   ('partner-medicine-ball-chest-pass', 'partner', 5),
   ('partner-medicine-ball-chest-pass', 'medicine_ball', 5),
@@ -7012,10 +7016,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.equipment f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'body_region', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'body_region', f.id, v.weight
 FROM (VALUES
   ('partner-medicine-ball-chest-pass', 'shoulder', 5),
   ('partner-medicine-ball-chest-pass', 'core', 4),
@@ -7244,6 +7249,7 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.body_region f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 UPDATE coaching.exercise_scaling_profile sp SET

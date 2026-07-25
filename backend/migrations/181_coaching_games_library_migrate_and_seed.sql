@@ -115,7 +115,8 @@ INSERT INTO coaching.game (
 SELECT
   c.facility_id,
   v.name, v.slug, v.description, v.card_summary, v.coach_summary, v.athlete_summary,
-  v.game_kind, v.game_type, v.group_structure, v.min_players, v.max_players, v.ideal_players,
+  v.game_kind, v.game_type, v.group_structure,
+  v.min_players::INTEGER, v.max_players::INTEGER, v.ideal_players,
   v.age_brackets, v.age_variations::jsonb, v.space_requirements::jsonb, v.equipment,
   v.duration_typical_min, v.duration_typical_max, v.intensity_level, v.contact_level,
   v.supervision_level, v.rules::jsonb, v.safety::jsonb, v.coaching_notes,

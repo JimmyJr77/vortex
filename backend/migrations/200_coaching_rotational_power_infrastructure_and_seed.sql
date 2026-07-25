@@ -3,25 +3,6 @@
 -- 50 total cards (38 insert, 12 merge-only hydration).
 -- Library: 'Top 50 Rotational Athletes and Rotational Power Exercise Library'
 
-ALTER TABLE coaching.exercise DROP CONSTRAINT IF EXISTS exercise_phase_subrole_check;
-ALTER TABLE coaching.exercise ADD CONSTRAINT exercise_phase_subrole_check
-  CHECK (phase_subrole IS NULL OR phase_subrole IN (
-    'raise', 'mobilize', 'activate', 'integrate', 'potentiate_bridge',
-    'shape_position_intelligence', 'shape_control', 'inversion_foundation', 'rolling_transition',
-    'locomotion_coordination', 'rotation_inversion_tumbling_foundations', 'coordinate',
-    'locomotion_sprint_mechanics', 'balance_coordination_rhythm', 'perception_action_reactive_movement',
-    'acceleration_start_speed', 'max_velocity_exposure', 'elastic_stiffness_plyometric_rudiments',
-    'jump_throw_explosive_power', 'deceleration_cod_power', 'reactive_agility_tumbling_output',
-    'squat_knee_dominant_strength', 'hinge_posterior_chain_strength', 'upper_body_push_strength',
-    'pull_hang_grip_strength', 'carry_trunk_loaded_bracing_strength', 'frontal_plane_lower_body_strength',
-    'rotational_force_transfer_strength',
-    'tissue_capacity_isometric_eccentric_accessory', 'landing_braking_control',
-    'single_leg_balance_foot_ankle_hip_control', 'trunk_pelvis_anti_movement_control',
-    'scapular_wrist_hand_support_resilience', 'slow_eccentric_isometric_joint_resilience',
-    'conditioning_intervals', 'bodyweight_strength_endurance', 'low_amplitude_elastic_conditioning',
-    'crawl_carry_repeatability', 'breathing_downshift'
-  ));
-
 INSERT INTO coaching.equipment (key, name, sort_order) VALUES
   ('coach_signal', 'Coach Signal / Verbal Cue', 102)
 ON CONFLICT (key) DO UPDATE SET name = EXCLUDED.name, sort_order = EXCLUDED.sort_order;
@@ -215,7 +196,7 @@ CROSS JOIN public.facility f
 ON CONFLICT (facility_id, slug) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'tenet', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'tenet', f.id, v.weight
 FROM (VALUES
   ('half-kneeling-t-spine-rotation', 'flexibility', 4),
   ('half-kneeling-t-spine-rotation', 'coordination', 4),
@@ -374,10 +355,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.tenet f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'methodology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'methodology', f.id, v.weight
 FROM (VALUES
   ('half-kneeling-t-spine-rotation', 'mobility_flexibility', 5),
   ('half-kneeling-t-spine-rotation', 'neural', 3),
@@ -504,10 +486,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.methodology f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'physiology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'physiology', f.id, v.weight
 FROM (VALUES
   ('half-kneeling-t-spine-rotation', 'neural_output_readiness', 4),
   ('half-kneeling-t-spine-rotation', 'control_stability', 3),
@@ -610,10 +593,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.physiological_emphasis f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'pattern', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'pattern', f.id, v.weight
 FROM (VALUES
   ('half-kneeling-t-spine-rotation', 'rotate', 5),
   ('half-kneeling-t-spine-rotation', 'brace', 3),
@@ -724,10 +708,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.movement_pattern f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'equipment', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'equipment', f.id, v.weight
 FROM (VALUES
   ('half-kneeling-t-spine-rotation', 'mat', 5),
   ('spiderman-lunge-with-t-spine-reach', 'none', 5),
@@ -790,10 +775,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.equipment f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'body_region', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'body_region', f.id, v.weight
 FROM (VALUES
   ('half-kneeling-t-spine-rotation', 'spine', 5),
   ('half-kneeling-t-spine-rotation', 'shoulder', 3),
@@ -948,6 +934,7 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.body_region f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_phase_profile (
@@ -1035,14 +1022,14 @@ FROM (VALUES
   ('cable-shot-put-press', 'reps', 3, 6, 35, 75, NULL::integer, 110, 6, 8),
   ('lateral-lunge-to-rotational-reach', 'reps', 3, 6, 35, 75, NULL::integer, 110, 6, 8),
   ('suitcase-carry-with-direction-change', 'reps', 3, 6, 35, 75, NULL::integer, 110, 6, 8),
-  ('med-ball-rotational-scoop-toss', 'throws', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
-  ('med-ball-shot-put-throw', 'throws', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
-  ('med-ball-shuffle-to-rotation-throw', 'throws', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
-  ('med-ball-countermovement-rotational-throw', 'throws', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
-  ('med-ball-slam-to-rotational-throw', 'throws', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
-  ('half-kneeling-rotational-med-ball-throw', 'throws', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
-  ('med-ball-overhead-to-side-slam', 'throws', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
-  ('med-ball-rebound-rotational-catch-and-throw', 'throws', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
+  ('med-ball-rotational-scoop-toss', 'attempts', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
+  ('med-ball-shot-put-throw', 'attempts', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
+  ('med-ball-shuffle-to-rotation-throw', 'attempts', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
+  ('med-ball-countermovement-rotational-throw', 'attempts', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
+  ('med-ball-slam-to-rotational-throw', 'attempts', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
+  ('half-kneeling-rotational-med-ball-throw', 'attempts', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
+  ('med-ball-overhead-to-side-slam', 'attempts', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
+  ('med-ball-rebound-rotational-catch-and-throw', 'attempts', 3, 4, 12, 75, NULL::integer, 90, 7, 9),
   ('carioca-build-up', 'reps', 2, 5, 20, 30, NULL::integer, 50, 2, 5),
   ('crossover-run-drill', 'reps', 2, 5, 20, 30, NULL::integer, 50, 2, 5),
   ('45-degree-cut-to-stick', 'seconds', 2, NULL, 25, 35, NULL::integer, 60, 3, 6),
@@ -1059,7 +1046,10 @@ INSERT INTO coaching.exercise_safety_profile (
   readiness_checks, contraindications, common_substitutions
 )
 SELECT e.id, COALESCE(m.risk_level, 1), COALESCE(m.impact_level, 1), COALESCE(m.requires_spotting, FALSE),
-  COALESCE(m.requires_coach_supervision, 'optional'),
+  CASE
+    WHEN m.requires_coach_supervision = 'optional_to_recommended' THEN 'recommended'
+    ELSE COALESCE(m.requires_coach_supervision, 'optional')
+  END,
   COALESCE(m.readiness_checks, ARRAY[]::text[]),
   COALESCE(m.contraindications, ARRAY[]::text[]),
   COALESCE(m.common_substitutions, ARRAY[]::text[])
@@ -1504,4 +1494,3 @@ WHERE NOT EXISTS (
   SELECT 1 FROM coaching.exercise_scaling_profile sp
   WHERE sp.exercise_id = e.id AND sp.cohort_key = 'pregnancy_postpartum'
 );
-

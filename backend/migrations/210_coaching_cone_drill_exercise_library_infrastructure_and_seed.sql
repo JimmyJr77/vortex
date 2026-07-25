@@ -169,7 +169,7 @@ CROSS JOIN public.facility f
 ON CONFLICT (facility_id, slug) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'tenet', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'tenet', f.id, v.weight
 FROM (VALUES
   ('cone-march-line', 'coordination', 5),
   ('cone-march-line', 'body_control', 4),
@@ -315,10 +315,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.tenet f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'methodology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'methodology', f.id, v.weight
 FROM (VALUES
   ('cone-march-line', 'neural', 4),
   ('cone-march-line', 'balance_stability', 4),
@@ -443,10 +444,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.methodology f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'physiology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'physiology', f.id, v.weight
 FROM (VALUES
   ('cone-march-line', 'perception_action_skill', 5),
   ('cone-march-line', 'control_stability', 3),
@@ -582,10 +584,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.physiological_emphasis f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'pattern', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'pattern', f.id, v.weight
 FROM (VALUES
   ('cone-march-line', 'locomote', 5),
   ('cone-skip-rhythm-build', 'locomote', 5),
@@ -636,10 +639,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.movement_pattern f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'equipment', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'equipment', f.id, v.weight
 FROM (VALUES
   ('cone-march-line', 'cones', 5),
   ('cone-skip-rhythm-build', 'cones', 5),
@@ -695,10 +699,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.equipment f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'body_region', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'body_region', f.id, v.weight
 FROM (VALUES
   ('cone-march-line', 'foot', 4),
   ('cone-march-line', 'ankle', 4),
@@ -979,6 +984,7 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.body_region f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO NOTHING;
 
 INSERT INTO coaching.exercise_phase_profile (
@@ -1706,7 +1712,7 @@ VALUES (
   'After Prepare & Access and before Output when fresh. Slow down for Movement Intelligence; use full rest for Output COD; emphasize stick quality for Resilience; reserve reactive and repeatability work for late session only when appropriate.',
   'Do not race drills before the athlete owns the route, chase times over posture, extend sets after braking quality fades, or use reactive partner games without defined boundaries and roles.'
 )
-ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
+ON CONFLICT (entity_type, entity_key) WHERE entity_id IS NULL DO UPDATE SET
   title = EXCLUDED.title,
   short_summary = EXCLUDED.short_summary,
   what_it_is = EXCLUDED.what_it_is,

@@ -34,7 +34,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 2,
   technical_complexity = 3,
   impact_level = 2,
-  intensity_ceiling = 'moderate_control',
+  intensity_ceiling = 'moderate',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'resilience'
@@ -112,7 +112,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 2,
   technical_complexity = 3,
   impact_level = 3,
-  intensity_ceiling = 'moderate_control',
+  intensity_ceiling = 'moderate',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'resilience'
@@ -190,7 +190,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 2,
   technical_complexity = 3,
   impact_level = 3,
-  intensity_ceiling = 'moderate_control',
+  intensity_ceiling = 'moderate',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'resilience'
@@ -268,7 +268,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 2,
   technical_complexity = 3,
   impact_level = 3,
-  intensity_ceiling = 'moderate_control',
+  intensity_ceiling = 'moderate',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'resilience'
@@ -580,7 +580,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 2,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'technical',
+  intensity_ceiling = 'moderate',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -658,7 +658,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 2,
   technical_complexity = 3,
   impact_level = 0,
-  intensity_ceiling = 'moderate_control',
+  intensity_ceiling = 'moderate',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'resilience'
@@ -736,7 +736,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 2,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'technical',
+  intensity_ceiling = 'moderate',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -970,7 +970,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 2,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'technical',
+  intensity_ceiling = 'moderate',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -1048,7 +1048,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 2,
   technical_complexity = 4,
   impact_level = 2,
-  intensity_ceiling = 'technical',
+  intensity_ceiling = 'moderate',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -1126,7 +1126,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 2,
   technical_complexity = 4,
   impact_level = 2,
-  intensity_ceiling = 'technical',
+  intensity_ceiling = 'moderate',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -1438,7 +1438,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 2,
   technical_complexity = 4,
   impact_level = 1,
-  intensity_ceiling = 'technical',
+  intensity_ceiling = 'moderate',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -1516,7 +1516,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 2,
   technical_complexity = 4,
   impact_level = 2,
-  intensity_ceiling = 'technical',
+  intensity_ceiling = 'moderate',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'movement_intelligence'
@@ -3154,7 +3154,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 1,
-  intensity_ceiling = 'moderate_heavy',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -3232,7 +3232,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 1,
-  intensity_ceiling = 'moderate_heavy',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -3310,7 +3310,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 1,
-  intensity_ceiling = 'moderate_heavy',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -3388,7 +3388,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 0,
-  intensity_ceiling = 'moderate_heavy',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -3466,7 +3466,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 0,
-  intensity_ceiling = 'moderate_heavy',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -3544,7 +3544,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 0,
-  intensity_ceiling = 'moderate_heavy',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -3622,7 +3622,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 3,
   technical_complexity = 3,
   impact_level = 0,
-  intensity_ceiling = 'moderate_heavy',
+  intensity_ceiling = 'moderate_to_high',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'capacity'
@@ -3700,7 +3700,7 @@ UPDATE coaching.exercise_phase_profile p SET
   fatigue_cost = 2,
   technical_complexity = 3,
   impact_level = 0,
-  intensity_ceiling = 'moderate_control',
+  intensity_ceiling = 'moderate',
   notes = ''
 FROM coaching.exercise e
 JOIN coaching.session_phase sp ON sp.key = 'resilience'
@@ -3786,7 +3786,7 @@ JOIN coaching.phase_order_slot pos ON pos.key = 'medicine_ball_scoop_toss' AND p
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'distance-jump-medicine-ball-scoop-toss';
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'throws',
+  volume_unit = 'attempts',
   default_sets = 3,
   default_reps = 4,
   default_distance = NULL,
@@ -3864,7 +3864,7 @@ JOIN coaching.phase_order_slot pos ON pos.key = 'medicine_ball_overhead_back_thr
 WHERE p.exercise_id = e.id AND p.phase_id = sp.id AND e.slug = 'medicine-ball-overhead-back-throw';
 
 UPDATE coaching.exercise_dosage_profile d SET
-  volume_unit = 'throws',
+  volume_unit = 'attempts',
   default_sets = 3,
   default_reps = 4,
   default_distance = NULL,
@@ -3909,7 +3909,7 @@ WHERE t.exercise_id = e.id
   AND t.facet_type IN ('tenet', 'methodology', 'physiology', 'pattern', 'equipment', 'body_region');
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'tenet', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'tenet', f.id, v.weight
 FROM (VALUES
   ('distance-jump-snap-down-to-stick', 'body_control', 5),
   ('distance-jump-snap-down-to-stick', 'balance', 4),
@@ -4072,43 +4072,34 @@ FROM (VALUES
   ('triple-jump-walk-in-bound-series', 'body_control', 3),
   ('distance-jump-trap-bar-deadlift', 'strength', 5),
   ('distance-jump-trap-bar-deadlift', 'body_control', 4),
-  ('distance-jump-trap-bar-deadlift', 'body_control', 3),
   ('distance-jump-rear-foot-elevated-split-squat', 'strength', 5),
   ('distance-jump-rear-foot-elevated-split-squat', 'body_control', 4),
-  ('distance-jump-rear-foot-elevated-split-squat', 'body_control', 3),
   ('step-up-to-knee-drive', 'strength', 5),
   ('step-up-to-knee-drive', 'body_control', 4),
-  ('step-up-to-knee-drive', 'body_control', 3),
   ('distance-jump-single-leg-romanian-deadlift', 'strength', 5),
   ('distance-jump-single-leg-romanian-deadlift', 'body_control', 4),
-  ('distance-jump-single-leg-romanian-deadlift', 'body_control', 3),
   ('distance-jump-hip-thrust', 'strength', 5),
   ('distance-jump-hip-thrust', 'body_control', 4),
-  ('distance-jump-hip-thrust', 'body_control', 3),
   ('distance-jump-standing-calf-raise', 'strength', 5),
   ('distance-jump-standing-calf-raise', 'body_control', 4),
-  ('distance-jump-standing-calf-raise', 'body_control', 3),
   ('distance-jump-bent-knee-soleus-raise', 'strength', 5),
   ('distance-jump-bent-knee-soleus-raise', 'body_control', 4),
-  ('distance-jump-bent-knee-soleus-raise', 'body_control', 3),
   ('distance-jump-nordic-hamstring-eccentric', 'strength', 5),
   ('distance-jump-nordic-hamstring-eccentric', 'body_control', 4),
-  ('distance-jump-nordic-hamstring-eccentric', 'body_control', 3),
-  ('distance-jump-medicine-ball-scoop-toss', 'explosiveness', 5),
   ('distance-jump-medicine-ball-scoop-toss', 'explosiveness', 5),
   ('distance-jump-medicine-ball-scoop-toss', 'coordination', 3),
   ('distance-jump-medicine-ball-scoop-toss', 'body_control', 3),
-  ('medicine-ball-overhead-back-throw', 'explosiveness', 5),
   ('medicine-ball-overhead-back-throw', 'explosiveness', 5),
   ('medicine-ball-overhead-back-throw', 'coordination', 3),
   ('medicine-ball-overhead-back-throw', 'body_control', 3)
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.tenet f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'methodology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'methodology', f.id, v.weight
 FROM (VALUES
   ('distance-jump-snap-down-to-stick', 'balance_stability', 4),
   ('distance-jump-snap-down-to-stick', 'core_body_control', 4),
@@ -4221,10 +4212,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.methodology f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'physiology', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'physiology', f.id, v.weight
 FROM (VALUES
   ('distance-jump-snap-down-to-stick', 'control_stability', 5),
   ('distance-jump-snap-down-to-stick', 'force_tissue_capacity', 3),
@@ -4415,10 +4407,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.physiological_emphasis f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'pattern', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'pattern', f.id, v.weight
 FROM (VALUES
   ('distance-jump-snap-down-to-stick', 'land', 5),
   ('distance-jump-snap-down-to-stick', 'brace', 3),
@@ -4569,10 +4562,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.movement_pattern f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'equipment', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'equipment', f.id, v.weight
 FROM (VALUES
   ('distance-jump-snap-down-to-stick', 'none', 5),
   ('distance-jump-drop-landing-to-stick', 'low_box', 5),
@@ -4644,10 +4638,11 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.equipment f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 INSERT INTO coaching.exercise_tag (exercise_id, facet_type, facet_id, weight)
-SELECT e.id, 'body_region', f.id, v.weight
+SELECT DISTINCT ON (e.id, f.id) e.id, 'body_region', f.id, v.weight
 FROM (VALUES
   ('distance-jump-snap-down-to-stick', 'foot', 5),
   ('distance-jump-snap-down-to-stick', 'ankle', 3),
@@ -4859,6 +4854,7 @@ FROM (VALUES
 ) AS v(slug, fkey, weight)
 JOIN coaching.exercise e ON e.slug = v.slug
 JOIN coaching.body_region f ON f.key = v.fkey
+ORDER BY e.id, f.id, v.weight DESC
 ON CONFLICT (exercise_id, facet_type, facet_id) DO UPDATE SET weight = EXCLUDED.weight;
 
 UPDATE coaching.exercise_scaling_profile sp SET
@@ -5789,7 +5785,7 @@ VALUES (
   'Master quiet landings and approach rhythm before maximal distance attempts; use full rest on Output jumps; place strength support in Capacity — not as conditioning finishers; stop when rhythm, stiffness, projection, or landing quality degrades.',
   'Do not program max jumps after fatigue, use high-impact contacts as warm-up conditioning, or hide distance work in Resilience when the goal is maximal projection while fresh.'
 )
-ON CONFLICT (entity_type, entity_key, entity_id) DO UPDATE SET
+ON CONFLICT (entity_type, entity_key) WHERE entity_id IS NULL DO UPDATE SET
   title = EXCLUDED.title,
   short_summary = EXCLUDED.short_summary,
   what_it_is = EXCLUDED.what_it_is,

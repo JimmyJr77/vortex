@@ -14,7 +14,18 @@ const BOOT_SUPERSEDED_MIGRATIONS = new Set([
   '120_coaching_capacity_phase_infrastructure.sql',
   '128_coaching_control_resilience_phase_infrastructure.sql',
   '202_coaching_exercise_difficulty_profile.sql',
+  '207_coaching_exercise_difficulty_reviewed.sql',
 ])
+
+const PLATFORM_MIGRATION_LOCK_ID = 884679201
+
+function migrationChecksum(text) {
+  let hash = 0
+  for (let index = 0; index < text.length; index += 1) {
+    hash = (hash * 31 + text.charCodeAt(index)) >>> 0
+  }
+  return String(hash)
+}
 
 export async function initPlatformTables(pool) {
   await ensureCoachingBootConstraints(pool)
@@ -208,6 +219,7 @@ export async function initPlatformTables(pool) {
     '202_coaching_exercise_difficulty_profile.sql',
     '203_coaching_exercise_youtube_links_batch2.sql',
     '204_coaching_exercise_youtube_links_batch3.sql',
+    '253_coaching_legacy_difficulty_compatibility.sql',
     '205_coaching_high_impact_level_3_4_infrastructure_and_seed.sql',
     '206_coaching_high_impact_level_3_4_cards.sql',
     '207_coaching_exercise_difficulty_reviewed.sql',
@@ -240,30 +252,81 @@ export async function initPlatformTables(pool) {
     '234_refund_approval_evidence.sql',
     '235_member_missed_class.sql',
     '236_stripe_dispute_case.sql',
+    '240_coaching_canonical_scores_v1.sql',
+    '241_coaching_canonical_workout_model_v1.sql',
+    '242_coaching_canonical_telemetry_v1.sql',
+    '243_coaching_canonical_card_governance_v1.sql',
+    '244_coaching_canonical_anatomy_load_v1.sql',
+    '245_coaching_canonical_calibration_v1.sql',
+    '246_coaching_canonical_card_audit_v1.sql',
+    '248_coaching_canonical_operational_support_v1.sql',
+    '252_coaching_canonical_identity_resolution_v1.sql',
+    '249_billing_admin_action_log.sql',
+    '250_stripe_alert_resolution_audit.sql',
+    '251_manual_billing_audit.sql',
   ]
 
-  for (const migrationFile of migrationFiles) {
-    if (BOOT_SUPERSEDED_MIGRATIONS.has(migrationFile)) {
-      console.log(`[initPlatformTables] Skipping superseded boot migration: ${migrationFile}`)
-      continue
-    }
-    const migrationPath = path.join(__dirname, '..', 'migrations', migrationFile)
-    if (!fs.existsSync(migrationPath)) {
-      console.error(`[initPlatformTables] Migration file missing (skipped): ${migrationFile}`)
-      continue
-    }
-    const sql = fs.readFileSync(migrationPath, 'utf8')
-    try {
-      await pool.query(sql)
-    } catch (err) {
-      const msg = String(err.message || err)
-      // Migrations re-run on every boot; tolerate duplicate DDL/DML conflicts.
-      if (/already exists|duplicate key value violates unique constraint/i.test(msg)) {
-        console.warn(`[initPlatformTables] Skipping duplicate in ${migrationFile}:`, msg)
+  const migrationClient = typeof pool.connect === 'function' ? await pool.connect() : pool
+  try {
+    await migrationClient.query(`
+      CREATE TABLE IF NOT EXISTS schema_migrations (
+        id BIGSERIAL PRIMARY KEY,
+        filename TEXT NOT NULL UNIQUE,
+        checksum TEXT,
+        applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `)
+    await migrationClient.query('SELECT pg_advisory_lock($1)', [PLATFORM_MIGRATION_LOCK_ID])
+    const appliedResult = await migrationClient.query('SELECT filename FROM schema_migrations')
+    const applied = new Set(appliedResult.rows.map((row) => row.filename))
+
+    for (const migrationFile of migrationFiles) {
+      if (BOOT_SUPERSEDED_MIGRATIONS.has(migrationFile)) {
+        console.log(`[initPlatformTables] Skipping superseded boot migration: ${migrationFile}`)
         continue
       }
-      console.error(`[initPlatformTables] Migration ${migrationFile} failed (continuing):`, msg)
+      if (applied.has(migrationFile)) {
+        console.log(`[initPlatformTables] Already applied: ${migrationFile}`)
+        continue
+      }
+      const migrationPath = path.join(__dirname, '..', 'migrations', migrationFile)
+      if (!fs.existsSync(migrationPath)) {
+        console.error(`[initPlatformTables] Migration file missing (skipped): ${migrationFile}`)
+        continue
+      }
+      const sql = fs.readFileSync(migrationPath, 'utf8')
+      const checksum = migrationChecksum(sql)
+      await migrationClient.query('BEGIN')
+      try {
+        await migrationClient.query(sql)
+        await migrationClient.query(
+          `INSERT INTO schema_migrations (filename, checksum)
+           VALUES ($1, $2)
+           ON CONFLICT (filename) DO NOTHING`,
+          [migrationFile, checksum],
+        )
+        await migrationClient.query('COMMIT')
+        applied.add(migrationFile)
+      } catch (err) {
+        await migrationClient.query('ROLLBACK').catch(() => {})
+        const msg = String(err.message || err)
+        if (/already exists|duplicate key value violates unique constraint/i.test(msg)) {
+          console.warn(`[initPlatformTables] Recording existing migration ${migrationFile}:`, msg)
+          await migrationClient.query(
+            `INSERT INTO schema_migrations (filename, checksum)
+             VALUES ($1, $2)
+             ON CONFLICT (filename) DO NOTHING`,
+            [migrationFile, checksum],
+          )
+          applied.add(migrationFile)
+          continue
+        }
+        console.error(`[initPlatformTables] Migration ${migrationFile} failed (continuing):`, msg)
+      }
     }
+  } finally {
+    await migrationClient.query('SELECT pg_advisory_unlock($1)', [PLATFORM_MIGRATION_LOCK_ID]).catch(() => {})
+    if (migrationClient !== pool && typeof migrationClient.release === 'function') migrationClient.release()
   }
 
   await seedCanonicalWaivers(pool)
