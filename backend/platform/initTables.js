@@ -252,18 +252,6 @@ export async function initPlatformTables(pool) {
     '234_refund_approval_evidence.sql',
     '235_member_missed_class.sql',
     '236_stripe_dispute_case.sql',
-    '240_coaching_canonical_scores_v1.sql',
-    '241_coaching_canonical_workout_model_v1.sql',
-    '242_coaching_canonical_telemetry_v1.sql',
-    '243_coaching_canonical_card_governance_v1.sql',
-    '244_coaching_canonical_anatomy_load_v1.sql',
-    '245_coaching_canonical_calibration_v1.sql',
-    '246_coaching_canonical_card_audit_v1.sql',
-    '248_coaching_canonical_operational_support_v1.sql',
-    '252_coaching_canonical_identity_resolution_v1.sql',
-    '249_billing_admin_action_log.sql',
-    '250_stripe_alert_resolution_audit.sql',
-    '251_manual_billing_audit.sql',
   ]
 
   const migrationClient = typeof pool.connect === 'function' ? await pool.connect() : pool
