@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS coaching.ai_draft_log (
   facility_id   BIGINT NOT NULL REFERENCES public.facility(id) ON DELETE CASCADE,
   coach_user_id BIGINT REFERENCES public.app_user(id) ON DELETE SET NULL,
   kind          TEXT NOT NULL CHECK (kind IN (
-    'session_draft', 'coverage_nudge', 'narrative', 'auto_tag'
+    'session_draft', 'coverage_nudge', 'narrative', 'auto_tag', 'nl_needs'
   )),
   prompt        TEXT,
   response      JSONB,

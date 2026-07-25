@@ -4206,7 +4206,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const narrativeSource = llmNarrative ? 'llm' : 'rules'
 
       await pool.query(
-        `INSERT INTO coaching.ai_draft_log (facility_id, coach_user_id, kind, prompt, response) VALUES ($1, $2, 'progress_narrative', $3, $4)`,
+        `INSERT INTO coaching.ai_draft_log (facility_id, coach_user_id, kind, prompt, response) VALUES ($1, $2, 'narrative', $3, $4)`,
         [facilityId, Number(req.platformAuth.user.id), `progress_narrative:member:${memberId}`, JSON.stringify({ narrative, narrativeSource })],
       )
       ok(res, { narrative, narrativeSource })
@@ -4362,7 +4362,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       }
 
       await pool.query(
-        `INSERT INTO coaching.ai_draft_log (facility_id, coach_user_id, kind, prompt, response) VALUES ($1, $2, 'autotag', $3, $4)`,
+        `INSERT INTO coaching.ai_draft_log (facility_id, coach_user_id, kind, prompt, response) VALUES ($1, $2, 'auto_tag', $3, $4)`,
         [facilityId, Number(req.platformAuth.user.id), text.slice(0, 500), JSON.stringify({ suggestions })],
       )
       ok(res, { suggestions })
