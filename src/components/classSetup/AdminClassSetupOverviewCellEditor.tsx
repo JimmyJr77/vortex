@@ -337,12 +337,18 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
     case 'sportTags':
       body =
         row.programsId != null ? (
-          <DisciplineTagPicker
-            programId={row.programsId}
-            programDisplayName={row.programName}
-            showHeading={false}
-            excludeTagId={row.primarySportId}
-          />
+          <div className="space-y-3">
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+              Sport tags are a program-level setting. Changes apply immediately to all classes in{' '}
+              <strong>{row.programName}</strong>.
+            </p>
+            <DisciplineTagPicker
+              programId={row.programsId}
+              programDisplayName={row.programName}
+              showHeading={false}
+              excludeTagId={row.primarySportId}
+            />
+          </div>
         ) : (
           <p className="text-sm text-gray-500">No parent program linked.</p>
         )
