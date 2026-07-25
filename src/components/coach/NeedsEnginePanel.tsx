@@ -700,7 +700,30 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
     setError(null)
     try {
       const data = await coachFetch<PrescriptionResult & { parsed: Record<string, unknown> }>(
-        '/api/coach/ai/nl-needs', { method: 'POST', body: JSON.stringify({ prompt: nlPrompt }) },
+        '/api/coach/ai/nl-needs', {
+          method: 'POST',
+          body: JSON.stringify({
+            prompt: nlPrompt,
+            defaults: {
+              workMode,
+              sportId: sportId || null,
+              skillLevel: skillLevel || null,
+              ageMin: ageMinNum,
+              ageMax: ageMaxNum,
+              sessionObjective,
+              durationMinutes: effectiveMinutes,
+              phasePlan: phaseRows,
+              userEditedPrepare,
+              equipmentAvailableIds: equipmentAvailable.map((item) => Number(item.id)).filter(Number.isFinite),
+              equipmentUseIds: equipmentUse.map((item) => Number(item.id)).filter(Number.isFinite),
+              equipmentUsePolicy,
+              allowBodyweight,
+              equipmentAvoidIds: equipmentAvoid.map((item) => Number(item.id)).filter(Number.isFinite),
+              specificGoal: specificGoal || null,
+              muscleFocusIds: muscleFocus.map((item) => Number(item.id)).filter(Number.isFinite),
+            },
+          }),
+        },
       )
       const p = data.parsed as {
         sportId?: number | null
@@ -719,7 +742,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       if (p.sessionObjective) {
         nlPatch.sessionObjective = p.sessionObjective
       }
-      if (Array.isArray(p.equipmentIds)) {
+      if (Array.isArray(p.equipmentIds) && p.equipmentIds.length > 0) {
         nlPatch.equipmentUse = p.equipmentIds.map((id) => {
           const eq = taxonomy?.equipment?.find((e) => e.id === id)
           return { id, label: eq?.name ?? `Equipment ${id}` }

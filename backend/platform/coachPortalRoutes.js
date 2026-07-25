@@ -107,6 +107,7 @@ import {
   parseSessionObjectiveFromText,
   resolveAudienceProfile,
 } from './ageDifficultyPolicy.js'
+import { buildPhasePlan } from './phaseArchitect.js'
 import { registerProgrammingRoutes } from './coachProgrammingRoutes.js'
 import { registerGameRoutes } from './coachGameRoutes.js'
 import {
@@ -4048,16 +4049,18 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     try {
       const facilityId = req.platformAuth.user.facility_id
       const prompt = String(req.body?.prompt || '').trim()
+      const defaults = req.body?.defaults && typeof req.body.defaults === 'object'
+        ? req.body.defaults
+        : {}
       if (!prompt) return bad(res, 'A prompt is required.')
       const lower = prompt.toLowerCase()
 
-      const [tenets, methodologies, physiology, sports, equipment, sessionPhases] = await Promise.all([
+      const [tenets, methodologies, physiology, sports, equipment] = await Promise.all([
         pool.query(`SELECT id, name FROM coaching.tenet`),
         pool.query(`SELECT id, name FROM coaching.methodology`),
         pool.query(`SELECT id, name FROM coaching.physiological_emphasis`),
         pool.query(`SELECT id, name FROM coaching.sport`),
         pool.query(`SELECT id, key, name FROM coaching.equipment`),
-        pool.query(`SELECT id, key, name FROM coaching.session_phase ORDER BY order_index`),
       ])
 
       const matchFacet = (rows, facetType, weight) =>
@@ -4072,52 +4075,31 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       ]
       const equipmentIds = equipment.rows.filter((row) => textMentionsEquipment(prompt, row)).map((row) => Number(row.id))
       const sport = sports.rows.find((r) => lower.includes(String(r.name).toLowerCase()))
-      const matchedPhase = sessionPhases.rows.find((r) => lower.includes(String(r.name).toLowerCase()))
-      const PHASE_KEYWORDS = {
-        warmup: 'prepare_and_access',
-        activation: 'prepare_and_access',
-        prepare: 'prepare_and_access',
-        cooldown: 'restore',
-        restore: 'restore',
-        skill: 'movement_intelligence',
-        output: 'output',
-        capacity: 'capacity',
-        control: 'resilience',
-        fitness: 'sustained_capacity',
-        conditioning: 'sustained_capacity',
-        main: 'capacity',
-      }
-      let phaseKey = matchedPhase?.key ?? null
-      if (!phaseKey) {
-        for (const [keyword, key] of Object.entries(PHASE_KEYWORDS)) {
-          if (lower.includes(keyword)) {
-            phaseKey = key
-            break
-          }
-        }
-      }
-      if (!phaseKey) phaseKey = 'capacity'
-      const phaseName = matchedPhase?.name ?? sessionPhases.rows.find((r) => r.key === phaseKey)?.name ?? 'Main Work'
-
       const minutesMatch = lower.match(/(\d{1,3})\s*(?:min|minute|minutes|mins)/)
-      const minutes = minutesMatch ? Math.min(180, Math.max(5, Number(minutesMatch[1]))) : 30
+      const defaultMinutes = Number(defaults.durationMinutes)
+      const minutes = minutesMatch
+        ? Math.min(180, Math.max(5, Number(minutesMatch[1])))
+        : (Number.isFinite(defaultMinutes) && defaultMinutes >= 5 ? defaultMinutes : 60)
 
       const parsedAge = parseAgeRangeFromText(prompt)
-      let skillLevel = null
+      let skillLevel = defaults.skillLevel || null
       if (/\b(beginner|novice|new)\b/.test(lower)) skillLevel = 'BEGINNER'
       else if (/\b(intermediate)\b/.test(lower)) skillLevel = 'INTERMEDIATE'
       else if (/\b(advanced|elite|competitive)\b/.test(lower)) skillLevel = 'ADVANCED'
       else if (/\b(early.stage|youth|kids|little)\b/.test(lower)) skillLevel = 'EARLY_STAGE'
 
-      const sessionObjective = parseSessionObjectiveFromText(prompt)
+      const inferredObjective = parseSessionObjectiveFromText(prompt)
+      const sessionObjective = inferredObjective === 'general_athletic_development' && defaults.sessionObjective
+        ? defaults.sessionObjective
+        : inferredObjective
       const strengthTenet = tenets.rows.find((r) => String(r.name).toLowerCase() === 'strength')
       if (sessionObjective === 'strength_priority' && strengthTenet && !targets.some((t) => t.facetType === 'tenet' && Number(t.facetId) === Number(strengthTenet.id))) {
         targets.push({ facetType: 'tenet', facetId: Number(strengthTenet.id), weight: 5, facetKey: 'strength' })
       }
 
       const audience = resolveAudienceProfile({
-        ageMin: parsedAge.ageMin,
-        ageMax: parsedAge.ageMax,
+        ageMin: parsedAge.ageMin ?? defaults.ageMin ?? null,
+        ageMax: parsedAge.ageMax ?? defaults.ageMax ?? null,
         skillLevel,
         sessionObjective,
         targets,
@@ -4126,24 +4108,44 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
 
       if (!skillLevel && audience.impliedSkillLevel) skillLevel = audience.impliedSkillLevel
 
+      const existingPlan = Array.isArray(defaults.phasePlan)
+        ? defaults.phasePlan.filter((row) => row && Number(row.minutes) > 0)
+        : []
+      const generatedPlan = buildPhasePlan({
+        workMode: defaults.workMode || 'exercise',
+        sessionObjective: audience.sessionObjective,
+        durationMinutes: minutes,
+        ageMin: audience.ageMin,
+        ageMax: audience.ageMax,
+        existingRows: existingPlan,
+        userEditedPrepare: Boolean(defaults.userEditedPrepare),
+      }).plan
+      const blocks = existingPlan.length > 1
+        ? existingPlan
+        : generatedPlan
+
       const parsed = {
-        sportId: sport ? Number(sport.id) : null,
+        sportId: sport ? Number(sport.id) : (defaults.sportId ?? null),
         skillLevel,
         ageMin: audience.ageMin,
         ageMax: audience.ageMax,
         sessionObjective: audience.sessionObjective,
-        equipmentIds,
+        equipmentIds: equipmentIds.length > 0 ? equipmentIds : (defaults.equipmentUseIds ?? []),
         targets,
-        blocks: [{ label: phaseName, phaseKey, minutes }],
+        blocks,
         audienceProfile: audience,
       }
 
       const prescription = await runPrescription(facilityId, {
+        ...defaults,
         ...parsed,
         ageMin: audience.ageMin,
         ageMax: audience.ageMax,
         sessionObjective: audience.sessionObjective,
         targets,
+        durationMinutes: minutes,
+        phasePlan: blocks,
+        equipmentUseIds: parsed.equipmentIds,
         prompt,
       })
       await pool.query(
