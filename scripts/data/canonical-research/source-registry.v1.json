@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-07-27.44",
+  "registryVersion": "2026-07-27.45",
   "sources": {
     "sprint_start_biomechanics_review": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
@@ -1099,6 +1099,34 @@
       "publisher": "PeerJ",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 87
+    },
+    "ace_thread_the_needle": {
+      "url": "https://www.acefitness.org/resources/pros/expert-articles/7960/thoracic-mobility-exercises-to-address-shoulder-pain/",
+      "title": "Thoracic Mobility Exercises to Address Shoulder Pain",
+      "publisher": "American Council on Exercise",
+      "kind": "professional_standard",
+      "evidenceQuality": 80
+    },
+    "single_leg_balance_training_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35084234/",
+      "title": "Single Leg Balance Training: A Systematic Review",
+      "publisher": "Perceptual and Motor Skills",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "foot_strength_athletes_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7739583/",
+      "title": "How to Evaluate and Improve Foot Strength in Athletes: An Update",
+      "publisher": "Frontiers in Sports and Active Living",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "isometric_training_adaptations_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30580468/",
+      "title": "Isometric training and long-term adaptations: Effects of muscle length, intensity, and intent: A systematic review",
+      "publisher": "Scandinavian Journal of Medicine & Science in Sports",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
     },
     "youtube_embed_help": {
       "url": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",

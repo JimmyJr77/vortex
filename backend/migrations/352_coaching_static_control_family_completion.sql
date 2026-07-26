@@ -13,8 +13,6 @@
 -- metadata is not full-video viewing or approval. No publication, media,
 -- graph, or calibration approval is created. IDEMPOTENT and fail-closed.
 
-BEGIN;
-
 DO $$
 DECLARE
   migration_key CONSTANT TEXT :=
@@ -301,7 +299,7 @@ CREATE TEMP TABLE static_card_seed (
   evidence_claims JSONB NOT NULL,
   primary_source JSONB NOT NULL,
   secondary_source JSONB NOT NULL
-) ON COMMIT DROP;
+);
 
 INSERT INTO static_card_seed VALUES
   (
@@ -687,7 +685,7 @@ CREATE TEMP TABLE static_variant_seed (
   fatigue_profile_json JSONB NOT NULL,
   programming_profile_json JSONB NOT NULL,
   PRIMARY KEY (slug, variant_key)
-) ON COMMIT DROP;
+);
 
 INSERT INTO static_variant_seed VALUES
   (
@@ -845,7 +843,7 @@ CREATE TEMP TABLE static_profile_seed (
   expected_adaptation TEXT NOT NULL,
   equipment_required TEXT[] NOT NULL,
   PRIMARY KEY (slug, variant_key, profile_key)
-) ON COMMIT DROP;
+);
 
 INSERT INTO static_profile_seed VALUES
   ('quadruped-thread-the-needle','quadruped-thread-and-open','prepare-access','prepare_and_access','primary','Use low-fatigue thread-and-open repetitions to assess and prepare owned thoracic and rib-cage rotation with active shoulder support.',94,92,'{"sets":1,"repetitionsPerSide":{"minimum":4,"target":6,"maximum":8},"tempo":"three_to_four_seconds_each_repetition","endRangePauseSeconds":{"minimum":0,"target":1,"maximum":2},"restSeconds":{"minimum":15,"target":30,"maximum":45},"stopAtTechnicalRir":3}'::JSONB,'Every counted repetition preserves support-hand contact, an active support shoulder, a quiet pelvis, pain-free range, controlled reversal, and calm breathing on both sides.',ARRAY['pain_or_neurologic_or_dizziness_symptom','support_collapse','pelvic_shift_or_rotation','forced_range','momentum','breath_holding','range_or_control_worsens']::TEXT[],'Usable low-fatigue thoracic rotation access with observable pelvic and shoulder control.',ARRAY['none']::TEXT[]),
@@ -1177,7 +1175,7 @@ CREATE TEMP TABLE static_media_seed (
   channel_name TEXT NOT NULL,
   source_query TEXT NOT NULL,
   PRIMARY KEY (slug, video_id)
-) ON COMMIT DROP;
+);
 
 INSERT INTO static_media_seed VALUES
   ('quadruped-thread-the-needle','4EPsl0epycc','Quadruped Thread the Needle Thoracic Rotation','Restore Physical Therapy, LLC','quadruped thread the needle thoracic rotation'),
@@ -1290,7 +1288,7 @@ CREATE TEMP TABLE static_alternate_seed (
   rationale TEXT NOT NULL,
   dimensions JSONB NOT NULL,
   PRIMARY KEY (slug, alternate_name)
-) ON COMMIT DROP;
+);
 
 INSERT INTO static_alternate_seed VALUES
   ('quadruped-thread-the-needle','Quadruped Thread-the-Needle Rotation','same_identity','The word rotation names the existing open phase and does not add an action.','{"nameOnly":true}'::JSONB),
@@ -1377,7 +1375,7 @@ CREATE TEMP TABLE static_edge_seed (
   reason TEXT NOT NULL,
   conditions_json JSONB NOT NULL,
   PRIMARY KEY (slug, from_key, to_key, relationship)
-) ON COMMIT DROP;
+);
 
 INSERT INTO static_edge_seed VALUES
   ('quadruped-thread-the-needle','quadruped-thread-and-open','heel-sit-thread-and-open','progression',82,ARRAY['position','complexity','range']::TEXT[],'A comfortable heel-sit can constrain pelvic contribution and adds position demand while preserving the thread-under then open action.','{"requires":["comfortable_heel_sit","repeatable_standard_thread_and_open","pain_free_contacts"],"notAutomatic":true}'::JSONB),
@@ -1451,7 +1449,7 @@ CREATE TEMP TABLE static_substitution_seed (
   reason TEXT NOT NULL,
   conditions_json JSONB NOT NULL,
   PRIMARY KEY (source_slug, source_variant_key, target_slug)
-) ON COMMIT DROP;
+);
 
 INSERT INTO static_substitution_seed VALUES
   ('quadruped-thread-the-needle','quadruped-thread-and-open','side-lying-open-book',72,ARRAY['support','movement_path','accessibility']::TEXT[],'Side-Lying Open Book can preserve a low-load thoracic-rotation purpose when quadruped wrist, knee, or support-shoulder loading is not appropriate, but it does not reproduce the thread-under path or closed-chain support.','{"useWhen":["quadruped_support_not_appropriate","side_lying_is_comfortable"],"notEquivalentFor":["closed_chain_shoulder_support","thread_under_path"]}'::JSONB),
@@ -1658,5 +1656,3 @@ WHERE definition.id = packet.definition_id
     'single-leg-balance-hold-tripod-foot',
     'split-squat-isometric-hold'
   );
-
-COMMIT;

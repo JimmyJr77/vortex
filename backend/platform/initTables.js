@@ -348,6 +348,8 @@ export async function initPlatformTables(pool) {
     '348_coaching_stir_the_pot_identity_consolidation.sql',
     '349_coaching_stir_the_pot_family_completion.sql',
     '350_coaching_exercise_proficiency_metadata_guard.sql',
+    '351_coaching_static_control_identity_consolidations.sql',
+    '352_coaching_static_control_family_completion.sql',
   ]
 
   const migrationClient = typeof pool.connect === 'function' ? await pool.connect() : pool

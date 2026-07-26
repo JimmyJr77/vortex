@@ -1,0 +1,869 @@
+{
+  "facilityId": 1,
+  "researchVersion": "2026-07-27.45",
+  "batchKey": "static-control-identity-collisions-v1",
+  "snapshotAt": "2026-07-26T20:30:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "Privacy-enhanced YouTube embed URLs can be constructed with youtube-nocookie.com.",
+        "The candidate watch URLs returned oEmbed metadata on 2026-07-26; embed playback, full-video exact matching, cue and safety quality, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "quadruped-thread-the-needle",
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "ace_thread_the_needle",
+          "claims": [
+            "The defining action is a quadruped reach under the torso followed by a controlled reversal into open rotation.",
+            "The added words reach or rotation name existing phases and do not create separate exercise identities."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "ace_thread_the_needle",
+          "claims": [
+            "Declare the support base, moving side, palm-up thread, open rotation, owned range, tempo, repetitions, and pelvic-control standard.",
+            "Side-lying rotation and hand-behind-head rotation without a thread-under path remain separate definitions."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "thoracic_exercise_prescription_review",
+          "claims": [
+            "Thoracic rotation coordinates spinal, rib-cage, scapular, shoulder, and trunk musculature while one arm provides closed-chain support.",
+            "The card does not claim muscle isolation or exact activation magnitude."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "thoracic_exercise_prescription_review",
+          "claims": [
+            "Quadruped thoracic rotation appears in the exercise literature, and heel-sit positioning can constrain lumbar and pelvic contribution.",
+            "Exact pain-free range and contact comfort remain individual selection constraints."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "thoracic_exercise_prescription_review",
+          "claims": [
+            "Complexity rises with a heel-sit constraint, greater owned range, longer pauses, and stricter pelvic control.",
+            "Exercise difficulty uses complexity and physical demand only, with overall equal to their maximum."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "thoracic_exercise_prescription_review",
+          "claims": [
+            "Loading is bodyweight support through one hand and both knees while the other arm moves.",
+            "Track support-shoulder, wrist, and trunk fatigue plus loss of support, range, pelvic control, or breath."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "ace_thread_the_needle",
+          "claims": [
+            "Use a stable nonslip surface, comfortable wrist and knee contacts, clear reach space, and a safe floor transfer.",
+            "Do not use through pain, neurologic symptoms, dizziness, or unsafe support."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "ace_thread_the_needle",
+          "claims": [
+            "Use slow side-balanced quality repetitions and controlled breathing rather than fatigue-seeking volume.",
+            "Stop before range shrinks, compensation rises, support collapses, or symptoms appear."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "ace_thread_the_needle",
+          "claims": [
+            "Set the base, declare the side, thread palm-up, reverse without momentum, open through owned range, and return.",
+            "Instruction includes breathing, range, dose, quality gate, stop rules, and finish."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "ace_thread_the_needle",
+          "claims": [
+            "Stop for symptoms, support collapse, pelvic spin, forced range, breath holding, or unsafe floor conditions.",
+            "A symptom-free shorter range is preferred to forcing an endpoint."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "thoracic_exercise_prescription_review",
+          "claims": [
+            "Use only when the drill improves or preserves rotation quality for the intended session context.",
+            "Direct outcome evidence for the exact exercise and variants is limited, so universal transfer is not claimed."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "ace_thread_the_needle",
+          "claims": [
+            "Athlete guidance names expected and unexpected sensations, self-checks, accessibility choices, and nonvideo instruction.",
+            "The athlete reports symptoms and side differences rather than forcing symmetry."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "thoracic_exercise_prescription_review",
+          "claims": [
+            "The coach observes support, pelvis, thorax, breath, range, reversal, and side symmetry.",
+            "Record the exact variant, side, range, dose, compensation, symptoms, and stop reason."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "ace_thread_the_needle",
+          "claims": [
+            "Padding, shorter range, fewer repetitions, slower motion, standard quadruped, and side-lying substitution can improve access.",
+            "A different support configuration requires exact variant review."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "thoracic_exercise_prescription_review",
+          "claims": [
+            "Heel-sit support is a variant and shorter range is a modifier.",
+            "Side-lying Open Book, hand-behind-head rotation, loaded work, and ballistic work require separate definitions."
+          ]
+        }
+      ],
+      "assessmentSummary": {
+        "identity": "A hands-and-knees or declared heel-sit quadruped action in which one palm-up arm reaches beneath the torso, reverses, and rotates open while the support shoulder and pelvis remain controlled.",
+        "currentCardFindings": [
+          "Quadruped Thread-the-Needle, Reach, and Rotation name the same reach-under then open action.",
+          "Standard and heel-sit support are exact selectable variants; range and pause are modifiers.",
+          "Four links have healthy oEmbed metadata only and remain unviewed candidate media."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 28,
+          "absoluteLoadDemand": 14,
+          "baseOverallDifficulty": 28,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "quadruped-thread-and-open",
+            "exerciseComplexity": 28,
+            "physicalDifficulty": 14,
+            "derivedOverallDifficulty": 28
+          },
+          {
+            "variantKey": "heel-sit-thread-and-open",
+            "exerciseComplexity": 34,
+            "physicalDifficulty": 16,
+            "derivedOverallDifficulty": 34
+          }
+        ],
+        "identityDecision": {
+          "versus": "quadruped-thread-the-needle-rotation",
+          "decision": "duplicate_consolidated",
+          "boundary": "same_quadruped_reach_under_then_open_rotation_action"
+        }
+      },
+      "alternateAssessments": [
+        {
+          "name": "Quadruped Thread-the-Needle Rotation",
+          "classification": "same_identity",
+          "rationale": "Rotation names the existing open phase.",
+          "distinguishingDimensions": {
+            "nameOnly": true
+          }
+        },
+        {
+          "name": "Quadruped Thread-the-Needle Reach",
+          "classification": "same_identity",
+          "rationale": "Reach names the existing thread-under phase.",
+          "distinguishingDimensions": {
+            "nameOnly": true
+          }
+        },
+        {
+          "name": "Heel-Sit Thread-the-Needle",
+          "classification": "new_variant",
+          "rationale": "Heel-sit support constrains pelvic contribution while preserving the defining action.",
+          "distinguishingDimensions": {
+            "hipPosition": "heel_sit"
+          }
+        },
+        {
+          "name": "Short-Range Thread-the-Needle",
+          "classification": "modifier_annotation",
+          "rationale": "A shorter owned range changes access and dose but not support or action.",
+          "distinguishingDimensions": {
+            "range": "shorter_owned"
+          }
+        },
+        {
+          "name": "Side-Lying Open Book",
+          "classification": "new_definition",
+          "rationale": "Side-lying support and no thread-under path change setup and action.",
+          "distinguishingDimensions": {
+            "supportBase": "side_lying",
+            "action": "open_only"
+          }
+        },
+        {
+          "name": "Quadruped Hand-Behind-Head Rotation",
+          "classification": "new_definition",
+          "rationale": "Hand-behind-head open-and-close rotation omits the palm-up thread-under path.",
+          "distinguishingDimensions": {
+            "handPosition": "behind_head"
+          }
+        },
+        {
+          "name": "Loaded or Ballistic Thread-the-Needle",
+          "classification": "new_definition",
+          "rationale": "Load or ballistic intent changes loading, speed, and failure consequence.",
+          "distinguishingDimensions": {
+            "externalLoadOrBallisticIntent": true
+          }
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=4EPsl0epycc",
+          "title": "Quadruped Thread the Needle Thoracic Rotation",
+          "channelName": "Restore Physical Therapy, LLC",
+          "sourceQuery": "quadruped thread the needle thoracic rotation",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T20:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Cn43k8-7iik",
+          "title": "Thoracic Quadruped Thread the Needle",
+          "channelName": "Physical Therapy First",
+          "sourceQuery": "quadruped thread the needle thoracic rotation",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T20:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Q4fKfxG33sY",
+          "title": "Quadruped Thread The Needle",
+          "channelName": "Tactical Athlete Performance & Physical Therapy",
+          "sourceQuery": "quadruped thread the needle",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T20:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=7VQU2-yFZME",
+          "title": "Quadruped Thread the Needle",
+          "channelName": "Theory of Motion Exercise Library",
+          "sourceQuery": "quadruped thread the needle",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T20:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; embed playback and full-video review remain unresolved."
+        }
+      ]
+    },
+    {
+      "slug": "single-leg-balance-hold-tripod-foot",
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "single_leg_balance_training_review",
+          "claims": [
+            "The defining action is a static single-leg stance with declared tripod contact and controlled posture.",
+            "Naming order does not create another exercise identity."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "single_leg_balance_training_review",
+          "claims": [
+            "Declare side, hand support, visual condition, footwear, surface, stance posture, hold duration, touch-down rule, and fall space.",
+            "Reaching, unstable surfaces, external load, and perturbation require separate review."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "foot_strength_athletes_review",
+          "claims": [
+            "Foot and ankle musculature contributes to pressure control while knee, hip, pelvis, and trunk musculature organizes posture.",
+            "The card does not claim that one muscle or visible arch shape alone determines balance."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "single_leg_balance_training_review",
+          "claims": [
+            "Single-leg postural control uses ankle, hip, and safe touch-down strategies under the declared sensory condition.",
+            "Removing support or vision raises balance complexity without adding external impact."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "single_leg_balance_training_review",
+          "claims": [
+            "Complexity rises when hand support and then visual input are removed; physical demand changes more modestly.",
+            "Overall exercise difficulty is the maximum of complexity and physical demand."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "foot_strength_athletes_review",
+          "claims": [
+            "Loading is bodyweight through one stance limb; external load and unstable surfaces are excluded.",
+            "Track foot, calf, hip, and postural fatigue plus touch-downs, toe clawing, alignment change, and unsafe sway."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "single_leg_balance_training_review",
+          "claims": [
+            "Use a firm nonslip surface, clear fall space, adequate light, declared footwear, and stable support when needed.",
+            "Eyes-closed work requires close supervision and is not an automatic progression."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "single_leg_balance_training_review",
+          "claims": [
+            "Single-leg balance benefits have occurred across varied protocols, so the card uses submaximal quality holds rather than claiming one universal dose.",
+            "Actual clean time ends at the first failed posture or safety criterion."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "single_leg_balance_training_review",
+          "claims": [
+            "Set the tripod, shift to one leg, soften the knee, stack pelvis and ribs, use the declared visual condition, and hold only while controlled.",
+            "Instruction includes the safe support or touch-down strategy."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "single_leg_balance_training_review",
+          "claims": [
+            "Stop for pain, giving way, numbness, tingling, dizziness, unsafe sway, unavailable support, or an uncontrolled step.",
+            "Restore support or a lower-demand stance before repeating."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "single_leg_balance_training_review",
+          "claims": [
+            "Supported, unsupported eyes-open, and eyes-closed holds serve different balance and supervision contexts.",
+            "Balance gains are task-sensitive, so universal transfer is not claimed."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "single_leg_balance_training_review",
+          "claims": [
+            "Athlete guidance distinguishes expected small sway from symptoms and explains support, touch-down, and nonvideo options.",
+            "The athlete reports touch-downs and side differences."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "foot_strength_athletes_review",
+          "claims": [
+            "The coach verifies exact support and sensory conditions and observes foot, knee, pelvis, trunk, breathing, and fall strategy.",
+            "Record actual clean hold time and touch-downs rather than only the target."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "single_leg_balance_training_review",
+          "claims": [
+            "Stable support, eyes open, shorter holds, secure footwear, touch-down permission, and tandem stance can improve access.",
+            "Removing support or vision is optional and requires the exact safety contract."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "single_leg_balance_training_review",
+          "claims": [
+            "Supported, unsupported, and eyes-closed conditions are exact variants; footwear and duration are modifiers.",
+            "Reach tasks, loaded holds, perturbations, and unstable surfaces require separate definitions."
+          ]
+        }
+      ],
+      "assessmentSummary": {
+        "identity": "A static single-leg stance that maintains heel, first-metatarsal-head, and fifth-metatarsal-head contact with controlled knee, pelvis, trunk, and a declared support and visual condition.",
+        "currentCardFindings": [
+          "Single-Leg Balance Hold — Tripod Foot and Single-Leg Tripod Balance are the same identity.",
+          "Supported eyes-open, unsupported eyes-open, and unsupported eyes-closed are exact variants.",
+          "Four links have healthy oEmbed metadata only and remain unviewed candidate media."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 34,
+          "absoluteLoadDemand": 24,
+          "baseOverallDifficulty": 34,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "supported-eyes-open",
+            "exerciseComplexity": 22,
+            "physicalDifficulty": 18,
+            "derivedOverallDifficulty": 22
+          },
+          {
+            "variantKey": "unsupported-eyes-open",
+            "exerciseComplexity": 34,
+            "physicalDifficulty": 24,
+            "derivedOverallDifficulty": 34
+          },
+          {
+            "variantKey": "unsupported-eyes-closed",
+            "exerciseComplexity": 52,
+            "physicalDifficulty": 28,
+            "derivedOverallDifficulty": 52
+          }
+        ],
+        "identityDecision": {
+          "versus": "single-leg-tripod-balance",
+          "decision": "duplicate_consolidated",
+          "boundary": "same_static_single_leg_tripod_balance_action"
+        }
+      },
+      "alternateAssessments": [
+        {
+          "name": "Single-Leg Tripod Balance",
+          "classification": "same_identity",
+          "rationale": "Naming order does not change the action.",
+          "distinguishingDimensions": {
+            "nameOnly": true
+          }
+        },
+        {
+          "name": "Supported Eyes-Open Tripod Hold",
+          "classification": "new_variant",
+          "rationale": "Hand support reduces balance complexity.",
+          "distinguishingDimensions": {
+            "support": "stable_hand",
+            "vision": "eyes_open"
+          }
+        },
+        {
+          "name": "Unsupported Eyes-Open Tripod Hold",
+          "classification": "new_variant",
+          "rationale": "Removing hand support raises balance complexity.",
+          "distinguishingDimensions": {
+            "support": "none_used",
+            "vision": "eyes_open"
+          }
+        },
+        {
+          "name": "Unsupported Eyes-Closed Tripod Hold",
+          "classification": "new_variant",
+          "rationale": "Removing vision raises sensory and supervision demand.",
+          "distinguishingDimensions": {
+            "vision": "eyes_closed",
+            "supervision": "close"
+          }
+        },
+        {
+          "name": "Barefoot or Shoe-On Tripod Hold",
+          "classification": "modifier_annotation",
+          "rationale": "Footwear changes sensory input and traction but not the action.",
+          "distinguishingDimensions": {
+            "footwear": "declared"
+          }
+        },
+        {
+          "name": "Single-Leg Balance Reach Clock",
+          "classification": "new_definition",
+          "rationale": "Reaching adds dynamic center-of-mass movement.",
+          "distinguishingDimensions": {
+            "action": "multidirectional_reach"
+          }
+        },
+        {
+          "name": "Single-Leg Balance on Unstable Surface",
+          "classification": "new_definition",
+          "rationale": "An unstable surface changes environment, mechanics, and fall risk.",
+          "distinguishingDimensions": {
+            "surface": "unstable"
+          }
+        },
+        {
+          "name": "Loaded or Perturbed Single-Leg Hold",
+          "classification": "new_definition",
+          "rationale": "External load or perturbation changes loading and force predictability.",
+          "distinguishingDimensions": {
+            "externalLoadOrPerturbation": true
+          }
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=cOjBPzFz32E",
+          "title": "FOOT TRIPOD EXERCISES   OBTAIN BALANCE AND STABILITY",
+          "channelName": "Jason Hughes",
+          "sourceQuery": "single leg foot tripod balance hold",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T20:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=vKonzLCxWrg",
+          "title": "Single Leg Balance",
+          "channelName": "Ramage Performance Therapy",
+          "sourceQuery": "single leg balance foot tripod",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T20:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=vr2yG84vnnA",
+          "title": "How to Perform the Short Foot Exercise Progressing to Single Leg Balance | Exercise Tutorial",
+          "channelName": "Dr. Karen Thomas ",
+          "sourceQuery": "short foot single leg balance",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T20:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=XhiffPgvEJ4",
+          "title": "Single Leg Balance in Short Foot Position",
+          "channelName": "Dr. Michael Cortese - The Runner Guy",
+          "sourceQuery": "single leg balance short foot position",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T20:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+        }
+      ]
+    },
+    {
+      "slug": "split-squat-isometric-hold",
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "split_squat_joint_angles_loading",
+          "claims": [
+            "The defining action is a static split-squat position at a declared depth.",
+            "Iso is an abbreviation of isometric and does not create a second identity."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "split_squat_joint_angles_loading",
+          "claims": [
+            "Declare side, stance, depth, torso, support, load, hold duration, breathing, quality gate, and exit.",
+            "Dynamic repetitions, rear-foot elevation, perturbation, and jumps require separate definitions."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "split_squat_joint_angles_loading",
+          "claims": [
+            "The split stance loads quadriceps and hip extensors with foot, ankle, hip, pelvis, and trunk stabilization.",
+            "Contribution varies with stance, depth, torso, load, and individual anatomy."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "split_squat_step_length_biomechanics",
+          "claims": [
+            "Stride length and joint angles change lower-extremity mechanics, so exact setup must be recorded.",
+            "An isometric produces force without intentional joint motion at the declared position."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "isometric_training_adaptations_review",
+          "claims": [
+            "Hand support lowers balance complexity; external load primarily raises physical demand and failure consequence.",
+            "Overall difficulty is the maximum of exercise complexity and physical demand."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "isometric_training_adaptations_review",
+          "claims": [
+            "Isometric adaptations depend on task variables including muscle length, intensity, and intent.",
+            "Track stance, depth, load, hold time, local fatigue, postural drift, breathing, and side difference."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "split_squat_joint_angles_loading",
+          "claims": [
+            "Use a stable surface and support, clear exit and set-down space, inspected load, and an exact depth marker.",
+            "Do not continue through symptoms, breath holding, collapse, or unsafe exit."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "isometric_training_adaptations_review",
+          "claims": [
+            "Use submaximal quality holds with side-balanced sets and adequate rest; exact dose follows the intended adaptation.",
+            "Actual quality time ends at the first failed criterion."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "split_squat_joint_angles_loading",
+          "claims": [
+            "Set stance and support, descend to recorded depth, establish foot-knee-pelvis-trunk position, breathe, hold, and exit before change.",
+            "Instruction names load, time, quality gate, stop rules, and set-down."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "split_squat_joint_angles_loading",
+          "claims": [
+            "Stop for symptoms, giving way, breath holding, depth drift, knee collapse, load instability, or unsafe exit.",
+            "Use support, shallower depth, shorter time, or less load after review."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "isometric_training_adaptations_review",
+          "claims": [
+            "Use supported bodyweight for access, unsupported bodyweight for capacity, and loaded holds only after position and exit are repeatable.",
+            "Count local lower-body and postural fatigue before speed, jump, or high-priority strength work."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "split_squat_joint_angles_loading",
+          "claims": [
+            "Athlete guidance names expected effort, unexpected symptoms, self-checks, accessibility choices, and nonvideo instruction.",
+            "The athlete exits before failure and reports actual quality time."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "split_squat_step_length_biomechanics",
+          "claims": [
+            "The coach verifies stance, depth, support, load, knee and foot, pelvis and trunk, breathing, and exit.",
+            "Record actual quality time and why the hold ended."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "split_squat_joint_angles_loading",
+          "claims": [
+            "Stable support, shallower depth, shorter holds, bodyweight, and a wall-sit substitution can reduce balance or load demand.",
+            "A back-knee pad is an exit marker, not a resting surface in these variants."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "split_squat_joint_angles_loading",
+          "claims": [
+            "Supported, unsupported, and goblet-loaded mid-range holds are exact variants; stance and duration are modifiers.",
+            "Rear-foot elevation, dynamic motion, perturbation, partner resistance, and jumps require separate definitions."
+          ]
+        }
+      ],
+      "assessmentSummary": {
+        "identity": "A static split-squat position at a declared stance, depth, torso, support, and load contract, with a controlled hold, breathing, and exit.",
+        "currentCardFindings": [
+          "Split Squat Iso Hold and Split Squat Isometric Hold are the same identity.",
+          "Supported bodyweight, unsupported bodyweight, and goblet-loaded mid-range holds are exact variants.",
+          "Four links have healthy oEmbed metadata only and remain unviewed candidate media."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 36,
+          "absoluteLoadDemand": 42,
+          "baseOverallDifficulty": 42,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "supported-bodyweight-mid-range",
+            "exerciseComplexity": 26,
+            "physicalDifficulty": 32,
+            "derivedOverallDifficulty": 32
+          },
+          {
+            "variantKey": "unsupported-bodyweight-mid-range",
+            "exerciseComplexity": 36,
+            "physicalDifficulty": 42,
+            "derivedOverallDifficulty": 42
+          },
+          {
+            "variantKey": "goblet-loaded-mid-range",
+            "exerciseComplexity": 44,
+            "physicalDifficulty": 58,
+            "derivedOverallDifficulty": 58
+          }
+        ],
+        "identityDecision": {
+          "versus": "split-squat-iso-hold",
+          "decision": "duplicate_consolidated",
+          "boundary": "same_static_split_squat_hold_action"
+        }
+      },
+      "alternateAssessments": [
+        {
+          "name": "Split Squat Iso Hold",
+          "classification": "same_identity",
+          "rationale": "Iso is an abbreviation of isometric.",
+          "distinguishingDimensions": {
+            "nameOnly": true
+          }
+        },
+        {
+          "name": "Supported Bodyweight Split Squat Hold",
+          "classification": "new_variant",
+          "rationale": "Hand support lowers balance complexity.",
+          "distinguishingDimensions": {
+            "support": "stable_hand",
+            "load": "bodyweight"
+          }
+        },
+        {
+          "name": "Unsupported Bodyweight Split Squat Hold",
+          "classification": "new_variant",
+          "rationale": "Removing support raises postural demand.",
+          "distinguishingDimensions": {
+            "support": "none_used",
+            "load": "bodyweight"
+          }
+        },
+        {
+          "name": "Goblet-Loaded Split Squat Hold",
+          "classification": "new_variant",
+          "rationale": "Goblet load raises physical demand while preserving the static position.",
+          "distinguishingDimensions": {
+            "load": "dumbbell_goblet"
+          }
+        },
+        {
+          "name": "Split Squat Hold Depth or Duration Change",
+          "classification": "modifier_annotation",
+          "rationale": "Stance, depth, torso, and duration modify dose without automatically adding an identity.",
+          "distinguishingDimensions": {
+            "modifiers": [
+              "stance",
+              "depth",
+              "torso",
+              "hold_duration"
+            ]
+          }
+        },
+        {
+          "name": "Rear-Foot-Elevated Split Squat Isometric",
+          "classification": "new_definition",
+          "rationale": "Rear-foot elevation changes support, mechanics, balance, and load distribution.",
+          "distinguishingDimensions": {
+            "rearFoot": "elevated"
+          }
+        },
+        {
+          "name": "Dynamic Split Squat",
+          "classification": "new_definition",
+          "rationale": "Repeated descent and ascent replace the static hold.",
+          "distinguishingDimensions": {
+            "action": "dynamic_repetitions"
+          }
+        },
+        {
+          "name": "Perturbed or Partner-Resisted Split Squat Hold",
+          "classification": "new_definition",
+          "rationale": "External force changes predictability, loading, and supervision.",
+          "distinguishingDimensions": {
+            "forceSource": "partner_or_perturbation"
+          }
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=9-E7YW2WAlM",
+          "title": "Resilient Performance - Split Squat Isometric Hold",
+          "channelName": "Resilient Performance Physical Therapy",
+          "sourceQuery": "split squat isometric hold",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T20:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=FvrSfS9cQ9w",
+          "title": "How To: Split Squat Iso Hold",
+          "channelName": "Live Lean TV Daily Exercises",
+          "sourceQuery": "split squat iso hold",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T20:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=nRCANP7XsHE",
+          "title": "How To Do Split Squat Isometric Hold | Invictus Fitness",
+          "channelName": "CrossFit Invictus",
+          "sourceQuery": "split squat isometric hold",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T20:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=OgAuRVSPd5c",
+          "title": "Split Squat Isometric Hold",
+          "channelName": "Calvin Dietz",
+          "sourceQuery": "split squat isometric hold",
+          "linkStatus": "healthy",
+          "embeddingAllowed": false,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T20:15:00.000Z"
+          },
+          "notes": "oEmbed metadata only; exact variant and full-video review remain unresolved."
+        }
+      ]
+    }
+  ]
+}
