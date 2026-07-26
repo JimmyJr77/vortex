@@ -4,6 +4,18 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
 
+import { resolveMigrationConnectionString } from './migrationConnection.js'
+
+// Preserve a connection explicitly supplied by the caller before dotenv loads
+// repository defaults. Otherwise `DB_URL=... npm run migrate` can be silently
+// displaced by a dotenv-provided DATABASE_URL because the pool prefers that
+// key later.
+const explicitConnectionEnvironment = {
+  DATABASE_URL: process.env.DATABASE_URL,
+  EXTERNAL_DB_URL: process.env.EXTERNAL_DB_URL,
+  DB_URL: process.env.DB_URL,
+}
+
 dotenv.config({ path: path.join(process.cwd(), '.env') })
 dotenv.config({ path: path.join(process.cwd(), '.env.local') })
 dotenv.config({ path: path.join(process.cwd(), 'backend', '.env') })
@@ -13,6 +25,10 @@ const { Pool } = pg
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const migrationsDir = path.join(__dirname, 'migrations')
+const connectionString = resolveMigrationConnectionString(
+  explicitConnectionEnvironment,
+  process.env,
+)
 
 const EXCLUDED_FROM_ALL = new Set([
   'verify_module0.sql',
@@ -103,13 +119,13 @@ function resolveSsl(connectionString) {
 }
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || process.env.EXTERNAL_DB_URL || process.env.DB_URL,
+  connectionString,
   user: process.env.DB_USER || 'postgres',
   host: process.env.DB_HOST || 'localhost',
   database: process.env.DB_NAME || 'vortex_athletics',
   password: process.env.DB_PASSWORD || 'password',
   port: process.env.DB_PORT || 5432,
-  ssl: resolveSsl(process.env.DATABASE_URL || process.env.EXTERNAL_DB_URL || process.env.DB_URL),
+  ssl: resolveSsl(connectionString),
 })
 
 async function ensureMigrationTable(client) {

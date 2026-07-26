@@ -1,0 +1,25 @@
+{
+  "batchKey": "support-compression-v-sit-manna-family-v1",
+  "researchVersion": "2026-07-26.29",
+  "generatedAt": "2026-07-27T00:30:00.000Z",
+  "cards": [
+    {
+      "slug": "straddle-compression-lift",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 8
+    },
+    {
+      "slug": "v-sit",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 8
+    },
+    {
+      "slug": "manna-hold",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 8
+    }
+  ]
+}

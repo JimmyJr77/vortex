@@ -1,0 +1,999 @@
+{
+  "batchKey": "l-sit-support-and-hanging-family-v1",
+  "researchVersion": "2026-07-26.28",
+  "snapshotAt": "2026-07-26T23:45:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Resistance exercise selection requires qualified instruction, safe equipment and space, appropriate progression, and readiness assessed for the individual rather than inferred from an exercise label.",
+        "Before {{canonicalName}}, check the support or anchor, hand position, clearance, mount, exit, traffic, symptoms, and fatigue. Stop for pain or pinching; instability; numbness or tingling; dizziness; grip slip; elbow or shoulder collapse; uncontrolled swing; repeated loss of the declared leg shape, height, trunk position, or breathing; or an unsafe exit."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_long_term_development",
+      "claims": [
+        "Training should be individualized and progressively developed from current readiness and movement competence.",
+        "Scale {{canonicalName}} with stable support height or a lower bar, neutral-grip handles, a shorter lever, reduced leg height, shorter holds, more rest, safe assistance, plain-language cues, visual timing, or a supported or supine substitute. Exercise cards use complexity and physical-difficulty scores; athlete and class levels belong to skill-library cards."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The five supplied videos are discovery candidates only. Public oEmbed title and channel metadata were observed on 2026-07-26, but exact variant match, complete setup and exit, cue and claim quality, safety, captions, accessibility, reviewer identity, approval, and continuing availability remain pending human review."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "l-sit",
+      "assessmentSummary": {
+        "identity": "A static bilateral compression exercise performed in straight-arm push support on the floor, parallettes, boxes, dip bars, parallel bars, or rings. The athlete presses into the support while holding the declared leg shape and height in front. Knee angle, leg position, support height, assistance, hold time, and implement stability are controlled variant or delivery dimensions.",
+        "currentCardFindings": [
+          "The historical Tuck L-Sit Hold is a short-lever variant of L-Sit, not a separate stable identity.",
+          "One-leg, full legs-together, straddle, and ring-support versions preserve static straight-arm support compression but materially change lever, symmetry, flexibility, stability, difficulty, supervision, and dosage.",
+          "Support height, heel taps, foot assistance, hold time, range, and rest are modifier or delivery annotations when the support action and intended hold remain unchanged.",
+          "Hanging L-Sit changes straight-arm push support to overhead suspension, introducing different shoulder, grip, anchor, mount, and exit demands; it is a separate exercise definition.",
+          "V-sit and Manna change the required leg height, shoulder relationship, and principal training demand enough to require separate exercise definitions and review.",
+          "The former generic 40/20/40 scores understated straight-arm support, shoulder depression and protraction, compression, long-lever knee extension, breathing, and exit demands.",
+          "Exercise difficulty is assessed only as exercise complexity and physical difficulty, with overall equal to their maximum. This exercise card carries no athlete or class level.",
+          "All five media links remain candidate-only. Metadata availability is not exact-match review, safety approval, content approval, or future availability."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "straight_arm_push_support",
+            "static_bilateral_hip_flexion",
+            "anterior_trunk_and_pelvic_control"
+          ],
+          "jointActions": [
+            "hand_and_wrist_support_isometric",
+            "elbow_extension_isometric",
+            "scapular_depression_and_protraction_control",
+            "shoulder_extension_relative_to_trunk_isometric",
+            "bilateral_hip_flexion_isometric",
+            "pelvic_and_trunk_position_control",
+            "knee_extension_isometric_by_variant"
+          ],
+          "planes": [
+            "sagittal_primary",
+            "frontal_and_transverse_isometric_control",
+            "frontal_hip_abduction_for_straddle_variant"
+          ],
+          "laterality": "bilateral_baseline_with_declared_asymmetric_one_leg_variant",
+          "intent": "static_straight_arm_support_compression_hold"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": [
+            "iliopsoas_and_other_hip_flexors",
+            "rectus_abdominis",
+            "internal_and_external_obliques",
+            "triceps_brachii",
+            "serratus_anterior",
+            "latissimus_dorsi_and_scapular_depressors"
+          ],
+          "secondaryMusclesAndTissues": [
+            "finger_and_wrist_flexors_and_extensors",
+            "rotator_cuff",
+            "pectoral_and_anterior_shoulder_stabilizers",
+            "deep_trunk_stabilizers",
+            "quadriceps_for_extended_knee_variants",
+            "hip_abductors_for_straddle_variant"
+          ],
+          "joints": [
+            "hand_and_wrist",
+            "elbow",
+            "glenohumeral_joint",
+            "scapulothoracic_articulation",
+            "thoracic_and_lumbar_spine",
+            "pelvis",
+            "hip",
+            "knee"
+          ],
+          "primaryActions": [
+            "press_into_a_stable_support",
+            "maintain_straight_elbows",
+            "maintain_active_shoulders",
+            "hold_the_declared_leg_shape_and_height",
+            "control_pelvis_trunk_and_breathing",
+            "exit_under_control"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 68,
+          "coordinationDemand": 58,
+          "supervisionDemand": 45,
+          "failureConsequence": 44,
+          "impact": 1,
+          "workCapacityDemand": 66,
+          "baseOverallDifficulty": 68
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "tuck",
+            "exerciseComplexity": 42,
+            "physicalDifficulty": 48,
+            "derivedOverallDifficulty": 48,
+            "basis": "Knee flexion shortens the lever and reduces hip-flexion and knee-extension demand while retaining straight-arm support, shoulder, trunk, breathing, and exit requirements."
+          },
+          {
+            "variantKey": "one-leg",
+            "exerciseComplexity": 50,
+            "physicalDifficulty": 58,
+            "derivedOverallDifficulty": 58,
+            "basis": "The mixed lever bridges tuck and full positions but adds side-to-side control and requires symmetric exposure."
+          },
+          {
+            "variantKey": "baseline",
+            "exerciseComplexity": 58,
+            "physicalDifficulty": 68,
+            "derivedOverallDifficulty": 68,
+            "basis": "Both extended knees create a long bilateral lever while the athlete maintains straight-arm support, active shoulders, compression, trunk control, and breathing."
+          },
+          {
+            "variantKey": "straddle",
+            "exerciseComplexity": 62,
+            "physicalDifficulty": 66,
+            "derivedOverallDifficulty": 66,
+            "basis": "Straddle preserves the support action but changes hip-abduction range, flexibility interaction, symmetry, and spatial control."
+          },
+          {
+            "variantKey": "ring-support",
+            "exerciseComplexity": 68,
+            "physicalDifficulty": 74,
+            "derivedOverallDifficulty": 74,
+            "basis": "Unstable independent rings add grip, shoulder stabilization, coordination, supervision, mount, and exit demands to the full support hold."
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "relative_bodyweight_static_straight_arm_support_compression",
+          "impactClass": "none_except_uncontrolled_exit",
+          "externalLoadMethod": "bodyweight",
+          "primaryStress": [
+            "hand_and_wrist_support",
+            "elbow_extension_isometric",
+            "scapular_and_shoulder_support",
+            "hip_flexion_isometric",
+            "trunk_and_pelvic_control",
+            "knee_extension_isometric_on_long_lever_variants"
+          ],
+          "fatigueProfile": [
+            "elbow_bend",
+            "shoulder_sink",
+            "legs_or_knees_drop",
+            "pelvic_or_trunk_position_changes",
+            "breathing_becomes_uncontrolled",
+            "support_or_exit_becomes_unsafe"
+          ],
+          "recoveryHours": "Dose and context dependent. Count the work with dips, presses, ring support, hand support, compression training, hip-flexor work, and other long-lever isometrics. Ring support, long holds, high total time, or near-failure work may require more recovery."
+        },
+        "proposedConstraints": {
+          "equipment": [
+            "stable_floor_or_rated_support",
+            "matched_support_height",
+            "non_slip_hand_contact",
+            "clear_leg_and_exit_space",
+            "rated_still_rings_for_ring_variant"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "clear_station_and_exit",
+            "no_cross_traffic",
+            "support_height_selected_before_the_set"
+          ],
+          "population": [
+            "pain_free_declared_hand_or_neutral_grip_support",
+            "repeatable_straight_elbows_and_active_shoulders",
+            "owned_declared_leg_lever",
+            "controlled_breathing_and_exit"
+          ],
+          "exclusions": [
+            "current_relevant_pain_or_neurologic_symptoms",
+            "uncontrolled_support_collapse",
+            "unsafe_support_or_exit",
+            "fatigue_that_requires_an_undeclared_shorter_lever"
+          ]
+        },
+        "proposedDosage": {
+          "phase": "movement_intelligence_for_tuck_then_capacity_for_longer_levers",
+          "sets": "2_to_5",
+          "workSeconds": "3_to_20_by_variant",
+          "restSeconds": "75_to_240",
+          "effortCeiling": "Stop with at least two seconds of visible shape reserve and before breath, elbow, shoulder, or exit quality changes.",
+          "weeklyExposure": "Usually one to three quality exposures, adjusted for other support, pressing, ring, compression, and hip-flexor work.",
+          "measurement": [
+            "variant",
+            "implement_and_support_height",
+            "knee_angle_and_leg_height",
+            "clean_hold_seconds",
+            "sets_and_rest",
+            "first_quality_loss",
+            "symptom_and_next_day_response"
+          ]
+        },
+        "proposedInstructions": {
+          "coach": [
+            "Check the support and exit space.",
+            "Declare implement, height, knee angle, leg position, hold standard, time, and rest.",
+            "Observe from front and side for elbow, shoulder, pelvic, knee, height, breathing, and symmetry changes.",
+            "Shorten the lever or hold before accepting collapse.",
+            "Count ring-support exposure separately in supervision and fatigue budgets."
+          ],
+          "athlete": [
+            "Push the supports down.",
+            "Keep your elbows long and shoulders active.",
+            "Lift the declared leg shape only as high as you can own.",
+            "Keep breathing.",
+            "Come down before your shoulders, elbows, or legs change."
+          ]
+        },
+        "proposedQualityGates": [
+          "support_is_stable",
+          "elbows_remain_straight",
+          "shoulders_do_not_sink",
+          "declared_leg_shape_and_height_are_repeatable",
+          "breathing_continues",
+          "exit_is_controlled"
+        ],
+        "proposedStopRules": [
+          "pain_pinch_numbness_tingling_dizziness_or_instability",
+          "support_movement_or_hand_slip",
+          "persistent_elbow_bend_or_shoulder_collapse",
+          "undeclared_leg_shape_height_or_trunk_change",
+          "uncontrolled_breath_holding",
+          "unsafe_exit"
+        ],
+        "proposedProgramming": {
+          "primaryUses": [
+            "straight_arm_support_strength",
+            "hip_flexion_compression_strength",
+            "trunk_and_pelvic_control",
+            "ring_support_stability_when_declared"
+          ],
+          "sequence": [
+            "after_general_and_wrist_shoulder_preparation",
+            "before_fatiguing_pressing_ring_or_compression_work",
+            "not_after_support_or_grip_failure"
+          ],
+          "compatiblePairings": [
+            "lower_body_strength",
+            "low_demand_mobility",
+            "non_competing_technical_work"
+          ],
+          "avoidPairings": [
+            "high_volume_dips_or_pressing",
+            "exhaustive_ring_support",
+            "high_volume_hip_flexion",
+            "hand_or_wrist_fatigue"
+          ],
+          "uncertaintyPolicy": "Exclude when support stability, hand or shoulder tolerance, lever ownership, fatigue state, breathing, or safe exit is unknown."
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "The professional progression presents tuck, one-leg, full L-sit, and straddle L-sit as a related support sequence, while V-sit and Manna are treated as later, different positions.",
+            "Use one support L-sit definition with explicit tuck, one-leg, full, straddle, and ring-support variants. Treat support height, assistance, hold duration, and heel contact as modifiers; treat hanging L-sit, V-sit, and Manna as separate identities."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "fig_mag_age_group_program",
+          "claims": [
+            "The governing-body program describes L-sit in straight-arm support and separately describes hanging, pulling, and kip sequences.",
+            "Classify the card as static straight-arm push support with bilateral hip-flexion compression and trunk control, not as an overhead hanging action."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "abdominal_hip_flexor_activation_training_exercises",
+          "claims": [
+            "Hip-flexion and bilateral leg-lift tasks can substantially involve hip flexors together with abdominal activity.",
+            "This adjacent EMG evidence supports modeling hip flexors as important movers and the abdominal wall as a contributor to pelvic and trunk control. It does not directly quantify the L-sit's shoulder, triceps, wrist, or scapular demands."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "The documented progression changes knee angle and the number of extended legs before the full long-lever position, supporting lever length as a central scaling dimension.",
+            "Support height can create clearance without changing the primary support and compression action. Rings retain support but add independent implement instability and require an explicit variant."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "fig_mag_code_2025_2028",
+          "claims": [
+            "The governing-body code requires an L-sit or straddle L-sit hold to be shown for a defined duration and distinguishes higher leg positions such as V-sit and Manna.",
+            "The source supports treating stable shape and duration as quality requirements, but it does not validate Vortex's numeric scores. Proposed scores are candidate calibration values, with overall derived from exercise complexity and physical difficulty rather than athlete classification."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "The support progression increases lever demand from tuck through one-leg to full while retaining straight-arm support.",
+            "Count support, triceps, shoulder, hand or wrist, hip-flexor, abdominal, and long-lever knee-extension fatigue. Ring support adds grip and stabilization fatigue. No universal recovery interval is established by this source."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Safe resistance training requires qualified instruction, appropriate equipment and space, supervision, and progression matched to readiness.",
+            "Require stable support, safe hand position, appropriate clearance, direct supervision where needed, controlled breathing, and a safe exit. Substitute when symptoms or support demands obscure the intended compression stimulus."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "fig_mag_code_2025_2028",
+          "claims": [
+            "The governing-body standard uses a two-second hold criterion for recognized strength positions.",
+            "That performance criterion does not establish a training prescription. Candidate training doses use short repeatable holds, enough rest to preserve shape, and accumulated quality time recorded separately from failed or partial holds."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "fig_mag_age_group_program",
+          "claims": [
+            "The governing-body program depicts L-sit in support with legs held horizontally and straight-arm support requirements.",
+            "Instructions should declare support, knee angle, leg position, height, time, breathing, and exit rather than using the name alone as the movement standard."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "The progression places shorter-lever holds before the full L-sit and shows straddle and higher positions as deliberate progressions.",
+            "Program short-lever support first, progress one controlled dimension at a time, and preserve adequate support, compression, and breathing reserve. Do not use an athlete level as an exercise dose."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "nsca_youth_long_term_development",
+          "claims": [
+            "Long-term development guidance emphasizes individualized, progressive training from current competence and readiness.",
+            "Athlete support should show the exact support, leg shape and height, expected hand, arm, shoulder, hip, abdominal, and quadriceps effort, breathing, the safe exit, and clear symptom stop signals."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Qualified instruction, safe equipment, direct supervision where needed, and gradual progression are central to resistance training.",
+            "Coach support should cover support and lane checks, front and side observation, variant naming, hold and rest logging, lever changes, wrist options, cumulative pressing and compression fatigue, substitutions, group turnover, and clinical or emergency escalation."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "Tuck, one-leg, full, and straddle positions are presented within a parallette support progression, while V-sit and Manna are later distinct positions.",
+            "Classify knee angle, one-leg asymmetry, straddle, and ring stability as explicit variants; support height, heel taps, and assistance as modifiers; and hanging support, V-sit, Manna, and dynamic compression lifts as separate identity reviews."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=H_iZG5-L_KI",
+          "title": "L-SIT TUTORIAL | Step-by-Step Progressions to Master the Perfect L-Sit",
+          "channelName": "Simonster Strength",
+          "sourceQuery": "Public YouTube oEmbed observed 2026-07-26: L-sit tutorial progressions",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Exact support variants, setup, wrist options, hold standard, safety, dosage, claims, captions, accessibility, and full sequence require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=IUZJoSP66HI",
+          "title": "Floor L-sit Progression Tutorial by Antranik",
+          "channelName": "Antranik Kizirian",
+          "sourceQuery": "Public YouTube oEmbed observed 2026-07-26: floor L-sit progression",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Exact floor support, leverage progressions, cue accuracy, safety, captions, accessibility, and complete demonstration require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=eywCpp0p7lg",
+          "title": "The Perfect L-Sit Tutorial - Beginner Friendly",
+          "channelName": "STRIQfit",
+          "sourceQuery": "Public YouTube oEmbed observed 2026-07-26: beginner L-sit tutorial",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Beginner wording is not a Vortex athlete classification. Exact variants, safe support and exit, claims, captions, and accessibility require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=jceq8cCj1z8",
+          "title": "L - Sit Tutorial: Complete from Beginner to Advanced!!",
+          "channelName": "Sid Paulson",
+          "sourceQuery": "Public YouTube oEmbed observed 2026-07-26: L-sit complete tutorial",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Title language does not map to exercise-card levels. Exact movement variants, safety, claims, captions, accessibility, and completeness require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=r-LQKNxGJB0",
+          "title": "L-Sit Tutorial On Floor, Bar And Parallel Bars (6 Step-by-Step Guide)",
+          "channelName": "Gymless Fitness",
+          "sourceQuery": "Public YouTube oEmbed observed 2026-07-26: L-sit floor bar parallel bars",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Support implement boundaries, exact shapes, setup, safe exit, claims, captions, accessibility, and full content require human review."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Tuck L-Sit Hold",
+          "classification": "new_variant",
+          "rationale": "Knee flexion shortens the lever while preserving static straight-arm support compression, so the historical card is consolidated as the tuck variant.",
+          "distinguishingDimensions": {
+            "kneeAngle": "flexed",
+            "leverLength": "short"
+          }
+        },
+        {
+          "name": "One-Leg L-Sit",
+          "classification": "new_variant",
+          "rationale": "One extended and one flexed knee create a mixed asymmetric lever while preserving the support L-sit identity.",
+          "distinguishingDimensions": {
+            "kneeAngle": "mixed",
+            "laterality": "asymmetric_alternating"
+          }
+        },
+        {
+          "name": "Straddle L-Sit",
+          "classification": "new_variant",
+          "rationale": "Straddle changes hip-abduction range, flexibility interaction, symmetry, and spatial control while preserving static straight-arm support compression.",
+          "distinguishingDimensions": {
+            "legPosition": "straddle",
+            "hipAbduction": "declared_owned_range"
+          }
+        },
+        {
+          "name": "Ring-Support L-Sit",
+          "classification": "new_variant",
+          "rationale": "Rings preserve straight-arm support compression but materially add independent implement stability, grip, supervision, mount, and exit demands.",
+          "distinguishingDimensions": {
+            "implement": "rings",
+            "supportStability": "unstable_independent"
+          }
+        },
+        {
+          "name": "Heel-Tap L-Sit",
+          "classification": "modifier_annotation",
+          "rationale": "Brief declared heel contact reduces the supported lever without changing the primary support action or intended isometric hold.",
+          "distinguishingDimensions": {
+            "assistance": "heel_contact",
+            "contactTiming": "declared"
+          }
+        },
+        {
+          "name": "Foot-Assisted L-Sit",
+          "classification": "modifier_annotation",
+          "rationale": "Stable foot assistance changes load and dosage while preserving straight-arm support compression.",
+          "distinguishingDimensions": {
+            "assistance": "stable_foot_support",
+            "loadReduction": "declared"
+          }
+        },
+        {
+          "name": "Elevated-Support L-Sit",
+          "classification": "modifier_annotation",
+          "rationale": "Raising stable supports changes clearance and wrist position without changing the exercise identity when support action and leg standard remain the same.",
+          "distinguishingDimensions": {
+            "supportHeight": "elevated",
+            "clearance": "increased"
+          }
+        },
+        {
+          "name": "Hanging L-Sit",
+          "classification": "new_definition",
+          "rationale": "Overhead suspension replaces straight-arm push support and changes grip, shoulder position, anchor, mount, clearance, fatigue, and exit demands.",
+          "distinguishingDimensions": {
+            "supportAction": "overhead_suspension",
+            "grip": "required"
+          }
+        },
+        {
+          "name": "V-Sit",
+          "classification": "new_definition",
+          "rationale": "A substantially higher leg position changes shoulder-to-trunk relationship, compression range, flexibility, balance, and principal training demand.",
+          "distinguishingDimensions": {
+            "legHeight": "above_horizontal",
+            "identityBoundary": "higher_compression_position"
+          }
+        },
+        {
+          "name": "Manna",
+          "classification": "new_definition",
+          "rationale": "Manna requires an extreme high-leg and shoulder relationship beyond an L-sit lever progression and needs its own anatomy, difficulty, safety, and dosage review.",
+          "distinguishingDimensions": {
+            "legHeight": "extreme_above_horizontal",
+            "shoulderRelationship": "materially_changed"
+          }
+        },
+        {
+          "name": "Seated Compression Lift",
+          "classification": "new_definition",
+          "rationale": "The athlete remains seated and dynamically lifts the legs without suspending bodyweight through straight arms, changing support action and movement intent.",
+          "distinguishingDimensions": {
+            "supportAction": "seated_grounded",
+            "contractionMode": "dynamic_leg_lift"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "hanging-l-sit",
+      "assessmentSummary": {
+        "identity": "A static bilateral compression hold performed while suspended by both hands from a secure overhead bar or stable rings. From a still hang, the athlete holds the declared leg shape and height while maintaining grip, shoulder position, trunk and pelvic control, breathing, and a safe step-down.",
+        "currentCardFindings": [
+          "No legacy Hanging L-Sit card existed, despite the movement having a distinct overhead-suspension identity and official instructional coverage.",
+          "The card is created as an unpublished, review-only legacy source plus canonical definition so migration coverage and rollback lineage remain complete.",
+          "Tuck and one-leg versions change knee angle, lever, asymmetry, difficulty, and dosage while preserving the static two-hand hanging identity.",
+          "Support L-Sit changes overhead suspension to straight-arm push support and is a separate exercise definition.",
+          "Dynamic hanging leg raise changes contraction and intent from a static hold to repeated hip flexion and lowering and is a separate exercise definition.",
+          "Exercise difficulty is assessed only as exercise complexity and physical difficulty, with overall equal to their maximum. This exercise card carries no athlete or class level.",
+          "All five media links remain candidate-only. Metadata availability is not exact-match review, safety approval, content approval, or future availability."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "overhead_suspension",
+            "static_bilateral_hip_flexion",
+            "anterior_trunk_and_pelvic_control",
+            "grip_isometric"
+          ],
+          "jointActions": [
+            "finger_and_wrist_flexion_isometric",
+            "elbow_extension_held",
+            "overhead_shoulder_and_scapular_position_held",
+            "bilateral_hip_flexion_isometric",
+            "pelvic_and_trunk_position_control",
+            "knee_extension_isometric_by_variant"
+          ],
+          "planes": [
+            "sagittal_primary",
+            "frontal_and_transverse_isometric_control"
+          ],
+          "laterality": "bilateral_baseline_with_declared_asymmetric_one_leg_variant",
+          "intent": "static_two_hand_hanging_compression_hold_without_swing"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": [
+            "iliopsoas_and_other_hip_flexors",
+            "rectus_abdominis",
+            "internal_and_external_obliques",
+            "finger_and_wrist_flexors",
+            "latissimus_dorsi_and_scapular_stabilizers"
+          ],
+          "secondaryMusclesAndTissues": [
+            "rotator_cuff",
+            "deep_trunk_stabilizers",
+            "spinal_stabilizers",
+            "quadriceps_for_extended_knee_variants"
+          ],
+          "joints": [
+            "hand_and_wrist",
+            "elbow",
+            "glenohumeral_joint",
+            "scapulothoracic_articulation",
+            "thoracic_and_lumbar_spine",
+            "pelvis",
+            "hip",
+            "knee"
+          ],
+          "primaryActions": [
+            "maintain_secure_bilateral_grip",
+            "hold_a_tolerated_overhead_shoulder_position",
+            "settle_and_prevent_swing",
+            "hold_the_declared_leg_shape_and_height",
+            "control_pelvis_trunk_and_breathing",
+            "step_down_safely"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 50,
+          "absoluteLoadDemand": 68,
+          "coordinationDemand": 54,
+          "supervisionDemand": 62,
+          "failureConsequence": 64,
+          "impact": 1,
+          "workCapacityDemand": 68,
+          "baseOverallDifficulty": 68
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "tuck",
+            "exerciseComplexity": 38,
+            "physicalDifficulty": 50,
+            "derivedOverallDifficulty": 50,
+            "basis": "Knee flexion shortens the leg lever, but the athlete still supports a full bodyweight hang, grip, overhead shoulder position, stillness, breathing, and safe exit."
+          },
+          {
+            "variantKey": "one-leg",
+            "exerciseComplexity": 44,
+            "physicalDifficulty": 58,
+            "derivedOverallDifficulty": 58,
+            "basis": "One extended leg lengthens the lever and adds asymmetric anti-rotation control while retaining the hanging support and grip demands."
+          },
+          {
+            "variantKey": "baseline",
+            "exerciseComplexity": 50,
+            "physicalDifficulty": 68,
+            "derivedOverallDifficulty": 68,
+            "basis": "Both extended knees create a long bilateral lever while the athlete maintains full grip, overhead suspension, stillness, trunk and pelvic control, and breathing."
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "relative_bodyweight_static_long_lever_overhead_hang",
+          "impactClass": "none_except_uncontrolled_dismount",
+          "externalLoadMethod": "bodyweight",
+          "primaryStress": [
+            "grip_isometric",
+            "overhead_shoulder_position",
+            "hip_flexion_isometric",
+            "trunk_and_pelvic_control",
+            "knee_extension_isometric_on_long_lever_variants",
+            "safe_mount_and_exit"
+          ],
+          "fatigueProfile": [
+            "grip_opening",
+            "shoulder_position_change",
+            "swing",
+            "legs_or_knees_drop",
+            "pelvic_or_trunk_position_changes",
+            "breathing_becomes_uncontrolled",
+            "unsafe_dismount"
+          ],
+          "recoveryHours": "Dose and context dependent. Count the work with pull-ups, climbing, carries, hanging leg raises, bar skills, other grip or overhead work, and compression training. Long holds, full lever, rings, or near-failure work may require more recovery."
+        },
+        "proposedConstraints": {
+          "equipment": [
+            "rated_secure_bar_or_stable_rings",
+            "safe_mount_or_box",
+            "clear_hang_and_leg_space",
+            "non_slip_landing_surface"
+          ],
+          "environment": [
+            "clear_hanging_lane",
+            "no_cross_traffic",
+            "safe_step_down",
+            "direct_supervision_until_repeatable"
+          ],
+          "population": [
+            "secure_grip_or_approved_substitute",
+            "tolerated_overhead_hang",
+            "still_start",
+            "owned_declared_leg_lever",
+            "controlled_breathing_and_exit"
+          ],
+          "exclusions": [
+            "current_relevant_pain_or_neurologic_symptoms",
+            "grip_slip_or_uncontrolled_swing",
+            "unsafe_anchor_mount_or_exit",
+            "fatigue_that_obscures_the_static_compression_stimulus"
+          ]
+        },
+        "proposedDosage": {
+          "phase": "capacity",
+          "sets": "2_to_5",
+          "workSeconds": "4_to_20_by_variant",
+          "restSeconds": "75_to_180",
+          "effortCeiling": "Stop with grip, shoulder, stillness, shape, breathing, and exit reserve.",
+          "weeklyExposure": "Usually one to three quality exposures, adjusted for all other grip, hanging, pulling, bar-skill, and compression work.",
+          "measurement": [
+            "variant",
+            "implement_and_grip",
+            "knee_angle_and_leg_height",
+            "clean_hold_seconds",
+            "sets_and_rest",
+            "swing_events",
+            "first_quality_loss",
+            "symptom_and_next_day_response"
+          ]
+        },
+        "proposedInstructions": {
+          "coach": [
+            "Check the anchor, mount, clearance, and exit.",
+            "Declare implement, grip, knee angle, leg height, hold time, and rest.",
+            "Settle the athlete before the hold begins.",
+            "Observe from front and side for grip, shoulder, swing, pelvic, knee, height, breathing, and exit changes.",
+            "Substitute when grip or overhead tolerance obscures the intended compression stimulus."
+          ],
+          "athlete": [
+            "Hang still.",
+            "Keep a secure grip and controlled shoulders.",
+            "Lift and hold the declared leg shape.",
+            "Keep breathing.",
+            "Step down before your grip, shoulders, or legs change."
+          ]
+        },
+        "proposedQualityGates": [
+          "anchor_mount_and_clearance_are_safe",
+          "body_starts_and_remains_still",
+          "grip_and_shoulder_position_are_secure",
+          "declared_leg_shape_and_height_are_repeatable",
+          "breathing_continues",
+          "step_down_is_controlled"
+        ],
+        "proposedStopRules": [
+          "pain_pinch_numbness_tingling_dizziness_or_instability",
+          "grip_opening_or_slip",
+          "shoulder_position_loss",
+          "swing",
+          "undeclared_leg_shape_height_or_trunk_change",
+          "unsafe_exit"
+        ],
+        "proposedProgramming": {
+          "primaryUses": [
+            "static_hanging_compression_strength",
+            "grip_capacity",
+            "overhead_position_tolerance",
+            "trunk_and_pelvic_control"
+          ],
+          "sequence": [
+            "after_general_and_grip_shoulder_preparation",
+            "before_fatiguing_pulling_hanging_or_bar_skills",
+            "not_after_grip_failure_or_uncontrolled_swing_work"
+          ],
+          "compatiblePairings": [
+            "lower_body_strength",
+            "low_demand_mobility",
+            "non_competing_technical_work"
+          ],
+          "avoidPairings": [
+            "high_volume_vertical_pull",
+            "max_effort_grip",
+            "high_consequence_bar_skill",
+            "high_volume_hip_flexion"
+          ],
+          "uncertaintyPolicy": "Exclude when anchor, clearance, grip, overhead tolerance, stillness, lever ownership, fatigue state, or safe exit is unknown."
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "crossfit_hanging_l_sit",
+          "claims": [
+            "The official instructional page identifies the hanging L-sit as a named static hanging exercise.",
+            "Treat the two-hand static hanging hold as its own definition. Knee angle and mixed-leg versions are variants; support L-sit and dynamic hanging leg raises change support action or contraction intent and remain separate identities."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "fig_mag_age_group_program",
+          "claims": [
+            "The governing-body program distinguishes support strength positions from hang, pull, and kip sequences.",
+            "Classify this card as static overhead suspension with bilateral hip-flexion compression, grip, and trunk control, not as straight-arm push support."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "abdominal_hip_flexor_activation_training_exercises",
+          "claims": [
+            "Hip-flexion and bilateral leg-lift tasks can substantially involve hip flexors together with abdominal activity.",
+            "This adjacent evidence supports hip flexors as important contributors and the abdominal wall as a pelvic and trunk controller, but does not directly quantify static hanging grip or shoulder demand."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "suspended_bilateral_hip_flexion_kinematics",
+          "claims": [
+            "A study of participants suspended by both hands found that pelvic and femoral contributions to bilateral hip flexion varied with knee position and hamstring length.",
+            "The task in that study was dynamic rather than a static L-sit, so it is adjacent evidence only. It supports declaring knee angle, leg height, pelvic control, and individual range rather than assuming one universal position."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "crossfit_hanging_l_sit",
+          "claims": [
+            "The official instruction presents a hanging hold requiring sustained grip, suspension, and leg position.",
+            "The source supports the exercise's combined hanging and compression demands but does not validate Vortex's numeric scores. Overall is derived from exercise complexity and physical difficulty and is not an athlete classification."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "suspended_bilateral_hip_flexion_kinematics",
+          "claims": [
+            "Knee position and hamstring length affect pelvic and femoral contributions during suspended bilateral hip flexion.",
+            "Count grip, overhead position, hip-flexor, trunk, pelvic, and long-lever knee-extension fatigue. This study does not establish recovery hours for a static hanging L-sit, so all recovery values remain candidate calibration."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Safe resistance training requires qualified instruction, appropriate equipment and space, supervision, and progression matched to readiness.",
+            "Require a rated anchor, safe mount, secure grip, tolerated overhead position, clearance, stillness, and safe step-down. Substitute when symptoms, grip, shoulder position, or equipment obscure the intended stimulus."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "crossfit_hanging_l_sit",
+          "claims": [
+            "The official instruction demonstrates the movement but does not establish one universal training dose.",
+            "Use short repeatable holds and enough rest to preserve grip, shoulder position, stillness, leg shape, breathing, and exit. Accumulated clean time should exclude swinging, shortened, or failed holds."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "crossfit_hanging_l_sit",
+          "claims": [
+            "The official instruction provides a direct demonstration of the hanging L-sit.",
+            "Vortex instructions must additionally declare the anchor, mount, grip, knee angle, leg height, still-start rule, breathing, hold time, and safe exit so the name alone is not treated as a complete standard."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "nsca_youth_long_term_development",
+          "claims": [
+            "Long-term development guidance emphasizes progressive training from current readiness and movement competence.",
+            "Program a shorter lever before a longer lever, preserve grip and shoulder reserve, count all hanging and pulling fatigue, and substitute when the hanging constraint is not the intended stimulus."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "nsca_youth_long_term_development",
+          "claims": [
+            "Long-term development guidance emphasizes individualized, progressive training from current competence and readiness.",
+            "Athlete support should show anchor and mount checks, the exact knee angle and leg height, expected grip, shoulder, hip, abdominal, and quadriceps effort, the still-body standard, safe exit, and clear symptom and grip-slip stop signals."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Qualified instruction, safe equipment, direct supervision where needed, and gradual progression are central to resistance training.",
+            "Coach support should cover anchor and lane checks, mount and step-down, front and side observation, variant naming, hold and rest logging, swing correction, cumulative grip and hanging fatigue, substitutions, group turnover, and clinical or emergency escalation."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "crossfit_hanging_l_sit",
+          "claims": [
+            "The official source identifies a distinct hanging L-sit exercise.",
+            "Classify tuck and one-leg levers as variants; foot assistance, reduced height, grip, and hold time as modifiers; and support L-sit, dynamic hanging leg raise, one-arm hanging, and swinging or cyclic versions as separate identity reviews."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=WHi1bvZLwlw",
+          "title": "The Hanging L-Sit",
+          "channelName": "CrossFit",
+          "sourceQuery": "Official CrossFit page embedded video discovered and public YouTube oEmbed observed 2026-07-26",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Official source candidate, but exact full sequence, setup, safe exit, claims, captions, accessibility, and continuing embedding require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=784YzIaJSJg",
+          "title": "How to Perform a Hanging L-Sit - Exercise Tutorial",
+          "channelName": "Be a Game Character",
+          "sourceQuery": "Public YouTube oEmbed observed 2026-07-26: hanging L-sit exercise tutorial",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Exact static hold, anchor, mount, grip, no-swing rule, exit, safety, captions, accessibility, and claims require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=U5q6xbZ74Hw",
+          "title": "Hanging L-Sit Tutorial",
+          "channelName": "Flexibility Maestro",
+          "sourceQuery": "Public YouTube oEmbed observed 2026-07-26: hanging L-sit tutorial",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Exact identity, knee-angle variants, stillness, setup and exit, safety, claims, captions, and accessibility require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=zTNEqU6pWuE",
+          "title": "Hanging L-Sit technique #technique #crossfit #coaching",
+          "channelName": "More Than Muscle | Training and Nutrition",
+          "sourceQuery": "Public YouTube oEmbed observed 2026-07-26: hanging L-sit technique coaching",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Short-form candidate by public metadata only. Complete setup, hold, exit, safety, cue context, captions, accessibility, and claim review are especially important."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=TWpGkp1TvG0",
+          "title": "Hanging L Sit",
+          "channelName": "CoreFit inc.",
+          "sourceQuery": "Public YouTube oEmbed observed 2026-07-26: hanging L sit",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Exact static identity, setup, mount and exit, safety, technique, claims, captions, accessibility, and full sequence require human review."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Tuck Hanging L-Sit",
+          "classification": "new_variant",
+          "rationale": "Knee flexion shortens the lever while preserving the static two-hand overhead hanging identity.",
+          "distinguishingDimensions": {
+            "kneeAngle": "flexed",
+            "leverLength": "short"
+          }
+        },
+        {
+          "name": "One-Leg Hanging L-Sit",
+          "classification": "new_variant",
+          "rationale": "One extended and one flexed knee create a mixed asymmetric lever while preserving the static two-hand overhead hanging identity.",
+          "distinguishingDimensions": {
+            "kneeAngle": "mixed",
+            "laterality": "asymmetric_alternating"
+          }
+        },
+        {
+          "name": "Foot-Assisted Hanging L-Sit",
+          "classification": "modifier_annotation",
+          "rationale": "Stable foot assistance changes suspension load, range, and dosage without changing the intended static hanging compression hold.",
+          "distinguishingDimensions": {
+            "assistance": "stable_foot_contact",
+            "loadReduction": "declared"
+          }
+        },
+        {
+          "name": "Weighted Hanging L-Sit",
+          "classification": "modifier_annotation",
+          "rationale": "Secure added resistance changes load, attachment, mount, exit, fatigue, and recovery but preserves the static two-hand hanging identity; it remains quarantined pending calibration.",
+          "distinguishingDimensions": {
+            "externalLoad": "added",
+            "attachment": "secure_and_reviewed"
+          }
+        },
+        {
+          "name": "Support L-Sit",
+          "classification": "new_definition",
+          "rationale": "Straight-arm push support replaces overhead suspension and changes hand loading, shoulder relationship, grip demand, equipment, and exit.",
+          "distinguishingDimensions": {
+            "supportAction": "straight_arm_push_support",
+            "grip": "not_overhead_suspension"
+          }
+        },
+        {
+          "name": "Hanging Leg Raise",
+          "classification": "new_definition",
+          "rationale": "Repeated hip flexion and lowering change contraction mode, time course, range, fatigue, measurement, and intent from a static hold.",
+          "distinguishingDimensions": {
+            "contractionMode": "dynamic_concentric_and_eccentric",
+            "intent": "repeated_raise_and_lower"
+          }
+        },
+        {
+          "name": "Kipping Hanging L-Sit",
+          "classification": "new_definition",
+          "rationale": "Cyclic shoulder and trunk swing changes movement pattern, momentum, impact, fatigue, timing, and training stimulus beyond the strict static identity.",
+          "distinguishingDimensions": {
+            "swingMode": "cyclic_kipping",
+            "movementPattern": "dynamic"
+          }
+        },
+        {
+          "name": "One-Arm Hanging L-Sit",
+          "classification": "new_definition",
+          "rationale": "Single-arm suspension materially changes laterality, grip, shoulder load, anti-rotation demand, failure consequence, and supervision.",
+          "distinguishingDimensions": {
+            "supportLaterality": "unilateral",
+            "primaryLoadDistribution": "single_arm"
+          }
+        }
+      ]
+    }
+  ]
+}

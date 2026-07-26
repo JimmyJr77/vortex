@@ -1,0 +1,1435 @@
+{
+  "batchKey": "support-compression-v-sit-manna-family-v1",
+  "researchVersion": "2026-07-26.29",
+  "snapshotAt": "2026-07-27T00:30:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Resistance exercise selection requires qualified instruction, safe equipment and space, appropriate progression, and readiness assessed for the individual rather than inferred from an exercise label.",
+        "Before {{canonicalName}}, check the exact support, floor area, clearance, selected position, assistance, fatigue state, and exit. Stop for pain or pinching; numbness or tingling; dizziness; instability; support or hand slip; uncontrolled cramping; elbow or shoulder collapse; repeated loss of the declared trunk, knee, leg-height, range, breathing, or assistance standard; or an unsafe exit."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_long_term_development",
+      "claims": [
+        "Training should be individualized and progressively developed from current readiness and movement competence.",
+        "Scale {{canonicalName}} with a shorter lever, smaller owned range, stable higher support, shorter sets or holds, more rest, declared assistance, plain-language cues, visual markers, or a mechanically appropriate substitute. Exercise cards use complexity and physical-difficulty scores; formal proficiency levels remain on skill-library cards."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The five supplied videos are discovery candidates only. Public oEmbed title, channel, and embed-player metadata were observed on 2026-07-26; exact identity and variant match, complete setup and exit, cue and claim quality, safety, captions, accessibility, reviewer identity, approval, and continuing availability remain pending human review."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "straddle-compression-lift",
+      "assessmentSummary": {
+        "identity": "A grounded dynamic compression exercise. The athlete remains seated and lifts one or both legs through an owned pike or straddle range without suspending bodyweight through the hands. Knee angle, unilateral versus bilateral execution, pike versus straddle, hand position, lift height, tempo, and dose are controlled variant or modifier dimensions.",
+        "currentCardFindings": [
+          "The historical Straddle Compression Lift is a valid variant but too narrow to represent the full grounded dynamic compression identity.",
+          "Pike and straddle change hip-abduction range and flexibility interaction while preserving the same seated dynamic hip-flexion action.",
+          "Bent-knee, unilateral, and bilateral versions materially change lever, symmetry, coordination, and difficulty and should be explicit variants.",
+          "Hand position, stable blocks or handles, lift height, pause, tempo, range, and set volume are delivery modifiers when the seated dynamic action remains unchanged.",
+          "L-sit, V-sit, Manna, hanging leg raise, and press-to-handstand work change support action or principal movement intent and remain separate identities.",
+          "The former 40/20/40 baseline materially understated bilateral long-lever hip-flexion, knee-extension, trunk, straddle-symmetry, and controlled-lowering demand.",
+          "Exercise difficulty is assessed only as exercise complexity and physical difficulty, with overall equal to their maximum. This exercise card carries no athlete or class proficiency level.",
+          "The legacy canonical slug remains stable for compatibility; canonical name and aliases now expose the broader Seated Compression Lift identity.",
+          "All five media links remain candidate-only. Metadata health is not exact-match, safety, accessibility, or content approval."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "brace"
+          ],
+          "jointActions": [
+            "bilateral_or_unilateral_hip_flexion_concentric",
+            "controlled_hip_extension_eccentric",
+            "knee_extension_isometric_by_variant",
+            "pelvic_and_trunk_position_control",
+            "hip_abduction_held_for_straddle_variant"
+          ],
+          "planes": [
+            "sagittal_primary",
+            "frontal_hip_abduction_for_straddle_variant",
+            "transverse_isometric_control"
+          ],
+          "laterality": "bilateral_baseline_with_declared_unilateral_alternating_variant",
+          "intent": "grounded_dynamic_active_compression"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": [
+            "iliopsoas_and_other_hip_flexors",
+            "rectus_femoris",
+            "rectus_abdominis",
+            "internal_and_external_obliques"
+          ],
+          "secondaryMusclesAndTissues": [
+            "deep_trunk_stabilizers",
+            "quadriceps_for_extended_knees",
+            "hip_abductors_and_adductors_for_straddle_control",
+            "hand_wrist_and_shoulder_stabilizers_when_hands_are_planted"
+          ],
+          "joints": [
+            "thoracic_and_lumbar_spine",
+            "pelvis",
+            "hip",
+            "knee",
+            "hand_and_wrist_when_supported"
+          ],
+          "primaryActions": [
+            "establish_the_declared_seated_pike_or_straddle",
+            "lift_from_the_hips_without_trunk_rocking",
+            "preserve_declared_knee_angle_and_symmetry",
+            "lower_quietly_through_the_owned_range",
+            "breathe_and_reset_before_the_next_rep"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 40,
+          "absoluteLoadDemand": 46,
+          "coordinationDemand": 44,
+          "supervisionDemand": 28,
+          "failureConsequence": 22,
+          "impact": 1,
+          "workCapacityDemand": 48,
+          "baseOverallDifficulty": 46
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "bent-knee",
+            "exerciseComplexity": 24,
+            "physicalDifficulty": 30,
+            "derivedOverallDifficulty": 30,
+            "basis": "Knee flexion shortens the lever while retaining a seated bilateral lift, trunk control, breathing, and controlled lowering."
+          },
+          {
+            "variantKey": "single-leg-pike",
+            "exerciseComplexity": 30,
+            "physicalDifficulty": 36,
+            "derivedOverallDifficulty": 36,
+            "basis": "One straight leg lengthens the lever but reduces simultaneous bilateral demand and adds side-to-side control and symmetric exposure."
+          },
+          {
+            "variantKey": "pike",
+            "exerciseComplexity": 36,
+            "physicalDifficulty": 46,
+            "derivedOverallDifficulty": 46,
+            "basis": "Both extended legs increase bilateral lever, knee-extension, hip-flexion, trunk, and controlled-lowering demand."
+          },
+          {
+            "variantKey": "baseline",
+            "exerciseComplexity": 40,
+            "physicalDifficulty": 46,
+            "derivedOverallDifficulty": 46,
+            "basis": "Straddle preserves the dynamic lift but adds hip-abduction range, adductor control, bilateral symmetry, and additional frontal-plane organization."
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "relative_bodyweight_dynamic_grounded_hip_flexion",
+          "impactClass": "none_except_uncontrolled_drop_or_reset",
+          "externalLoadMethod": "bodyweight",
+          "primaryStress": [
+            "active_hip_flexion",
+            "knee_extension_isometric",
+            "trunk_and_pelvic_control",
+            "controlled_leg_lower",
+            "hip_abduction_and_adductor_control_for_straddle"
+          ],
+          "fatigueProfile": [
+            "trunk_rocks",
+            "knees_bend_or_drift",
+            "leg_height_or_range_decreases",
+            "pike_or_straddle_becomes_asymmetric",
+            "legs_drop_instead_of_lowering",
+            "breathing_changes"
+          ],
+          "recoveryHours": "Count the work with other high-volume hip-flexion, compression, hanging-leg-raise, L-sit, V-sit, press, and aggressive active-flexibility training. Short submaximal sets may recover quickly; long-lever, high-range, high-volume, or near-failure work may need more time."
+        },
+        "proposedConstraints": {
+          "equipment": [
+            "level_non_slip_floor_or_mat",
+            "stable_optional_blocks_or_handles",
+            "clear_leg_arc"
+          ],
+          "environment": [
+            "one_marked_station_per_athlete",
+            "no_overlapping_leg_arcs",
+            "declared_pike_or_straddle_and_range_before_the_set"
+          ],
+          "population": [
+            "pain_free_seated_position",
+            "owned_selected_pike_or_straddle_range",
+            "can_lift_and_lower_without_momentum",
+            "can_breathe_through_short_quality_sets"
+          ],
+          "excludeOrEscalate": [
+            "hip_groin_knee_or_low_back_pain",
+            "hip_pinching",
+            "numbness_tingling_or_neural_symptoms",
+            "forced_end_range",
+            "uncontrolled_cramping_or_drop"
+          ]
+        },
+        "proposedDeliveryProfiles": [
+          {
+            "profileKey": "movement-intelligence-compression-lift",
+            "phase": "movement_intelligence",
+            "dose": "Two to four sets of four to eight controlled reps for long-lever variants or six to twelve for bent-knee, with 45 to 90 seconds rest and at least two clean reps in reserve.",
+            "qualityGate": "Declared lever and position remain unchanged; the trunk does not rock; legs clear and lower quietly through owned range; breathing continues.",
+            "stopRules": [
+              "symptoms",
+              "surface_or_support_moves",
+              "trunk_rocking",
+              "undeclared_knee_or_position_change",
+              "range_or_lowering_quality_loss"
+            ]
+          }
+        ],
+        "proposedInstructions": {
+          "athlete": [
+            "Sit in the selected pike or straddle.",
+            "Place the hands where prescribed without pulling.",
+            "Lift from the hips without rocking.",
+            "Pause only if declared, then lower quietly.",
+            "Stop before the lever, range, or breathing changes."
+          ],
+          "coach": [
+            "Select knee angle, laterality, pike or straddle, hand position, range, tempo, and dose before the set.",
+            "Observe front and side for trunk rock, knee position, symmetry, lift height, and controlled lowering.",
+            "Regress lever or range rather than accepting momentum.",
+            "Stop and substitute for pain, pinching, neurologic symptoms, or uncontrolled cramping."
+          ]
+        },
+        "proposedProgramming": {
+          "primaryUses": [
+            "active_pike_or_straddle_compression",
+            "grounded_hip_flexion_strength",
+            "trunk_and_pelvic_control",
+            "preparatory_capacity_for_support_compression"
+          ],
+          "sequence": "Use after general and positional preparation but before high-volume hip-flexion, hanging, L-sit, V-sit, or press work.",
+          "cumulativeBudgets": [
+            "hip_flexor_volume",
+            "long_lever_compression",
+            "knee_extension_isometric",
+            "active_hamstring_range",
+            "adductor_range_for_straddle",
+            "trunk_flexion_and_bracing"
+          ],
+          "substitutions": [
+            "shorter_lever_seated_compression",
+            "single_leg_compression",
+            "supine_dead_bug_or_leg_lift_pattern_when_seated_range_is_not_appropriate"
+          ]
+        },
+        "proposedSupport": {
+          "athleteQuestions": [
+            "Could you lift and lower without rocking?",
+            "Did the selected pike or straddle feel like active effort rather than a pinch?",
+            "Could the next rep match the first?"
+          ],
+          "coachQuestions": [
+            "Did lever, range, symmetry, trunk position, lowering, or symptoms limit the set first?",
+            "Was a variant or modifier changed and recorded?",
+            "Does the next exercise share hip-flexor or compression fatigue?"
+          ],
+          "operationalData": [
+            "variant",
+            "range",
+            "hand_position",
+            "sets_reps_tempo_rest",
+            "first_quality_loss",
+            "symptom_and_next_day_response",
+            "substitution"
+          ]
+        },
+        "confidenceAndReview": {
+          "contentConfidence": 75,
+          "scoringConfidence": 57,
+          "mediaConfidence": 20,
+          "humanGates": [
+            "coach_identity_and_variant_review",
+            "difficulty_calibration",
+            "population_and_dosage_review",
+            "exact_media_review",
+            "publication_approval"
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "The professional progression distinguishes compression-building lead-up work from supported L-sit, V-sit, and Manna positions.",
+            "Classify seated dynamic leg lifting as a grounded compression exercise; pike, straddle, knee angle, laterality, hand position, range, and tempo do not by themselves create a new movement identity."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "Parallette progressions manipulate knee angle, unilateral versus bilateral legs, straddle, height, and compression demand.",
+            "Represent knee angle, laterality, and pike or straddle as controlled variants; represent hand position, support height, range, pause, tempo, and volume as modifiers."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "abdominal_hip_flexor_activation_training_exercises",
+          "claims": [
+            "Training exercises involving hip flexion recruit hip-flexor musculature and can also require abdominal activation.",
+            "For a seated leg lift, describe active hip flexion as primary and trunk/pelvic control and knee extension as important contributors without claiming isolated-muscle training."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "Shortening the knee lever and moving from one leg to two legs changes the mechanical demand of compression work.",
+            "Pike versus straddle changes frontal-plane hip position and available range, while trunk rocking or hand pulling changes execution rather than successful completion."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "nsca_basics_strength_conditioning",
+          "claims": [
+            "Exercise prescription should account for technique, load, fatigue, and progression instead of relying on a generic label.",
+            "Candidate difficulty rises with longer bilateral lever, higher owned range, less compensation, and added straddle symmetry; overall is derived only from exercise complexity and physical difficulty."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "abdominal_hip_flexor_activation_training_exercises",
+          "claims": [
+            "Hip-flexion exercises can impose meaningful local hip-flexor and abdominal demand even without external load.",
+            "Track compression alongside other high-volume hip-flexion, hanging-leg-raise, L-sit, V-sit, and press work; stop before rocking, knee change, range loss, or uncontrolled lowering."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Safe resistance training requires suitable space, equipment, instruction, progression, and individualized readiness.",
+            "Require a non-slip surface, clear leg arc, owned seated range, pain-free execution, controlled lowering, and a declared lever and position."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "nsca_basics_strength_conditioning",
+          "claims": [
+            "Training variables should be selected to preserve technique and match the intended adaptation.",
+            "Use short controlled sets with a visible repetition reserve, sufficient rest, and a cap that prevents active-compression practice from becoming momentum-based conditioning."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "Compression progressions emphasize actively lifting the legs and manipulating knee angle and leg position.",
+            "Cue a declared seated position, active lift from the hips, stable trunk, unchanged knee angle, controlled lower, breathing, and an early stop."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "nsca_basics_strength_conditioning",
+          "claims": [
+            "Exercise order, training volume, rest, and progression should reflect the session goal and cumulative demand.",
+            "Place precise compression work before competing hip-flexor and trunk fatigue; count it with L-sit, V-sit, hanging-leg-raise, press, and active-flexibility volume."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "nsca_youth_long_term_development",
+          "claims": [
+            "Individual development should be based on readiness and movement competence.",
+            "Give the athlete plain-language self-checks for trunk rocking, knee position, range, quiet lowering, symptoms, breathing, and whether the next repetition can match the first."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Qualified supervision and technique-focused progression are central to safe resistance exercise.",
+            "The coach should preselect lever, position, range, tempo, and dose; observe from front and side; and regress before compensations replace the intended action."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "Knee angle, one-leg work, bilateral work, straddle, and compression range form a progression family, while supported L-sit, V-sit, and Manna impose different support identities.",
+            "Use explicit variants for meaningful lever or leg-position changes, modifier annotations for range, hand position, tempo, and dose, and separate definitions when bodyweight support or a different principal action appears."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=WR3C2cliSaA",
+          "title": "Pike compression lifts - strengthen hip flexors",
+          "channelName": "The Movement Collective",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: pike compression lifts",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Exact seated identity, declared knee and hand position, range, trunk control, lowering, safety, captions, accessibility, and full sequence require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=yQXnOuQqKYc",
+          "title": "How to Improve Active Pike Compression with Antranik",
+          "channelName": "Antranik Kizirian",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: active pike compression",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Exact exercise versus mobility scope, range, dosage, cue quality, safety, captions, accessibility, and complete demonstration require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=6w4gmF0NUX0",
+          "title": "Core Compression, Seated Pike, Leg Lifts",
+          "channelName": "The Sustainable Training Method",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: seated pike leg lifts",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Exact variant, trunk and knee standard, lowering, dosage, claims, captions, accessibility, and full content require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=hEo814VH208",
+          "title": "Core Compression, Seated Pike Leg Lifts, Isometrics & Lift Offs",
+          "channelName": "The Sustainable Training Method",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: seated pike lift-offs",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Dynamic versus isometric identity boundaries, exact setup, stop rules, safety, captions, accessibility, and full sequence require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=mC4sBN6E_R8",
+          "title": "Gymnastics Compression Drills",
+          "channelName": "CrossFit",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: gymnastics compression drills",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Official-channel candidate by metadata only. Exact seated variants, intended dose, safety, captions, accessibility, claim quality, and complete sequence require human review."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Bent-Knee Seated Compression Lift",
+          "classification": "new_variant",
+          "rationale": "Knee flexion materially shortens the lever and lowers physical demand while preserving the grounded dynamic compression identity.",
+          "distinguishingDimensions": {
+            "kneeAngle": "flexed",
+            "leverLength": "short"
+          }
+        },
+        {
+          "name": "Single-Leg Pike Compression Lift",
+          "classification": "new_variant",
+          "rationale": "Unilateral alternating execution changes lever, side-to-side control, symmetry, and dose but preserves the seated dynamic action.",
+          "distinguishingDimensions": {
+            "laterality": "unilateral_alternating",
+            "legPosition": "pike"
+          }
+        },
+        {
+          "name": "Pike Seated Compression Lift",
+          "classification": "new_variant",
+          "rationale": "Pike changes hip-abduction position and available range relative to straddle while preserving bilateral seated leg lifting.",
+          "distinguishingDimensions": {
+            "legPosition": "pike_together",
+            "laterality": "bilateral"
+          }
+        },
+        {
+          "name": "Straddle Compression Lift",
+          "classification": "same_identity",
+          "rationale": "This is the historical baseline variant retained inside the broader Seated Compression Lift definition.",
+          "distinguishingDimensions": {
+            "legPosition": "straddle",
+            "legacySource": true
+          }
+        },
+        {
+          "name": "Hands-on-Blocks Compression Lift",
+          "classification": "modifier_annotation",
+          "rationale": "Stable blocks or handles change hand position and clearance without changing the seated dynamic leg-lift action.",
+          "distinguishingDimensions": {
+            "handSupport": "stable_blocks_or_handles",
+            "identityBoundary": "unchanged"
+          }
+        },
+        {
+          "name": "Paused Compression Lift",
+          "classification": "modifier_annotation",
+          "rationale": "A brief top pause changes time under tension and dose while preserving identity and variant.",
+          "distinguishingDimensions": {
+            "tempo": "top_pause",
+            "dose": "increased_time_under_tension"
+          }
+        },
+        {
+          "name": "L-Sit",
+          "classification": "new_definition",
+          "rationale": "L-sit suspends bodyweight through straight-arm push support and is static rather than a grounded dynamic leg lift.",
+          "distinguishingDimensions": {
+            "supportAction": "straight_arm_push_support",
+            "contractionMode": "static_hold"
+          }
+        },
+        {
+          "name": "Hanging Leg Raise",
+          "classification": "new_definition",
+          "rationale": "Hanging leg raise adds overhead suspension, grip, anchor, swing, mount, and exit demands and uses a different start and support action.",
+          "distinguishingDimensions": {
+            "supportAction": "overhead_suspension",
+            "movementPattern": "dynamic_hanging_leg_raise"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "v-sit",
+      "assessmentSummary": {
+        "identity": "A static bilateral high-compression hold in straight-arm push support. Both extended legs are held clearly above horizontal in the declared together or straddle position. Support implement, stable versus ring support, leg position, exact angle, assistance, hold time, and entry or exit are controlled variant or delivery dimensions.",
+        "currentCardFindings": [
+          "No exercise card existed; formal FIG/USAG V-sit skill cards already exist and retain their proficiency classifications in the skill library.",
+          "The exercise identity begins when the declared extended-leg position is clearly above horizontal; a horizontal L position remains an L-sit rather than an unsuccessful V-sit.",
+          "Together and straddle versions preserve high straight-arm support compression but materially change hip-abduction range, flexibility interaction, symmetry, and difficulty.",
+          "Ring support preserves the V position but materially changes grip, stability, supervision, mount, exit, fatigue, and failure consequences and is an explicit variant.",
+          "Support height, exact V angle, assistance, hold time, and rest are modifiers when the above-horizontal static support identity remains unchanged.",
+          "Manna changes hip height and carries the legs beyond the shoulder line, materially changing shoulder, trunk, flexibility, balance, and assistance demands; it is a separate definition.",
+          "Exercise difficulty is complexity plus physical difficulty only, with overall equal to their maximum; formal proficiency belongs to skill-library cards.",
+          "All five media links remain candidate-only and require exact-match, safety, claim, caption, accessibility, and reviewer approval."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "push",
+            "brace"
+          ],
+          "jointActions": [
+            "hand_and_wrist_support_isometric",
+            "elbow_extension_isometric",
+            "scapular_depression_and_protraction_control",
+            "shoulder_extension_relative_to_trunk_isometric",
+            "high_range_bilateral_hip_flexion_isometric",
+            "pelvic_and_trunk_position_control",
+            "knee_extension_isometric"
+          ],
+          "planes": [
+            "sagittal_primary",
+            "frontal_and_transverse_isometric_control",
+            "frontal_hip_abduction_for_straddle_variant"
+          ],
+          "laterality": "bilateral_symmetric",
+          "intent": "static_high_straight_arm_support_compression_hold"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": [
+            "iliopsoas_and_other_hip_flexors",
+            "rectus_abdominis_and_obliques",
+            "quadriceps",
+            "triceps_brachii",
+            "serratus_anterior",
+            "latissimus_dorsi_and_scapular_depressors"
+          ],
+          "secondaryMusclesAndTissues": [
+            "finger_and_wrist_flexors_and_extensors",
+            "rotator_cuff",
+            "pectoral_and_anterior_shoulder_stabilizers",
+            "deep_trunk_stabilizers",
+            "hip_abductors_for_straddle_variant"
+          ],
+          "joints": [
+            "hand_and_wrist",
+            "elbow",
+            "glenohumeral_and_scapulothoracic_complex",
+            "thoracic_and_lumbar_spine",
+            "pelvis",
+            "hip",
+            "knee"
+          ],
+          "primaryActions": [
+            "establish_stable_straight_arm_support",
+            "lift_both_extended_legs_clearly_above_horizontal",
+            "maintain_declared_together_or_straddle_shape",
+            "control_shoulders_trunk_pelvis_and_breathing",
+            "exit_before_height_or_support_changes"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 72,
+          "absoluteLoadDemand": 80,
+          "coordinationDemand": 74,
+          "supervisionDemand": 68,
+          "failureConsequence": 58,
+          "impact": 1,
+          "workCapacityDemand": 78,
+          "baseOverallDifficulty": 80
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "baseline",
+            "exerciseComplexity": 72,
+            "physicalDifficulty": 80,
+            "derivedOverallDifficulty": 80,
+            "basis": "Together-leg V-sit combines high-range bilateral compression with straight-arm support, balance, breathing, and controlled entry and exit."
+          },
+          {
+            "variantKey": "straddle",
+            "exerciseComplexity": 76,
+            "physicalDifficulty": 78,
+            "derivedOverallDifficulty": 78,
+            "basis": "Straddle may change the lever but adds hip-abduction range, adductor control, spatial organization, symmetry, and strict height classification."
+          },
+          {
+            "variantKey": "ring-support",
+            "exerciseComplexity": 82,
+            "physicalDifficulty": 88,
+            "derivedOverallDifficulty": 88,
+            "basis": "Independent rings add grip, support stability, coordination, supervision, mount, exit, fatigue, and failure-consequence demands."
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "relative_bodyweight_isometric_high_compression_support",
+          "impactClass": "none_except_uncontrolled_exit",
+          "externalLoadMethod": "bodyweight",
+          "primaryStress": [
+            "straight_arm_support",
+            "scapular_and_shoulder_support",
+            "high_range_hip_flexion",
+            "trunk_and_pelvic_control",
+            "knee_extension_isometric"
+          ],
+          "fatigueProfile": [
+            "feet_fall_to_or_below_horizontal",
+            "elbows_bend",
+            "shoulders_sink_or_shift",
+            "knees_bend",
+            "symmetry_changes",
+            "breathing_or_exit_becomes_uncontrolled"
+          ],
+          "recoveryHours": "Count the work with L-sit, Manna, presses, dips, ring support, hand support, active compression, hip-flexor, and long-lever trunk work. Ring support, long holds, high total time, or near-failure attempts warrant more recovery."
+        },
+        "proposedConstraints": {
+          "equipment": [
+            "stable_rated_support_or_floor",
+            "matched_support_height",
+            "non_slip_hand_contact",
+            "clear_leg_arc_and_exit",
+            "rated_still_rings_for_ring_variant"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "one_athlete_per_support_station",
+            "no_cross_traffic",
+            "leg_height_standard_declared_before_the_set"
+          ],
+          "population": [
+            "pain_free_straight_arm_support",
+            "repeatable_full_l_sit_with_reserve",
+            "owned_active_high_compression_range",
+            "safe_entry_and_exit"
+          ],
+          "excludeOrEscalate": [
+            "hand_wrist_elbow_shoulder_hip_hamstring_or_low_back_pain",
+            "numbness_tingling_dizziness_or_instability",
+            "forced_hip_or_hamstring_range",
+            "elbow_or_shoulder_collapse",
+            "unsafe_support_or_exit"
+          ]
+        },
+        "proposedDeliveryProfiles": [
+          {
+            "profileKey": "capacity-v-sit-hold",
+            "phase": "capacity",
+            "dose": "Two to five sets of three to ten clean seconds on stable support, or two to six seconds on rings, with 120 to 300 seconds rest and at least two seconds of visible quality reserve.",
+            "qualityGate": "Stable support, straight elbows, owned shoulder position, both feet clearly above horizontal, declared leg position, breathing, and controlled exit.",
+            "stopRules": [
+              "symptoms",
+              "support_or_hand_slip",
+              "elbow_or_shoulder_position_loss",
+              "feet_to_or_below_horizontal",
+              "knee_or_symmetry_change",
+              "unsafe_exit"
+            ]
+          }
+        ],
+        "proposedInstructions": {
+          "athlete": [
+            "Check the support and exit.",
+            "Push down and keep the elbows long.",
+            "Lift both extended legs clearly above horizontal.",
+            "Hold the selected together or straddle position while breathing.",
+            "Exit before height, support, or knee position changes."
+          ],
+          "coach": [
+            "Declare support, leg position, minimum height, assistance, hold time, and exit before the set.",
+            "Observe hand contact, elbow and shoulder position, pelvis, knee angle, leg height, symmetry, breathing, and exit.",
+            "Classify a below-horizontal hold as L-sit work rather than crediting V-sit.",
+            "Count ring support separately in grip, stability, supervision, and recovery budgets."
+          ]
+        },
+        "proposedProgramming": {
+          "primaryUses": [
+            "high_range_active_compression",
+            "straight_arm_support_strength",
+            "trunk_pelvic_and_balance_control",
+            "static_relative_strength"
+          ],
+          "sequence": "Use after wrist, shoulder, support, and compression preparation while the athlete is fresh; place before fatiguing pressing, ring, hip-flexion, and high-volume trunk work.",
+          "cumulativeBudgets": [
+            "hand_and_wrist_support",
+            "elbow_and_triceps_isometric",
+            "shoulder_and_scapular_support",
+            "hip_flexor_and_active_hamstring_range",
+            "long_lever_trunk_control",
+            "ring_grip_and_stability_by_variant"
+          ],
+          "substitutions": [
+            "l_sit",
+            "seated_compression_lift",
+            "stable_support_instead_of_rings",
+            "lower_declared_v_angle_only_if_still_clearly_above_horizontal"
+          ]
+        },
+        "proposedSupport": {
+          "athleteQuestions": [
+            "Were both feet clearly above horizontal?",
+            "Did elbows and shoulders stay in the selected position?",
+            "Could you breathe and exit with reserve?"
+          ],
+          "coachQuestions": [
+            "Did support, height, knee position, symmetry, breathing, or exit limit first?",
+            "Was the hold actually V-sit or an L-sit fallback?",
+            "Does the next exercise share support, ring, or compression fatigue?"
+          ],
+          "operationalData": [
+            "variant",
+            "implement_and_support_height",
+            "leg_position_and_minimum_height",
+            "hold_seconds_sets_rest",
+            "first_quality_loss",
+            "symptom_and_next_day_response",
+            "substitution"
+          ]
+        },
+        "confidenceAndReview": {
+          "contentConfidence": 74,
+          "scoringConfidence": 56,
+          "mediaConfidence": 20,
+          "humanGates": [
+            "coach_identity_and_height_standard_review",
+            "difficulty_calibration",
+            "population_and_dosage_review",
+            "exact_media_review",
+            "publication_approval"
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "fig_mag_code_2025_2028",
+          "claims": [
+            "The current governing-body code lists V-sit as a distinct held floor element and separates it from L-sit and Manna.",
+            "For exercise identity, require a static straight-arm support position with both extended legs clearly above horizontal; a horizontal position remains L-sit work."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "The professional progression describes V-sit as an L-sit-derived support position with the legs raised substantially above horizontal and a changed lean and shoulder relationship.",
+            "Taxonomy should retain straight-arm push support and brace while explicitly recording above-horizontal leg position and together, straddle, or ring-support variants."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "abdominal_hip_flexor_activation_training_exercises",
+          "claims": [
+            "Hip-flexion exercise can involve high hip-flexor activation with abdominal contribution.",
+            "For V-sit, combine hip-flexor, abdominal, quadriceps, triceps, scapular, shoulder-stabilizer, and hand/wrist support roles without claiming one isolated muscle causes the position."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "Raising the legs above horizontal requires increased compression and a changed body and shoulder relationship compared with L-sit.",
+            "The position depends on active support, high hip flexion, knee extension, trunk and pelvic control, balance, and sufficient owned range rather than passive flexibility alone."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "fig_mag_code_2025_2028",
+          "claims": [
+            "The governing-body code distinguishes held V-sit from L-sit and Manna and assigns them separate element boxes and values.",
+            "Candidate exercise difficulty is high because of above-horizontal compression, straight-arm support, balance, range, and exit demands; overall is max(complexity, physical difficulty), not the governing-body element value."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "V-sit requires intense compression and substantial triceps and support demand.",
+            "Count V-sit with L-sit, Manna, presses, dips, ring support, hip-flexor, and high-compression work; stop before height, elbow, shoulder, knee, breathing, or exit quality changes."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Safe resistance exercise requires qualified instruction, appropriate progression, safe equipment and space, and individual readiness.",
+            "Require stable support, clear leg and exit space, pain-free support and high-compression range, an owned L-sit prerequisite, and direct observation."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "Professional instruction treats V-sit as a high-demand progression built from shorter supported positions rather than a fatigue test.",
+            "Use short clean holds with full recovery and a visible quality reserve; cap attempts before position or support deteriorates."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "The progression emphasizes a high tuck, straightening the legs, and eventually moving from L-sit into V-sit.",
+            "Cue stable support, straight elbows, active shoulders, clearly above-horizontal extended legs, declared together or straddle position, breathing, and a controlled exit."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "nsca_basics_strength_conditioning",
+          "claims": [
+            "Exercise order, rest, volume, and progression should preserve the intended technique and adaptation.",
+            "Place V-sit while support and compression are fresh; budget hand, wrist, elbow, shoulder, hip-flexor, hamstring-range, trunk, and ring-stability demand."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "nsca_youth_long_term_development",
+          "claims": [
+            "Development should be individualized from current readiness and movement competence.",
+            "Give plain-language checks for stable support, straight elbows, shoulder height, feet clearly above horizontal, unchanged knee position, breathing, and early exit."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Qualified instruction and progression are central to safe youth resistance exercise.",
+            "The coach should declare the exact height standard, leg position, support, assistance, dose, and exit; distinguish V-sit from L-sit fallback; and regress before failure."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "fig_mag_code_2025_2028",
+          "claims": [
+            "The code separates V-sit, Manna, and V-sit-to-handstand combinations as distinct held or combined elements.",
+            "Treat straddle and ring support as variants, exact angle and assistance as modifiers, L-sit and Manna as separate definitions, and press-to-handstand combinations as separate dynamic identities."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=3HAQXpSpHBA",
+          "title": "HOW TO DO the 'V Sit' 🤸 Gymnastics & Calisthenics Progression",
+          "channelName": "Criticalbench",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: V-sit gymnastics progression",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Exact above-horizontal hold, support, variants, setup, exit, dosage, safety, captions, accessibility, and claims require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=m2Di7xThWx0",
+          "title": "6 Exercises To Learn The V-Sit",
+          "channelName": "Calixpert",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: exercises to learn V-sit",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Progression boundaries, exact V height, seated compression segments, support and exit safety, captions, accessibility, and full content require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=P83rvEDFTjg",
+          "title": "How to learn the V-SIT Ι Tips and Progressions!!",
+          "channelName": "Sid Paulson",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: V-sit tips and progressions",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Exact variants, support, leg-height standard, safety, claims, captions, accessibility, and full sequence require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=dzpeUQIp0cY",
+          "title": "V-Sit Tutorial | How to V-Sit, Step by Step #calisthenics #tutorial #workout",
+          "channelName": "Movement by Dima",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: V-sit step by step",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Short-form candidate by public metadata only. Complete setup, height standard, variants, dosage, safety, exit, captions, accessibility, and claim review are especially important."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=ARiWA2R6gzM",
+          "title": "💪 How To V-SIT (Full Workout)",
+          "channelName": "SaturnoMovement",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: V-sit full workout",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Workout dosage is not automatically the Vortex dose; exact identity, safety, setup, exit, captions, accessibility, and claims require human review."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "L-Sit",
+          "classification": "new_definition",
+          "rationale": "A horizontal extended-leg support hold does not meet the above-horizontal V-sit identity and has materially lower range and balance demand.",
+          "distinguishingDimensions": {
+            "legHeight": "horizontal",
+            "identityBoundary": "not_above_horizontal"
+          }
+        },
+        {
+          "name": "Straddle V-Sit",
+          "classification": "new_variant",
+          "rationale": "Straddle preserves the high support hold but changes hip-abduction range, adductor control, symmetry, and spatial organization.",
+          "distinguishingDimensions": {
+            "legPosition": "straddle",
+            "minimumHeight": "clearly_above_horizontal"
+          }
+        },
+        {
+          "name": "Ring-Support V-Sit",
+          "classification": "new_variant",
+          "rationale": "Rings preserve the position while materially increasing grip, stability, supervision, mount, exit, and recovery demands.",
+          "distinguishingDimensions": {
+            "support": "independent_rings",
+            "stability": "unstable"
+          }
+        },
+        {
+          "name": "Assisted V-Sit",
+          "classification": "modifier_annotation",
+          "rationale": "Declared safe assistance changes external support and dose without changing the target V position; assistance method and amount must be recorded.",
+          "distinguishingDimensions": {
+            "assistance": "declared",
+            "targetPosition": "unchanged"
+          }
+        },
+        {
+          "name": "Higher-Angle V-Sit",
+          "classification": "modifier_annotation",
+          "rationale": "Increasing an already above-horizontal owned angle changes range and difficulty within the same identity until the hip and leg relationship crosses into Manna.",
+          "distinguishingDimensions": {
+            "legAngle": "higher_above_horizontal",
+            "identityBoundary": "below_manna_position"
+          }
+        },
+        {
+          "name": "V-Sit to Handstand Press",
+          "classification": "new_definition",
+          "rationale": "Adding a dynamic press to inverted support changes primary action, movement pattern, phase, risk, prerequisites, and dosage.",
+          "distinguishingDimensions": {
+            "movementPattern": "dynamic_press_to_inversion",
+            "endPosition": "handstand"
+          }
+        },
+        {
+          "name": "Manna Hold",
+          "classification": "new_definition",
+          "rationale": "Manna elevates the hips and carries the legs beyond the shoulder line, changing shoulder extension, trunk, flexibility, balance, assistance, and exit demands.",
+          "distinguishingDimensions": {
+            "hipHeight": "near_or_above_shoulders",
+            "legPosition": "beyond_shoulder_line"
+          }
+        },
+        {
+          "name": "V-Up",
+          "classification": "new_definition",
+          "rationale": "V-up is a dynamic supine trunk-and-hip flexion repetition without straight-arm push support.",
+          "distinguishingDimensions": {
+            "startPosition": "supine",
+            "contractionMode": "dynamic_repetition",
+            "supportAction": "none"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "manna-hold",
+      "assessmentSummary": {
+        "identity": "An extreme static bilateral straight-arm support hold. The hips rise toward or above the shoulder line and the extended legs are carried beyond the shoulder line through an owned shoulder-extension and high-compression position. Support, declared assistance, entry, exact position, hold time, and exit are controlled delivery dimensions.",
+        "currentCardFindings": [
+          "No exercise card existed; formal FIG/USAG Manna skill cards already exist and retain their proficiency classifications in the skill library.",
+          "Manna is not merely a higher V-sit angle: the hip height and leg-to-shoulder relationship materially change shoulder extension, trunk, flexibility, balance, assistance, and exit demands.",
+          "Qualified direct supervision, stable rated support, declared assistance, planned entry, communication, matting as needed, and a rehearsed exit are core constraints, not optional coaching notes.",
+          "Spotted or assisted Manna changes delivery but not the target identity when assistance is declared and the athlete is not pulled into range.",
+          "V-sit, low or partial high-compression work, Manna-to-handstand, dislocation to handstand, and ring Manna require separate identity or variant review rather than being silently grouped.",
+          "Difficulty is exercise complexity plus physical difficulty only, with overall equal to their maximum; formal proficiency remains on skill-library cards.",
+          "Candidate scores are deliberately high but remain uncalibrated until coach-reviewed comparison anchors exist.",
+          "All five media links remain candidate-only and require exact-match, complete safety and exit, claim, caption, accessibility, and approval review."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "push",
+            "brace"
+          ],
+          "jointActions": [
+            "hand_and_wrist_support_isometric",
+            "elbow_extension_isometric",
+            "large_range_shoulder_extension_relative_to_trunk_isometric",
+            "scapular_depression_protraction_and_posterior_support_control",
+            "extreme_bilateral_hip_flexion_isometric",
+            "pelvic_and_trunk_position_control",
+            "knee_extension_isometric"
+          ],
+          "planes": [
+            "sagittal_primary",
+            "frontal_and_transverse_isometric_control"
+          ],
+          "laterality": "bilateral_symmetric",
+          "intent": "static_extreme_straight_arm_support_compression_hold"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": [
+            "triceps_brachii",
+            "posterior_deltoid_and_shoulder_extensors",
+            "latissimus_dorsi_and_scapular_depressors",
+            "serratus_anterior_and_scapular_stabilizers",
+            "iliopsoas_and_other_hip_flexors",
+            "rectus_abdominis_and_obliques",
+            "quadriceps"
+          ],
+          "secondaryMusclesAndTissues": [
+            "finger_and_wrist_flexors_and_extensors",
+            "rotator_cuff",
+            "deep_trunk_and_spinal_stabilizers",
+            "pectoral_and_upper_back_stabilizers"
+          ],
+          "joints": [
+            "hand_and_wrist",
+            "elbow",
+            "glenohumeral_and_scapulothoracic_complex",
+            "thoracic_and_lumbar_spine",
+            "pelvis",
+            "hip",
+            "knee"
+          ],
+          "primaryActions": [
+            "establish_stable_straight_arm_support",
+            "follow_the_cleared_shoulder_extension_path",
+            "elevate_hips_and_carry_extended_legs_beyond_shoulders",
+            "maintain_declared_assistance_breathing_and_communication",
+            "exit_immediately_before_position_or_support_changes"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 88,
+          "absoluteLoadDemand": 94,
+          "coordinationDemand": 90,
+          "supervisionDemand": 92,
+          "failureConsequence": 84,
+          "impact": 1,
+          "workCapacityDemand": 92,
+          "baseOverallDifficulty": 94
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "baseline",
+            "exerciseComplexity": 88,
+            "physicalDifficulty": 94,
+            "derivedOverallDifficulty": 94,
+            "basis": "Manna combines extreme high compression with large-range straight-arm posterior support, balance, flexibility, assistance, communication, and high-consequence entry and exit control."
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "relative_bodyweight_isometric_extreme_compression_and_shoulder_extension_support",
+          "impactClass": "none_in_successful_hold_but_high_exit_consequence",
+          "externalLoadMethod": "bodyweight",
+          "primaryStress": [
+            "hand_and_wrist_support",
+            "elbow_and_triceps_isometric",
+            "large_range_shoulder_extension_support",
+            "scapular_and_upper_back_control",
+            "extreme_hip_flexion_and_trunk_control",
+            "knee_extension_isometric"
+          ],
+          "fatigueProfile": [
+            "elbows_bend",
+            "shoulder_path_changes",
+            "hips_or_legs_fall_from_declared_position",
+            "assistance_increases",
+            "breathing_or_communication_changes",
+            "exit_becomes_uncertain"
+          ],
+          "recoveryHours": "Treat Manna as a high-cost support and compression exposure. Count it with V-sit, L-sit, dips, presses, shoulder-extension support, hand support, triceps, hip-flexor, active-flexibility, and high-compression work. Do not attempt after competing fatigue; candidate minimum recovery is 72 hours."
+        },
+        "proposedConstraints": {
+          "equipment": [
+            "stable_rated_high_parallettes_or_blocks",
+            "non_slip_hand_contact",
+            "protective_matting_as_needed",
+            "clear_assistance_and_exit_space"
+          ],
+          "environment": [
+            "isolated_station",
+            "one_athlete_one_qualified_spotter",
+            "declared_entry_assistance_position_and_exit",
+            "no_unsupervised_group_repetitions"
+          ],
+          "population": [
+            "pain_free_straight_arm_support",
+            "repeatable_v_sit_with_visible_reserve",
+            "owned_shoulder_extension_and_high_compression_progressions",
+            "qualified_supervision_and_planned_exit",
+            "no_competing_fatigue"
+          ],
+          "excludeOrEscalate": [
+            "hand_wrist_elbow_shoulder_hip_hamstring_or_spine_pain",
+            "numbness_tingling_dizziness_or_instability",
+            "forced_shoulder_or_hip_range",
+            "uncontrolled_elbow_or_shoulder_translation",
+            "missing_supervision_support_or_exit"
+          ]
+        },
+        "proposedDeliveryProfiles": [
+          {
+            "profileKey": "capacity-manna-hold",
+            "phase": "capacity",
+            "dose": "Two to four attempts of one to five clean seconds, with 180 to 360 seconds rest, a maximum of four attempts, and at least two seconds of visible reserve. Use qualified direct supervision for every attempt.",
+            "qualityGate": "Support, supervision, assistance, and exit are ready; elbows remain straight; shoulder, hip, and leg positions match the declared standard; breathing and communication continue.",
+            "stopRules": [
+              "symptoms",
+              "support_supervision_assistance_or_exit_not_ready",
+              "elbow_or_shoulder_path_loss",
+              "hip_or_leg_position_loss",
+              "assistance_increases",
+              "breathing_or_communication_change"
+            ]
+          }
+        ],
+        "proposedInstructions": {
+          "athlete": [
+            "Confirm the coach, spotter, support, and exit.",
+            "Enter only through the cleared progression.",
+            "Push down and keep the elbows straight.",
+            "Lift hips and legs only through the owned shoulder and compression path.",
+            "Keep breathing and communicating; exit immediately on command."
+          ],
+          "coach": [
+            "Verify prerequisites and no competing fatigue.",
+            "Set support, matting, assistance, hand contacts, entry, communication, declared position, and exit before every attempt.",
+            "Never pull the athlete into shoulder or hip range.",
+            "End the attempt at any elbow, shoulder, hip, leg, assistance, breathing, communication, or exit change."
+          ]
+        },
+        "proposedProgramming": {
+          "primaryUses": [
+            "extreme_straight_arm_support_strength",
+            "large_range_shoulder_extension_capacity",
+            "extreme_high_compression_strength",
+            "whole_body_positional_control"
+          ],
+          "sequence": "Use only after full preparation and V-sit rehearsal while completely fresh, before all competing support, pressing, grip, shoulder, compression, and high-consequence skill work.",
+          "cumulativeBudgets": [
+            "hand_and_wrist_support",
+            "elbow_and_triceps_isometric",
+            "shoulder_extension_and_scapular_support",
+            "hip_flexor_and_active_hamstring_range",
+            "long_lever_trunk_control",
+            "supervision_and_spotter_capacity",
+            "high_consequence_attempt_count"
+          ],
+          "substitutions": [
+            "v_sit",
+            "l_sit",
+            "seated_compression_lift",
+            "coach_cleared_partial_progression"
+          ]
+        },
+        "proposedSupport": {
+          "athleteQuestions": [
+            "Did the exact position and assistance remain as planned?",
+            "Could you breathe and communicate throughout?",
+            "Could you exit immediately with control?"
+          ],
+          "coachQuestions": [
+            "Were prerequisites and fatigue state acceptable before the attempt?",
+            "Did elbow, shoulder path, hip or leg position, assistance, breathing, communication, or exit change first?",
+            "Should all further attempts be removed today?"
+          ],
+          "operationalData": [
+            "support_and_matting",
+            "spotter_and_assistance",
+            "entry_and_declared_position",
+            "hold_seconds_attempts_rest",
+            "first_quality_loss",
+            "exit",
+            "symptom_and_next_day_response",
+            "substitution"
+          ]
+        },
+        "confidenceAndReview": {
+          "contentConfidence": 72,
+          "scoringConfidence": 52,
+          "mediaConfidence": 20,
+          "humanGates": [
+            "qualified_gymnastics_coach_identity_and_safety_review",
+            "difficulty_calibration",
+            "population_dosage_and_supervision_review",
+            "exact_media_review",
+            "publication_approval"
+          ]
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "fig_mag_code_2025_2028",
+          "claims": [
+            "The current governing-body code lists the Manna position separately from V-sit and identifies Manna-containing combinations separately.",
+            "For exercise identity, require elevated hips and extended legs beyond the shoulder line in straight-arm support; a lower high-compression position remains V-sit or a declared preparatory drill."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "Professional instruction describes Manna as the next position beyond V-sit, with the hips elevated and legs carried behind the head through a changed shoulder relationship.",
+            "Taxonomy retains push and brace but must explicitly record extreme high compression, large-range shoulder extension relative to the trunk, declared assistance, and controlled entry and exit."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "Professional instruction emphasizes very high triceps strength, compression, and dynamic shoulder flexibility for Manna.",
+            "Describe hand and wrist support, elbow and triceps isometric work, shoulder extensors and scapular stabilizers, hip flexors, trunk, quadriceps, and whole-body positional control without claiming isolated action."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "Manna changes the V-sit by rolling the body farther, elevating the hips toward shoulder height, and carrying the legs beyond the head.",
+            "This materially changes shoulder-extension support, balance, trunk and pelvic organization, compression range, assistance, and exit mechanics rather than merely increasing hold time."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "fig_mag_code_2025_2028",
+          "claims": [
+            "The governing-body code separates Manna from V-sit and lists Manna combinations at distinct difficulty values.",
+            "Candidate exercise difficulty is very high because of the combined support, shoulder range, high compression, balance, supervision, and exit demands; overall is max(complexity, physical difficulty), not the competition value."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "Professional instruction characterizes Manna as requiring enormous triceps strength and substantial shoulder flexibility in addition to compression.",
+            "Treat every attempt as high-cost support and compression work; do not perform after pressing, support, shoulder, grip, hip-flexor, active-flexibility, or high-compression fatigue."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Safe resistance training requires qualified instruction, safe equipment and space, suitable progression, and individual readiness.",
+            "Require qualified direct supervision, stable rated support, matting as needed, declared assistance and communication, a planned entry and exit, repeatable V-sit prerequisites, and no competing fatigue."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "Professional instruction recommends spotted Manna holds as preparatory work, underscoring the need for controlled assistance and progression.",
+            "Use very short attempts, full recovery, a strict attempt cap, visible reserve, and immediate termination when assistance or position changes."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "crossfit_parallette_training_part_1",
+          "claims": [
+            "Manna progression builds from V-sit and uses spotted holds rather than forcing an unsupported final position.",
+            "Cue agreed support and assistance, straight elbows, the cleared shoulder path, elevated hips and legs, breathing and communication, and an immediate controlled exit."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "nsca_basics_strength_conditioning",
+          "claims": [
+            "Exercise order, recovery, volume, and progression should protect technique and the intended adaptation.",
+            "Place Manna only while completely fresh after its specific preparation and before all competing support, pressing, shoulder, grip, high-compression, or high-consequence work."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "nsca_youth_long_term_development",
+          "claims": [
+            "Training progressions should be individualized from present readiness and competence.",
+            "Give plain-language checks for coach and spotter readiness, exact assistance, elbow and shoulder path, hip and leg position, breathing, communication, and immediate exit."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Qualified supervision, safe equipment, and appropriate progression are central to resistance exercise.",
+            "The coach must verify prerequisites and fatigue, prebrief support, assistance, entry, communication, position, and exit, never pull into range, and stop at the first quality change."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "fig_mag_code_2025_2028",
+          "claims": [
+            "The code separates V-sit, Manna, Manna-to-handstand, and Manna dislocation-to-handstand elements.",
+            "Treat assistance and hold time as modifiers, lower high-compression positions as V-sit or preparatory work, and dynamic press or dislocation combinations as separate definitions."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=KJFW2rnownQ",
+          "title": "Manna Progression",
+          "channelName": "Acro Fitness Motivation",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: Manna progression",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Exact Manna identity, prerequisites, support, assistance, shoulder path, dosage, safety, exit, captions, accessibility, and claims require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=dTPEnTZnHHo",
+          "title": "Manna progressions",
+          "channelName": "Mahermovement",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: Manna progressions",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Exact identity boundaries, spotting, support, progression order, safety, exit, captions, accessibility, and full content require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=OLFnFSTqP_c",
+          "title": "Tips and Tricks for Manna",
+          "channelName": "Nils Valkenborgh (AcroNils)",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: Manna tips",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Exact position, shoulder and hip range, assistance, dose, safety, exit, claims, captions, and accessibility require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=7r5HgYtuwSs",
+          "title": "Manna Gymnastics Progressions",
+          "channelName": "Club Calisthenics",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: Manna gymnastics progressions",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Exact gymnastics Manna position, support, assistance, prerequisites, safety, exit, captions, accessibility, and complete sequence require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=BKwVJrGf5do",
+          "title": "TEACH YOUR GYMNAST HOW TO DO A MANNA",
+          "channelName": "Gym Club Solutions",
+          "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: teach gymnast Manna",
+          "linkStatus": "unverified",
+          "embeddingAllowed": false,
+          "externalVerification": null,
+          "notes": "Candidate by public metadata only. Coaching title does not establish Vortex approval; exact setup, spot, position, dosage, safety, exit, captions, accessibility, and claims require human review."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Spotted Manna Hold",
+          "classification": "modifier_annotation",
+          "rationale": "Declared qualified assistance changes delivery and load but preserves the target Manna identity; assistance location and amount must be recorded.",
+          "distinguishingDimensions": {
+            "assistance": "qualified_spot",
+            "targetPosition": "manna"
+          }
+        },
+        {
+          "name": "Low Manna",
+          "classification": "new_variant",
+          "rationale": "A deliberately lower but still post-V-sit hip and shoulder relationship may be a preparatory variant, but the exact identity threshold needs qualified coach review before implementation.",
+          "distinguishingDimensions": {
+            "hipHeight": "below_full_manna",
+            "reviewState": "identity_threshold_pending"
+          }
+        },
+        {
+          "name": "Straddle Manna",
+          "classification": "new_variant",
+          "rationale": "Straddle may preserve the Manna support action while changing hip-abduction range, symmetry, and lever, but requires separate coach review before implementation.",
+          "distinguishingDimensions": {
+            "legPosition": "straddle",
+            "hipHeight": "manna_standard"
+          }
+        },
+        {
+          "name": "Manna to Handstand Press",
+          "classification": "new_definition",
+          "rationale": "Adding a press to inverted support changes primary action, movement pattern, phase, prerequisites, risk, and dosage.",
+          "distinguishingDimensions": {
+            "movementPattern": "dynamic_press_to_inversion",
+            "endPosition": "handstand"
+          }
+        },
+        {
+          "name": "Manna Dislocation to Handstand",
+          "classification": "new_definition",
+          "rationale": "The dislocation and transition to handstand create a different dynamic shoulder action, orientation, risk, and governing-body element.",
+          "distinguishingDimensions": {
+            "movementPattern": "dynamic_dislocation_to_inversion",
+            "endPosition": "handstand"
+          }
+        },
+        {
+          "name": "V-Sit",
+          "classification": "new_definition",
+          "rationale": "V-sit holds the legs above horizontal without the full Manna hip height and beyond-shoulder leg relationship.",
+          "distinguishingDimensions": {
+            "hipHeight": "below_manna",
+            "legPosition": "above_horizontal_not_beyond_manna_line"
+          }
+        },
+        {
+          "name": "Ring Manna",
+          "classification": "new_variant",
+          "rationale": "Independent rings may preserve the target position but materially increase grip, stability, supervision, assistance, mount, exit, and failure consequence; do not implement without specialist review.",
+          "distinguishingDimensions": {
+            "support": "independent_rings",
+            "reviewState": "specialist_review_required"
+          }
+        },
+        {
+          "name": "Reverse Plank Leg Lift",
+          "classification": "reject",
+          "rationale": "A reverse plank leg lift does not reproduce the Manna hip, leg, or support relationship and should not be labeled as Manna even if used as general preparation.",
+          "distinguishingDimensions": {
+            "supportAction": "posterior_plank",
+            "identityMatch": false
+          }
+        }
+      ]
+    }
+  ]
+}

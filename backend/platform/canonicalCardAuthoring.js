@@ -106,43 +106,69 @@ function bigrams(value) {
   return result
 }
 
-export function canonicalNameSimilarity(left, right) {
-  const a = bigrams(left)
-  const b = bigrams(right)
+function bigramSimilarity(a, b) {
   if (a.size === 0 || b.size === 0) return 0
   let shared = 0
   for (const pair of a) if (b.has(pair)) shared += 1
   return Math.round((2 * shared * 100) / (a.size + b.size))
 }
 
-export function findPotentialCanonicalDuplicates(candidate, existingCards, threshold = 72) {
-  const names = [
-    candidate.canonicalName ?? candidate.canonical_name,
-    candidate.displayName ?? candidate.display_name,
-    ...list(candidate.aliases),
-  ].map(identityText).filter(Boolean)
-  return list(existingCards)
-    .filter((existing) => String(existing.id) !== String(candidate.id ?? ''))
+export function canonicalNameSimilarity(left, right) {
+  return bigramSimilarity(bigrams(left), bigrams(right))
+}
+
+function prepareCanonicalIdentity(card = {}) {
+  const names = uniqueStrings([
+    card.canonicalName ?? card.canonical_name,
+    card.displayName ?? card.display_name,
+    ...list(card.aliases),
+  ].map(identityText).filter(Boolean))
+  return {
+    id: String(card.id ?? ''),
+    displayName: card.displayName ?? card.display_name,
+    familyKey: card.familyKey ?? card.family_key,
+    names,
+    nameSet: new Set(names),
+    bigramSets: names.map(bigrams),
+  }
+}
+
+export function buildCanonicalDuplicateIndex(existingCards) {
+  return list(existingCards).map(prepareCanonicalIdentity)
+}
+
+export function findPotentialCanonicalDuplicatesFromIndex(candidate, duplicateIndex, threshold = 72) {
+  const preparedCandidate = prepareCanonicalIdentity(candidate)
+  return list(duplicateIndex)
+    .filter((existing) => existing.id !== preparedCandidate.id)
     .map((existing) => {
-      const existingNames = [
-        existing.canonicalName ?? existing.canonical_name,
-        existing.displayName ?? existing.display_name,
-        ...list(existing.aliases),
-      ].map(identityText).filter(Boolean)
-      const score = Math.max(0, ...names.flatMap((name) => (
-        existingNames.map((existingName) => canonicalNameSimilarity(name, existingName))
-      )))
-      const exactCollision = names.some((name) => existingNames.includes(name))
+      let score = 0
+      for (const candidateBigrams of preparedCandidate.bigramSets) {
+        for (const existingBigrams of existing.bigramSets) {
+          score = Math.max(score, bigramSimilarity(candidateBigrams, existingBigrams))
+          if (score === 100) break
+        }
+        if (score === 100) break
+      }
+      const exactCollision = preparedCandidate.names.some((name) => existing.nameSet.has(name))
       return {
-        id: String(existing.id),
-        displayName: existing.displayName ?? existing.display_name,
-        familyKey: existing.familyKey ?? existing.family_key,
+        id: existing.id,
+        displayName: existing.displayName,
+        familyKey: existing.familyKey,
         score,
         exactCollision,
       }
     })
     .filter((match) => match.score >= threshold)
     .sort((left, right) => right.score - left.score || left.displayName.localeCompare(right.displayName))
+}
+
+export function findPotentialCanonicalDuplicates(candidate, existingCards, threshold = 72) {
+  return findPotentialCanonicalDuplicatesFromIndex(
+    candidate,
+    buildCanonicalDuplicateIndex(existingCards),
+    threshold,
+  )
 }
 
 export function assertCardStatusTransition(fromStatus, toStatus) {

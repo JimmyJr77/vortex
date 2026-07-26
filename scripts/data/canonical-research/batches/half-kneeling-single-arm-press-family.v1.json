@@ -1,0 +1,536 @@
+{
+  "facilityId": 1,
+  "researchVersion": "2026-07-26.40",
+  "batchKey": "half-kneeling-single-arm-press-family-v1",
+  "snapshotAt": "2026-07-26T23:45:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "nsca_foundations_single_arm_half_kneeling_press",
+      "claims": [
+        "NSCA explicitly lists the Single-Arm Half-Kneeling Shoulder Press as a press exercise.",
+        "{{canonicalName}} is the stable strict one-arm vertical press from half kneeling; dumbbell, kettlebell, and low-anchored band are exact implement variants, while landmine, Pallof, seated, standing, and push-press tasks remain separate."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "nsca_foundations_single_arm_half_kneeling_press",
+      "claims": [
+        "NSCA classifies the named movement under pressing patterns.",
+        "Declare half-kneeling contacts, pressing-arm relationship to the down knee, implement, grip, rack, strict vertical path, range, controlled return, and no leg drive."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "overhead_press_muscle_emg",
+      "claims": [
+        "Overhead pressing recruits deltoid, triceps, trapezius, pectoralis major, and stabilizing musculature, with activation affected by press configuration.",
+        "Declare glenohumeral, scapulothoracic, elbow, wrist, trunk, pelvis, hip, knee, and foot roles plus scapular-plane motion and multiplanar stabilization."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "unilateral_dumbbell_press_core_emg",
+      "claims": [
+        "Unilateral versus bilateral and standing versus seated dumbbell shoulder presses alter superficial core muscle activation.",
+        "Half-kneeling side-relationship demands are a conservative programming inference, so exact stance, pelvis, ribs, trunk, scapula, elbow, wrist, press path, range, and lowering must be observed and not treated as validated superiority."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "dumbbell_kettlebell_overhead_press_emg",
+      "claims": [
+        "Dumbbell and kettlebell center-of-mass and stability differences can change overhead-press muscle activity and control demands.",
+        "Assess exercise complexity and physical difficulty for each exact implement and stance-side contract, derive overall as their maximum, and assign no exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "overhead_press_muscle_emg",
+      "claims": [
+        "Overhead press configuration changes the stimulus to shoulder muscles.",
+        "{{canonicalName}} contributes unilateral press volume, deltoid and triceps load, scapular and rotator-cuff demand, trunk anti-motion, grip, eccentric lowering, technical sensitivity, and recovery without planned impact."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_foundations_single_arm_half_kneeling_press",
+      "claims": [
+        "The named exercise requires both a half-kneeling base and a single-arm shoulder press.",
+        "Declare knee padding, floor, overhead clearance, stance, side relationship, implement, grip, rack, load or band tension, anchor and recoil when applicable, range, pickup, set-down, and coach sightline."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "unilateral_dumbbell_press_core_emg",
+      "claims": [
+        "The study standardized repetitions and relative load to compare press conditions, supporting the need for repeatable setup when tracking dose.",
+        "Use side-balanced quality sets and enough rest to preserve the exact base, rack, brace, scapular motion, path, range, finish, lowering, breathing, and equipment control."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "nsca_foundations_single_arm_half_kneeling_press",
+      "claims": [
+        "NSCA names the single-arm half-kneeling shoulder press as a distinct press exercise.",
+        "Cue set the half kneel, rack and brace, press tall without leaning or leg drive, reach owned range, lower to the same rack, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "overhead_press_muscle_emg",
+      "claims": [
+        "Overhead press variations change muscle demands and require configuration-specific technique control.",
+        "Stop for symptoms, balance or base loss, rib flare, lean or rotation, shrugging, elbow or wrist loss, uncontrolled path or lowering, grinding, dropped load, band or anchor failure, or unsafe set-down."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "unilateral_dumbbell_press_core_emg",
+      "claims": [
+        "Unilateral shoulder pressing changes core activation compared with bilateral conditions.",
+        "Use strength or controlled-range delivery before material overhead, shoulder, triceps, trunk, grip, throwing, or contact-skill fatigue; do not infer that either knee relationship is universally easier."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "nsca_foundations_single_arm_half_kneeling_press",
+      "claims": [
+        "The exercise name communicates the half-kneeling base and unilateral shoulder press.",
+        "Expose pressing arm, down knee, stance, implement, grip, rack, load or tension, anchor, range, tempo, dose, rest, sensations, and stop signal without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "unilateral_dumbbell_press_core_emg",
+      "claims": [
+        "Press position and unilateral loading affect trunk muscle demand.",
+        "Coach support should expose and observe side relationship, base, pelvis, ribs, trunk, scapula, elbow, wrist, path, range, tempo, dose, fatigue, symptoms, and shutdown actions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_foundations_single_arm_half_kneeling_press",
+      "claims": [
+        "The named exercise provides a specific posture and press pattern but does not require a universal load or range.",
+        "Accessibility options include lighter load or band tension, shorter pain-free range, more knee padding, fewer repetitions, longer rest, a reviewed non-overhead substitution, and plain-text, audio, tactile, visual, or live instruction."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "dumbbell_kettlebell_overhead_press_emg",
+      "claims": [
+        "Changing between dumbbell and kettlebell changes implement stability while preserving the overhead press when all other identity features remain declared.",
+        "Landmine fixed arcs, horizontal Pallof presses, standing or seated bases, bilateral presses, and push presses change path, base, laterality, or leg-drive contract and remain separate identities."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Five candidates have current healthy oEmbed metadata only; full viewing, exact side relationship and variant review, safety, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "half-kneeling-single-arm-press",
+      "assessmentSummary": {
+        "identity": "A strict one-arm vertical press from a declared half-kneeling base with one padded knee down, the opposite foot flat, a stable pelvis and trunk, no deliberate leg drive, an owned pain-free overhead finish, and controlled same-path return.",
+        "currentCardFindings": [
+          "The generic, dumbbell, kettlebell, and band source cards preserve the same half-kneeling unilateral vertical press action.",
+          "Implement type changes rack, grip, center of mass, resistance curve, anchor or set-down, and loading potential without changing the stable identity.",
+          "The legacy sources do not consistently declare the pressing-arm relationship to the down knee, grip, rack, anchor, range, tempo, pickup, or set-down; their baseline variants remain nonselectable provenance after consolidation.",
+          "Landmine presses use a fixed diagonal arc, Pallof presses are horizontal anti-rotation tasks, standing and seated presses change the base, and push presses add lower-body drive; all remain separate identities.",
+          "All 13 inherited YouTube links returned current oEmbed metadata; five representative candidates are retained, but no full viewing, exact-variant review, safety review, caption review, accessibility review, or approval has occurred."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "push",
+            "brace"
+          ],
+          "movementQualifiers": [
+            "half_kneeling_base",
+            "one_padded_knee_down",
+            "opposite_foot_flat",
+            "declared_pressing_arm_relationship_to_down_knee",
+            "single_arm_vertical_press",
+            "strict_no_leg_drive",
+            "controlled_scapular_motion",
+            "declared_pain_free_overhead_finish",
+            "controlled_same_path_return"
+          ],
+          "jointActions": [
+            "shoulder_flexion_and_abduction_in_individual_scapular_plane",
+            "scapular_upward_rotation_posterior_tilt_and_elevation",
+            "elbow_extension_and_flexion",
+            "wrist_and_grip_stabilization",
+            "anti_extension_anti_lateral_flexion_and_anti_rotation_trunk_stabilization",
+            "half_kneeling_pelvic_hip_knee_and_foot_stabilization"
+          ],
+          "planes": [
+            "scapular_and_sagittal_press_motion",
+            "frontal_and_transverse_stabilization"
+          ],
+          "laterality": "unilateral_press_with_declared_pressing_arm_relationship_to_down_knee_and_both_stances_balanced",
+          "intent": "controlled_unilateral_vertical_press_strength_and_position_capacity"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": [
+            "anterior_and_middle_deltoid",
+            "triceps_brachii",
+            "serratus_anterior"
+          ],
+          "secondaryMusclesAndTissues": [
+            "upper_and_lower_trapezius",
+            "rotator_cuff",
+            "clavicular_pectoralis_major",
+            "abdominal_wall_and_obliques",
+            "spinal_stabilizers",
+            "gluteals_and_half_kneeling_hip_stabilizers",
+            "forearm_and_hand_flexors"
+          ],
+          "joints": [
+            "glenohumeral",
+            "scapulothoracic",
+            "acromioclavicular",
+            "elbow",
+            "radioulnar",
+            "wrist",
+            "hand",
+            "spine",
+            "pelvis",
+            "bilateral_hip",
+            "down_knee",
+            "front_ankle_and_foot"
+          ],
+          "primaryActions": [
+            "establish_declared_half_kneeling_stance",
+            "rack_one_exact_implement_at_pressing_shoulder",
+            "brace_pelvis_ribs_and_trunk",
+            "press_one_arm_vertically_without_leg_drive",
+            "permit_controlled_scapular_upward_rotation",
+            "reach_declared_pain_free_overhead_finish",
+            "lower_to_exact_rack_and_reset_or_set_down_safely"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 44,
+          "absoluteLoadDemand": 44,
+          "coordinationDemand": 50,
+          "supervisionDemand": 42,
+          "failureConsequence": 44,
+          "impact": 1,
+          "workCapacityDemand": 44,
+          "baseOverallDifficulty": 44
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "dumbbell-ipsilateral-to-down-knee-standard",
+            "exerciseComplexity": 44,
+            "physicalDifficulty": 44,
+            "derivedOverallDifficulty": 44,
+            "basis": "a free unilateral load, half-kneeling base, exact rack, vertical path, trunk control, and safe lowering create matched complexity and physical demand"
+          },
+          {
+            "variantKey": "dumbbell-contralateral-to-down-knee-standard",
+            "exerciseComplexity": 46,
+            "physicalDifficulty": 44,
+            "derivedOverallDifficulty": 46,
+            "basis": "the opposite knee relationship modestly increases side-specific coordination without assuming greater absolute load"
+          },
+          {
+            "variantKey": "kettlebell-ipsilateral-to-down-knee-standard",
+            "exerciseComplexity": 46,
+            "physicalDifficulty": 46,
+            "derivedOverallDifficulty": 46,
+            "basis": "offset mass and the kettlebell rack add wrist, forearm, path, and stabilization demands"
+          },
+          {
+            "variantKey": "kettlebell-contralateral-to-down-knee-standard",
+            "exerciseComplexity": 48,
+            "physicalDifficulty": 46,
+            "derivedOverallDifficulty": 48,
+            "basis": "offset implement mass combines with the opposite-side base relationship and exact rack demands"
+          },
+          {
+            "variantKey": "band-low-anchor-ipsilateral-to-down-knee-standard",
+            "exerciseComplexity": 44,
+            "physicalDifficulty": 38,
+            "derivedOverallDifficulty": 44,
+            "basis": "rising resistance and anchor and recoil management keep complexity meaningful while conservative band tension limits absolute load"
+          },
+          {
+            "variantKey": "band-low-anchor-contralateral-to-down-knee-standard",
+            "exerciseComplexity": 46,
+            "physicalDifficulty": 38,
+            "derivedOverallDifficulty": 46,
+            "basis": "the opposite-side relationship adds coordination to the low-anchor band contract without creating an exercise skill level"
+          }
+        ],
+        "proposedLoadProfile": {
+          "impactClass": "no_impact",
+          "externalLoadMethods": [
+            "declared_dumbbell_mass",
+            "declared_kettlebell_mass",
+            "declared_band_tension_anchor_distance_and_curve"
+          ],
+          "primaryStress": [
+            "pressing_deltoid_and_triceps_force",
+            "scapular_and_rotator_cuff_control",
+            "anti_extension_lateral_flexion_and_rotation_bracing",
+            "half_kneeling_pelvic_and_hip_stabilization",
+            "grip_rack_lowering_and_set_down_or_band_recoil_control"
+          ],
+          "cumulativeBudgets": [
+            "unilateral_overhead_press_volume",
+            "shoulder_and_triceps_loading",
+            "scapular_and_rotator_cuff_demand",
+            "trunk_anti_motion_and_half_kneeling_stability",
+            "grip_and_eccentric_lowering",
+            "technical_and_overhead_failure_sensitivity"
+          ]
+        },
+        "proposedConstraints": {
+          "requiredEquipmentByVariant": {
+            "dumbbell": [
+              "dumbbell",
+              "mat"
+            ],
+            "kettlebell": [
+              "kettlebell",
+              "mat"
+            ],
+            "band": [
+              "bands",
+              "rack",
+              "mat"
+            ]
+          },
+          "environment": [
+            "level_high_traction_floor",
+            "padded_down_knee",
+            "clear_overhead_and_set_down_zone",
+            "rated_low_band_anchor_and_clear_recoil_path_when_applicable",
+            "coach_outside_drop_and_recoil_paths"
+          ],
+          "populationReadiness": [
+            "pain_free_half_kneeling_on_both_sides",
+            "pain_free_owned_single_arm_overhead_range",
+            "repeatable_pelvis_rib_trunk_scapula_elbow_and_wrist_control",
+            "safe_load_or_band_anchor_handling"
+          ]
+        },
+        "proposedDosage": {
+          "capacityStrength": {
+            "sets": "2-4",
+            "repetitionsPerPressingSide": "4-10",
+            "restSeconds": "90-180",
+            "tempo": "smooth_press_two_second_controlled_lowering"
+          },
+          "rangeControl": {
+            "sets": "2-3",
+            "repetitionsPerPressingSide": "4-8",
+            "restSeconds": "60-120",
+            "tempo": "controlled_with_full_reset"
+          },
+          "comparisonRule": "Compare only when pressing-arm relationship, stance, implement, grip, rack, load or tension, anchor, range, tempo, floor, padding, and measurement method match."
+        },
+        "proposedFatigueRecovery": {
+          "typicalMinimumRecoveryHours": {
+            "dumbbell": 36,
+            "kettlebell": 36,
+            "band": 24
+          },
+          "fatigueSignals": [
+            "stance_or_balance_change",
+            "rib_flare_lean_or_rotation",
+            "scapular_shrug_or_path_change",
+            "elbow_or_wrist_stack_loss",
+            "range_or_tempo_loss",
+            "grip_anchor_band_or_set_down_failure",
+            "side_asymmetry_or_grinding"
+          ],
+          "sequenceRule": "Place after preparation and freshness-sensitive output or sport skill, and before material overhead, shoulder, triceps, trunk, grip, throwing, or contact-skill fatigue."
+        }
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=2WoOrh3dqss",
+          "title": "Single Arm Half Kneeling Dumbbell Press - OPEX Exercise Library",
+          "channelName": "OPEX Fitness",
+          "sourceQuery": "legacy generic-family candidate rechecked through current YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:45:00.000Z"
+          },
+          "notes": "Healthy oEmbed metadata only. Exact side relationship, full viewing, safety, captions, accessibility, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=4DUIY95jX6Y",
+          "title": "Half Kneeling Single Arm Dumbbell Press",
+          "channelName": "Functional Bodybuilding",
+          "sourceQuery": "legacy dumbbell candidate rechecked through current YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:45:00.000Z"
+          },
+          "notes": "Healthy oEmbed metadata only. Exact contract and every human review gate remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=-UZpZ4Vvc28",
+          "title": "Half-Kneeling Single-Arm Dumbbell Press, Neutral Grip | Build Shoulder Stability",
+          "channelName": "Kelly Mac Mobility",
+          "sourceQuery": "legacy dumbbell neutral-grip candidate rechecked through current YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:45:00.000Z"
+          },
+          "notes": "Healthy oEmbed metadata only. Exact side relationship and every human review gate remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Qf_czCGqu-8",
+          "title": "Half Kneeling Kettlebell Press - OPEX Exercise Library",
+          "channelName": "OPEX Fitness",
+          "sourceQuery": "legacy kettlebell candidate rechecked through current YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:45:00.000Z"
+          },
+          "notes": "Healthy oEmbed metadata only. Exact rack, grip, side relationship, and every human review gate remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=EBB2-A5JRKk",
+          "title": "Banded 1/2 Kneeling Single Arm Overhead Press",
+          "channelName": "RADCENTRE",
+          "sourceQuery": "legacy band candidate rechecked through current YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:45:00.000Z"
+          },
+          "notes": "Healthy oEmbed metadata only. Exact anchor, recoil, side relationship, and every human review gate remain pending."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Half-Kneeling Single-Arm Press",
+          "classification": "same_identity",
+          "rationale": "Stable broad identity for a strict unilateral vertical press from an exact half-kneeling base.",
+          "distinguishingDimensions": {
+            "base": "half_kneeling",
+            "press": "single_arm_vertical",
+            "legDrive": false
+          }
+        },
+        {
+          "name": "Half-Kneeling Single-Arm Dumbbell Press",
+          "classification": "same_identity",
+          "rationale": "The dumbbell is an exact implement variant.",
+          "distinguishingDimensions": {
+            "implement": "dumbbell",
+            "quantity": "one"
+          }
+        },
+        {
+          "name": "Half-Kneeling Kettlebell Press",
+          "classification": "same_identity",
+          "rationale": "The kettlebell changes rack and offset-mass control within the same identity.",
+          "distinguishingDimensions": {
+            "implement": "kettlebell",
+            "quantity": "one"
+          }
+        },
+        {
+          "name": "Half-Kneeling Band Overhead Press",
+          "classification": "same_identity",
+          "rationale": "A low-anchored band changes resistance curve and equipment safety within the same identity.",
+          "distinguishingDimensions": {
+            "implement": "bands",
+            "anchor": "low_fixed"
+          }
+        },
+        {
+          "name": "Press Arm Same as Down Knee",
+          "classification": "new_variant",
+          "rationale": "The side-specific base relationship must be explicit.",
+          "distinguishingDimensions": {
+            "pressArmRelationToDownKnee": "ipsilateral"
+          }
+        },
+        {
+          "name": "Press Arm Opposite Down Knee",
+          "classification": "new_variant",
+          "rationale": "The opposite-side relationship changes trunk-pelvis stabilization.",
+          "distinguishingDimensions": {
+            "pressArmRelationToDownKnee": "contralateral"
+          }
+        },
+        {
+          "name": "Slow-Eccentric Half-Kneeling Single-Arm Press",
+          "classification": "new_variant",
+          "rationale": "A slower lowering phase changes eccentric stress, duration, and recovery.",
+          "distinguishingDimensions": {
+            "tempo": "slow_eccentric"
+          }
+        },
+        {
+          "name": "Bottom-Up Kettlebell Half-Kneeling Press",
+          "classification": "new_variant",
+          "rationale": "Bottom-up orientation materially increases grip and implement-stability demand.",
+          "distinguishingDimensions": {
+            "implement": "kettlebell",
+            "orientation": "bottom_up"
+          }
+        },
+        {
+          "name": "Half-Kneeling One-Arm Landmine Press",
+          "classification": "new_definition",
+          "rationale": "A fixed diagonal landmine arc changes path and equipment contract.",
+          "distinguishingDimensions": {
+            "path": "fixed_diagonal_arc",
+            "implement": "landmine"
+          }
+        },
+        {
+          "name": "Half-Kneeling Pallof Press",
+          "classification": "new_definition",
+          "rationale": "A horizontal anti-rotation press is not a vertical shoulder press.",
+          "distinguishingDimensions": {
+            "path": "horizontal",
+            "primaryIntent": "anti_rotation"
+          }
+        },
+        {
+          "name": "Standing Single-Arm Overhead Press",
+          "classification": "new_definition",
+          "rationale": "Standing changes support, lower-limb contribution, balance, logistics, and failure modes.",
+          "distinguishingDimensions": {
+            "base": "standing"
+          }
+        },
+        {
+          "name": "Half-Kneeling Single-Arm Push Press",
+          "classification": "new_definition",
+          "rationale": "Deliberate leg drive changes force strategy and intent.",
+          "distinguishingDimensions": {
+            "legDrive": true,
+            "intent": "ballistic_or_power"
+          }
+        }
+      ]
+    }
+  ]
+}

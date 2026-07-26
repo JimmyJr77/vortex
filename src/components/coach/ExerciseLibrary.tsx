@@ -58,7 +58,7 @@ const DIFFICULTY_PRESETS = [
   { key: 'youth', label: 'Youth-safe (≤4)', minOverall: '' as const, maxOverall: 4 as const },
   { key: 'moderate', label: 'Moderate (5–6)', minOverall: 5 as const, maxOverall: 6 as const },
   { key: 'challenging', label: 'Challenging (7–8)', minOverall: 7 as const, maxOverall: 8 as const },
-  { key: 'elite', label: 'Elite (8+)', minOverall: 8 as const, maxOverall: '' as const },
+  { key: 'very_hard', label: 'Very hard (8+)', minOverall: 8 as const, maxOverall: '' as const },
 ] as const
 
 const emptyFilters: FilterState = { q: '', tenet: '', methodology: '', physiology: '', phase: '', subrole: '', orderSlot: '', bodyRegion: '', sessionNeed: '', maxFatigueCost: '', freshness: false, canBeDaily: false, paired: false, incorporatesSkills: false, minImpact: '', maxImpact: '', minOverall: '', maxOverall: '', minTechnical: '', minLoad: '', sort: '' }
@@ -644,4 +644,3 @@ function FacetSelect({
     </div>
   )
 }
-

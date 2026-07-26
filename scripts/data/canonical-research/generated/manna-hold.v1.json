@@ -1,0 +1,649 @@
+{
+  "facilityId": 1,
+  "slug": "manna-hold",
+  "researchVersion": "2026-07-26.29",
+  "assessmentSummary": {
+    "identity": "An extreme static bilateral straight-arm support hold. The hips rise toward or above the shoulder line and the extended legs are carried beyond the shoulder line through an owned shoulder-extension and high-compression position. Support, declared assistance, entry, exact position, hold time, and exit are controlled delivery dimensions.",
+    "currentCardFindings": [
+      "No exercise card existed; formal FIG/USAG Manna skill cards already exist and retain their proficiency classifications in the skill library.",
+      "Manna is not merely a higher V-sit angle: the hip height and leg-to-shoulder relationship materially change shoulder extension, trunk, flexibility, balance, assistance, and exit demands.",
+      "Qualified direct supervision, stable rated support, declared assistance, planned entry, communication, matting as needed, and a rehearsed exit are core constraints, not optional coaching notes.",
+      "Spotted or assisted Manna changes delivery but not the target identity when assistance is declared and the athlete is not pulled into range.",
+      "V-sit, low or partial high-compression work, Manna-to-handstand, dislocation to handstand, and ring Manna require separate identity or variant review rather than being silently grouped.",
+      "Difficulty is exercise complexity plus physical difficulty only, with overall equal to their maximum; formal proficiency remains on skill-library cards.",
+      "Candidate scores are deliberately high but remain uncalibrated until coach-reviewed comparison anchors exist.",
+      "All five media links remain candidate-only and require exact-match, complete safety and exit, claim, caption, accessibility, and approval review."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "push",
+        "brace"
+      ],
+      "jointActions": [
+        "hand_and_wrist_support_isometric",
+        "elbow_extension_isometric",
+        "large_range_shoulder_extension_relative_to_trunk_isometric",
+        "scapular_depression_protraction_and_posterior_support_control",
+        "extreme_bilateral_hip_flexion_isometric",
+        "pelvic_and_trunk_position_control",
+        "knee_extension_isometric"
+      ],
+      "planes": [
+        "sagittal_primary",
+        "frontal_and_transverse_isometric_control"
+      ],
+      "laterality": "bilateral_symmetric",
+      "intent": "static_extreme_straight_arm_support_compression_hold"
+    },
+    "proposedAnatomy": {
+      "primaryMusclesAndTissues": [
+        "triceps_brachii",
+        "posterior_deltoid_and_shoulder_extensors",
+        "latissimus_dorsi_and_scapular_depressors",
+        "serratus_anterior_and_scapular_stabilizers",
+        "iliopsoas_and_other_hip_flexors",
+        "rectus_abdominis_and_obliques",
+        "quadriceps"
+      ],
+      "secondaryMusclesAndTissues": [
+        "finger_and_wrist_flexors_and_extensors",
+        "rotator_cuff",
+        "deep_trunk_and_spinal_stabilizers",
+        "pectoral_and_upper_back_stabilizers"
+      ],
+      "joints": [
+        "hand_and_wrist",
+        "elbow",
+        "glenohumeral_and_scapulothoracic_complex",
+        "thoracic_and_lumbar_spine",
+        "pelvis",
+        "hip",
+        "knee"
+      ],
+      "primaryActions": [
+        "establish_stable_straight_arm_support",
+        "follow_the_cleared_shoulder_extension_path",
+        "elevate_hips_and_carry_extended_legs_beyond_shoulders",
+        "maintain_declared_assistance_breathing_and_communication",
+        "exit_immediately_before_position_or_support_changes"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 88,
+      "absoluteLoadDemand": 94,
+      "coordinationDemand": 90,
+      "supervisionDemand": 92,
+      "failureConsequence": 84,
+      "impact": 1,
+      "workCapacityDemand": 92,
+      "baseOverallDifficulty": 94
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "baseline",
+        "exerciseComplexity": 88,
+        "physicalDifficulty": 94,
+        "derivedOverallDifficulty": 94,
+        "basis": "Manna combines extreme high compression with large-range straight-arm posterior support, balance, flexibility, assistance, communication, and high-consequence entry and exit control."
+      }
+    ],
+    "proposedLoadProfile": {
+      "loadingType": "relative_bodyweight_isometric_extreme_compression_and_shoulder_extension_support",
+      "impactClass": "none_in_successful_hold_but_high_exit_consequence",
+      "externalLoadMethod": "bodyweight",
+      "primaryStress": [
+        "hand_and_wrist_support",
+        "elbow_and_triceps_isometric",
+        "large_range_shoulder_extension_support",
+        "scapular_and_upper_back_control",
+        "extreme_hip_flexion_and_trunk_control",
+        "knee_extension_isometric"
+      ],
+      "fatigueProfile": [
+        "elbows_bend",
+        "shoulder_path_changes",
+        "hips_or_legs_fall_from_declared_position",
+        "assistance_increases",
+        "breathing_or_communication_changes",
+        "exit_becomes_uncertain"
+      ],
+      "recoveryHours": "Treat Manna as a high-cost support and compression exposure. Count it with V-sit, L-sit, dips, presses, shoulder-extension support, hand support, triceps, hip-flexor, active-flexibility, and high-compression work. Do not attempt after competing fatigue; candidate minimum recovery is 72 hours."
+    },
+    "proposedConstraints": {
+      "equipment": [
+        "stable_rated_high_parallettes_or_blocks",
+        "non_slip_hand_contact",
+        "protective_matting_as_needed",
+        "clear_assistance_and_exit_space"
+      ],
+      "environment": [
+        "isolated_station",
+        "one_athlete_one_qualified_spotter",
+        "declared_entry_assistance_position_and_exit",
+        "no_unsupervised_group_repetitions"
+      ],
+      "population": [
+        "pain_free_straight_arm_support",
+        "repeatable_v_sit_with_visible_reserve",
+        "owned_shoulder_extension_and_high_compression_progressions",
+        "qualified_supervision_and_planned_exit",
+        "no_competing_fatigue"
+      ],
+      "excludeOrEscalate": [
+        "hand_wrist_elbow_shoulder_hip_hamstring_or_spine_pain",
+        "numbness_tingling_dizziness_or_instability",
+        "forced_shoulder_or_hip_range",
+        "uncontrolled_elbow_or_shoulder_translation",
+        "missing_supervision_support_or_exit"
+      ]
+    },
+    "proposedDeliveryProfiles": [
+      {
+        "profileKey": "capacity-manna-hold",
+        "phase": "capacity",
+        "dose": "Two to four attempts of one to five clean seconds, with 180 to 360 seconds rest, a maximum of four attempts, and at least two seconds of visible reserve. Use qualified direct supervision for every attempt.",
+        "qualityGate": "Support, supervision, assistance, and exit are ready; elbows remain straight; shoulder, hip, and leg positions match the declared standard; breathing and communication continue.",
+        "stopRules": [
+          "symptoms",
+          "support_supervision_assistance_or_exit_not_ready",
+          "elbow_or_shoulder_path_loss",
+          "hip_or_leg_position_loss",
+          "assistance_increases",
+          "breathing_or_communication_change"
+        ]
+      }
+    ],
+    "proposedInstructions": {
+      "athlete": [
+        "Confirm the coach, spotter, support, and exit.",
+        "Enter only through the cleared progression.",
+        "Push down and keep the elbows straight.",
+        "Lift hips and legs only through the owned shoulder and compression path.",
+        "Keep breathing and communicating; exit immediately on command."
+      ],
+      "coach": [
+        "Verify prerequisites and no competing fatigue.",
+        "Set support, matting, assistance, hand contacts, entry, communication, declared position, and exit before every attempt.",
+        "Never pull the athlete into shoulder or hip range.",
+        "End the attempt at any elbow, shoulder, hip, leg, assistance, breathing, communication, or exit change."
+      ]
+    },
+    "proposedProgramming": {
+      "primaryUses": [
+        "extreme_straight_arm_support_strength",
+        "large_range_shoulder_extension_capacity",
+        "extreme_high_compression_strength",
+        "whole_body_positional_control"
+      ],
+      "sequence": "Use only after full preparation and V-sit rehearsal while completely fresh, before all competing support, pressing, grip, shoulder, compression, and high-consequence skill work.",
+      "cumulativeBudgets": [
+        "hand_and_wrist_support",
+        "elbow_and_triceps_isometric",
+        "shoulder_extension_and_scapular_support",
+        "hip_flexor_and_active_hamstring_range",
+        "long_lever_trunk_control",
+        "supervision_and_spotter_capacity",
+        "high_consequence_attempt_count"
+      ],
+      "substitutions": [
+        "v_sit",
+        "l_sit",
+        "seated_compression_lift",
+        "coach_cleared_partial_progression"
+      ]
+    },
+    "proposedSupport": {
+      "athleteQuestions": [
+        "Did the exact position and assistance remain as planned?",
+        "Could you breathe and communicate throughout?",
+        "Could you exit immediately with control?"
+      ],
+      "coachQuestions": [
+        "Were prerequisites and fatigue state acceptable before the attempt?",
+        "Did elbow, shoulder path, hip or leg position, assistance, breathing, communication, or exit change first?",
+        "Should all further attempts be removed today?"
+      ],
+      "operationalData": [
+        "support_and_matting",
+        "spotter_and_assistance",
+        "entry_and_declared_position",
+        "hold_seconds_attempts_rest",
+        "first_quality_loss",
+        "exit",
+        "symptom_and_next_day_response",
+        "substitution"
+      ]
+    },
+    "confidenceAndReview": {
+      "contentConfidence": 72,
+      "scoringConfidence": 52,
+      "mediaConfidence": 20,
+      "humanGates": [
+        "qualified_gymnastics_coach_identity_and_safety_review",
+        "difficulty_calibration",
+        "population_dosage_and_supervision_review",
+        "exact_media_review",
+        "publication_approval"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-27T00:30:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "From a stable straight-arm push support, elevate the hips toward or above the shoulder line and carry the extended legs beyond the shoulder line into the declared Manna position while maintaining hand, elbow, shoulder, trunk, breathing, assistance, and exit control.",
+      "familyKey": "Extreme straight-arm support compression hold",
+      "movementPatterns": [
+        "push",
+        "brace"
+      ],
+      "bodyRegions": [
+        "hand",
+        "wrist",
+        "elbow",
+        "shoulder",
+        "scapula",
+        "rib_cage",
+        "core",
+        "spine",
+        "pelvis",
+        "hip",
+        "knee",
+        "hamstrings",
+        "full_body"
+      ],
+      "requiredEquipment": [
+        "parallettes_or_blocks"
+      ],
+      "optionalEquipment": [
+        "parallel_bars",
+        "box",
+        "mat",
+        "timer"
+      ],
+      "environment": {
+        "support": "stable_rated_non_slip_and_checked_before_use",
+        "surface": "level_non_slip_with_protective_matting_as_needed",
+        "traffic": "station_isolated_from_cross_traffic",
+        "clearance": "full_leg_arc_assistance_and_exit_space",
+        "assistance": "qualified_spot_and_hand_positions_agreed_before_entry",
+        "supervision": "qualified_direct_supervision_for_every_attempt"
+      },
+      "population": {
+        "readiness": [
+          "pain_free_straight_arm_support",
+          "repeatable_v_sit_with_visible_reserve",
+          "owned_shoulder_extension_and_high_compression_progressions",
+          "qualified_spotter_and_planned_entry_exit",
+          "no_prior_support_or_compression_fatigue"
+        ],
+        "clinicalBoundary": "Symptoms, recent surgery, instability, neurologic signs, or rehabilitation restrictions require individualized clinician guidance; this card is not rehabilitation instruction.",
+        "contraindicationFlags": [
+          "current_hand_wrist_elbow_shoulder_hip_hamstring_or_spine_pain",
+          "numbness_tingling_dizziness_or_instability",
+          "forced_shoulder_extension_or_hip_range",
+          "elbow_bend_or_uncontrolled_shoulder_translation",
+          "missing_qualified_supervision_or_safe_exit"
+        ]
+      },
+      "difficulty": {
+        "impact": 1,
+        "supervisionDemand": 92,
+        "absoluteLoadDemand": 94,
+        "coordinationDemand": 90,
+        "failureConsequence": 84,
+        "workCapacityDemand": 92,
+        "technicalComplexity": 88,
+        "baseOverallDifficulty": 94
+      },
+      "loadProfile": {
+        "gripDemand": 46,
+        "loadingType": "relative_bodyweight_isometric_extreme_compression_and_shoulder_extension_support",
+        "primaryStress": [
+          "straight_arm_support",
+          "large_range_shoulder_extension_support",
+          "scapular_and_triceps_support",
+          "extreme_hip_flexion_and_trunk_control",
+          "knee_extension_isometric"
+        ],
+        "spinalLoading": 52,
+        "eccentricStress": 20,
+        "externalLoadMethod": "bodyweight",
+        "landingContactsPerRep": 0
+      },
+      "fatigueProfile": {
+        "gripFatigue": 46,
+        "qualityLoss": [
+          "elbows_bend",
+          "shoulder_path_changes",
+          "hips_or_legs_fall_from_declared_position",
+          "assistance_increases",
+          "breathing_or_exit_becomes_uncontrolled"
+        ],
+        "recoveryHours": 72,
+        "impactAccumulation": 1,
+        "localMuscleFatigue": 94,
+        "technicalFatigueSensitivity": 98
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Resistance exercise selection requires qualified instruction, safe equipment and space, appropriate progression, and readiness assessed for the individual rather than inferred from an exercise label.",
+        "Before Manna Hold, check the exact support, floor area, clearance, selected position, assistance, fatigue state, and exit. Stop for pain or pinching; numbness or tingling; dizziness; instability; support or hand slip; uncontrolled cramping; elbow or shoulder collapse; repeated loss of the declared trunk, knee, leg-height, range, breathing, or assistance standard; or an unsafe exit."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Training should be individualized and progressively developed from current readiness and movement competence.",
+        "Scale Manna Hold with a shorter lever, smaller owned range, stable higher support, shorter sets or holds, more rest, declared assistance, plain-language cues, visual markers, or a mechanically appropriate substitute. Exercise cards use complexity and physical-difficulty scores; formal proficiency levels remain on skill-library cards."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The five supplied videos are discovery candidates only. Public oEmbed title, channel, and embed-player metadata were observed on 2026-07-26; exact identity and variant match, complete setup and exit, cue and claim quality, safety, captions, accessibility, reviewer identity, approval, and continuing availability remain pending human review."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.gymnastics.sport/publicdir/rules/files/en_1.1%20-%20MAG%20CoP%202025-2028.pdf",
+      "sourceTitle": "FIG Men's Artistic Gymnastics Code of Points 2025–2028",
+      "sourcePublisher": "International Gymnastics Federation",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 91,
+      "claims": [
+        "The current governing-body code lists the Manna position separately from V-sit and identifies Manna-containing combinations separately.",
+        "For exercise identity, require elevated hips and extended legs beyond the shoulder line in straight-arm support; a lower high-compression position remains V-sit or a declared preparatory drill."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://library.crossfit.com/premium/pdf/42_06_Parallettes_Pt1.pdf",
+      "sourceTitle": "Parallette Training, Part 1",
+      "sourcePublisher": "CrossFit Journal",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 76,
+      "claims": [
+        "Professional instruction describes Manna as the next position beyond V-sit, with the hips elevated and legs carried behind the head through a changed shoulder relationship.",
+        "Taxonomy retains push and brace but must explicitly record extreme high compression, large-range shoulder extension relative to the trunk, declared assistance, and controlled entry and exit."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://library.crossfit.com/premium/pdf/42_06_Parallettes_Pt1.pdf",
+      "sourceTitle": "Parallette Training, Part 1",
+      "sourcePublisher": "CrossFit Journal",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 76,
+      "claims": [
+        "Professional instruction emphasizes very high triceps strength, compression, and dynamic shoulder flexibility for Manna.",
+        "Describe hand and wrist support, elbow and triceps isometric work, shoulder extensors and scapular stabilizers, hip flexors, trunk, quadriceps, and whole-body positional control without claiming isolated action."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://library.crossfit.com/premium/pdf/42_06_Parallettes_Pt1.pdf",
+      "sourceTitle": "Parallette Training, Part 1",
+      "sourcePublisher": "CrossFit Journal",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 76,
+      "claims": [
+        "Manna changes the V-sit by rolling the body farther, elevating the hips toward shoulder height, and carrying the legs beyond the head.",
+        "This materially changes shoulder-extension support, balance, trunk and pelvic organization, compression range, assistance, and exit mechanics rather than merely increasing hold time."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.gymnastics.sport/publicdir/rules/files/en_1.1%20-%20MAG%20CoP%202025-2028.pdf",
+      "sourceTitle": "FIG Men's Artistic Gymnastics Code of Points 2025–2028",
+      "sourcePublisher": "International Gymnastics Federation",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 91,
+      "claims": [
+        "The governing-body code separates Manna from V-sit and lists Manna combinations at distinct difficulty values.",
+        "Candidate exercise difficulty is very high because of the combined support, shoulder range, high compression, balance, supervision, and exit demands; overall is max(complexity, physical difficulty), not the competition value."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://library.crossfit.com/premium/pdf/42_06_Parallettes_Pt1.pdf",
+      "sourceTitle": "Parallette Training, Part 1",
+      "sourcePublisher": "CrossFit Journal",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 76,
+      "claims": [
+        "Professional instruction characterizes Manna as requiring enormous triceps strength and substantial shoulder flexibility in addition to compression.",
+        "Treat every attempt as high-cost support and compression work; do not perform after pressing, support, shoulder, grip, hip-flexor, active-flexibility, or high-compression fatigue."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Safe resistance training requires qualified instruction, safe equipment and space, suitable progression, and individual readiness.",
+        "Require qualified direct supervision, stable rated support, matting as needed, declared assistance and communication, a planned entry and exit, repeatable V-sit prerequisites, and no competing fatigue."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://library.crossfit.com/premium/pdf/42_06_Parallettes_Pt1.pdf",
+      "sourceTitle": "Parallette Training, Part 1",
+      "sourcePublisher": "CrossFit Journal",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 76,
+      "claims": [
+        "Professional instruction recommends spotted Manna holds as preparatory work, underscoring the need for controlled assistance and progression.",
+        "Use very short attempts, full recovery, a strict attempt cap, visible reserve, and immediate termination when assistance or position changes."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://library.crossfit.com/premium/pdf/42_06_Parallettes_Pt1.pdf",
+      "sourceTitle": "Parallette Training, Part 1",
+      "sourcePublisher": "CrossFit Journal",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 76,
+      "claims": [
+        "Manna progression builds from V-sit and uses spotted holds rather than forcing an unsupported final position.",
+        "Cue agreed support and assistance, straight elbows, the cleared shoulder path, elevated hips and legs, breathing and communication, and an immediate controlled exit."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Exercise order, recovery, volume, and progression should protect technique and the intended adaptation.",
+        "Place Manna only while completely fresh after its specific preparation and before all competing support, pressing, shoulder, grip, high-compression, or high-consequence work."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Training progressions should be individualized from present readiness and competence.",
+        "Give plain-language checks for coach and spotter readiness, exact assistance, elbow and shoulder path, hip and leg position, breathing, communication, and immediate exit."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Qualified supervision, safe equipment, and appropriate progression are central to resistance exercise.",
+        "The coach must verify prerequisites and fatigue, prebrief support, assistance, entry, communication, position, and exit, never pull into range, and stop at the first quality change."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.gymnastics.sport/publicdir/rules/files/en_1.1%20-%20MAG%20CoP%202025-2028.pdf",
+      "sourceTitle": "FIG Men's Artistic Gymnastics Code of Points 2025–2028",
+      "sourcePublisher": "International Gymnastics Federation",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 91,
+      "claims": [
+        "The code separates V-sit, Manna, Manna-to-handstand, and Manna dislocation-to-handstand elements.",
+        "Treat assistance and hold time as modifiers, lower high-compression positions as V-sit or preparatory work, and dynamic press or dislocation combinations as separate definitions."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=KJFW2rnownQ",
+      "title": "Manna Progression",
+      "channelName": "Acro Fitness Motivation",
+      "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: Manna progression",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. Exact Manna identity, prerequisites, support, assistance, shoulder path, dosage, safety, exit, captions, accessibility, and claims require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=dTPEnTZnHHo",
+      "title": "Manna progressions",
+      "channelName": "Mahermovement",
+      "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: Manna progressions",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. Exact identity boundaries, spotting, support, progression order, safety, exit, captions, accessibility, and full content require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=OLFnFSTqP_c",
+      "title": "Tips and Tricks for Manna",
+      "channelName": "Nils Valkenborgh (AcroNils)",
+      "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: Manna tips",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. Exact position, shoulder and hip range, assistance, dose, safety, exit, claims, captions, and accessibility require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=7r5HgYtuwSs",
+      "title": "Manna Gymnastics Progressions",
+      "channelName": "Club Calisthenics",
+      "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: Manna gymnastics progressions",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. Exact gymnastics Manna position, support, assistance, prerequisites, safety, exit, captions, accessibility, and complete sequence require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=BKwVJrGf5do",
+      "title": "TEACH YOUR GYMNAST HOW TO DO A MANNA",
+      "channelName": "Gym Club Solutions",
+      "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: teach gymnast Manna",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. Coaching title does not establish Vortex approval; exact setup, spot, position, dosage, safety, exit, captions, accessibility, and claims require human review."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Spotted Manna Hold",
+      "classification": "modifier_annotation",
+      "rationale": "Declared qualified assistance changes delivery and load but preserves the target Manna identity; assistance location and amount must be recorded.",
+      "distinguishingDimensions": {
+        "assistance": "qualified_spot",
+        "targetPosition": "manna"
+      }
+    },
+    {
+      "name": "Low Manna",
+      "classification": "new_variant",
+      "rationale": "A deliberately lower but still post-V-sit hip and shoulder relationship may be a preparatory variant, but the exact identity threshold needs qualified coach review before implementation.",
+      "distinguishingDimensions": {
+        "hipHeight": "below_full_manna",
+        "reviewState": "identity_threshold_pending"
+      }
+    },
+    {
+      "name": "Straddle Manna",
+      "classification": "new_variant",
+      "rationale": "Straddle may preserve the Manna support action while changing hip-abduction range, symmetry, and lever, but requires separate coach review before implementation.",
+      "distinguishingDimensions": {
+        "legPosition": "straddle",
+        "hipHeight": "manna_standard"
+      }
+    },
+    {
+      "name": "Manna to Handstand Press",
+      "classification": "new_definition",
+      "rationale": "Adding a press to inverted support changes primary action, movement pattern, phase, prerequisites, risk, and dosage.",
+      "distinguishingDimensions": {
+        "movementPattern": "dynamic_press_to_inversion",
+        "endPosition": "handstand"
+      }
+    },
+    {
+      "name": "Manna Dislocation to Handstand",
+      "classification": "new_definition",
+      "rationale": "The dislocation and transition to handstand create a different dynamic shoulder action, orientation, risk, and governing-body element.",
+      "distinguishingDimensions": {
+        "movementPattern": "dynamic_dislocation_to_inversion",
+        "endPosition": "handstand"
+      }
+    },
+    {
+      "name": "V-Sit",
+      "classification": "new_definition",
+      "rationale": "V-sit holds the legs above horizontal without the full Manna hip height and beyond-shoulder leg relationship.",
+      "distinguishingDimensions": {
+        "hipHeight": "below_manna",
+        "legPosition": "above_horizontal_not_beyond_manna_line"
+      }
+    },
+    {
+      "name": "Ring Manna",
+      "classification": "new_variant",
+      "rationale": "Independent rings may preserve the target position but materially increase grip, stability, supervision, assistance, mount, exit, and failure consequence; do not implement without specialist review.",
+      "distinguishingDimensions": {
+        "support": "independent_rings",
+        "reviewState": "specialist_review_required"
+      }
+    },
+    {
+      "name": "Reverse Plank Leg Lift",
+      "classification": "reject",
+      "rationale": "A reverse plank leg lift does not reproduce the Manna hip, leg, or support relationship and should not be labeled as Manna even if used as general preparation.",
+      "distinguishingDimensions": {
+        "supportAction": "posterior_plank",
+        "identityMatch": false
+      }
+    }
+  ]
+}

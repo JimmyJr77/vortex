@@ -1,0 +1,625 @@
+{
+  "facilityId": 1,
+  "slug": "shuffle-to-rotational-medicine-ball-throw",
+  "researchVersion": "2026-07-26.34",
+  "assessmentSummary": {
+    "identity": "A two-hand medicine-ball rotational wall throw preceded by a declared lateral shuffle or crow-hop that creates momentum into a controlled plant, pivot, projection, and finish.",
+    "currentCardFindings": [
+      "The two active legacy cards describe the same lateral-shuffle-to-rotational-medicine-ball projection and are a direct identity collision.",
+      "The current 40-versus-50 overall difficulty split is unsupported seed drift; both names preserve the same approach, projection, and intent.",
+      "Neither legacy source fixes the return contract, so the legacy baseline variants remain archived provenance rather than being guessed into throw-only or rebound-catch.",
+      "Planned versus reactive cueing changes decision demand and must be explicit; it does not change the primary movement identity.",
+      "Five direct YouTube candidates currently return healthy oEmbed metadata, but no full viewing or human approval has occurred."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "locomote",
+        "rotate",
+        "push",
+        "brace"
+      ],
+      "movementQualifiers": [
+        "standing_athletic_base",
+        "declared_lateral_shuffle_or_crow_hop",
+        "controlled_plant_and_pivot",
+        "two_hand_rotational_ball_projection",
+        "declared_throw_side",
+        "complete_release",
+        "inspected_wall_target",
+        "declared_return_contract"
+      ],
+      "jointActions": [
+        "lateral_ankle_knee_and_hip_flexion_extension",
+        "hip_abduction_adduction_and_rotation",
+        "pelvic_and_thoracic_rotation",
+        "shoulder_horizontal_adduction_and_flexion",
+        "elbow_extension",
+        "scapular_protraction",
+        "wrist_and_hand_release"
+      ],
+      "planes": [
+        "transverse",
+        "frontal",
+        "sagittal_stabilization"
+      ],
+      "laterality": "bilateral_implement_with_declared_left_or_right_approach_and_throw_side",
+      "intent": "rapid_lateral_momentum_transfer_into_rotational_wall_projection"
+    },
+    "proposedAnatomy": {
+      "primaryMusclesAndTissues": [
+        "gluteus_maximus_and_medius",
+        "hip_rotators_and_adductors",
+        "internal_and_external_obliques",
+        "pectoralis_major"
+      ],
+      "secondaryMusclesAndTissues": [
+        "quadriceps",
+        "hamstrings",
+        "gastrocnemius_and_soleus",
+        "transversus_abdominis",
+        "spinal_stabilizers",
+        "anterior_deltoid",
+        "triceps_brachii",
+        "serratus_anterior",
+        "rotator_cuff"
+      ],
+      "joints": [
+        "foot_and_ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "spine",
+        "scapulothoracic_articulation",
+        "shoulder",
+        "elbow",
+        "wrist_and_hand"
+      ],
+      "primaryActions": [
+        "load_trail_hip",
+        "shuffle_laterally_into_declared_plant_zone",
+        "brake_and_redirect_lateral_momentum",
+        "sequence_rotation_from_ground_to_hands",
+        "project_ball_to_declared_wall_target",
+        "decelerate_and_reset_or_absorb_declared_return"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 56,
+      "absoluteLoadDemand": 52,
+      "coordinationDemand": 68,
+      "supervisionDemand": 66,
+      "failureConsequence": 62,
+      "impact": 24,
+      "workCapacityDemand": 32,
+      "baseOverallDifficulty": 56
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "lateral-shuffle-wall-throw-only",
+        "exerciseComplexity": 56,
+        "physicalDifficulty": 52,
+        "derivedOverallDifficulty": 56,
+        "basis": "the athlete coordinates a lateral approach, plant, pivot, rotational projection, and balanced finish without a required returning catch"
+      },
+      {
+        "variantKey": "lateral-shuffle-wall-rebound-catch",
+        "exerciseComplexity": 64,
+        "physicalDifficulty": 54,
+        "derivedOverallDifficulty": 64,
+        "basis": "the same dynamic approach and projection add return tracking, catch timing, and whole-body absorption"
+      }
+    ],
+    "proposedLoadProfile": {
+      "loadingType": "dynamic_whole_body_ballistic_rotational_projection",
+      "impactClass": "low_to_moderate_ground_impact_with_ball_flight_and_return_consequence",
+      "externalLoadMethod": "declared_medicine_ball_mass_material_diameter_and_rebound_type",
+      "landingContactsPerRep": 1,
+      "primaryStress": [
+        "lateral_acceleration_and_plant_braking",
+        "hip_pelvis_and_trunk_rotation",
+        "shoulder_horizontal_projection_and_elbow_extension",
+        "pivot_and_whole_body_deceleration",
+        "return_tracking_and_catch_absorption_when_prescribed"
+      ],
+      "fatigueProfile": [
+        "shuffle_rhythm_or_spacing_loss",
+        "plant_collapse_or_overstride",
+        "release_velocity_decline",
+        "target_accuracy_loss",
+        "arm_dominant_throw",
+        "uncontrolled_spine_motion",
+        "late_or_unsafe_catch"
+      ],
+      "recoveryHours": "context dependent; combine with lateral acceleration, change-of-direction, rotational throwing, shoulder, elbow, trunk, plant, and catch exposures"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "medicine_ball",
+        "wall"
+      ],
+      "optionalEquipment": [
+        "cones",
+        "line_tape",
+        "timer",
+        "mirror"
+      ],
+      "environment": [
+        "declared_ball_mass_material_diameter_and_rebound_behavior",
+        "level_non_slip_surface_with_lateral_approach_and_pivot_space",
+        "marked_start_and_plant_zones",
+        "clear_flight_and_return_lanes",
+        "declared_wall_distance_and_target",
+        "no_cross_traffic",
+        "ball_target_feet_and_return_path_clearly_visible"
+      ],
+      "population": [
+        "pain_free_lateral_shuffle_plant_pivot_and_two_hand_throw",
+        "can_brake_and_redirect_lateral_momentum",
+        "can_project_a_light_ball_without_uncontrolled_spine_motion",
+        "can_track_and_absorb_return_when_catch_is_prescribed",
+        "can_follow_stop_and_lane_clear_instructions"
+      ],
+      "requiresDirectSupervision": true,
+      "groupRule": "One active thrower per lane; waiting athletes and collectors stay outside approach, pivot, flight, and return space.",
+      "clinicalBoundary": "Pain, instability, recent injury or surgery, neurologic symptoms, or rehabilitation restrictions require individualized clinician guidance."
+    },
+    "proposedDosage": {
+      "outputSets": "2-4",
+      "outputRepetitionsPerSide": "2-4",
+      "outputRestSeconds": "120-240",
+      "techniqueSets": "2-3",
+      "techniqueRepetitionsPerSide": "2-5",
+      "techniqueRestSeconds": "90-180",
+      "effort": "high intent only while shuffle rhythm, plant, sequence, release speed, target, balance, and any prescribed catch remain repeatable",
+      "ballRule": "Use the lightest ball that produces the intended ballistic action; reduce mass if speed, sequence, posture, plant, target, or catch control worsens.",
+      "sideRule": "Declare approach and throw side and balance high-intent repetitions unless a documented reason says otherwise.",
+      "stopRule": "End the set on the first symptom, lane issue, plant failure, target loss, material output decline, uncontrolled spine motion, unpredictable return, or missed catch."
+    },
+    "proposedFatigueRecovery": {
+      "acuteCost": "moderate neural and whole-body ballistic cost with low metabolic demand at output dosage; rebound catch and reactive cueing add perceptual demand",
+      "localFatigue": [
+        "foot_ankle_knee_and_hip_plant_chain",
+        "hip_and_trunk_rotators",
+        "gluteals_and_leg_drive",
+        "pectorals_deltoid_and_triceps",
+        "scapular_and_spinal_stabilizers",
+        "forearms_and_hands_when_catching"
+      ],
+      "cumulativeBudgets": [
+        "lateral_acceleration_and_change_of_direction_contacts",
+        "rotational_ballistic_repetitions_per_side",
+        "throwing_and_pressing_load",
+        "anterior_shoulder_and_elbow_stress",
+        "trunk_rotation_and_deceleration",
+        "plant_and_pivot_exposures",
+        "catch_absorption_exposures",
+        "technical_sensitivity"
+      ],
+      "recoveryRule": "Do not repeat high-intent exposure while pain, soreness, approach or plant error, target loss, release-speed decline, balance loss, or catch hesitation persists."
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T16:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Use a declared lateral shuffle or crow-hop to create momentum into a controlled plant, whole-body rotational two-hand medicine-ball projection to an inspected wall, and balanced finish. The exact variant states whether the athlete retrieves the ball or tracks and absorbs a predictable rebound.",
+      "familyKey": "lateral_shuffle_to_rotational_medicine_ball_wall_projection",
+      "movementPatterns": [
+        "locomote",
+        "rotate",
+        "push",
+        "brace"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "core",
+        "spine",
+        "rib_cage",
+        "scapula",
+        "shoulder",
+        "elbow",
+        "wrist",
+        "hand",
+        "eye_hand"
+      ],
+      "requiredEquipment": [
+        "medicine_ball",
+        "wall"
+      ],
+      "optionalEquipment": [
+        "cones",
+        "line_tape",
+        "timer",
+        "mirror"
+      ],
+      "environment": {
+        "target": "structurally_suitable_inspected_wall_with_declared_target",
+        "surface": "level_non_slip_surface_with_declared_lateral_approach_and_pivot_space",
+        "traffic": "one_active_thrower_per_lane_no_cross_traffic_or_collection_during_attempt",
+        "lighting": "ball_target_feet_plant_zone_and_return_path_clearly_visible",
+        "plantZone": "declared_and_visible",
+        "startMark": "declared_and_visible",
+        "flightLane": "clear_from_release_to_wall",
+        "returnPath": "clear_and_predictable_when_rebound_catch_is_prescribed",
+        "coachSightline": "approach_plant_pivot_sequence_release_target_finish_and_return_visible",
+        "approachDistance": "declared_and_repeatable",
+        "ballSpecification": "declared_mass_material_diameter_and_rebound_behavior"
+      },
+      "population": {
+        "readiness": [
+          "pain_free_lateral_shuffle_plant_pivot_and_two_hand_throw",
+          "can_brake_and_redirect_lateral_momentum",
+          "stable_plant_and_balanced_finish",
+          "can_project_a_light_ball_without_uncontrolled_spine_motion",
+          "can_track_and_absorb_return_when_catch_is_prescribed",
+          "can_follow_stop_lane_clear_and_collection_instructions"
+        ],
+        "supervision": "direct_observation_until_approach_plant_sequence_target_and_return_contract_are_repeatable",
+        "clinicalBoundary": "Symptoms, instability, recent surgery, neurologic signs, or rehabilitation restrictions require individualized clinician guidance.",
+        "selectionBoundary": "Select the exact return contract, approach, throw side, ball, target, distance, cueing, and dose from current readiness and intent; exercise cards do not carry proficiency levels.",
+        "contraindicationFlags": [
+          "current_foot_ankle_knee_hip_back_shoulder_elbow_wrist_or_hand_pain",
+          "numbness_dizziness_instability_or_neurologic_symptoms",
+          "uncontrolled_plant_pivot_spine_motion_or_balance_loss",
+          "unsafe_ball_wall_lane_surface_approach_space_or_return_path",
+          "unassessed_recent_injury_surgery_or_rehabilitation_restriction"
+        ]
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.muscleandstrength.com/exercises/shuffle-into-rotational-medicine-ball-throw",
+      "sourceTitle": "Shuffle Into Rotational Medicine Ball Throw Video Exercise Guide",
+      "sourcePublisher": "Muscle & Strength",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 66,
+      "claims": [
+        "The exact exercise source names a shuffle into rotational medicine-ball throw and describes an athletic base, trail-hip load, one lateral shuffle, rotational wall projection, and optional rebound catch.",
+        "Shuffle-to-Rotational Medicine Ball Throw is the stable broad identity. The two legacy names describe the same lateral-shuffle-to-rotational-projection sequence."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.muscleandstrength.com/exercises/shuffle-into-rotational-medicine-ball-throw",
+      "sourceTitle": "Shuffle Into Rotational Medicine Ball Throw Video Exercise Guide",
+      "sourcePublisher": "Muscle & Strength",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 66,
+      "claims": [
+        "The defining sequence combines lateral locomotion, whole-body rotation, two-hand ballistic projection, and controlled deceleration.",
+        "Shuffle count, throw side, wall target, return contract, planned or reactive cue, and ball specification must be explicit delivery dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/19826303/",
+      "sourceTitle": "Analysis of trunk muscle activity in the side medicine-ball throw",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Side medicine-ball throwing recruits trunk musculature during rapid rotation and force transfer.",
+        "The lateral approach adds foot, ankle, knee, hip, and frontal-plane stabilization demands to the trunk, shoulder, elbow, wrist, and hand demands of the rotational projection."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://www.muscleandstrength.com/exercises/shuffle-into-rotational-medicine-ball-throw",
+      "sourceTitle": "Shuffle Into Rotational Medicine Ball Throw Video Exercise Guide",
+      "sourcePublisher": "Muscle & Strength",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 66,
+      "claims": [
+        "The exact source describes loading the trail hip, shuffling once, driving from the back leg, transferring weight, rotating around the front leg, and throwing into a wall.",
+        "Observable mechanics are a controlled lateral gather, stable plant, ground-to-hip-to-trunk-to-hand sequence, complete release, target accuracy, balanced finish, and the declared reset or catch."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Rotational medicine-ball output can be compared only with standardized load, direction, technique, and measurement.",
+        "Exercise complexity and physical difficulty are scored independently; overall difficulty is their maximum. No athlete proficiency label belongs on an exercise card."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Medicine-ball mass and throwing technique materially change release velocity.",
+        "Shuffle-to-Rotational Medicine Ball Throw adds lateral acceleration, plant and pivot, rotational projection, deceleration, and—when prescribed—visual tracking and rebound absorption to cumulative training budgets."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.acefitness.org/resources/pros/expert-articles/5289/8-creative-ways-to-use-a-medicine-ball/",
+      "sourceTitle": "8 Creative Ways to Use a Medicine Ball",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 76,
+      "claims": [
+        "Ball construction and wall interaction determine rebound behavior and catch feasibility.",
+        "The setup must declare a medicine ball, inspected wall, lane width and length, approach direction, plant zone, target, distance, floor traction, traffic boundary, and return path."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "NSCA Coach 5.4",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "NSCA classifies explosive medicine-ball throws with maximal-effort alactic work and multi-minute recovery rather than fatigue circuits when power is the objective.",
+        "Use short side-balanced sets, full resets, and enough recovery to preserve approach rhythm, plant control, release speed, target accuracy, and any prescribed catch."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.muscleandstrength.com/exercises/shuffle-into-rotational-medicine-ball-throw",
+      "sourceTitle": "Shuffle Into Rotational Medicine Ball Throw Video Exercise Guide",
+      "sourcePublisher": "Muscle & Strength",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 66,
+      "claims": [
+        "The sequence is athletic base, load trail hip, one lateral shuffle, drive and rotate around the front leg, project to the wall, then reset or catch as declared.",
+        "The athlete cue should remain short: load, shuffle, plant, turn from the ground up, throw through the target, own the finish."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/june-2019/7306/medicine-balls-an-ace-integrated-fitness-training-reg-model-workout/",
+      "sourceTitle": "Medicine Balls: An ACE Integrated Fitness Training Model Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "A returning catch requires predictable rebound behavior and whole-body absorption.",
+        "Stop for pain, neurologic symptoms, unsafe footing or lane intrusion, uncontrolled plant or spine motion, target loss, output decline, unpredictable return, or missed catch."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "NSCA Coach 5.4",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Explosive medicine-ball work is freshness-sensitive and should be separated from fatigue-dominant work when maximal intent is required.",
+        "Shuffle-to-Rotational Medicine Ball Throw belongs early in an output block or in a controlled technique block; planned and reactive cueing must not be silently interchanged."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.muscleandstrength.com/exercises/shuffle-into-rotational-medicine-ball-throw",
+      "sourceTitle": "Shuffle Into Rotational Medicine Ball Throw Video Exercise Guide",
+      "sourcePublisher": "Muscle & Strength",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 66,
+      "claims": [
+        "Athlete support should show start mark, shuffle direction and count, throw side, plant zone, ball, wall target, return contract, primary cue, and stop signal.",
+        "Offer static rotational throw, shorter approach, lighter ball, throw-only, larger target, and longer reset options without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Measurement requires a standardized ball and exact protocol.",
+        "Coach support must expose side, approach, ball, wall, distance, target, return contract, dose, rest, observation angle, quality errors, output metric, fatigue signal, and lane shutdown."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.acefitness.org/resources/pros/expert-articles/5289/8-creative-ways-to-use-a-medicine-ball/",
+      "sourceTitle": "8 Creative Ways to Use a Medicine Ball",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 76,
+      "claims": [
+        "Ball rebound and catch demand are equipment- and participant-dependent.",
+        "Accessibility options include a lighter or softer ball, high-contrast target and floor marks, reduced approach, throw-only delivery, fewer repetitions, longer reset, plain-language text, and non-video instructions."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.muscleandstrength.com/exercises/shuffle-into-rotational-medicine-ball-throw",
+      "sourceTitle": "Shuffle Into Rotational Medicine Ball Throw Video Exercise Guide",
+      "sourcePublisher": "Muscle & Strength",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 66,
+      "claims": [
+        "Shuffle-to-rotational medicine-ball throw and medicine-ball shuffle-to-rotation throw are naming aliases for one identity.",
+        "Return contract is an exact variant; shuffle count, approach distance, ball mass, target, and planned cue are modifiers. Static, step-behind, scoop, shot-put, slam, partner-reactive, and bound-to-throw tasks require separate identity or variant review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The five links are discovery candidates with currently healthy oEmbed metadata only. Full viewing, exact sequence and return-contract match, safety, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=bVKzF94Rwv4",
+      "title": "Rotational Medicine Ball Throw (Shuffle Into)",
+      "channelName": "Muscle & Strength",
+      "sourceQuery": "Exact exercise page embed rechecked through current YouTube oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing, exact shuffle count, throw side, wall and return contract, instruction quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=c_wmZ08-UG8",
+      "title": "Shuffle to Rotational Med Ball Throw",
+      "channelName": "NeuStrength | Personal Trainer Wilmington NC",
+      "sourceQuery": "YouTube exact-name discovery rechecked through current oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=TvYcmAexRYE",
+      "title": "Medicine Ball Shuffle to Rotational Throw",
+      "channelName": "NK Fitness",
+      "sourceQuery": "YouTube exact-name discovery rechecked through current oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=d3_P6xMR9r8",
+      "title": "Med Ball Rotational Throw with Shuffle - Viking Strength Systems",
+      "channelName": "Viking Strength Systems",
+      "sourceQuery": "YouTube exact-name discovery rechecked through current oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=lHO1XpNCtQA",
+      "title": "Med Ball Shuffle Rotational Throw",
+      "channelName": "Christian Ballard",
+      "sourceQuery": "YouTube exact-name discovery rechecked through current oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Med Ball Shuffle-to-Rotation Throw",
+      "classification": "same_identity",
+      "rationale": "The legacy name preserves the same lateral-shuffle approach and rotational medicine-ball projection.",
+      "distinguishingDimensions": {
+        "identityDisposition": "duplicate_source_identity"
+      }
+    },
+    {
+      "name": "Shuffle Into Rotational Medicine Ball Throw",
+      "classification": "same_identity",
+      "rationale": "This is the common naming order for the same movement sequence.",
+      "distinguishingDimensions": {
+        "approach": "lateral_shuffle_or_crow_hop"
+      }
+    },
+    {
+      "name": "Shuffle Rotational Wall Throw — Throw and Retrieve",
+      "classification": "new_variant",
+      "rationale": "The defining approach and projection end after release without a required catch.",
+      "distinguishingDimensions": {
+        "returnContract": "throw_only_no_required_catch"
+      }
+    },
+    {
+      "name": "Shuffle Rotational Wall Throw — Rebound and Catch",
+      "classification": "new_variant",
+      "rationale": "The same approach and projection add a predictable return and controlled catch.",
+      "distinguishingDimensions": {
+        "returnContract": "rebound_and_controlled_catch"
+      }
+    },
+    {
+      "name": "Reactive Shuffle-to-Rotational Throw",
+      "classification": "modifier_annotation",
+      "rationale": "A visual or verbal cue changes decision demand and side selection but preserves the primary movement sequence.",
+      "distinguishingDimensions": {
+        "cueing": "reactive",
+        "mustBeExplicit": true
+      }
+    },
+    {
+      "name": "Static Rotational Medicine Ball Wall Throw",
+      "classification": "new_variant",
+      "rationale": "Removing the lateral approach preserves the projection but materially lowers locomotion, plant, timing, and spacing demand.",
+      "distinguishingDimensions": {
+        "approach": "none_static_athletic_stance"
+      }
+    },
+    {
+      "name": "Step-Behind Rotational Medicine Ball Throw",
+      "classification": "new_variant",
+      "rationale": "Step-behind footwork changes approach sequencing and plant geometry.",
+      "distinguishingDimensions": {
+        "approach": "step_behind"
+      }
+    },
+    {
+      "name": "Lateral Bound to Rotational Throw",
+      "classification": "new_definition",
+      "rationale": "A bound adds aerial projection, landing impact, and single-leg absorption before the throw.",
+      "distinguishingDimensions": {
+        "approach": "lateral_bound",
+        "landing": "required"
+      }
+    },
+    {
+      "name": "Shuffle-to-Rotational Scoop Toss",
+      "classification": "new_definition",
+      "rationale": "A low-to-high scoop path changes implement position, release angle, and shoulder action.",
+      "distinguishingDimensions": {
+        "projection": "low_to_high_scoop"
+      }
+    },
+    {
+      "name": "Shuffle-to-Shot-Put Throw",
+      "classification": "new_definition",
+      "rationale": "A unilateral shot-put release changes arm use, ball position, laterality, and shoulder demand.",
+      "distinguishingDimensions": {
+        "armUse": "unilateral",
+        "releasePattern": "shot_put"
+      }
+    },
+    {
+      "name": "Shuffle-to-Rotational Slam",
+      "classification": "new_definition",
+      "rationale": "A floor-directed slam changes target, projection direction, impact, and retrieval.",
+      "distinguishingDimensions": {
+        "target": "floor",
+        "projection": "downward_slam"
+      }
+    },
+    {
+      "name": "Partner-Reactive Shuffle Rotational Pass",
+      "classification": "new_variant",
+      "rationale": "A trained partner and reactive return alter cueing, target behavior, communication, and catch logistics.",
+      "distinguishingDimensions": {
+        "target": "trained_partner",
+        "cueing": "reactive"
+      }
+    }
+  ]
+}

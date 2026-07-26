@@ -1,0 +1,475 @@
+{
+  "batchKey": "box-jump-single-leg-landing-family-v1",
+  "researchVersion": "2026-07-26.35",
+  "snapshotAt": "2026-07-26T19:00:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "nsca_box_jump_unilateral_landing_progression",
+      "claims": [
+        "NSCA presents jumping from two feet and landing on one foot, followed by hopping from one foot and landing on one foot, as progressive box-jump variations.",
+        "{{canonicalName}} is the stable broad identity; takeoff laterality is an exact difficulty-bearing variant rather than a skill-level label or a duplicate exercise definition."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "nsca_box_jump_unilateral_landing_progression",
+      "claims": [
+        "Both variations preserve vertical projection to a raised box and a controlled unilateral terminal landing.",
+        "Takeoff leg count, takeoff-to-landing leg relationship, approach, countermovement, arm action, box height, landing side, hold duration, and exit must be explicit."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "unilateral_bilateral_landing_biomechanics",
+      "claims": [
+        "Unilateral landing changes knee kinematics and lower-limb muscle activation compared with bilateral landing.",
+        "The card should declare foot and ankle stabilizers, plantar flexors, quadriceps, hamstrings, gluteals, hip rotators, adductors, trunk stabilizers, and the foot, ankle, knee, hip, pelvis, and spine joints without claiming isolated action."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "ace_box_jump_instruction",
+      "claims": [
+        "ACE describes a hip-width start, countermovement, coordinated ankle-knee-hip extension, level feet in flight, soft mid-foot-to-whole-foot landing, hip displacement for absorption, and organized trunk position.",
+        "For this family, observable gates add declared takeoff laterality, box clearance, one-foot contact inside the landing zone, frontal-plane control, a stable hold, full stand, and step-down exit."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "unilateral_bilateral_plyometric_meta_analysis",
+      "claims": [
+        "Unilateral and bilateral plyometric modes have modality-specific performance effects and are not interchangeable.",
+        "Assess exercise complexity and physical difficulty separately for each exact takeoff contract and derive overall difficulty as their maximum; no exercise proficiency level is assigned."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "box_jump_height_performance_study",
+      "claims": [
+        "Box height changes box-jump execution and must be prescribed rather than inferred from aspiration.",
+        "{{canonicalName}} contributes takeoff contacts, unilateral landing contacts, lower-limb power, per-leg force and absorption, balance, and technical-sensitivity budgets."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "ace_box_jump_instruction",
+      "claims": [
+        "ACE requires a stable raised platform on a non-slip surface and limits box height relative to the athlete's jump ability.",
+        "The setup must declare inspected box height, top dimensions, edge visibility, surface traction, start distance, landing zone, ceiling clearance, side, step-down route, traffic boundary, and coach sightline."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "Plyometric exposure should progress from technically controlled tasks with appropriate recovery and contact volume.",
+        "Use low repetitions per side, full reset, side-balanced quality contacts, and enough rest that takeoff speed, box clearance, one-foot alignment, quiet contact, and hold remain repeatable."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "nsca_box_jump_unilateral_landing_progression",
+      "claims": [
+        "The two-foot variation starts shoulder-width, extends explosively, and lands on one foot; the progression uses a one-foot hop and one-foot landing.",
+        "Use a short exact cue: declare side, load, drive up, clear the edge, land whole-foot, sit into the hip, hold, stand, step down."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Landing feedback can change observable landing mechanics and should target defined movement errors rather than vague effort.",
+        "Stop for pain, instability, fear, unsafe box or surface, edge contact, missed box, uncontrolled knee or trunk motion, heel or foot loss, extra hops, failed hold, output decline, or jumping down from the box."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "nsca_single_leg_box_jump_contrast",
+      "claims": [
+        "NSCA treats single-leg box jumps as unilateral vertical jump work and recommends a two-leg landing when reducing risk in contrast pairings.",
+        "A one-leg landing version therefore requires an explicit unilateral-landing intent and higher safety/technical gate; place it early and fresh rather than using it for conditioning."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "ace_box_jump_instruction",
+      "claims": [
+        "Athlete support should show takeoff feet, landing side, box height and landing zone, start distance, hold, stand, step-down exit, primary cue, and stop signal.",
+        "Offer a lower box, bilateral landing, supported stick, floor jump-to-stick, fewer repetitions, and longer rest without assigning a skill level to the exercise."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "unilateral_bilateral_landing_biomechanics",
+      "claims": [
+        "Unilateral landing is biomechanically distinct from bilateral landing and requires direct observation of frontal- and sagittal-plane control.",
+        "Coach support should expose takeoff contract, landing side, box geometry, distance, dose, rest, contact budget, observation angle, clearance, foot contact, hip-knee-trunk alignment, hold, exit, and immediate shutdown."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "landing_intervention_systematic_review",
+      "claims": [
+        "Landing tasks can be modified through task progression, instruction, feedback, and environmental constraints.",
+        "Accessibility options include a lower wider soft-edged box, high-contrast edge and landing zone, bilateral takeoff, bilateral landing regression, supported floor stick, smaller countermovement, fewer contacts, longer recovery, plain-language text, and non-video instruction."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "nsca_box_jump_unilateral_landing_progression",
+      "claims": [
+        "Two-foot takeoff to one-foot landing and one-foot takeoff to one-foot landing are exact variants of the same terminal box-jump identity.",
+        "Landing side, box height, arm action, pause, and countermovement are modifiers; bilateral landing, cross-leg landing, lateral approach, seated start, depth-drop sequence, hurdle entry, rebound, and loaded versions require separate variant or definition review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The five links are discovery candidates with currently healthy oEmbed metadata only. Full viewing, exact takeoff and landing match, box and exit safety, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "standing-box-jump-to-single-leg-landing",
+      "assessmentSummary": {
+        "identity": "A vertical box jump from a declared bilateral or unilateral standing takeoff to a controlled landing on one declared foot on top of an inspected box, followed by a stable hold, full stand, and step-down exit.",
+        "currentCardFindings": [
+          "The standing card explicitly describes a bilateral takeoff and unilateral landing, while the single-leg card prescribes one-leg takeoff and one-leg landing; NSCA presents these as progressive variations of the same box-jump family.",
+          "The standing card's current setup incorrectly says to start on the working leg despite its bilateral-takeoff summary and must be corrected.",
+          "The current 70-versus-80 scores do not separate exercise complexity from physical difficulty or document per-leg takeoff and landing demands.",
+          "Neither legacy card declares whether a one-leg takeoff must land on the same or opposite leg; legacy baselines remain archived provenance while selectable variants use explicit contracts.",
+          "Five direct YouTube candidates currently return healthy oEmbed metadata, but no full viewing, exact-variant review, safety review, caption review, accessibility review, or approval has occurred."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "jump",
+            "land",
+            "brace"
+          ],
+          "movementQualifiers": [
+            "standing_start",
+            "declared_bilateral_or_unilateral_takeoff",
+            "vertical_projection_to_raised_box",
+            "declared_single_leg_landing",
+            "whole_foot_box_contact",
+            "controlled_hip_knee_ankle_absorption",
+            "stable_hold",
+            "full_stand",
+            "step_down_exit"
+          ],
+          "jointActions": [
+            "ankle_knee_and_hip_flexion_during_load",
+            "ankle_plantarflexion_knee_extension_and_hip_extension_during_takeoff",
+            "hip_knee_and_ankle_flexion_during_landing_absorption",
+            "frontal_and_transverse_plane_hip_knee_foot_stabilization",
+            "hip_and_knee_extension_to_stand"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal_stabilization",
+            "transverse_stabilization"
+          ],
+          "laterality": "declared_bilateral_or_unilateral_takeoff_to_declared_single_leg_landing",
+          "intent": "vertical_power_expression_with_unilateral_box_landing_control"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": [
+            "gluteus_maximus",
+            "quadriceps",
+            "hamstrings",
+            "gastrocnemius_and_soleus"
+          ],
+          "secondaryMusclesAndTissues": [
+            "gluteus_medius_and_minimus",
+            "hip_adductors_and_rotators",
+            "tibialis_anterior",
+            "fibularis_group",
+            "intrinsic_foot_muscles",
+            "abdominal_wall",
+            "erector_spinae_and_multifidus"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "spine"
+          ],
+          "primaryActions": [
+            "establish_declared_takeoff_and_distance",
+            "load_through_declared_takeoff_leg_or_legs",
+            "project_vertically_and_clear_box_edge",
+            "contact_declared_landing_foot_inside_zone",
+            "absorb_and_stabilize_without_extra_contact",
+            "hold_stand_and_step_down"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 62,
+          "absoluteLoadDemand": 60,
+          "coordinationDemand": 72,
+          "supervisionDemand": 74,
+          "failureConsequence": 78,
+          "impact": 52,
+          "workCapacityDemand": 30,
+          "baseOverallDifficulty": 62
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "bilateral-takeoff-single-leg-landing",
+            "exerciseComplexity": 62,
+            "physicalDifficulty": 60,
+            "derivedOverallDifficulty": 62,
+            "basis": "two-leg propulsion reduces takeoff force per limb, while unilateral box contact, absorption, alignment, balance, hold, and exit remain demanding"
+          },
+          {
+            "variantKey": "same-leg-unilateral-takeoff-and-landing",
+            "exerciseComplexity": 74,
+            "physicalDifficulty": 72,
+            "derivedOverallDifficulty": 74,
+            "basis": "one leg must create the takeoff impulse, clear the box, accept the unilateral landing, stabilize, and stand without help from the opposite leg"
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_ballistic_vertical_projection_to_raised_surface",
+          "impactClass": "moderate_unilateral_landing_impact_with_box_edge_and_fall_consequence",
+          "externalLoadMethod": "bodyweight",
+          "landingContactsPerRep": 1,
+          "primaryStress": [
+            "rapid_ankle_knee_and_hip_extension",
+            "per_leg_takeoff_impulse",
+            "box_clearance_and_in_flight_position",
+            "unilateral_foot_ankle_knee_and_hip_absorption",
+            "frontal_and_transverse_plane_stabilization",
+            "balance_hold_and_step_down"
+          ],
+          "fatigueProfile": [
+            "takeoff_height_or_speed_decline",
+            "forward_dive_or_box_edge_contact",
+            "toe_only_or_partial_foot_landing",
+            "knee_valgus_or_pelvic_drop",
+            "trunk_collapse_or_rotation",
+            "extra_hop_or_opposite_foot_touch",
+            "failed_hold_or_unsafe_exit"
+          ],
+          "recoveryHours": "context dependent; combine with all jumping, hopping, sprinting, change-of-direction, unilateral strength, landing, and tendon-loading exposures"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+          "box"
+          ],
+          "optionalEquipment": [
+          "mat",
+            "line_tape",
+            "cones",
+            "mirror"
+          ],
+          "environment": [
+            "stable_inspected_non_slip_box",
+            "declared_height_and_top_dimensions",
+            "high_contrast_visible_front_edge_and_landing_zone",
+            "level_high_traction_takeoff_and_step_down_surfaces",
+            "declared_start_distance",
+            "clear_ceiling_and_fall_zone",
+            "separate_step_down_route",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_takeoff_and_single_leg_landing",
+            "can_clear_a_low_box_without_tucking_or_diving",
+            "can_absorb_and_hold_a_floor_single_leg_landing",
+            "can_follow_side_hold_step_down_and_stop_instructions",
+            "can_step_down_without_jumping_from_box"
+          ],
+          "requiresDirectSupervision": true,
+          "groupRule": "One active jumper per station; waiting athletes remain outside takeoff, fall, landing, and step-down zones.",
+          "clinicalBoundary": "Pain, instability, recent injury or surgery, neurologic symptoms, or rehabilitation restrictions require individualized clinician guidance."
+        },
+        "proposedDosage": {
+          "outputSets": "2-4",
+          "outputRepetitionsPerSide": "2-4",
+          "outputRestSeconds": "120-240",
+          "techniqueSets": "2-3",
+          "techniqueRepetitionsPerSide": "2-4",
+          "techniqueRestSeconds": "90-180",
+          "effort": "high quality only while takeoff, clearance, whole-foot contact, alignment, quiet absorption, hold, and exit remain repeatable",
+          "boxRule": "Use the lowest box that produces the intended projection and landing task; reduce height when the athlete dives, tucks excessively, clips the edge, lands partially, loses alignment, or cannot stand and step down.",
+          "sideRule": "Declare and balance landing sides unless a documented reason says otherwise; unilateral takeoff variants also declare the takeoff leg relationship.",
+          "stopRule": "End the set on the first symptom, unsafe station, edge contact, missed box, partial-foot landing, alignment failure, extra contact, failed hold, output decline, or unsafe exit."
+        },
+        "proposedFatigueRecovery": {
+          "acuteCost": "moderate-to-high neural and unilateral lower-limb cost with low metabolic demand at quality dosage",
+          "localFatigue": [
+            "plantar_flexors_and_achilles",
+            "quadriceps_and_patellar_tendon",
+            "hamstrings_and_gluteus_maximus",
+            "gluteus_medius_hip_rotators_and_adductors",
+            "foot_ankle_and_trunk_stabilizers"
+          ],
+          "cumulativeBudgets": [
+            "total_takeoff_contacts",
+            "unilateral_takeoff_contacts_per_side",
+            "unilateral_landing_contacts_per_side",
+            "high_intent_vertical_jump_exposures",
+            "lower_leg_and_tendon_loading",
+            "single_leg_balance_and_absorption",
+            "box_edge_and_fall_consequence",
+            "technical_sensitivity"
+          ],
+          "recoveryRule": "Do not repeat high-intent exposure while pain, soreness, stiffness, takeoff loss, apprehension, partial-foot contact, alignment error, balance loss, or unsafe exit persists."
+        }
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=TY40H0801xc",
+          "title": "Box Jump to Single Leg Landing",
+          "channelName": "FlowZone Performance Coaching",
+          "sourceQuery": "YouTube exact-name discovery rechecked through current oEmbed",
+          "notes": "Current title and oEmbed response are healthy. Full viewing, exact takeoff contract, landing side, box setup, hold, exit, instruction quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=x2scn5kx5pw",
+          "title": "Box Jump 2-1 (Single Leg Landing)",
+          "channelName": "RC Strength Training",
+          "sourceQuery": "YouTube bilateral-to-unilateral title discovery rechecked through current oEmbed",
+          "notes": "Title suggests a two-foot to one-foot contract. Full viewing and every human review gate remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=eM3qqx0Eli0",
+          "title": "Box Jump to Single Leg Landing",
+          "channelName": "Champion Physical Therapy and Performance",
+          "sourceQuery": "YouTube exact-name discovery rechecked through current oEmbed",
+          "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=HFCuJR1T0Ek",
+          "title": "Single leg box jump with single leg landing",
+          "channelName": "Mike Guadango (Freak Strength)",
+          "sourceQuery": "YouTube unilateral-to-unilateral title discovery rechecked through current oEmbed",
+          "notes": "Title suggests a one-foot takeoff and one-foot landing. Full viewing and every human review gate remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=qEhhx87Dox8",
+          "title": "Single Leg Box Jump (Single Leg Landing)",
+          "channelName": "Forever Strong Training Center",
+          "sourceQuery": "YouTube unilateral-to-unilateral title discovery rechecked through current oEmbed",
+          "notes": "Title suggests a one-foot takeoff and one-foot landing. Full viewing and every human review gate remain pending."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Single-Leg Box Jump to Single-Leg Landing",
+          "classification": "same_identity",
+          "rationale": "The source is the one-foot takeoff progression of the same vertical box jump ending in a controlled one-foot landing.",
+          "distinguishingDimensions": {
+            "takeoff": "unilateral",
+            "landing": "unilateral",
+            "identityDisposition": "exact_takeoff_variant"
+          }
+        },
+        {
+          "name": "Standing Box Jump to Single-Leg Landing",
+          "classification": "same_identity",
+          "rationale": "Standing names the same broad identity and its source summary specifies the bilateral-takeoff exact variant.",
+          "distinguishingDimensions": {
+            "takeoff": "bilateral",
+            "landing": "unilateral"
+          }
+        },
+        {
+          "name": "Box Jump 2-to-1",
+          "classification": "same_identity",
+          "rationale": "Two-to-one is shorthand for bilateral takeoff and unilateral landing.",
+          "distinguishingDimensions": {
+            "takeoff": "bilateral",
+            "landing": "unilateral"
+          }
+        },
+        {
+          "name": "Bilateral Takeoff to Single-Leg Box Landing",
+          "classification": "new_variant",
+          "rationale": "This exact selectable contract declares two-foot propulsion and a left or right one-foot landing.",
+          "distinguishingDimensions": {
+            "takeoff": "bilateral",
+            "landing": "declared_unilateral"
+          }
+        },
+        {
+          "name": "Same-Leg Single-Leg Box Jump and Landing",
+          "classification": "new_variant",
+          "rationale": "This exact contract uses the same declared leg for takeoff and landing.",
+          "distinguishingDimensions": {
+            "takeoff": "unilateral",
+            "landing": "ipsilateral_unilateral"
+          }
+        },
+        {
+          "name": "Opposite-Leg Box Jump Landing",
+          "classification": "new_variant",
+          "rationale": "Taking off from one leg and landing on the opposite leg changes transfer, flight organization, and landing-side demand.",
+          "distinguishingDimensions": {
+            "takeoffLandingRelationship": "contralateral"
+          }
+        },
+        {
+          "name": "Box Jump to Bilateral Landing",
+          "classification": "new_variant",
+          "rationale": "A two-foot landing reduces unilateral absorption and balance demand and changes the terminal contract.",
+          "distinguishingDimensions": {
+            "landing": "bilateral"
+          }
+        },
+        {
+          "name": "Lateral Box Jump to Single-Leg Landing",
+          "classification": "new_definition",
+          "rationale": "A lateral approach changes projection plane, edge relationship, frontal-plane impulse, and landing geometry.",
+          "distinguishingDimensions": {
+            "projection": "lateral"
+          }
+        },
+        {
+          "name": "Seated Box Jump to Single-Leg Landing",
+          "classification": "new_variant",
+          "rationale": "A seated start removes the countermovement and changes starting force and timing while preserving target and terminal landing.",
+          "distinguishingDimensions": {
+            "start": "seated"
+          }
+        },
+        {
+          "name": "Hurdle Hop to Box Single-Leg Landing",
+          "classification": "new_definition",
+          "rationale": "A hurdle entry adds an earlier flight and landing contact, reactive coupling, spacing, and greater cumulative impact.",
+          "distinguishingDimensions": {
+            "entry": "hurdle_hop",
+            "contactSequence": "multi_contact"
+          }
+        },
+        {
+          "name": "Box Jump to Single-Leg Landing and Depth Drop",
+          "classification": "new_definition",
+          "rationale": "Adding a jump or drop from the box creates a second aerial and landing action with a different impact and order contract.",
+          "distinguishingDimensions": {
+            "terminalAction": "depth_drop_after_box_landing"
+          }
+        },
+        {
+          "name": "Continuous Rebound Single-Leg Box Jump",
+          "classification": "new_definition",
+          "rationale": "Removing the stable hold and step-down exit creates a reactive repeated-contact task with different stiffness, fatigue, and safety requirements.",
+          "distinguishingDimensions": {
+            "cadence": "continuous_reactive",
+            "exit": "rebound"
+          }
+        }
+      ]
+    }
+  ]
+}

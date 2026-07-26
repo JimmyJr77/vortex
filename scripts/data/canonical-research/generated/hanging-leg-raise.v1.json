@@ -1,0 +1,883 @@
+{
+  "facilityId": 1,
+  "slug": "hanging-leg-raise",
+  "researchVersion": "2026-07-26.27",
+  "assessmentSummary": {
+    "identity": "A bilateral dynamic exercise performed while suspended by both hands from a secure bar or stable rings. From a still hang, the athlete flexes both hips while controlling the pelvis and trunk, then lowers without kipping or uncontrolled swing. Knee angle, owned range, tempo, assistance, implement, grip, pause, and external load must be declared as variants or delivery dimensions.",
+    "currentCardFindings": [
+      "Hanging Knee Raise and Tuck Hanging Knee Raise described the same bent-knee baseline. The tuck source is an exact duplicate and is retained only as an archived historical variant.",
+      "Hanging Straight-Leg Raise preserves the same suspended bilateral hip-flexion identity. Extended knees lengthen the lower-limb lever, add knee-extension isometric demand, and alter pelvifemoral motion, so it is a higher-difficulty controlled variant.",
+      "Hanging Knee Raise Eccentric Lower changes tempo, contraction emphasis, start assistance, volume, recovery, and measurement. Those changes require an explicit variant and resilience delivery profile, not another stable exercise identity.",
+      "The former generic 40/20/40 difficulty values understated the full-body hanging, grip, overhead-position, hip-flexion, pelvic-control, and long-lever demands.",
+      "The evidence does not support marketing this as lower-abdominal isolation. Hip flexors are important movers while the abdominal wall and other trunk muscles control the pelvis and trunk.",
+      "Suspended hip flexion includes both femoral motion and pelvic rotation. Knee position and hamstring length change their relative contributions, so range and knee angle must be observed rather than assumed.",
+      "Kipping knee raises, toes-to-bar cycling, captain-chair raises, pull-up combinations, hanging L-sits, and windshield wipers change support, action, intent, or plane enough to require separate identities or explicit review.",
+      "Exercise difficulty is assessed only as exercise complexity and physical difficulty, with overall equal to their maximum. No athlete or class skill level belongs on this exercise card.",
+      "All five media links remain candidate-only. Public oEmbed availability does not constitute exact-match review, safety approval, content approval, or future availability."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "vertical_suspension",
+        "bilateral_hip_flexion",
+        "anterior_trunk_and_pelvic_control",
+        "grip_isometric"
+      ],
+      "jointActions": [
+        "finger_and_wrist_flexion_isometric",
+        "elbow_extension_held",
+        "overhead_glenohumeral_and_scapular_position_held",
+        "bilateral_hip_flexion_concentric_and_eccentric",
+        "pelvic_rotation_and_lumbopelvic_control",
+        "knee_flexion_held_or_knee_extension_isometric_by_variant"
+      ],
+      "planes": [
+        "sagittal_primary",
+        "frontal_and_transverse_isometric_control"
+      ],
+      "laterality": "bilateral_baseline",
+      "intent": "strict_dynamic_hanging_hip_flexion_and_trunk_control_without_cyclic_swing"
+    },
+    "proposedAnatomy": {
+      "primaryMusclesAndTissues": [
+        "iliopsoas",
+        "rectus_femoris_with_greater_relevance_when_knees_are_extended",
+        "sartorius_and_other_hip_flexors",
+        "rectus_abdominis",
+        "internal_and_external_obliques",
+        "finger_and_wrist_flexors"
+      ],
+      "secondaryMusclesAndTissues": [
+        "transversus_abdominis_and_deep_trunk_stabilizers",
+        "latissimus_dorsi",
+        "rotator_cuff_and_scapular_stabilizers",
+        "quadriceps_for_knee_extension_isometric",
+        "spinal_stabilizers"
+      ],
+      "joints": [
+        "hand_and_wrist",
+        "elbow",
+        "glenohumeral_joint",
+        "scapulothoracic_articulation",
+        "thoracic_and_lumbar_spine",
+        "pelvis_and_sacroiliac_region",
+        "hip",
+        "knee"
+      ],
+      "primaryActions": [
+        "maintain_secure_bilateral_grip",
+        "hold_a_tolerated_overhead_shoulder_position",
+        "raise_both_thighs_by_hip_flexion",
+        "control_pelvic_and_trunk_motion",
+        "maintain_the_declared_knee_angle",
+        "lower_without_dropping_or_swinging",
+        "execute_a_controlled_step_down"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 42,
+      "absoluteLoadDemand": 62,
+      "coordinationDemand": 46,
+      "supervisionDemand": 55,
+      "failureConsequence": 58,
+      "impact": 1,
+      "workCapacityDemand": 64,
+      "baseOverallDifficulty": 62
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "baseline",
+        "exerciseComplexity": 42,
+        "physicalDifficulty": 62,
+        "derivedOverallDifficulty": 62,
+        "basis": "The bent-knee strict baseline combines a full bodyweight hang, grip and overhead-position demand, dynamic bilateral hip flexion, pelvic and trunk control, and a controlled exit."
+      },
+      {
+        "variantKey": "straight-leg",
+        "exerciseComplexity": 48,
+        "physicalDifficulty": 72,
+        "derivedOverallDifficulty": 72,
+        "basis": "Knee extension lengthens the lower-limb lever, adds knee-extension isometric demand, increases hamstring-length interaction, and makes repeatable pelvic and trunk control more demanding."
+      },
+      {
+        "variantKey": "bent-knee-eccentric-lower",
+        "exerciseComplexity": 48,
+        "physicalDifficulty": 58,
+        "derivedOverallDifficulty": 58,
+        "basis": "An assisted or self-raised start can reduce concentric demand, but timed lowering adds precision, braking control, recovery monitoring, and fatigue-management requirements while the athlete still supports the full hang."
+      },
+      {
+        "variantKey": "foot-assisted-partial-range",
+        "exerciseComplexity": 35,
+        "physicalDifficulty": 38,
+        "derivedOverallDifficulty": 38,
+        "basis": "Stable foot assistance and a declared smaller range reduce suspension and hip-flexion load while preserving the core identity and no-swing control."
+      },
+      {
+        "variantKey": "weighted-bent-knee",
+        "exerciseComplexity": 52,
+        "physicalDifficulty": 78,
+        "derivedOverallDifficulty": 78,
+        "basis": "Added load increases hip-flexion, trunk, grip, attachment, mount, exit, dose, and recovery demands; it remains candidate-only pending human calibration."
+      }
+    ],
+    "proposedLoadProfile": {
+      "loadingType": "relative_bodyweight_dynamic_hanging_hip_flexion",
+      "impactClass": "none_except_uncontrolled_drop_or_dismount",
+      "externalLoadMethod": "bodyweight_baseline_with_assistance_or_added_load_only_when_declared",
+      "primaryStress": [
+        "grip_isometric",
+        "overhead_shoulder_position",
+        "bilateral_hip_flexion",
+        "abdominal_pelvic_and_trunk_control",
+        "knee_extension_isometric_on_straight_leg_variant",
+        "controlled_lowering",
+        "safe_mount_and_exit"
+      ],
+      "fatigueProfile": [
+        "finger_opening_or_grip_slip",
+        "shoulder_position_drift",
+        "body_swing",
+        "pelvis_tips_forward_or_ribs_flare",
+        "range_shrinks",
+        "declared_knee_angle_changes",
+        "lowering_drops",
+        "hip_flexor_cramping_or_pinching",
+        "unsafe_dismount"
+      ],
+      "recoveryHours": "Dose and context dependent. Count the work with pull-ups, climbing, carries, bar skills, abdominal and hip-flexion work, and other grip or overhead volume. Eccentric, long-lever, high-volume, or externally loaded exposures may require more recovery than a few assisted bent-knee repetitions."
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "rated_secure_pull_up_bar_or_stable_rings"
+      ],
+      "optionalEquipment": [
+        "stable_mount_and_step_down_box",
+        "assistance_band",
+        "landing_mat",
+        "timer_or_tempo_metronome",
+        "visual_range_target",
+        "lifting_straps_only_under_coach_and_facility_policy"
+      ],
+      "environment": [
+        "anchor_checked_before_use",
+        "bar_height_allows_safe_mount_full_clearance_and_step_down",
+        "non_slip_surface_and_clear_landing_space",
+        "no_cross_traffic_inside_the_swing_envelope",
+        "assistance_and_exit_plan_declared_before_the_set"
+      ],
+      "population": [
+        "can_secure_the_assigned_grip_or_use_an_approved_substitute",
+        "can_tolerate_the_assigned_overhead_hang",
+        "can_begin_from_a_still_position_with_or_without_assistance",
+        "can_flex_both_hips_without_uncontrolled_swing",
+        "can_lower_and_exit_safely",
+        "current_pain_instability_neurologic_signs_recent_surgery_or_rehabilitation_restrictions_require_individual_clinical_guidance"
+      ]
+    },
+    "proposedDosage": {
+      "capacityBentKnee": "2-4_sets_of_4-10_strict_repetitions_with_75-150_seconds_rest_and_1-3_repetitions_of_quality_reserve",
+      "capacityStraightLeg": "2-4_sets_of_3-8_owned_range_repetitions_with_90-180_seconds_rest_and_no_unintended_knee_bend_or_swing",
+      "resilienceEccentric": "2-4_sets_of_3-6_repetitions_with_4-6_second_lowers_90-180_seconds_rest_and_assisted_return_as_needed",
+      "tempo": "settle_before_each_rep_control_the_raise_and_lower_for_at_least_two_seconds_unless_a_more_specific_profile_is_declared",
+      "intensity": "stop_before_grip_shoulder_pelvic_range_knee_angle_or_lowering_quality_changes; do_not_use_routine_failure",
+      "measurement": "implement_grip_knee_angle_range_landmark_assistance_sets_clean_reps_tempo_rest_swing_events_symptoms_and_exit_quality",
+      "progressWhen": "all assigned repetitions start still maintain the declared knee angle range and tempo stay symptom_free and finish with a secure controlled exit; increase owned range before straightening the knees or adding load"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Check the bar, mount, lane, and step-down first",
+        "Name the exact variant and range",
+        "Let the body settle before every repetition",
+        "Bring the thighs up without chasing height",
+        "Keep ribs and pelvis controlled",
+        "Hold the assigned knee angle",
+        "Lower quietly and step down with grip reserve"
+      ],
+      "athleteInstructions": [
+        "Grip the bar securely and use the box or assistance exactly as assigned",
+        "Start with your body still",
+        "Bring both thighs up while keeping the knee angle your coach assigned",
+        "Keep your ribs and pelvis controlled",
+        "Lower slowly without swinging",
+        "Step down before your grip slips or anything hurts, pinches, tingles, feels unstable, or makes you dizzy"
+      ],
+      "commonFaults": [
+        "jumping_into_a_swing_or_using_a_kip",
+        "chasing_knee_or_foot_height_by_tipping_the_pelvis_and_ribs_without_control",
+        "letting_the_straight_leg_variant_turn_into_unplanned_bent_knee_repetitions",
+        "dropping_the_lowering_phase",
+        "continuing_after_grip_or_shoulder_position_fails",
+        "treating_the_eccentric_profile_as_a_fatigue_circuit",
+        "dropping_from_the_bar_instead_of_using_the_step_down"
+      ]
+    },
+    "proposedQualityGates": [
+      "Anchor, mount, clearance, assistance, and step-down are safe.",
+      "Grip and overhead position remain secure and symptom-free.",
+      "Every repetition begins from a still body rather than a kip.",
+      "Knee angle, range landmark, pelvic and trunk control, and tempo match the declared variant.",
+      "The lowering phase is owned and the final repetition resembles the first.",
+      "The athlete stops with enough grip reserve to exit safely."
+    ],
+    "proposedStopRules": [
+      "Stop for sharp, increasing, or changing pain; pinching; numbness; tingling; dizziness; instability; or breath distress.",
+      "Stop when grip opens or slips, shoulder position becomes uncontrolled, or the athlete cannot step down safely.",
+      "Reset after any swing. Regress or end the set if swing or kip returns.",
+      "Regress or stop when pelvic, rib, lumbar, knee-angle, range, or lowering control changes for two repetitions.",
+      "Stop the eccentric profile when the prescribed lowering time or final-third control cannot be maintained.",
+      "Do not use the generic card to override a postoperative, rehabilitation, or clinician restriction."
+    ],
+    "proposedProgramming": {
+      "primaryPhase": "capacity",
+      "conditionalPhase": "resilience_for_explicit_eccentric_profile",
+      "bestUse": [
+        "strict_hanging_hip_flexion_strength",
+        "pelvic_and_trunk_control",
+        "grip_and_overhead_hanging_capacity",
+        "long_lever_progression_when_bent_knee_quality_is_established",
+        "controlled_eccentric_exposure_when_recovery_can_be_monitored"
+      ],
+      "avoidUse": [
+        "high_density_conditioning_when_swing_or_grip_failure_is_likely",
+        "immediately_after_exhaustive_grip_or_overhead_pulling",
+        "as_a_lower_ab_isolation_claim",
+        "when_mount_clearance_anchor_or_dismount_is_unsafe",
+        "when_symptoms_or_clinical_restrictions_are_unresolved"
+      ],
+      "cumulativeBudgets": [
+        "grip_and_forearm",
+        "overhead_shoulder",
+        "hip_flexor_and_anterior_thigh",
+        "abdominal_and_trunk",
+        "eccentric_tissue",
+        "total_hanging_and_pulling",
+        "station_and_transition_time"
+      ],
+      "substitutionLogic": "Preserve the intended hip-flexion and trunk-control stimulus while matching grip, overhead tolerance, support, knee angle, range, tempo, equipment, symptoms, and logistics. Supported knee raise, captain-chair knee raise, reverse crunch, dead bug march, or supine leg raise are substitutions, not exact identities."
+    },
+    "proposedAthleteSupport": {
+      "whyItMatters": "Develops strict hip-flexion strength, pelvic and trunk control, grip, and overhead hanging tolerance. The goal is a repeatable movement, not maximum height or fatigue.",
+      "whatToFeel": [
+        "working_hip_flexors",
+        "abdominal_and_trunk_tension",
+        "forearm_and_grip_effort",
+        "controlled_overhead_shoulder_effort"
+      ],
+      "whatNotToIgnore": [
+        "sharp_or_increasing_pain",
+        "front_of_hip_pinching",
+        "low_back_pain",
+        "numbness_or_tingling",
+        "shoulder_instability",
+        "grip_slipping",
+        "dizziness"
+      ],
+      "selfCheck": "Could each rep start still, use the same knee angle and range, and lower quietly? Could you step down while your grip was still secure?",
+      "mediaAlternatives": [
+        "captioned_video",
+        "front_and_side_still_sequence",
+        "coach_demonstration",
+        "plain_text_steps"
+      ]
+    },
+    "proposedCoachSupport": {
+      "observationChecklist": [
+        "anchor_mount_clearance_and_step_down",
+        "secure_grip_and_tolerated_overhead_position",
+        "still_start_without_kip",
+        "declared_knee_angle_range_and_tempo",
+        "pelvis_rib_and_lumbar_control",
+        "controlled_lowering",
+        "grip_reserve_and_safe_exit"
+      ],
+      "faultCorrection": {
+        "swing": "Stop, let the body settle, reduce range or repetitions, and add foot assistance.",
+        "pelvicOrRibEscape": "Use a smaller range and cue thighs up without chasing height.",
+        "unplannedKneeBend": "Return to the bent-knee variant or shorten the straight-leg range.",
+        "droppedLower": "Reduce range, use start assistance, or end the set.",
+        "gripLimiter": "Shorten sets, increase rest, use approved assistance, or choose a supported substitute."
+      },
+      "groupLogistics": [
+        "one_athlete_per_clear_hanging_lane",
+        "stage_mount_and_step_down_boxes_before_work_begins",
+        "keep_other_athletes_and_equipment_outside_the_swing_envelope",
+        "rotate_before_grip_fatigue_delays_safe_turnover",
+        "log_the_variant_and_range_instead_of_writing_only_leg_raises"
+      ],
+      "supportEscalation": [
+        "acute_injury_fall_or_neurologic_signs_follow_facility_emergency_policy",
+        "symptom_postoperative_or_rehabilitation_questions_to_qualified_clinician",
+        "identity_score_dose_or_media_disputes_to_canonical_review",
+        "support_staff_do_not_approve_evidence_or_media"
+      ]
+    },
+    "calibrationEvidence": {
+      "status": "candidate_only",
+      "exerciseComplexityAnchors": [
+        "dead_hang_is_simpler_because_it_is_static_and_has_no_dynamic_hip_flexion",
+        "straight_leg_variant_is_more_complex_than_bent_knee_because_knee_extension_range_and_pelvic_control_must_be_coordinated",
+        "kipping_toes_to_bar_is_outside_this_identity_and_should_not_be_used_as_the_upper_anchor"
+      ],
+      "physicalDifficultyAnchors": [
+        "dead_hang_establishes_the_base_grip_and_overhead_suspension_demand",
+        "bent_knee_dynamic_hip_flexion_adds_repetition_and_trunk_control_demand",
+        "straight_leg_lever_length_adds_physical_demand_without_creating_an_athlete_level"
+      ],
+      "humanCalibrationRequired": true,
+      "approvalClaimed": false
+    },
+    "confidenceAndProvenance": {
+      "identityConfidence": 90,
+      "taxonomyConfidence": 86,
+      "anatomyConfidence": 84,
+      "difficultyConfidence": 72,
+      "dosageConfidence": 68,
+      "mediaConfidence": 35,
+      "limitations": [
+        "The suspended kinematics study included only 14 participants.",
+        "The abdominal and hip-flexor EMG study included only six healthy men and examined multiple exercises rather than a production card validation.",
+        "The eccentric EMG study used supine leg raises, so its eccentric findings are adjacent evidence and do not directly validate hanging dosage.",
+        "Professional instruction informs technique but does not establish universal safety, dose, or outcomes.",
+        "Difficulty scores remain candidate calibration judgments pending qualified human review and population testing.",
+        "oEmbed availability verifies metadata response only; no video has exact-match or content approval."
+      ],
+      "publicationState": "review_quarantined",
+      "humanReviewRequired": true
+    },
+    "automatedTestPacket": {
+      "identityChecks": [
+        "all_four_legacy_source_ids_map_to_one_active_definition",
+        "tuck_source_variant_is_archived",
+        "straight_leg_and_eccentric_variants_are_declared",
+        "kipping_support_and_rotational_identities_are_not_merged"
+      ],
+      "difficultyChecks": [
+        "overall_equals_max_of_exercise_complexity_and_physical_difficulty_for_every_variant",
+        "straight_leg_physical_difficulty_exceeds_bent_knee",
+        "no_exercise_card_field_classifies_an_athlete_or_class_level"
+      ],
+      "selectionChecks": [
+        "requires_secure_hanging_equipment_and_safe_clearance",
+        "excludes_when_overhead_grip_or_dismount_constraints_fail",
+        "counts_grip_shoulder_hip_flexor_trunk_and_hanging_fatigue",
+        "substitution_preserves_stimulus_and_constraints"
+      ],
+      "deliveryChecks": [
+        "bent_knee_capacity_profile_has_dose_quality_gate_and_stop_rules",
+        "straight_leg_profile_has_lower_reps_and_longer_rest",
+        "eccentric_profile_has_explicit_lowering_time_and_recovery_monitoring",
+        "duration_model_includes_setup_work_rest_and_transition"
+      ],
+      "mediaChecks": [
+        "three_to_five_unique_direct_youtube_candidates",
+        "privacy_enhanced_embed_url_generated",
+        "exact_variant_match_requires_human_review",
+        "no_approval_or_reviewer_is_fabricated"
+      ],
+      "publishExpected": false
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T22:30:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "From a still two-hand hang on a secure bar or stable rings, raise both thighs by flexing the hips while controlling the pelvis and trunk, then lower without swinging. Declare knee angle, owned range, tempo, assistance, and implement for every dose.",
+      "familyKey": "Hanging hip flexion and trunk control",
+      "movementPatterns": [
+        "hang",
+        "brace"
+      ],
+      "bodyRegions": [
+        "hand",
+        "wrist",
+        "elbow",
+        "shoulder",
+        "scapula",
+        "core",
+        "spine",
+        "pelvis",
+        "hip",
+        "knee",
+        "full_body"
+      ],
+      "requiredEquipment": [
+        "bar_or_rings"
+      ],
+      "optionalEquipment": [
+        "box",
+        "bands",
+        "mat",
+        "straps_optional",
+        "timer"
+      ],
+      "environment": {
+        "anchor": "rated_stable_and_checked_before_use",
+        "surface": "non_slip_with_landing_space",
+        "traffic": "no_person_or_equipment_crosses_the_swing_envelope",
+        "barHeight": "allows_safe_mount_full_clearance_and_controlled_step_down",
+        "supervision": "direct_until_mount_hang_control_and_exit_are_repeatable"
+      },
+      "population": {
+        "readiness": [
+          "can_use_a_secure_grip_or_approved_grip_substitute",
+          "can_tolerate_the_assigned_overhead_hang",
+          "can_hold_or_receive_assistance_for_a_still_start",
+          "can_flex_the_hips_without_uncontrolled_swing",
+          "can_lower_and_exit_safely"
+        ],
+        "clinicalBoundary": "Symptoms, recent surgery, instability, neurologic signs, or a rehabilitation restriction require individualized clinician guidance rather than a generic card progression.",
+        "contraindicationFlags": [
+          "current_shoulder_elbow_wrist_hand_hip_or_low_back_pain",
+          "numbness_or_tingling",
+          "grip_slip_or_uncontrolled_swing",
+          "painful_hip_pinching_or_cramping_that_changes_mechanics",
+          "unsafe_mount_or_dismount"
+        ]
+      },
+      "difficulty": {
+        "impact": 1,
+        "supervisionDemand": 55,
+        "absoluteLoadDemand": 62,
+        "coordinationDemand": 46,
+        "failureConsequence": 58,
+        "workCapacityDemand": 64,
+        "technicalComplexity": 42,
+        "baseOverallDifficulty": 62
+      },
+      "loadProfile": {
+        "gripDemand": 65,
+        "impactClass": "none_except_uncontrolled_dismount",
+        "loadingType": "relative_bodyweight_dynamic_bent_knee",
+        "primaryStress": [
+          "grip_isometric",
+          "overhead_shoulder_position",
+          "hip_flexion",
+          "abdominal_pelvic_control"
+        ],
+        "spinalLoading": 35,
+        "eccentricStress": 55,
+        "externalLoadMethod": "relative_bodyweight",
+        "landingContactsPerRep": 0
+      },
+      "fatigueProfile": {
+        "gripFatigue": 65,
+        "qualityLoss": [
+          "body_swings",
+          "pelvis_tips_forward_or_ribs_flare",
+          "range_shrinks",
+          "lowering_drops",
+          "grip_slips",
+          "shoulder_position_changes"
+        ],
+        "localFatigue": [
+          "finger_and_forearm_fatigue",
+          "hip_flexor_fatigue",
+          "abdominal_and_trunk_stabilizer_fatigue"
+        ],
+        "recoveryHours": 24,
+        "recoveryDriver": "grip_shoulder_hip_flexor_and_trunk_response_plus_total_hanging_and_pulling_volume",
+        "impactAccumulation": 1,
+        "localMuscleFatigue": 65,
+        "technicalFatigueSensitivity": 60
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Resistance exercise selection requires qualified instruction, safe equipment and space, appropriate progression, and readiness assessed for the individual rather than inferred from a label on the exercise.",
+        "Before Hanging Leg Raise, check the anchor, bar or rings, mount, clearance, landing surface, assistance, traffic lane, grip, overhead tolerance, and exit. Stop for pain or pinching; instability; numbness or tingling; dizziness; grip slip; uncontrolled swing; repeated loss of pelvic, trunk, knee-angle, or lowering control; breath distress; or an unsafe dismount."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Training should be individualized and progressively developed from current readiness and movement competence.",
+        "Scale Hanging Leg Raise with a lower bar, stable foot support, safe mounting box, reduced range, bent knees, fewer repetitions, more rest, plain-language cues, visual range targets, or a supported or supine substitute. Exercise cards use complexity and physical-difficulty scores; athlete or class skill levels belong to the skill library, not this exercise card."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The five supplied videos are discovery candidates only. Public oEmbed title and channel metadata were observed on 2026-07-26, but exact variant match, complete sequence, cue and claim quality, safe mount and exit, captions, accessibility, reviewer identity, approval, and continuing availability remain pending human review."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://library.crossfit.com/premium/pdf/69_08_scaling_up_w_rings.pdf",
+      "sourceTitle": "Scaling Up CrossFit Workouts With Rings",
+      "sourcePublisher": "CrossFit Journal",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 72,
+      "claims": [
+        "The professional source describes a hanging straight-leg raise and recommends hanging knee raises as the easier progression, supporting one movement identity with knee-angle and lever variants.",
+        "Treat strict bent-knee, straight-leg, and timed eccentric-lower versions as declared variants. Tuck is synonymous with the bent-knee baseline; cyclic kipping, static holds, support-station versions, and combined pull-up actions remain outside this identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/12828897/",
+      "sourceTitle": "Pelvic and femoral contributions to bilateral hip flexion by subjects suspended from a bar",
+      "sourcePublisher": "Clinical Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "The study directly examined active bilateral hip flexion while participants were suspended by both hands from a bar.",
+        "Classify the stable identity as bilateral suspended hip flexion with pelvic contribution and upper-extremity suspension. Knee angle and hamstring-length interaction are variant and range dimensions, not separate exercise identities."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/9118976/",
+      "sourceTitle": "Abdominal and hip flexor muscle activation during various training exercises",
+      "sourcePublisher": "European Journal of Applied Physiology and Occupational Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "In a small EMG study, hip flexors were highly active in exercises involving hip flexion and bilateral leg lifts also required abdominal activation.",
+        "Model hip flexors as important movers and the abdominal wall as a contributor to pelvic and trunk control. Do not claim selective lower-abdominal isolation or reduce the movement to one muscle."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/12828897/",
+      "sourceTitle": "Pelvic and femoral contributions to bilateral hip flexion by subjects suspended from a bar",
+      "sourcePublisher": "Clinical Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "In 14 participants performing suspended bilateral hip flexion, pelvic rotation contributed to the observed movement and the contribution varied with knee position and hamstring length.",
+        "The study supports recording knee angle, range, pelvic motion, and individual tolerance. It does not establish one mandatory pelvic position, universal range, or safe dose."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.nsca.com/contentassets/1066cf7e2c9d4e61b3c1a6e3fea988e0/coach-7.1.2-implementing-core-training-concepts-into-strength-training-for-sport.pdf",
+      "sourceTitle": "Implementing Core Training Concepts Into Strength Training for Sport",
+      "sourcePublisher": "NSCA Coach",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "The professional instruction requires hanging support, feet together, extended knees through the range, hip flexion to a declared landmark, a vertical trunk, and slow lowering.",
+        "Those simultaneous requirements support higher physical difficulty for the straight-leg lever and a modest complexity increase over bent knees. Overall difficulty is derived as the maximum of exercise complexity and physical difficulty; neither score is an athlete level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4792997/",
+      "sourceTitle": "Comparison of muscular activities in the abdomen and lower limbs while performing sit-up and leg-raise",
+      "sourcePublisher": "Journal of Physical Therapy Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "A small supine EMG study found meaningful hip-flexor activity during leg raises and compared concentric and eccentric tasks.",
+        "This is adjacent evidence only: it supports counting hip-flexor and trunk exposure and distinguishing eccentric dose, but it does not directly validate hanging recovery hours. Also count grip, shoulder position, long-lever, total hanging, and prior pulling work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Safe resistance training requires qualified instruction, appropriate equipment and space, supervision, and progression matched to individual readiness.",
+        "Require a rated anchor, secure grip, tolerable overhead position, safe mount and exit, adequate clearance, and a still controllable start. Do not prescribe the card when symptoms, grip, shoulder control, equipment, traffic, or dismount cannot be safely managed."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://library.crossfit.com/premium/pdf/69_08_scaling_up_w_rings.pdf",
+      "sourceTitle": "Scaling Up CrossFit Workouts With Rings",
+      "sourcePublisher": "CrossFit Journal",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 72,
+      "claims": [
+        "The professional source uses bent-knee raises as a progression toward straight-leg hanging raises, demonstrating that lever and range should be progressed deliberately.",
+        "The source does not establish a universal prescription. Use low-to-moderate strict repetition sets with enough rest to preserve grip, stillness, knee angle, pelvic and trunk control, and a controlled lower; eccentric work requires explicit tempo and recovery monitoring."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.nsca.com/contentassets/1066cf7e2c9d4e61b3c1a6e3fea988e0/coach-7.1.2-implementing-core-training-concepts-into-strength-training-for-sport.pdf",
+      "sourceTitle": "Implementing Core Training Concepts Into Strength Training for Sport",
+      "sourcePublisher": "NSCA Coach",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "The professional instruction specifies a bar hang, feet together, extended knees, hip flexion to roughly parallel, a vertical back, and slow return for the straight-leg version.",
+        "General card instructions must also name the selected knee angle, still start, owned range, pelvic and trunk control, no-swing rule, secure grip, and safe step-down. Bent-knee range may be smaller and should not be forced to match the straight-leg landmark."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/9118976/",
+      "sourceTitle": "Abdominal and hip flexor muscle activation during various training exercises",
+      "sourcePublisher": "European Journal of Applied Physiology and Occupational Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Hip-flexion and bilateral leg-lift tasks can substantially involve hip flexors together with abdominal activity.",
+        "Program the card for strict hip-flexion and trunk-control strength, not as a lower-ab isolation promise. Count it with hanging, pulling, grip, hip-flexor, and abdominal work, and substitute when overhead support or grip would obscure the intended stimulus."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Long-term development guidance emphasizes individualized, progressive training from current competence and readiness.",
+        "Athlete support should show the exact knee angle and range, expected hip-flexor, abdominal, grip, and shoulder effort, the difference between still and swinging repetitions, the safe exit, and clear symptom and grip-slip stop signals without assigning an exercise level."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Qualified instruction, safe equipment, direct supervision where needed, and gradual progression are central to resistance training.",
+        "Coach support should cover anchor and lane checks, mount and step-down, front and side observation, variant naming, range and tempo logging, swing correction, grip and shoulder limits, cumulative fatigue, substitutions, group turnover, and clinical or emergency escalation."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/12828897/",
+      "sourceTitle": "Pelvic and femoral contributions to bilateral hip flexion by subjects suspended from a bar",
+      "sourcePublisher": "Clinical Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Knee position and hamstring length changed the pelvic contribution during suspended bilateral hip flexion.",
+        "Bent-knee and straight-leg forms therefore need explicit variant annotations. Range, pause, tempo, assistance, grip, and rings can be variants or delivery modifiers; kipping/cyclic, supported captain-chair, rotational, static-hold, and pull-up-combination movements require separate identity decisions."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=dPwg1E_ygjc",
+      "title": "How To Do HANGING KNEE RAISES | Exercise Demonstration Video and Guide",
+      "channelName": "Live Lean TV Daily Exercises",
+      "sourceQuery": "Existing candidate rechecked through public YouTube oEmbed on 2026-07-26: hanging knee raise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Public oEmbed returned title and channel only. Exact strict bent-knee sequence, still start, pelvic control, mount, exit, safety, claims, captions, and accessibility require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=p9hhX_Sx5v0",
+      "title": "The Hanging Knee Raise | A Tutorial",
+      "channelName": "Signum Fitness & Nutrition",
+      "sourceQuery": "Existing candidate rechecked through public YouTube oEmbed on 2026-07-26: hanging knee raise tutorial",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. Exact bent-knee identity, no-kip rule, full range, cue accuracy, safe setup and exit, captions, and complete content require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=fLbZrF6MZuE",
+      "title": "Hanging Leg/Knee Raise Tutorial — Muscles Worked, Benefits, and Form",
+      "channelName": "BarBend",
+      "sourceQuery": "Existing candidate rechecked through public YouTube oEmbed on 2026-07-26: hanging leg knee raise tutorial",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "The public title spans knee and leg variants, but no exact-match or claim decision is inferred. Full sequence, anatomy claims, safety, variant boundaries, captions, and accessibility require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=PjlPiVTtWA4",
+      "title": "Hanging Leg Raise (HLR) | Olympic Weightlifting Exercise Library",
+      "channelName": "Catalyst Athletics",
+      "sourceQuery": "Existing candidate rechecked through public YouTube oEmbed on 2026-07-26: hanging straight leg raise exercise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate for the straight-leg variant by public title only. Knee extension, strict versus swinging mode, range, mount, lowering, exit, safety, captions, and demonstration quality require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=XykqIceOdso",
+      "title": "Eccentric-Accentuated Hanging Leg Raise",
+      "channelName": "Hart Athletics",
+      "sourceQuery": "Existing candidate rechecked through public YouTube oEmbed on 2026-07-26: hanging leg raise eccentric lowering",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate for eccentric emphasis by public title only. Exact knee angle, start assistance, lowering time, range, swing, safety, dosage, claims, captions, and full sequence require human review."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Tuck Hanging Knee Raise",
+      "classification": "same_identity",
+      "rationale": "Tuck and bent-knee hanging knee raise describe the same bilateral strict hip-flexion pattern; the historical source is an exact duplicate rather than a selectable alternate.",
+      "distinguishingDimensions": {
+        "kneeAngle": "flexed",
+        "identityDifference": "none"
+      }
+    },
+    {
+      "name": "Hanging Straight-Leg Raise",
+      "classification": "new_variant",
+      "rationale": "Extended knees lengthen the lever, add knee-extension isometric demand, and alter pelvic and hamstring interaction while preserving the same suspended bilateral hip-flexion identity.",
+      "distinguishingDimensions": {
+        "kneeAngle": "extended",
+        "leverLength": "long"
+      }
+    },
+    {
+      "name": "Hanging Knee Raise Eccentric Lower",
+      "classification": "new_variant",
+      "rationale": "A declared 4–6 second lowering emphasis changes precision, start assistance, fatigue, dose, and recovery while preserving the bent-knee exercise identity.",
+      "distinguishingDimensions": {
+        "contractionEmphasis": "eccentric",
+        "loweringSeconds": "4_to_6"
+      }
+    },
+    {
+      "name": "Partial-Range Hanging Knee Raise",
+      "classification": "modifier_annotation",
+      "rationale": "A smaller owned range changes dose and accessibility without changing support, laterality, knee angle, or the strict hip-flexion identity.",
+      "distinguishingDimensions": {
+        "range": "declared_partial"
+      }
+    },
+    {
+      "name": "Pause Hanging Knee Raise",
+      "classification": "modifier_annotation",
+      "rationale": "A pause at the declared range landmark changes time under tension and quality criteria but not the exercise identity.",
+      "distinguishingDimensions": {
+        "pause": "declared_top_or_midrange"
+      }
+    },
+    {
+      "name": "Foot-Assisted Hanging Knee Raise",
+      "classification": "new_variant",
+      "rationale": "Stable foot contact can unload grip, shoulder, and hip-flexion demand while preserving a declared strict hanging pattern and safe exit.",
+      "distinguishingDimensions": {
+        "assistance": "stable_foot_contact"
+      }
+    },
+    {
+      "name": "Ring Hanging Leg Raise",
+      "classification": "new_variant",
+      "rationale": "Stable rings preserve suspension and bilateral hip flexion while changing grip orientation, implement motion, and station stability.",
+      "distinguishingDimensions": {
+        "implement": "stable_rings",
+        "gripOrientation": "self_selected_or_declared"
+      }
+    },
+    {
+      "name": "Weighted Hanging Knee Raise",
+      "classification": "new_variant",
+      "rationale": "Added load changes physical difficulty, attachment, mount, exit, dose, and recovery enough to require an explicit reviewed variant.",
+      "distinguishingDimensions": {
+        "externalLoad": "added_weight",
+        "attachment": "declared_and_secured"
+      }
+    },
+    {
+      "name": "Unilateral Hanging Knee Raise",
+      "classification": "new_variant",
+      "rationale": "One-sided hip flexion adds frontal and transverse trunk-control demand and must declare whether the support and other leg remain symmetric.",
+      "distinguishingDimensions": {
+        "movingLegLaterality": "unilateral",
+        "trunkAntiRotation": "required"
+      }
+    },
+    {
+      "name": "Kipping Hanging Knee Raise",
+      "classification": "new_definition",
+      "rationale": "Cyclic arch-hollow swing, momentum, timing, repeated shoulder motion, and conditioning intent change the action, fatigue, coaching, and stop rules beyond a strict variant.",
+      "distinguishingDimensions": {
+        "swingMode": "cyclic_kip",
+        "shoulderAction": "dynamic",
+        "intent": "cyclic_skill_or_capacity"
+      }
+    },
+    {
+      "name": "Strict Knees-to-Elbows",
+      "classification": "new_variant",
+      "rationale": "A higher declared end range with more posterior pelvic rotation and trunk flexion can remain a strict range variant if the movement does not add a kip or pull-up.",
+      "distinguishingDimensions": {
+        "rangeLandmark": "knees_to_elbows",
+        "swingMode": "strict_none"
+      }
+    },
+    {
+      "name": "Toes-to-Bar",
+      "classification": "new_definition",
+      "rationale": "Full foot-to-bar range is commonly delivered with cyclic swing and greater shoulder, hamstring, compression, timing, and fatigue demands; it requires its own exact strict-versus-kipping identity review.",
+      "distinguishingDimensions": {
+        "rangeLandmark": "feet_to_bar",
+        "identityReview": "strict_or_kipping_must_be_declared"
+      }
+    },
+    {
+      "name": "Captain's Chair Knee Raise",
+      "classification": "new_definition",
+      "rationale": "Forearm and back support replace hand suspension and materially change grip, shoulder, trunk, equipment, access, and failure constraints.",
+      "distinguishingDimensions": {
+        "support": "forearm_and_back_supported_station",
+        "handSuspension": "none"
+      }
+    },
+    {
+      "name": "Hanging L-Sit",
+      "classification": "new_definition",
+      "rationale": "A static hip-flexion hold changes contraction mode, dosage, quality endpoints, and fatigue behavior from dynamic repetitions.",
+      "distinguishingDimensions": {
+        "contractionMode": "isometric",
+        "kneeAngle": "extended"
+      }
+    },
+    {
+      "name": "Hanging Windshield Wiper",
+      "classification": "new_definition",
+      "rationale": "Large transverse-plane leg and pelvis motion adds rotation, anti-rotation, range, and shoulder-control demands outside the sagittal hanging leg-raise identity.",
+      "distinguishingDimensions": {
+        "primaryPlane": "transverse",
+        "pelvicAction": "rotation"
+      }
+    },
+    {
+      "name": "Pull-Up With Knee Raise",
+      "classification": "new_definition",
+      "rationale": "Combining elbow flexion and vertical pulling with hip flexion creates a compound exercise with different sequencing, load, fatigue, and substitutions.",
+      "distinguishingDimensions": {
+        "elbowAction": "dynamic_flexion_extension",
+        "compoundAction": "vertical_pull_plus_hip_flexion"
+      }
+    },
+    {
+      "name": "Supine Bent-Knee Raise",
+      "classification": "new_definition",
+      "rationale": "Floor support removes hanging, grip, overhead shoulder, mount, and dismount constraints, making this a useful substitute but not the same exercise.",
+      "distinguishingDimensions": {
+        "support": "supine_floor",
+        "handSuspension": "none"
+      }
+    }
+  ]
+}

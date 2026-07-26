@@ -1,0 +1,646 @@
+{
+  "facilityId": 1,
+  "slug": "straddle-compression-lift",
+  "researchVersion": "2026-07-26.29",
+  "assessmentSummary": {
+    "identity": "A grounded dynamic compression exercise. The athlete remains seated and lifts one or both legs through an owned pike or straddle range without suspending bodyweight through the hands. Knee angle, unilateral versus bilateral execution, pike versus straddle, hand position, lift height, tempo, and dose are controlled variant or modifier dimensions.",
+    "currentCardFindings": [
+      "The historical Straddle Compression Lift is a valid variant but too narrow to represent the full grounded dynamic compression identity.",
+      "Pike and straddle change hip-abduction range and flexibility interaction while preserving the same seated dynamic hip-flexion action.",
+      "Bent-knee, unilateral, and bilateral versions materially change lever, symmetry, coordination, and difficulty and should be explicit variants.",
+      "Hand position, stable blocks or handles, lift height, pause, tempo, range, and set volume are delivery modifiers when the seated dynamic action remains unchanged.",
+      "L-sit, V-sit, Manna, hanging leg raise, and press-to-handstand work change support action or principal movement intent and remain separate identities.",
+      "The former 40/20/40 baseline materially understated bilateral long-lever hip-flexion, knee-extension, trunk, straddle-symmetry, and controlled-lowering demand.",
+      "Exercise difficulty is assessed only as exercise complexity and physical difficulty, with overall equal to their maximum. This exercise card carries no athlete or class proficiency level.",
+      "The legacy canonical slug remains stable for compatibility; canonical name and aliases now expose the broader Seated Compression Lift identity.",
+      "All five media links remain candidate-only. Metadata health is not exact-match, safety, accessibility, or content approval."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace"
+      ],
+      "jointActions": [
+        "bilateral_or_unilateral_hip_flexion_concentric",
+        "controlled_hip_extension_eccentric",
+        "knee_extension_isometric_by_variant",
+        "pelvic_and_trunk_position_control",
+        "hip_abduction_held_for_straddle_variant"
+      ],
+      "planes": [
+        "sagittal_primary",
+        "frontal_hip_abduction_for_straddle_variant",
+        "transverse_isometric_control"
+      ],
+      "laterality": "bilateral_baseline_with_declared_unilateral_alternating_variant",
+      "intent": "grounded_dynamic_active_compression"
+    },
+    "proposedAnatomy": {
+      "primaryMusclesAndTissues": [
+        "iliopsoas_and_other_hip_flexors",
+        "rectus_femoris",
+        "rectus_abdominis",
+        "internal_and_external_obliques"
+      ],
+      "secondaryMusclesAndTissues": [
+        "deep_trunk_stabilizers",
+        "quadriceps_for_extended_knees",
+        "hip_abductors_and_adductors_for_straddle_control",
+        "hand_wrist_and_shoulder_stabilizers_when_hands_are_planted"
+      ],
+      "joints": [
+        "thoracic_and_lumbar_spine",
+        "pelvis",
+        "hip",
+        "knee",
+        "hand_and_wrist_when_supported"
+      ],
+      "primaryActions": [
+        "establish_the_declared_seated_pike_or_straddle",
+        "lift_from_the_hips_without_trunk_rocking",
+        "preserve_declared_knee_angle_and_symmetry",
+        "lower_quietly_through_the_owned_range",
+        "breathe_and_reset_before_the_next_rep"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 40,
+      "absoluteLoadDemand": 46,
+      "coordinationDemand": 44,
+      "supervisionDemand": 28,
+      "failureConsequence": 22,
+      "impact": 1,
+      "workCapacityDemand": 48,
+      "baseOverallDifficulty": 46
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "bent-knee",
+        "exerciseComplexity": 24,
+        "physicalDifficulty": 30,
+        "derivedOverallDifficulty": 30,
+        "basis": "Knee flexion shortens the lever while retaining a seated bilateral lift, trunk control, breathing, and controlled lowering."
+      },
+      {
+        "variantKey": "single-leg-pike",
+        "exerciseComplexity": 30,
+        "physicalDifficulty": 36,
+        "derivedOverallDifficulty": 36,
+        "basis": "One straight leg lengthens the lever but reduces simultaneous bilateral demand and adds side-to-side control and symmetric exposure."
+      },
+      {
+        "variantKey": "pike",
+        "exerciseComplexity": 36,
+        "physicalDifficulty": 46,
+        "derivedOverallDifficulty": 46,
+        "basis": "Both extended legs increase bilateral lever, knee-extension, hip-flexion, trunk, and controlled-lowering demand."
+      },
+      {
+        "variantKey": "baseline",
+        "exerciseComplexity": 40,
+        "physicalDifficulty": 46,
+        "derivedOverallDifficulty": 46,
+        "basis": "Straddle preserves the dynamic lift but adds hip-abduction range, adductor control, bilateral symmetry, and additional frontal-plane organization."
+      }
+    ],
+    "proposedLoadProfile": {
+      "loadingType": "relative_bodyweight_dynamic_grounded_hip_flexion",
+      "impactClass": "none_except_uncontrolled_drop_or_reset",
+      "externalLoadMethod": "bodyweight",
+      "primaryStress": [
+        "active_hip_flexion",
+        "knee_extension_isometric",
+        "trunk_and_pelvic_control",
+        "controlled_leg_lower",
+        "hip_abduction_and_adductor_control_for_straddle"
+      ],
+      "fatigueProfile": [
+        "trunk_rocks",
+        "knees_bend_or_drift",
+        "leg_height_or_range_decreases",
+        "pike_or_straddle_becomes_asymmetric",
+        "legs_drop_instead_of_lowering",
+        "breathing_changes"
+      ],
+      "recoveryHours": "Count the work with other high-volume hip-flexion, compression, hanging-leg-raise, L-sit, V-sit, press, and aggressive active-flexibility training. Short submaximal sets may recover quickly; long-lever, high-range, high-volume, or near-failure work may need more time."
+    },
+    "proposedConstraints": {
+      "equipment": [
+        "level_non_slip_floor_or_mat",
+        "stable_optional_blocks_or_handles",
+        "clear_leg_arc"
+      ],
+      "environment": [
+        "one_marked_station_per_athlete",
+        "no_overlapping_leg_arcs",
+        "declared_pike_or_straddle_and_range_before_the_set"
+      ],
+      "population": [
+        "pain_free_seated_position",
+        "owned_selected_pike_or_straddle_range",
+        "can_lift_and_lower_without_momentum",
+        "can_breathe_through_short_quality_sets"
+      ],
+      "excludeOrEscalate": [
+        "hip_groin_knee_or_low_back_pain",
+        "hip_pinching",
+        "numbness_tingling_or_neural_symptoms",
+        "forced_end_range",
+        "uncontrolled_cramping_or_drop"
+      ]
+    },
+    "proposedDeliveryProfiles": [
+      {
+        "profileKey": "movement-intelligence-compression-lift",
+        "phase": "movement_intelligence",
+        "dose": "Two to four sets of four to eight controlled reps for long-lever variants or six to twelve for bent-knee, with 45 to 90 seconds rest and at least two clean reps in reserve.",
+        "qualityGate": "Declared lever and position remain unchanged; the trunk does not rock; legs clear and lower quietly through owned range; breathing continues.",
+        "stopRules": [
+          "symptoms",
+          "surface_or_support_moves",
+          "trunk_rocking",
+          "undeclared_knee_or_position_change",
+          "range_or_lowering_quality_loss"
+        ]
+      }
+    ],
+    "proposedInstructions": {
+      "athlete": [
+        "Sit in the selected pike or straddle.",
+        "Place the hands where prescribed without pulling.",
+        "Lift from the hips without rocking.",
+        "Pause only if declared, then lower quietly.",
+        "Stop before the lever, range, or breathing changes."
+      ],
+      "coach": [
+        "Select knee angle, laterality, pike or straddle, hand position, range, tempo, and dose before the set.",
+        "Observe front and side for trunk rock, knee position, symmetry, lift height, and controlled lowering.",
+        "Regress lever or range rather than accepting momentum.",
+        "Stop and substitute for pain, pinching, neurologic symptoms, or uncontrolled cramping."
+      ]
+    },
+    "proposedProgramming": {
+      "primaryUses": [
+        "active_pike_or_straddle_compression",
+        "grounded_hip_flexion_strength",
+        "trunk_and_pelvic_control",
+        "preparatory_capacity_for_support_compression"
+      ],
+      "sequence": "Use after general and positional preparation but before high-volume hip-flexion, hanging, L-sit, V-sit, or press work.",
+      "cumulativeBudgets": [
+        "hip_flexor_volume",
+        "long_lever_compression",
+        "knee_extension_isometric",
+        "active_hamstring_range",
+        "adductor_range_for_straddle",
+        "trunk_flexion_and_bracing"
+      ],
+      "substitutions": [
+        "shorter_lever_seated_compression",
+        "single_leg_compression",
+        "supine_dead_bug_or_leg_lift_pattern_when_seated_range_is_not_appropriate"
+      ]
+    },
+    "proposedSupport": {
+      "athleteQuestions": [
+        "Could you lift and lower without rocking?",
+        "Did the selected pike or straddle feel like active effort rather than a pinch?",
+        "Could the next rep match the first?"
+      ],
+      "coachQuestions": [
+        "Did lever, range, symmetry, trunk position, lowering, or symptoms limit the set first?",
+        "Was a variant or modifier changed and recorded?",
+        "Does the next exercise share hip-flexor or compression fatigue?"
+      ],
+      "operationalData": [
+        "variant",
+        "range",
+        "hand_position",
+        "sets_reps_tempo_rest",
+        "first_quality_loss",
+        "symptom_and_next_day_response",
+        "substitution"
+      ]
+    },
+    "confidenceAndReview": {
+      "contentConfidence": 75,
+      "scoringConfidence": 57,
+      "mediaConfidence": 20,
+      "humanGates": [
+        "coach_identity_and_variant_review",
+        "difficulty_calibration",
+        "population_and_dosage_review",
+        "exact_media_review",
+        "publication_approval"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-27T00:30:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Sit on a stable surface with the trunk and pelvis in the declared position, place the hands where prescribed without using them to pull, and lift one or both legs from the floor through an owned pike or straddle range before lowering with control.",
+      "familyKey": "Grounded dynamic compression lift",
+      "movementPatterns": [
+        "brace"
+      ],
+      "bodyRegions": [
+        "core",
+        "rib_cage",
+        "spine",
+        "pelvis",
+        "hip",
+        "knee",
+        "hamstrings"
+      ],
+      "requiredEquipment": [
+        "none"
+      ],
+      "optionalEquipment": [
+        "mat",
+        "parallettes",
+        "parallettes_or_blocks",
+        "timer"
+      ],
+      "environment": {
+        "seat": "stable_surface_with_space_for_the_declared_pike_or_straddle",
+        "surface": "level_non_slip_and_clear_of_objects_in_the_leg_arc",
+        "traffic": "no_person_or_equipment_enters_the_leg_or_hand_space",
+        "handSupport": "hands_or_handles_cannot_slide_and_do_not_pull_the_legs_up",
+        "supervision": "direct_until_trunk_position_range_and_controlled_lower_are_repeatable"
+      },
+      "population": {
+        "readiness": [
+          "pain_free_seated_pike_or_declared_straddle_position",
+          "can_lift_the_selected_lever_without_leaning_or_momentum",
+          "can_lower_without_dropping_or_joint_pinching",
+          "can_breathe_through_short_quality_sets"
+        ],
+        "clinicalBoundary": "Pain, neurologic symptoms, recent surgery, instability, or rehabilitation restrictions require individualized clinician guidance instead of generic range or volume progression.",
+        "contraindicationFlags": [
+          "current_hip_groin_knee_or_low_back_pain",
+          "hip_pinching_numbness_tingling_or_neural_symptoms",
+          "forced_end_range_or_uncontrolled_cramping",
+          "trunk_rocking_or_hand_pull_replaces_active_hip_flexion",
+          "inability_to_lower_or_reset_safely"
+        ]
+      },
+      "difficulty": {
+        "impact": 1,
+        "supervisionDemand": 28,
+        "absoluteLoadDemand": 46,
+        "coordinationDemand": 44,
+        "failureConsequence": 22,
+        "workCapacityDemand": 48,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 46
+      },
+      "loadProfile": {
+        "gripDemand": 6,
+        "loadingType": "relative_bodyweight_dynamic_bilateral_straddle_hip_flexion",
+        "primaryStress": [
+          "bilateral_straddle_hip_flexion",
+          "hip_abduction_and_adductor_control",
+          "trunk_and_pelvic_control",
+          "knee_extension_and_controlled_leg_lower"
+        ],
+        "spinalLoading": 28,
+        "eccentricStress": 36,
+        "externalLoadMethod": "bodyweight",
+        "landingContactsPerRep": 0
+      },
+      "fatigueProfile": {
+        "gripFatigue": 6,
+        "qualityLoss": [
+          "straddle_becomes_asymmetric",
+          "trunk_rocks",
+          "knees_bend",
+          "legs_drop",
+          "breathing_changes"
+        ],
+        "recoveryHours": 24,
+        "impactAccumulation": 1,
+        "localMuscleFatigue": 52,
+        "technicalFatigueSensitivity": 62
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Resistance exercise selection requires qualified instruction, safe equipment and space, appropriate progression, and readiness assessed for the individual rather than inferred from an exercise label.",
+        "Before Seated Compression Lift, check the exact support, floor area, clearance, selected position, assistance, fatigue state, and exit. Stop for pain or pinching; numbness or tingling; dizziness; instability; support or hand slip; uncontrolled cramping; elbow or shoulder collapse; repeated loss of the declared trunk, knee, leg-height, range, breathing, or assistance standard; or an unsafe exit."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Training should be individualized and progressively developed from current readiness and movement competence.",
+        "Scale Seated Compression Lift with a shorter lever, smaller owned range, stable higher support, shorter sets or holds, more rest, declared assistance, plain-language cues, visual markers, or a mechanically appropriate substitute. Exercise cards use complexity and physical-difficulty scores; formal proficiency levels remain on skill-library cards."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The five supplied videos are discovery candidates only. Public oEmbed title, channel, and embed-player metadata were observed on 2026-07-26; exact identity and variant match, complete setup and exit, cue and claim quality, safety, captions, accessibility, reviewer identity, approval, and continuing availability remain pending human review."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://library.crossfit.com/premium/pdf/42_06_Parallettes_Pt1.pdf",
+      "sourceTitle": "Parallette Training, Part 1",
+      "sourcePublisher": "CrossFit Journal",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 76,
+      "claims": [
+        "The professional progression distinguishes compression-building lead-up work from supported L-sit, V-sit, and Manna positions.",
+        "Classify seated dynamic leg lifting as a grounded compression exercise; pike, straddle, knee angle, laterality, hand position, range, and tempo do not by themselves create a new movement identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://library.crossfit.com/premium/pdf/42_06_Parallettes_Pt1.pdf",
+      "sourceTitle": "Parallette Training, Part 1",
+      "sourcePublisher": "CrossFit Journal",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 76,
+      "claims": [
+        "Parallette progressions manipulate knee angle, unilateral versus bilateral legs, straddle, height, and compression demand.",
+        "Represent knee angle, laterality, and pike or straddle as controlled variants; represent hand position, support height, range, pause, tempo, and volume as modifiers."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/9118976/",
+      "sourceTitle": "Abdominal and hip flexor muscle activation during various training exercises",
+      "sourcePublisher": "European Journal of Applied Physiology and Occupational Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Training exercises involving hip flexion recruit hip-flexor musculature and can also require abdominal activation.",
+        "For a seated leg lift, describe active hip flexion as primary and trunk/pelvic control and knee extension as important contributors without claiming isolated-muscle training."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://library.crossfit.com/premium/pdf/42_06_Parallettes_Pt1.pdf",
+      "sourceTitle": "Parallette Training, Part 1",
+      "sourcePublisher": "CrossFit Journal",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 76,
+      "claims": [
+        "Shortening the knee lever and moving from one leg to two legs changes the mechanical demand of compression work.",
+        "Pike versus straddle changes frontal-plane hip position and available range, while trunk rocking or hand pulling changes execution rather than successful completion."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Exercise prescription should account for technique, load, fatigue, and progression instead of relying on a generic label.",
+        "Candidate difficulty rises with longer bilateral lever, higher owned range, less compensation, and added straddle symmetry; overall is derived only from exercise complexity and physical difficulty."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/9118976/",
+      "sourceTitle": "Abdominal and hip flexor muscle activation during various training exercises",
+      "sourcePublisher": "European Journal of Applied Physiology and Occupational Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Hip-flexion exercises can impose meaningful local hip-flexor and abdominal demand even without external load.",
+        "Track compression alongside other high-volume hip-flexion, hanging-leg-raise, L-sit, V-sit, and press work; stop before rocking, knee change, range loss, or uncontrolled lowering."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Safe resistance training requires suitable space, equipment, instruction, progression, and individualized readiness.",
+        "Require a non-slip surface, clear leg arc, owned seated range, pain-free execution, controlled lowering, and a declared lever and position."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Training variables should be selected to preserve technique and match the intended adaptation.",
+        "Use short controlled sets with a visible repetition reserve, sufficient rest, and a cap that prevents active-compression practice from becoming momentum-based conditioning."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://library.crossfit.com/premium/pdf/42_06_Parallettes_Pt1.pdf",
+      "sourceTitle": "Parallette Training, Part 1",
+      "sourcePublisher": "CrossFit Journal",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 76,
+      "claims": [
+        "Compression progressions emphasize actively lifting the legs and manipulating knee angle and leg position.",
+        "Cue a declared seated position, active lift from the hips, stable trunk, unchanged knee angle, controlled lower, breathing, and an early stop."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Exercise order, training volume, rest, and progression should reflect the session goal and cumulative demand.",
+        "Place precise compression work before competing hip-flexor and trunk fatigue; count it with L-sit, V-sit, hanging-leg-raise, press, and active-flexibility volume."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Individual development should be based on readiness and movement competence.",
+        "Give the athlete plain-language self-checks for trunk rocking, knee position, range, quiet lowering, symptoms, breathing, and whether the next repetition can match the first."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Qualified supervision and technique-focused progression are central to safe resistance exercise.",
+        "The coach should preselect lever, position, range, tempo, and dose; observe from front and side; and regress before compensations replace the intended action."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://library.crossfit.com/premium/pdf/42_06_Parallettes_Pt1.pdf",
+      "sourceTitle": "Parallette Training, Part 1",
+      "sourcePublisher": "CrossFit Journal",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 76,
+      "claims": [
+        "Knee angle, one-leg work, bilateral work, straddle, and compression range form a progression family, while supported L-sit, V-sit, and Manna impose different support identities.",
+        "Use explicit variants for meaningful lever or leg-position changes, modifier annotations for range, hand position, tempo, and dose, and separate definitions when bodyweight support or a different principal action appears."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=WR3C2cliSaA",
+      "title": "Pike compression lifts - strengthen hip flexors",
+      "channelName": "The Movement Collective",
+      "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: pike compression lifts",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. Exact seated identity, declared knee and hand position, range, trunk control, lowering, safety, captions, accessibility, and full sequence require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=yQXnOuQqKYc",
+      "title": "How to Improve Active Pike Compression with Antranik",
+      "channelName": "Antranik Kizirian",
+      "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: active pike compression",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. Exact exercise versus mobility scope, range, dosage, cue quality, safety, captions, accessibility, and complete demonstration require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=6w4gmF0NUX0",
+      "title": "Core Compression, Seated Pike, Leg Lifts",
+      "channelName": "The Sustainable Training Method",
+      "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: seated pike leg lifts",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. Exact variant, trunk and knee standard, lowering, dosage, claims, captions, accessibility, and full content require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=hEo814VH208",
+      "title": "Core Compression, Seated Pike Leg Lifts, Isometrics & Lift Offs",
+      "channelName": "The Sustainable Training Method",
+      "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: seated pike lift-offs",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. Dynamic versus isometric identity boundaries, exact setup, stop rules, safety, captions, accessibility, and full sequence require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=mC4sBN6E_R8",
+      "title": "Gymnastics Compression Drills",
+      "channelName": "CrossFit",
+      "sourceQuery": "Public YouTube search and oEmbed observed 2026-07-26: gymnastics compression drills",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Official-channel candidate by metadata only. Exact seated variants, intended dose, safety, captions, accessibility, claim quality, and complete sequence require human review."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Bent-Knee Seated Compression Lift",
+      "classification": "new_variant",
+      "rationale": "Knee flexion materially shortens the lever and lowers physical demand while preserving the grounded dynamic compression identity.",
+      "distinguishingDimensions": {
+        "kneeAngle": "flexed",
+        "leverLength": "short"
+      }
+    },
+    {
+      "name": "Single-Leg Pike Compression Lift",
+      "classification": "new_variant",
+      "rationale": "Unilateral alternating execution changes lever, side-to-side control, symmetry, and dose but preserves the seated dynamic action.",
+      "distinguishingDimensions": {
+        "laterality": "unilateral_alternating",
+        "legPosition": "pike"
+      }
+    },
+    {
+      "name": "Pike Seated Compression Lift",
+      "classification": "new_variant",
+      "rationale": "Pike changes hip-abduction position and available range relative to straddle while preserving bilateral seated leg lifting.",
+      "distinguishingDimensions": {
+        "legPosition": "pike_together",
+        "laterality": "bilateral"
+      }
+    },
+    {
+      "name": "Straddle Compression Lift",
+      "classification": "same_identity",
+      "rationale": "This is the historical baseline variant retained inside the broader Seated Compression Lift definition.",
+      "distinguishingDimensions": {
+        "legPosition": "straddle",
+        "legacySource": true
+      }
+    },
+    {
+      "name": "Hands-on-Blocks Compression Lift",
+      "classification": "modifier_annotation",
+      "rationale": "Stable blocks or handles change hand position and clearance without changing the seated dynamic leg-lift action.",
+      "distinguishingDimensions": {
+        "handSupport": "stable_blocks_or_handles",
+        "identityBoundary": "unchanged"
+      }
+    },
+    {
+      "name": "Paused Compression Lift",
+      "classification": "modifier_annotation",
+      "rationale": "A brief top pause changes time under tension and dose while preserving identity and variant.",
+      "distinguishingDimensions": {
+        "tempo": "top_pause",
+        "dose": "increased_time_under_tension"
+      }
+    },
+    {
+      "name": "L-Sit",
+      "classification": "new_definition",
+      "rationale": "L-sit suspends bodyweight through straight-arm push support and is static rather than a grounded dynamic leg lift.",
+      "distinguishingDimensions": {
+        "supportAction": "straight_arm_push_support",
+        "contractionMode": "static_hold"
+      }
+    },
+    {
+      "name": "Hanging Leg Raise",
+      "classification": "new_definition",
+      "rationale": "Hanging leg raise adds overhead suspension, grip, anchor, swing, mount, and exit demands and uses a different start and support action.",
+      "distinguishingDimensions": {
+        "supportAction": "overhead_suspension",
+        "movementPattern": "dynamic_hanging_leg_raise"
+      }
+    }
+  ]
+}

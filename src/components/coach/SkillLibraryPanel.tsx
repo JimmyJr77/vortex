@@ -11,6 +11,9 @@ import LibraryCardMenu from './LibraryCardMenu'
 import LibraryCard from './LibraryCard'
 import LibraryExportControls from './LibraryExportControls'
 import LibraryResultCount from './LibraryResultCount'
+import LibraryPagination from './LibraryPagination'
+
+const PAGE_SIZE = 48
 
 interface FilterState {
   q: string
@@ -23,6 +26,22 @@ interface FilterState {
 }
 
 const emptyFilters: FilterState = { q: '', sport: '', kind: '', evaluation: '', level: '', discipline: '', usagLevel: '' }
+
+function buildSkillQueryParams(filters: FilterState, pagination?: { limit: number; offset: number }) {
+  const params = new URLSearchParams()
+  if (filters.q) params.set('q', filters.q)
+  if (filters.sport) params.set('sport', String(filters.sport))
+  if (filters.kind) params.set('kind', filters.kind)
+  if (filters.evaluation) params.set('evaluation', filters.evaluation)
+  if (filters.level) params.set('level', filters.level)
+  if (filters.discipline) params.set('discipline', filters.discipline)
+  if (filters.usagLevel) params.set('usag_level', filters.usagLevel)
+  if (pagination) {
+    params.set('limit', String(pagination.limit))
+    params.set('offset', String(pagination.offset))
+  }
+  return params
+}
 
 const USAG_DISCIPLINES = [
   'Acrobatic Gymnastics',
@@ -61,41 +80,48 @@ function evaluationBadgeClass(mode: SkillEvaluationMode) {
 export default function SkillLibraryPanel() {
   const { taxonomy } = useTaxonomy()
   const [filters, setFilters] = useState<FilterState>(emptyFilters)
+  const [pageOffset, setPageOffset] = useState(0)
   const [skills, setSkills] = useState<Skill[]>([])
+  const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [viewing, setViewing] = useState<Skill | null>(null)
   const [editing, setEditing] = useState<Skill | null>(null)
   const [creating, setCreating] = useState(false)
 
+  useEffect(() => {
+    setPageOffset(0)
+  }, [filters])
+
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const params = new URLSearchParams()
-      if (filters.q) params.set('q', filters.q)
-      if (filters.sport) params.set('sport', String(filters.sport))
-      if (filters.kind) params.set('kind', filters.kind)
-      if (filters.evaluation) params.set('evaluation', filters.evaluation)
-      if (filters.level) params.set('level', filters.level)
-      if (filters.discipline) params.set('discipline', filters.discipline)
-      if (filters.usagLevel) params.set('usag_level', filters.usagLevel)
-      const data = await coachFetch<Skill[]>(`/api/coach/skills?${params.toString()}`)
-      setSkills(data)
+      const params = buildSkillQueryParams(filters, { limit: PAGE_SIZE, offset: pageOffset })
+      const data = await coachFetch<CoachLibraryPage<Skill>>(`/api/coach/skills?${params.toString()}`)
+      setSkills(data.items)
+      setTotalCount(data.total)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load skills')
     } finally {
       setLoading(false)
     }
-  }, [filters])
+  }, [filters, pageOffset])
 
   useEffect(() => {
     void load()
   }, [load])
 
-  const handleExport = (format: LibraryExportFormat) => {
-    if (skills.length === 0) return
-    exportSkills(skills, format, 'skill-library')
+  const handleExport = async (format: LibraryExportFormat) => {
+    if (totalCount === 0) return
+    try {
+      const params = buildSkillQueryParams(filters)
+      const data = await coachFetch<Skill[]>(`/api/coach/skills?${params.toString()}`)
+      if (data.length === 0) return
+      exportSkills(data, format, 'skill-library')
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : 'Failed to export skills')
+    }
   }
 
   const handleDelete = async (sk: Skill) => {
@@ -121,7 +147,7 @@ export default function SkillLibraryPanel() {
           <LibraryExportControls
             disabled={loading || skills.length === 0}
             filenameStem="skill-library"
-            onExport={(format) => handleExport(format as LibraryExportFormat)}
+            onExport={(format) => { void handleExport(format as LibraryExportFormat) }}
           />
           <button
             type="button"
@@ -197,61 +223,70 @@ export default function SkillLibraryPanel() {
 
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
 
-      <LibraryResultCount count={skills.length} loading={loading} />
+      <LibraryResultCount count={totalCount} loading={loading} />
 
       {loading ? (
         <div className="flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading skills...</div>
       ) : (
-        <div className="grid items-start gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {skills.map((sk) => {
-            const metric = formatSkillMetric(sk)
-            return (
-              <LibraryCard
-                key={sk.id}
-                onClick={() => setViewing(sk)}
-                menu={
-                  <LibraryCardMenu
-                    itemLabel={sk.name}
-                    onEdit={() => setEditing(sk)}
-                    onDelete={() => { void handleDelete(sk) }}
-                  />
-                }
-              >
-                <h3 className="pr-8 font-bold leading-snug text-gray-900">{sk.name}</h3>
-                <div className="flex flex-wrap gap-1 mt-2">
-                  <span className={`text-[11px] rounded px-2 py-0.5 ${kindBadgeClass(sk.skill_kind)}`}>
-                    {sk.skill_kind === 'combo' ? 'Combo' : 'Skill'}
-                  </span>
-                  <span className={`text-[11px] rounded px-2 py-0.5 ${evaluationBadgeClass(sk.evaluation_mode ?? 'execution')}`}>
-                    {EVALUATION_LABELS[sk.evaluation_mode ?? 'execution']}
-                  </span>
-                  {sk.sport_name && <span className="text-[11px] bg-gray-100 text-gray-600 rounded px-2 py-0.5">{sk.sport_name}</span>}
-                  {sk.official_metadata?.event && <span className="text-[11px] bg-red-50 text-red-800 rounded px-2 py-0.5">{sk.official_metadata.event}</span>}
-                </div>
-                {(sk.official_metadata?.usa_gymnastics_levels?.length ?? 0) > 0 && (
-                  <p className="mt-2 text-xs font-medium text-blue-800">
-                    USAG: {(sk.official_metadata?.usa_gymnastics_levels ?? []).join(', ')}
-                  </p>
-                )}
-                {metric && <p className="text-xs text-gray-700 mt-2 font-medium">{metric}</p>}
-                {sk.exercise_name && (
-                  <p className="text-xs text-gray-500 mt-1">Trains via: {sk.exercise_name}</p>
-                )}
-                {sk.assistance_note && (
-                  <span className="inline-block mt-2 text-[11px] bg-green-50 text-green-800 rounded px-2 py-0.5">{sk.assistance_note}</span>
-                )}
-                {sk.description && <p className="text-sm text-gray-600 mt-2 line-clamp-2">{sk.description}</p>}
-                {sk.skill_kind === 'combo' && (sk.components?.length ?? 0) > 0 && (
-                  <p className="text-xs text-gray-500 mt-2 flex items-start gap-1">
-                    <Link2 className="w-3 h-3 mt-0.5 shrink-0" />
-                    {(sk.components ?? []).map((c) => c.name).filter(Boolean).join(' → ')}
-                  </p>
-                )}
-              </LibraryCard>
-            )
-          })}
-          {skills.length === 0 && <div className="text-sm text-gray-500 col-span-full">No skills match your filters.</div>}
-        </div>
+        <>
+          <div className="grid items-start gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {skills.map((sk) => {
+              const metric = formatSkillMetric(sk)
+              return (
+                <LibraryCard
+                  key={sk.id}
+                  onClick={() => setViewing(sk)}
+                  menu={
+                    <LibraryCardMenu
+                      itemLabel={sk.name}
+                      onEdit={() => setEditing(sk)}
+                      onDelete={() => { void handleDelete(sk) }}
+                    />
+                  }
+                >
+                  <h3 className="pr-8 font-bold leading-snug text-gray-900">{sk.name}</h3>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    <span className={`text-[11px] rounded px-2 py-0.5 ${kindBadgeClass(sk.skill_kind)}`}>
+                      {sk.skill_kind === 'combo' ? 'Combo' : 'Skill'}
+                    </span>
+                    <span className={`text-[11px] rounded px-2 py-0.5 ${evaluationBadgeClass(sk.evaluation_mode ?? 'execution')}`}>
+                      {EVALUATION_LABELS[sk.evaluation_mode ?? 'execution']}
+                    </span>
+                    {sk.sport_name && <span className="text-[11px] bg-gray-100 text-gray-600 rounded px-2 py-0.5">{sk.sport_name}</span>}
+                    {sk.official_metadata?.event && <span className="text-[11px] bg-red-50 text-red-800 rounded px-2 py-0.5">{sk.official_metadata.event}</span>}
+                  </div>
+                  {(sk.official_metadata?.usa_gymnastics_levels?.length ?? 0) > 0 && (
+                    <p className="mt-2 text-xs font-medium text-blue-800">
+                      USAG: {(sk.official_metadata?.usa_gymnastics_levels ?? []).join(', ')}
+                    </p>
+                  )}
+                  {metric && <p className="text-xs text-gray-700 mt-2 font-medium">{metric}</p>}
+                  {sk.exercise_name && (
+                    <p className="text-xs text-gray-500 mt-1">Trains via: {sk.exercise_name}</p>
+                  )}
+                  {sk.assistance_note && (
+                    <span className="inline-block mt-2 text-[11px] bg-green-50 text-green-800 rounded px-2 py-0.5">{sk.assistance_note}</span>
+                  )}
+                  {sk.description && <p className="text-sm text-gray-600 mt-2 line-clamp-2">{sk.description}</p>}
+                  {sk.skill_kind === 'combo' && (sk.components?.length ?? 0) > 0 && (
+                    <p className="text-xs text-gray-500 mt-2 flex items-start gap-1">
+                      <Link2 className="w-3 h-3 mt-0.5 shrink-0" />
+                      {(sk.components ?? []).map((c) => c.name).filter(Boolean).join(' → ')}
+                    </p>
+                  )}
+                </LibraryCard>
+              )
+            })}
+            {skills.length === 0 && <div className="text-sm text-gray-500 col-span-full">No skills match your filters.</div>}
+          </div>
+          <LibraryPagination
+            total={totalCount}
+            limit={PAGE_SIZE}
+            offset={pageOffset}
+            loading={loading}
+            onPageChange={setPageOffset}
+          />
+        </>
       )}
 
       {viewing && (

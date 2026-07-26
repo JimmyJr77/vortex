@@ -1,0 +1,491 @@
+{
+  "facilityId": 1,
+  "researchVersion": "2026-07-26.39",
+  "batchKey": "front-foot-elevated-split-squat-family-v1",
+  "snapshotAt": "2026-07-26T23:00:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "front_foot_elevated_split_squat_clinical_framework",
+      "claims": [
+        "The clinical framework explicitly uses a front-foot-elevated split squat to progress the lead knee through a deeper declared flexion range.",
+        "{{canonicalName}} is the stable stationary split-stance identity with the whole lead foot supported on a declared platform; implement, load position, support, tempo, and platform height are exact variants or modifiers rather than exercise skill levels."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "split_squat_joint_angles_loading",
+      "claims": [
+        "Split-squat step length and lead-tibia angle change ankle, knee, and hip motion and joint loading.",
+        "Declare lead side, stance length and width, full-foot platform support, rear-foot floor contact, trunk strategy, range, implement, load position, tempo, and return; rear-foot elevation, stepping lunges, and jumping split squats remain separate identities."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "split_squat_step_length_biomechanics",
+      "claims": [
+        "The split-squat study measured lead-limb hip, knee, and ankle angles and moments plus gluteal, quadriceps, hamstring, and gastrocnemius activity across stance lengths.",
+        "The card should declare lead and rear foot, ankle, knee, hip, pelvis, spine, shoulder and grip involvement; quadriceps and gluteal contribution; sagittal motion; multiplanar stabilization; and side-balanced asymmetrical laterality."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "split_squat_joint_angles_loading",
+      "claims": [
+        "Lead-tibia angle and step length materially affect front and rear hip and knee ranges and external moments during loaded split squats.",
+        "Observable gates are a stable whole lead foot on the platform, stationary rear-foot contact, declared stance, controlled lead-knee tracking, organized pelvis and trunk, owned depth, lead-leg-biased ascent, balanced finish, and safe side change."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "front_foot_elevated_split_squat_clinical_framework",
+      "claims": [
+        "Front-foot elevation is used to advance the lead knee into a deeper controlled flexion range, increasing range-control and strength demands.",
+        "Assess exercise complexity and physical difficulty for each exact support, implement, load-position, and tempo contract; derive overall difficulty as their maximum and assign no exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "split_squat_step_length_biomechanics",
+      "claims": [
+        "Stance length changes lead-limb joint moments and lower-extremity muscle activity, so stance cannot be treated as operationally irrelevant.",
+        "{{canonicalName}} contributes unilateral quadriceps and gluteal work, adductor and calf stabilization, balance demand, trunk bracing, optional grip fatigue, and eccentric stress without planned impact contacts."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "front_foot_elevated_split_squat_clinical_framework",
+      "claims": [
+        "The cited framework treats front-foot elevation and knee-flexion range as purposeful progression variables rather than an unspecified box setup.",
+        "Declare a stable nonslip platform, exact height, full-foot fit, clear rear-foot zone, stance, footwear, support, implement, load, pickup and set-down, pain-free range, side order, and coach sightline."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "split_squat_step_length_biomechanics",
+      "claims": [
+        "Because stance changes joint and muscle demands, dose comparisons require the stance and range contract to remain repeatable.",
+        "Use side-balanced quality sets with sufficient rest to preserve full-foot pressure, knee tracking, pelvis and trunk position, range, tempo, ascent, finish, breathing, and load control."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "front_foot_elevated_split_squat_clinical_framework",
+      "claims": [
+        "The front-foot-elevated split squat is used to progress controlled knee flexion from a smaller to a larger range.",
+        "Use a short exact cue: whole front foot on the platform, set the split stance, lower straight down through owned range, keep the lead knee tracking, drive through the whole front foot, finish balanced, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "split_squat_joint_angles_loading",
+      "claims": [
+        "Changes in tibia angle and step length change joint loading, so forced stance or range should not be assumed equivalent.",
+        "Stop for pain, pinching, numbness, dizziness, pressure symptoms, platform movement, foot-edge contact, balance loss, uncontrolled knee or pelvis motion, trunk collapse, load loss, missed tempo, grinding, or an unsafe side change or set-down."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "front_foot_elevated_split_squat_clinical_framework",
+      "claims": [
+        "The clinical framework positions front-foot elevation as a progression to greater lead-knee flexion and quadriceps loading.",
+        "Use controlled standard-tempo variants for capacity and supported, slow-eccentric, paused, or isometric variants only under an explicit purpose; place them before material unilateral-leg, knee-extensor, balance, trunk, or grip fatigue."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "split_squat_step_length_biomechanics",
+      "claims": [
+        "Step length changes motion, joint moments, and muscle activity, so athletes need an individualized repeatable stance rather than a universal foot position.",
+        "Expose lead side, platform, stance, support, implement, load position, range, tempo, repetitions or seconds, rest, cue, expected sensations, and stop signal without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "split_squat_joint_angles_loading",
+      "claims": [
+        "The relationship between lead-tibia angle, step length, joint motion, and loading requires the coach to observe the exact stance and range.",
+        "Coach support should expose platform and foot fit, side, stance, rear-foot contact, knee and hip path, pelvis and trunk, support, implement and load, tempo, dose, fatigue, symptoms, and shutdown actions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "front_foot_elevated_split_squat_clinical_framework",
+      "claims": [
+        "The framework progresses knee-flexion range rather than requiring the deepest range immediately.",
+        "Accessibility options include a lower platform, shorter pain-free range, stable hand support, bodyweight loading, fewer repetitions, slower learning tempo, longer rest, and plain-text, audio, tactile, visual, or live instruction."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "split_squat_step_length_biomechanics",
+      "claims": [
+        "Stance length changes split-squat mechanics, but a stationary split stance and the same lead-foot elevation preserve the exercise identity when the exact stance remains declared.",
+        "Rear-foot elevation, heel-only elevation, stepping lunges, jumping split squats, and added rotation change support, contact sequence, surface contract, or primary action and require separate identity review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Five candidates have current healthy oEmbed metadata only; full viewing, exact platform, stance, implement, load-position, tempo and return match, safety, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "front-foot-elevated-split-squat",
+      "assessmentSummary": {
+        "identity": "A stationary asymmetrical split squat in which the whole lead foot is supported on a stable declared platform, the rear foot remains on the floor, the athlete descends through a declared pain-free range, and the lead leg drives the return to a balanced standing split stance.",
+        "currentCardFindings": [
+          "The generic, dumbbell, and sandbag source cards preserve the same front-foot-elevated stationary split-squat action.",
+          "Dumbbells and a sandbag change implement handling, load position, grip, bracing, and loading potential without changing the lead-foot platform, stationary contact sequence, descent, or ascent.",
+          "The generic source mentions dumbbells but does not declare implement quantity, hold, stance, platform height, range, tempo, support, or side order; all three legacy variants remain nonselectable provenance after consolidation.",
+          "Rear-foot-elevated split squats, ordinary floor split squats, reverse lunges, jumping split squats, and heel-only-elevated split squats change the support or contact contract and remain separate identities.",
+          "Five direct YouTube candidates return current oEmbed metadata, but no full viewing, exact-variant review, safety review, caption review, accessibility review, or approval has occurred."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "squat",
+            "lunge",
+            "brace"
+          ],
+          "movementQualifiers": [
+            "stationary_split_stance",
+            "whole_lead_foot_on_declared_platform",
+            "rear_forefoot_on_floor",
+            "side_specific_asymmetrical_base",
+            "controlled_descent",
+            "lead_knee_tracks_with_lead_foot",
+            "declared_owned_range",
+            "lead_leg_biased_ascent",
+            "balanced_split_stance_finish"
+          ],
+          "jointActions": [
+            "lead_ankle_dorsiflexion_and_plantarflexion",
+            "lead_knee_flexion_and_extension",
+            "lead_hip_flexion_and_extension",
+            "rear_hip_extension_and_flexion",
+            "pelvic_and_spinal_stabilization",
+            "optional_scapular_and_grip_stabilization"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal_and_transverse_stabilization"
+          ],
+          "laterality": "asymmetrical_side_specific_with_bilateral_support_and_lead_leg_bias",
+          "intent": "controlled_unilateral_range_and_strength_capacity"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": [
+            "lead_quadriceps",
+            "lead_gluteus_maximus",
+            "lead_adductor_magnus"
+          ],
+          "secondaryMusclesAndTissues": [
+            "lead_and_rear_gluteus_medius_and_minimus",
+            "hamstrings",
+            "gastrocnemius_and_soleus",
+            "adductors",
+            "hip_flexors",
+            "abdominal_wall",
+            "spinal_stabilizers",
+            "optional_forearm_and_hand_flexors"
+          ],
+          "joints": [
+            "lead_and_rear_foot",
+            "lead_and_rear_ankle",
+            "lead_and_rear_knee",
+            "lead_and_rear_hip",
+            "pelvis",
+            "spine",
+            "optional_shoulder_elbow_wrist_and_hand"
+          ],
+          "primaryActions": [
+            "establish_declared_side_specific_split_stance",
+            "secure_whole_lead_foot_on_platform",
+            "brace_and_control_declared_load",
+            "descend_through_lead_hip_knee_and_ankle_flexion",
+            "maintain_rear_foot_contact_and_pelvic_control",
+            "stop_at_declared_owned_range",
+            "extend_lead_hip_and_knee_to_balanced_finish",
+            "reset_or_change_sides_safely"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 38,
+          "absoluteLoadDemand": 32,
+          "coordinationDemand": 42,
+          "supervisionDemand": 36,
+          "failureConsequence": 38,
+          "impact": 1,
+          "workCapacityDemand": 44,
+          "baseOverallDifficulty": 38
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "bodyweight-standard-tempo",
+            "exerciseComplexity": 38,
+            "physicalDifficulty": 32,
+            "derivedOverallDifficulty": 38,
+            "basis": "the elevated lead-foot base, side-specific stance, deeper owned range, knee tracking, and balance drive complexity without external load"
+          },
+          {
+            "variantKey": "supported-bodyweight-standard-tempo",
+            "exerciseComplexity": 32,
+            "physicalDifficulty": 28,
+            "derivedOverallDifficulty": 32,
+            "basis": "stable hand support reduces balance and failure demand while retaining the front-foot-elevated range contract"
+          },
+          {
+            "variantKey": "two-dumbbell-suitcase-standard-tempo",
+            "exerciseComplexity": 42,
+            "physicalDifficulty": 50,
+            "derivedOverallDifficulty": 50,
+            "basis": "two independent handheld loads add grip, path, bracing, pickup, and set-down demands with substantial loading potential"
+          },
+          {
+            "variantKey": "single-dumbbell-contralateral-standard-tempo",
+            "exerciseComplexity": 46,
+            "physicalDifficulty": 44,
+            "derivedOverallDifficulty": 46,
+            "basis": "one load opposite the lead leg adds frontal and transverse anti-rotation demand and side-specific handling"
+          },
+          {
+            "variantKey": "single-dumbbell-ipsilateral-standard-tempo",
+            "exerciseComplexity": 44,
+            "physicalDifficulty": 44,
+            "derivedOverallDifficulty": 44,
+            "basis": "one load on the lead-leg side changes balance and trunk demand while preserving the same split-squat action"
+          },
+          {
+            "variantKey": "sandbag-front-hold-standard-tempo",
+            "exerciseComplexity": 42,
+            "physicalDifficulty": 48,
+            "derivedOverallDifficulty": 48,
+            "basis": "a deformable front-held sandbag increases bracing, load-control, pickup, and set-down demands without changing the stationary split squat"
+          }
+        ],
+        "proposedLoadProfile": {
+          "bodyweight": "bodyweight plus declared external load by exact variant",
+          "leadLegBias": "high but not isolated because the rear foot remains supportive",
+          "gripDemand": "none to moderate-high by support and implement",
+          "spinalLoading": "low bodyweight to moderate external-load compression and anti-flexion demand",
+          "eccentricStress": "moderate and higher with load, range, or slow tempo",
+          "landingContactsPerRep": 0,
+          "impact": "no planned flight or landing"
+        },
+        "proposedConstraints": {
+          "equipment": [
+            "stable_low_platform_with_full_foot_fit",
+            "declared_support_if_used",
+            "exact_dumbbell_or_sandbag_implement_by_variant"
+          ],
+          "environment": [
+            "level_high_traction_floor",
+            "clear_front_platform_rear_foot_and_set_down_zones",
+            "platform_and_loads_inspected",
+            "coach_sightline_to_both_feet_knees_pelvis_trunk_and_load"
+          ],
+          "population": [
+            "pain_free_stationary_split_stance",
+            "owned_lead_ankle_knee_and_hip_range",
+            "repeatable_balance_and_knee_tracking",
+            "safe_load_pickup_hold_and_set_down_for_loaded_variants"
+          ]
+        },
+        "proposedDosage": {
+          "capacity": "2-4 sets of 4-10 controlled repetitions per side with 90-180 seconds between demanding sets",
+          "rangeControl": "2-3 sets of 4-8 repetitions per side with light or no load and full reset",
+          "sideBalance": "declare lead side, order, repetitions, load, range, tempo, rest, and any asymmetry rule",
+          "stopRule": "terminate the side or set when symptoms, platform or foot contact, balance, knee tracking, pelvis, trunk, range, tempo, load, breathing, or finish fails"
+        },
+        "proposedFatigueRecovery": {
+          "localMuscleFatigue": "moderate-high quadriceps, gluteal, and adductor demand",
+          "gripFatigue": "none bodyweight to moderate with dumbbells or sandbag",
+          "technicalFatigueSensitivity": "moderate-high because fatigue changes balance, knee path, pelvic position, depth, and side symmetry",
+          "impactAccumulation": "none planned",
+          "recoveryHours": "24-72 depending on load, range, volume, tempo, and training history"
+        }
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=gj9kEqLoHlM",
+          "title": "Front Foot Elevated Dumbbell Split Squat",
+          "channelName": "ZOAR Fitness",
+          "sourceQuery": "Legacy dumbbell candidate rechecked through current YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:00:00.000Z"
+          },
+          "notes": "Current title, channel, and oEmbed player availability only. Full viewing and every exact-match, safety, caption, accessibility, quality, reviewer, and approval gate remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=kwKpuqbm-BQ",
+          "title": "How To: Front Foot Elevated Dumbbell Split Squat",
+          "channelName": "Live Lean TV Daily Exercises",
+          "sourceQuery": "Legacy dumbbell candidate rechecked through current YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:00:00.000Z"
+          },
+          "notes": "Current title, channel, and oEmbed player availability only; no content or media approval is inferred."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=UeMBrke0OSc",
+          "title": "FRONT FOOT ELEVATED DUMBBELL SPLIT SQUAT",
+          "channelName": "Asset Fitness Co.",
+          "sourceQuery": "Legacy dumbbell candidate rechecked through current YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:00:00.000Z"
+          },
+          "notes": "Current title, channel, and oEmbed player availability only; no full-video or exact-variant decision has occurred."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=b3noiv3QfD8",
+          "title": "FFE (Front Foot Elevated) Front Rack Split Squat - THIRSTgym.com",
+          "channelName": "Brandon Smitley",
+          "sourceQuery": "Legacy front-rack candidate rechecked through current YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:00:00.000Z"
+          },
+          "notes": "Title does not establish the implement or exact hold. Retain only as a candidate pending full viewing and exact-variant adjudication."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=JocgCLw-bLk",
+          "title": "Sandbag Zercher FFE Split Squat - THIRSTgym.com",
+          "channelName": "Brandon Smitley",
+          "sourceQuery": "Legacy sandbag candidate rechecked through current YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T23:00:00.000Z"
+          },
+          "notes": "Current metadata suggests a sandbag Zercher variant, but full viewing, exact match, safety, captions, accessibility, quality, reviewer identity, and approval remain pending."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Front-Foot-Elevated Split Squat",
+          "classification": "same_identity",
+          "rationale": "Stable broad identity for the stationary split squat with the whole lead foot on a declared platform.",
+          "distinguishingDimensions": {
+            "leadFootSupport": "whole_foot_platform",
+            "rearFootSupport": "floor",
+            "implement": "declared_by_variant"
+          }
+        },
+        {
+          "name": "Front-Foot-Elevated Dumbbell Split Squat",
+          "classification": "same_identity",
+          "rationale": "Dumbbells change load, grip, hold, and trunk demand without changing the front-foot-elevated stationary split squat.",
+          "distinguishingDimensions": {
+            "implement": "dumbbell",
+            "quantityAndHold": "declared_by_variant"
+          }
+        },
+        {
+          "name": "Front-Foot-Elevated Sandbag Split Squat",
+          "classification": "same_identity",
+          "rationale": "A deformable front-held sandbag changes load position and bracing within the same split-squat action.",
+          "distinguishingDimensions": {
+            "implement": "sandbag",
+            "hold": "front_hold"
+          }
+        },
+        {
+          "name": "Supported Front-Foot-Elevated Split Squat",
+          "classification": "new_variant",
+          "rationale": "Stable hand support reduces balance and failure demand while preserving the whole-foot platform and stationary split stance.",
+          "distinguishingDimensions": {
+            "supportLevel": "stable_hand_support"
+          }
+        },
+        {
+          "name": "Contralateral Dumbbell Front-Foot-Elevated Split Squat",
+          "classification": "new_variant",
+          "rationale": "A single load opposite the lead leg changes frontal and transverse trunk demand within the same movement.",
+          "distinguishingDimensions": {
+            "implement": "dumbbell",
+            "quantity": "one",
+            "loadSide": "contralateral_to_lead_leg"
+          }
+        },
+        {
+          "name": "Ipsilateral Dumbbell Front-Foot-Elevated Split Squat",
+          "classification": "new_variant",
+          "rationale": "A single load on the lead-leg side changes balance and trunk demand within the same movement.",
+          "distinguishingDimensions": {
+            "implement": "dumbbell",
+            "quantity": "one",
+            "loadSide": "ipsilateral_to_lead_leg"
+          }
+        },
+        {
+          "name": "Front-Foot-Elevated Split Squat Isometric Hold",
+          "classification": "new_variant",
+          "rationale": "A declared hold changes dosage and fatigue while retaining the same platform, stance, and joint configuration.",
+          "distinguishingDimensions": {
+            "contraction": "isometric",
+            "holdDepthAndTime": "declared"
+          }
+        },
+        {
+          "name": "Slow-Eccentric Front-Foot-Elevated Split Squat",
+          "classification": "new_variant",
+          "rationale": "A slow lowering tempo changes eccentric stress and recovery within the same split-squat identity.",
+          "distinguishingDimensions": {
+            "tempo": "slow_eccentric"
+          }
+        },
+        {
+          "name": "Front-Heel-Elevated Split Squat",
+          "classification": "new_definition",
+          "rationale": "Heel-only wedge support changes foot contact and ankle mechanics and is not the whole-foot platform contract.",
+          "distinguishingDimensions": {
+            "leadFootSupport": "heel_only_wedge"
+          }
+        },
+        {
+          "name": "Rear-Foot-Elevated Split Squat",
+          "classification": "new_definition",
+          "rationale": "Elevating the rear foot changes support, balance, rear-limb range, setup, and failure modes.",
+          "distinguishingDimensions": {
+            "rearFootSupport": "elevated"
+          }
+        },
+        {
+          "name": "Reverse Lunge",
+          "classification": "new_definition",
+          "rationale": "Stepping backward and returning changes the contact sequence and dynamic balance task.",
+          "distinguishingDimensions": {
+            "contactSequence": "step_back_and_return"
+          }
+        },
+        {
+          "name": "Split-Squat Jump",
+          "classification": "new_definition",
+          "rationale": "Flight, projection, and landing replace the controlled no-impact strength contract.",
+          "distinguishingDimensions": {
+            "primaryAction": "jump_and_land",
+            "impact": "planned"
+          }
+        }
+      ]
+    }
+  ]
+}

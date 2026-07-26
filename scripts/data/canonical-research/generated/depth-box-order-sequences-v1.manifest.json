@@ -1,0 +1,19 @@
+{
+  "batchKey": "depth-box-order-sequences-v1",
+  "researchVersion": "2026-07-26.31",
+  "generatedAt": "2026-07-26T09:57:27.000Z",
+  "cards": [
+    {
+      "slug": "depth-drop-to-box-jump",
+      "evidenceSections": 16,
+      "mediaCandidates": 3,
+      "alternateAssessments": 11
+    },
+    {
+      "slug": "box-jump-to-depth-drop",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 10
+    }
+  ]
+}

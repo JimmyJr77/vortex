@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-07-26.26",
+  "registryVersion": "2026-07-26.40",
   "sources": {
     "sprint_start_biomechanics_review": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
@@ -175,6 +175,20 @@
       "publisher": "National Strength and Conditioning Association",
       "kind": "professional_standard",
       "evidenceQuality": 84
+    },
+    "nsca_basketball_depth_jump_to_box": {
+      "url": "https://dxpprod.nsca.com/contentassets/9dab08fc28274f3ba1d76af31bbbe40b/coach3.1-screening_and_preventing_common_injuries_in_division_i_basketball_players.pdf",
+      "title": "Methods for Screening and Preventing Common Injuries in Division I Basketball Players",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "smitley_box_jump_depth_drop_sequences": {
+      "url": "https://www.brandonsmitley.com/thirst-gym-terre-haute-box-jump-to-depth-drop/",
+      "title": "Box Jump to Depth Drop: Mastering Athletic Landing Mechanics",
+      "publisher": "THIRST / Brandon Smitley",
+      "kind": "expert_instruction",
+      "evidenceQuality": 64
     },
     "world_athletics_plyometrics_beginners": {
       "url": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
@@ -603,13 +617,6 @@
       "kind": "expert_instruction",
       "evidenceQuality": 70
     },
-    "crossfit_active_shoulders_hanging": {
-      "url": "https://www.crossfit.com/essentials/crossfit-active-shoulders-movements",
-      "title": "Active Shoulders: The Foundation of Safe and Strong Movement in CrossFit",
-      "publisher": "CrossFit",
-      "kind": "expert_instruction",
-      "evidenceQuality": 70
-    },
     "crossfit_pullup_training_plan": {
       "url": "https://www.crossfit.com/wp-content/uploads/2025/10/30140653/CAP_Open_Training_Plans_02_PullUp_20251027_R1-1.pdf",
       "title": "Train for the Open With CrossFit Affiliate Programming: Pull-Up",
@@ -624,12 +631,334 @@
       "kind": "expert_instruction",
       "evidenceQuality": 68
     },
+    "suspended_bilateral_hip_flexion_kinematics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/12828897/",
+      "title": "Pelvic and femoral contributions to bilateral hip flexion by subjects suspended from a bar",
+      "publisher": "Clinical Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "abdominal_hip_flexor_activation_training_exercises": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/9118976/",
+      "title": "Abdominal and hip flexor muscle activation during various training exercises",
+      "publisher": "European Journal of Applied Physiology and Occupational Physiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "eccentric_leg_raise_muscle_activity": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4792997/",
+      "title": "Comparison of muscular activities in the abdomen and lower limbs while performing sit-up and leg-raise",
+      "publisher": "Journal of Physical Therapy Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 78
+    },
+    "nsca_hanging_straight_leg_raise_instruction": {
+      "url": "https://www.nsca.com/contentassets/1066cf7e2c9d4e61b3c1a6e3fea988e0/coach-7.1.2-implementing-core-training-concepts-into-strength-training-for-sport.pdf",
+      "title": "Implementing Core Training Concepts Into Strength Training for Sport",
+      "publisher": "NSCA Coach",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "crossfit_hanging_leg_raise_scaling": {
+      "url": "https://library.crossfit.com/premium/pdf/69_08_scaling_up_w_rings.pdf",
+      "title": "Scaling Up CrossFit Workouts With Rings",
+      "publisher": "CrossFit Journal",
+      "kind": "professional_standard",
+      "evidenceQuality": 72
+    },
+    "fig_mag_code_2025_2028": {
+      "url": "https://www.gymnastics.sport/publicdir/rules/files/en_1.1%20-%20MAG%20CoP%202025-2028.pdf",
+      "title": "FIG Men's Artistic Gymnastics Code of Points 2025–2028",
+      "publisher": "International Gymnastics Federation",
+      "kind": "governing_body",
+      "evidenceQuality": 91
+    },
+    "fig_mag_age_group_program": {
+      "url": "https://www.gymnastics.sport/site/pages/education/agegroup-mag-manual-e.pdf",
+      "title": "FIG Age Group Development and Competition Program for Men's Artistic Gymnastics",
+      "publisher": "International Gymnastics Federation",
+      "kind": "governing_body",
+      "evidenceQuality": 88
+    },
+    "crossfit_parallette_training_part_1": {
+      "url": "https://library.crossfit.com/premium/pdf/42_06_Parallettes_Pt1.pdf",
+      "title": "Parallette Training, Part 1",
+      "publisher": "CrossFit Journal",
+      "kind": "professional_standard",
+      "evidenceQuality": 76
+    },
+    "crossfit_hanging_l_sit": {
+      "url": "https://www.crossfit.com/essentials/the-hanging-l-sit",
+      "title": "The Hanging L-Sit",
+      "publisher": "CrossFit",
+      "kind": "expert_instruction",
+      "evidenceQuality": 72
+    },
     "ace_overhead_medicine_ball_throw": {
       "url": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
       "title": "Overhead Medicine Ball Throws",
       "publisher": "American Council on Exercise",
       "kind": "expert_instruction",
       "evidenceQuality": 74
+    },
+    "nsca_tall_kneeling_medicine_ball_chest_throw": {
+      "url": "https://www.nsca.com/globalassets/education/ptq/ptq-7.3--updated.pdf",
+      "title": "NSCA Performance Training Quarterly 7.3",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "ace_kneeling_power_ball_pass": {
+      "url": "https://www.acefitness.org/resources/pros/expert-articles/7396/plyometric-training-for-active-agers/",
+      "title": "Plyometric Training for Active Agers",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 72
+    },
+    "nsca_standing_rotational_wall_toss": {
+      "url": "https://dxpprod.nsca.com/contentassets/574ab3a9e81e4063a759c38f29a717f8/land-based_strength_and_conditioning_-for_swimming.pdf",
+      "title": "Land-Based Strength and Conditioning for Swimming",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "ace_lateral_wall_ball": {
+      "url": "https://www.acefitness.org/resources/pros/expert-articles/5289/8-creative-ways-to-use-a-medicine-ball/",
+      "title": "8 Creative Ways to Use a Medicine Ball",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 76
+    },
+    "trunk_rotator_strength_rotational_throw": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37721721/",
+      "title": "Influence of trunk rotator strength on rotational medicine ball throwing performance",
+      "publisher": "Journal of Sports Medicine and Physical Fitness",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 81
+    },
+    "muscle_strength_shuffle_rotational_throw": {
+      "url": "https://www.muscleandstrength.com/exercises/shuffle-into-rotational-medicine-ball-throw",
+      "title": "Shuffle Into Rotational Medicine Ball Throw Video Exercise Guide",
+      "publisher": "Muscle & Strength",
+      "kind": "expert_instruction",
+      "evidenceQuality": 66
+    },
+    "nsca_alactic_explosive_medicine_ball": {
+      "url": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "title": "NSCA Coach 5.4",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 80
+    },
+    "nsca_box_jump_unilateral_landing_progression": {
+      "url": "https://www.nsca.com/globalassets/education/ptq/ptq-1.3.pdf",
+      "title": "Complex Set Variations—Improving Strength and Power",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "nsca_single_leg_box_jump_contrast": {
+      "url": "https://www.nsca.com/globalassets/education/ptq/ptq-7.3--updated.pdf",
+      "title": "How to Utilize Contrast Training for Strength, Power, and Performance",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 80
+    },
+    "ace_box_jump_instruction": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/115/box-jumps/",
+      "title": "Box Jumps",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 76
+    },
+    "unilateral_bilateral_landing_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17620779/",
+      "title": "Biomechanical differences between unilateral and bilateral landings from a jump",
+      "publisher": "Clinical Journal of Sport Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 83
+    },
+    "unilateral_bilateral_plyometric_meta_analysis": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40281589/",
+      "title": "Effect of unilateral and bilateral plyometric training on jumping, sprinting, and change of direction abilities",
+      "publisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "nsca_lateral_line_hop_variations": {
+      "url": "https://www.nsca.com/education/articles/kinetic-select/7-line-drills-to-improve-agility/",
+      "title": "7 Line Drills to Improve Agility",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 80
+    },
+    "emory_single_leg_lateral_line_jump_hold": {
+      "url": "https://www.emoryhealthcare.org/centers-programs/acl-program/return-to-play/single-leg-line-jump",
+      "title": "Single-Leg Line Jump",
+      "publisher": "Emory Healthcare",
+      "kind": "expert_instruction",
+      "evidenceQuality": 80
+    },
+    "physitrack_lateral_hop_and_stick": {
+      "url": "https://uk.physitrack.com/home-exercise-video/lateral-hop-and-stick",
+      "title": "Lateral hop and stick",
+      "publisher": "Physitrack",
+      "kind": "expert_instruction",
+      "evidenceQuality": 72
+    },
+    "lateral_single_leg_hop_balance_study": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28090004/",
+      "title": "Difference in Dynamic Body Balance between Forward and Lateral Single-Leg Hop Landing",
+      "publisher": "Kurume Medical Journal",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "single_leg_jump_direction_load_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32148612/",
+      "title": "Effect of Jump Direction and External Load on Single-Legged Jump-Landing Biomechanics",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "side_hop_test_quality_reliability": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37300972/",
+      "title": "The side hop test: Validity, reliability, and quality aspects in relation to sex, age and anterior cruciate ligament reconstruction, in soccer players",
+      "publisher": "Physical Therapy in Sport",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "nasm_dead_bug_instruction": {
+      "url": "https://www.nasm.org/resource-center/exercise-library/dead-bug",
+      "title": "Dead Bug",
+      "publisher": "National Academy of Sports Medicine",
+      "kind": "professional_standard",
+      "evidenceQuality": 80
+    },
+    "dying_bug_trunk_emg_progression": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/11689975/",
+      "title": "Electromyographic activity of selected trunk muscles during dynamic spine stabilization exercises",
+      "publisher": "Archives of Physical Medicine and Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "dead_bug_limb_and_speed_emg": {
+      "url": "https://doi.org/10.14474/ptrs.2017.6.1.1",
+      "title": "Changes in muscle activity of the abdominal muscles according to exercise method and speed during dead bug exercise",
+      "publisher": "Physical Therapy Rehabilitation Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "rpi_anti_extension_dead_bug_progressions": {
+      "url": "https://rehabilitationperformance.com/training-anti-extension/",
+      "title": "Training Anti-Extension",
+      "publisher": "Rehabilitation & Performance Institute",
+      "kind": "expert_instruction",
+      "evidenceQuality": 74
+    },
+    "total_pt_dead_bug_variations": {
+      "url": "https://total-pt.com/2020/03/27/core-stability-exercises-dead-bug-variations/",
+      "title": "Dead Bug Exercise Variations",
+      "publisher": "Total Physical Therapy",
+      "kind": "expert_instruction",
+      "evidenceQuality": 72
+    },
+    "barbend_dead_bug_dumbbell_pullover": {
+      "url": "https://barbend.com/dumbbell-pullover-guide/",
+      "title": "How to Do the Dumbbell Pullover for a Bigger Back and Chest",
+      "publisher": "BarBend",
+      "kind": "expert_instruction",
+      "evidenceQuality": 68
+    },
+    "nsca_romanian_deadlift_technique": {
+      "url": "https://www.nsca.com/education/articles/kinetic-select/romanian-deadlift-rdl/",
+      "title": "Romanian Deadlift (RDL)",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 88
+    },
+    "ace_romanian_deadlift_instruction": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/317/romanian-deadlift/",
+      "title": "Romanian Deadlift",
+      "publisher": "American Council on Exercise",
+      "kind": "professional_standard",
+      "evidenceQuality": 78
+    },
+    "romanian_deadlift_joint_kinetics_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30662500/",
+      "title": "An electromyographic and kinetic comparison of conventional and Romanian deadlifts",
+      "publisher": "Journal of Exercise Science & Fitness",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "deadlift_variants_emg_systematic_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32107499/",
+      "title": "Electromyographic activity in deadlift exercise and its variants. A systematic review",
+      "publisher": "PLOS ONE",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "romanian_deadlift_hamstring_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24149748/",
+      "title": "Muscle activation during various hamstring exercises",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "eccentric_romanian_deadlift_hamstring_adaptation": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40085810/",
+      "title": "Hamstrings Muscle Architecture and Morphology Following 6 wk of an Eccentrically Biased Romanian Deadlift or Nordic Hamstring Exercise Intervention",
+      "publisher": "Medicine & Science in Sports & Exercise",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 89
+    },
+    "front_foot_elevated_split_squat_clinical_framework": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11611527/",
+      "title": "Oh, My Quad: A Clinical Commentary and Evidence-Based Framework for the Rehabilitation of Quadriceps Size and Strength after Anterior Cruciate Ligament Reconstruction",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "split_squat_joint_angles_loading": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24345718/",
+      "title": "Joint angles of the ankle, knee, and hip and loading conditions during split squats",
+      "publisher": "Journal of Applied Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "split_squat_step_length_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38026855/",
+      "title": "Effects of step lengths on biomechanical characteristics of lower extremity during split squat movement",
+      "publisher": "Frontiers in Bioengineering and Biotechnology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "nsca_foundations_single_arm_half_kneeling_press": {
+      "url": "https://www.nsca.com/contentassets/8323553f698a466a98220b21d9eb9a65/foundationsoffitnessprogramming_201508.pdf",
+      "title": "Foundations of Fitness Programming",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 86
+    },
+    "unilateral_dumbbell_press_core_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21877146/",
+      "title": "Muscle activity of the core during bilateral, unilateral, seated and standing resistance exercise",
+      "publisher": "European Journal of Applied Physiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "dumbbell_kettlebell_overhead_press_emg": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6033506/",
+      "title": "Stability of Resistance Training Implement Alters EMG Activity during the Overhead Press",
+      "publisher": "International Journal of Exercise Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "overhead_press_muscle_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35936912/",
+      "title": "Front vs Back and Barbell vs Machine Overhead Press: An Electromyographic Analysis and Implications For Resistance Training",
+      "publisher": "Frontiers in Physiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
     },
     "youtube_embed_help": {
       "url": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",

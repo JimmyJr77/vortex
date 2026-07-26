@@ -84,7 +84,7 @@ rollout plan.
   budgets. See `CALIBRATION_AND_FATIGUE.md`.
 - Migration 246 and the canonical library audit produce and persist a named
   automated test packet for every migrated exercise. The measured baseline is
-  1,673/1,673 legacy sources mapped into 1,553 canonical definitions, all
+  1,676/1,676 legacy sources mapped into 1,531 canonical definitions, all
   honestly quarantined and none published. See `LIBRARY_AUDIT.md`.
 - Generated workouts include distinct coach and athlete projections. The coach
   projection retains logistics, budgets, quality gates, substitutions, and
@@ -100,24 +100,25 @@ rollout plan.
 
 On 2026-07-26:
 
-- 763 platform Node tests ran: 743 passed, 20 integration-environment tests
-  skipped intentionally, and none failed. This includes all 25 named golden
+- 781 backend Node tests ran serially: 761 passed, 20 integration-environment tests
+  skipped intentionally, and none failed. The focused platform suite separately
+  passed all 564 tests. This includes all 25 named golden
   scenarios and the governance, graph-swap, AI-quarantine, anatomy/load,
   difficulty-model, and telemetry suites,
 - a 7,000-card deterministic generation test completed in under the five-second
   release ceiling,
 - the complete migration chain passed on disposable PostgreSQL,
-- all 1,673 legacy exercise sources were audited through their 1,553 active
+- all 1,676 legacy exercise sources were audited through their 1,531 active
   canonical definitions, and every active definition remains quarantined
   pending human review,
 - the production reference card passed a real repository save/load round trip
   while its missing-media publication gate remained active,
-- 120 redundant definitions were consolidated into canonical identities while
-  preserving 1,673 source variants, 1,717 delivery profiles, and all legacy
+- 145 redundant definitions were consolidated into canonical identities while
+  preserving 1,734 canonical variants, 1,818 delivery profiles, and all legacy
   source mappings; direct identity collisions are now zero.
 - Focused ESLint passed for the canonical backend, route, and coach UI files.
 - `npm run build` completed successfully.
-- The complete migration sequence through migration 309 and every add-on was
+- The complete migration sequence through migration 333 and every add-on was
   applied successfully from a blank disposable PostgreSQL 15 database.
   Migrations 304 and 305 were also applied through the normal runner and
   directly rerun; the final migration-305 rerun performed zero inserts and zero
@@ -144,20 +145,184 @@ On 2026-07-26:
   preserve Dead Hang, Active Hang, and Scapular Pull-Up as distinct actions,
   keep the historical compound source quarantined, and retain all six source
   mappings.
+- Migration 310 was applied through the normal runner in both disposable
+  databases, recorded with the final source checksum, and directly rerun
+  idempotently. A disposable clone with a synthetic published hanging-knee-raise
+  target proved that it aborts with one protected record before reassignment or
+  archival. The clone was removed. The final records retain bent-knee,
+  straight-leg, and eccentric-lower hanging leg raises as variants, archive the
+  exact tuck-knee duplicate, preserve all four source mappings, and create no
+  approval.
+- Migration 311 was applied through the normal runner in both disposable
+  databases, recorded with checksum `517857333`, and directly rerun
+  idempotently. A disposable clone with a synthetic published L-Sit target
+  proved that it aborts with one protected record before consolidation,
+  archival, or creation of Hanging L-Sit; the unchanged clone was verified and
+  removed. The final records consolidate Tuck L-Sit Hold into a support
+  variant, retain five support L-Sit variants, add a distinct three-variant
+  Hanging L-Sit definition, preserve all source mappings, and create no
+  approval.
+- Migration 312 was applied through the normal runner in both disposable
+  databases, recorded with checksum `645394912`, and directly rerun
+  idempotently. A disposable clone with one synthetic published compression
+  card proved that it aborts with one protected record before changing the
+  identity, variants, profiles, or relationships; the sentinel row remained
+  unchanged and the clone was removed. The final records broaden the historical
+  Straddle Compression Lift source into a four-variant Seated Compression Lift
+  family while retaining its stable slug, add separate three-variant V-Sit and
+  one-variant Manna Hold definitions, and create no approval. The corresponding
+  FIG/USAG skill-library cards and their proficiency levels remain untouched.
+- Migrations 313 and 314 were applied through the normal runner in both
+  disposable databases, recorded with checksums `2692772273` and `1481122815`,
+  and directly rerun idempotently. A disposable clone with a synthetic
+  published Active Hang sentinel proved that both migrations abort before
+  changing a protected card; the unchanged sentinel was verified and the clone
+  removed. Dead Hang, Active Hang, and Scapular Pull-Up now each have six
+  scored variants and complete strict athlete, coach, accessibility, support,
+  programming, dosage, measurement, logistics, and stop-rule contracts. Their
+  only publication-readiness subissues are human approval of an exact-match
+  video and completion of media review. No approval was created, and no
+  exercise-card skill level was assigned.
+- Migrations 315 and 316 were applied through the normal runner and recorded
+  with checksums `2333037463` and `823231556`, then directly rerun
+  idempotently. Two isolated clones with synthetic published sentinels proved
+  that identity consolidation and family completion each abort with one
+  protected record before changing human-controlled state; both clones were
+  removed. The migrations archive the exact `Depth Jump to Box Jump` and `Box
+  Jump with Altitude Landing` duplicates while preserving the reversed
+  depth-first and box-first sequences as separate definitions. Each survivor
+  has baseline and hands-on-hips variants, two contextual profiles per variant,
+  full athlete/coach/support contracts, candidate-only evidence, alternates,
+  graph edges, and media. No approval or exercise-card skill level was created.
+- Migrations 317 and 318 were applied through the normal runner and recorded
+  with checksums `1466800268` and `3525917830`, then rerun idempotently.
+  Transaction-only published-card sentinels proved that identity consolidation
+  and family completion each abort with one protected record before changing
+  human-controlled state. Migration 317 archives the three duplicate tall- and
+  half-kneeling chest-pass definitions while preserving all five source
+  mappings, aliases, variants, profiles, candidate media, and resolution
+  provenance. Migration 318 adds four exact stance-and-return variants, eight
+  contextual profiles, 16 evidence sections, five current healthy candidate
+  links, 12 alternate assessments, six review-only graph edges, and 12
+  review-only score proposals. The two generic sources remain nonselectable
+  because stance and return behavior are not recoverable. The strict audit
+  leaves only media, graph, calibration, and publication approval blocked; no
+  approval or exercise-card proficiency level was created.
+- Migrations 319, 320, and 321 were applied to disposable PostgreSQL through the
+  normal single-file runner and recorded with checksums `881499997`,
+  `566213042`, and `3794906241`. Direct reruns were idempotent. Transaction-only
+  published-card sentinels proved that consolidation, family completion, and
+  equipment-taxonomy correction each abort with one protected record before
+  changing human-controlled state. The migrations consolidate the duplicate
+  wall-named rotational throw, preserve both source mappings, add exact
+  throw-and-retrieve and rebound-and-catch variants with four contextual
+  profiles, and use controlled equipment keys. The strict audit leaves only
+  media, graph, calibration, and publication approval blocked; no approval or
+  exercise-card proficiency level was created.
+- Operational incident: the first two single-file invocations for migrations
+  319 and 320 reached the external Render database `vortex_postgres` because
+  `run-migration.js` loaded `.env.local` and preferred its `DATABASE_URL` over
+  the caller-supplied `DB_URL`. Both migrations succeeded there. They are
+  fail-closed and created only review/quarantine state, but the external
+  mutation was unintended. No rollback was attempted because that would be a
+  separate destructive production decision. `migrationConnection.js` now
+  snapshots and prioritizes explicit caller connection variables before dotenv,
+  and regression tests cover the precedence. Migration 321 and later family
+  validation ran only against disposable PostgreSQL.
+- Migrations 322 and 323 were applied through the normal single-file runner and
+  recorded with checksums `1204756462` and `3062041882`, then directly rerun
+  idempotently inside a transaction. Transaction-only published-card sentinels
+  proved that identity consolidation and family completion each abort with one
+  protected record before changing human-controlled state. The migrations
+  consolidate the duplicate shuffle rotational throw, preserve both source
+  mappings, add exact throw-and-retrieve and rebound-and-catch variants with
+  four contextual profiles, and keep planned/reactive cueing explicit. The
+  strict audit leaves only media, graph, calibration, and publication approval
+  blocked; no approval or exercise-card proficiency level was created.
+- Migrations 324 and 325 were applied through the normal single-file runner and
+  recorded with checksums `4262035219` and `555302137`, then rerun
+  idempotently. Isolated published-card sentinels proved that consolidation and
+  family completion each abort with one protected record before changing
+  human-controlled state. The migrations consolidate the duplicate single-leg
+  landing box-jump definition, preserve bilateral and unilateral takeoff as
+  exact variants, add four contextual profiles, four review-only graph edges,
+  six review-only calibration proposals, candidate evidence, alternates, and
+  media, and create no approval or exercise-card skill level.
+- Migrations 326 and 327 were applied through the normal single-file runner and
+  recorded with checksums `36393550` and `487017811`, then rerun idempotently.
+  Isolated published-card sentinels proved that consolidation and family
+  completion each abort before changing human-controlled state. The migrations
+  consolidate the duplicate lateral line-hop-to-stick identity, retain
+  low-amplitude-control and distance-output as exact variants, leave continuous
+  rebound line hops separate, add four contextual profiles, four review-only
+  graph edges, six review-only calibration proposals, candidate evidence,
+  alternates, and media, and create no approval or exercise-card skill level.
+- Migrations 328 and 329 were applied through the normal single-file runner and
+  recorded with checksums `2795990454` and `2140352562`, then each directly
+  rerun twice without changing row counts. Isolated disposable published-card
+  sentinels proved that identity consolidation and family completion each abort
+  with one protected record before changing human-controlled state; the guard
+  databases were removed after verification. The migrations consolidate four
+  implement- or breathing-labeled dead-bug pullover definitions, retain five
+  exact implement/leg-action variants, add ten contextual profiles, six
+  review-only graph edges, 15 review-only calibration proposals, candidate
+  evidence, alternates, and media, and create no approval or exercise-card
+  skill level.
+- Migrations 330 and 331 were applied through the normal runner and recorded
+  with checksums `631414807` and `2321430437`, then each directly rerun twice
+  without changing row counts. Isolated disposable published-card sentinels
+  proved that identity consolidation and family completion each abort with one
+  protected record before changing human-controlled state; the two guard
+  databases were removed after verification. Migration 330 consolidates six
+  implement- or tempo-labeled bilateral Romanian-deadlift definitions into the
+  stable `Romanian Deadlift` identity while preserving source mappings,
+  aliases, variants, media, and resolution provenance. Migration 331 adds eight
+  exact implement/tempo variants, 16 contextual profiles, eight review-only
+  graph edges, 24 review-only calibration proposals, 16 candidate evidence
+  sections, five candidate videos, and 12 alternate assessments. Exercise
+  difficulty is complexity plus physical difficulty with overall derived as
+  their maximum; no exercise skill level or human approval is created.
+- Migrations 332 and 333 were applied through the normal runner and recorded
+  with checksums `3780536681` and `3961694955`, then each directly rerun twice
+  without changing row counts. Isolated disposable published-card sentinels
+  proved that identity consolidation and family completion each abort with one
+  protected record before changing human-controlled state; the two guard
+  databases were removed after verification. Migration 332 consolidates the
+  dumbbell- and sandbag-labeled cards into the stable
+  `Front-Foot-Elevated Split Squat` identity. Migration 333 adds six exact
+  support/load variants, 12 contextual profiles, ten review-only graph edges,
+  18 review-only calibration proposals, 16 candidate evidence sections, five
+  candidate videos, and 12 alternate assessments. Whole-front-foot versus
+  rear-foot or heel-only elevation and stationary versus stepping or jumping
+  contacts remain explicit identity boundaries. No exercise skill level or
+  human approval is created.
+- A blank disposable PostgreSQL 15 database successfully ran the complete
+  migration chain through migration 333 and reproduced 1,531 active
+  definitions, 145 archived definitions, 1,734 variants, 1,818 delivery
+  profiles, 1,676 source mappings, 147 identity resolutions, 79 graph edges,
+  and 93 review-only calibrations.
 - Migration 305 used traceable legacy difficulty profiles to populate physical
   difficulty for 287 previously incomplete variants and mechanically derived
   overall difficulty for every supported variant. The resulting coverage is
-  1,661/1,673 variants with consistent technical, physical, and derived-overall
-  scores. The 12 variants with no source assessment remain in `review` with
+  1,663/1,676 legacy exercises with consistent technical, physical, and
+  derived-overall scores. The 13 source exercises with no assessment remain in
+  `review` with
   explicit quarantine provenance; no score approval or publication was
   created. The migration fails closed rather than changing a published variant,
   current approved card review, or approved score record.
 - Deterministic repeat tests use deep equality with the same seed.
-- All 210 canonical-research JSON artifacts pass the exercise-difficulty
+- All 250 canonical-research JSON artifacts pass the exercise-difficulty
   invariant. The normalization tool corrected 278 historical candidate-summary
   overall scores across 164 files so overall now equals the greater of
   technical complexity and physical or absolute-load demand; non-core
   dimensions remain separately available to planning.
+- The duplicate-candidate audit now builds and reuses one normalized identity
+  index. Its indexed results are regression-tested against the direct matcher,
+  and the complete 1,531-card audit avoids rebuilding identity terms inside
+  every pairwise comparison. Nineteen cards now pass every structural category
+  and remain quarantined only on
+  explicit human calibration, graph-review, media-review, and publication
+  gates.
 - Golden quality evaluation is at least 90/100 with safety and logistics at
   100/100.
 
@@ -165,7 +330,7 @@ On 2026-07-26:
 
 These are deployment and evidence gates, not code-completion claims:
 
-1. Apply the complete migration sequence through migration 309 in a
+1. Apply the complete migration sequence through migration 333 in a
    non-production environment.
 2. Run the full library audit; review anatomy, constraints, scores, media,
    relationships, and calibration evidence card by card.

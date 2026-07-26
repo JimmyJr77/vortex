@@ -4,10 +4,12 @@ import assert from 'node:assert/strict'
 import {
   approvalAppliesToVersion,
   assertIndependentReviewer,
+  buildCanonicalDuplicateIndex,
   buildCanonicalCardTestPacket,
   assertCardStatusTransition,
   evaluateCanonicalCardReadiness,
   findPotentialCanonicalDuplicates,
+  findPotentialCanonicalDuplicatesFromIndex,
   normalizeCanonicalCardDraft,
   validateCanonicalCardDraft,
   validateCanonicalRelationship,
@@ -65,16 +67,24 @@ test('draft validation protects database-required authoring fields', () => {
 })
 
 test('duplicate detection catches aliases and close normalized names', () => {
-  const matches = findPotentialCanonicalDuplicates({
+  const candidate = {
     canonicalName: 'Rear-Foot Elevated Split Squat',
     aliases: ['RFESS'],
-  }, [
+  }
+  const existing = [
     { id: '1', display_name: 'Rear Foot Elevated Split-Squat', family_key: 'split-squat', aliases: [] },
     { id: '2', display_name: 'Goblet Squat', family_key: 'squat', aliases: [] },
     { id: '3', display_name: 'Bulgarian Split Squat', family_key: 'split-squat', aliases: ['RFESS'] },
-  ])
+  ]
+  const matches = findPotentialCanonicalDuplicates(candidate, existing)
   assert.deepEqual(matches.map((match) => match.id), ['3', '1'])
   assert.equal(matches[0].exactCollision, true)
+
+  const indexedMatches = findPotentialCanonicalDuplicatesFromIndex(
+    candidate,
+    buildCanonicalDuplicateIndex(existing),
+  )
+  assert.deepEqual(indexedMatches, matches)
 })
 
 test('publication readiness requires reviewed exact-match healthy media', () => {

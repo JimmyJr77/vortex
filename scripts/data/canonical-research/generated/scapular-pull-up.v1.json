@@ -1,7 +1,7 @@
 {
   "facilityId": 1,
   "slug": "scapular-pull-up",
-  "researchVersion": "2026-07-26.26",
+  "researchVersion": "2026-07-26.30",
   "assessmentSummary": {
     "identity": "A dynamic straight-elbow hanging exercise in which the athlete moves through a small, controlled scapular range: from the assigned elevated or passive start, the shoulders move down to raise the body slightly, then return under control without elbow flexion or swing. The repeated scapular action distinguishes it from both Dead Hang and Active Hang.",
     "currentCardFindings": [
@@ -15,6 +15,11 @@
     ],
     "proposedTaxonomy": {
       "movementPatterns": [
+        "hang",
+        "pull",
+        "brace"
+      ],
+      "movementQualifiers": [
         "vertical_suspension",
         "straight_arm_scapular_pull",
         "bilateral_grip_isometric"
@@ -105,6 +110,13 @@
         "physicalDifficulty": 68,
         "derivedOverallDifficulty": 68,
         "basis": "rings add stability and grip-orientation demand while preserving the same dynamic scapular action"
+      },
+      {
+        "variantKey": "weighted",
+        "exerciseComplexity": 44,
+        "physicalDifficulty": 84,
+        "derivedOverallDifficulty": 84,
+        "basis": "added load increases grip and dynamic scapular demand and adds attachment, recovery, and controlled-exit requirements"
       },
       {
         "variantKey": "single-arm",
@@ -315,81 +327,101 @@
       ]
     },
     "currentCardSnapshot": {
-      "capturedAt": "2026-07-26T20:00:00.000Z",
-      "cardVersion": 1,
+      "capturedAt": "2026-07-26T09:22:00.000Z",
+      "cardVersion": 3,
       "status": "review",
       "description": "Hang from a secure bar or stable rings with straight elbows. Move only through the shoulder blades: allow the assigned start position, draw the shoulders down to lift the body slightly without bending the elbows, then return under control without swinging.",
       "familyKey": "Straight-arm hanging and scapular control",
       "movementPatterns": [
-        "vertical_suspension",
-        "straight_arm_scapular_pull",
-        "grip_isometric"
+        "hang",
+        "pull",
+        "brace"
       ],
       "bodyRegions": [
-        "hands_and_forearms",
-        "shoulder_girdle",
-        "upper_back",
-        "trunk"
+        "hand",
+        "wrist",
+        "elbow",
+        "shoulder",
+        "scapula",
+        "core",
+        "spine"
       ],
       "requiredEquipment": [
-        "pull_up_bar_or_stable_rings"
+        "bar_or_rings"
       ],
       "optionalEquipment": [
-        "stable_foot_assistance_box",
-        "assistance_band",
-        "landing_mat"
+        "box",
+        "bands",
+        "mat",
+        "timer",
+        "weighted_vest"
       ],
       "environment": {
-        "anchor": "rated_stable_and_height_appropriate",
-        "surface": "non_slip_with_no_cross_traffic",
-        "clearance": "full_body_and_safe_step_down",
-        "supervision": "direct_until_scapular_motion_and_dismount_are_repeatable"
+        "anchor": "rated_secure_and_checked_before_each_station_use",
+        "height": "athlete_can_mount_and_step_down_without_jumping",
+        "surface": "level_non_slip_with_matting_when_indicated",
+        "traffic": "station_isolated_from_cross_traffic",
+        "clearance": "full_body_swing_and_assisted_exit_space",
+        "bandSafety": "band_condition_anchor_path_entry_and_recoil_checked",
+        "loadAttachment": "added_load_secured_and_removed_before_dismount"
       },
       "population": {
         "readiness": [
-          "can_grasp_the_assigned_implement",
-          "can_tolerate_overhead_hanging_with_straight_elbows",
-          "can_distinguish_scapular_motion_from_elbow_flexion",
-          "can_step_down_or_receive_assistance_safely"
+          "secure_grip_or_appropriate_alternative",
+          "symptom_free_assigned_overhead_position",
+          "straight_elbow_position_without_forced_locking",
+          "controlled_mount_and_step_down_or_direct_assistance",
+          "can_follow_the_declared_passive_active_or_dynamic_scapular_mode"
         ],
+        "clinicalBoundary": "Symptoms, instability, recent surgery, neurologic signs, or rehabilitation restrictions require individualized clinician guidance; this card is not rehabilitation instruction.",
+        "selectionBoundary": "Assistance, dose, supervision, and difficulty caps follow current readiness and workout context, never an exercise-card skill level.",
         "contraindicationFlags": [
-          "current_shoulder_elbow_wrist_or_hand_pain",
-          "numbness_or_tingling",
-          "uncontrolled_swing_or_grip_loss",
-          "unsafe_dismount"
+          "current_hand_wrist_elbow_shoulder_neck_or_back_pain",
+          "numbness_tingling_dizziness_or_instability",
+          "uncontrolled_grip_loss_or_swing",
+          "unsafe_mount_dismount_anchor_or_clearance",
+          "unassessed_recent_injury_surgery_or_rehabilitation_restriction"
         ]
       },
       "difficulty": {
+        "impact": 1,
+        "supervisionDemand": 40,
         "absoluteLoadDemand": 62,
         "coordinationDemand": 42,
+        "failureConsequence": 55,
+        "workCapacityDemand": 60,
         "technicalComplexity": 38,
         "baseOverallDifficulty": 62
       },
       "loadProfile": {
-        "impactClass": "none",
+        "gripDemand": 72,
+        "impactClass": "none_except_uncontrolled_dismount",
         "loadingType": "relative_bodyweight_dynamic_scapular_pull",
         "primaryStress": [
           "grip",
-          "scapular_depression_strength",
-          "controlled_scapular_return",
-          "overhead_shoulder_tolerance",
-          "trunk_control"
-        ]
+          "dynamic_scapular_depression_and_controlled_return",
+          "straight_arm_position",
+          "safe_dismount"
+        ],
+        "spinalLoading": 8,
+        "eccentricStress": 32,
+        "externalLoadMethod": "bodyweight",
+        "landingContactsPerRep": 0
       },
       "fatigueProfile": {
+        "gripFatigue": 72,
         "qualityLoss": [
+          "grip_opens_or_slips",
           "elbows_bend",
-          "range_shrinks",
-          "return_drops_uncontrolled",
+          "shoulder_mode_changes",
           "body_swings",
-          "grip_slips",
-          "breath_holding"
+          "dismount_quality_declines"
         ],
-        "localFatigue": [
-          "finger_and_forearm_fatigue",
-          "scapular_depressor_fatigue"
-        ],
-        "recoveryDriver": "grip_scapular_and_shoulder_response_plus_total_pulling_volume"
+        "recoveryHours": 24,
+        "impactAccumulation": 1,
+        "localMuscleFatigue": 62,
+        "cumulativeLoadWarning": "Count with pull-ups, climbing, carries, rings, rope, and other grip or scapular work.",
+        "technicalFatigueSensitivity": 58
       }
     }
   },

@@ -1,0 +1,787 @@
+{
+  "batchKey": "depth-box-order-sequences-v1",
+  "researchVersion": "2026-07-26.31",
+  "snapshotAt": "2026-07-26T09:57:27.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "A compound jump card must declare every takeoff, support surface, landing, stabilization, transition, exit, and reset in order; reversing the order changes the exercise.",
+        "{{canonicalName}} must not collapse a step-off, a reactive ground contact, a floor-to-box jump, an elevated landing, and a floor drop landing into generic box-jump language."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "drop_jump_training_methodology_review",
+      "claims": [
+        "Drop height, ground-contact behavior, countermovement strategy, arm use, rebound direction, landing target, and terminal landing are distinct plyometric dimensions.",
+        "{{canonicalName}} uses controlled jump, land, and brace taxonomy; exact support order, reactive versus stabilized transition, arm restriction, heights, and landing intent remain explicit mechanics qualifiers."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Stepping off, absorbing, propelling, and landing require coordinated foot, ankle, knee, hip, pelvis, trunk, and, when permitted, shoulder-girdle actions.",
+        "The card should describe plantar-flexor, quadriceps, and hip-extensor propulsion; foot, hip, and trunk stabilization; and controlled ankle, knee, and hip flexion during landing without claiming isolated-muscle training."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "drop_jump_technique_rsi_study",
+      "claims": [
+        "Drop-jump technique changes ground-contact time, jump height, and reactive-strength outcomes, so a fast rebound and a deliberately stabilized landing cannot be treated as interchangeable.",
+        "Observable quality includes a true step-off rather than an upward jump from the drop box, bilateral organized contact, the declared transition timing, appropriate projection, and a controlled final landing."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "drop_jump_training_methodology_review",
+      "claims": [
+        "Difficulty varies with drop height, relative body mass, reactive contact-time demand, projection target, arm restriction, total contacts, equipment consequence, fatigue, and required landing control.",
+        "Assess exercise complexity and physical difficulty independently for every exact variant and derive overall difficulty as their maximum; supervision, consequence, impact, fatigue, and coordination remain separate planning dimensions."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "plyometric_tendon_adaptation_meta_analysis",
+      "claims": [
+        "Plyometric training loads the lower-extremity muscle-tendon system through repeated eccentric-concentric and landing exposures, with adaptation and recovery depending on dose and intensity.",
+        "{{canonicalName}} must count both landing contacts in each completed repetition, record drop and target heights, and accumulate its eccentric, impact, technical-sensitivity, and lower-leg load with other sprinting and jumping work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Exercise selection requires qualified instruction, appropriate progression, safe equipment and space, and individual physical and psychosocial readiness.",
+        "The setup must declare the number, type, height, spacing, stability, traction, top-surface clearance, landing zone, step-down route, ceiling clearance, station boundary, and coach sightline for every box and mat."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "drop_jump_training_methodology_review",
+      "claims": [
+        "Drop-jump volume and intensity cannot be represented by repetitions alone; drop height, technique, contact time, jump target, and recovery materially change the dose.",
+        "Prescribe low-repetition sets, two contacts per repetition, declared heights, full reset, adequate inter-repetition and inter-set rest, and termination on performance or landing-quality loss rather than conditioning density."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Focused augmented feedback can improve jump-landing mechanics, while an excessive cue set can interfere with learning.",
+        "Use a short sequence-specific cue set, demonstrate the complete order, identify the final stick, and require teach-back before the athlete enters the station."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_basketball_depth_jump_to_box",
+      "claims": [
+        "Landing quality and knee-to-toe alignment must be established before progressing from a drop landing to a depth jump and then to a depth jump onto a box.",
+        "Stop for pain, giving way, hesitation, dizziness, unstable equipment, toe catch, missed or partial-foot box contact, an uncontrolled step-off, asymmetrical or loud contact, valgus or trunk collapse, unplanned rebound, rising contact time, or loss of the declared sequence."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "reactive_strength_plyometric_meta_analysis",
+      "claims": [
+        "Plyometric jump training can improve reactive-strength outcomes, but exercise choice and dose vary substantially across programs.",
+        "{{canonicalName}} belongs in a freshness-sensitive output or landing-control context chosen from its exact sequence; it is not a generic conditioning exercise and should not precede higher-consequence technical work when fatigue is expected."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Athlete support should display the complete ordered sequence, box roles, contact count, final landing shape, reset route, primary cue, and stop signal.",
+        "The interface should explain that box height is a constraint rather than a status score and should offer a lower-height or single-task regression without shame language."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "drop_jump_training_methodology_review",
+      "claims": [
+        "Coaches need the prescribed drop height, technique, contact-time intent, jump target, contact count, and recovery to interpret or reproduce a drop-jump exposure.",
+        "Coach support should provide front and side observation, box and lane checks, sequence verification, landing and contact-time criteria, exposure counting, fatigue-order warnings, regression decisions, and an immediate station shutdown rule."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_long_term_development",
+      "claims": [
+        "Training should be individualized and progressed from current readiness and movement competence rather than from a level assigned to an exercise.",
+        "Use lower stable boxes, wider visual landing targets, high-contrast edges, a demonstrated step-down route, reduced contact count, longer reset, plain-language cues, and separate drop-landing or box-jump tasks when the compound sequence is not currently accessible."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "countermovement_squat_jump_review",
+      "claims": [
+        "Removing a countermovement changes jump mechanics and performance, so arm and start restrictions must be explicit rather than hidden in a title.",
+        "Height and spacing are dosage or setup modifiers; reversing task order, changing reactive to paused contact, adding rebound contacts, changing landing laterality, or changing projection direction requires a variant, separate definition, or explicit rejection."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied links are discovery candidates only. Current oEmbed availability does not establish complete viewing, exact movement and variant match, cue or safety quality, captions, accessibility, reviewer identity, or approval."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "depth-drop-to-box-jump",
+      "assessmentSummary": {
+        "identity": "A bilateral reactive sequence using two stable boxes: step from a declared drop box without jumping upward, contact the floor bilaterally, transition immediately into a maximal or high-intent bilateral jump onto a target box, land with both feet fully supported, stabilize, stand, step down, and fully reset. Depth Jump to Box, Depth Jump to Box Jump, and Depth Drop to Box Jump are names for this same declared sequence.",
+        "currentCardFindings": [
+          "The existing description starts at the propulsion phase and omits the first box, step-off, initial ground landing, immediate reactive transition, two-box requirement, and two landing contacts per repetition.",
+          "The separate Depth Jump to Box Jump source has identical purpose, setup, execution, quality gates, difficulty, and overlapping candidate videos; it is an exact semantic duplicate rather than a new variant.",
+          "The current 80/80 score is an unsupported legacy category value. The sequence has high coordination, equipment consequence, and supervision demand, but bodyweight physical difficulty should be assessed separately from those dimensions.",
+          "Drop height, target-box height, spacing, and reset duration are dose or setup variables, not athlete skill levels or separate identities.",
+          "Three direct videos have current successful oEmbed responses and exact-looking public titles, but no complete viewing, exact-match review, safety review, caption review, reviewer identity, or approval has occurred."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "jump",
+            "land",
+            "brace"
+          ],
+          "movementQualifiers": [
+            "two_box_ordered_sequence",
+            "bilateral_step_off_to_floor_contact",
+            "immediate_eccentric_to_concentric_transition",
+            "bilateral_floor_to_target_box_jump",
+            "elevated_bilateral_final_landing",
+            "step_down_reset"
+          ],
+          "jointActions": [
+            "ankle_knee_and_hip_flexion_on_initial_contact",
+            "rapid_ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "shoulder_flexion_when_arm_swing_is_permitted",
+            "ankle_knee_and_hip_flexion_on_final_landing",
+            "trunk_stabilization"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "bilateral_takeoff_and_bilateral_landings",
+          "intent": "rapid_absorption_to_vertical_projection_with_reduced_final_landing_height"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius",
+            "achilles_tendon_and_lower_extremity_elastic_tissues"
+          ],
+          "secondaryMusclesAndTissues": [
+            "hamstrings",
+            "gluteus_medius",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "trunk_stabilizers",
+            "shoulder_flexors_when_arm_swing_is_permitted"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ],
+          "primaryActions": [
+            "controlled_step_off",
+            "initial_bilateral_eccentric_landing",
+            "rapid_reversal_to_bilateral_vertical_propulsion",
+            "target_box_clearance",
+            "final_bilateral_eccentric_landing_and_stabilization",
+            "safe_step_down"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 64,
+          "absoluteLoadDemand": 58,
+          "coordinationDemand": 70,
+          "supervisionDemand": 72,
+          "failureConsequence": 76,
+          "impact": 64,
+          "workCapacityDemand": 28,
+          "baseOverallDifficulty": 64
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "baseline",
+            "exerciseComplexity": 64,
+            "physicalDifficulty": 58,
+            "derivedOverallDifficulty": 64,
+            "basis": "the athlete must organize a true step-off, initial landing, immediate reactive transition, target-box clearance, and final landing across two boxes"
+          },
+          {
+            "variantKey": "hands-on-hips",
+            "exerciseComplexity": 68,
+            "physicalDifficulty": 58,
+            "derivedOverallDifficulty": 68,
+            "basis": "removing arm swing preserves the ordered sequence while reducing balance assistance and increasing lower-body and trunk coordination demand"
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_reactive_plyometric_with_two_landings",
+          "impactClass": "high_and_height_dependent",
+          "externalLoadMethod": "bodyweight_only_for_the_candidate_card",
+          "landingContactsPerRep": 2,
+          "primaryStress": [
+            "initial_drop_landing_eccentric_load",
+            "rapid_stretch_shortening_transition",
+            "vertical_propulsive_impulse",
+            "target_box_landing_control"
+          ],
+          "fatigueProfile": [
+            "longer_ground_contact",
+            "lower_or_forward_projection",
+            "toe_catch_or_partial_foot_contact",
+            "loud_or_asymmetrical_landings",
+            "valgus_or_trunk_collapse",
+            "hesitation_between_contacts",
+            "loss_of_step_down_control"
+          ],
+          "recoveryHours": "context dependent; count both contacts and combine this exposure with other jumps, sprints, heavy lower-body strength, tendon loading, and landing work"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "two_stable_non_slip_plyometric_boxes"
+          ],
+          "optionalEquipment": [
+            "landing_mat",
+            "contact_mat_or_force_platform",
+            "video_feedback",
+            "timer"
+          ],
+          "environment": [
+            "drop_box_and_target_box_cannot_shift",
+            "declared_spacing_and_target_height",
+            "unobstructed_floor_contact_zone",
+            "clear_target_top_and_front_edge",
+            "adequate_ceiling_and_step_down_route",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_drop_landing_and_bilateral_box_jump",
+            "consistent_bilateral_landing_alignment",
+            "can_step_off_without_upward_jump",
+            "can_clear_and_land_fully_on_the_target_box",
+            "can_follow_stop_and_reset instructions"
+          ],
+          "requiresDirectSupervision": true,
+          "groupRule": "One athlete moves in the station at a time; a coach must see the initial floor contact and the target-box landing.",
+          "clinicalBoundary": "Pain, giving way, recent injury or surgery, neurologic symptoms, or rehabilitation restrictions require individualized clinician guidance; this is not rehabilitation instruction."
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "2-4",
+          "contactsPerRep": 2,
+          "contactsPerSet": "4-8",
+          "interRepetitionResetSeconds": "10-20",
+          "interSetRestSeconds": "120-240",
+          "effort": "high intent only while both contacts and target-box landing remain repeatable",
+          "dropHeightRule": "Use the lowest height that produces the intended contact behavior; do not progress height when contact time, alignment, confidence, or output worsens.",
+          "targetHeightRule": "Use a box the athlete clears without excessive hip tuck and can land on with the full foot and organized posture.",
+          "frequency": "Count with the complete weekly high-intensity plyometric and sprint exposure.",
+          "stopRule": "End the set on the first miss, unsafe contact, pain, hesitation, material contact-time increase, output drop, or landing-quality failure."
+        },
+        "proposedFatigueRecovery": {
+          "acuteCost": "high neural, eccentric, impact, and technical-sensitivity cost despite low metabolic demand",
+          "localFatigue": [
+            "plantar_flexors_and_achilles",
+            "quadriceps",
+            "gluteals",
+            "intrinsic_foot",
+            "hip_and_trunk_stabilizers"
+          ],
+          "cumulativeBudgets": [
+            "impact_contacts",
+            "eccentric_stress",
+            "lower_leg_and_tendon_load",
+            "technical_sensitivity",
+            "high_intent_jump_exposures"
+          ],
+          "recoveryRule": "Do not repeat high-intensity exposure while soreness, pain, landing asymmetry, hesitation, or output loss persists; recovery time is individualized rather than inferred from a card level."
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "nsca_basketball_depth_jump_to_box",
+          "claims": [
+            "The NSCA sequence starts on one box, steps off to a floor landing, then immediately jumps onto a second box; landing mechanics on the target box remain part of the exercise.",
+            "Depth Jump to Box, Depth Jump to Box Jump, and Depth Drop to Box Jump describe the same ordered task when drop height, transition intent, and target landing are declared."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "nsca_basketball_depth_jump_to_box",
+          "claims": [
+            "The source presents drop landing, depth jump, and depth jump to box as a progression governed by demonstrated mechanics, strength, power, and individualized exposure.",
+            "Use {{canonicalName}} only after the athlete owns the prerequisite drop landing, reactive jump, target-box landing, and safe exit at the prescribed heights."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "nsca_basketball_depth_jump_to_box",
+          "claims": [
+            "A drop landing ends in a hold, a depth jump rebounds to a free landing, and a depth jump to box rebounds onto a second box; these are separate identities despite sharing the initial step-off.",
+            "Hands-on-hips is a scored arm-restriction variant. Height and spacing are modifiers. Paused contact, horizontal projection, unilateral contacts, repeated contacts, and reversed order require separate decisions."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=H5vvlcANU8Y",
+          "title": "Depth Drop to Box Jump (12”)",
+          "channelName": "CresseyPerf",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and embed response are healthy. Exact two-box sequence, full viewing, heights, cue quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=rv3Sq3u-UhU",
+          "title": "Depth Drop To Box Jump - THIRSTgym.com",
+          "channelName": "Brandon Smitley",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and embed response are healthy. Exact sequence, complete viewing, demonstration quality, safety, captions, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=wRvUBhlTjHU",
+          "title": "Depth Drop to Box Jump",
+          "channelName": "N1 Motion",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and embed response are healthy. Exact variant, complete viewing, landing quality, cue quality, safety, captions, reviewer identity, and approval remain pending."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Depth Jump to Box",
+          "classification": "same_identity",
+          "rationale": "The NSCA name describes the same step-off, floor contact, immediate jump, and target-box landing sequence.",
+          "distinguishingDimensions": {
+            "alias": true,
+            "orderedSequence": "drop_box_to_floor_to_target_box"
+          }
+        },
+        {
+          "name": "Depth Jump to Box Jump",
+          "classification": "same_identity",
+          "rationale": "The historical card duplicates the same two-box reactive sequence and should consolidate into the stable survivor.",
+          "distinguishingDimensions": {
+            "duplicateSourceSlug": "depth-jump-to-box-jump"
+          }
+        },
+        {
+          "name": "Hands-on-Hips Depth Drop to Box Jump",
+          "classification": "new_variant",
+          "rationale": "Arm restriction preserves the ordered movement but changes balance assistance, propulsion strategy, and exercise complexity.",
+          "distinguishingDimensions": {
+            "armUse": "hands_on_hips"
+          }
+        },
+        {
+          "name": "Low-Box Depth Drop to Box Jump",
+          "classification": "modifier_annotation",
+          "rationale": "Drop and target heights are prescribed dose and setup values on the same sequence.",
+          "distinguishingDimensions": {
+            "dropHeight": "lower",
+            "targetHeight": "athlete_specific"
+          }
+        },
+        {
+          "name": "Paused Depth Drop then Box Jump",
+          "classification": "new_definition",
+          "rationale": "A deliberate pause removes the immediate reactive transition and becomes a compound drop-landing-plus-box-jump sequence.",
+          "distinguishingDimensions": {
+            "groundContact": "stabilized_pause"
+          }
+        },
+        {
+          "name": "Depth Jump to Vertical Jump",
+          "classification": "new_definition",
+          "rationale": "The rebound ends in a free floor landing rather than an elevated target-box landing.",
+          "distinguishingDimensions": {
+            "terminalLanding": "floor"
+          }
+        },
+        {
+          "name": "Depth Drop to Broad Jump",
+          "classification": "new_definition",
+          "rationale": "Horizontal projection changes mechanics, space, landing, and stimulus.",
+          "distinguishingDimensions": {
+            "projection": "horizontal"
+          }
+        },
+        {
+          "name": "Single-Leg Depth Drop to Single-Leg Box Hop",
+          "classification": "new_definition",
+          "rationale": "Unilateral initial and final contacts materially change load per limb, balance, difficulty, and consequence.",
+          "distinguishingDimensions": {
+            "laterality": "unilateral"
+          }
+        },
+        {
+          "name": "Repeated Depth Drop to Box Jumps",
+          "classification": "new_definition",
+          "rationale": "Repeated contacts remove the full reset and create a multi-contact reactive series.",
+          "distinguishingDimensions": {
+            "repetitionStrategy": "continuous_reactive"
+          }
+        },
+        {
+          "name": "Weighted Depth Drop to Box Jump",
+          "classification": "reject",
+          "rationale": "The candidate card has no evidence-backed external-load protocol, attachment method, release rule, or acceptable added risk; do not silently create a loaded variant.",
+          "distinguishingDimensions": {
+            "externalLoad": "unsupported_candidate"
+          }
+        },
+        {
+          "name": "Box Jump to Depth Drop",
+          "classification": "new_definition",
+          "rationale": "Reversing the order produces a stabilized floor-to-box jump followed by a deliberate floor drop landing, not an immediate reactive step-off-to-box jump.",
+          "distinguishingDimensions": {
+            "orderedSequence": "floor_to_box_to_floor"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "box-jump-to-depth-drop",
+      "assessmentSummary": {
+        "identity": "A deliberate two-part sequence using one stable box: perform a bilateral floor-to-box jump, land fully on the box, stabilize and stand under control, then deliberately step off without jumping upward, land bilaterally on the floor, absorb and hold the final landing, and reset. The box stabilization separates the power task from the later drop landing; this is not a continuous rebound.",
+        "currentCardFindings": [
+          "The existing summary says a drop-and-stick follows a box jump, but its setup and execution omit the initial floor-to-box jump and do not define stabilization before the step-off.",
+          "Box Jump with Altitude Landing has the same purpose, sequence summary, delivery phase, execution copy, and two overlapping videos; altitude landing is an alias for the deliberate post-box floor landing, not a separate exercise.",
+          "The current 70/80 score conflates physical difficulty with supervision, impact, and failure consequence. The compound order raises complexity, while physical demand remains bodyweight and height dependent.",
+          "The card requires one stable box, two landing contacts per repetition, a nonreactive stabilization on top, and a final floor stick; jumping down or rebounding from the final landing changes the task.",
+          "Four direct candidate videos have current successful oEmbed responses. Public metadata alone does not establish exact full-sequence match, safe instruction, captions, accessibility, reviewer identity, or approval."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "jump",
+            "land",
+            "brace"
+          ],
+          "movementQualifiers": [
+            "floor_to_box_to_floor_ordered_sequence",
+            "bilateral_floor_to_box_jump",
+            "elevated_bilateral_landing_and_stabilization",
+            "controlled_step_off",
+            "bilateral_floor_drop_landing_and_stick",
+            "full_reset"
+          ],
+          "jointActions": [
+            "countermovement_ankle_knee_and_hip_flexion",
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "shoulder_flexion_when_arm_swing_is_permitted",
+            "elevated_landing_flexion_control",
+            "floor_landing_flexion_control",
+            "trunk_stabilization"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "bilateral_takeoff_and_bilateral_landings",
+          "intent": "box_jump_power_followed_by_deliberate_drop_landing_control"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius",
+            "lower_extremity_landing_tissues"
+          ],
+          "secondaryMusclesAndTissues": [
+            "hamstrings",
+            "gluteus_medius",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "trunk_stabilizers",
+            "shoulder_flexors_when_arm_swing_is_permitted"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ],
+          "primaryActions": [
+            "bilateral_floor_to_box_propulsion",
+            "elevated_bilateral_landing_and_stabilization",
+            "controlled_step_off",
+            "bilateral_floor_drop_landing_and_absorption",
+            "held_final_stick",
+            "safe_reset"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 54,
+          "coordinationDemand": 62,
+          "supervisionDemand": 68,
+          "failureConsequence": 72,
+          "impact": 60,
+          "workCapacityDemand": 30,
+          "baseOverallDifficulty": 58
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "baseline",
+            "exerciseComplexity": 58,
+            "physicalDifficulty": 54,
+            "derivedOverallDifficulty": 58,
+            "basis": "the athlete must complete a floor-to-box jump, stabilize, execute a true step-off, and own a second floor landing without merging the tasks"
+          },
+          {
+            "variantKey": "hands-on-hips",
+            "exerciseComplexity": 62,
+            "physicalDifficulty": 54,
+            "derivedOverallDifficulty": 62,
+            "basis": "arm restriction preserves order but changes propulsion, elevated balance, step-off control, and floor-landing organization"
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_box_jump_plus_deliberate_drop_landing",
+          "impactClass": "moderate_to_high_and_height_dependent",
+          "externalLoadMethod": "bodyweight_only_for_the_candidate_card",
+          "landingContactsPerRep": 2,
+          "primaryStress": [
+            "floor_to_box_propulsive_impulse",
+            "elevated_landing_control",
+            "post_stabilization_drop_landing_eccentric_load",
+            "final_floor_stick"
+          ],
+          "fatigueProfile": [
+            "toe_catch_or_partial_foot_box_landing",
+            "failure_to_stabilize_on_top",
+            "jumping_instead_of_stepping_off",
+            "loud_or_asymmetrical_floor_landing",
+            "valgus_or_trunk_collapse",
+            "unplanned_rebound",
+            "unsafe_exit"
+          ],
+          "recoveryHours": "context dependent; count both contacts and combine this exposure with other box jumps, drop landings, sprints, lower-body strength, and tendon loading"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "one_stable_non_slip_plyometric_box"
+          ],
+          "optionalEquipment": [
+            "landing_mat",
+            "visual_landing_marks",
+            "video_feedback",
+            "timer"
+          ],
+          "environment": [
+            "box_cannot_shift",
+            "clear_takeoff_and_top_surface",
+            "unobstructed_step_off_and_floor_landing_zone",
+            "adequate_ceiling_and_reset_route",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_bilateral_box_jump_and_drop_landing",
+            "can_land_fully_and_stabilize_on_the_box",
+            "can_step_off_without_upward_jump",
+            "can_absorb_and_hold_the_floor_landing",
+            "can_follow_stop_and_reset_instructions"
+          ],
+          "requiresDirectSupervision": true,
+          "groupRule": "One athlete moves in the station at a time; the coach must see the box landing, top stabilization, step-off, and floor landing.",
+          "clinicalBoundary": "Pain, giving way, recent injury or surgery, neurologic symptoms, or rehabilitation restrictions require individualized clinician guidance; this is not rehabilitation instruction."
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "2-4",
+          "contactsPerRep": 2,
+          "contactsPerSet": "4-8",
+          "interRepetitionResetSeconds": "10-20",
+          "interSetRestSeconds": "90-180",
+          "effort": "submaximal_to_high box-jump intent with complete stabilization and a deliberate final landing",
+          "boxHeightRule": "Use a height the athlete clears without excessive hip tuck, lands on with the full foot, and can safely step from for the final landing.",
+          "frequency": "Count with weekly jump and landing exposure rather than treating the second contact as free.",
+          "stopRule": "End the set on the first miss, pain, unstable box, partial-foot contact, inability to stabilize, unsafe step-off, unplanned rebound, or floor-landing quality failure."
+        },
+        "proposedFatigueRecovery": {
+          "acuteCost": "moderate_to_high eccentric, impact, coordination, and supervision cost with low metabolic intent",
+          "localFatigue": [
+            "plantar_flexors_and_achilles",
+            "quadriceps",
+            "gluteals",
+            "intrinsic_foot",
+            "hip_and_trunk_stabilizers"
+          ],
+          "cumulativeBudgets": [
+            "impact_contacts",
+            "eccentric_stress",
+            "lower_leg_and_tendon_load",
+            "technical_sensitivity",
+            "jump_and_landing_exposures"
+          ],
+          "recoveryRule": "Do not repeat the exposure while soreness, pain, asymmetry, hesitation, box-landing loss, or floor-landing loss persists; individual readiness governs reuse."
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "smitley_box_jump_depth_drop_sequences",
+          "claims": [
+            "The named sequence combines a traditional floor-to-box jump with a controlled post-box step-off and floor landing.",
+            "Box Jump to Depth Drop and Box Jump with Altitude Landing are the same identity when both mean floor-to-box jump, top stabilization, deliberate step-off, floor stick, and reset."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "landing_intervention_systematic_review",
+          "claims": [
+            "Landing-oriented training interventions can change lower-extremity landing mechanics, but protocols and populations vary.",
+            "Use {{canonicalName}} as a low-volume compound power-and-landing-control task only when combining the two contacts serves the session; otherwise prescribe the box jump and drop landing separately."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "smitley_box_jump_depth_drop_sequences",
+          "claims": [
+            "The defining order is floor-to-box jump followed by a controlled step-off and floor landing; a continuous jump-down, rebound, or reversed step-off-to-box sequence is not the same exercise.",
+            "Hands-on-hips is a scored arm-restriction variant. Box height and landing marks are modifiers. Unilateral, lateral, continuous, externally loaded, and reversed-order tasks require separate decisions."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=-ZGryFyvnt4",
+          "title": "Box Jump To Depth Drop - THIRSTgym.com",
+          "channelName": "Brandon Smitley",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and embed response are healthy. Exact complete sequence, stabilization, step-off, landing, cue quality, safety, captions, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=ZL54zeg6qjg",
+          "title": "Box Jump with Altitude Landing",
+          "channelName": "Coach Ryan Patrick",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and embed response are healthy. Altitude-landing equivalence, complete viewing, exact sequence, safety, captions, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=v-DkonrKU28",
+          "title": "Altitude Landing",
+          "channelName": "Inner Strength",
+          "sourceQuery": "Candidate inherited from the consolidated altitude-landing duplicate and rechecked through current YouTube oEmbed",
+          "notes": "Current title and embed response are healthy. It may show only the terminal landing rather than the complete box-jump sequence; exact match and all quality gates remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=yG8pexv9J6g",
+          "title": "Depth Drop",
+          "channelName": "Sacrifice Training",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and embed response are healthy. It may show only the terminal drop landing; exact full-sequence match, safety, captions, reviewer identity, and approval remain pending."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Box Jump with Altitude Landing",
+          "classification": "same_identity",
+          "rationale": "The historical source duplicates the floor-to-box jump followed by a deliberate post-box floor landing and should consolidate into the stable survivor.",
+          "distinguishingDimensions": {
+            "duplicateSourceSlug": "box-jump-with-altitude-landing"
+          }
+        },
+        {
+          "name": "Hands-on-Hips Box Jump to Depth Drop",
+          "classification": "new_variant",
+          "rationale": "Arm restriction preserves the ordered sequence while changing propulsion, top balance, and landing coordination.",
+          "distinguishingDimensions": {
+            "armUse": "hands_on_hips"
+          }
+        },
+        {
+          "name": "Low Box Jump to Depth Drop",
+          "classification": "modifier_annotation",
+          "rationale": "Box height is a dose and setup variable when the full sequence and both landings remain unchanged.",
+          "distinguishingDimensions": {
+            "boxHeight": "lower"
+          }
+        },
+        {
+          "name": "Box Jump to Marked Depth Drop",
+          "classification": "modifier_annotation",
+          "rationale": "Visual floor marks constrain landing location without changing the sequence.",
+          "distinguishingDimensions": {
+            "landingTarget": "visual_marks"
+          }
+        },
+        {
+          "name": "Box Jump to Depth Jump",
+          "classification": "new_definition",
+          "rationale": "An immediate rebound after the floor contact replaces the terminal stick with another reactive propulsion.",
+          "distinguishingDimensions": {
+            "terminalAction": "reactive_rebound"
+          }
+        },
+        {
+          "name": "Box Jump to Single-Leg Depth Drop",
+          "classification": "new_definition",
+          "rationale": "A unilateral final landing materially changes per-limb load, balance, difficulty, and consequence.",
+          "distinguishingDimensions": {
+            "terminalLaterality": "unilateral"
+          }
+        },
+        {
+          "name": "Lateral Box Jump to Lateral Depth Drop",
+          "classification": "new_definition",
+          "rationale": "Frontal-plane takeoff and landing direction change mechanics, space, and supervision.",
+          "distinguishingDimensions": {
+            "projection": "lateral"
+          }
+        },
+        {
+          "name": "Continuous Box Jump Down",
+          "classification": "reject",
+          "rationale": "Jumping down without top stabilization or final stick removes the deliberate landing-control identity and raises unbounded impact exposure.",
+          "distinguishingDimensions": {
+            "topStabilization": false,
+            "exit": "jump_down"
+          }
+        },
+        {
+          "name": "Weighted Box Jump to Depth Drop",
+          "classification": "reject",
+          "rationale": "The candidate evidence does not establish a safe external-load method for both the box landing and post-box drop landing.",
+          "distinguishingDimensions": {
+            "externalLoad": "unsupported_candidate"
+          }
+        },
+        {
+          "name": "Depth Drop to Box Jump",
+          "classification": "new_definition",
+          "rationale": "Reversing the order creates a reactive step-off-to-floor-to-target-box task with two boxes and no top stabilization between contacts.",
+          "distinguishingDimensions": {
+            "orderedSequence": "drop_box_to_floor_to_target_box"
+          }
+        }
+      ]
+    }
+  ]
+}

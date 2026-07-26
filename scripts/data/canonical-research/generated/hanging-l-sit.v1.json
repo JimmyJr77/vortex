@@ -1,0 +1,648 @@
+{
+  "facilityId": 1,
+  "slug": "hanging-l-sit",
+  "researchVersion": "2026-07-26.28",
+  "assessmentSummary": {
+    "identity": "A static bilateral compression hold performed while suspended by both hands from a secure overhead bar or stable rings. From a still hang, the athlete holds the declared leg shape and height while maintaining grip, shoulder position, trunk and pelvic control, breathing, and a safe step-down.",
+    "currentCardFindings": [
+      "No legacy Hanging L-Sit card existed, despite the movement having a distinct overhead-suspension identity and official instructional coverage.",
+      "The card is created as an unpublished, review-only legacy source plus canonical definition so migration coverage and rollback lineage remain complete.",
+      "Tuck and one-leg versions change knee angle, lever, asymmetry, difficulty, and dosage while preserving the static two-hand hanging identity.",
+      "Support L-Sit changes overhead suspension to straight-arm push support and is a separate exercise definition.",
+      "Dynamic hanging leg raise changes contraction and intent from a static hold to repeated hip flexion and lowering and is a separate exercise definition.",
+      "Exercise difficulty is assessed only as exercise complexity and physical difficulty, with overall equal to their maximum. This exercise card carries no athlete or class level.",
+      "All five media links remain candidate-only. Metadata availability is not exact-match review, safety approval, content approval, or future availability."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "overhead_suspension",
+        "static_bilateral_hip_flexion",
+        "anterior_trunk_and_pelvic_control",
+        "grip_isometric"
+      ],
+      "jointActions": [
+        "finger_and_wrist_flexion_isometric",
+        "elbow_extension_held",
+        "overhead_shoulder_and_scapular_position_held",
+        "bilateral_hip_flexion_isometric",
+        "pelvic_and_trunk_position_control",
+        "knee_extension_isometric_by_variant"
+      ],
+      "planes": [
+        "sagittal_primary",
+        "frontal_and_transverse_isometric_control"
+      ],
+      "laterality": "bilateral_baseline_with_declared_asymmetric_one_leg_variant",
+      "intent": "static_two_hand_hanging_compression_hold_without_swing"
+    },
+    "proposedAnatomy": {
+      "primaryMusclesAndTissues": [
+        "iliopsoas_and_other_hip_flexors",
+        "rectus_abdominis",
+        "internal_and_external_obliques",
+        "finger_and_wrist_flexors",
+        "latissimus_dorsi_and_scapular_stabilizers"
+      ],
+      "secondaryMusclesAndTissues": [
+        "rotator_cuff",
+        "deep_trunk_stabilizers",
+        "spinal_stabilizers",
+        "quadriceps_for_extended_knee_variants"
+      ],
+      "joints": [
+        "hand_and_wrist",
+        "elbow",
+        "glenohumeral_joint",
+        "scapulothoracic_articulation",
+        "thoracic_and_lumbar_spine",
+        "pelvis",
+        "hip",
+        "knee"
+      ],
+      "primaryActions": [
+        "maintain_secure_bilateral_grip",
+        "hold_a_tolerated_overhead_shoulder_position",
+        "settle_and_prevent_swing",
+        "hold_the_declared_leg_shape_and_height",
+        "control_pelvis_trunk_and_breathing",
+        "step_down_safely"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 50,
+      "absoluteLoadDemand": 68,
+      "coordinationDemand": 54,
+      "supervisionDemand": 62,
+      "failureConsequence": 64,
+      "impact": 1,
+      "workCapacityDemand": 68,
+      "baseOverallDifficulty": 68
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "tuck",
+        "exerciseComplexity": 38,
+        "physicalDifficulty": 50,
+        "derivedOverallDifficulty": 50,
+        "basis": "Knee flexion shortens the leg lever, but the athlete still supports a full bodyweight hang, grip, overhead shoulder position, stillness, breathing, and safe exit."
+      },
+      {
+        "variantKey": "one-leg",
+        "exerciseComplexity": 44,
+        "physicalDifficulty": 58,
+        "derivedOverallDifficulty": 58,
+        "basis": "One extended leg lengthens the lever and adds asymmetric anti-rotation control while retaining the hanging support and grip demands."
+      },
+      {
+        "variantKey": "baseline",
+        "exerciseComplexity": 50,
+        "physicalDifficulty": 68,
+        "derivedOverallDifficulty": 68,
+        "basis": "Both extended knees create a long bilateral lever while the athlete maintains full grip, overhead suspension, stillness, trunk and pelvic control, and breathing."
+      }
+    ],
+    "proposedLoadProfile": {
+      "loadingType": "relative_bodyweight_static_long_lever_overhead_hang",
+      "impactClass": "none_except_uncontrolled_dismount",
+      "externalLoadMethod": "bodyweight",
+      "primaryStress": [
+        "grip_isometric",
+        "overhead_shoulder_position",
+        "hip_flexion_isometric",
+        "trunk_and_pelvic_control",
+        "knee_extension_isometric_on_long_lever_variants",
+        "safe_mount_and_exit"
+      ],
+      "fatigueProfile": [
+        "grip_opening",
+        "shoulder_position_change",
+        "swing",
+        "legs_or_knees_drop",
+        "pelvic_or_trunk_position_changes",
+        "breathing_becomes_uncontrolled",
+        "unsafe_dismount"
+      ],
+      "recoveryHours": "Dose and context dependent. Count the work with pull-ups, climbing, carries, hanging leg raises, bar skills, other grip or overhead work, and compression training. Long holds, full lever, rings, or near-failure work may require more recovery."
+    },
+    "proposedConstraints": {
+      "equipment": [
+        "rated_secure_bar_or_stable_rings",
+        "safe_mount_or_box",
+        "clear_hang_and_leg_space",
+        "non_slip_landing_surface"
+      ],
+      "environment": [
+        "clear_hanging_lane",
+        "no_cross_traffic",
+        "safe_step_down",
+        "direct_supervision_until_repeatable"
+      ],
+      "population": [
+        "secure_grip_or_approved_substitute",
+        "tolerated_overhead_hang",
+        "still_start",
+        "owned_declared_leg_lever",
+        "controlled_breathing_and_exit"
+      ],
+      "exclusions": [
+        "current_relevant_pain_or_neurologic_symptoms",
+        "grip_slip_or_uncontrolled_swing",
+        "unsafe_anchor_mount_or_exit",
+        "fatigue_that_obscures_the_static_compression_stimulus"
+      ]
+    },
+    "proposedDosage": {
+      "phase": "capacity",
+      "sets": "2_to_5",
+      "workSeconds": "4_to_20_by_variant",
+      "restSeconds": "75_to_180",
+      "effortCeiling": "Stop with grip, shoulder, stillness, shape, breathing, and exit reserve.",
+      "weeklyExposure": "Usually one to three quality exposures, adjusted for all other grip, hanging, pulling, bar-skill, and compression work.",
+      "measurement": [
+        "variant",
+        "implement_and_grip",
+        "knee_angle_and_leg_height",
+        "clean_hold_seconds",
+        "sets_and_rest",
+        "swing_events",
+        "first_quality_loss",
+        "symptom_and_next_day_response"
+      ]
+    },
+    "proposedInstructions": {
+      "coach": [
+        "Check the anchor, mount, clearance, and exit.",
+        "Declare implement, grip, knee angle, leg height, hold time, and rest.",
+        "Settle the athlete before the hold begins.",
+        "Observe from front and side for grip, shoulder, swing, pelvic, knee, height, breathing, and exit changes.",
+        "Substitute when grip or overhead tolerance obscures the intended compression stimulus."
+      ],
+      "athlete": [
+        "Hang still.",
+        "Keep a secure grip and controlled shoulders.",
+        "Lift and hold the declared leg shape.",
+        "Keep breathing.",
+        "Step down before your grip, shoulders, or legs change."
+      ]
+    },
+    "proposedQualityGates": [
+      "anchor_mount_and_clearance_are_safe",
+      "body_starts_and_remains_still",
+      "grip_and_shoulder_position_are_secure",
+      "declared_leg_shape_and_height_are_repeatable",
+      "breathing_continues",
+      "step_down_is_controlled"
+    ],
+    "proposedStopRules": [
+      "pain_pinch_numbness_tingling_dizziness_or_instability",
+      "grip_opening_or_slip",
+      "shoulder_position_loss",
+      "swing",
+      "undeclared_leg_shape_height_or_trunk_change",
+      "unsafe_exit"
+    ],
+    "proposedProgramming": {
+      "primaryUses": [
+        "static_hanging_compression_strength",
+        "grip_capacity",
+        "overhead_position_tolerance",
+        "trunk_and_pelvic_control"
+      ],
+      "sequence": [
+        "after_general_and_grip_shoulder_preparation",
+        "before_fatiguing_pulling_hanging_or_bar_skills",
+        "not_after_grip_failure_or_uncontrolled_swing_work"
+      ],
+      "compatiblePairings": [
+        "lower_body_strength",
+        "low_demand_mobility",
+        "non_competing_technical_work"
+      ],
+      "avoidPairings": [
+        "high_volume_vertical_pull",
+        "max_effort_grip",
+        "high_consequence_bar_skill",
+        "high_volume_hip_flexion"
+      ],
+      "uncertaintyPolicy": "Exclude when anchor, clearance, grip, overhead tolerance, stillness, lever ownership, fatigue state, or safe exit is unknown."
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T23:45:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "From a still two-hand overhead hang on a secure bar or stable rings, hold both legs forward at the declared knee angle and height while maintaining grip, shoulder position, trunk and pelvic control, breathing, and a safe step-down.",
+      "familyKey": "Static hanging compression hold",
+      "movementPatterns": [
+        "hang",
+        "brace"
+      ],
+      "bodyRegions": [
+        "hand",
+        "wrist",
+        "elbow",
+        "shoulder",
+        "scapula",
+        "rib_cage",
+        "core",
+        "spine",
+        "pelvis",
+        "hip",
+        "knee",
+        "full_body"
+      ],
+      "requiredEquipment": [
+        "bar_or_rings"
+      ],
+      "optionalEquipment": [
+        "box",
+        "mat",
+        "straps_optional",
+        "timer"
+      ],
+      "environment": {
+        "anchor": "rated_stable_and_checked_before_use",
+        "surface": "non_slip_with_clear_landing_space",
+        "traffic": "no_person_or_equipment_enters_the_hanging_envelope",
+        "clearance": "full_safe_hang_leg_position_and_step_down",
+        "supervision": "direct_until_mount_still_hang_hold_and_exit_are_repeatable"
+      },
+      "population": {
+        "readiness": [
+          "secure_grip_or_approved_grip_substitute",
+          "tolerated_overhead_hang",
+          "controlled_still_start",
+          "owned_declared_leg_shape_and_height",
+          "safe_mount_and_exit"
+        ],
+        "clinicalBoundary": "Symptoms, recent surgery, instability, neurologic signs, or rehabilitation restrictions require individualized clinician guidance.",
+        "contraindicationFlags": [
+          "current_hand_wrist_elbow_shoulder_hip_or_low_back_pain",
+          "numbness_tingling_dizziness_or_instability",
+          "grip_slip_or_uncontrolled_swing",
+          "painful_hip_pinching_or_cramping_that_changes_mechanics",
+          "unsafe_mount_or_dismount"
+        ]
+      },
+      "difficulty": {
+        "impact": 1,
+        "supervisionDemand": 62,
+        "absoluteLoadDemand": 68,
+        "coordinationDemand": 54,
+        "failureConsequence": 64,
+        "workCapacityDemand": 68,
+        "technicalComplexity": 50,
+        "baseOverallDifficulty": 68
+      },
+      "loadProfile": {
+        "gripDemand": 68,
+        "loadingType": "relative_bodyweight_isometric_long_lever_hang",
+        "primaryStress": [
+          "grip_isometric",
+          "overhead_shoulder_position",
+          "hip_flexion_isometric",
+          "trunk_and_pelvic_control",
+          "knee_extension_isometric"
+        ],
+        "spinalLoading": 38,
+        "eccentricStress": 8,
+        "externalLoadMethod": "bodyweight",
+        "landingContactsPerRep": 0
+      },
+      "fatigueProfile": {
+        "gripFatigue": 68,
+        "qualityLoss": [
+          "grip_opens",
+          "shoulder_position_changes",
+          "body_swings",
+          "legs_drop",
+          "knees_bend",
+          "exit_becomes_uncontrolled"
+        ],
+        "recoveryHours": 36,
+        "impactAccumulation": 1,
+        "localMuscleFatigue": 72,
+        "technicalFatigueSensitivity": 74
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Resistance exercise selection requires qualified instruction, safe equipment and space, appropriate progression, and readiness assessed for the individual rather than inferred from an exercise label.",
+        "Before Hanging L-Sit, check the support or anchor, hand position, clearance, mount, exit, traffic, symptoms, and fatigue. Stop for pain or pinching; instability; numbness or tingling; dizziness; grip slip; elbow or shoulder collapse; uncontrolled swing; repeated loss of the declared leg shape, height, trunk position, or breathing; or an unsafe exit."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Training should be individualized and progressively developed from current readiness and movement competence.",
+        "Scale Hanging L-Sit with stable support height or a lower bar, neutral-grip handles, a shorter lever, reduced leg height, shorter holds, more rest, safe assistance, plain-language cues, visual timing, or a supported or supine substitute. Exercise cards use complexity and physical-difficulty scores; athlete and class levels belong to skill-library cards."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The five supplied videos are discovery candidates only. Public oEmbed title and channel metadata were observed on 2026-07-26, but exact variant match, complete setup and exit, cue and claim quality, safety, captions, accessibility, reviewer identity, approval, and continuing availability remain pending human review."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.crossfit.com/essentials/the-hanging-l-sit",
+      "sourceTitle": "The Hanging L-Sit",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "The official instructional page identifies the hanging L-sit as a named static hanging exercise.",
+        "Treat the two-hand static hanging hold as its own definition. Knee angle and mixed-leg versions are variants; support L-sit and dynamic hanging leg raises change support action or contraction intent and remain separate identities."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.gymnastics.sport/site/pages/education/agegroup-mag-manual-e.pdf",
+      "sourceTitle": "FIG Age Group Development and Competition Program for Men's Artistic Gymnastics",
+      "sourcePublisher": "International Gymnastics Federation",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 88,
+      "claims": [
+        "The governing-body program distinguishes support strength positions from hang, pull, and kip sequences.",
+        "Classify this card as static overhead suspension with bilateral hip-flexion compression, grip, and trunk control, not as straight-arm push support."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/9118976/",
+      "sourceTitle": "Abdominal and hip flexor muscle activation during various training exercises",
+      "sourcePublisher": "European Journal of Applied Physiology and Occupational Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Hip-flexion and bilateral leg-lift tasks can substantially involve hip flexors together with abdominal activity.",
+        "This adjacent evidence supports hip flexors as important contributors and the abdominal wall as a pelvic and trunk controller, but does not directly quantify static hanging grip or shoulder demand."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/12828897/",
+      "sourceTitle": "Pelvic and femoral contributions to bilateral hip flexion by subjects suspended from a bar",
+      "sourcePublisher": "Clinical Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "A study of participants suspended by both hands found that pelvic and femoral contributions to bilateral hip flexion varied with knee position and hamstring length.",
+        "The task in that study was dynamic rather than a static L-sit, so it is adjacent evidence only. It supports declaring knee angle, leg height, pelvic control, and individual range rather than assuming one universal position."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.crossfit.com/essentials/the-hanging-l-sit",
+      "sourceTitle": "The Hanging L-Sit",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "The official instruction presents a hanging hold requiring sustained grip, suspension, and leg position.",
+        "The source supports the exercise's combined hanging and compression demands but does not validate Vortex's numeric scores. Overall is derived from exercise complexity and physical difficulty and is not an athlete classification."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/12828897/",
+      "sourceTitle": "Pelvic and femoral contributions to bilateral hip flexion by subjects suspended from a bar",
+      "sourcePublisher": "Clinical Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Knee position and hamstring length affect pelvic and femoral contributions during suspended bilateral hip flexion.",
+        "Count grip, overhead position, hip-flexor, trunk, pelvic, and long-lever knee-extension fatigue. This study does not establish recovery hours for a static hanging L-sit, so all recovery values remain candidate calibration."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Safe resistance training requires qualified instruction, appropriate equipment and space, supervision, and progression matched to readiness.",
+        "Require a rated anchor, safe mount, secure grip, tolerated overhead position, clearance, stillness, and safe step-down. Substitute when symptoms, grip, shoulder position, or equipment obscure the intended stimulus."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.crossfit.com/essentials/the-hanging-l-sit",
+      "sourceTitle": "The Hanging L-Sit",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "The official instruction demonstrates the movement but does not establish one universal training dose.",
+        "Use short repeatable holds and enough rest to preserve grip, shoulder position, stillness, leg shape, breathing, and exit. Accumulated clean time should exclude swinging, shortened, or failed holds."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.crossfit.com/essentials/the-hanging-l-sit",
+      "sourceTitle": "The Hanging L-Sit",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "The official instruction provides a direct demonstration of the hanging L-sit.",
+        "Vortex instructions must additionally declare the anchor, mount, grip, knee angle, leg height, still-start rule, breathing, hold time, and safe exit so the name alone is not treated as a complete standard."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Long-term development guidance emphasizes progressive training from current readiness and movement competence.",
+        "Program a shorter lever before a longer lever, preserve grip and shoulder reserve, count all hanging and pulling fatigue, and substitute when the hanging constraint is not the intended stimulus."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Long-term development guidance emphasizes individualized, progressive training from current competence and readiness.",
+        "Athlete support should show anchor and mount checks, the exact knee angle and leg height, expected grip, shoulder, hip, abdominal, and quadriceps effort, the still-body standard, safe exit, and clear symptom and grip-slip stop signals."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Qualified instruction, safe equipment, direct supervision where needed, and gradual progression are central to resistance training.",
+        "Coach support should cover anchor and lane checks, mount and step-down, front and side observation, variant naming, hold and rest logging, swing correction, cumulative grip and hanging fatigue, substitutions, group turnover, and clinical or emergency escalation."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.crossfit.com/essentials/the-hanging-l-sit",
+      "sourceTitle": "The Hanging L-Sit",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "The official source identifies a distinct hanging L-sit exercise.",
+        "Classify tuck and one-leg levers as variants; foot assistance, reduced height, grip, and hold time as modifiers; and support L-sit, dynamic hanging leg raise, one-arm hanging, and swinging or cyclic versions as separate identity reviews."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=WHi1bvZLwlw",
+      "title": "The Hanging L-Sit",
+      "channelName": "CrossFit",
+      "sourceQuery": "Official CrossFit page embedded video discovered and public YouTube oEmbed observed 2026-07-26",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Official source candidate, but exact full sequence, setup, safe exit, claims, captions, accessibility, and continuing embedding require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=784YzIaJSJg",
+      "title": "How to Perform a Hanging L-Sit - Exercise Tutorial",
+      "channelName": "Be a Game Character",
+      "sourceQuery": "Public YouTube oEmbed observed 2026-07-26: hanging L-sit exercise tutorial",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. Exact static hold, anchor, mount, grip, no-swing rule, exit, safety, captions, accessibility, and claims require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=U5q6xbZ74Hw",
+      "title": "Hanging L-Sit Tutorial",
+      "channelName": "Flexibility Maestro",
+      "sourceQuery": "Public YouTube oEmbed observed 2026-07-26: hanging L-sit tutorial",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. Exact identity, knee-angle variants, stillness, setup and exit, safety, claims, captions, and accessibility require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=zTNEqU6pWuE",
+      "title": "Hanging L-Sit technique #technique #crossfit #coaching",
+      "channelName": "More Than Muscle | Training and Nutrition",
+      "sourceQuery": "Public YouTube oEmbed observed 2026-07-26: hanging L-sit technique coaching",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Short-form candidate by public metadata only. Complete setup, hold, exit, safety, cue context, captions, accessibility, and claim review are especially important."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=TWpGkp1TvG0",
+      "title": "Hanging L Sit",
+      "channelName": "CoreFit inc.",
+      "sourceQuery": "Public YouTube oEmbed observed 2026-07-26: hanging L sit",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. Exact static identity, setup, mount and exit, safety, technique, claims, captions, accessibility, and full sequence require human review."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Tuck Hanging L-Sit",
+      "classification": "new_variant",
+      "rationale": "Knee flexion shortens the lever while preserving the static two-hand overhead hanging identity.",
+      "distinguishingDimensions": {
+        "kneeAngle": "flexed",
+        "leverLength": "short"
+      }
+    },
+    {
+      "name": "One-Leg Hanging L-Sit",
+      "classification": "new_variant",
+      "rationale": "One extended and one flexed knee create a mixed asymmetric lever while preserving the static two-hand overhead hanging identity.",
+      "distinguishingDimensions": {
+        "kneeAngle": "mixed",
+        "laterality": "asymmetric_alternating"
+      }
+    },
+    {
+      "name": "Foot-Assisted Hanging L-Sit",
+      "classification": "modifier_annotation",
+      "rationale": "Stable foot assistance changes suspension load, range, and dosage without changing the intended static hanging compression hold.",
+      "distinguishingDimensions": {
+        "assistance": "stable_foot_contact",
+        "loadReduction": "declared"
+      }
+    },
+    {
+      "name": "Weighted Hanging L-Sit",
+      "classification": "modifier_annotation",
+      "rationale": "Secure added resistance changes load, attachment, mount, exit, fatigue, and recovery but preserves the static two-hand hanging identity; it remains quarantined pending calibration.",
+      "distinguishingDimensions": {
+        "externalLoad": "added",
+        "attachment": "secure_and_reviewed"
+      }
+    },
+    {
+      "name": "Support L-Sit",
+      "classification": "new_definition",
+      "rationale": "Straight-arm push support replaces overhead suspension and changes hand loading, shoulder relationship, grip demand, equipment, and exit.",
+      "distinguishingDimensions": {
+        "supportAction": "straight_arm_push_support",
+        "grip": "not_overhead_suspension"
+      }
+    },
+    {
+      "name": "Hanging Leg Raise",
+      "classification": "new_definition",
+      "rationale": "Repeated hip flexion and lowering change contraction mode, time course, range, fatigue, measurement, and intent from a static hold.",
+      "distinguishingDimensions": {
+        "contractionMode": "dynamic_concentric_and_eccentric",
+        "intent": "repeated_raise_and_lower"
+      }
+    },
+    {
+      "name": "Kipping Hanging L-Sit",
+      "classification": "new_definition",
+      "rationale": "Cyclic shoulder and trunk swing changes movement pattern, momentum, impact, fatigue, timing, and training stimulus beyond the strict static identity.",
+      "distinguishingDimensions": {
+        "swingMode": "cyclic_kipping",
+        "movementPattern": "dynamic"
+      }
+    },
+    {
+      "name": "One-Arm Hanging L-Sit",
+      "classification": "new_definition",
+      "rationale": "Single-arm suspension materially changes laterality, grip, shoulder load, anti-rotation demand, failure consequence, and supervision.",
+      "distinguishingDimensions": {
+        "supportLaterality": "unilateral",
+        "primaryLoadDistribution": "single_arm"
+      }
+    }
+  ]
+}

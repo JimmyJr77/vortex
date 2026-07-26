@@ -1,0 +1,13 @@
+{
+  "batchKey": "half-kneeling-single-arm-press-family-v1",
+  "researchVersion": "2026-07-26.40",
+  "generatedAt": "2026-07-26T23:45:00.000Z",
+  "cards": [
+    {
+      "slug": "half-kneeling-single-arm-press",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 12
+    }
+  ]
+}

@@ -1,0 +1,605 @@
+{
+  "facilityId": 1,
+  "slug": "single-leg-lateral-hop-to-stick",
+  "researchVersion": "2026-07-26.36",
+  "assessmentSummary": {
+    "identity": "A discrete bodyweight hop laterally from one declared leg to the same leg, followed by whole-foot absorption, a stable declared hold without extra contact, and a full reset.",
+    "currentCardFindings": [
+      "The stable single-leg card explicitly starts and lands on the same leg; its already-consolidated output source preserves the same identity at higher intent.",
+      "The lateral-line card names the same terminal single-leg stick, while its line is an environmental target; its generic execution does not recover takeoff laterality and must remain archived provenance.",
+      "NSCA describes ordinary line hops as continuous rebounds, so the terminal stick and reset are defining and must never be silently replaced by repeated line hopping.",
+      "The current 40-versus-50 scores do not explicitly separate exercise complexity from physical difficulty or declare amplitude, distance, hold, and contact budgets.",
+      "Five direct YouTube candidates currently return healthy oEmbed metadata, but no full viewing, exact-variant review, safety review, caption review, accessibility review, or approval has occurred."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "jump",
+        "land",
+        "brace"
+      ],
+      "movementQualifiers": [
+        "declared_single_leg_start",
+        "ipsilateral_single_leg_takeoff_and_landing",
+        "lateral_projection",
+        "whole_foot_contact",
+        "ankle_knee_hip_absorption",
+        "frontal_and_transverse_plane_stabilization",
+        "stable_hold",
+        "full_reset"
+      ],
+      "jointActions": [
+        "stance_ankle_knee_and_hip_flexion_during_load",
+        "ankle_plantarflexion_knee_extension_and_hip_extension_during_takeoff",
+        "hip_abduction_or_adduction_relative_to_target_direction",
+        "hip_knee_and_ankle_flexion_during_landing_absorption",
+        "frontal_and_transverse_plane_hip_knee_foot_stabilization"
+      ],
+      "planes": [
+        "frontal",
+        "sagittal_absorption",
+        "transverse_stabilization"
+      ],
+      "laterality": "declared_ipsilateral_single_leg_takeoff_and_landing",
+      "intent": "lateral_projection_with_terminal_single_leg_stabilization"
+    },
+    "proposedAnatomy": {
+      "primaryMusclesAndTissues": [
+        "gluteus_maximus",
+        "gluteus_medius_and_minimus",
+        "quadriceps",
+        "hamstrings",
+        "gastrocnemius_and_soleus"
+      ],
+      "secondaryMusclesAndTissues": [
+        "hip_adductors_and_rotators",
+        "tibialis_anterior",
+        "fibularis_group",
+        "intrinsic_foot_muscles",
+        "abdominal_wall",
+        "erector_spinae_and_multifidus"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "spine"
+      ],
+      "primaryActions": [
+        "load_declared_stance_leg",
+        "project_laterally_to_declared_target",
+        "contact_the_same_declared_foot",
+        "absorb_and_stabilize_without_extra_contact",
+        "hold_and_reset"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 42,
+      "absoluteLoadDemand": 36,
+      "coordinationDemand": 58,
+      "supervisionDemand": 56,
+      "failureConsequence": 54,
+      "impact": 42,
+      "workCapacityDemand": 24,
+      "baseOverallDifficulty": 42
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "low-amplitude-control",
+        "exerciseComplexity": 42,
+        "physicalDifficulty": 36,
+        "derivedOverallDifficulty": 42,
+        "basis": "short distance limits impulse and landing force while same-leg lateral projection, alignment, balance, and a stable hold remain moderately complex"
+      },
+      {
+        "variantKey": "distance-output",
+        "exerciseComplexity": 50,
+        "physicalDifficulty": 48,
+        "derivedOverallDifficulty": 50,
+        "basis": "greater declared distance and intent increase takeoff impulse, flight organization, mediolateral landing force, braking, alignment, and stabilization demand"
+      }
+    ],
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_ballistic_lateral_projection_and_ipsilateral_landing",
+      "impactClass": "moderate_single_leg_lateral_landing",
+      "externalLoadMethod": "bodyweight",
+      "landingContactsPerRep": 1,
+      "primaryStress": [
+        "single_leg_lateral_takeoff_impulse",
+        "foot_ankle_knee_and_hip_absorption",
+        "frontal_plane_hip_and_knee_control",
+        "foot_pressure_and_ankle_stability",
+        "trunk_and_pelvis_stabilization",
+        "balance_hold_and_reset"
+      ],
+      "fatigueProfile": [
+        "distance_or_speed_decline",
+        "target_or_line_miss",
+        "partial_foot_or_loud_contact",
+        "knee_valgus_or_pelvic_drop",
+        "trunk_lean_or_rotation",
+        "free_foot_touch_extra_hop_or_foot_turn",
+        "failed_hold"
+      ],
+      "recoveryHours": "context dependent; combine with all hopping, jumping, sprinting, change-of-direction, unilateral strength, landing, and tendon-loading exposures"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "none"
+      ],
+      "optionalEquipment": [
+        "line_tape",
+        "cones",
+        "mat",
+        "mirror"
+      ],
+      "environment": [
+        "level_high_traction_surface",
+        "declared_high_contrast_line_or_target",
+        "declared_direction_and_distance",
+        "clear_lateral_landing_and_fall_space",
+        "no_cross_traffic",
+        "declared_footwear_or_barefoot_policy",
+        "takeoff_foot_target_and_trunk_visible"
+      ],
+      "population": [
+        "pain_free_single_leg_takeoff_and_landing",
+        "can_hold_single_leg_stance_and_floor_step_to_stick",
+        "can_control_foot_knee_hip_pelvis_and_trunk_alignment",
+        "can_follow_leg_direction_hold_reset_and_stop_instructions"
+      ],
+      "requiresDirectSupervision": true,
+      "groupRule": "One active athlete per marked lateral lane; waiting athletes remain outside takeoff, landing, fall, and reset zones.",
+      "clinicalBoundary": "Pain, swelling, instability, recent injury or surgery, neurologic symptoms, or rehabilitation restrictions require individualized clinician guidance."
+    },
+    "proposedDosage": {
+      "outputSets": "2-4",
+      "outputRepetitionsPerSide": "2-4",
+      "outputRestSeconds": "90-180",
+      "controlSets": "2-3",
+      "controlRepetitionsPerSide": "2-5",
+      "controlRestSeconds": "60-120",
+      "effort": "quality only while distance, contact, alignment, hold, and reset remain repeatable",
+      "distanceRule": "Use the shortest distance that creates the intended task; increase only when whole-foot contact, alignment, quiet absorption, hold, and reset remain exact.",
+      "sideRule": "Declare and balance stance sides and direction relative to the stance leg unless a documented reason says otherwise.",
+      "stopRule": "End the set on the first symptom, unsafe lane, target miss, partial-foot or loud landing, alignment failure, free-foot touch, extra hop, foot turn, failed hold, or material output decline."
+    },
+    "proposedFatigueRecovery": {
+      "acuteCost": "moderate neural, lower-leg, tendon, and unilateral landing cost with low metabolic demand at quality dosage",
+      "localFatigue": [
+        "plantar_flexors_and_achilles",
+        "quadriceps_and_patellar_tendon",
+        "hamstrings_and_gluteus_maximus",
+        "gluteus_medius_hip_rotators_and_adductors",
+        "foot_ankle_and_trunk_stabilizers"
+      ],
+      "cumulativeBudgets": [
+        "unilateral_takeoff_contacts_per_side",
+        "unilateral_landing_contacts_per_side",
+        "lateral_hop_distance_and_intent",
+        "lower_leg_and_tendon_loading",
+        "single_leg_balance_and_absorption",
+        "frontal_plane_braking",
+        "technical_sensitivity"
+      ],
+      "recoveryRule": "Do not repeat high-intent exposure while pain, swelling, soreness, stiffness, distance loss, apprehension, contact error, alignment loss, balance loss, or extra contacts persist."
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T20:00:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "From one declared leg, hop laterally to a declared target and land on the same leg. Contact with the whole foot, absorb through the ankle, knee, and hip, control foot-knee-hip-pelvis-trunk alignment, hold without a free-foot touch or extra hop, then reset fully.",
+      "familyKey": "ipsilateral_single_leg_lateral_hop_to_terminal_stick",
+      "movementPatterns": [
+        "jump",
+        "land",
+        "brace"
+      ],
+      "bodyRegions": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "core",
+        "spine"
+      ],
+      "requiredEquipment": [
+        "none"
+      ],
+      "optionalEquipment": [
+        "line_tape",
+        "cones",
+        "mat",
+        "mirror"
+      ],
+      "environment": {
+        "target": "declared_high_contrast_line_or_landing_zone",
+        "surface": "level_high_traction_surface_with_declared_footwear_or_barefoot_policy",
+        "traffic": "one_active_athlete_per_marked_lateral_lane",
+        "distance": "declared_and_repeatable",
+        "lighting": "stance_foot_target_landing_foot_and_trunk_clearly_visible",
+        "direction": "declared_relative_to_stance_leg",
+        "coachSightline": "takeoff_flight_contact_alignment_hold_and_reset_visible",
+        "landingAndFallSpace": "clear_beyond_target"
+      },
+      "population": {
+        "readiness": [
+          "pain_free_single_leg_takeoff_and_landing",
+          "can_hold_single_leg_stance_and_floor_step_to_stick",
+          "can_control_foot_knee_hip_pelvis_and_trunk_alignment",
+          "can_land_whole_foot_without_free_foot_contact",
+          "can_follow_leg_direction_distance_hold_reset_and_stop_instructions"
+        ],
+        "supervision": "direct_observation_until_same_leg_projection_contact_alignment_hold_and_reset_are_repeatable",
+        "clinicalBoundary": "Pain, swelling, instability, recent surgery, neurologic signs, or rehabilitation restrictions require individualized clinician guidance.",
+        "selectionBoundary": "Select exact stance leg, direction, amplitude, target, hold, intent, and dose from current readiness; exercise cards do not carry skill levels.",
+        "contraindicationFlags": [
+          "current_foot_ankle_knee_hip_back_pain_swelling_or_instability",
+          "numbness_dizziness_or_neurologic_symptoms",
+          "uncontrolled_valgus_pelvic_drop_trunk_lean_or_rotation",
+          "unsafe_surface_target_space_visibility_or_traffic",
+          "unassessed_recent_injury_surgery_or_rehabilitation_restriction"
+        ]
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.emoryhealthcare.org/centers-programs/acl-program/return-to-play/single-leg-line-jump",
+      "sourceTitle": "Single-Leg Line Jump",
+      "sourcePublisher": "Emory Healthcare",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 80,
+      "claims": [
+        "Emory defines the lateral line version as a single-leg start, one lateral jump over tape, a single-leg landing, and a two-second hold.",
+        "Single-Leg Lateral Hop to Stick is the stable identity; a floor line is a target constraint and low versus distance intent is a difficulty-bearing variant, not a skill-level label or a separate exercise identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.nsca.com/education/articles/kinetic-select/7-line-drills-to-improve-agility/",
+      "sourceTitle": "7 Line Drills to Improve Agility",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "NSCA distinguishes single-leg lateral line hopping from two-foot line hopping and describes the line as an environmental boundary.",
+        "Takeoff leg, landing leg, direction relative to the stance leg, distance, line or target, hold, cadence, cueing, and reset must be explicit."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32148612/",
+      "sourceTitle": "Effect of Jump Direction and External Load on Single-Legged Jump-Landing Biomechanics",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Single-leg jump-landing direction changes hip and knee motion and time-to-stabilization demands.",
+        "The card should declare the foot intrinsics, plantar flexors, quadriceps, hamstrings, gluteals, hip abductors, adductors and rotators, trunk stabilizers, and the foot, ankle, knee, hip, pelvis, and spine joints without claiming isolated action."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/28090004/",
+      "sourceTitle": "Difference in Dynamic Body Balance between Forward and Lateral Single-Leg Hop Landing",
+      "sourcePublisher": "Kurume Medical Journal",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Lateral single-leg hop landing produced greater immediate center-of-pressure motion and mediolateral and vertical ground-reaction force than forward hopping in the cited sample.",
+        "Observable gates are declared same-leg takeoff and landing, lateral projection, whole-foot contact, ankle-knee-hip absorption, foot-knee-hip-pelvis-trunk alignment, stable hold, and full reset."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32148612/",
+      "sourceTitle": "Effect of Jump Direction and External Load on Single-Legged Jump-Landing Biomechanics",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Jump direction and external load materially change single-leg jump-landing demands.",
+        "Assess exercise complexity and physical difficulty for each exact amplitude and intent contract and derive overall difficulty as their maximum; no exercise skill level is assigned."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37300972/",
+      "sourceTitle": "The side hop test: Validity, reliability, and quality aspects in relation to sex, age and anterior cruciate ligament reconstruction, in soccer players",
+      "sourcePublisher": "Physical Therapy in Sport",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Side-hop quality errors include line contact, free-foot contact, double hops, and foot turns.",
+        "Single-Leg Lateral Hop to Stick contributes unilateral takeoff and landing contacts, frontal-plane impulse and braking, lower-leg and tendon loading, single-leg balance, and technical-sensitivity budgets."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.emoryhealthcare.org/centers-programs/acl-program/return-to-play/single-leg-line-jump",
+      "sourceTitle": "Single-Leg Line Jump",
+      "sourcePublisher": "Emory Healthcare",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 80,
+      "claims": [
+        "Emory uses a taped line, athletic single-leg start, controlled lateral jump, aligned landing, and timed hold.",
+        "The setup must declare a level high-traction surface, target or line, direction, distance, landing zone, clear lateral and fall space, lighting, traffic boundary, footwear or barefoot policy, and coach sightline."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Landing feedback is most useful when it targets defined observable mechanics.",
+        "Use low repetitions per side, a full reset, side-balanced quality contacts, and enough rest that projection, whole-foot contact, quiet absorption, alignment, hold, and reset remain repeatable."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://uk.physitrack.com/home-exercise-video/lateral-hop-and-stick",
+      "sourceTitle": "Lateral hop and stick",
+      "sourcePublisher": "Physitrack",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "Physitrack instructs a single-leg start, countermovement, lateral hop, soft landing, stabilization, and repetition on the other side.",
+        "Use a short exact cue: declare leg and target, load, push sideways, land under the hip, absorb quietly, hold, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Feedback can target trunk, knee, foot, and landing-contact errors during jump landings.",
+        "Stop for pain, swelling, instability, fear, unsafe surface or lane, line or target miss, partial-foot contact, uncontrolled knee or trunk motion, free-foot touch, extra hop, foot turn, failed hold, or output decline."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37300972/",
+      "sourceTitle": "The side hop test: Validity, reliability, and quality aspects in relation to sex, age and anterior cruciate ligament reconstruction, in soccer players",
+      "sourcePublisher": "Physical Therapy in Sport",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Side-hop count alone does not capture quality; observable flaws must be recorded.",
+        "Use the low-amplitude version for landing control and the distance version early and fresh for output; never turn a stick task into continuous rebound conditioning."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.emoryhealthcare.org/centers-programs/acl-program/return-to-play/single-leg-line-jump",
+      "sourceTitle": "Single-Leg Line Jump",
+      "sourcePublisher": "Emory Healthcare",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 80,
+      "claims": [
+        "Athlete support should show stance leg, direction, target or line, distance, landing foot, hold, reset, primary cue, and stop signal.",
+        "Offer a smaller distance, wider target, supported floor stick, bilateral landing regression, fewer repetitions, and longer rest without assigning a skill level to the exercise."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/28090004/",
+      "sourceTitle": "Difference in Dynamic Body Balance between Forward and Lateral Single-Leg Hop Landing",
+      "sourcePublisher": "Kurume Medical Journal",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Lateral hopping challenges dynamic balance differently from forward hopping.",
+        "Coach support should expose leg, direction, distance, target, dose, rest, contact budget, observation angle, contact, alignment, hold, reset, symptoms, and immediate shutdown."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Landing tasks can be modified through instruction, feedback, task progression, and environmental constraints.",
+        "Accessibility options include a shorter target distance, wider high-contrast zone, support nearby but not used during the rep, bilateral regression, fewer contacts, longer recovery, plain-language text, and nonvideo instruction."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.nsca.com/education/articles/kinetic-select/7-line-drills-to-improve-agility/",
+      "sourceTitle": "7 Line Drills to Improve Agility",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "A line changes the target constraint, while a terminal hold changes the task from repeated line hopping to a discrete hop-to-stick.",
+        "Contralateral skater bounds, bilateral hops, continuous rebounds, hurdle entries, loaded landings, and reactive cues require separate variant, definition, or modifier review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The five links have current healthy oEmbed metadata only. Full viewing, exact same-leg and amplitude match, instruction and safety quality, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=-pHyWzHnSLY",
+      "title": "Single-Leg Line Jump (Lateral) - Hold",
+      "channelName": "Emory Healthcare",
+      "sourceQuery": "Emory exercise page link rechecked through current YouTube oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing, exact same-leg and hold contract, instruction quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=5SRFVJejwb4",
+      "title": "Single Leg Lateral Hop and Stick",
+      "channelName": "Basil Performance",
+      "sourceQuery": "YouTube exact-name discovery rechecked through current oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=vxP50u3UXcM",
+      "title": "Lateral Hop & Stick",
+      "channelName": "Jono Hayes",
+      "sourceQuery": "YouTube exact-name discovery rechecked through current oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=GDQBKxNNt-g",
+      "title": "Lateral Single Leg Hop and Stick",
+      "channelName": "Perform For Sport",
+      "sourceQuery": "YouTube exact-name discovery rechecked through current oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=CB_v-YIijMs",
+      "title": "How to perform the Single Leg Lateral Hop and Stick",
+      "channelName": "Zaffino Training",
+      "sourceQuery": "YouTube exact-name discovery rechecked through current oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Single-Leg Lateral Hop to Stick",
+      "classification": "same_identity",
+      "rationale": "This is the stable exact identity: one-leg lateral takeoff to the same-leg landing and terminal hold.",
+      "distinguishingDimensions": {
+        "takeoff": "unilateral",
+        "landing": "ipsilateral_unilateral",
+        "cadence": "discrete_stick"
+      }
+    },
+    {
+      "name": "Lateral Line Hop to Single-Leg Stick",
+      "classification": "same_identity",
+      "rationale": "The line is a target boundary; the terminal single-leg stick preserves the same primary task.",
+      "distinguishingDimensions": {
+        "target": "floor_line",
+        "sourceTakeoffContract": "unresolved"
+      }
+    },
+    {
+      "name": "Single-Leg Lateral Line Jump with Hold",
+      "classification": "same_identity",
+      "rationale": "This name explicitly describes the same one-leg lateral line crossing and held same-leg landing.",
+      "distinguishingDimensions": {
+        "target": "floor_line",
+        "hold": "declared"
+      }
+    },
+    {
+      "name": "Low-Amplitude Single-Leg Lateral Hop to Stick",
+      "classification": "new_variant",
+      "rationale": "Short distance prioritizes landing control and reduces takeoff impulse and landing force.",
+      "distinguishingDimensions": {
+        "distance": "low_amplitude",
+        "intent": "landing_control"
+      }
+    },
+    {
+      "name": "Single-Leg Lateral Hop to Stick for Distance",
+      "classification": "new_variant",
+      "rationale": "Greater declared distance and intent increase propulsion, flight, braking, and stabilization demand.",
+      "distinguishingDimensions": {
+        "distance": "declared_output",
+        "intent": "lateral_power"
+      }
+    },
+    {
+      "name": "Single-Leg Medial Crossover Hop to Stick",
+      "classification": "new_variant",
+      "rationale": "Hopping across the stance leg changes direction relative to the foot, hip strategy, and landing control while preserving same-leg takeoff and landing.",
+      "distinguishingDimensions": {
+        "directionRelativeToStanceLeg": "medial_crossover"
+      }
+    },
+    {
+      "name": "Reactive-Cue Single-Leg Lateral Hop to Stick",
+      "classification": "modifier_annotation",
+      "rationale": "A late direction or distance cue changes decision demand but preserves the one-hop terminal-stick identity.",
+      "distinguishingDimensions": {
+        "cueing": "reactive",
+        "mustBeExplicit": true
+      }
+    },
+    {
+      "name": "Weighted-Vest Single-Leg Lateral Hop to Stick",
+      "classification": "new_variant",
+      "rationale": "External torso load preserves the path but materially changes physical difficulty, landing load, and readiness.",
+      "distinguishingDimensions": {
+        "externalLoad": "weighted_vest"
+      }
+    },
+    {
+      "name": "Skater Bound to Stick",
+      "classification": "new_definition",
+      "rationale": "A skater bound takes off from one leg and lands on the opposite leg, changing the takeoff-to-landing relationship.",
+      "distinguishingDimensions": {
+        "takeoffLandingRelationship": "contralateral"
+      }
+    },
+    {
+      "name": "Bilateral Lateral Hop to Stick",
+      "classification": "new_definition",
+      "rationale": "Two-foot takeoff and landing change base of support, per-leg impulse, absorption, and balance demand.",
+      "distinguishingDimensions": {
+        "takeoff": "bilateral",
+        "landing": "bilateral"
+      }
+    },
+    {
+      "name": "Continuous Single-Leg Lateral Line Hops",
+      "classification": "new_definition",
+      "rationale": "Repeated rebound contacts remove the terminal hold and full reset, changing stiffness, cadence, fatigue, and safety.",
+      "distinguishingDimensions": {
+        "cadence": "continuous_reactive",
+        "terminalHold": false
+      }
+    },
+    {
+      "name": "Single-Leg Lateral Hurdle Hop to Stick",
+      "classification": "new_definition",
+      "rationale": "A raised obstacle adds clearance, trip, and landing-location demands beyond a floor target.",
+      "distinguishingDimensions": {
+        "obstacle": "raised_hurdle",
+        "clearanceRequired": true
+      }
+    }
+  ]
+}

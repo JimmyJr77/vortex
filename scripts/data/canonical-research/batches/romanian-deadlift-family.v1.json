@@ -1,0 +1,517 @@
+{
+  "facilityId": 1,
+  "researchVersion": "2026-07-26.38",
+  "batchKey": "romanian-deadlift-family-v1",
+  "snapshotAt": "2026-07-26T22:00:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "nsca_romanian_deadlift_technique",
+      "claims": [
+        "NSCA defines the Romanian deadlift by a standing loaded start, slightly flexed knees, backward hip motion, close straight-arm load path, controlled lowering, and hip extension back to standing.",
+        "{{canonicalName}} is the stable bilateral loaded hip-hinge identity; implement, implement count, fixed versus free load path, grip, load, range, and tempo are exact variants rather than exercise skill levels or separate primary actions."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "ace_romanian_deadlift_instruction",
+      "claims": [
+        "ACE describes the barbell Romanian deadlift as a bilateral hip-back hinge with soft knees, a straight back, posterior-thigh tension, a close load path, and return to standing.",
+        "Stance, implement, grip, load path, range, tempo, start and set-down method, and repetition intent must be declared; single-leg, staggered-stance, row-combination, and ballistic tasks remain separate identities."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "deadlift_variants_emg_systematic_review",
+      "claims": [
+        "The systematic review identifies hamstrings, gluteus maximus, erector spinae, and quadriceps among the commonly evaluated muscles across deadlift variants and reports RDL-specific hamstring findings.",
+        "The card should declare hip extension and flexion, controlled knee position, spinal and pelvic stabilization, lat and grip contribution, sagittal-plane motion, and bilateral laterality without claiming isolated muscle action."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "romanian_deadlift_joint_kinetics_emg",
+      "claims": [
+        "The cited comparison reports biomechanical and muscle-activity differences between conventional and Romanian deadlifts, supporting a distinct RDL movement contract.",
+        "Observable gates are a declared standing start, stable foot pressure, soft knees without progressive squat, backward hips, close controlled load path, owned hamstring-limited range, organized trunk, hip-driven return, and stable finish."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "nsca_romanian_deadlift_technique",
+      "claims": [
+        "NSCA's technique requires controlled bar path, consistent knee position, hip motion, balance shift, neutral-spine range, and straight-arm load handling.",
+        "Assess exercise complexity and physical difficulty for every exact implement and tempo contract, deriving overall difficulty as their maximum; assign no exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "romanian_deadlift_hamstring_emg",
+      "claims": [
+        "The cited study measured eccentric and concentric muscle activity during the Romanian deadlift among hamstring-focused exercises.",
+        "{{canonicalName}} contributes hip-hinge load, hamstring lengthening and force, glute and trunk demand, spinal loading, grip time, and technical-fatigue budgets without impact contacts."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_romanian_deadlift_technique",
+      "claims": [
+        "NSCA requires a controlled close bar path and stopping depth before neutral spine can no longer be maintained.",
+        "The setup must declare exact implement, quantity, load, collars or attachments, floor and rack or pickup method, clear load path and set-down zone, footwear policy, pain-free owned range, and coach sightline."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "eccentric_romanian_deadlift_hamstring_adaptation",
+      "claims": [
+        "The randomized intervention used eccentrically biased Romanian deadlift training twice weekly over six weeks and assessed hamstring architecture and morphology.",
+        "Use quality strength sets or explicitly slow eccentric sets with enough rest that brace, foot pressure, knee position, hip path, load path, range, breathing, and set-down remain repeatable."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "nsca_romanian_deadlift_technique",
+      "claims": [
+        "NSCA cues slightly flexed knees, slow lowering, hips moving backward, straight arms, close load path, and hip extension to return.",
+        "Use a short exact cue: brace, soften knees, push hips back, keep the load close, stop at the deepest owned range, drive hips through, finish stacked, and set down safely."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "ace_romanian_deadlift_instruction",
+      "claims": [
+        "ACE emphasizes a straight back, slight knee bend, close bar path, and range limited by posterior-leg tension.",
+        "Stop for pain, numbness, dizziness, pressure symptoms, grip or implement loss, unsafe collar or anchor, spinal position change, load drift, progressive knee bend, balance loss, missed tempo, grinding, or unsafe set-down."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "eccentric_romanian_deadlift_hamstring_adaptation",
+      "claims": [
+        "Eccentrically biased RDL training is a distinct dosage and tempo application within the same bilateral hinge pattern.",
+        "Use standard-tempo variants for capacity and slow-eccentric variants for resilience or controlled tissue loading; keep the exercise before material hamstring, glute, trunk, grip, or low-back fatigue."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "ace_romanian_deadlift_instruction",
+      "claims": [
+        "Athlete support should expose implement, quantity, load, start and set-down method, stance, range, tempo, repetitions, rest, primary cue, and stop signal.",
+        "Offer lighter load, shorter range, elevated start, fewer repetitions, slower learning tempo, straps only under reviewed policy, and longer rest without assigning a skill level to the exercise."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "romanian_deadlift_joint_kinetics_emg",
+      "claims": [
+        "The RDL has a distinct kinetic and muscle-activity profile from the conventional deadlift.",
+        "Coach support should expose implement, load, pickup and set-down, stance, knee position, hip path, load path, range, tempo, dose, rest, observation angle, fatigue, symptoms, and immediate shutdown."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_romanian_deadlift_technique",
+      "claims": [
+        "NSCA limits the lowering range to the point before neutral spinal position can no longer be maintained.",
+        "Accessibility options include lighter load, shorter range, elevated start, dumbbells or kettlebells instead of a long bar where appropriate, tactile hinge targets, fewer repetitions, longer recovery, and nonvideo instruction."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "nsca_romanian_deadlift_technique",
+      "claims": [
+        "Grip and bar configuration can vary while the bilateral RDL hip-hinge contract remains intact.",
+        "Single-leg, staggered-stance, row-combination, conventional floor deadlift, good morning, and ballistic swing tasks change stance, start, primary action, load position, or cadence and require separate review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The five links have current healthy oEmbed metadata only. Full viewing, exact implement and tempo match, instruction and safety quality, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "romanian-deadlift",
+      "assessmentSummary": {
+        "identity": "A bilateral loaded standing hip hinge from a declared top start in which the knees remain softly flexed, the hips travel backward, the declared implement stays controlled and close through owned range, and hip extension returns the athlete to a stacked finish before a safe reset or set-down.",
+        "currentCardFindings": [
+          "The generic Romanian Deadlift source already explicitly permits barbell, dumbbell, or kettlebell loading.",
+          "The dumbbell, single-kettlebell, double-kettlebell, sandbag, and landmine cards preserve the same bilateral standing hip-hinge action; implement, quantity, grip, mass distribution, and free or fixed load path are exact variants.",
+          "The eccentric RDL preserves the same identity and changes tempo and delivery intent, so exact slow-eccentric barbell and dumbbell variants are appropriate.",
+          "Single-leg, staggered-stance, RDL-to-row, conventional floor deadlift, good morning, and ballistic swing tasks change stance, start, primary action, load position, or cadence and remain separate.",
+          "Five direct YouTube candidates return current oEmbed metadata, but no full viewing, exact-variant review, safety review, caption review, accessibility review, or approval has occurred."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "hinge",
+            "brace"
+          ],
+          "movementQualifiers": [
+            "bilateral_stance",
+            "standing_top_start",
+            "soft_fixed_knee_flexion",
+            "hips_back",
+            "controlled_close_load_path",
+            "declared_implement_and_quantity",
+            "owned_hamstring_limited_range",
+            "hip_extension_to_stacked_finish",
+            "safe_reset_or_set_down"
+          ],
+          "jointActions": [
+            "eccentric_hip_flexion",
+            "concentric_hip_extension",
+            "controlled_knee_isometric_or_small_angle_flexion",
+            "lumbar_pelvic_stabilization",
+            "scapular_and_grip_stabilization"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal_and_transverse_stabilization"
+          ],
+          "laterality": "bilateral_stance_and_bilateral_or_centered_external_load",
+          "intent": "loaded_bilateral_posterior_chain_strength_or_declared_eccentric_control"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": [
+            "hamstrings",
+            "gluteus_maximus",
+            "adductor_magnus_posterior_fibers",
+            "erector_spinae_and_multifidus"
+          ],
+          "secondaryMusclesAndTissues": [
+            "latissimus_dorsi",
+            "abdominal_wall",
+            "gluteus_medius_and_minimus",
+            "quadriceps_isometric_support",
+            "forearm_and_hand_flexors",
+            "foot_and_ankle_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "spine",
+            "shoulder",
+            "elbow",
+            "wrist_and_hand"
+          ],
+          "primaryActions": [
+            "establish_declared_standing_loaded_start",
+            "brace_and_set_lats_and_grip",
+            "push_hips_back_with_soft_knees",
+            "control_declared_implement_close_to_body_or_owned_landmine_arc",
+            "stop_at_declared_owned_range",
+            "extend_hips_to_stacked_finish",
+            "reset_or_set_down_safely"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 42,
+          "absoluteLoadDemand": 58,
+          "coordinationDemand": 48,
+          "supervisionDemand": 48,
+          "failureConsequence": 52,
+          "impact": 1,
+          "workCapacityDemand": 36,
+          "baseOverallDifficulty": 58
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "barbell-standard-tempo",
+            "exerciseComplexity": 42,
+            "physicalDifficulty": 58,
+            "derivedOverallDifficulty": 58,
+            "basis": "a long bar, collars, close bilateral path, high loading potential, controlled hinge range, and safe rack or set-down increase physical demand"
+          },
+          {
+            "variantKey": "dumbbell-standard-tempo",
+            "exerciseComplexity": 38,
+            "physicalDifficulty": 48,
+            "derivedOverallDifficulty": 48,
+            "basis": "independent handheld loads increase path and grip management but usually lower absolute loading potential than the barbell variant"
+          },
+          {
+            "variantKey": "single-kettlebell-standard-tempo",
+            "exerciseComplexity": 36,
+            "physicalDifficulty": 42,
+            "derivedOverallDifficulty": 42,
+            "basis": "one centered two-hand implement simplifies bilateral path while preserving loaded hinge and grip demand"
+          },
+          {
+            "variantKey": "double-kettlebell-standard-tempo",
+            "exerciseComplexity": 40,
+            "physicalDifficulty": 52,
+            "derivedOverallDifficulty": 52,
+            "basis": "two independent bells increase grip, path, load, and set-down management while preserving the bilateral hinge"
+          },
+          {
+            "variantKey": "sandbag-front-hold-standard-tempo",
+            "exerciseComplexity": 40,
+            "physicalDifficulty": 50,
+            "derivedOverallDifficulty": 50,
+            "basis": "a deformable front-held implement changes grip and mass distribution while retaining the same hip-hinge path and finish"
+          },
+          {
+            "variantKey": "landmine-two-hand-standard-tempo",
+            "exerciseComplexity": 42,
+            "physicalDifficulty": 54,
+            "derivedOverallDifficulty": 54,
+            "basis": "the fixed angled arc, anchor, sleeve or handle, plates, and two-hand path add setup and equipment-management demand"
+          },
+          {
+            "variantKey": "barbell-slow-eccentric",
+            "exerciseComplexity": 48,
+            "physicalDifficulty": 60,
+            "derivedOverallDifficulty": 60,
+            "basis": "a declared five-second lowering tempo increases positional, eccentric, breathing, grip, and technical-fatigue demand under a long bar"
+          },
+          {
+            "variantKey": "dumbbell-slow-eccentric",
+            "exerciseComplexity": 44,
+            "physicalDifficulty": 52,
+            "derivedOverallDifficulty": 52,
+            "basis": "slow lowering with two independent dumbbells increases path, eccentric, grip, and tempo-control demand"
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "bilateral_external_load_with_hip_hinge_and_posterior_chain_emphasis",
+          "impactClass": "no_impact",
+          "externalLoadMethod": "declared_barbell_dumbbells_kettlebell_sandbag_or_landmine",
+          "landingContactsPerRep": 0,
+          "primaryStress": [
+            "hamstring_lengthening_and_force",
+            "glute_and_adductor_hip_extension",
+            "trunk_and_spinal_stabilization",
+            "lat_and_close_load_path_control",
+            "grip_and_implement_management",
+            "eccentric_tissue_stress_when_slow_tempo_is_declared"
+          ],
+          "fatigueProfile": [
+            "spinal_position_change",
+            "load_path_drift",
+            "progressive_knee_bend_or_squat",
+            "range_loss_or_bounce",
+            "grip_or_implement_control_loss",
+            "tempo_failure_or_grinding",
+            "unsafe_finish_or_set_down"
+          ],
+          "recoveryHours": "context dependent; combine with all hamstring, glute, adductor, spinal, grip, hinge, and slow-eccentric work"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "exact_declared_implement_by_variant"
+          ],
+          "optionalEquipment": [
+            "plates",
+            "collars",
+            "rack",
+            "blocks",
+            "lifting_straps_under_reviewed_policy",
+            "mirror"
+          ],
+          "environment": [
+            "level_high_traction_floor",
+            "clear_load_path_and_set_down_zone",
+            "declared_implement_quantity_load_and_attachment",
+            "secure_landmine_anchor_for_landmine_variant",
+            "safe_rack_pickup_or_elevated_start_when_used",
+            "no_cross_traffic_or_loose_plates",
+            "foot_knee_hip_pelvis_spine_and_load_path_visible"
+          ],
+          "population": [
+            "pain_free_bilateral_stance_and_hip_hinge",
+            "can_maintain_soft_knees_and_organized_spine",
+            "can_control_declared_implement_and_set_down",
+            "can brace_and_breathe_under_selected_load",
+            "can follow_range_tempo_repetition_rest_and_stop_instructions"
+          ],
+          "requiresDirectSupervision": true,
+          "groupRule": "One athlete per lifting station with plates, bells, bags, bars, sleeves, and walking paths separated; collars, racks, blocks, handles, and landmine anchors require inspection.",
+          "clinicalBoundary": "Pain, neurologic symptoms, pressure symptoms, recent injury or surgery, pregnancy/postpartum concerns, or rehabilitation restrictions require individualized qualified guidance."
+        },
+        "proposedDosage": {
+          "capacitySets": "2-5",
+          "capacityRepetitions": "3-10",
+          "capacityRestSeconds": "90-240",
+          "eccentricSets": "2-4",
+          "eccentricRepetitions": "3-8",
+          "eccentricRestSeconds": "90-180",
+          "tempo": "controlled standard lowering or declared four-to-six-second eccentric with full top reset",
+          "effort": "quality strength work only while brace, foot pressure, knee position, hip path, load path, breathing, range, and set-down remain repeatable",
+          "rangeRule": "Use only the depth that preserves the declared knee position, close controlled load path, organized trunk, balance, and safe return.",
+          "stopRule": "End the set at the first symptom, implement or equipment issue, spinal position change, load drift, progressive knee bend, balance loss, grip failure, missed tempo, grind, or unsafe finish."
+        },
+        "proposedFatigueRecovery": {
+          "acuteCost": "moderate-to-high posterior-chain, trunk, grip, spinal-loading, and technical cost with no impact; slow-eccentric variants increase tissue and recovery cost",
+          "localFatigue": [
+            "hamstrings",
+            "gluteus_maximus_and_adductor_magnus",
+            "spinal_and_abdominal_stabilizers",
+            "latissimus_dorsi",
+            "grip_and_forearms"
+          ],
+          "cumulativeBudgets": [
+            "loaded_hip_hinge_volume",
+            "hamstring_lengthened_loading",
+            "spinal_loading",
+            "eccentric_tissue_stress",
+            "grip_time_and_load",
+            "technical_sensitivity",
+            "heavy_set_down_exposures"
+          ],
+          "recoveryRule": "Do not repeat challenging exposure while posterior-chain or back symptoms, unusual soreness, grip loss, range loss, load-path drift, tempo failure, or unsafe set-down persists."
+        }
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=5bJEigM5iVg",
+          "title": "FIX Your RDL Form! (Ultimate Romanian Deadlift Tutorial)",
+          "channelName": "Squat University",
+          "sourceQuery": "Legacy generic-RDL link rechecked through current YouTube oEmbed",
+          "notes": "Current title and oEmbed response are healthy. Full viewing, exact implement and tempo match, instruction quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=IJdUtnxAmNo",
+          "title": "Dumbbell Romanian Deadlift | Exercise Technique Library",
+          "channelName": "Dr. Jacob Goodin",
+          "sourceQuery": "Legacy dumbbell-RDL link rechecked through current YouTube oEmbed",
+          "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=mVSgE9S0G4w",
+          "title": "Kettlebell Romanian Deadlift - OPEX Exercise Library",
+          "channelName": "OPEX Fitness",
+          "sourceQuery": "Legacy kettlebell-RDL link rechecked through current YouTube oEmbed",
+          "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=5EGDritflEw",
+          "title": "Double-Kettlebell Romanian Deadlift (RDL)",
+          "channelName": "Zen Athletic Performance",
+          "sourceQuery": "Legacy double-kettlebell-RDL link rechecked through current YouTube oEmbed",
+          "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=zlPDMykne5w",
+          "title": "U.S. Marine Corps Fitness - Sandbag Romanian Deadlift",
+          "channelName": "U.S. Forces Fitness",
+          "sourceQuery": "Legacy sandbag-RDL link rechecked through current YouTube oEmbed",
+          "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Romanian Deadlift",
+          "classification": "same_identity",
+          "rationale": "Stable broad identity for the bilateral loaded standing hip hinge.",
+          "distinguishingDimensions": {
+            "implement": "declared_by_variant",
+            "tempo": "declared_by_variant"
+          }
+        },
+        {
+          "name": "Dumbbell Romanian Deadlift",
+          "classification": "same_identity",
+          "rationale": "Dumbbells change implement handling and loading without changing the bilateral RDL action.",
+          "distinguishingDimensions": {
+            "implement": "dumbbell",
+            "quantity": "two"
+          }
+        },
+        {
+          "name": "Kettlebell Romanian Deadlift",
+          "classification": "same_identity",
+          "rationale": "A centered kettlebell changes grip and mass distribution while preserving the RDL contract.",
+          "distinguishingDimensions": {
+            "implement": "kettlebell",
+            "quantity": "one"
+          }
+        },
+        {
+          "name": "Double Kettlebell Romanian Deadlift",
+          "classification": "same_identity",
+          "rationale": "Two kettlebells change quantity, load, grip, and path management within the same bilateral hinge.",
+          "distinguishingDimensions": {
+            "implement": "kettlebell",
+            "quantity": "two"
+          }
+        },
+        {
+          "name": "Sandbag Romanian Deadlift",
+          "classification": "same_identity",
+          "rationale": "A deformable front-held sandbag changes grip and mass distribution while preserving the bilateral RDL.",
+          "distinguishingDimensions": {
+            "implement": "sandbag",
+            "hold": "front_hold"
+          }
+        },
+        {
+          "name": "Landmine Romanian Deadlift",
+          "classification": "same_identity",
+          "rationale": "A secure landmine changes the load path to a fixed arc and adds anchor and attachment constraints without changing the bilateral RDL action.",
+          "distinguishingDimensions": {
+            "implement": "landmine",
+            "path": "fixed_arc"
+          }
+        },
+        {
+          "name": "Romanian Deadlift Eccentric",
+          "classification": "new_variant",
+          "rationale": "A declared slow lowering tempo changes eccentric and recovery demand within the same identity.",
+          "distinguishingDimensions": {
+            "tempo": "four_to_six_second_eccentric"
+          }
+        },
+        {
+          "name": "Deficit Romanian Deadlift",
+          "classification": "new_variant",
+          "rationale": "An elevated stance can increase range and requires exact scoring and setup while retaining the bilateral RDL action.",
+          "distinguishingDimensions": {
+            "range": "deficit",
+            "platform": "declared"
+          }
+        },
+        {
+          "name": "Snatch-Grip Romanian Deadlift",
+          "classification": "new_variant",
+          "rationale": "A wider grip changes torso angle, range, grip, and lat demand while retaining the barbell RDL action.",
+          "distinguishingDimensions": {
+            "grip": "snatch_width"
+          }
+        },
+        {
+          "name": "Single-Leg Romanian Deadlift",
+          "classification": "new_definition",
+          "rationale": "Unilateral stance and a free trailing leg materially change balance, pelvis control, laterality, and failure modes.",
+          "distinguishingDimensions": {
+            "stance": "unilateral"
+          }
+        },
+        {
+          "name": "Staggered-Stance Romanian Deadlift",
+          "classification": "new_definition",
+          "rationale": "A kickstand or staggered base changes load distribution, laterality, stance, and side prescription.",
+          "distinguishingDimensions": {
+            "stance": "staggered"
+          }
+        },
+        {
+          "name": "Romanian Deadlift to Row",
+          "classification": "new_definition",
+          "rationale": "Adding an elbow-flexion and shoulder-extension row changes the primary action, hinge-hold duration, and upper-body demand.",
+          "distinguishingDimensions": {
+            "primaryAction": "hinge_plus_row"
+          }
+        }
+      ]
+    }
+  ]
+}

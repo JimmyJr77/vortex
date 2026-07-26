@@ -1,0 +1,579 @@
+{
+  "facilityId": 1,
+  "slug": "dead-bug-pullover-band-dead-bug",
+  "researchVersion": "2026-07-26.37",
+  "assessmentSummary": {
+    "identity": "A supine loaded anti-extension task in which the athlete holds a declared dead-bug start, moves a declared resistance source through a controlled overhead pullover path, performs only the declared leg action, and returns without losing the rib-pelvis stack.",
+    "currentCardFindings": [
+      "The broad survivor already permits band, dumbbell, or medicine-ball resistance and already consolidated the generic Dead Bug Pullover source.",
+      "The dumbbell, medicine-ball, band-resisted, and exhale-labeled cards preserve the same primary pullover and anti-extension action; implement, leg action, load, range, breathing, and phase intent are exact variants or delivery dimensions.",
+      "The legacy sources conflict on arms-only versus combined leg motion and on strength versus control intent, so their current baseline variants must remain archived rather than being silently assigned.",
+      "Dead Bug Band Pulldown with Rotation Resist, Dead Bug Iso Press, Medicine Ball Dead Bug Press, Wall Press, and ordinary unloaded Dead Bug change the primary resistance direction or action and remain separate.",
+      "Five direct YouTube candidates return current oEmbed metadata, but no full viewing, exact-variant review, safety review, caption review, accessibility review, or approval has occurred."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "brace",
+        "pull"
+      ],
+      "movementQualifiers": [
+        "supine_dead_bug_start",
+        "declared_external_resistance",
+        "bilateral_overhead_pullover_path",
+        "declared_tabletop_hold_or_contralateral_leg_extension",
+        "trunk_anti_extension",
+        "rib_pelvis_stack",
+        "controlled_range_and_tempo",
+        "full_reset"
+      ],
+      "jointActions": [
+        "shoulder_flexion_during_controlled_overhead_reach",
+        "shoulder_extension_during_return",
+        "scapulothoracic_upward_rotation_and_control",
+        "lumbar_pelvic_anti_extension",
+        "hip_extension_and_return_when_leg_motion_is_prescribed"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal_and_transverse_stabilization"
+      ],
+      "laterality": "bilateral_arm_path_with_declared_none_or_contralateral_leg_action",
+      "intent": "loaded_supine_anti_extension_with_controlled_pullover"
+    },
+    "proposedAnatomy": {
+      "primaryMusclesAndTissues": [
+        "rectus_abdominis",
+        "internal_and_external_obliques",
+        "transversus_abdominis",
+        "latissimus_dorsi"
+      ],
+      "secondaryMusclesAndTissues": [
+        "serratus_anterior",
+        "rotator_cuff",
+        "triceps_brachii",
+        "hip_flexors",
+        "multifidus_and_spinal_stabilizers",
+        "diaphragm_and_pelvic_floor_pressure_system"
+      ],
+      "joints": [
+        "shoulder",
+        "scapulothoracic_articulation",
+        "elbow",
+        "wrist_and_hand",
+        "spine",
+        "rib_cage",
+        "pelvis",
+        "hip"
+      ],
+      "primaryActions": [
+        "establish_declared_supine_dead_bug_start",
+        "brace_while_continuing_to_breathe",
+        "move_declared_resistance_through_owned_overhead_range",
+        "perform_only_declared_leg_action",
+        "return_without_rib_flare_lumbar_extension_or_pelvic_shift",
+        "reset_before_next_rep"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 34,
+      "absoluteLoadDemand": 30,
+      "coordinationDemand": 44,
+      "supervisionDemand": 36,
+      "failureConsequence": 34,
+      "impact": 1,
+      "workCapacityDemand": 24,
+      "baseOverallDifficulty": 34
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "dumbbell-tabletop-hold",
+        "exerciseComplexity": 34,
+        "physicalDifficulty": 30,
+        "derivedOverallDifficulty": 34,
+        "basis": "a fixed two-hand dumbbell and static tabletop legs limit coordination while loaded shoulder range and anti-extension control remain explicit"
+      },
+      {
+        "variantKey": "medicine-ball-tabletop-hold",
+        "exerciseComplexity": 32,
+        "physicalDifficulty": 28,
+        "derivedOverallDifficulty": 32,
+        "basis": "a light two-hand medicine ball and static tabletop legs provide a stable implement with moderate shoulder-range and trunk-control demand"
+      },
+      {
+        "variantKey": "band-tabletop-hold",
+        "exerciseComplexity": 36,
+        "physicalDifficulty": 30,
+        "derivedOverallDifficulty": 36,
+        "basis": "a secure overhead anchor creates direction-dependent tension and setup demand while the legs remain fixed"
+      },
+      {
+        "variantKey": "dumbbell-contralateral-leg-extension",
+        "exerciseComplexity": 46,
+        "physicalDifficulty": 40,
+        "derivedOverallDifficulty": 46,
+        "basis": "simultaneous pullover and alternating leg extension increase lever, coordination, anti-extension, and technical-fatigue demand"
+      },
+      {
+        "variantKey": "band-contralateral-leg-extension",
+        "exerciseComplexity": 48,
+        "physicalDifficulty": 40,
+        "derivedOverallDifficulty": 48,
+        "basis": "combined limb motion plus direction-dependent band tension and anchor management create the highest coordination and supervision demand in this packet"
+      }
+    ],
+    "proposedLoadProfile": {
+      "loadingType": "external_arm_resistance_with_supine_trunk_anti_extension",
+      "impactClass": "no_impact",
+      "externalLoadMethod": "declared_dumbbell_medicine_ball_or_anchored_band",
+      "landingContactsPerRep": 0,
+      "primaryStress": [
+        "loaded_shoulder_flexion_and_extension",
+        "latissimus_and_serratus_control",
+        "abdominal_wall_anti_extension",
+        "grip_or_band_tension_control",
+        "hip_flexor_and_trunk_coordination_when_leg_motion_is_prescribed"
+      ],
+      "fatigueProfile": [
+        "rib_flare_or_lumbar_extension",
+        "pelvic_shift_or_leg_path_change",
+        "shoulder_shrug_or_range_loss",
+        "implement_or_band_path_drift",
+        "breath_holding",
+        "tempo_or_reset_failure"
+      ],
+      "recoveryHours": "context dependent; combine with all trunk, lat, shoulder, overhead, grip, and loaded anti-extension work"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "dumbbell_or_medicine_ball_or_resistance_band_by_exact_variant"
+      ],
+      "optionalEquipment": [
+        "mat",
+        "bench",
+        "anchor_point",
+        "mirror"
+      ],
+      "environment": [
+        "level_stable_floor_or_mat",
+        "clear_owned_overhead_range",
+        "declared_implement_and_load",
+        "secure_inspected_anchor_for_band_variants",
+        "no_cross_traffic_or_loose_equipment",
+        "rib_pelvis_shoulder_and_leg_path_visible"
+      ],
+      "population": [
+        "pain_free_supine_dead_bug_start",
+        "pain_free_declared_shoulder_range",
+        "can_hold_rib_pelvis_stack_while_breathing",
+        "can_control_declared_implement_or_band_tension",
+        "can_follow_implement_leg_action_range_tempo_and_stop_instructions"
+      ],
+      "requiresDirectSupervision": false,
+      "groupRule": "One athlete per mat or floor station with implements stored outside adjacent overhead and walking paths; band stations require individually inspected anchors.",
+      "clinicalBoundary": "Pain, pressure symptoms, coning or doming, recent injury or surgery, neurologic symptoms, or rehabilitation restrictions require individualized clinician guidance."
+    },
+    "proposedDosage": {
+      "controlSets": "1-3",
+      "controlRepetitions": "4-8",
+      "controlRestSeconds": "30-75",
+      "strengthSets": "2-4",
+      "strengthRepetitions": "5-10",
+      "strengthRestSeconds": "60-120",
+      "tempo": "controlled two-to-four-second reach and return with a full reset",
+      "effort": "quality only while trunk position, breathing, shoulder path, implement control, and declared leg action remain repeatable",
+      "rangeRule": "Use only the shoulder and leg range that preserves the rib-pelvis stack and calm breathing.",
+      "stopRule": "End the set at the first symptom, anchor or implement issue, rib flare, lumbar extension, pelvic shift, shoulder compensation, breath-holding, or repeated path or tempo error."
+    },
+    "proposedFatigueRecovery": {
+      "acuteCost": "low-to-moderate local trunk, lat, shoulder, grip or band-tension, and technical cost with no impact and low metabolic demand at quality dosage",
+      "localFatigue": [
+        "abdominal_wall_and_spinal_stabilizers",
+        "latissimus_dorsi_and_serratus_anterior",
+        "rotator_cuff_and_shoulder_stabilizers",
+        "grip_and_forearm_for_handheld_variants",
+        "hip_flexors_when_leg_motion_is_prescribed"
+      ],
+      "cumulativeBudgets": [
+        "loaded_shoulder_flexion_volume",
+        "trunk_anti_extension_volume",
+        "grip_or_band_tension_time",
+        "contralateral_limb_repetitions",
+        "technical_sensitivity",
+        "overhead_and_lat_fatigue"
+      ],
+      "recoveryRule": "Do not repeat challenging exposure while shoulder, back, abdominal-wall, grip, or hip-flexor symptoms, range loss, rib flare, breath-holding, anchor concern, or path errors persist."
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T21:00:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "The athlete holds light band, dumbbell, or medicine ball while performing dead bug or pullover motion, keeping ribs down and pelvis quiet throughout.",
+      "familyKey": "Trunk / Pelvis / Anti-Movement Control",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nasm.org/resource-center/exercise-library/dead-bug",
+      "sourceTitle": "Dead Bug",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "NASM defines the dead bug as a supine anti-extension task organized around a stable trunk and controlled limb movement.",
+        "Dead Bug Pullover / Band Dead Bug is the stable loaded-pullover identity; dumbbell, medicine-ball, band, breathing, and declared leg-motion differences are variants or delivery dimensions rather than skill levels or separate exercise identities."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://total-pt.com/2020/03/27/core-stability-exercises-dead-bug-variations/",
+      "sourceTitle": "Dead Bug Exercise Variations",
+      "sourcePublisher": "Total Physical Therapy",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "Total Physical Therapy presents weighted reach, band reach, wall push, and wall pull as variations of the dead bug selected according to control and symptoms.",
+        "Resistance source, anchor direction, arm path, leg action, range, tempo, breathing, load, and support must be explicit while pulldown-with-rotation-resist and press tasks remain separate actions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/11689975/",
+      "sourceTitle": "Electromyographic activity of selected trunk muscles during dynamic spine stabilization exercises",
+      "sourcePublisher": "Archives of Physical Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Dying-bug progressions recruit the rectus abdominis and abdominal obliques, with activity changing across difficulty levels.",
+        "The card should declare abdominal-wall and spinal stabilization, latissimus and shoulder control, hip-flexor contribution, shoulder and scapulothoracic motion, hip motion when prescribed, and lumbar-pelvic anti-extension without claiming isolated action."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://doi.org/10.14474/ptrs.2017.6.1.1",
+      "sourceTitle": "Changes in muscle activity of the abdominal muscles according to exercise method and speed during dead bug exercise",
+      "sourcePublisher": "Physical Therapy Rehabilitation Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The cited study found different abdominal activation when upper extremities, lower extremities, or both moved, and when movement speed changed.",
+        "Observable gates are a declared supine 90/90 or supported-leg start, stacked ribs and pelvis, controlled shoulder pullover path, declared leg action, repeatable range, and no visible rib flare, lumbar extension, pelvic shift, or momentum."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://doi.org/10.14474/ptrs.2017.6.1.1",
+      "sourceTitle": "Changes in muscle activity of the abdominal muscles according to exercise method and speed during dead bug exercise",
+      "sourcePublisher": "Physical Therapy Rehabilitation Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Moving both upper and lower extremities changes the task demand compared with upper-extremity-only dead-bug work.",
+        "Assess exercise complexity and physical difficulty for every exact resistance-source and leg-action contract, and derive overall difficulty as their maximum; no exercise skill level is assigned."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://barbend.com/dumbbell-pullover-guide/",
+      "sourceTitle": "How to Do the Dumbbell Pullover for a Bigger Back and Chest",
+      "sourcePublisher": "BarBend",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 68,
+      "claims": [
+        "Combining a dead-bug position with a pullover adds external arm load while requiring positional trunk control.",
+        "Dead Bug Pullover / Band Dead Bug contributes shoulder-flexion range, lat and shoulder loading, anti-extension bracing, grip or band-tension demand, and technical-sensitivity budgets without impact contacts."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://rehabilitationperformance.com/training-anti-extension/",
+      "sourceTitle": "Training Anti-Extension",
+      "sourcePublisher": "Rehabilitation & Performance Institute",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "RPI varies band assistance, knee angle, and leg lever while requiring the low back position to remain controlled.",
+        "The setup must declare a stable floor or mat, exact implement and load, secure band anchor when used, clear overhead space, leg start and action, pain-free shoulder range, coach sightline, and an immediate implement-control stop rule."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://total-pt.com/2020/03/27/core-stability-exercises-dead-bug-variations/",
+      "sourceTitle": "Dead Bug Exercise Variations",
+      "sourcePublisher": "Total Physical Therapy",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "Dead-bug variation selection should preserve control and avoid negative symptoms rather than chase a nominal progression.",
+        "Use low-to-moderate quality repetitions, deliberate tempo, full reset, and enough rest that trunk position, shoulder path, breathing, and declared leg action remain repeatable."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.nasm.org/resource-center/exercise-library/dead-bug",
+      "sourceTitle": "Dead Bug",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "NASM instructs a supine 90/90 setup, trunk engagement, and controlled limb movement.",
+        "Use a short exact cue: set ribs over pelvis, declare the implement and leg action, reach the load overhead only through owned range, exhale without losing the brace, return under control, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://rehabilitationperformance.com/training-anti-extension/",
+      "sourceTitle": "Training Anti-Extension",
+      "sourcePublisher": "Rehabilitation & Performance Institute",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "Range and lever should be changed when the athlete cannot keep the low back controlled.",
+        "Stop for pain, pinching, numbness, dizziness, pressure symptoms, unsafe band anchor or implement control, rib flare, lumbar extension, pelvic shift, shoulder shrug, breath-holding, range loss, or repeated tempo failure."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://doi.org/10.14474/ptrs.2017.6.1.1",
+      "sourceTitle": "Changes in muscle activity of the abdominal muscles according to exercise method and speed during dead bug exercise",
+      "sourcePublisher": "Physical Therapy Rehabilitation Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Limb combination and movement speed materially change abdominal demand.",
+        "Use tabletop-hold variants for lower-complexity anti-extension control, contralateral-leg variants for higher coordination demand, strength profiles for heavier controlled loading, and prepare/resilience profiles for light breathing-focused work."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://total-pt.com/2020/03/27/core-stability-exercises-dead-bug-variations/",
+      "sourceTitle": "Dead Bug Exercise Variations",
+      "sourcePublisher": "Total Physical Therapy",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "Athlete support should expose implement, load, anchor, leg action, range, tempo, breathing, repetitions, rest, primary cue, and stop signal.",
+        "Offer lighter resistance, shorter arm range, feet-supported or tabletop-hold execution, fewer leg movements, fewer repetitions, and longer rest without assigning a skill level to the exercise."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://barbend.com/dumbbell-pullover-guide/",
+      "sourceTitle": "How to Do the Dumbbell Pullover for a Bigger Back and Chest",
+      "sourcePublisher": "BarBend",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 68,
+      "claims": [
+        "The dead-bug pullover combines pullover loading with core stability and positional awareness.",
+        "Coach support should expose resistance source, load, anchor, start position, leg action, range, tempo, dose, rest, observation angle, trunk and shoulder faults, symptoms, and immediate shutdown."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://total-pt.com/2020/03/27/core-stability-exercises-dead-bug-variations/",
+      "sourceTitle": "Dead Bug Exercise Variations",
+      "sourcePublisher": "Total Physical Therapy",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "Dead-bug variations can be selected to match control, pain, abdominal strain, and coning or doming.",
+        "Accessibility options include feet-supported or tabletop-hold execution, light resistance, shorter range, slower tempo, tactile or visual setup targets, fewer repetitions, longer recovery, plain-language text, and nonvideo instruction."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://rehabilitationperformance.com/training-anti-extension/",
+      "sourceTitle": "Training Anti-Extension",
+      "sourcePublisher": "Rehabilitation & Performance Institute",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "Band pull-down assistance, arm reach, leg lever, and combined limb action change resistance and difficulty within the dead-bug family.",
+        "Rotation-resist pulldowns, isometric presses, wall presses, ordinary unloaded dead bugs, unilateral pullovers, and stability-ball compression require separate variant, definition, or modifier review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The five links have current healthy oEmbed metadata only. Full viewing, exact implement and leg-action match, instruction and safety quality, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=eaHxEKTiviQ",
+      "title": "Exercise Tutorial: Dead Bug Pullover",
+      "channelName": "Functional Fitness VA",
+      "sourceQuery": "Legacy exact-name link rechecked through current YouTube oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing, exact implement and leg-action match, instruction quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=7ee9w2zYFr0",
+      "title": "Dead Bug Dumbbell Pullover - OPEX Exercise Library",
+      "channelName": "OPEX Fitness",
+      "sourceQuery": "Legacy dumbbell link rechecked through current YouTube oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=lOsWCeXZuU8",
+      "title": "Band Resisted Dead Bug Pullover",
+      "channelName": "Sergent Wellness",
+      "sourceQuery": "Legacy band link rechecked through current YouTube oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=KiOGLd7RWqk",
+      "title": "How to do a DEAD BUG | Modifications + 2 Variations [ Dumbbell & Resistance Bands ]",
+      "channelName": "trainwell",
+      "sourceQuery": "Legacy multi-variation link rechecked through current YouTube oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=qv3XJ_bG_Lc",
+      "title": "Dead Bug Pullover Tutorial",
+      "channelName": "Chad Hargrove",
+      "sourceQuery": "Legacy exact-name link rechecked through current YouTube oEmbed",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Current title and oEmbed response are healthy. Full viewing and every human review gate remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Dead Bug Pullover",
+      "classification": "same_identity",
+      "rationale": "This is the stable broad identity for the loaded bilateral pullover under a dead-bug trunk-control contract.",
+      "distinguishingDimensions": {
+        "implement": "declared_by_variant",
+        "legAction": "declared_by_variant"
+      }
+    },
+    {
+      "name": "Dumbbell Dead Bug Pullover",
+      "classification": "same_identity",
+      "rationale": "Dumbbell loading changes the exact resistance and physical difficulty without changing the primary pullover and anti-extension action.",
+      "distinguishingDimensions": {
+        "implement": "dumbbell"
+      }
+    },
+    {
+      "name": "Medicine Ball Dead Bug Pullover",
+      "classification": "same_identity",
+      "rationale": "Medicine-ball loading changes implement handling without changing the primary pullover and anti-extension action.",
+      "distinguishingDimensions": {
+        "implement": "medicine_ball"
+      }
+    },
+    {
+      "name": "Band-Resisted Dead Bug Pullover",
+      "classification": "same_identity",
+      "rationale": "An anchored band changes resistance direction and setup but preserves the same loaded pullover identity.",
+      "distinguishingDimensions": {
+        "implement": "resistance_band",
+        "anchor": "declared_and_secure"
+      }
+    },
+    {
+      "name": "Dead Bug Pullover with Exhale",
+      "classification": "modifier_annotation",
+      "rationale": "A coached exhale changes breathing emphasis and phase intent but not the primary movement identity.",
+      "distinguishingDimensions": {
+        "breathing": "declared_exhale_emphasis"
+      }
+    },
+    {
+      "name": "Dumbbell Dead Bug Pullover with Contralateral Leg Extension",
+      "classification": "new_variant",
+      "rationale": "Adding alternating leg extension increases lever, coordination, and anti-extension demand within the same identity.",
+      "distinguishingDimensions": {
+        "implement": "dumbbell",
+        "legAction": "contralateral_extension"
+      }
+    },
+    {
+      "name": "Band Dead Bug Pullover with Contralateral Leg Extension",
+      "classification": "new_variant",
+      "rationale": "Combined leg motion and anchored band tension increase coordination and setup demand within the same identity.",
+      "distinguishingDimensions": {
+        "implement": "resistance_band",
+        "legAction": "contralateral_extension"
+      }
+    },
+    {
+      "name": "Kettlebell Dead Bug Pullover",
+      "classification": "new_variant",
+      "rationale": "A kettlebell changes grip and mass distribution while retaining the loaded pullover identity.",
+      "distinguishingDimensions": {
+        "implement": "kettlebell"
+      }
+    },
+    {
+      "name": "Single-Arm Dead Bug Pullover",
+      "classification": "new_variant",
+      "rationale": "Unilateral arm loading adds anti-rotation and asymmetrical grip and shoulder demand that require exact scoring.",
+      "distinguishingDimensions": {
+        "armLoading": "unilateral",
+        "antiRotationDemand": "increased"
+      }
+    },
+    {
+      "name": "Dead Bug Band Pulldown with Rotation Resist",
+      "classification": "new_definition",
+      "rationale": "A held or downward band pull with explicit rotational resistance changes resistance direction and primary anti-motion contract.",
+      "distinguishingDimensions": {
+        "primaryAction": "band_pulldown_hold",
+        "antiMotion": "anti_extension_and_anti_rotation"
+      }
+    },
+    {
+      "name": "Medicine Ball Dead Bug Press",
+      "classification": "new_definition",
+      "rationale": "An isometric or active hand-to-knee press changes the primary action from shoulder pullover to compression or press.",
+      "distinguishingDimensions": {
+        "primaryAction": "press_or_compression"
+      }
+    },
+    {
+      "name": "Unloaded Dead Bug",
+      "classification": "new_definition",
+      "rationale": "The ordinary alternating-limb dead bug has no external pullover resistance and remains the foundational separate exercise.",
+      "distinguishingDimensions": {
+        "externalResistance": "none",
+        "primaryAction": "alternating_limb_control"
+      }
+    }
+  ]
+}

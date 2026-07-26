@@ -1,0 +1,19 @@
+{
+  "batchKey": "l-sit-support-and-hanging-family-v1",
+  "researchVersion": "2026-07-26.28",
+  "generatedAt": "2026-07-26T23:45:00.000Z",
+  "cards": [
+    {
+      "slug": "l-sit",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 11
+    },
+    {
+      "slug": "hanging-l-sit",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 8
+    }
+  ]
+}

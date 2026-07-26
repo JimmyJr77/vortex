@@ -1227,23 +1227,36 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         )`)
       }
 
-      const result = await pool.query(
-        `SELECT sk.*, s.name AS sport_name, e.name AS exercise_name
+      const whereSql = where.join(' AND ')
+      const pagination = parseExerciseLibraryPagination(req)
+      const countResult = await pool.query(
+        `SELECT COUNT(*)::int AS total FROM coaching.skill sk WHERE ${whereSql}`,
+        params,
+      )
+      const total = countResult.rows[0]?.total ?? 0
+      const listParams = [...params]
+      let listSql = `SELECT sk.*, s.name AS sport_name, e.name AS exercise_name
          FROM coaching.skill sk
          LEFT JOIN coaching.sport s ON s.id = sk.sport_id
          LEFT JOIN coaching.exercise e ON e.id = sk.exercise_id
-         WHERE ${where.join(' AND ')}
-         ORDER BY sk.skill_kind, sk.evaluation_mode, sk.name
-         LIMIT 500`,
-        params,
-      )
+         WHERE ${whereSql}
+         ORDER BY sk.skill_kind, sk.evaluation_mode, sk.name`
+      if (pagination.paginated) {
+        listParams.push(pagination.limit, pagination.offset)
+        listSql += ` LIMIT $${listParams.length - 1} OFFSET $${listParams.length}`
+      }
+
+      const result = await pool.query(listSql, listParams)
       const ids = result.rows.map((r) => Number(r.id))
       const [componentMap, prereqMap] = await Promise.all([loadSkillComponents(ids), loadSkillPrerequisites(ids)])
-      ok(res, result.rows.map((r) => ({
+      const items = result.rows.map((r) => ({
         ...r,
         components: componentMap.get(String(r.id)) ?? [],
         prerequisites: prereqMap.get(String(r.id)) ?? [],
-      })))
+      }))
+      ok(res, pagination.paginated
+        ? { items, total, limit: pagination.limit, offset: pagination.offset }
+        : items)
     } catch (error) {
       bad(res, error.message, 500)
     }

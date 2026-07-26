@@ -1,7 +1,7 @@
 {
   "batchKey": "hang-scapular-control-family-v1",
-  "researchVersion": "2026-07-26.26",
-  "snapshotAt": "2026-07-26T20:00:00.000Z",
+  "researchVersion": "2026-07-26.30",
+  "snapshotAt": "2026-07-26T09:22:00.000Z",
   "facilityId": 1,
   "sourceRegistry": "../source-registry.v1.json",
   "sharedEvidence": [
@@ -46,6 +46,10 @@
         ],
         "proposedTaxonomy": {
           "movementPatterns": [
+            "hang",
+            "brace"
+          ],
+          "movementQualifiers": [
             "vertical_suspension",
             "straight_arm_passive_hang",
             "bilateral_grip_isometric"
@@ -128,6 +132,13 @@
             "physicalDifficulty": 34,
             "derivedOverallDifficulty": 34,
             "basis": "band assistance reduces relative bodyweight while adding band-entry, exit, and recoil logistics"
+          },
+          {
+            "variantKey": "ring",
+            "exerciseComplexity": 20,
+            "physicalDifficulty": 56,
+            "derivedOverallDifficulty": 56,
+            "basis": "freely rotating rings preserve passive suspension while adding implement stability and self-selected grip-orientation demand"
           },
           {
             "variantKey": "weighted",
@@ -595,6 +606,11 @@
         ],
         "proposedTaxonomy": {
           "movementPatterns": [
+            "hang",
+            "pull",
+            "brace"
+          ],
+          "movementQualifiers": [
             "vertical_suspension",
             "straight_arm_active_scapular_isometric",
             "bilateral_grip_isometric"
@@ -683,6 +699,13 @@
             "physicalDifficulty": 64,
             "derivedOverallDifficulty": 64,
             "basis": "freely rotating rings increase stabilization and grip-orientation demand without changing the isometric movement solution"
+          },
+          {
+            "variantKey": "weighted",
+            "exerciseComplexity": 32,
+            "physicalDifficulty": 80,
+            "derivedOverallDifficulty": 80,
+            "basis": "added load increases grip and active scapular isometric demand and adds load-attachment and controlled-exit requirements"
           },
           {
             "variantKey": "single-arm",
@@ -890,7 +913,7 @@
       "evidence": [
         {
           "sectionKey": "identity",
-          "sourceKey": "crossfit_active_shoulders_hanging",
+          "sourceKey": "crossfit_bar_hanging_positions",
           "claims": [
             "The professional instruction defines an active hanging position by keeping the shoulders engaged and slightly away from the ears.",
             "Treat straight-elbow scapular engagement held without visible repetitions as Active Hang. Hold duration, breathing, trunk shape, assistance, and grip are controlled delivery or variant dimensions."
@@ -922,7 +945,7 @@
         },
         {
           "sectionKey": "difficulty",
-          "sourceKey": "crossfit_active_shoulders_hanging",
+          "sourceKey": "crossfit_bar_hanging_positions",
           "claims": [
             "Active hanging requires continued shoulder-girdle engagement instead of allowing the shoulders to remain passive.",
             "Score exercise complexity separately from relative physical difficulty and derive overall as their maximum. Active scapular force raises physical demand above Dead Hang, while coordination, supervision, grip fatigue, and failure consequence remain separate planning dimensions."
@@ -954,7 +977,7 @@
         },
         {
           "sectionKey": "instructions",
-          "sourceKey": "crossfit_active_shoulders_hanging",
+          "sourceKey": "crossfit_bar_hanging_positions",
           "claims": [
             "The professional source cues active hanging by drawing the shoulders slightly away from the ears while staying engaged.",
             "Instructions for {{canonicalName}} must include secure grip, straight elbows, small active scapular position, assigned trunk shape, hold endpoint, breathing, and controlled step-down. Avoid maximal depression or aggressive forced retraction."
@@ -1141,6 +1164,11 @@
         ],
         "proposedTaxonomy": {
           "movementPatterns": [
+            "hang",
+            "pull",
+            "brace"
+          ],
+          "movementQualifiers": [
             "vertical_suspension",
             "straight_arm_scapular_pull",
             "bilateral_grip_isometric"
@@ -1231,6 +1259,13 @@
             "physicalDifficulty": 68,
             "derivedOverallDifficulty": 68,
             "basis": "rings add stability and grip-orientation demand while preserving the same dynamic scapular action"
+          },
+          {
+            "variantKey": "weighted",
+            "exerciseComplexity": 44,
+            "physicalDifficulty": 84,
+            "derivedOverallDifficulty": 84,
+            "basis": "added load increases grip and dynamic scapular demand and adds attachment, recovery, and controlled-exit requirements"
           },
           {
             "variantKey": "single-arm",

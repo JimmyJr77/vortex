@@ -1,0 +1,511 @@
+{
+  "batchKey": "kneeling-medicine-ball-chest-pass-family-v1",
+  "facilityId": 1,
+  "researchVersion": "2026-07-26.32",
+  "snapshotAt": "2026-07-26T11:15:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "nsca_tall_kneeling_medicine_ball_chest_throw",
+      "claims": [
+        "The NSCA source names a tall-kneeling medicine-ball chest throw, supporting kneeling stance as a declared execution dimension of a two-hand horizontal chest pass.",
+        "{{canonicalName}} is the stable broad identity. Tall kneeling, half kneeling, throw-only delivery, and rebound-and-catch delivery must remain exact variants rather than ambiguous aliases."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "upper_body_plyometric_meta_analysis",
+      "claims": [
+        "Medicine-ball throws are upper-body plyometric tasks used to express rapid propulsive force.",
+        "{{canonicalName}} uses controlled push and brace patterns. Horizontal throw direction, two-hand release, stance, target, rebound, and catch behavior remain explicit qualifiers."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "upper_body_plyometric_meta_analysis",
+      "claims": [
+        "A chest pass is driven primarily by rapid shoulder horizontal adduction or flexion, elbow extension, and scapular protraction while the trunk and pelvis provide a stable base.",
+        "The card should declare pectoralis major, triceps brachii, anterior deltoid, serratus anterior, shoulder, scapulothoracic articulation, elbow, wrist and hand, spine, pelvis, and hip without claiming isolated-muscle action."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "medicine_ball_velocity_reliability",
+      "claims": [
+        "Throwing technique and medicine-ball mass affect measured release velocity and therefore must be standardized when output is compared.",
+        "Observable mechanics include a stable kneeling base, ball starting at the chest, coordinated two-hand projection, complete release, controlled trunk position, declared target, and, when prescribed, organized rebound absorption."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "medicine_ball_velocity_reliability",
+      "claims": [
+        "Ball mass and technique change the physical and coordination demands of a medicine-ball throw.",
+        "Assess exercise complexity and physical difficulty independently for each exact stance-and-catch variant and derive overall difficulty as their maximum; supervision, failure consequence, fatigue, and coordination remain separate planning dimensions."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "medicine_ball_power_fatigue",
+      "claims": [
+        "Medicine-ball throwing performance can be monitored through release velocity, and declining output can identify fatigue when the method is standardized.",
+        "{{canonicalName}} accumulates high-intent upper-body ballistic exposures, anterior shoulder and elbow stress, trunk stabilization demand, and, for rebound variants, catch absorption; recovery cannot be inferred from a card label."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "ace_medicine_ball_ift_workout",
+      "claims": [
+        "Medicine balls differ in rebound behavior and construction, which changes whether a wall return can be caught safely.",
+        "The setup must declare ball mass and type, inspected wall or trained partner, target height, return path, floor traction, clear lane, spacing, lighting, and coach sightline; a non-rebounding ball cannot be prescribed for a rebound-and-catch variant."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "upper_body_plyometric_meta_analysis",
+      "claims": [
+        "Upper-body plyometric studies use varied set, repetition, rest, and weekly-frequency prescriptions, so a broad research range is not an exact individual dose.",
+        "For high-intent output, use short sets, full reset, and generous recovery; for technique and catch control, use a light ball and stop before release speed, target accuracy, posture, or catch quality declines."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "ace_kneeling_power_ball_pass",
+      "claims": [
+        "ACE presents a kneeling power-ball pass as a low-impact upper-body plyometric drill and emphasizes a ball light enough to preserve range and control.",
+        "Use a short sequence-specific cue: establish the declared kneeling base, brace, hold at the chest, drive through both hands, finish to the target, then reset or absorb the declared return."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "ace_medicine_ball_ift_workout",
+      "claims": [
+        "A returning medicine ball transfers energy to the athlete and requires controlled absorption; ball construction and user readiness matter.",
+        "Stop for pain, numbness, dizziness, loss of kneeling balance, trunk extension or rotation, wild release, unsafe wall or partner behavior, ball damage, missed catch, face-height return, crowded lane, or material output decline."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "nsca_tall_kneeling_medicine_ball_chest_throw",
+      "claims": [
+        "The NSCA source places a tall-kneeling medicine-ball chest throw in a power-oriented contrast pairing.",
+        "{{canonicalName}} is freshness-sensitive output or movement-learning work. It should not be hidden inside fatigue conditioning when release quality, target accuracy, or rebound control is the intended adaptation."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "ace_kneeling_power_ball_pass",
+      "claims": [
+        "Athlete support should show the exact stance, ball type and mass, target, whether the ball returns, whether a catch is required, the primary cue, and the stop signal.",
+        "The interface should offer lighter-ball, throw-only, tall-kneeling, and seated alternatives without status language and should distinguish an ordinary effort rating from exercise difficulty."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "medicine_ball_velocity_reliability",
+      "claims": [
+        "Reliable comparison requires consistent technique and ball mass.",
+        "Coach support should display stance, lead leg, ball specification, distance, target height, wall or partner behavior, catch rule, set and repetition dose, rest, output metric, observation angle, fatigue signal, and immediate lane shutdown control."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "ace_kneeling_power_ball_pass",
+      "claims": [
+        "The ball should be light enough that the athlete can maintain control and intended range.",
+        "Accessibility options include a lighter or softer ball, a larger high-contrast target, throw-only delivery, greater wall distance, tall kneeling instead of half kneeling, seated support, fewer repetitions, longer reset, plain-language cues, and non-video instructions."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "nsca_tall_kneeling_medicine_ball_chest_throw",
+      "claims": [
+        "Tall-kneeling chest throw is a declared stance version of the same horizontal two-hand chest-pass identity.",
+        "Tall versus half kneeling and throw-only versus rebound-and-catch require exact variants. Ball mass, distance, target height, and partner versus wall delivery are modifiers when the stance and catch contract remain unchanged; seated, standing, rotational, unilateral, and overhead throws are separate identities."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied links are discovery candidates only. A successful current oEmbed response does not establish full viewing, exact stance-and-catch match, cue or safety quality, captions, accessibility, reviewer identity, or approval."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "kneeling-medicine-ball-chest-pass",
+      "assessmentSummary": {
+        "identity": "A two-hand medicine-ball chest pass performed from a declared kneeling base toward a trained partner, safe open target, or inspected wall. Stance and rebound/catch behavior are exact variants; ball mass, target height, and distance are dose and setup variables.",
+        "currentCardFindings": [
+          "Four active definitions describe the same horizontal two-hand chest-pass task: a generic kneeling card, a tall-kneeling card, a tall-kneeling wall card, and a half-kneeling wall card.",
+          "Two legacy generic sources do not state whether kneeling means tall or half kneeling. They must remain archived, nonselectable provenance rather than being silently assigned to a stance.",
+          "The explicit wall cards contain unrelated squat, overhead-reach, and triple-extension requirements that do not describe the stored kneeling chest-pass execution.",
+          "The existing category scores do not separate exercise complexity from physical difficulty and do not distinguish throw-only delivery from rebound-and-catch absorption.",
+          "Five direct YouTube candidates have current successful oEmbed responses, but no full viewing, exact variant match, safety review, caption review, reviewer identity, or approval has occurred."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "push",
+            "brace"
+          ],
+          "movementQualifiers": [
+            "two_hand_horizontal_ball_projection",
+            "kneeling_base",
+            "ball_starts_at_chest",
+            "complete_release",
+            "declared_target",
+            "declared_rebound_and_catch_contract"
+          ],
+          "jointActions": [
+            "shoulder_horizontal_adduction_and_flexion",
+            "elbow_extension",
+            "scapular_protraction",
+            "wrist_and_hand_release",
+            "trunk_anti_extension",
+            "pelvic_and_hip_stabilization"
+          ],
+          "planes": [
+            "transverse",
+            "sagittal"
+          ],
+          "laterality": "bilateral_throw_with_symmetric_or_asymmetric_kneeling_base",
+          "intent": "rapid_horizontal_projection_with_declared_return_control"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": [
+            "pectoralis_major",
+            "triceps_brachii",
+            "anterior_deltoid"
+          ],
+          "secondaryMusclesAndTissues": [
+            "serratus_anterior",
+            "rotator_cuff",
+            "abdominal_wall",
+            "spinal_stabilizers",
+            "gluteus_maximus",
+            "hip_stabilizers"
+          ],
+          "joints": [
+            "shoulder",
+            "scapulothoracic_articulation",
+            "elbow",
+            "wrist_and_hand",
+            "spine",
+            "pelvis",
+            "hip",
+            "knee"
+          ],
+          "primaryActions": [
+            "establish_declared_kneeling_base",
+            "brace_trunk_and_pelvis",
+            "project_ball_horizontally_from_chest_with_two_hands",
+            "complete_release_to_declared_target",
+            "reset_or_absorb_declared_return"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 34,
+          "absoluteLoadDemand": 38,
+          "coordinationDemand": 38,
+          "supervisionDemand": 52,
+          "failureConsequence": 48,
+          "impact": 8,
+          "workCapacityDemand": 24,
+          "baseOverallDifficulty": 38
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "tall-kneeling-throw-only",
+            "exerciseComplexity": 34,
+            "physicalDifficulty": 38,
+            "derivedOverallDifficulty": 38,
+            "basis": "a symmetric kneeling base and no returning catch reduce stance and perceptual demands while preserving rapid two-hand projection"
+          },
+          {
+            "variantKey": "tall-kneeling-rebound-catch",
+            "exerciseComplexity": 42,
+            "physicalDifficulty": 42,
+            "derivedOverallDifficulty": 42,
+            "basis": "the athlete must track, receive, and absorb a safe wall or partner return without losing tall-kneeling posture"
+          },
+          {
+            "variantKey": "half-kneeling-throw-only",
+            "exerciseComplexity": 42,
+            "physicalDifficulty": 38,
+            "derivedOverallDifficulty": 42,
+            "basis": "the asymmetric base adds lead-leg selection, pelvic control, anti-rotation, and side-to-side dose management"
+          },
+          {
+            "variantKey": "half-kneeling-rebound-catch",
+            "exerciseComplexity": 48,
+            "physicalDifficulty": 42,
+            "derivedOverallDifficulty": 48,
+            "basis": "an asymmetric base plus a returning catch adds balance, tracking, absorption, and side-specific coordination demands"
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "upper_body_ballistic_projection_from_kneeling",
+          "impactClass": "low_ground_impact_with_ball_return_consequence",
+          "externalLoadMethod": "declared_medicine_ball_mass_and_rebound_type",
+          "landingContactsPerRep": 0,
+          "primaryStress": [
+            "rapid_horizontal_upper_body_projection",
+            "anterior_shoulder_and_elbow_extension_load",
+            "trunk_and_pelvic_stabilization",
+            "return_absorption_when_catch_is_prescribed"
+          ],
+          "fatigueProfile": [
+            "release_velocity_decline",
+            "target_accuracy_loss",
+            "trunk_extension_or_rotation",
+            "elbow_or_shoulder_discomfort",
+            "kneeling_balance_loss",
+            "late_or_unsafe_catch"
+          ],
+          "recoveryHours": "context dependent; combine with all upper-body power, pressing, throwing, shoulder, elbow, and catch exposures"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "medicine_ball",
+            "safe_open_target_trained_partner_or_inspected_wall"
+          ],
+          "optionalEquipment": [
+            "kneeling_pad",
+            "high_contrast_target",
+            "radar_or_ball_tracker",
+            "video_feedback"
+          ],
+          "environment": [
+            "declared_ball_mass_material_and_rebound_behavior",
+            "level_non_slip_kneeling_surface",
+            "clear_ball_lane_and_return_path",
+            "inspected_wall_or_trained_partner",
+            "declared_distance_and_target_height",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_kneeling_and_two_hand_chest_pass",
+            "can_hold_declared_base_without_balance_loss",
+            "can release_to_target_without trunk compensation",
+            "can track_and_absorb_return_when_catch_is_prescribed",
+            "can follow stop_and_lane_clear instructions"
+          ],
+          "requiresDirectSupervision": true,
+          "groupRule": "One active thrower per lane; partners and waiting athletes stay outside the declared flight and rebound path.",
+          "clinicalBoundary": "Pain, instability, recent injury or surgery, neurologic symptoms, or rehabilitation restrictions require individualized clinician guidance; this is not rehabilitation instruction."
+        },
+        "proposedDosage": {
+          "outputSets": "2-4",
+          "outputRepetitions": "3-5",
+          "outputRestSeconds": "90-180",
+          "techniqueSets": "2-3",
+          "techniqueRepetitions": "3-6",
+          "techniqueRestSeconds": "60-120",
+          "effort": "high intent only while stance, release path, target accuracy, and any prescribed catch remain repeatable",
+          "ballRule": "Use the lightest ball that produces the intended ballistic action; reduce mass when range, release speed, target accuracy, posture, or catch control worsens.",
+          "sideRule": "For half kneeling, declare the lead leg and balance repetitions across sides unless a documented reason says otherwise.",
+          "stopRule": "End the set on the first symptom, unsafe return, missed catch, lane intrusion, material output decline, target loss, or stance-quality failure."
+        },
+        "proposedFatigueRecovery": {
+          "acuteCost": "moderate neural and upper-body ballistic cost with low metabolic demand at output dosage; catch variants add eccentric absorption and perceptual demand",
+          "localFatigue": [
+            "pectorals",
+            "triceps",
+            "anterior_deltoid",
+            "serratus_and_scapular_stabilizers",
+            "trunk_and_pelvic_stabilizers",
+            "lead_hip_stabilizers_in_half_kneeling"
+          ],
+          "cumulativeBudgets": [
+            "upper_body_ballistic_repetitions",
+            "pressing_and_throwing_load",
+            "anterior_shoulder_and_elbow_stress",
+            "trunk_stabilization",
+            "catch_absorption_exposures",
+            "technical_sensitivity"
+          ],
+          "recoveryRule": "Do not repeat high-intent exposure while pain, soreness, target loss, release-speed decline, balance loss, or catch hesitation persists; recovery time is individualized rather than inferred from a card classification."
+        }
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "nsca_tall_kneeling_medicine_ball_chest_throw",
+          "claims": [
+            "Tall kneeling is explicitly named in the NSCA exercise, while the two generic legacy sources omit stance.",
+            "Consolidate the four cards under {{canonicalName}}, retain all source aliases, create exact stance-and-catch variants, and quarantine stance-unspecified provenance."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "medicine_ball_velocity_reliability",
+          "claims": [
+            "The candidate scores distinguish exercise complexity from physical difficulty and derive overall difficulty as the larger value.",
+            "Independent calibration remains required; the migration must not create reviewed score anchors or imply population validity."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "ace_medicine_ball_ift_workout",
+          "claims": [
+            "Rebound behavior changes whether a safe catch is possible, so throw-only and rebound-and-catch are exact variants rather than hidden setup notes.",
+            "The generic legacy kneeling sources remain nonselectable because their stance and return contract cannot be recovered from stored text."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=cQ3pZhIBPHI",
+          "title": "Tall-Kneeling Medicine Ball Chest Pass",
+          "channelName": "Viking Strength Systems",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and embed response are healthy. Full viewing, exact throw-only or catch contract, ball behavior, cue quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=HNPRmN3vJUU",
+          "title": "Half-Kneeling Medicine Ball Chest Pass",
+          "channelName": "Performance Unlimited",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and embed response are healthy. Full viewing, exact lead-leg and catch contract, ball behavior, cue quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=hq4twzUZgMY",
+          "title": "Kneeling Medicine Ball Chest Pass",
+          "channelName": "Jordan Weber Fitness",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and embed response are healthy. The title does not resolve stance; complete viewing, exact variant match, cue quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=-PPPJd2d65c",
+          "title": "Tall-Kneeling Medicine Ball Chest Pass",
+          "channelName": "Nicole Delegas",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and embed response are healthy. Full viewing, exact throw-only or catch contract, ball behavior, cue quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=w84FxjgNlU0",
+          "title": "Full-Kneeling Medicine Ball Chest Pass",
+          "channelName": "Performance Unlimited",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and embed response are healthy. Full kneeling may mean tall kneeling but must be confirmed by viewing; exact variant match, cue quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Tall-Kneeling Medicine Ball Chest Pass",
+          "classification": "same_identity",
+          "rationale": "The same two-hand horizontal chest-pass identity is performed from an explicitly tall-kneeling base.",
+          "distinguishingDimensions": {
+            "stance": "tall_kneeling",
+            "identityDisposition": "exact_variant"
+          }
+        },
+        {
+          "name": "Tall-Kneeling Chest Pass to Wall",
+          "classification": "same_identity",
+          "rationale": "The stored action remains a two-hand kneeling chest pass; wall delivery and return behavior belong in the exact variant contract.",
+          "distinguishingDimensions": {
+            "stance": "tall_kneeling",
+            "target": "wall",
+            "returnContract": "rebound_and_catch"
+          }
+        },
+        {
+          "name": "Half-Kneeling Chest Pass to Wall",
+          "classification": "same_identity",
+          "rationale": "The stored action remains a two-hand kneeling chest pass; the asymmetric base and rebound catch are exact variant dimensions.",
+          "distinguishingDimensions": {
+            "stance": "half_kneeling",
+            "target": "wall",
+            "returnContract": "rebound_and_catch"
+          }
+        },
+        {
+          "name": "Half-Kneeling Medicine Ball Chest Pass",
+          "classification": "new_variant",
+          "rationale": "Half kneeling preserves the throw identity but changes base symmetry, lead-leg declaration, pelvic stability, and anti-rotation demand.",
+          "distinguishingDimensions": {
+            "stance": "half_kneeling",
+            "leadLeg": "declared_and_balanced"
+          }
+        },
+        {
+          "name": "Full-Kneeling Medicine Ball Chest Pass",
+          "classification": "same_identity",
+          "rationale": "Full kneeling is a naming alias for tall kneeling only when the knees are down and the hips are extended; exact video or source interpretation still requires review.",
+          "distinguishingDimensions": {
+            "aliasCandidate": "tall_kneeling",
+            "humanReviewRequired": true
+          }
+        },
+        {
+          "name": "Partner Kneeling Medicine Ball Chest Pass",
+          "classification": "modifier_annotation",
+          "rationale": "A trained partner changes target and return logistics without changing stance or two-hand horizontal projection when the catch contract is unchanged.",
+          "distinguishingDimensions": {
+            "target": "trained_partner",
+            "operations": "partner_timing_and_lane_control"
+          }
+        },
+        {
+          "name": "Seated Medicine Ball Chest Pass",
+          "classification": "new_definition",
+          "rationale": "Seated support changes the base, hip and knee posture, trunk contribution, setup, and population constraints.",
+          "distinguishingDimensions": {
+            "startPosition": "seated",
+            "base": "supported"
+          }
+        },
+        {
+          "name": "Supine Medicine Ball Chest Throw",
+          "classification": "new_definition",
+          "rationale": "Supine projection changes gravity orientation, release direction, support surface, catch risk, and primary task mechanics.",
+          "distinguishingDimensions": {
+            "bodyPosition": "supine",
+            "projection": "vertical"
+          }
+        },
+        {
+          "name": "Standing Medicine Ball Chest Pass",
+          "classification": "new_definition",
+          "rationale": "Standing permits lower-body force contribution and changes balance, force transfer, and setup constraints.",
+          "distinguishingDimensions": {
+            "startPosition": "standing",
+            "lowerBodyContribution": "permitted"
+          }
+        },
+        {
+          "name": "Rotational Medicine Ball Chest Pass",
+          "classification": "new_definition",
+          "rationale": "Rotation changes the primary movement pattern, plane emphasis, laterality, target direction, and training stimulus.",
+          "distinguishingDimensions": {
+            "movementPattern": "rotation",
+            "projection": "transverse_rotational"
+          }
+        },
+        {
+          "name": "Single-Arm Medicine Ball Shot Put",
+          "classification": "new_definition",
+          "rationale": "Unilateral shot-put mechanics change implement position, arm action, trunk contribution, laterality, and release path.",
+          "distinguishingDimensions": {
+            "armUse": "unilateral",
+            "releasePattern": "shot_put"
+          }
+        },
+        {
+          "name": "Kneeling Medicine Ball Overhead Throw",
+          "classification": "new_definition",
+          "rationale": "Overhead projection changes shoulder action, release direction, trunk strategy, target, and primary training stimulus.",
+          "distinguishingDimensions": {
+            "projection": "overhead",
+            "primaryJointAction": "shoulder_flexion"
+          }
+        }
+      ]
+    }
+  ]
+}

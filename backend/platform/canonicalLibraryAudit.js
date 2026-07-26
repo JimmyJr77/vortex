@@ -1,6 +1,7 @@
 import {
+  buildCanonicalDuplicateIndex,
   buildCanonicalCardTestPacket,
-  findPotentialCanonicalDuplicates,
+  findPotentialCanonicalDuplicatesFromIndex,
 } from './canonicalCardAuthoring.js'
 
 export const CANONICAL_CARD_AUDIT_VERSION = 'canonical-card-audit-v1'
@@ -414,6 +415,7 @@ export async function auditCanonicalExerciseLibrary(pool, {
     aliases: row.aliases,
     family_key: row.family_key,
   }))
+  const duplicateIndex = buildCanonicalDuplicateIndex(identityRows)
   const packets = definitions.map((definition) => {
     const definitionId = String(definition.id)
     const card = rowToCard(
@@ -441,7 +443,7 @@ export async function auditCanonicalExerciseLibrary(pool, {
     const basePacket = buildCanonicalCardTestPacket(card, {
       mediaReview,
       invalidTaxonomyKeys,
-      duplicates: findPotentialCanonicalDuplicates(card, identityRows),
+      duplicates: findPotentialCanonicalDuplicatesFromIndex(card, duplicateIndex),
       relationships,
     })
     const checks = [

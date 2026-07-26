@@ -1,0 +1,477 @@
+{
+  "batchKey": "medicine-ball-rotational-wall-throw-family-v1",
+  "facilityId": 1,
+  "researchVersion": "2026-07-26.33",
+  "snapshotAt": "2026-07-26T13:30:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "nsca_standing_rotational_wall_toss",
+      "claims": [
+        "The NSCA source names a standing rotational wall toss and describes a medicine ball projected powerfully into a wall from a rotational backswing.",
+        "{{canonicalName}} is the stable broad identity. The legacy wall-named card is the same identity; rebound-and-catch versus throw-and-retrieve must be an exact delivery variant."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "upper_body_plyometric_meta_analysis",
+      "claims": [
+        "Medicine-ball throws are upper-body plyometric tasks used for rapid force expression.",
+        "{{canonicalName}} uses controlled rotate, push, and brace patterns. Standing stance, side, ball path, target, release, rebound behavior, and catch contract must be explicit."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "side_medicine_ball_throw_emg",
+      "claims": [
+        "Side medicine-ball throwing recruits the trunk musculature during rapid rotation and force transfer.",
+        "The card should declare the hip and trunk rotators, abdominal wall, spinal stabilizers, gluteals, pectoralis major, anterior deltoid, triceps, serratus anterior, and the contributing ankle, knee, hip, pelvis, spine, scapular, shoulder, elbow, wrist, and hand joints without claiming isolated action."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "nsca_standing_rotational_wall_toss",
+      "claims": [
+        "The NSCA execution permits the ankles, knees, and hips to move while the athlete swings the ball backward, follows it visually, reverses direction, and throws into the wall.",
+        "Observable mechanics include a stable athletic base, declared throw side, whole-body load and pivot, sequenced pelvis-to-trunk-to-arms projection, complete release, target accuracy, and a controlled reset or catch."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "medicine_ball_rotational_power_validity",
+      "claims": [
+        "Rotational medicine-ball performance can be assessed through velocity or distance only when the protocol and load are standardized.",
+        "Assess exercise complexity and physical difficulty independently for each exact return contract and derive overall difficulty as their maximum; supervision, failure consequence, fatigue, and coordination remain separate planning dimensions."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "medicine_ball_velocity_reliability",
+      "claims": [
+        "Medicine-ball mass and throwing technique change release velocity and must be standardized for meaningful comparisons.",
+        "{{canonicalName}} contributes high-intent rotational throws, shoulder and elbow projection stress, trunk and hip rotation demand, and, when prescribed, rebound-tracking and catch-absorption exposures."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "ace_lateral_wall_ball",
+      "claims": [
+        "ACE distinguishes medicine-ball construction and rebound behavior and describes a lateral wall ball performed perpendicular to a suitable wall with a pivot and rapid catch.",
+        "The setup must declare ball mass, material, diameter, rebound behavior, inspected wall, distance, target height, clear flight and return lanes, floor traction, lighting, traffic boundary, and coach sightline."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "nsca_standing_rotational_wall_toss",
+      "claims": [
+        "The NSCA example includes the wall toss within a circuit, while broader medicine-ball programming varies by intent; one published circuit dose is not a universal output prescription.",
+        "For high-intent power, use short side-balanced sets and generous recovery. For technique, use a light ball and stop before sequencing, release speed, target accuracy, balance, or catch quality declines."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "ace_lateral_wall_ball",
+      "claims": [
+        "ACE describes starting perpendicular to the wall, loading from the outside hip, rotating and pivoting, projecting toward a hip-height target, and catching the return.",
+        "Use a short sequence-specific cue: athletic base, load the outside hip, turn from the ground up, throw through the target, then reset or absorb the declared return."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "ace_medicine_ball_ift_workout",
+      "claims": [
+        "Ball construction determines whether a throw rebounds, and catching requires whole-body absorption rather than hands alone.",
+        "Stop for pain, numbness, dizziness, balance loss, uncontrolled lumbar extension or rotation, target loss, unsafe pivot, damaged ball, unsuitable wall, lane intrusion, unpredictable return, missed catch, or material output decline."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "trunk_rotator_strength_rotational_throw",
+      "claims": [
+        "Rotational medicine-ball velocity and distance have large or very large associations with trunk-rotation strength in the cited active-adult sample.",
+        "{{canonicalName}} is a freshness-sensitive rotational-power or movement-learning task. It should not be hidden inside fatigue conditioning when velocity, sequencing, accuracy, or catch control is the intended outcome."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "ace_lateral_wall_ball",
+      "claims": [
+        "Athlete support should show stance, throw side, ball specification, wall target, distance, whether the ball returns, whether a catch is required, the primary cue, and the stop signal.",
+        "The interface should offer lighter-ball, throw-only, reduced-range, and half-kneeling alternatives without assigning a proficiency label to the exercise."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "medicine_ball_rotational_power_validity",
+      "claims": [
+        "Meaningful rotational-power comparison requires a standardized ball, technique, direction, and measurement method.",
+        "Coach support should display side, ball, distance, target, wall and rebound behavior, catch rule, dose, rest, output metric, observation angle, quality errors, fatigue signal, and immediate lane-shutdown control."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "ace_medicine_ball_ift_workout",
+      "claims": [
+        "Medicine-ball type and the athlete's ability to absorb a return materially affect safe participation.",
+        "Accessibility options include a lighter or softer ball, larger high-contrast target, throw-only delivery, greater distance, reduced backswing, fewer repetitions, longer reset, plain-language cues, non-video instruction, and a separately assessed supported or kneeling rotational throw."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "nsca_standing_rotational_wall_toss",
+      "claims": [
+        "Rotational wall toss and rotational wall throw name the same standing transverse-plane projection identity.",
+        "Throw-only versus rebound-and-catch is an exact variant. Ball mass, wall distance, target height, and measured output are modifiers; overhead, chest-pass, scoop, slam, kneeling, step-behind, shot-put, and partner-reactive tasks require separate identity or variant review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied links are discovery candidates with currently healthy oEmbed metadata only. Full viewing, exact variant match, safety, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "medicine-ball-rotational-throw",
+      "assessmentSummary": {
+        "identity": "A two-hand medicine-ball throw performed from a standing athletic base toward an inspected wall using whole-body transverse rotation. The exact variant states whether the athlete throws and retrieves or tracks, catches, and absorbs a predictable rebound.",
+        "currentCardFindings": [
+          "The generic rotational-throw card and the rotational-wall-throw card describe the same standing medicine-ball rotational projection into a wall.",
+          "The generic card already states wall or partner target, while the wall-named card adds no distinct mechanics; wall delivery is a target contract rather than a separate exercise identity.",
+          "Neither legacy source declares whether a returning catch is required, so both source variants must remain archived, nonselectable provenance rather than being guessed into a selectable return contract.",
+          "The stored scores do not distinguish exercise complexity from physical difficulty or account for rebound tracking and catch absorption.",
+          "Five direct YouTube candidates currently return healthy oEmbed metadata, but no full viewing, exact variant match, safety review, caption review, accessibility review, reviewer identity, or approval has occurred."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "rotate",
+            "push",
+            "brace"
+          ],
+          "movementQualifiers": [
+            "standing_athletic_base",
+            "two_hand_rotational_ball_projection",
+            "declared_throw_side",
+            "whole_body_pivot",
+            "complete_release",
+            "inspected_wall_target",
+            "declared_rebound_and_catch_contract"
+          ],
+          "jointActions": [
+            "ankle_knee_and_hip_flexion_extension",
+            "hip_internal_and_external_rotation",
+            "pelvic_and_thoracic_rotation",
+            "shoulder_horizontal_adduction_and_flexion",
+            "elbow_extension",
+            "scapular_protraction",
+            "wrist_and_hand_release"
+          ],
+          "planes": [
+            "transverse",
+            "sagittal",
+            "frontal_stabilization"
+          ],
+          "laterality": "bilateral_implement_with_declared_left_or_right_throw_side",
+          "intent": "rapid_whole_body_rotational_projection_to_wall"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": [
+            "internal_and_external_obliques",
+            "gluteus_maximus",
+            "hip_rotators",
+            "pectoralis_major"
+          ],
+          "secondaryMusclesAndTissues": [
+            "transversus_abdominis",
+            "erector_spinae_and_multifidus",
+            "gluteus_medius",
+            "quadriceps",
+            "hamstrings",
+            "gastrocnemius_and_soleus",
+            "anterior_deltoid",
+            "triceps_brachii",
+            "serratus_anterior",
+            "rotator_cuff"
+          ],
+          "joints": [
+            "ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "spine",
+            "scapulothoracic_articulation",
+            "shoulder",
+            "elbow",
+            "wrist_and_hand"
+          ],
+          "primaryActions": [
+            "establish_athletic_base_perpendicular_or_oblique_to_wall",
+            "load_declared_outside_hip_and_trunk",
+            "reverse_and_sequence_rotation_from_ground_to_hands",
+            "project_ball_to_declared_wall_target",
+            "decelerate_body_and_reset_or_absorb_declared_return"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 42,
+          "absoluteLoadDemand": 46,
+          "coordinationDemand": 52,
+          "supervisionDemand": 56,
+          "failureConsequence": 54,
+          "impact": 14,
+          "workCapacityDemand": 28,
+          "baseOverallDifficulty": 46
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "athletic-stance-wall-throw-only",
+            "exerciseComplexity": 42,
+            "physicalDifficulty": 46,
+            "derivedOverallDifficulty": 46,
+            "basis": "whole-body rotational sequencing and target release remain, while ball retrieval removes the perceptual and eccentric demands of a returning catch"
+          },
+          {
+            "variantKey": "athletic-stance-wall-rebound-catch",
+            "exerciseComplexity": 50,
+            "physicalDifficulty": 48,
+            "derivedOverallDifficulty": 50,
+            "basis": "the athlete must track, receive, and absorb a predictable wall return while restoring balance and preparing the next side"
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "whole_body_ballistic_rotational_projection",
+          "impactClass": "low_ground_impact_with_ball_flight_and_return_consequence",
+          "externalLoadMethod": "declared_medicine_ball_mass_material_diameter_and_rebound_type",
+          "landingContactsPerRep": 0,
+          "primaryStress": [
+            "rapid_hip_pelvis_and_trunk_rotation",
+            "shoulder_horizontal_projection_and_elbow_extension",
+            "pivot_and_deceleration_through_feet_knees_and_hips",
+            "return_tracking_and_catch_absorption_when_prescribed"
+          ],
+          "fatigueProfile": [
+            "release_velocity_decline",
+            "target_accuracy_loss",
+            "late_arm_dominant_throw",
+            "uncontrolled_lumbar_extension_or_rotation",
+            "pivot_or_balance_error",
+            "late_or_unsafe_catch"
+          ],
+          "recoveryHours": "context dependent; combine with all rotational power, throwing, shoulder, elbow, trunk, hip, pivot, and catch exposures"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "medicine_ball",
+            "structurally_suitable_inspected_wall"
+          ],
+          "optionalEquipment": [
+            "high_contrast_target",
+            "line_tape",
+            "radar_or_ball_tracker",
+            "video_feedback"
+          ],
+          "environment": [
+            "declared_ball_mass_material_diameter_and_rebound_behavior",
+            "level_non_slip_surface_with_pivot_space",
+            "clear_ball_flight_and_return_lanes",
+            "declared_wall_distance_and_target_height",
+            "no_cross_traffic",
+            "ball_and_target_clearly_visible"
+          ],
+          "population": [
+            "pain_free_standing_rotation_pivot_and_two_hand_throw",
+            "can_control_athletic_base_and_deceleration",
+            "can_release_light_ball_to_target_without_uncontrolled_spine_motion",
+            "can_track_and_absorb_return_when_catch_is_prescribed",
+            "can_follow stop_and_lane_clear instructions"
+          ],
+          "requiresDirectSupervision": true,
+          "groupRule": "One active thrower per lane; waiting athletes and ball collectors remain outside the declared flight, rebound, and pivot space.",
+          "clinicalBoundary": "Pain, instability, recent injury or surgery, neurologic symptoms, or rehabilitation restrictions require individualized clinician guidance; this card is not rehabilitation instruction."
+        },
+        "proposedDosage": {
+          "outputSets": "2-4",
+          "outputRepetitionsPerSide": "3-5",
+          "outputRestSeconds": "90-180",
+          "techniqueSets": "2-3",
+          "techniqueRepetitionsPerSide": "3-6",
+          "techniqueRestSeconds": "60-120",
+          "effort": "high intent only while sequencing, release speed, target accuracy, balance, and any prescribed catch remain repeatable",
+          "ballRule": "Use the lightest ball that produces the intended ballistic action; reduce mass when range, speed, target accuracy, posture, pivot, or catch control worsens.",
+          "sideRule": "Declare the throw side and balance high-intent repetitions across sides unless a documented reason says otherwise.",
+          "stopRule": "End the set on the first symptom, unsafe wall or return, missed catch, lane intrusion, material output decline, target loss, uncontrolled spine motion, or pivot-quality failure."
+        },
+        "proposedFatigueRecovery": {
+          "acuteCost": "moderate neural and whole-body ballistic cost with low metabolic demand at output dosage; catch variants add perceptual and eccentric absorption demand",
+          "localFatigue": [
+            "hip_and_trunk_rotators",
+            "gluteals_and_leg_drive",
+            "pectorals_anterior_deltoid_and_triceps",
+            "scapular_and_spinal_stabilizers",
+            "forearms_and_hands_when_catching"
+          ],
+          "cumulativeBudgets": [
+            "rotational_ballistic_repetitions_per_side",
+            "throwing_and_pressing_load",
+            "anterior_shoulder_and_elbow_stress",
+            "trunk_rotation_and_deceleration",
+            "pivot_and_lower_body_power_exposures",
+            "catch_absorption_exposures",
+            "technical_sensitivity"
+          ],
+          "recoveryRule": "Do not repeat high-intent exposure while pain, soreness, target loss, release-speed decline, sequencing error, balance loss, or catch hesitation persists; recovery is individualized rather than inferred from a classification."
+        }
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=862y57v-u5k",
+          "title": "Medicine-Ball Rotational Throw",
+          "channelName": "Muscle & Motion",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and oEmbed response are healthy. Full viewing, exact stance, wall, throw-side, return contract, ball behavior, instruction quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=MA5W6TA768k",
+          "title": "Rotational Med Ball Throw",
+          "channelName": "Elite Performance Institute",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and oEmbed response are healthy. Full viewing, exact wall and return contract, ball behavior, instruction quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=NP2e1Szrj28",
+          "title": "How To Do A MEDICINE BALL ROTATIONAL THROW AGAINST WALL | Exercise Demonstration Video and Guide",
+          "channelName": "Live Lean TV Daily Exercises",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and oEmbed response are healthy and the title names a wall target. Full viewing, exact stance and return contract, ball behavior, instruction quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=YPQuvSJL2FM",
+          "title": "Medicine Ball Rotational Throw",
+          "channelName": "Nick Brattain",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and oEmbed response are healthy. Full viewing, exact wall and return contract, ball behavior, instruction quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=z68C-BpMcyc",
+          "title": "Medicine Ball Rotational Throw Demo",
+          "channelName": "Steph Gaudreau - Fuel Your Strength",
+          "sourceQuery": "Legacy candidate rechecked through current YouTube oEmbed",
+          "notes": "Current title and oEmbed response are healthy. Full viewing, exact wall and return contract, ball behavior, instruction quality, safety, captions, accessibility, reviewer identity, and approval remain pending."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Medicine Ball Rotational Wall Throw",
+          "classification": "same_identity",
+          "rationale": "The wall-named source preserves the same standing two-hand rotational projection and only makes the target explicit.",
+          "distinguishingDimensions": {
+            "target": "inspected_wall",
+            "identityDisposition": "duplicate_source_identity"
+          }
+        },
+        {
+          "name": "Standing Rotational Wall Toss",
+          "classification": "same_identity",
+          "rationale": "Wall toss and wall throw are naming aliases for the same standing rotational medicine-ball projection when stance, side, path, and return contract match.",
+          "distinguishingDimensions": {
+            "stance": "standing_athletic",
+            "target": "inspected_wall"
+          }
+        },
+        {
+          "name": "Lateral Wall Ball",
+          "classification": "same_identity",
+          "rationale": "The ACE name describes the same standing rotational wall projection with an explicit pivot and rebound catch.",
+          "distinguishingDimensions": {
+            "returnContract": "rebound_and_catch",
+            "ballBehavior": "predictable_rebound"
+          }
+        },
+        {
+          "name": "Rotational Wall Throw — Throw and Retrieve",
+          "classification": "new_variant",
+          "rationale": "The same rotational projection ends after release and uses ball retrieval rather than a required returning catch.",
+          "distinguishingDimensions": {
+            "returnContract": "throw_only_no_required_catch"
+          }
+        },
+        {
+          "name": "Rotational Wall Throw — Rebound and Catch",
+          "classification": "new_variant",
+          "rationale": "The same rotational projection includes visual tracking and controlled absorption of a predictable wall return.",
+          "distinguishingDimensions": {
+            "returnContract": "rebound_and_controlled_catch"
+          }
+        },
+        {
+          "name": "Partner Rotational Medicine Ball Pass",
+          "classification": "new_variant",
+          "rationale": "A trained partner preserves rotational projection but changes targeting, return timing, communication, and catch logistics enough to require an exact delivery contract.",
+          "distinguishingDimensions": {
+            "target": "trained_partner",
+            "operations": "partner_timing_communication_and_return_control"
+          }
+        },
+        {
+          "name": "Step-Behind Rotational Medicine Ball Throw",
+          "classification": "new_variant",
+          "rationale": "A step-behind approach preserves rotational projection but adds locomotion, footwork sequencing, momentum, spacing, and deceleration demands.",
+          "distinguishingDimensions": {
+            "approach": "step_behind",
+            "footwork": "dynamic"
+          }
+        },
+        {
+          "name": "Half-Kneeling Rotational Medicine Ball Throw",
+          "classification": "new_definition",
+          "rationale": "Half kneeling changes the base, lead-leg relationship, lower-body contribution, pelvic control, and balance constraints.",
+          "distinguishingDimensions": {
+            "stance": "half_kneeling",
+            "lowerBodyContribution": "restricted"
+          }
+        },
+        {
+          "name": "Medicine Ball Rotational Scoop Toss",
+          "classification": "new_definition",
+          "rationale": "A scoop toss uses a low-to-high underhand arc and different hand path, target, release angle, and lower-body contribution.",
+          "distinguishingDimensions": {
+            "projection": "low_to_high_scoop",
+            "releasePath": "underhand_arc"
+          }
+        },
+        {
+          "name": "Medicine Ball Rotational Slam",
+          "classification": "new_definition",
+          "rationale": "A rotational slam projects the ball toward the floor rather than horizontally to a wall and changes release direction, impact, ball requirements, and retrieval.",
+          "distinguishingDimensions": {
+            "target": "floor",
+            "projection": "downward_slam"
+          }
+        },
+        {
+          "name": "Medicine Ball Shot-Put Throw",
+          "classification": "new_definition",
+          "rationale": "A unilateral shot-put release changes implement position, arm action, laterality, shoulder demand, and release path.",
+          "distinguishingDimensions": {
+            "armUse": "unilateral",
+            "releasePattern": "shot_put"
+          }
+        },
+        {
+          "name": "Standing Medicine Ball Chest Pass",
+          "classification": "new_definition",
+          "rationale": "A chest pass projects primarily forward from the chest without the defining side-on rotational load and throw direction.",
+          "distinguishingDimensions": {
+            "movementPattern": "bilateral_horizontal_push",
+            "rotation": "not_primary"
+          }
+        }
+      ]
+    }
+  ]
+}

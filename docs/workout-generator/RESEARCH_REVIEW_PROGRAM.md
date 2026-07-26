@@ -1,10 +1,11 @@
 # Canonical exercise research and media review
 
-Status: active library-review program, 2026-07-25.
+Status: active library-review program, 2026-07-26.
 
 ## Scope and current baseline
 
-Identity consolidation leaves 1,553 active canonical exercise definitions and
+Identity consolidation and distinct review-only additions leave 1,531 active
+canonical exercise definitions and
 zero direct canonical-name, display-name, or alias collisions. Those cards
 remain in `review`; consolidation did not make their content or media approved.
 
@@ -44,8 +45,8 @@ Bound, Nordic Hamstring Curl, Plank Hold, and Pull-Up. Their definitions carry
 an explicit `difficulty_model_quarantine` provenance record and remain in
 `review`.
 
-The minimum program therefore contains 24,848 card-section decisions and
-4,659–7,765 video candidates. Multiple sources may be required for one section.
+The minimum program therefore contains 24,496 card-section decisions and
+4,593–7,655 video candidates. Multiple sources may be required for one section.
 
 The first complete candidate packets are stored in
 `scripts/data/canonical-research/`:
@@ -1005,13 +1006,357 @@ ambiguous source 201 as a non-selectable quarantined source variant under Dead
 Hang. The former Dead Hang Breathing Reset becomes a contextual restore
 delivery profile, not a separate identity.
 
+Migrations `313_coaching_hang_family_structural_completion.sql` and
+`314_coaching_hang_family_contract_completion.sql` complete those three
+quarantined cards without revisiting identity. Each now has baseline,
+foot-assisted, band-assisted, ring, weighted, and single-arm variants with
+complete difficulty, load, fatigue, delivery, programming, dosage, timing,
+measurement, athlete, coach, accessibility, support, logistics, and stop-rule
+contracts. Dead Hang retains a separate restore/nasal-breathing delivery
+profile. Selectable movement taxonomy uses only controlled `hang`, `pull`, and
+`brace` keys; granular suspension, grip, scapular, elbow, and posture mechanics
+are retained as qualifiers.
+
 The three cards use only exercise complexity and physical difficulty for core
 difficulty assessment, with overall equal to their maximum. External video
 titles containing audience-level words remain source metadata and do not assign
-a level to an exercise card. All 15 selected links returned successful current
+a level to an exercise card. The future-dated source previously present in the
+batch was removed rather than treated as current evidence, and its three
+version-bound evidence rows are superseded. Each current card has all 16
+evidence sections. All 15 selected links returned successful current
 YouTube oEmbed responses. Exact movement and variant match, complete viewing,
 captions, cue and safety quality, reviewer identity, and approval remain human
 gates. No candidate was approved.
+
+The thirtieth source-registry batch resolves the hanging leg-raise family after
+three additional identity consolidations:
+
+- Hanging Leg Raise: 16 evidence sections, five videos, 17 alternates.
+
+Migration `310_coaching_hanging_leg_raise_identity_consolidation.sql` retains
+one `Hanging Leg Raise` definition. The legacy Hanging Knee Raise is the
+bent-knee baseline, Hanging Straight-Leg Raise is a longer-lever variant, and
+Hanging Knee Raise Eccentric Lower is an eccentric-lower variant. The exact Tuck
+Hanging Knee Raise duplicate remains archived and traceable. Kipping knee
+raises, toes-to-bar, captain's-chair raises, hanging L-sits, windshield wipers,
+and pull-up-plus-knee-raise combinations remain separate identity decisions.
+
+The card assesses only exercise complexity and physical difficulty, with
+overall equal to their maximum. The direct suspended bilateral-hip-flexion
+evidence supports pelvic and femoral contributions that vary with knee
+position; the EMG evidence supports hip flexors as movers and abdominal/trunk
+control, not a lower-abdominal-isolation claim. Supine eccentric evidence is
+labeled adjacent and does not validate hanging dosage or recovery. All five
+selected links returned current oEmbed metadata, but exact movement/variant
+match, complete viewing, captions, cue and safety quality, reviewer identity,
+and approval remain unset. No candidate was approved.
+
+The thirty-first source-registry batch resolves the support and hanging L-sit
+family:
+
+- L-Sit: 16 evidence sections, five videos, 11 alternates;
+- Hanging L-Sit: 16 evidence sections, five videos, eight alternates.
+
+Migration `311_coaching_l_sit_identity_and_hanging_split.sql` consolidates the
+historical Tuck L-Sit Hold into L-Sit as its short-lever variant. One-leg,
+full legs-together, straddle, and ring-support versions remain explicit
+variants because they change lever, asymmetry, hip position, stability,
+difficulty, supervision, or dosage without changing straight-arm push support.
+Support height, heel taps, foot assistance, hold time, and rest are delivery
+modifiers.
+
+Hanging L-Sit is a separate review-only definition. Replacing straight-arm
+push support with two-hand overhead suspension changes grip, shoulder position,
+anchor, mount, clearance, fatigue, and safe exit. Dynamic hanging leg raises,
+cyclic/kipping versions, one-arm suspension, V-sit, Manna, and seated
+compression lifts remain separate identity decisions. The new legacy source is
+unpublished and exists only to preserve complete source lineage.
+
+All eight controlled variants derive overall difficulty as the maximum of
+exercise complexity and physical difficulty. No athlete or class level is
+stored or inferred. All ten selected videos returned current YouTube oEmbed
+metadata and an embed-player response, but exact movement/variant match,
+complete viewing, captions, cue and safety quality, reviewer identity, and
+approval remain unset. No candidate was approved.
+
+The thirty-second source-registry batch resolves grounded compression, V-sit,
+and Manna:
+
+- Seated Compression Lift: 16 evidence sections, five videos, eight alternates;
+- V-Sit: 16 evidence sections, five videos, eight alternates;
+- Manna Hold: 16 evidence sections, five videos, eight alternates.
+
+Migration `312_coaching_support_compression_identity_family.sql` retains the
+historical `straddle-compression-lift` slug as the stable source identity but
+widens its canonical name and aliases to `Seated Compression Lift`. Bent-knee,
+single-leg pike, bilateral pike, and bilateral straddle versions are controlled
+variants because all remain grounded dynamic hip-flexion lifts without
+suspending bodyweight through the arms. Hand position, stable blocks, lift
+height, range, pause, tempo, and dose remain modifiers.
+
+V-Sit is a separate high straight-arm support definition because both extended
+legs must remain clearly above horizontal; together, straddle, and ring-support
+versions are explicit variants. Manna is separate again because elevating the
+hips and carrying the legs beyond the shoulder line materially changes shoulder
+extension, trunk, flexibility, balance, assistance, supervision, fatigue, and
+exit. The migration does not edit `coaching.skill`: the five matching current
+FIG/USAG V-sit and Manna skill-library cards retain their formal proficiency
+levels, while all three exercise definitions use only complexity and physical
+difficulty.
+
+All eight new or reassessed exercise variants derive overall difficulty as the
+maximum of complexity and physical difficulty. All 15 selected videos returned
+current YouTube oEmbed metadata and an embed-player response. Exact identity and
+variant match, complete viewing, captions, cue and safety quality, reviewer
+identity, and approval remain unset. No candidate was approved.
+
+The thirty-third source-registry batch resolves the final order-sensitive
+box/depth sequence cluster:
+
+- Depth Drop to Box Jump: 16 evidence sections, three videos, 11 alternates;
+- Box Jump to Depth Drop: 16 evidence sections, four videos, 10 alternates.
+
+Migration `315_coaching_depth_box_order_identity_consolidation.sql` consolidates
+`Depth Jump to Box Jump` into the depth-first survivor and `Box Jump with
+Altitude Landing` into the box-first survivor. It does not merge the two
+survivors: drop box to floor to immediate target-box jump is a reactive
+depth-first task, while floor to box, stabilization, deliberate step-off, and
+held floor landing is a box-first power-and-landing sequence. Source mappings,
+aliases, candidate media, variants, delivery profiles, and provenance remain
+traceable.
+
+Migration `316_coaching_depth_box_order_family_completion.sql` adds exact
+ordered contacts, controlled taxonomy, anatomy and biomechanics, constraints,
+dosage, fatigue and impact budgets, baseline and hands-on-hips scores, two
+contextual profiles per variant, instructions, quality gates, stop rules, and
+candidate-only graph relationships. Overall difficulty is the maximum of
+exercise complexity and physical difficulty; neither survivor has an
+exercise-card skill level.
+
+All seven selected links returned successful current YouTube oEmbed responses.
+This proves current link availability and an embed-player response only.
+Exact sequence and version match, full viewing, demonstration quality,
+captions, accessibility, reviewer identity, and approval remain human gates.
+Two box-first candidates may demonstrate only the terminal landing and remain
+explicitly quarantined until full review. No candidate was approved.
+
+The thirty-fourth source-registry batch resolves the kneeling medicine-ball
+chest-pass family:
+
+- Kneeling Medicine Ball Chest Pass: 16 evidence sections, five videos, 12
+  alternates, and four exact variant score proposals.
+
+Migration `317_coaching_kneeling_chest_pass_identity_consolidation.sql`
+consolidates `Tall-Kneeling Medicine Ball Chest Pass`, `Tall-Kneeling Chest Pass
+to Wall`, and `Half-Kneeling Chest Pass to Wall` into the stable broad
+`Kneeling Medicine Ball Chest Pass` identity. All five legacy source mappings
+and historical aliases remain traceable. The two generic kneeling sources do
+not declare tall versus half kneeling or throw-only versus rebound-and-catch,
+so their source variants and profiles remain archived and nonselectable rather
+than being assigned by inference.
+
+Migration `318_coaching_kneeling_chest_pass_family_completion.sql` creates
+tall-kneeling throw-only, tall-kneeling rebound-and-catch, half-kneeling
+throw-only, and half-kneeling rebound-and-catch variants. Exercise complexity
+and physical difficulty are assessed separately at `34/38`, `42/42`, `42/38`,
+and `48/42`; overall is mechanically `38`, `42`, `42`, and `48`. Ball mass,
+type, target, distance, lead leg, wall or partner, and return contract are
+explicit generation inputs. The card also includes anatomy and joint actions,
+load and fatigue budgets, constraints, output and technique dosage, timing,
+measurement, substitutions, coach and athlete instruction, accessibility,
+support operations, quality gates, and stop rules.
+
+All five links returned successful current YouTube oEmbed responses. That
+records current link and embed-player availability only. Complete viewing,
+exact stance-and-return match, demonstration and safety quality, captions,
+accessibility, reviewer identity, and approval remain unresolved. All six graph
+edges and 12 calibration proposals remain in `review`, and the card remains
+quarantined. No media, relationship, calibration, publication, or exercise-card
+proficiency approval was created.
+
+The thirty-fifth source-registry batch resolves the standing medicine-ball
+rotational wall-throw family:
+
+- Medicine Ball Rotational Throw: 16 evidence sections, five videos, 12
+  alternates, and two exact return-contract score proposals.
+
+Migration `319_coaching_rotational_wall_throw_identity_consolidation.sql`
+consolidates `Medicine Ball Rotational Wall Throw` into the stable broad
+`Medicine Ball Rotational Throw` identity. Both source descriptions retain the
+same standing two-hand rotational projection into a wall; naming the target
+does not create another primary action. Neither source states whether the ball
+must be retrieved or caught, so both legacy variants and their profiles remain
+archived and nonselectable rather than being assigned by inference.
+
+Migration `320_coaching_rotational_wall_throw_family_completion.sql` creates an
+athletic-stance wall throw-and-retrieve variant and an athletic-stance
+predictable-rebound-and-catch variant. Exercise complexity and physical
+difficulty are assessed separately at `42/46` and `50/48`; overall is
+mechanically `46` and `50`. Side, ball mass and rebound type, wall, distance,
+target, pivot space, flight and return lanes, collection procedure, dosage,
+timing, measurement, fatigue budgets, and stop rules are explicit generation
+inputs. Migration `321_coaching_rotational_wall_throw_equipment_taxonomy.sql`
+then maps the card to controlled `medicine_ball`, `wall`, `line_tape`, `timer`,
+and `mirror` keys while preserving descriptive setup requirements in contextual
+fields.
+
+All five links returned successful current YouTube oEmbed metadata. This records
+link and embed-player availability only. Full viewing, exact stance and return
+match, demonstration and safety quality, captions, accessibility, reviewer
+identity, and approval remain unresolved. Both graph edges and all six
+calibration proposals remain in `review`; the card remains quarantined. No
+media, relationship, calibration, publication, or exercise-card proficiency
+approval was created.
+
+The thirty-sixth source-registry batch resolves the shuffle-to-rotational
+medicine-ball throw family:
+
+- Shuffle-to-Rotational Medicine Ball Throw: 16 evidence sections, five videos,
+  12 alternates, and two exact return-contract score proposals.
+
+Migration
+`322_coaching_shuffle_rotational_throw_identity_consolidation.sql` consolidates
+`Med Ball Shuffle-to-Rotation Throw` into the stable
+`Shuffle-to-Rotational Medicine Ball Throw` identity. The cards share the same
+lateral shuffle or crow-hop, controlled plant, whole-body rotational two-hand
+projection, and balanced finish. Their different word order and historical
+40-versus-50 seed scores do not define different primary movements. Both
+legacy variants remain archived and nonselectable because neither source fixes
+throw-only versus rebound-and-catch delivery.
+
+Migration `323_coaching_shuffle_rotational_throw_family_completion.sql` creates
+lateral-shuffle wall throw-and-retrieve and predictable-rebound-and-catch
+variants. Exercise complexity and physical difficulty are assessed separately
+at `56/52` and `64/54`; overall is mechanically `56` and `64`. Approach and
+throw side, shuffle count and distance, plant zone, planned or reactive cue,
+ball, wall, target, return contract, dosage, rest, timing, output measurement,
+cumulative lateral-contact and rotational-throw budgets, substitutions,
+accessibility, support prompts, and stop rules are explicit. The migration
+creates four contextual profiles, four review-only graph edges, and six
+review-only calibration proposals.
+
+All five links returned successful current YouTube oEmbed metadata. This proves
+current title/channel and embed-player availability only. Full viewing, exact
+approach and return-contract match, demonstration and safety quality, captions,
+accessibility, reviewer identity, and approval remain unresolved. The card
+remains quarantined, and no media, relationship, calibration, publication, or
+exercise-card proficiency approval was created.
+
+The thirty-seventh source-registry batch resolves the box-jump-to-single-leg-
+landing family:
+
+- Box Jump to Single-Leg Landing: 16 evidence sections, five videos, 12
+  alternates, and two exact takeoff-contract score proposals.
+
+Migration
+`324_coaching_box_jump_single_leg_landing_identity_consolidation.sql`
+consolidates `Single-Leg Box Jump to Single-Leg Landing` into the stable
+`standing-box-jump-to-single-leg-landing` definition. A single-leg landing is
+the terminal action; takeoff laterality is an exact variant dimension.
+Migration `325_coaching_box_jump_single_leg_landing_family_completion.sql`
+creates bilateral-takeoff and same-leg-unilateral-takeoff variants. Exercise
+complexity and physical difficulty are `62/60` and `74/72`; overall is
+mechanically `62` and `74`.
+
+All five candidate links returned current YouTube oEmbed metadata. This records
+only title/channel and embed-player availability. Full viewing, exact takeoff
+and landing match, demonstration and safety quality, captions, accessibility,
+reviewer identity, and approval remain unresolved. Four graph edges and six
+calibration proposals remain in `review`; the card remains quarantined.
+
+The thirty-eighth source-registry batch resolves the single-leg lateral-hop-to-
+stick family:
+
+- Single-Leg Lateral Hop to Stick: 16 evidence sections, five videos, 12
+  alternates, and two exact output-contract score proposals.
+
+Migration
+`326_coaching_single_leg_lateral_hop_stick_identity_consolidation.sql`
+consolidates `Lateral Line Hop to Single-Leg Stick` into the stable
+`Single-Leg Lateral Hop to Stick` definition. A line is a target constraint;
+the controlled single-leg stick is the terminal action. Continuous rebound
+line hops remain separate. Migration
+`327_coaching_single_leg_lateral_hop_stick_family_completion.sql` creates
+low-amplitude-control and distance-output variants. Exercise complexity and
+physical difficulty are `42/36` and `50/48`; overall is mechanically `42` and
+`50`.
+
+All five candidate links returned current YouTube oEmbed metadata. This records
+only title/channel and embed-player availability. Full viewing, exact amplitude
+and stick match, demonstration and safety quality, captions, accessibility,
+reviewer identity, and approval remain unresolved. Four graph edges and six
+calibration proposals remain in `review`; the card remains quarantined. Neither
+batch assigns an exercise-card skill level or creates any approval.
+
+The thirty-ninth source-registry batch resolves the bilateral
+Romanian-deadlift family:
+
+- Romanian Deadlift: 16 evidence sections, five videos, 12 alternates, and
+  eight exact implement/tempo score proposals.
+
+Migration
+`330_coaching_romanian_deadlift_identity_consolidation.sql` consolidates
+`Dumbbell Romanian Deadlift`, `Kettlebell Romanian Deadlift`, `Double
+Kettlebell Romanian Deadlift`, `Sandbag Romanian Deadlift`, `Landmine Romanian
+Deadlift`, and `Romanian Deadlift Eccentric` into the stable `Romanian
+Deadlift` identity. Implement type and quantity, grip, mass distribution, free
+or fixed load path, range, and tempo are exact variant dimensions. Single-leg
+and staggered-stance RDLs, RDL-to-row, conventional-from-floor deadlifts, good
+mornings, and ballistic swings remain distinct.
+
+Migration `331_coaching_romanian_deadlift_family_completion.sql` creates
+barbell, two-dumbbell, one-kettlebell, two-kettlebell, front-held-sandbag,
+two-hand-landmine, slow-eccentric barbell, and slow-eccentric dumbbell
+variants. Exercise complexity and physical difficulty are respectively
+`42/58`, `38/48`, `36/42`, `40/52`, `40/50`, `42/54`, `48/60`, and `44/52`;
+overall is mechanically `58`, `48`, `42`, `52`, `50`, `54`, `60`, and `52`.
+The migration creates 16 contextual profiles, eight review-only graph edges,
+and 24 review-only calibration proposals.
+
+All five selected candidate links returned current YouTube oEmbed metadata.
+This records title, channel, and current player availability only. Full
+viewing, exact implement and tempo match, demonstration and safety quality,
+captions, accessibility, reviewer identity, and approval remain unresolved.
+The card remains quarantined, and no media, relationship, calibration,
+publication, or exercise-card skill-level approval was created.
+
+The fortieth source-registry batch resolves the front-foot-elevated
+split-squat family:
+
+- Front-Foot-Elevated Split Squat: 16 evidence sections, five videos, 12
+  alternates, and six exact support/load score proposals.
+
+Migration
+`332_coaching_front_foot_elevated_split_squat_identity_consolidation.sql`
+consolidates `Front-Foot-Elevated Dumbbell Split Squat` and
+`Front-Foot-Elevated Sandbag Split Squat` into the stable
+`Front-Foot-Elevated Split Squat` identity. All three sources retain a
+stationary side-specific split stance, whole lead-foot platform support,
+rear-foot floor contact, controlled descent, and lead-leg-biased ascent.
+Implement, quantity, load position, support, load, range, platform height, and
+tempo are exact variant or modifier dimensions. Rear-foot elevation,
+heel-only elevation, stepping lunges, and jumping split squats remain
+distinct.
+
+Migration
+`333_coaching_front_foot_elevated_split_squat_family_completion.sql` creates
+unsupported bodyweight, supported bodyweight, bilateral suitcase-dumbbell,
+contralateral single-dumbbell, ipsilateral single-dumbbell, and front-held
+sandbag variants. Exercise complexity and physical difficulty are respectively
+`38/32`, `32/28`, `42/50`, `46/44`, `44/44`, and `42/48`; overall is
+mechanically `38`, `32`, `50`, `46`, `44`, and `48`. The migration creates 12
+contextual profiles, ten review-only graph edges, and 18 review-only
+calibration proposals.
+
+All eight legacy candidates returned successful current oEmbed metadata. Five
+were retained for the current card version; three clearly titled dumbbell
+candidates, one sandbag Zercher candidate, and one unresolved front-rack family
+candidate. Metadata establishes title, channel, and player availability only.
+Full viewing, exact platform, stance, implement, load-position, range, tempo
+and return match, demonstration and safety quality, captions, accessibility,
+reviewer identity, and approval remain unresolved. The card remains
+quarantined, and no media, relationship, calibration, publication, or
+exercise-card skill-level approval was created.
 
 ## Data model
 
@@ -1172,21 +1517,23 @@ must be rerun after import if current availability is required.
   approvals as separate measures;
 - candidate alternate assessments from reviewed assessments.
 
-As of the first 149 active imported packets and candidate-only legacy media
-backfill in disposable PostgreSQL:
+As of the post-migration-333 current-version audit and candidate-only legacy
+media backfill in disposable PostgreSQL:
 
-- active cards: 1,553;
+- active cards: 1,531;
 - exact direct identity collisions: 0;
-- candidate-complete research cards: 149 (9.59%), containing 2,384 section
-  decisions, 726 currently healthy per-card video candidates (466 distinct
-  video IDs), and 777 alternate assessments;
+- candidate-complete research cards: 8 (0.52%), containing 128 current-version
+  section decisions, with all candidate evidence still awaiting review;
+  older version-bound research
+  remains retained for provenance rather than counted as current;
 - reviewed research cards: 0;
-- cards with three to five candidate videos: 1,219 (78.49%);
-- cards with three to five currently healthy and embeddable candidates: 149
-  (9.59%);
-- cards with no direct video candidate: 334;
+- cards with three to five candidate videos: 1,165 (76.09%);
+- cards with three to five currently healthy and embeddable candidates: 8
+  (0.52%);
+- cards with no direct video candidate: 356;
 - cards with three to five approved videos: 0;
-- candidate alternate assessments: 149 cards (9.59%);
+- candidate alternate assessments: 8 cards (0.52%), containing 96 current
+  alternate decisions;
 - reviewed alternate assessments: 0.
 
 These figures are progress counters, not production-readiness claims.

@@ -1,0 +1,13 @@
+{
+  "batchKey": "medicine-ball-rotational-wall-throw-family-v1",
+  "researchVersion": "2026-07-26.33",
+  "generatedAt": "2026-07-26T13:30:00.000Z",
+  "cards": [
+    {
+      "slug": "medicine-ball-rotational-throw",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 12
+    }
+  ]
+}
