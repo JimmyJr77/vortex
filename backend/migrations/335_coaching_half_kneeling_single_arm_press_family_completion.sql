@@ -201,7 +201,7 @@ BEGIN
       family_key = 'half_kneeling_single_arm_vertical_press',
       movement_patterns = ARRAY['push', 'brace']::TEXT[],
       body_regions = ARRAY[
-        'shoulder', 'scapula', 'upper_arm', 'elbow', 'forearm',
+        'shoulder', 'scapula', 'elbow',
         'wrist', 'hand', 'core', 'spine', 'pelvis', 'hip', 'knee', 'foot'
       ]::TEXT[],
       required_equipment = ARRAY['mat']::TEXT[],
@@ -873,28 +873,28 @@ BEGIN
       (
         'band-low-anchor-ipsilateral-to-down-knee-standard',
         'dumbbell-ipsilateral-to-down-knee-standard',
-        'progression', 88, ARRAY['resistance_curve', 'load', 'equipment']::TEXT[],
+        'progression', 88, ARRAY['load', 'stability', 'complexity']::TEXT[],
         'A controllable dumbbell preserves the side relationship and press action while replacing rising band tension and anchor management with freely loaded rack, path, lowering, and set-down demand.',
         '{"requiresStableBandVariant":true,"sameSideRelationship":true,"humanReviewRequired":true}'::JSONB
       ),
       (
         'dumbbell-ipsilateral-to-down-knee-standard',
         'band-low-anchor-ipsilateral-to-down-knee-standard',
-        'regression', 88, ARRAY['resistance_curve', 'load', 'equipment']::TEXT[],
+        'regression', 88, ARRAY['load', 'stability', 'complexity']::TEXT[],
         'A light low-anchored band may reduce absolute load while preserving the side relationship, but anchor and recoil safety must be independently controlled.',
         '{"useLightBand":true,"anchorInspectionRequired":true,"humanReviewRequired":true}'::JSONB
       ),
       (
         'band-low-anchor-contralateral-to-down-knee-standard',
         'dumbbell-contralateral-to-down-knee-standard',
-        'progression', 88, ARRAY['resistance_curve', 'load', 'equipment']::TEXT[],
+        'progression', 88, ARRAY['load', 'stability', 'complexity']::TEXT[],
         'A controllable dumbbell preserves the opposite-side relationship and press action while changing resistance curve, rack, lowering, and set-down demand.',
         '{"requiresStableBandVariant":true,"sameSideRelationship":true,"humanReviewRequired":true}'::JSONB
       ),
       (
         'dumbbell-contralateral-to-down-knee-standard',
         'band-low-anchor-contralateral-to-down-knee-standard',
-        'regression', 88, ARRAY['resistance_curve', 'load', 'equipment']::TEXT[],
+        'regression', 88, ARRAY['load', 'stability', 'complexity']::TEXT[],
         'A light low-anchored band may reduce absolute load while preserving the opposite-side relationship, subject to exact anchor and recoil controls.',
         '{"useLightBand":true,"anchorInspectionRequired":true,"humanReviewRequired":true}'::JSONB
       ),
