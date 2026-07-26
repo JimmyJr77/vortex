@@ -11,6 +11,10 @@ const errors = []
 let expectedCardCount = 0
 let implementedBatches = 0
 
+if (!migrationRegistry.includes("'279_coaching_skill_individual_kind.sql'")) {
+  errors.push('USA Gymnastics catalog prerequisite 279_coaching_skill_individual_kind.sql is not registered')
+}
+
 for (const program of manifest.programs) {
   if (!program.key || !program.name || !program.source || !Array.isArray(program.levels)) {
     errors.push(`Program entry is incomplete: ${program.key ?? program.name ?? 'unknown'}`)

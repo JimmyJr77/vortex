@@ -269,6 +269,7 @@ export async function initPlatformTables(pool) {
     '265_coaching_canonical_research_media_v1.sql',
     '266_coaching_canonical_legacy_media_candidates_v1.sql',
     '259_coaching_skill_usag_metadata.sql',
+    '279_coaching_skill_individual_kind.sql',
     '260_usag_acro_level_2_5_skill_cards.sql',
     '261_usag_tt_tumbling_compulsory_skill_cards.sql',
     '262_usag_youth_at_compulsory_tumbling_cards.sql',
