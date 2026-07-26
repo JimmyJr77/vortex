@@ -684,9 +684,8 @@ BEGIN
         'exerciseComplexity', 28,
         'physicalDifficulty', 58,
         'overallDifficulty', 58,
-        'overallFormula', 'max_exercise_complexity_physical_difficulty',
-        'skillLevel', NULL
-      ) - 'skillLevel',
+        'overallFormula', 'max_exercise_complexity_physical_difficulty'
+      ),
       status = 'review',
       updated_at = now()
   WHERE definition_id = active_id
@@ -844,9 +843,8 @@ BEGIN
         'exerciseComplexity', 18,
         'physicalDifficulty', 52,
         'overallDifficulty', 52,
-        'overallFormula', 'max_exercise_complexity_physical_difficulty',
-        'skillLevel', NULL
-      ) - 'skillLevel',
+        'overallFormula', 'max_exercise_complexity_physical_difficulty'
+      ),
       status = 'review',
       updated_at = now()
   WHERE definition_id = dead_id
@@ -1014,9 +1012,8 @@ BEGIN
         'exerciseComplexity', 38,
         'physicalDifficulty', 62,
         'overallDifficulty', 62,
-        'overallFormula', 'max_exercise_complexity_physical_difficulty',
-        'skillLevel', NULL
-      ) - 'skillLevel',
+        'overallFormula', 'max_exercise_complexity_physical_difficulty'
+      ),
       status = 'review',
       updated_at = now()
   WHERE definition_id = scapular_pull_id

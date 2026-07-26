@@ -9,13 +9,13 @@ The migration preserves every legacy exercise:
 | Measure | Count |
 |---|---:|
 | Legacy exercise rows | 1,673 |
-| Active canonical definitions | 1,555 |
-| Archived redundant definitions | 118 |
+| Active canonical definitions | 1,553 |
+| Archived redundant definitions | 120 |
 | Canonical baseline variants | 1,673 |
 | Contextual delivery profiles | 1,717 |
 | Migration coverage | 100% |
 | Published canonical definitions | 0 |
-| Quarantined test packets | 1,555 |
+| Quarantined test packets | 1,553 |
 
 No migrated card is treated as production-approved. Migration creates stable
 canonical identity and provenance, then leaves the definition, variant, and
@@ -48,15 +48,18 @@ turn-and-reaccelerate identity whose approach and turn details are controlled
 delivery dimensions. Migration 306 consolidates `45-Degree Cut to Stick` into
 `45-Degree Cut and Stick` because the connecting word does not change the
 planned 45-degree redirection or held terminal outcome. Immediate
-reacceleration and the aerial diagonal bound remain separate identities. The
+reacceleration and the aerial diagonal bound remain separate identities.
 Migration 307 consolidates twelve Cossack cards whose differences are range,
 tempo, isometric hold, bottom-position motion, terminal pause, reach overlay,
 or external implement into `Cossack Squat`. The release/reception wall-ball
 composite remains separate and identity-quarantined. Migration 308 consolidates
 three adductor rock-back reach and half-kneeling-context cards into
 `Adductor Rockback`; incomplete generic-reach and half-kneeling execution
-dimensions remain explicitly quarantined. The resulting
-1,555-definition library preserves all
+dimensions remain explicitly quarantined. Migration 309 then resolves the
+hanging cluster into `Dead Hang`,
+`Active Hang`, and `Scapular Pull-Up`, consolidating the exact Active Hang hold
+duplicate and archiving the ambiguous passive-or-active compound source. The
+resulting 1,553-definition library preserves all
 1,673 source mappings and has zero direct canonical-name, display-name,
 alias-to-alias, or alias-to-name collisions. The post-migration-252 audit left
 36 name-based similar pairs as non-blocking P2 warnings; later family passes

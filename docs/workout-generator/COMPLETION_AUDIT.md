@@ -84,7 +84,7 @@ rollout plan.
   budgets. See `CALIBRATION_AND_FATIGUE.md`.
 - Migration 246 and the canonical library audit produce and persist a named
   automated test packet for every migrated exercise. The measured baseline is
-  1,673/1,673 legacy sources mapped into 1,555 canonical definitions, all
+  1,673/1,673 legacy sources mapped into 1,553 canonical definitions, all
   honestly quarantined and none published. See `LIBRARY_AUDIT.md`.
 - Generated workouts include distinct coach and athlete projections. The coach
   projection retains logistics, budgets, quality gates, substitutions, and
@@ -100,24 +100,24 @@ rollout plan.
 
 On 2026-07-26:
 
-- 762 platform Node tests ran: 742 passed, 20 integration-environment tests
+- 763 platform Node tests ran: 743 passed, 20 integration-environment tests
   skipped intentionally, and none failed. This includes all 25 named golden
   scenarios and the governance, graph-swap, AI-quarantine, anatomy/load,
   difficulty-model, and telemetry suites,
 - a 7,000-card deterministic generation test completed in under the five-second
   release ceiling,
 - the complete migration chain passed on disposable PostgreSQL,
-- all 1,673 legacy exercise sources were audited through their 1,555 active
+- all 1,673 legacy exercise sources were audited through their 1,553 active
   canonical definitions, and every active definition remains quarantined
   pending human review,
 - the production reference card passed a real repository save/load round trip
   while its missing-media publication gate remained active,
-- 118 redundant definitions were consolidated into canonical identities while
+- 120 redundant definitions were consolidated into canonical identities while
   preserving 1,673 source variants, 1,717 delivery profiles, and all legacy
   source mappings; direct identity collisions are now zero.
 - Focused ESLint passed for the canonical backend, route, and coach UI files.
 - `npm run build` completed successfully.
-- The complete migration sequence through migration 308 and every add-on was
+- The complete migration sequence through migration 309 and every add-on was
   applied successfully from a blank disposable PostgreSQL 15 database.
   Migrations 304 and 305 were also applied through the normal runner and
   directly rerun; the final migration-305 rerun performed zero inserts and zero
@@ -136,6 +136,14 @@ On 2026-07-26:
   idempotently. An isolated clone with a synthetic approved calibration proved
   that it aborts before reassigning or archiving adductor rock-back records. The
   temporary clone was removed after the guard test.
+- Migration 309 was applied through the normal runner in the working review
+  database and directly to the fresh-chain rehearsal, then rerun twice
+  idempotently. A disposable clone with a synthetic published target proved
+  that it aborts with one protected record before splitting, reassignment, or
+  archival. The clone was removed after the guard test. The final records
+  preserve Dead Hang, Active Hang, and Scapular Pull-Up as distinct actions,
+  keep the historical compound source quarantined, and retain all six source
+  mappings.
 - Migration 305 used traceable legacy difficulty profiles to populate physical
   difficulty for 287 previously incomplete variants and mechanically derived
   overall difficulty for every supported variant. The resulting coverage is
@@ -145,7 +153,7 @@ On 2026-07-26:
   created. The migration fails closed rather than changing a published variant,
   current approved card review, or approved score record.
 - Deterministic repeat tests use deep equality with the same seed.
-- All 205 canonical-research JSON artifacts pass the exercise-difficulty
+- All 210 canonical-research JSON artifacts pass the exercise-difficulty
   invariant. The normalization tool corrected 278 historical candidate-summary
   overall scores across 164 files so overall now equals the greater of
   technical complexity and physical or absolute-load demand; non-core
@@ -157,7 +165,7 @@ On 2026-07-26:
 
 These are deployment and evidence gates, not code-completion claims:
 
-1. Apply the complete migration sequence through migration 308 in a
+1. Apply the complete migration sequence through migration 309 in a
    non-production environment.
 2. Run the full library audit; review anatomy, constraints, scores, media,
    relationships, and calibration evidence card by card.

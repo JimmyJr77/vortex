@@ -20,7 +20,11 @@ tempo, hold, reach, and implement cards into `Cossack Squat`; the wall-ball
 release/reception composite remains separate. Migration 308 consolidates the
 generic-reach, explicit T-spine-reach, and half-kneeling-context adductor
 rock-back cards into `Adductor Rockback`, with incomplete reach and
-half-kneeling execution details explicitly quarantined. Together, the migrations
+half-kneeling execution details explicitly quarantined. Migration 309 resolves
+the hanging cluster into distinct `Dead Hang`, `Active Hang`, and
+`Scapular Pull-Up` identities, consolidates the exact `Active Hang Scapular
+Hold` duplicate, and archives the historical passive-or-active compound source
+without making its ambiguous variant selectable. Together, the migrations
 preserve:
 
 - all 1,673 legacy source IDs through `exercise_definition_source_v1`;
@@ -29,7 +33,7 @@ preserve:
 - all 1,717 contextual delivery profiles;
 - provenance and an explicit resolution record for every consolidation.
 
-The resulting library contains 1,555 active canonical definitions, 118 explicit
+The resulting library contains 1,553 active canonical definitions, 122 explicit
 identity-resolution records, and zero
 direct canonical-name, display-name, or alias-to-name collisions. Consolidated
 source definitions are archived and remain traceable; they are not deleted.

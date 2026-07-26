@@ -4,7 +4,7 @@ Status: active library-review program, 2026-07-25.
 
 ## Scope and current baseline
 
-Identity consolidation leaves 1,555 active canonical exercise definitions and
+Identity consolidation leaves 1,553 active canonical exercise definitions and
 zero direct canonical-name, display-name, or alias collisions. Those cards
 remain in `review`; consolidation did not make their content or media approved.
 
@@ -44,8 +44,8 @@ Bound, Nordic Hamstring Curl, Plank Hold, and Pull-Up. Their definitions carry
 an explicit `difficulty_model_quarantine` provenance record and remain in
 `review`.
 
-The minimum program therefore contains 25,136 card-section decisions and
-4,713–7,855 video candidates. Multiple sources may be required for one section.
+The minimum program therefore contains 24,848 card-section decisions and
+4,659–7,765 video candidates. Multiple sources may be required for one section.
 
 The first complete candidate packets are stored in
 `scripts/data/canonical-research/`:
@@ -987,6 +987,32 @@ only. Exact sequence and version, complete viewing, captions, cue and safety
 quality, reviewer identity, and approval remain human gates. No candidate was
 approved.
 
+The twenty-ninth source-registry batch resolves the straight-arm hang and
+scapular-control collision cluster:
+
+- Dead Hang: 16 evidence sections, five videos, 11 alternates;
+- Active Hang: 16 evidence sections, five videos, 11 alternates;
+- Scapular Pull-Up: 16 evidence sections, five videos, 11 alternates.
+
+Migration `309_coaching_hang_identity_split_and_consolidation.sql` preserves
+three exercise identities. Dead Hang uses the assigned passive scapular
+position, Active Hang holds an active scapular position isometrically with
+straight elbows, and Scapular Pull-Up repeats scapular depression and controlled
+return without elbow flexion. The migration consolidates `Active Hang Scapular
+Hold` into Active Hang and archives the historical compound `Dead Hang / Active
+Hang` definition after moving source 1074 to Active Hang and retaining
+ambiguous source 201 as a non-selectable quarantined source variant under Dead
+Hang. The former Dead Hang Breathing Reset becomes a contextual restore
+delivery profile, not a separate identity.
+
+The three cards use only exercise complexity and physical difficulty for core
+difficulty assessment, with overall equal to their maximum. External video
+titles containing audience-level words remain source metadata and do not assign
+a level to an exercise card. All 15 selected links returned successful current
+YouTube oEmbed responses. Exact movement and variant match, complete viewing,
+captions, cue and safety quality, reviewer identity, and approval remain human
+gates. No candidate was approved.
+
 ## Data model
 
 Migration `265_coaching_canonical_research_media_v1.sql` adds:
@@ -1146,21 +1172,21 @@ must be rerun after import if current availability is required.
   approvals as separate measures;
 - candidate alternate assessments from reviewed assessments.
 
-As of the first 146 active imported packets and candidate-only legacy media
+As of the first 149 active imported packets and candidate-only legacy media
 backfill in disposable PostgreSQL:
 
-- active cards: 1,555;
+- active cards: 1,553;
 - exact direct identity collisions: 0;
-- candidate-complete research cards: 146 (9.39%), containing 2,336 section
-  decisions, 711 currently healthy per-card video candidates (451 distinct
-  video IDs), and 744 alternate assessments;
+- candidate-complete research cards: 149 (9.59%), containing 2,384 section
+  decisions, 726 currently healthy per-card video candidates (466 distinct
+  video IDs), and 777 alternate assessments;
 - reviewed research cards: 0;
-- cards with three to five candidate videos: 1,220 (78.46%);
-- cards with three to five currently healthy and embeddable candidates: 146
-  (9.39%);
-- cards with no direct video candidate: 335;
+- cards with three to five candidate videos: 1,219 (78.49%);
+- cards with three to five currently healthy and embeddable candidates: 149
+  (9.59%);
+- cards with no direct video candidate: 334;
 - cards with three to five approved videos: 0;
-- candidate alternate assessments: 146 cards (9.39%);
+- candidate alternate assessments: 149 cards (9.59%);
 - reviewed alternate assessments: 0.
 
 These figures are progress counters, not production-readiness claims.
