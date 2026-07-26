@@ -197,6 +197,7 @@ export async function initPlatformTables(pool) {
     '179_coaching_exercise_participant_structure.sql',
     '180_coaching_games_library_infrastructure.sql',
     '181_coaching_games_library_migrate_and_seed.sql',
+    '182_coaching_games_500_card_catalog.sql',
     '182_coaching_jumping_height_infrastructure_and_seed.sql',
     '183_coaching_jumping_height_cards.sql',
     '184_coaching_jumping_distance_infrastructure_and_seed.sql',
@@ -304,6 +305,7 @@ export async function initPlatformTables(pool) {
     '306_coaching_45_degree_cut_identity_consolidation.sql',
     '307_coaching_cossack_variant_consolidation.sql',
     '308_coaching_adductor_rockback_variant_consolidation.sql',
+    '309_coaching_hang_identity_split_and_consolidation.sql',
   ]
 
   const migrationClient = typeof pool.connect === 'function' ? await pool.connect() : pool
