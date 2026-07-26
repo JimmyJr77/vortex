@@ -1,0 +1,443 @@
+{
+  "facilityId": 1,
+  "slug": "a-march-mobility-with-arm-sweep",
+  "researchVersion": "2026-07-25.9",
+  "assessmentSummary": {
+    "identity": "A no-flight traveling march with reciprocal arm swing; the current card does not define an arm path meaningfully different from normal A-march execution.",
+    "currentCardFindings": [
+      "The description calls the normal opposite-arm sprint path an arm sweep without defining a larger shoulder or trunk mobility action.",
+      "The card claims to open hip and ankle range but records no range target or comparison and should not imply a mobility adaptation from one pass.",
+      "Six repetitions, 45 work seconds, and a zero-second rest conflict and do not identify steps per side or pass length."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "traveling_alternating_no_flight_a_march",
+        "reciprocal_arm_swing"
+      ],
+      "jointActions": [
+        "hip_flexion_extension",
+        "ankle_dorsiflexion_and_plantarflexion",
+        "contralateral_shoulder_flexion_extension"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal"
+      ],
+      "laterality": "alternating_left_right",
+      "intent": "low_cadence_a_march_with_relaxed_arm_action"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "hip_flexors",
+        "gluteus_maximus",
+        "soleus",
+        "tibialis_anterior"
+      ],
+      "secondaryMuscles": [
+        "hamstrings",
+        "quadriceps",
+        "gluteus_medius",
+        "obliques",
+        "latissimus_dorsi",
+        "deltoid"
+      ],
+      "joints": [
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex",
+        "thorax",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 35,
+      "absoluteLoadDemand": 9,
+      "coordinationDemand": 42,
+      "supervisionDemand": 25,
+      "failureConsequence": 17,
+      "impact": 9,
+      "workCapacityDemand": 16,
+      "baseOverallDifficulty": 35
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_no_flight_march_with_reciprocal_arms",
+      "impactClass": "low",
+      "landingContactsPerRep": "record_steps_per_side_or_distance",
+      "primaryStress": [
+        "single_leg_balance",
+        "hip_control",
+        "reciprocal_trunk_and_arm_coordination"
+      ],
+      "fatigueSensitivity": "arm_path_balance_posture_and_breathing"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "clear_level_lane"
+      ],
+      "optionalEquipment": [
+        "video",
+        "floor_marks"
+      ],
+      "environment": [
+        "dry_non_slip_surface",
+        "adequate_arm_clearance"
+      ],
+      "population": [
+        "pain_free_walking",
+        "comfortable_shoulder_swing",
+        "brief_single_leg_balance"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "1-2",
+      "distancePerPass": "6-15_metres_or_5-10_steps_per_side",
+      "restSeconds": "as_needed_20-60",
+      "intensity": "slow_to_smooth",
+      "progressWhen": "arm swing, breathing, balance, and step placement remain relaxed"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "March tall",
+        "Let the opposite arm travel naturally",
+        "Keep the shoulders relaxed",
+        "Own each step"
+      ],
+      "athleteInstructions": [
+        "Use a smooth A-march and relaxed opposite arm swing without forcing extra shoulder range"
+      ],
+      "commonFaults": [
+        "undefined_arm_sweep",
+        "forced_shoulder_range",
+        "trunk_rotation",
+        "rushing",
+        "overstriding"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "pain_free_shoulders",
+        "safe_lane",
+        "controlled_march"
+      ],
+      "stopRules": [
+        "pain",
+        "pinching",
+        "dizziness",
+        "balance_loss",
+        "forced_range",
+        "pattern_loss"
+      ]
+    },
+    "programmingDecision": "Consolidate into A-March as a low-cadence arm-action coaching profile unless human review documents a distinct, repeatable shoulder or thoracic mobility sequence.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T04:35:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "March forward with controlled knee lift while sweeping the opposite arm through a relaxed sprint arm path and staying tall through the crown of the head.",
+      "familyKey": "Sprint mobility rhythm",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41209369/",
+      "sourceTitle": "Development and Validation of a Running Drill Test Battery to Predict 5 m and 20 m Sprint Performance",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "A published running-drill test battery defines A-skip with observable arm action, thigh motion, support-leg behavior, contact location, foot direction, posture, and swing-path criteria.",
+        "A-March Mobility with Arm Sweep must state whether the task is a no-flight march, an alternating step-hop skip, a pogo skip, a constrained ladder or gate variant, or a compound transition; coaching words such as punch, snap, rhythm, projection, and mobility do not establish a separate identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6872694/",
+      "sourceTitle": "The Training and Development of Elite Sprint Performance: an Integration of Scientific and Best Practice Literature",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Sprint drills are commonly used as controllable, low-speed tasks for posture, limb configuration, rhythm, and proprioceptive emphasis, but their mechanics must resemble the intended target when transfer is claimed.",
+        "A-March Mobility with Arm Sweep belongs to no-flight alternating sprint-mechanics marching, alternating step-hop skipping, an external-spacing variant, or a separately defined compound progression; it is not itself sprinting, maximal-speed work, or a jump-height test."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/28632055/",
+      "sourceTitle": "Muscle activity in sprinting: a review",
+      "sourcePublisher": "Sports Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Sprint muscle activity is phase-specific and distributed across lower-limb and trunk musculature rather than isolated to a single high-knee muscle action.",
+        "The card should identify hip flexors, gluteus maximus, hamstrings, quadriceps, soleus, gastrocnemius, tibialis anterior, intrinsic foot, frontal-plane pelvic stabilizers, trunk, and shoulder-girdle roles in proportion to the actual march, skip, or constraint."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8008308/",
+      "sourceTitle": "Kinematic Stride Characteristics of Maximal Sprint Running of Elite Sprinters – Verification of the Swing-Pull Technique",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "During maximal sprinting, active foot velocity before contact, contact near the projected center of mass, hip-extension velocity, and controlled support-leg flexion can influence braking and contact behavior.",
+        "A march or skip can constrain posture, recovery, contact placement, and arm-leg timing, but visual similarity cannot prove sprint force, joint stiffness, or transfer; cue only observable execution of the drill."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8553457/",
+      "sourceTitle": "Application of Leg, Vertical, and Joint Stiffness in Running Performance: A Literature Overview",
+      "sourcePublisher": "Journal of Healthcare Engineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Whole-limb stiffness changes with task, speed, maturity, fatigue, and measurement method and cannot be inferred as a fixed quality from a drill label.",
+        "Exercise difficulty must directly score technical complexity, physical and absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; athlete experience remains programming context."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8938535/",
+      "sourceTitle": "Effects of Plyometric Training on Lower Body Muscle Architecture, Tendon Structure, Stiffness and Physical Performance: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Repeated flight contacts can contribute meaningful muscle-tendon loading even when external load and amplitude are low.",
+        "A-March Mobility with Arm Sweep needs pass distance, total and per-leg contacts, flight or no-flight status, surface, footwear, spacing constraint, cadence or intent, technical-fatigue markers, recovery, and weekly impact accounting rather than an unqualified repetition or work interval."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Linear-speed preparation requires suitable space, safe start and finish zones, progressive intensity, adequate recovery, and coaching matched to the intended movement quality.",
+        "Require a level, dry, non-slip lane, safe spacing and finish, suitable footwear, secured flat ladder or visible gates only when prescribed, and readiness for the contact amplitude and coordination actually used."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "sourceTitle": "Jereem Richards’ games and drills to help develop speed",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 77,
+      "claims": [
+        "World Athletics gives two passes over 10 to 20 metres as an example for progressive running drills and directs athletes to learn the movement before increasing cadence.",
+        "Use short passes, metres, explicit contacts, cadence or execution intent, and recovery; no-flight marches may use walk-back recovery, while skips and compound transitions need impact-aware volume and enough rest to preserve rhythm."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41209369/",
+      "sourceTitle": "Development and Validation of a Running Drill Test Battery to Predict 5 m and 20 m Sprint Performance",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Published A-skip criteria include relaxed arms and shoulders, coordinated arm action without excessive midline crossing, a defined thigh path, forward-facing feet, contact near the body's vertical projection, and completion of support-leg extension.",
+        "Use a small cue set: stay tall or use the explicitly assigned projection, lift to the assigned landmark, keep the ankle prepared without forcing the heel, step or skip close beneath the body, coordinate opposite arm and leg, and preserve the defined march or step-hop rhythm."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37989833/",
+      "sourceTitle": "Ankle and Plantar Flexor Muscle-Tendon Unit Function in Sprinters: A Narrative Review",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Foot and plantar-flexor demands differ across locomotor tasks and sprint phases, so repeated contacts should not be represented as uniformly negligible load.",
+        "Stop for foot, shin, calf, Achilles, hamstring, knee, hip, or back pain; limping; loss of balance; repeated reaching; forced or painful foot strike; loud contacts; cadence or posture loss; ladder contact; displaced equipment; or an unsafe finish."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41209369/",
+      "sourceTitle": "Development and Validation of a Running Drill Test Battery to Predict 5 m and 20 m Sprint Performance",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The study found good overall inter-rater reliability for its A-skip scoring criteria but no statistically significant association between A-skip score and 5 m or 20 m sprint performance in its sample.",
+        "A-March Mobility with Arm Sweep should be programmed as a fresh coordination, position, rhythm, or warm-up constraint with an explicit athlete-specific purpose; do not promise faster sprinting, better acceleration, jump height, or approach transfer from the drill alone."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41209369/",
+      "sourceTitle": "Development and Validation of a Running Drill Test Battery to Predict 5 m and 20 m Sprint Performance",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Clear, criterion-referenced movement elements make drill execution more observable than vague labels or outcome promises.",
+        "Show side and rear views, flight or no-flight contacts, thigh landmark, foot path, arm action, pass distance, gate or ladder pattern, finish, and one regression; explain that higher knees and faster feet are not automatically better."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41209369/",
+      "sourceTitle": "Development and Validation of a Running Drill Test Battery to Predict 5 m and 20 m Sprint Performance",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "A-skip ratings were more reliable for upper-extremity criteria than lower-extremity criteria, supporting explicit observation criteria and trained raters rather than a global visual impression.",
+        "Provide side and rear observation, pass and contact counts, left-right comparison, exact equipment spacing, optional slow-motion video, cue-response notes, and a distinction between a coached drill constraint and measured sprint biomechanics."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should match readiness, technical competence, supervision, equipment scale, and the individual's physical and psychosocial context.",
+        "Accessibility options include in-place rehearsal, slower cadence, shorter passes, lower thigh target, marching instead of skipping, floor marks instead of a raised ladder, fewer contacts, longer recovery, quieter instruction, and additional demonstration."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6872694/",
+      "sourceTitle": "The Training and Development of Elite Sprint Performance: an Integration of Scientific and Best Practice Literature",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Sprint drills should be selected for a specific limiting factor and should not be assumed to transfer merely because they isolate one visible feature.",
+        "Lane length, cadence, arm cue, thigh target, and sport context are delivery annotations; flight versus no flight, step-hop versus running, external spacing, resistance, support, and a terminal sprint can require controlled variants or distinct definitions."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for A-March Mobility with Arm Sweep were discovered through visible YouTube search; current availability and embedding, exact contact sequence and constraint, complete viewing, captions, instructional quality, safety, and approval remain separate review gates, and no candidate is approved by this packet."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=SrhYqSXPFWY",
+      "title": "A March - Arm Swing",
+      "channelName": "Perrine Performance",
+      "sourceQuery": "A march mobility arm sweep drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=qaQVgiA-TWk",
+      "title": "A-March Drill",
+      "channelName": "Tinsley Performance",
+      "sourceQuery": "A march mobility arm sweep drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=KPSGTnvkB6U",
+      "title": "Standing March Drill",
+      "channelName": "Tom Morrison",
+      "sourceQuery": "A march mobility arm sweep drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=c8tmGBeytvo",
+      "title": "Marching with Arm Swing Drill",
+      "channelName": "Dallas Run Clinic",
+      "sourceQuery": "A march mobility arm sweep drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=G3Hkl_WYdVc",
+      "title": "Slow Motion March with Arm Swing",
+      "channelName": "Christopher Johnson",
+      "sourceQuery": "A march mobility arm sweep drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "A-March",
+      "classification": "same_identity",
+      "rationale": "The current arm path is normal reciprocal A-march execution.",
+      "distinguishingDimensions": {
+        "armAction": "reciprocal"
+      }
+    },
+    {
+      "name": "A-March with Overhead Reach",
+      "classification": "new_variant",
+      "rationale": "A defined overhead action materially changes shoulder range and trunk-control requirements.",
+      "distinguishingDimensions": {
+        "armAction": "overhead_reach"
+      }
+    },
+    {
+      "name": "Standing March with Arm Swing",
+      "classification": "new_variant",
+      "rationale": "Stationary execution removes travel and changes balance and spacing.",
+      "distinguishingDimensions": {
+        "displacement": "stationary"
+      }
+    },
+    {
+      "name": "Seated Sprint Arm Action",
+      "classification": "new_definition",
+      "rationale": "Seated arm-only work removes lower-limb locomotion and has a different primary task.",
+      "distinguishingDimensions": {
+        "movementPattern": "seated_arm_action"
+      }
+    },
+    {
+      "name": "Slow-Cadence A-March",
+      "classification": "modifier_annotation",
+      "rationale": "Cadence and mobility intent are delivery annotations on the same march.",
+      "distinguishingDimensions": {
+        "cadence": "slow"
+      }
+    }
+  ]
+}

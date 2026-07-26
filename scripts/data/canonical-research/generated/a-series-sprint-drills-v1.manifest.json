@@ -1,0 +1,79 @@
+{
+  "batchKey": "a-series-sprint-drills-v1",
+  "researchVersion": "2026-07-25.9",
+  "generatedAt": "2026-07-26T04:35:00.000Z",
+  "cards": [
+    {
+      "slug": "a-march",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "a-march-linear",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "a-march-mobility-with-arm-sweep",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "a-march-to-projection",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "a-skip",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "a-skip-pogo-rhythm",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "a-skip-rhythm-punch",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "a-skip-snap-down",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "a-skip-through-cone-gates",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "a-skip-through-ladder",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "a-skip-for-approach-rhythm",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "high-knee-a-march-ladder",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    }
+  ]
+}

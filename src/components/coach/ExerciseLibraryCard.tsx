@@ -48,8 +48,8 @@ export default function ExerciseLibraryCard({
       label: `Overall ${diff.overall}/10`,
       variant: diff.overall >= 7 ? 'warning' : 'difficulty',
     })
-    if (!isSkillDrill && diff.load > youthCap) {
-      programmingFlags.push({ key: 'load', label: 'High load for youth', variant: 'warning' })
+    if (diff.load > youthCap) {
+      programmingFlags.push({ key: 'physical-difficulty', label: 'High physical difficulty for youth', variant: 'warning' })
     }
   }
   if (phaseProfile?.freshnessRequired) {
@@ -91,10 +91,9 @@ export default function ExerciseLibraryCard({
         <p className="w-full text-xs leading-snug text-gray-500">
           {[exercise.sport_name, identityLine].filter(Boolean).join(' · ')}
           {diff && (
-            <span className="block mt-1 text-gray-600" title={`Technical ${diff.technical} · Load ${diff.load}${diff.source === 'derived' ? ' · estimated' : ''}`}>
-              Difficulty: overall {diff.overall}/10 · T{diff.technical} · L{diff.load}
-              {!isSkillDrill && exercise.difficulty_profile?.recommended_age_min != null ? ` · Ages ${exercise.difficulty_profile.recommended_age_min}+` : ''}
-              {isSkillDrill ? ' · Class/level gated' : ''}
+            <span className="block mt-1 text-gray-600" title={`Exercise complexity ${diff.technical} · Physical difficulty ${diff.load}${diff.source === 'derived' ? ' · estimated' : ''}`}>
+              Difficulty: overall {diff.overall}/10 · complexity {diff.technical} · physical {diff.load}
+              {exercise.difficulty_profile?.recommended_age_min != null ? ` · Ages ${exercise.difficulty_profile.recommended_age_min}+` : ''}
             </span>
           )}
         </p>

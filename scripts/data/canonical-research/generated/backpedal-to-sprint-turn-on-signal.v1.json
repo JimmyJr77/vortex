@@ -1,0 +1,457 @@
+{
+  "facilityId": 1,
+  "slug": "backpedal-to-sprint-turn-on-signal",
+  "researchVersion": "2026-07-25.18",
+  "assessmentSummary": {
+    "identity": "A reactive backpedal-to-sprint variant in which an unpredictable live point selects the turn side and sprint path.",
+    "currentCardFindings": [
+      "The description states a coach point but does not define cue location, wait window, turn choices, angle, backward boundary, sprint distance, wrong-response rule, finish, or run-out.",
+      "A signal selecting the turn side adds perception, inhibition, decision accuracy, and supervision beyond the pre-planned task.",
+      "No exact combined legacy media exist; visible candidates separately show base turns or reactive forward-to-backward sequences."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "backward_locomotion",
+        "live_visual_choice_reaction",
+        "open_turn",
+        "multidirectional_reacceleration"
+      ],
+      "jointActions": [
+        "head_eye_orientation",
+        "backward_knee_dominant_contacts",
+        "hip_rotation_and_abduction",
+        "turn_plant",
+        "hip_knee_ankle_extension"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal",
+        "transverse"
+      ],
+      "laterality": "randomized_balanced_left_and_right_turns",
+      "intent": "correct_live_side_choice_then_fast_safe_reorientation"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "quadriceps",
+        "gluteus_maximus",
+        "hamstrings",
+        "soleus",
+        "gastrocnemius",
+        "gluteus_medius"
+      ],
+      "secondaryMuscles": [
+        "extraocular_and_head_orientation",
+        "tibialis_anterior",
+        "adductors",
+        "deep_hip_rotators",
+        "intrinsic_foot",
+        "obliques"
+      ],
+      "joints": [
+        "cervical_spine",
+        "spine",
+        "hip",
+        "knee",
+        "ankle",
+        "foot",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 70,
+      "absoluteLoadDemand": 12,
+      "coordinationDemand": 80,
+      "supervisionDemand": 72,
+      "failureConsequence": 70,
+      "impact": 58,
+      "workCapacityDemand": 48,
+      "baseOverallDifficulty": 70
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_reactive_backward_run_turn_to_acceleration",
+      "impactClass": "moderate_to_high_by_speed_angle_and_decision_time",
+      "landingContactsPerRep": "all_backward_choice_turn_sprint_and_run_out_contacts",
+      "primaryStress": [
+        "visual_choice_and_inhibition",
+        "quadriceps_backward_contacts",
+        "turn_plant",
+        "hip_rotators",
+        "posterior_chain",
+        "plantar_flexors"
+      ],
+      "fatigueSensitivity": "cue_pickup_guessing_wrong_side_backpedal_control_plant_turn_speed_and_run_out"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "trained_cue_partner",
+        "clear_backward_lane",
+        "left_and_right_targets",
+        "safe_run_outs"
+      ],
+      "optionalEquipment": [
+        "cones",
+        "video",
+        "timing_system"
+      ],
+      "environment": [
+        "unobstructed_sightline",
+        "dry_level_surface",
+        "no_cross_traffic"
+      ],
+      "population": [
+        "understands_side_mapping",
+        "can_backpedal_and_turn_both_sides",
+        "pain_free_acceleration"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "2-5_accepted_trials_per_side",
+      "distance": "2-5_metres_backpedal_then_5-10_metres_sprint",
+      "restSeconds": "60-180",
+      "intensity": "accuracy_first_then_high_intent",
+      "progressWhen": "no guessing, balanced correct choices, clean turns, and stable sprint quality"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Set both targets",
+        "Point only after the hold",
+        "No guessing",
+        "Turn and sprint through"
+      ],
+      "athleteInstructions": [
+        "Backpedal to the boundary, read the true point, open to that side, and sprint through the target"
+      ],
+      "commonFaults": [
+        "predictable_cue",
+        "ambiguous_point",
+        "anticipation",
+        "wrong_side",
+        "crossed_feet",
+        "spinning_without_target"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "cue_mapping_rehearsed",
+        "both_side_turn_competency",
+        "clear_targets_and_run_outs"
+      ],
+      "stopRules": [
+        "pain",
+        "ambiguous_cue",
+        "repeated_guessing",
+        "wrong_lane",
+        "trip",
+        "slip",
+        "uncontrolled_turn",
+        "unsafe_run_out"
+      ]
+    },
+    "programmingDecision": "Retain as a reactive variant of the backpedal-open-turn identity. Quarantine until the cue map, angles, distances, error rules, and an exact combined demonstration are reviewed.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T11:05:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "The athlete waits for a live cue (coach points turn side), selects the correct answer, performs the movement response, and resets before the next rep. The rep counts only when the athlete reacts to the real stimulus rather than guessing early.",
+      "familyKey": "Reactive Change of Direction, Braking, and Re-Acceleration",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/2072839/",
+      "sourceTitle": "Lower extremity joint kinetics and energetics during backward running",
+      "sourcePublisher": "Medicine and Science in Sports and Exercise",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 76,
+      "claims": [
+        "Backward running uses lower-extremity joint kinetics and muscle roles that differ from forward running.",
+        "Backpedal-to-Sprint Turn on Signal must define backward travel distance and speed, open-turn angle and side, cue predictability, forward sprint path and distance, terminal action, and run-out. A generic turn and an open turn are the same identity when those dimensions match."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Horizontal deceleration requires coordinated reduction of momentum before a direction or velocity change.",
+        "Backpedal-to-Sprint Turn on Signal belongs to backward locomotion, reorientation, and forward re-acceleration. An unpredictable side cue is a reactive variant, while adding a required terminal stick creates a distinct braking-and-balance task."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/2072839/",
+      "sourceTitle": "Lower extremity joint kinetics and energetics during backward running",
+      "sourcePublisher": "Medicine and Science in Sports and Exercise",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 76,
+      "claims": [
+        "Backward running can shift propulsive and absorptive roles between the knee and ankle compared with forward running.",
+        "Represent quadriceps, gluteals, hamstrings, plantar flexors, tibialis anterior, hip rotators, abductors and adductors, trunk, and arm action across the backward steps, turn, sprint, and any terminal braking."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Direction and velocity changes require control of whole-body momentum and effective braking force orientation.",
+        "Maintain backward posture and short controlled contacts, lower the centre of mass before the turn, plant without crossing or twisting, open the hips and eyes toward the target, re-accelerate, and use additional braking steps for a stick finish."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5465987/",
+      "sourceTitle": "Are Change of Direction Speed and Reactive Agility Useful for Determining the Optimal Field Position for Young Soccer Players?",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "Reactive movement differs from the same pre-planned path because the athlete must identify an unpredictable target before selecting the direction.",
+        "Score technical complexity, absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. Athlete experience remains programming context, not an exercise-card skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Repeated braking and re-acceleration can accumulate substantial mechanical and neuromuscular demand.",
+        "Backpedal-to-Sprint Turn on Signal must track backward contacts, turns per side and angle, sprint and braking contacts, direction decisions, intensity, surface, quadriceps and plantar-flexor load, groin and hip-rotator stress, technical fatigue, recovery, and total change-of-direction volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Quality speed work requires a suitable surface, marked targets, spacing, run-out, and recovery.",
+        "Require a clear dry lane, visible backward boundary, turn and finish marks, safe sightline or cue source, athlete separation, and enough sprint and stopping space; cones and video are optional unless used to define the path."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Speed work should prescribe distance, intensity, repetitions, sets, and recovery.",
+        "Use two to five high-quality repetitions per turn side, roughly 2–5 metres backward plus 5–15 metres forward, with 60–180 seconds recovery; reduce intent and distance during learning or terminal-stick preparation."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Braking and direction change quality depend on controlling momentum and aligning the body for the next task.",
+        "Backpedal under control, keep the turn boundary visible, lower before the plant, open through the hip without crossing the feet, find the sprint target, accelerate through it, and use the assigned run-out or stick zone."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Training should use appropriate supervision, correct technique, manageable demands, and gradual progression.",
+        "Stop for pain, backward trip, heel catch, crossed feet, uncontrolled trunk rotation, knee collapse, slip, wrong direction, lane conflict, unsafe braking, repeated anticipation, marked speed loss, or inability to see or use the finish zone."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "High-quality acceleration work should be placed before fatigue and not converted into conditioning by excessive density.",
+        "Backpedal-to-Sprint Turn on Signal fits movement intelligence or output after backward-locomotion and braking preparation. Teach the pre-planned turn before reactive side choice and add a terminal stick only when the athlete can brake safely."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "Acceleration develops across successive steps rather than through immediate upright running.",
+        "Show the backward stance, line of sight, both turn sides and angles, plant and open-turn sequence, first three forward contacts, sprint target, run-out, and any stick zone from front, side, and rear views."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Deceleration assessment should account for approach velocity, braking strategy, body position, and task constraints.",
+        "Provide backward and forward distance marks, turn-angle and side balance, cue schedule, rear and side observation, plant-foot and trunk checks, sprint and braking contact counts, error rules, speed-loss stops, and exact alias or variant decisions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Movement training should be developmentally appropriate and based on competency.",
+        "Accessibility options include walking backward, fewer backward steps, a pre-planned side, 90-degree rather than 180-degree turn, slower sprint, wider lane, visual boundary, no timing, longer run-out, no terminal stick, extra demonstration, and longer recovery."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5465987/",
+      "sourceTitle": "Are Change of Direction Speed and Reactive Agility Useful for Determining the Optimal Field Position for Young Soccer Players?",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "Pre-planned and reactive versions may share a movement path while differing in whether the target direction is known.",
+        "Turn and open turn are naming aliases when angle and side rules match; a live side signal is a reactive variant, while a terminal stick, repeated shuttle, lateral break, or sprint-to-backpedal reversal changes the task."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for Backpedal-to-Sprint Turn on Signal remain candidate-only. Availability, embedding, exact backward distance, turn angle and side, cue, sprint path, terminal action, complete viewing, captions, safety, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=efQLNVcbacY",
+      "title": "Backpedal to Sprint | Change of Direction DB Drill",
+      "channelName": "Simple Speed Coach",
+      "sourceQuery": "base-movement candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Exact base transition; live cue procedure is unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=uCsY1saY1og",
+      "title": "Backpedal to Turn and Sprint",
+      "channelName": "Annex Performance and Fitness",
+      "sourceQuery": "base-movement candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Exact base transition; signal and side-choice rule are unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=jpMXVEedH3E",
+      "title": "Sprint to Backpedal with Reactive Cue",
+      "channelName": "YouTube candidate",
+      "sourceQuery": "visible YouTube search: backpedal turn sprint on signal",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Reactive cue component but reverse locomotion order; adjacent only."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=rgukTOjgKRE",
+      "title": "Reactive Sprint to Backpedal Drill - with audible cue",
+      "channelName": "Relentless Athletics",
+      "sourceQuery": "visible YouTube search: backpedal turn sprint on signal",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Auditory cue and reverse sequence; adjacent only."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=VkYWyowllmc",
+      "title": "Whistle Reaction Forward Backpedal Sprint Through",
+      "channelName": "ONEighty Athletics",
+      "sourceQuery": "visible YouTube search: backpedal turn sprint on signal",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Cue-response sequence differs from a visual side-selected open turn."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Pre-Planned Backpedal Open Turn",
+      "classification": "new_variant",
+      "rationale": "Knowing the side removes reaction and choice.",
+      "distinguishingDimensions": {
+        "cuePredictability": "preplanned"
+      }
+    },
+    {
+      "name": "Auditory Backpedal Turn",
+      "classification": "new_variant",
+      "rationale": "Sound rather than a visual point changes cue access.",
+      "distinguishingDimensions": {
+        "cueModality": "auditory"
+      }
+    },
+    {
+      "name": "Backpedal to Random 90-Degree Sprint",
+      "classification": "modifier_annotation",
+      "rationale": "A fixed angle is a controlled profile within the reactive variant.",
+      "distinguishingDimensions": {
+        "turnAngleDegrees": 90
+      }
+    },
+    {
+      "name": "Backpedal-to-Sprint-to-Stick",
+      "classification": "new_definition",
+      "rationale": "A terminal stick adds braking and balance rather than cue choice.",
+      "distinguishingDimensions": {
+        "terminalAction": "stick"
+      }
+    },
+    {
+      "name": "Sprint-to-Backpedal on Signal",
+      "classification": "new_definition",
+      "rationale": "Reversing the sequence changes the braking and locomotion task.",
+      "distinguishingDimensions": {
+        "sequence": "forward_to_backward"
+      }
+    }
+  ]
+}

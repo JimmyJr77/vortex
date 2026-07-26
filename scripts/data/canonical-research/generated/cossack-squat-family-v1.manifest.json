@@ -1,0 +1,19 @@
+{
+  "batchKey": "cossack-squat-family-v1",
+  "researchVersion": "2026-07-26.24",
+  "generatedAt": "2026-07-26T07:15:00.000Z",
+  "cards": [
+    {
+      "slug": "cossack-squat",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 15
+    },
+    {
+      "slug": "cossack-shift-to-wall-ball-toss",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 7
+    }
+  ]
+}

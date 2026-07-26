@@ -1,0 +1,430 @@
+{
+  "facilityId": 1,
+  "slug": "ankling-walk",
+  "researchVersion": "2026-07-25.7",
+  "assessmentSummary": {
+    "identity": "A low-cadence learning delivery of traveling alternating ankling using very short steps and deliberate foot loading close to the hips.",
+    "currentCardFindings": [
+      "The card is not specific to distance jumping and should not claim direct horizontal-distance transfer.",
+      "Its two-repetition dose is ambiguous and should be expressed as passes or metres.",
+      "The identity is a cadence regression of Ankling Drill, not a separate exercise definition."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "traveling_alternating_ankling",
+        "learning_cadence"
+      ],
+      "jointActions": [
+        "ankle_dorsiflexion",
+        "ankle_plantarflexion",
+        "small_hip_and_knee_cycle"
+      ],
+      "planes": [
+        "sagittal"
+      ],
+      "laterality": "alternating_left_right",
+      "intent": "learn_contact_sequence_and_posture_before_faster_cadence"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "soleus",
+        "gastrocnemius",
+        "tibialis_anterior",
+        "intrinsic_foot"
+      ],
+      "secondaryMuscles": [
+        "hamstrings",
+        "hip_flexors",
+        "gluteus_maximus",
+        "lumbopelvic_stabilizers"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 32,
+      "absoluteLoadDemand": 15,
+      "coordinationDemand": 38,
+      "supervisionDemand": 26,
+      "failureConsequence": 22,
+      "impact": 16,
+      "workCapacityDemand": 18,
+      "baseOverallDifficulty": 32
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_traveling_alternating_no_flight_learning_drill",
+      "impactClass": "very_low_to_low",
+      "landingContactsPerRep": "record_pass_distance_or_steps",
+      "primaryStress": [
+        "foot_loading_awareness",
+        "low_rate_plantar_flexor_work",
+        "coordination"
+      ],
+      "fatigueSensitivity": "step_length_posture_contact_location_and_symptoms"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "short_clear_lane"
+      ],
+      "optionalEquipment": [
+        "floor_marks",
+        "video"
+      ],
+      "environment": [
+        "level_non_slip_surface"
+      ],
+      "population": [
+        "pain_free_walking",
+        "learning_ankling_sequence"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4_passes",
+      "distancePerPass": "8-15_metres",
+      "restSeconds": "walk_back_or_20-45",
+      "intensity": "slow_learning_cadence",
+      "progressWhen": "the athlete owns posture and contact placement before cadence increases"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Walk it first",
+        "Tiny steps",
+        "Load close to the hips",
+        "Stay relaxed"
+      ],
+      "athleteInstructions": [
+        "Practice the same small ankling steps slowly enough to control every contact"
+      ],
+      "commonFaults": [
+        "large_steps",
+        "high_knee_march",
+        "forced_toe_position",
+        "rushing",
+        "looking_down"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "pain_free_walking",
+        "safe_lane"
+      ],
+      "stopRules": [
+        "pain",
+        "limp",
+        "balance_loss",
+        "repeated_reaching",
+        "cannot_follow_pattern"
+      ]
+    },
+    "programmingDecision": "Migrate to the Ankling Drill definition as its learning-walk delivery profile and preserve Ankling Walk as a searchable alias.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T02:10:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Ankling Walk addresses distance-jumping performance by targeting links foot strike timing, posture, and ankle stiffness in a low-fatigue way before approach work. It should be coached with clear quality gates, honest phase placement, and enough recovery to preserve the intended adaptation.",
+      "familyKey": "Sprint foot strike mechanics",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "sourceTitle": "Jereem Richards’ games and drills to help develop speed",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 77,
+      "claims": [
+        "World Athletics describes ankling as a progressive running drill that begins with learning a toe-to-ground loading action and then increases cadence.",
+        "Ankling Walk must state whether it is stationary or traveling, bilateral or alternating, walking, marching, dribbling, hopping, or bounding, its knee strategy, contact sequence, displacement, cadence, and terminal transition; spring or stiffness alone does not define identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://worldathletics.org/download/download?filename=152a49b1-8225-498e-8283-9c580dcd45d9.pdf&urlslug=Women%27s+100m+-+2017+IAAF+World+Championships+Biomechanical+report",
+      "sourceTitle": "Women's 100 m — 2017 IAAF World Championships Biomechanical Report",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "World Athletics treats straight-leg shuffle into sprinting as a drill progression that can be combined into a movement pattern congruent with the technical model.",
+        "Ankling Walk belongs to either low-amplitude cyclic plyometrics, sprint-mechanics locomotion, straight-leg shuffle or bound mechanics, or a compound transition; those categories must not be merged into one undifferentiated exercise."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37989833/",
+      "sourceTitle": "Ankle and Plantar Flexor Muscle-Tendon Unit Function in Sprinters: A Narrative Review",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "The ankle and plantar-flexor muscle-tendon units make phase-specific contributions to sprinting, with distinct roles for soleus and gastrocnemius and important energy transfer at maximum velocity.",
+        "The card should identify intrinsic foot, plantar-flexor, tibialis-anterior, knee-extensor, hamstring, hip-flexor and extensor, lumbopelvic, and arm-action roles according to the actual drill rather than labeling every drill ankle-only."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8008308/",
+      "sourceTitle": "Kinematic Stride Characteristics of Maximal Sprint Running of Elite Sprinters – Verification of the Swing-Pull Technique",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Active foot contact with backswing velocity, small horizontal foot distance from the center of mass at contact, hip-extension velocity, and controlled support-leg flexion may help minimize braking during maximal sprinting.",
+        "Ankling Walk should cue contact close to the projected center of mass and observable rhythm without claiming that an isolated drill automatically reproduces or improves full-speed sprint mechanics."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8553457/",
+      "sourceTitle": "Application of Leg, Vertical, and Joint Stiffness in Running Performance: A Literature Overview",
+      "sourcePublisher": "Journal of Healthcare Engineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Mechanical stiffness is task- and velocity-dependent, changes with fatigue, and represents coordinated whole-limb behavior rather than a fixed athlete trait.",
+        "Exercise difficulty must directly score technical complexity, physical and absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; audience labels are not part of exercise difficulty."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8938535/",
+      "sourceTitle": "Effects of Plyometric Training on Lower Body Muscle Architecture, Tendon Structure, Stiffness and Physical Performance: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Plyometric training can change tendon stiffness and performance, so low-amplitude contacts still require progressive exposure and contact-volume accounting.",
+        "Ankling Walk needs total and per-leg contacts, lane distance, surface, footwear, amplitude, cadence or velocity, approach and transition distance, technical-fatigue markers, between-attempt recovery, and weekly impact accounting."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Plyometric and sprint drills require progressive preparation, safe surfaces and lanes, suitable footwear, spacing, recovery, and supervision matched to intensity and complexity.",
+        "The card should require a level, dry, non-slip lane with a deceleration zone when traveling; a secured ladder only for the ladder variant; and an athlete who can tolerate the selected contact amplitude without pain or compensatory mechanics."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "sourceTitle": "Jereem Richards’ games and drills to help develop speed",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 77,
+      "claims": [
+        "World Athletics gives an example of two passes over 10 to 20 metres for ankling and related running drills, while instructing athletes to learn the movement before increasing pace.",
+        "Use passes, metres, seconds, and explicit contacts rather than ambiguous repetitions; low-skill learning passes may use walk-back recovery, while bounds and bound-to-sprint transitions need fuller recovery and immediate quality stops."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8008308/",
+      "sourceTitle": "Kinematic Stride Characteristics of Maximal Sprint Running of Elite Sprinters – Verification of the Swing-Pull Technique",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Sprint-contact instruction should prioritize observable contact placement, active downward and backward foot velocity, posture, and rhythm rather than an unsupported promise of ideal technique.",
+        "Use a small task-specific cue set: stay stacked, keep steps short for ankling, contact close to the hips, preserve dorsiflexion without forcing a forefoot strike, let the heel behave naturally, and transition without reaching or locking the knee."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37989833/",
+      "sourceTitle": "Ankle and Plantar Flexor Muscle-Tendon Unit Function in Sprinters: A Narrative Review",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Sprint plantar-flexor demand changes across start, acceleration, and maximum-velocity phases and should not be represented as uniformly low load.",
+        "Stop for foot, shin, calf, Achilles, hamstring, knee, hip, or back pain; loss of balance; repeated reaching or hard heel strike; locked-knee braking; loud or lengthening contacts; cadence drop; asymmetry; ladder displacement; or an unsafe sprint transition."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://worldathletics.org/download/download?filename=152a49b1-8225-498e-8283-9c580dcd45d9.pdf&urlslug=Women%27s+100m+-+2017+IAAF+World+Championships+Biomechanical+report",
+      "sourceTitle": "Women's 100 m — 2017 IAAF World Championships Biomechanical Report",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "Sprint drills can progress from simpler to more complex tasks and combine into a sprint transition when the movement time and pattern fit the intended technical model.",
+        "Ankling Walk belongs after temperature and tissue preparation and before high-speed sprinting or high-output jumping; use learning versions in a mechanics block and bound or sprint-transition versions in a fresh output block."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "sourceTitle": "Jereem Richards’ games and drills to help develop speed",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 77,
+      "claims": [
+        "Athlete support should show the exact movement at learning and performance cadence, the lane, contact sound, heel behavior, arm action, finish, and how a successful pass differs from merely moving the feet quickly.",
+        "Explain that stiffness means controlled resistance to collapse, not locking the knees or forcing the ankle, and show a lower-amplitude or slower-cadence option that preserves the identity."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8553457/",
+      "sourceTitle": "Application of Leg, Vertical, and Joint Stiffness in Running Performance: A Literature Overview",
+      "sourcePublisher": "Journal of Healthcare Engineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Stiffness measures vary by task, speed, fatigue, maturity, and method, so coaches should not infer tendon or joint stiffness from appearance alone.",
+        "Provide side and rear observation, contact and distance counts, cadence or timing only when reliably measured, left-right comparison, surface and lane setup, phase placement, regression and progression rules, and a distinction between technical cueing and verified biomechanical measurement."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should match readiness, technical competence, supervision, equipment scale, and the individual's physical and psychosocial context.",
+        "Accessibility options include shorter lanes, slower cadence, supported ankle loading, no-flight ankling, fewer contacts, visual floor marks instead of a raised ladder, quieter settings, extra demonstration, and longer recovery without converting audience context into an exercise-card classification."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://worldathletics.org/download/download?filename=152a49b1-8225-498e-8283-9c580dcd45d9.pdf&urlslug=Women%27s+100m+-+2017+IAAF+World+Championships+Biomechanical+report",
+      "sourceTitle": "Women's 100 m — 2017 IAAF World Championships Biomechanical Report",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "A straight-leg shuffle into sprint is a compound drill progression, not merely a renamed stationary ankle hop.",
+        "Cadence, pass length, contact cap, and coaching intent are delivery annotations; stationary versus traveling, bilateral versus alternating, flight versus no flight, straight-leg bound versus march, ladder constraint, and a terminal sprint may require a controlled variant or distinct definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Ankling Walk were discovered through visible YouTube search; current availability and embedding, exact movement identity and variant match, complete viewing, captions, instructional quality, safety, and approval remain separate review gates, and no candidate is approved by this packet."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=alnQKupHOqU",
+      "title": "Ankling Basic",
+      "channelName": "Tachyon TC",
+      "sourceQuery": "ankling sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=-pMvwB3lM4k",
+      "title": "How to Perform the Ankling Running Drill",
+      "channelName": "Jason Curtis",
+      "sourceQuery": "ankling sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=yah2nVOHpuk",
+      "title": "Ankling (Running Drill)",
+      "channelName": "The Barefoot Sprinter",
+      "sourceQuery": "ankling sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=es_7EB9ki8w",
+      "title": "Running Drills: Ankling",
+      "channelName": "Alp Fitness",
+      "sourceQuery": "ankling sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=EwzRX1F8wS8",
+      "title": "Distance Running Ankling Tutorial",
+      "channelName": "Training HAUS",
+      "sourceQuery": "ankling sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Ankling Drill",
+      "classification": "same_identity",
+      "rationale": "This is its slower learning delivery.",
+      "distinguishingDimensions": {
+        "cadence": "walk"
+      }
+    },
+    {
+      "name": "Ankling / Dribble March",
+      "classification": "same_identity",
+      "rationale": "The current card uses the same short-step mechanics.",
+      "distinguishingDimensions": {
+        "cadence": "learning"
+      }
+    },
+    {
+      "name": "Fast Ankling",
+      "classification": "modifier_annotation",
+      "rationale": "Faster cadence is a progression if contact pattern remains unchanged.",
+      "distinguishingDimensions": {
+        "cadence": "high"
+      }
+    },
+    {
+      "name": "A-March",
+      "classification": "new_definition",
+      "rationale": "Deliberate thigh lift and supported marching contacts are distinct.",
+      "distinguishingDimensions": {
+        "contactSequence": "march"
+      }
+    },
+    {
+      "name": "Low Pogo",
+      "classification": "new_definition",
+      "rationale": "Bilateral flight contacts differ from walking ankling.",
+      "distinguishingDimensions": {
+        "contactSequence": "bilateral_hop"
+      }
+    }
+  ]
+}

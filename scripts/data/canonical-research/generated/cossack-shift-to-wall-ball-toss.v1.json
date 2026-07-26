@@ -1,0 +1,605 @@
+{
+  "facilityId": 1,
+  "slug": "cossack-shift-to-wall-ball-toss",
+  "researchVersion": "2026-07-26.24",
+  "assessmentSummary": {
+    "identity": "A composite movement beginning with a shallow Cossack-like lateral squat shift, returning through center, and releasing a medicine ball toward a wall target. The historical card does not define throw direction, target height, ball path, rebound behavior, reception, reset, or whether the toss is bilateral, unilateral, overhead, underhand, or lateral, so the definition remains identity-quarantined.",
+    "currentCardFindings": [
+      "This remains separate from the Cossack squat because an external-object release and reception sequence changes the primary task, logistics, failure modes, and dosage.",
+      "The current card and source description do not resolve the exact throw protocol, so no exact video match can be approved and no production prescription may select it.",
+      "The prior difficulty score understates the combined lateral shift, return-to-center, aiming, release, rebound prediction, and potential catch demand.",
+      "The five media links are explicitly adjacent component candidates. None is claimed to demonstrate the exact unresolved Cossack-to-wall-toss sequence."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "shallow_cossack_lateral_shift",
+        "return_to_center",
+        "medicine_ball_wall_throw",
+        "rebound_reception_or_controlled_reset_unresolved"
+      ],
+      "jointActions": [
+        "lateral_hip_knee_and_ankle_flexion",
+        "lateral_to_center_force_transfer",
+        "hip_and_knee_extension",
+        "trunk_rotation_or_extension_unresolved",
+        "shoulder_flexion_or_horizontal_action_unresolved",
+        "elbow_extension",
+        "ball_release",
+        "ball_reception_unresolved"
+      ],
+      "planes": [
+        "frontal",
+        "sagittal",
+        "throw_plane_unresolved"
+      ],
+      "laterality": "side_and_throw_laterality_unresolved",
+      "intent": "coordinate_a_lateral_squat_shift_with_a_targeted_medicine_ball_release_and_safe_reception_or_reset"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "quadriceps",
+        "gluteus_maximus",
+        "adductors",
+        "deltoids",
+        "triceps",
+        "abdominal_wall"
+      ],
+      "secondaryMuscles": [
+        "gluteus_medius_and_minimus",
+        "hamstrings",
+        "calf_complex",
+        "foot_intrinsics",
+        "pectorals",
+        "latissimus_dorsi",
+        "serratus_anterior",
+        "rotator_cuff",
+        "obliques",
+        "spinal_stabilizers"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "lumbar_spine",
+        "thoracic_spine",
+        "scapulothoracic_articulation",
+        "shoulder",
+        "elbow",
+        "wrist_and_hand"
+      ],
+      "primaryActions": [
+        "lateral_force_acceptance",
+        "return_to_center",
+        "whole_body_force_transfer_to_ball",
+        "aimed_release",
+        "rebound_tracking_and_reception_if_assigned"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 64,
+      "absoluteLoadDemand": 58,
+      "coordinationDemand": 68,
+      "supervisionDemand": 66,
+      "failureConsequence": 62,
+      "impact": 30,
+      "workCapacityDemand": 44,
+      "baseOverallDifficulty": 64
+    },
+    "proposedLoadProfile": {
+      "loadingType": "medicine_ball_ballistic_release_after_lateral_bodyweight_shift",
+      "impactClass": "low_lower_body_impact_with_moderate_external_object_rebound_risk",
+      "externalLoadMethod": "medicine_ball_mass_selected_for_target_velocity_control_and_safe_reception",
+      "primaryStress": [
+        "lateral_lower_body_force_acceptance",
+        "return_to_center_force_transfer",
+        "trunk_and_upper_body_ballistic_action",
+        "aiming_and_release",
+        "rebound_reception_or_retrieval"
+      ],
+      "fatigueProfile": [
+        "shallower_or_rushed_shift",
+        "loss_of_foot_contact",
+        "late_or_off_target_release",
+        "lumbar_overextension_or_uncontrolled_rotation",
+        "ball_speed_loss",
+        "unsafe_rebound_or_fumbled_catch",
+        "lane_awareness_loss"
+      ],
+      "recoveryHours": "typically_24_to_48_subject_to_ball_mass_throw_intent_total_throws_catch_demands_and_overlap_with_other_power_or_adductor_work"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "medicine_ball_with_known_mass_and_rebound_behavior",
+        "structurally_suitable_wall_or_rebound_target",
+        "visible_target",
+        "level_non_slip_surface"
+      ],
+      "optionalEquipment": [
+        "floor_side_markers",
+        "target_height_marker",
+        "no_entry_lane_markers",
+        "video_capture"
+      ],
+      "environment": [
+        "wall_approved_for_ball_impact",
+        "clear_rebound_and_retrieval_zone",
+        "no_cross_traffic",
+        "adequate_ceiling_and_side_clearance",
+        "coach_can_observe_shift_release_and_rebound"
+      ],
+      "population": [
+        "pain_free_shallow_cossack_shift",
+        "can_return_to_center_without_balance_loss",
+        "familiar_with_the_exact_medicine_ball_mass",
+        "owns_the_exact_throw_and_reception_pattern_separately",
+        "can_follow_target_lane_and_stop_signals"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "2-4_sets_of_3-5_quality_throws_per_assigned_side_only_after_identity_protocol_is_resolved",
+      "restSeconds": "20-45_between_throws_and_90-180_between_sets",
+      "intensity": "submaximal_until_shift_target_release_and_reception_are_repeatable_then_high_intent_only_with_full_quality",
+      "measurement": "side_ball_mass_throw_direction_target_height_target_hit_rebound_or_catch_outcome_extra_steps_and_quality_errors",
+      "progressWhen": "the_exact_protocol_is_resolved_and_repeated_without_foot_loss_off_target_release_unsafe_rebound_fumble_or_visible_velocity_and_posture_decline",
+      "publicationBlock": "No dose is production-authorized until a human defines throw direction, target, rebound, reception, side order, and reset."
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "The exact throw and catch protocol must be named before the set",
+        "Own the lateral shift",
+        "Return through center under control",
+        "See the target before release",
+        "Finish the throw without chasing the ball",
+        "Receive or retrieve only by the assigned rule"
+      ],
+      "athleteInstructions": [
+        "Stand in the marked wide stance with the assigned ball",
+        "Shift toward the called side to the assigned shallow depth",
+        "Return through center",
+        "Throw to the declared wall target using the declared path",
+        "Catch the rebound or let it settle exactly as instructed",
+        "Reset only when the lane is clear"
+      ],
+      "commonFaults": [
+        "inventing_a_throw_path_during_the_set",
+        "rushed_or_forced_cossack_depth",
+        "foot_contact_loss",
+        "throwing_before_center_is_recovered",
+        "uncontrolled_lumbar_extension_or_rotation",
+        "off_target_release",
+        "chasing_an_unexpected_rebound",
+        "catching_a_non_rebounding_or_excessively_heavy_ball",
+        "starting_before_the_lane_is_clear"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "bodyweight_cossack_shift_control",
+        "medicine_ball_handling_with_the_exact_ball",
+        "exact_throw_pattern_demonstrated_separately",
+        "exact_reception_or_retrieval_pattern_demonstrated_separately",
+        "target_and_lane_understood",
+        "wall_and_ball_compatibility_checked"
+      ],
+      "qualityGates": [
+        "shift_is_pain_free_and_controlled",
+        "feet_remain_stable",
+        "center_is_recovered_before_release",
+        "release_uses_the_declared_path",
+        "ball_hits_the_safe_target_zone",
+        "rebound_or_retrieval_follows_the_declared_rule",
+        "no_person_enters_the_throw_or_rebound_lane"
+      ],
+      "stopRules": [
+        "pain_or_guarding",
+        "foot_slip_or_balance_loss",
+        "off_target_or_unexpected_ball_path",
+        "unsafe_wall_or_equipment_response",
+        "fumbled_or_uncontrolled_reception",
+        "person_or_object_in_the_lane",
+        "repeated_lumbar_or_shoulder_compensation",
+        "visible_power_or_accuracy_decline",
+        "any_unresolved_protocol_question"
+      ]
+    },
+    "proposedContextualProfiles": [
+      {
+        "context": "movement_intelligence_component_rehearsal",
+        "dose": "rehearse_the_cossack_shift_and_exact_throw_reception_components_separately",
+        "purpose": "confirm_each_component_and_the_lane_before_combining",
+        "publicationBlock": true
+      },
+      {
+        "context": "output_power",
+        "dose": "2-4_sets_of_3-5_quality_throws_per_side_with_full_reset",
+        "purpose": "coordinate_lateral_to_center_force_transfer_with_targeted_ballistic_release",
+        "publicationBlock": "blocked_until_exact_identity_and_media_are_human_reviewed"
+      }
+    ],
+    "proposedRelationships": {
+      "regressions": [
+        "bodyweight_cossack_shift_without_ball",
+        "stationary_exact_wall_toss_without_lateral_shift",
+        "low_velocity_partner_or_wall_target_rehearsal_with_exact_protocol"
+      ],
+      "progressions": [
+        "higher_intent_same_protocol_with_same_ball",
+        "greater_target_precision",
+        "slightly_heavier_ball_only_if_velocity_and_reception_remain_safe"
+      ],
+      "substitutions": [
+        "cossack_shift_plus_separate_stationary_wall_toss",
+        "lateral_lunge_to_throw_only_when_the_movement_identity_is_intentionally_changed"
+      ],
+      "doNotSubstitute": [
+        "cossack_squat_without_release_task",
+        "generic_wall_ball_squat_toss",
+        "rotational_wall_toss_without_lateral_shift",
+        "partner_toss_without_wall_target"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "side_and_throw_direction_diagram",
+        "ball_mass_and_rebound_badge",
+        "target_height_and_safe_zone",
+        "catch_versus_no_catch_badge",
+        "lane_clear_indicator",
+        "successful_and_unsafe_rebound_examples",
+        "stop_signal"
+      ],
+      "coach": [
+        "identity_protocol_completion_form",
+        "wall_and_ball_compatibility_check",
+        "side_throw_target_and_reception_setup",
+        "front_oblique_and_side_observation_checklist",
+        "target_hit_and_catch_log",
+        "power_and_accuracy_stop_rule",
+        "component_video_warning"
+      ]
+    },
+    "calibrationEvidence": {
+      "basis": "ACE medicine-ball throwing and wall-ball instruction, lateral-lunge biomechanics, five adjacent component videos, and the historical source description",
+      "uncertainty": "No exact-match source or video was found for the full named composite. Throw direction, target, rebound behavior, reception, side order, and reset remain unknown, so the proposed scores and dose are provisional.",
+      "reviewNeeded": [
+        "human_identity_protocol_decision",
+        "qualified_strength_and_power_coach_review",
+        "facility_wall_and_ball_safety_review",
+        "difficulty_anchor_comparison_after_protocol_resolution",
+        "athlete_comprehension_and_lane_test",
+        "exact_match_video_search_and_full_review"
+      ]
+    },
+    "programmingDecision": "Retain the composite as a separate quarantined definition because ball release and reception change the task identity. Do not publish or prescribe it until the throw direction, target, rebound, reception, side order, reset, and exact-match media are defined and independently reviewed.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T07:15:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Shift into a shallow Cossack position, return to center, and throw the ball to the target with clean foot pressure.",
+      "familyKey": "Frontal-plane squat to throw",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [
+        "medicine_ball",
+        "wall"
+      ],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression require qualified supervision, technically appropriate loading, safe equipment and space, and individual readiness.",
+        "Stop Cossack Shift to Wall Ball Toss for sharp or increasing pain, guarding, loss of balance, a slipping foot or implement, forced range, repeated loss of alignment, unsafe ball rebound or lane traffic, or a material decline in the assigned movement quality."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Training should be individualized and progressed from the participant's current physical, psychosocial, and training readiness rather than from a level attached to an exercise card.",
+        "Make Cossack Shift to Wall Ball Toss accessible with a shallower range, wider or narrower stance selected for control, stable hand support, reduced external load, slower rehearsal, visible side and target cues, longer reset, and a simpler prerequisite task. Record exercise complexity and physical difficulty; do not label the exercise itself beginner, intermediate, or advanced."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied links are discovery candidates only. Link and oEmbed availability may be checked automatically, but exact sequence, variant match, safety, cue quality, captions, accessibility, full content, reviewer identity, and approval require human review."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
+      "sourceTitle": "Overhead Medicine Ball Throws",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "ACE distinguishes a medicine-ball throw by start position, target, ball path, release, and optional wall rebound and catch.",
+        "Cossack Shift to Wall Ball Toss therefore remains distinct from a bodyweight Cossack squat, but its exact throw and reception protocol must be defined before the identity is production-usable."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/june-2019/7306/medicine-balls-an-ace-integrated-fitness-training-reg-model-workout/",
+      "sourceTitle": "Medicine Balls: An ACE Integrated Fitness Training Model Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "Medicine-ball tasks differ by ball type, body position, throw direction, partner or wall target, catch behavior, and intended rhythm or power.",
+        "Classify Cossack Shift to Wall Ball Toss by shift side and depth, return-to-center rule, ball mass and rebound behavior, throw direction, target, release, reception or retrieval, side order, and reset."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
+      "sourceTitle": "Overhead Medicine Ball Throws",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "The described overhead medicine-ball throw integrates lower-body extension, trunk bracing and force transfer, shoulder motion, elbow extension, and hand release.",
+        "The exact upper-body emphasis for this card cannot be finalized until throw direction is resolved; record lower-body lateral shift demands separately from the provisional throw and catch demands."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41886869/",
+      "sourceTitle": "Biomechanical comparison of lower limb kinetics and kinematics between lateral lunge and walking and implications for rehabilitation in the healthy",
+      "sourcePublisher": "Rehabilitacion",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "A lateral lunge creates meaningful frontal-plane knee and hip demands, while a ballistic throw adds a separate whole-body force-transfer and external-object task.",
+        "Require controlled lateral force acceptance and return to center before release; the exact trunk, shoulder, and ball path cannot be specified from the historical card."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
+      "sourceTitle": "Overhead Medicine Ball Throws",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "A medicine-ball wall throw requires target awareness, ball-mass familiarity, ballistic force transfer, and potentially rapid rebound reception.",
+        "Assess exercise complexity and physical difficulty from the exact combined task and derive overall as their maximum. Do not copy an audience or experience label from an external exercise library onto the exercise card."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/june-2019/7306/medicine-balls-an-ace-integrated-fitness-training-reg-model-workout/",
+      "sourceTitle": "Medicine Balls: An ACE Integrated Fitness Training Model Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "ACE medicine-ball guidance emphasizes rhythmic movement quality, appropriate ball choice, and fatigue control for wall-ball tasks.",
+        "Track ball mass and rebound type, throw direction, target, throws per side, velocity or intent, target accuracy, catches or retrievals, fumbles, technique loss, and overlap with other power, shoulder, trunk, squat, and adductor work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
+      "sourceTitle": "Overhead Medicine Ball Throws",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "ACE instructs familiarizing a receiver with the ball, aiming at a known target, and using a rebounding medicine ball when repeated wall throws and catches are intended.",
+        "Require a structurally suitable wall, known ball mass and rebound behavior, visible target, clear rebound lane, stable surface, and an explicit catch-versus-retrieve rule."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
+      "sourceTitle": "Overhead Medicine Ball Throws",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "ACE recommends a ball light enough to preserve throw velocity and describes repeated wall throws only with a ball capable of predictable rebound and catch.",
+        "Use low repetitions and full quality-preserving recovery for power intent. The exact dose remains provisional until the composite protocol and ball are defined."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
+      "sourceTitle": "Overhead Medicine Ball Throws",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "The ACE throw specifies stance, brace, target focus, lower-to-upper force transfer, release, and a separate repeated-wall-throw variation with rebound catch.",
+        "Instructions for Cossack Shift to Wall Ball Toss must name the lateral shift, center recovery, exact throw path, target, release, rebound or no-rebound expectation, catch or retrieval, side order, and reset."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/june-2019/7306/medicine-balls-an-ace-integrated-fitness-training-reg-model-workout/",
+      "sourceTitle": "Medicine Balls: An ACE Integrated Fitness Training Model Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "Medicine-ball programming can develop integrated movement and power, but task quality and fatigue control remain central.",
+        "Use this composite only when its exact lateral-to-center force-transfer and throw task serves the session objective. Separate the Cossack shift and stationary throw when combined quality or logistics are not established."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
+      "sourceTitle": "Overhead Medicine Ball Throws",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "A safe throw requires a visible target and prior familiarity with ball mass and reception expectations.",
+        "Athlete support should show side, depth, throw direction, target height, ball mass and rebound badge, catch versus retrieve rule, lane status, a successful repetition, and the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/june-2019/7306/medicine-balls-an-ace-integrated-fitness-training-reg-model-workout/",
+      "sourceTitle": "Medicine Balls: An ACE Integrated Fitness Training Model Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "Wall-ball coaching requires appropriate equipment, space, rhythmic quality, and fatigue management.",
+        "Coach support should require protocol completion, wall and ball compatibility, lane control, target and catch setup, front and side observation, accuracy and reception logging, and a hard publication block while identity remains unresolved."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
+      "sourceTitle": "Overhead Medicine Ball Throws",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "Throw direction, stance, target, wall versus partner, rebound, and reception materially change medicine-ball delivery and safety.",
+        "Retain throw-direction and catch rules as controlled variants only after the same lateral-shift-to-center composite is defined. A stationary wall toss, partner toss, or stepping lateral lunge to toss is a separate definition."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=ZHp6dQyNTnA",
+      "title": "Medicine Ball Lateral Wall Ball Toss",
+      "channelName": "STRONG ATHLETE",
+      "sourceQuery": "YouTube visible search result: lateral lunge medicine ball wall toss",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Adjacent lateral wall-toss component only; not asserted to include a Cossack shift or the exact unresolved sequence."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=WpsIRIJGW5o",
+      "title": "Activ8 | Med Ball Lateral Lunge to Side Toss",
+      "channelName": "Activ8",
+      "sourceQuery": "YouTube visible search result: lateral lunge medicine ball wall toss",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Adjacent lateral-lunge-to-side-toss sequence; not asserted to match the fixed-stance Cossack shift, target, or reception protocol."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=G5C_rmEPVJU",
+      "title": "Side lunge/step with Med Ball underhand toss",
+      "channelName": "happilyforeverfit",
+      "sourceQuery": "YouTube visible search result: lateral lunge medicine ball wall toss",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Adjacent underhand-toss component only; not asserted to match the Cossack shift, wall target, or reception protocol."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=OagZ48JldgQ",
+      "title": "Lateral lunge w/ med ball throw",
+      "channelName": "Villanova Sports Performance Training",
+      "sourceQuery": "YouTube visible search result: lateral lunge medicine ball wall toss",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Adjacent lateral-lunge throw component only; exact target, ball path, rebound, and Cossack sequence require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=vQ45G3IXYKs",
+      "title": "GoFit Wall Ball #3—Squat w/ Overhead Wall Toss",
+      "channelName": "GoFit Fitness",
+      "sourceQuery": "YouTube visible search result: Cossack shift wall ball toss",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Adjacent squat-to-overhead-wall-toss component only; not asserted to show the lateral Cossack shift or exact unresolved protocol."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Bodyweight Cossack Shift",
+      "classification": "new_definition",
+      "rationale": "Removing ball release, target interaction, rebound, and reception leaves the separate Cossack squat identity.",
+      "distinguishingDimensions": {
+        "primaryTrainingStimulus": "frontal_plane_squat_access_and_control_without_external_object_release"
+      }
+    },
+    {
+      "name": "Lateral Lunge to Side Wall Toss",
+      "classification": "new_definition",
+      "rationale": "A step-out lateral lunge changes the start position and force-acceptance sequence from the fixed wide-stance Cossack shift.",
+      "distinguishingDimensions": {
+        "movementPattern": "step_out_lateral_lunge_to_throw"
+      }
+    },
+    {
+      "name": "Cossack Shift to Underhand Wall Toss",
+      "classification": "new_variant",
+      "rationale": "Once the base composite is resolved, an underhand path is an exact throw-trajectory variant with its own target and reception rules.",
+      "distinguishingDimensions": {
+        "throwTrajectory": "underhand"
+      }
+    },
+    {
+      "name": "Cossack Shift to Overhead Wall Toss",
+      "classification": "new_variant",
+      "rationale": "Once the base composite is resolved, an overhead path is an exact throw-trajectory variant with different shoulder, trunk, target, and rebound demands.",
+      "distinguishingDimensions": {
+        "throwTrajectory": "overhead"
+      }
+    },
+    {
+      "name": "Cossack Shift to No-Catch Dead-Ball Toss",
+      "classification": "new_variant",
+      "rationale": "A low-rebound ball and no-catch rule preserve the lateral-shift-to-wall-release composite while changing ball behavior, retrieval, and safety constraints.",
+      "distinguishingDimensions": {
+        "ballBehavior": "low_rebound",
+        "reception": "no_catch_retrieve_after_settle"
+      }
+    },
+    {
+      "name": "Cossack Shift to Partner Toss",
+      "classification": "new_definition",
+      "rationale": "Replacing the wall target with a partner changes the receiver, aiming task, return path, timing, and interpersonal safety requirements.",
+      "distinguishingDimensions": {
+        "movementPattern": "lateral_shift_to_partner_throw_and_return"
+      }
+    },
+    {
+      "name": "Standing Lateral Wall Toss",
+      "classification": "new_definition",
+      "rationale": "Removing the Cossack shift changes the primary lower-body sequence and produces a stationary lateral throw identity.",
+      "distinguishingDimensions": {
+        "movementPattern": "stationary_lateral_wall_throw"
+      }
+    }
+  ]
+}

@@ -5,6 +5,7 @@
  * shared by deterministic generation, AI intent interpretation, persistence,
  * validation, and evaluation.
  */
+import { findExerciseSkillLevelPaths } from './exerciseCardSemantics.js'
 
 export const WORKOUT_SCHEMA_VERSION = '1.0.0'
 export const GENERATOR_VERSION = 'canonical-deterministic-1'
@@ -56,6 +57,7 @@ export const SCORE_FIELDS = Object.freeze([
 
 const PUBLISHED_REQUIRED_DIFFICULTY_FIELDS = Object.freeze([
   'technicalComplexity',
+  'absoluteLoadDemand',
   'supervisionDemand',
   'failureConsequence',
   'impact',
@@ -72,6 +74,18 @@ export function score100(value, { nullable = true, field = 'score' } = {}) {
     throw new RangeError(`${field} must be an integer from 1 to 100 or null`)
   }
   return number
+}
+
+export function deriveOverallDifficulty(technicalComplexity, absoluteLoadDemand) {
+  const technical = score100(technicalComplexity, {
+    nullable: false,
+    field: 'technicalComplexity',
+  })
+  const physical = score100(absoluteLoadDemand, {
+    nullable: false,
+    field: 'absoluteLoadDemand',
+  })
+  return Math.max(technical, physical)
 }
 
 /**
@@ -145,7 +159,7 @@ function normalizeCohorts(value) {
       label: String(raw.label ?? key),
       ageMin,
       ageMax,
-      skillLevel: String(raw.skillLevel ?? 'beginner'),
+      trainingExperience: String(raw.trainingExperience ?? raw.skillLevel ?? 'beginner'),
       maxDifficulty: score100(raw.maxDifficulty ?? 60, {
         nullable: false,
         field: `athleteCohorts[${index}].maxDifficulty`,
@@ -189,7 +203,7 @@ export function normalizeWorkoutIntent(raw = {}) {
     ageMin,
     ageMax,
     trainingAgeMonths: integer(raw.trainingAgeMonths, 'trainingAgeMonths', { min: 0, max: 1200, fallback: 0 }),
-    skillLevel: String(raw.skillLevel || 'beginner'),
+    trainingExperience: String(raw.trainingExperience ?? raw.skillLevel ?? 'beginner'),
     randomSeed: String(raw.randomSeed ?? 'vortex-default'),
     equipmentAvailable,
     equipmentQuantities: quantityMap(raw.equipmentQuantities),
@@ -230,6 +244,9 @@ export function normalizeWorkoutIntent(raw = {}) {
 export function validateExerciseCard(card) {
   const errors = []
   if (!card || typeof card !== 'object') return { valid: false, errors: ['card must be an object'] }
+  for (const path of findExerciseSkillLevelPaths(card)) {
+    errors.push(`${path} is not valid exercise-card metadata; use difficulty dimensions and readiness rules`)
+  }
   for (const field of ['id', 'slug', 'canonicalName', 'cardVersion', 'schemaVersion', 'status']) {
     if (card[field] == null || card[field] === '') errors.push(`${field} is required`)
   }
@@ -238,6 +255,39 @@ export function validateExerciseCard(card) {
   if (!Array.isArray(card.deliveryProfiles) || card.deliveryProfiles.length === 0) errors.push('deliveryProfiles are required')
   for (const field of SCORE_FIELDS) {
     try { score100(card.difficulty?.[field] ?? card[field], { field }) } catch (error) { errors.push(error.message) }
+  }
+  const difficulty = card.difficulty ?? {}
+  if (
+    difficulty.baseOverallDifficulty != null
+    && (
+      difficulty.technicalComplexity == null
+      || difficulty.absoluteLoadDemand == null
+    )
+  ) {
+    errors.push(
+      'difficulty.baseOverallDifficulty requires both '
+      + 'difficulty.technicalComplexity and difficulty.absoluteLoadDemand',
+    )
+  }
+  if (
+    difficulty.technicalComplexity != null
+    && difficulty.absoluteLoadDemand != null
+    && difficulty.baseOverallDifficulty != null
+  ) {
+    try {
+      const expected = deriveOverallDifficulty(
+        difficulty.technicalComplexity,
+        difficulty.absoluteLoadDemand,
+      )
+      if (Number(difficulty.baseOverallDifficulty) !== expected) {
+        errors.push(
+          'difficulty.baseOverallDifficulty must equal the greater of '
+          + 'difficulty.technicalComplexity and difficulty.absoluteLoadDemand',
+        )
+      }
+    } catch {
+      // SCORE_FIELDS already reports malformed score values.
+    }
   }
   if (card.status === 'published') {
     if (!card.media?.approvedVideoUrl) errors.push('published cards require an approved demonstration video')

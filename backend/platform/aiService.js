@@ -125,13 +125,13 @@ const WORKOUT_INTENT_OUTPUT_SCHEMA = {
     athleteProfile: {
       type: 'object',
       additionalProperties: false,
-      required: ['athleteCount', 'ageMin', 'ageMax', 'trainingAgeMonths', 'skillLevel'],
+      required: ['athleteCount', 'ageMin', 'ageMax', 'trainingAgeMonths', 'trainingExperience'],
       properties: {
         athleteCount: { type: ['integer', 'null'], minimum: 1, maximum: 100 },
         ageMin: { type: ['integer', 'null'], minimum: 5, maximum: 99 },
         ageMax: { type: ['integer', 'null'], minimum: 5, maximum: 99 },
         trainingAgeMonths: { type: ['integer', 'null'], minimum: 0, maximum: 1200 },
-        skillLevel: { type: ['string', 'null'] },
+        trainingExperience: { type: ['string', 'null'] },
       },
     },
     facilityProfile: {
@@ -225,16 +225,16 @@ function exerciseCardDraftSchema(taxonomy) {
               type: 'object',
               additionalProperties: false,
               required: [
-                'technicalComplexity', 'supervisionDemand', 'failureConsequence',
-                'impact', 'workCapacityDemand', 'baseOverallDifficulty',
+                'technicalComplexity', 'absoluteLoadDemand', 'supervisionDemand',
+                'failureConsequence', 'impact', 'workCapacityDemand',
               ],
               properties: {
                 technicalComplexity: score,
+                absoluteLoadDemand: score,
                 supervisionDemand: score,
                 failureConsequence: score,
                 impact: score,
                 workCapacityDemand: score,
-                baseOverallDifficulty: score,
               },
             },
             profiles: {
@@ -339,7 +339,9 @@ export async function llmDraftCanonicalExerciseCard({ notes, taxonomy }, generat
       'Create structured youth-athletics exercise-card drafts for qualified coach review. ' +
       'Never claim approval, publication, medical suitability, injury treatment, or verified media. ' +
       'Use only the supplied controlled taxonomy values. Keep athlete instructions direct and age-appropriate. ' +
-      'Difficulty scores are tentative 1-100 estimates. Distinguish the stable movement from each delivery context. ' +
+      'Difficulty scores are tentative 1-100 estimates. Assess technical complexity and physical difficulty '
+      + '(absoluteLoadDemand) independently; overall difficulty is derived by the application. '
+      + 'Distinguish the stable movement from each delivery context. ' +
       'Every profile needs contextual dosage, a quality gate, stop rules, coach instructions, and athlete instructions. ' +
       'State assumptions and uncertainties rather than inventing missing facts.',
     prompt:

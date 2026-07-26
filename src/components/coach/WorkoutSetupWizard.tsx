@@ -168,8 +168,16 @@ export default function WorkoutSetupWizard({ workout, onApply, onComplete, onClo
           {step === 1 && (
             <div className="grid grid-cols-2 gap-3">
               <label className="text-sm">
-                <span className="font-semibold text-gray-700">Skill level</span>
-                <select value={audience.skill_level ?? ''} onChange={(e) => setAudience({ ...audience, skill_level: e.target.value || undefined })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2">
+                <span className="font-semibold text-gray-700">Training experience</span>
+                <select
+                  value={audience.training_experience ?? audience.skill_level ?? ''}
+                  onChange={(e) => setAudience({
+                    ...audience,
+                    training_experience: e.target.value || undefined,
+                    skill_level: undefined,
+                  })}
+                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2"
+                >
                   <option value="">Any</option>
                   <option value="EARLY_STAGE">Early Stage</option>
                   <option value="BEGINNER">Beginner</option>

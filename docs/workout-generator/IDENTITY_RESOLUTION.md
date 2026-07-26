@@ -3,7 +3,25 @@
 ## Result
 
 Migration 252 consolidates 83 redundant canonical definitions into surviving
-identities. It preserves:
+identities. Migration 299 then consolidates the abbreviated Single-Leg RDL
+identity, and migration 300 consolidates five `Med Ball` abbreviations into
+their full-name `Medicine Ball` identities. Migration 301 consolidates seven
+slam-ball implement, stance, cadence, trajectory, and entry-footwork variants
+into their five materially distinct slam identities. Migration 302 consolidates
+four 90/90 and shin-box cards whose differences are outcome wording, a reach
+overlay, equivalent nomenclature, or continuous-flow delivery. Migration 303
+then consolidates a numeric-wording duplicate of 180 Jump to
+Stick and a duplicate planned 180-degree turn-and-reaccelerate card whose
+approach and turn details are delivery dimensions. Migration 306 consolidates
+the duplicate `45-Degree Cut to Stick` wording into `45-Degree Cut and Stick`;
+the planned held finish remains distinct from immediate reacceleration and from
+an aerial diagonal bound. Migration 307 consolidates twelve Cossack range,
+tempo, hold, reach, and implement cards into `Cossack Squat`; the wall-ball
+release/reception composite remains separate. Migration 308 consolidates the
+generic-reach, explicit T-spine-reach, and half-kneeling-context adductor
+rock-back cards into `Adductor Rockback`, with incomplete reach and
+half-kneeling execution details explicitly quarantined. Together, the migrations
+preserve:
 
 - all 1,673 legacy source IDs through `exercise_definition_source_v1`;
 - all 1,673 source variants and their difficulty, equipment, load, and fatigue
@@ -11,14 +29,19 @@ identities. It preserves:
 - all 1,717 contextual delivery profiles;
 - provenance and an explicit resolution record for every consolidation.
 
-The resulting library contains 1,590 active canonical definitions and zero
-direct canonical-name, display-name, or alias collisions. Consolidated source
-definitions are archived and remain traceable; they are not deleted.
+The resulting library contains 1,555 active canonical definitions, 118 explicit
+identity-resolution records, and zero
+direct canonical-name, display-name, or alias-to-name collisions. Consolidated
+source definitions are archived and remain traceable; they are not deleted.
+The quality report expands and normalizes every canonical name, display name,
+and alias before matching definition pairs, so an alias equal to another card's
+name can no longer escape the collision gate.
 
 ## Similar names that remain distinct
 
-The remaining 36 high-similarity pairs are warnings, not identity collisions.
-They contain movement-changing qualifiers and must not be silently combined:
+The 36 name-based high-similarity pairs identified after migration 252 are
+warnings, not automatic identity collisions. Their qualifiers require explicit
+content review and must not be silently combined:
 
 - start versus sprint-start; call-out versus cut; turn versus open turn;
 - rebound versus pogo or broad rebound;

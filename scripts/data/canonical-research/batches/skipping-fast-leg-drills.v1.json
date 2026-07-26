@@ -1,0 +1,1462 @@
+{
+  "batchKey": "skipping-fast-leg-drills-v1",
+  "researchVersion": "2026-07-25.10",
+  "snapshotAt": "2026-07-26T06:10:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "skipping_gait_biomechanics",
+      "claims": [
+        "Skipping contains two functionally different successive contacts, with distinct braking and propelling contributions, and is not interchangeable with running or a generic series of hops.",
+        "{{canonicalName}} must define its contact sequence, travel direction, displacement, amplitude, cadence or cue sequence, laterality, object task, external spacing, and finish; rhythm, quickness, neural, and power labels alone do not establish identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "skipping_gait_biomechanics",
+      "claims": [
+        "Skipping is a locomotor gait with flight, single-support, and double-support phases and successive steps that partition braking and propulsion differently.",
+        "{{canonicalName}} belongs to ordinary alternating step-hop skipping, maximal horizontal power skipping, externally spaced skipping, a defined dual-task skip, or single-leg sprint-cycle mechanics; it is not automatically A-skip, running, bounding, or a change-of-direction drill."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "skipping_joint_contact_model",
+      "claims": [
+        "At matched treadmill speed in a small modeling study, skipping produced greater energetic demand from uniarticular ankle plantar flexors and greater ankle contact force than running, while running produced greater knee and patellofemoral contact forces.",
+        "The card should represent intrinsic-foot, plantar-flexor, knee-extensor, hip-flexor and extensor, hamstring, frontal-plane pelvic, trunk, arm-action, and visual-manual roles in proportion to the actual skip, projection, cycle, or catch task."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "skipping_gait_biomechanics",
+      "claims": [
+        "Skipping and running differ in cadence, step length, ground-reaction forces, joint torques, powers, and work distribution; the first and second skipping contacts also differ from each other.",
+        "Cue the observable step-hop sequence, posture, arm-leg timing, contact placement, projection, or defined cycle without claiming that the drill reproduces sprint kinetics or that every contact is mechanically identical."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "running_stiffness_literature_overview",
+      "claims": [
+        "Whole-limb stiffness and movement behavior change with task, speed, fatigue, maturity, and measurement method and cannot be inferred as a fixed quality from an exercise name.",
+        "Exercise difficulty must directly score technical complexity, physical and absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; athlete readiness remains programming context."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "plyometric_tendon_adaptation_meta_analysis",
+      "claims": [
+        "Repeated flight contacts can provide meaningful muscle-tendon loading even without external resistance, and amplitude, surface, and contact volume change the exposure.",
+        "{{canonicalName}} needs total and per-side contacts, distance, surface, footwear, amplitude or projection intent, cadence or cue sequence, ball mass and toss count when used, quality-loss markers, recovery, and weekly impact accounting."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Linear-speed preparation requires appropriate space, a safe finish, progressive intensity, suitable surfaces, recovery, and coaching matched to the intended movement quality.",
+        "Require a level dry non-slip lane, no cross traffic, a safe finish, suitable footwear, visible flat markers when prescribed, and a soft appropriately sized ball plus a separated partner or wall zone only for the ball-toss task."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "The NSCA manual distinguishes power skips for height from power skips for distance and directs maximal distance on each distance skip with full take-off-leg extension.",
+        "Use passes, metres, total and per-side contacts, exact cadence segments, object tosses, and recovery rather than an ambiguous repetition count or a fatigue-driven interval; maximal projections require fewer contacts and fuller recovery than relaxed rhythm skips."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "skipping_gait_biomechanics",
+      "claims": [
+        "Because successive skipping contacts have different braking and propelling roles, instruction should preserve the defined step-hop pattern rather than force every contact to look or feel identical.",
+        "Use a small task-specific cue set: stay tall unless projection is assigned, step-hop and alternate, contact close enough to preserve balance, coordinate opposite arm and leg, project forward only for distance skips, and complete the exact cue, cone, cycle, or catch rule."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "skipping_joint_contact_model",
+      "claims": [
+        "Lower knee contact force during skipping at one studied speed does not mean globally low tissue load; ankle contact forces and plantar-flexor demand were higher than running in the model.",
+        "Stop for foot, ankle, shin, calf, Achilles, knee, hamstring, hip, or back pain; limping; repeated stumbles; loud or lengthening contacts; balance loss; unsafe reaching; cadence or pattern loss; missed cones; dropped or misdirected balls; collision risk; or an unsafe finish."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "running_drill_test_battery",
+      "claims": [
+        "A published running-drill battery found no statistically significant association between A-skip score and 5 m or 20 m sprint performance in its sample, cautioning against direct transfer promises from visually related drills.",
+        "{{canonicalName}} should have an explicit coordination, rhythm, plyometric projection, perception-action, or sprint-cycle purpose and be placed while fresh enough to preserve that purpose; do not promise faster sprinting, improved agility, or better sport performance from the drill alone."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "skipping_gait_biomechanics",
+      "claims": [
+        "The alternating step-hop gait should be demonstrated as a complete sequence because a still image or high-knee label cannot communicate its two different successive contacts.",
+        "Show side and rear views, travel direction, step-hop rhythm, contact count, amplitude, arm action, cue or cone map, ball flight and catch rule when used, finish, one regression, and a clear explanation that faster or higher is not automatically better."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "ball_catching_visual_information",
+      "claims": [
+        "Catching performance depends on ball-flight information and the regulation of gaze and hand movement, so a ball-toss task adds a real perception-action demand rather than merely decorative equipment.",
+        "Provide observation positions, pass and contact counts, exact cadence segments, cone spacing and contact rule, ball mass and toss source, successful-catch definition, left-right comparison, quality stops, and a distinction between coaching observations and verified biomechanical measurement."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Exercise selection and progression should match readiness, technical competence, supervision, equipment scale, and the individual's physical and psychosocial context.",
+        "Accessibility options include shorter lanes, lower amplitude, slower cadence, ordinary walking or marching before skipping, fewer contacts, larger softer balls, self-toss before partner toss, floor marks instead of cones, quieter cueing, extra demonstration, and longer recovery."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "The NSCA manual defines power skips for height and power skips for distance by different outcome intents even though both retain a skipping contact pattern.",
+        "Pass length, coaching emphasis, and ordinary cadence are delivery annotations; maximal horizontal versus vertical projection, external spacing, a prescribed cadence-change sequence, object interception, stationary versus traveling cycles, and a terminal sprint can require controlled variants or distinct definitions."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Candidates for {{canonicalName}} were discovered through visible YouTube search; availability and embedding, exact contact sequence and constraint, complete viewing, captions, instructional quality, safety, and approval remain separate review gates. Adjacent component demonstrations are explicitly quarantined and no candidate is approved by this packet."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "skipping-rhythm-drill",
+      "assessmentSummary": {
+        "identity": "Traveling ordinary skipping with an alternating step-hop sequence, light submaximal projection, upright posture, and relaxed reciprocal arm action; it does not prescribe the thigh and downstroke criteria of A-skip.",
+        "currentCardFindings": [
+          "The description is directionally correct but does not define the step-hop contact sequence, lane length, total or per-side contacts, surface, or stopping rule.",
+          "The generic difficulty values understate gait coordination and repeated-contact demand while omitting supervision, consequence, impact, and work-capacity dimensions.",
+          "Any purpose copy that calls this a skill version must be replaced with a low-to-moderate rhythm delivery profile; exercise cards do not carry athlete skill levels."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "traveling_ordinary_skip",
+            "alternating_step_hop_locomotion"
+          ],
+          "jointActions": [
+            "hip_flexion_extension",
+            "knee_flexion_extension",
+            "ankle_dorsiflexion_plantarflexion",
+            "contralateral_shoulder_flexion_extension"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_left_right_step_hop",
+          "intent": "repeatable_relaxed_skip_rhythm_and_contralateral_coordination"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "soleus",
+            "gastrocnemius",
+            "gluteus_maximus",
+            "hip_flexors",
+            "hamstrings"
+          ],
+          "secondaryMuscles": [
+            "quadriceps",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "gluteus_medius",
+            "obliques",
+            "shoulder_girdle"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 38,
+          "absoluteLoadDemand": 16,
+          "coordinationDemand": 48,
+          "supervisionDemand": 28,
+          "failureConsequence": 24,
+          "impact": 26,
+          "workCapacityDemand": 28,
+          "baseOverallDifficulty": 38
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_traveling_alternating_step_hop",
+          "impactClass": "low_to_moderate_by_amplitude_surface_and_contacts",
+          "landingContactsPerRep": "record_total_and_per_side_step_hop_contacts_or_pass_distance",
+          "primaryStress": [
+            "foot_and_plantar_flexor_cyclic_load",
+            "hip_and_knee_locomotor_work",
+            "contralateral_coordination"
+          ],
+          "fatigueSensitivity": "rhythm_contact_sound_projection_posture_relaxation_and_symmetry"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clear_level_8_to_20_metre_lane",
+            "safe_finish_zone"
+          ],
+          "optionalEquipment": [
+            "start_finish_cones",
+            "video"
+          ],
+          "environment": [
+            "dry_non_slip_forgiving_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_low_hop",
+            "can_alternate_step_hop",
+            "can_stop_on_command"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "1-4_passes",
+          "distancePerPass": "8-20_metres_or_6-12_contacts_per_side",
+          "restSeconds": "walk_back_or_30-75",
+          "intensity": "relaxed_submaximal",
+          "progressWhen": "step-hop sequence, reciprocal arms, contact sound, posture, and left-right rhythm remain repeatable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Step-hop and alternate",
+            "Stay tall and relaxed",
+            "Opposite arm and leg",
+            "Finish under control"
+          ],
+          "athleteInstructions": [
+            "Skip forward with the same relaxed step-hop rhythm on both sides and stop before contacts become loud or stretched"
+          ],
+          "commonFaults": [
+            "turning_into_a_skip",
+            "turning_into_running",
+            "same_leg_repetition",
+            "overstriding",
+            "excessive_height",
+            "arm_tension"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_low_hop",
+            "safe_lane",
+            "controlled_stop"
+          ],
+          "stopRules": [
+            "pain",
+            "limp",
+            "rhythm_loss",
+            "loud_contacts",
+            "reaching",
+            "balance_loss",
+            "unsafe_finish"
+          ]
+        },
+        "programmingDecision": "Retain as the stable ordinary traveling skip identity. Use cadence, distance, and arm-action emphasis as delivery annotations; do not classify the exercise by an athlete skill level or equate it with A-skip."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=IepUawhaZ8Q",
+          "title": "Drills: Rhythm Skip",
+          "channelName": "focusnfly",
+          "sourceQuery": "skipping rhythm drill athletic coordination",
+          "notes": "Visible-search candidate; exact ordinary-skip sequence, cue quality, and full-video safety review remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=vMCOzJoLGj8",
+          "title": "Running Drills #3 - Rhythm Skips",
+          "channelName": "Natalie Hall",
+          "sourceQuery": "skipping cadence change rhythm drill",
+          "notes": "Visible-search candidate; not yet fully viewed or approved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=vbslo_3aXoo",
+          "title": "Run Drills: Quick Skip to improve cadence and form",
+          "channelName": "Born To Run Coach Eric Orton",
+          "sourceQuery": "skipping cadence change rhythm drill",
+          "notes": "Potential quicker-cadence variation; exact match to relaxed base identity remains pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=TDn2opUAFp0",
+          "title": "2 to 1 Skipping Drills | Chris Johnson PT",
+          "channelName": "Christopher Johnson",
+          "sourceQuery": "skipping cadence change rhythm drill",
+          "notes": "Potential rhythm variation rather than base identity; human review required."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=wVibu5RcqqU",
+          "title": "CORE for Youth | Cone Skipping Drill",
+          "channelName": "Merrithew",
+          "sourceQuery": "cone skipping rhythm drill",
+          "notes": "External-spacing variant candidate, not approved for the unconstrained base card."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Skipping Rhythm Change",
+          "classification": "modifier_annotation",
+          "rationale": "Cadence change preserves ordinary step-hop skipping unless an exact segment and cue rule creates a reproducible controlled variant.",
+          "distinguishingDimensions": {
+            "cadence": "prescribed_change"
+          }
+        },
+        {
+          "name": "Cone Skip Rhythm Build",
+          "classification": "new_variant",
+          "rationale": "External markers constrain contact placement and change setup and error rules.",
+          "distinguishingDimensions": {
+            "externalSpacing": "cones"
+          }
+        },
+        {
+          "name": "Skipping Rhythm Change with Ball Toss",
+          "classification": "new_variant",
+          "rationale": "Ball flight, toss, catch, and hand-use requirements add a perception-action task and new safety constraints.",
+          "distinguishingDimensions": {
+            "objectTask": "toss_and_catch"
+          }
+        },
+        {
+          "name": "A-Skip",
+          "classification": "new_definition",
+          "rationale": "A-skip prescribes a sprint-drill thigh and recovery action beyond ordinary skipping gait.",
+          "distinguishingDimensions": {
+            "movementPattern": "a_skip"
+          }
+        },
+        {
+          "name": "Power Skip for Distance",
+          "classification": "new_definition",
+          "rationale": "Maximal horizontal projection changes the primary output, amplitude, recovery, and impact exposure.",
+          "distinguishingDimensions": {
+            "primaryIntent": "maximal_horizontal_projection"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "skipping-rhythm-change",
+      "assessmentSummary": {
+        "identity": "Ordinary traveling alternating step-hop skipping performed through a prescribed cadence-change sequence while maintaining the same contact pattern, posture, and reciprocal arm action.",
+        "currentCardFindings": [
+          "The card says cadence changes but does not specify the cue source, number and duration of segments, target relationship between cadences, or whether changes are planned or reactive.",
+          "Claims about neural readiness, perception, and output are not tied to measured outcomes and should be replaced with an observable cadence-control purpose.",
+          "Without a reproducible sequence this is a delivery profile of Skipping Rhythm Drill rather than a separate identity."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "traveling_ordinary_skip",
+            "planned_cadence_modulation"
+          ],
+          "jointActions": [
+            "hip_flexion_extension",
+            "knee_flexion_extension",
+            "ankle_dorsiflexion_plantarflexion",
+            "contralateral_arm_action"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_left_right_step_hop",
+          "intent": "preserve_skip_pattern_across_defined_cadence_changes"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "soleus",
+            "gastrocnemius",
+            "gluteus_maximus",
+            "hip_flexors",
+            "hamstrings"
+          ],
+          "secondaryMuscles": [
+            "quadriceps",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "gluteus_medius",
+            "obliques",
+            "shoulder_girdle"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 46,
+          "absoluteLoadDemand": 17,
+          "coordinationDemand": 58,
+          "supervisionDemand": 34,
+          "failureConsequence": 25,
+          "impact": 27,
+          "workCapacityDemand": 30,
+          "baseOverallDifficulty": 46
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_traveling_step_hop_with_cadence_modulation",
+          "impactClass": "low_to_moderate_by_fast_segment_amplitude_surface_and_contacts",
+          "landingContactsPerRep": "record_contacts_per_cadence_segment_and_per_side",
+          "primaryStress": [
+            "plantar_flexor_cyclic_load",
+            "gait_timing",
+            "cue_response",
+            "contralateral_coordination"
+          ],
+          "fatigueSensitivity": "missed_cues_pattern_change_contact_reach_posture_and_relaxation"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clear_level_lane",
+            "defined_visual_or_auditory_cue",
+            "safe_finish"
+          ],
+          "optionalEquipment": [
+            "metronome",
+            "colored_cones",
+            "video"
+          ],
+          "environment": [
+            "dry_non_slip_surface",
+            "cue_audible_or_visible",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "owns_ordinary_skip",
+            "can_follow_two_cadences",
+            "pain_free_low_hop"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4_passes",
+          "sequence": "for_example_4_contacts_per_side_relaxed_then_4_per_side_quick_then_4_per_side_relaxed",
+          "restSeconds": "30-90",
+          "intensity": "submaximal_pattern_control",
+          "progressWhen": "cadence changes occur on cue without changing contact sequence, reaching, or losing relaxation"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Keep the same step-hop",
+            "Change only on the signal",
+            "Quick does not mean long",
+            "Return to relaxed rhythm"
+          ],
+          "athleteInstructions": [
+            "Keep ordinary skipping mechanics while moving between the exact cadences the coach assigns"
+          ],
+          "commonFaults": [
+            "undefined_sequence",
+            "turning_fast_segment_into_run",
+            "overstriding",
+            "missing_cue",
+            "excessive_bounce",
+            "conditioning_chase"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "stable_ordinary_skip",
+            "understands_cue",
+            "safe_lane"
+          ],
+          "stopRules": [
+            "pain",
+            "limp",
+            "pattern_change",
+            "two_missed_cues",
+            "loud_contacts",
+            "balance_loss",
+            "unsafe_finish"
+          ]
+        },
+        "programmingDecision": "Merge into Skipping Rhythm Drill as a cadence-change delivery profile unless a human reviewer adopts a stable, named cue sequence. Quarantine the current standalone identity until that sequence is defined."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=IepUawhaZ8Q",
+          "title": "Drills: Rhythm Skip",
+          "channelName": "focusnfly",
+          "sourceQuery": "skipping cadence change rhythm drill",
+          "notes": "Shows a rhythm-skip candidate; exact planned cadence-change sequence is unverified."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=vMCOzJoLGj8",
+          "title": "Running Drills #3 - Rhythm Skips",
+          "channelName": "Natalie Hall",
+          "sourceQuery": "skipping cadence change rhythm drill",
+          "notes": "Visible-search candidate; exact change rule and instructional quality require review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=vbslo_3aXoo",
+          "title": "Run Drills: Quick Skip to improve cadence and form",
+          "channelName": "Born To Run Coach Eric Orton",
+          "sourceQuery": "skipping cadence change rhythm drill",
+          "notes": "Quick-skip candidate; does not establish a slow-fast-slow sequence from search evidence."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=TDn2opUAFp0",
+          "title": "2 to 1 Skipping Drills | Chris Johnson PT",
+          "channelName": "Christopher Johnson",
+          "sourceQuery": "skipping cadence change rhythm drill",
+          "notes": "Potential prescribed rhythm ratio; complete viewing and exact match are pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=huOlIWVrsDs",
+          "title": "Metronome Running Drill - Developing Cadence for Pose Running",
+          "channelName": "Atlanta Sports Recovery",
+          "sourceQuery": "skipping cadence change rhythm drill",
+          "notes": "Running and metronome component only; quarantined as a non-exact adjacent candidate."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Skipping Rhythm Drill",
+          "classification": "same_identity",
+          "rationale": "The base contact sequence is unchanged; the present card lacks a reproducible cadence protocol that would justify a separate variant.",
+          "distinguishingDimensions": {
+            "deliveryProfile": "cadence_change"
+          }
+        },
+        {
+          "name": "Metronome Skip",
+          "classification": "new_variant",
+          "rationale": "A fixed external beat creates a controlled cueing constraint when BPM and beat-to-contact rule are defined.",
+          "distinguishingDimensions": {
+            "cueSource": "metronome"
+          }
+        },
+        {
+          "name": "Reactive Cadence Skip",
+          "classification": "new_variant",
+          "rationale": "Unpredictable cues add response selection and need explicit cue, transition, and error rules.",
+          "distinguishingDimensions": {
+            "cuePredictability": "unpredictable"
+          }
+        },
+        {
+          "name": "Skipping Rhythm Change with Ball Toss",
+          "classification": "new_variant",
+          "rationale": "The toss and catch add a separate perception-action and hand-use task.",
+          "distinguishingDimensions": {
+            "objectTask": "toss_and_catch"
+          }
+        },
+        {
+          "name": "Quick Skip",
+          "classification": "modifier_annotation",
+          "rationale": "A uniformly quicker cadence is a dosage and execution annotation if the step-hop identity is preserved.",
+          "distinguishingDimensions": {
+            "cadence": "uniformly_quick"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "cone-skip-rhythm-build",
+      "assessmentSummary": {
+        "identity": "Ordinary traveling alternating step-hop skipping constrained by a straight line of flat visual markers, with one explicitly defined contact unit or cycle assigned to each gap.",
+        "currentCardFindings": [
+          "The current card gives six to eight cones but no spacing method, contact-to-cone rule, start position, finish, or progression criterion.",
+          "Its family and inherited stop rules imply change of direction even though the described task is linear skipping.",
+          "Publication must remain quarantined until a reviewer confirms whether the athlete lands in each gap, completes one full skip cycle per gap, or merely uses cones as lane markers."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "traveling_ordinary_skip",
+            "externally_spaced_linear_step_hop"
+          ],
+          "jointActions": [
+            "hip_flexion_extension",
+            "knee_flexion_extension",
+            "ankle_dorsiflexion_plantarflexion",
+            "contralateral_arm_action"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_left_right_step_hop",
+          "intent": "preserve_relaxed_skip_rhythm_under_defined_external_spacing"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "soleus",
+            "gastrocnemius",
+            "gluteus_maximus",
+            "hip_flexors",
+            "hamstrings"
+          ],
+          "secondaryMuscles": [
+            "quadriceps",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "gluteus_medius",
+            "obliques",
+            "shoulder_girdle"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 48,
+          "absoluteLoadDemand": 17,
+          "coordinationDemand": 58,
+          "supervisionDemand": 38,
+          "failureConsequence": 31,
+          "impact": 27,
+          "workCapacityDemand": 28,
+          "baseOverallDifficulty": 48
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_traveling_step_hop_with_visual_spacing_constraint",
+          "impactClass": "low_to_moderate_by_spacing_amplitude_surface_and_contacts",
+          "landingContactsPerRep": "count_each_step_hop_contact_and_record_exact_marker_rule",
+          "primaryStress": [
+            "plantar_flexor_cyclic_load",
+            "visual_foot_placement",
+            "gait_timing",
+            "contralateral_coordination"
+          ],
+          "fatigueSensitivity": "missed_gaps_marker_contact_reach_rhythm_posture_and_contact_sound"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "6_to_8_low_profile_markers",
+            "clear_level_lane",
+            "safe_finish"
+          ],
+          "optionalEquipment": [
+            "measuring_tape",
+            "video"
+          ],
+          "environment": [
+            "dry_non_slip_surface",
+            "markers_visible_and_non_trip_hazard",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "owns_ordinary_skip",
+            "can_clear_low_profile_markers_safely",
+            "can_stop_on_command"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4_passes",
+          "markersAndSpacing": "6-8_markers_individually_scaled_after_unconstrained_trial",
+          "restSeconds": "walk_back_or_30-90",
+          "intensity": "controlled_spacing_accuracy",
+          "progressWhen": "all gaps are completed without marker contact, reaching, rhythm loss, or increased contact noise"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Use the assigned gap rule",
+            "Step-hop, do not run",
+            "Do not reach for a cone",
+            "Finish past the final marker"
+          ],
+          "athleteInstructions": [
+            "Skip through the line using the exact contact rule for every gap and abandon the pass if spacing forces a reach"
+          ],
+          "commonFaults": [
+            "undefined_marker_rule",
+            "overstriding_to_match_spacing",
+            "cone_contact",
+            "turning_into_hops",
+            "looking_down_continuously",
+            "stopping_on_last_cone"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "stable_unconstrained_skip",
+            "visible_low_profile_markers",
+            "safe_lane"
+          ],
+          "stopRules": [
+            "pain",
+            "limp",
+            "marker_displacement",
+            "trip",
+            "repeated_reaching",
+            "rhythm_loss",
+            "unsafe_finish"
+          ]
+        },
+        "programmingDecision": "Retain only as a controlled external-spacing variant of Skipping Rhythm Drill after the contact-to-marker rule and individualized spacing method are defined. Remove change-of-direction gates and keep publication quarantined pending exact media and human identity review."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=wVibu5RcqqU",
+          "title": "CORE for Youth | Cone Skipping Drill",
+          "channelName": "Merrithew",
+          "sourceQuery": "cone skipping rhythm drill",
+          "notes": "Only direct visible-search cone-skipping result; exact contact rule and match to this definition require full review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=IepUawhaZ8Q",
+          "title": "Drills: Rhythm Skip",
+          "channelName": "focusnfly",
+          "sourceQuery": "cone skipping rhythm drill",
+          "notes": "Base rhythm-skip component; no cone constraint established in search evidence."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=vMCOzJoLGj8",
+          "title": "Running Drills #3 - Rhythm Skips",
+          "channelName": "Natalie Hall",
+          "sourceQuery": "skipping cadence change rhythm drill",
+          "notes": "Base skipping component only; quarantined as non-exact."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=TDn2opUAFp0",
+          "title": "2 to 1 Skipping Drills | Chris Johnson PT",
+          "channelName": "Christopher Johnson",
+          "sourceQuery": "skipping cadence change rhythm drill",
+          "notes": "Potential contact-ratio component; no cone layout confirmed."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=vbslo_3aXoo",
+          "title": "Run Drills: Quick Skip to improve cadence and form",
+          "channelName": "Born To Run Coach Eric Orton",
+          "sourceQuery": "skipping cadence change rhythm drill",
+          "notes": "Skipping component only; external spacing and exact variant match remain unverified."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Skipping Rhythm Drill",
+          "classification": "new_definition",
+          "rationale": "The unconstrained base skip removes external placement rules and marker-related errors.",
+          "distinguishingDimensions": {
+            "externalSpacing": "none"
+          }
+        },
+        {
+          "name": "Floor-Dot Skip Rhythm Build",
+          "classification": "same_identity",
+          "rationale": "Flat floor dots can replace cones without changing the external-spacing task.",
+          "distinguishingDimensions": {
+            "markerType": "flat_floor_dot"
+          }
+        },
+        {
+          "name": "Cone Lane Bound",
+          "classification": "new_definition",
+          "rationale": "Bounding uses alternating single contacts rather than the ordinary step-hop skipping sequence.",
+          "distinguishingDimensions": {
+            "contactSequence": "alternating_bounds"
+          }
+        },
+        {
+          "name": "Cone A-Skip",
+          "classification": "new_variant",
+          "rationale": "A-skip mechanics plus external spacing require a separately controlled variant.",
+          "distinguishingDimensions": {
+            "movementPattern": "a_skip",
+            "externalSpacing": "cones"
+          }
+        },
+        {
+          "name": "Reactive Cone Skip",
+          "classification": "new_variant",
+          "rationale": "Unpredictable directional or color cues add response selection and possibly change travel direction.",
+          "distinguishingDimensions": {
+            "cuePredictability": "reactive"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "skipping-rhythm-change-with-ball-toss",
+      "assessmentSummary": {
+        "identity": "Traveling ordinary step-hop skipping through a defined cadence sequence while completing an explicitly timed self- or partner-toss and catch with a soft light ball.",
+        "currentCardFindings": [
+          "The card does not define ball type or mass, self versus partner toss, toss direction, cadence cue, catch timing, successful repetition, or dropped-ball procedure.",
+          "Seeing, deciding, moving, catching, and resetting are asserted without a reproducible event sequence.",
+          "Visible YouTube searches produced skipping and ball-toss components but no exact combined demonstration, so all media remain quarantined."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "traveling_ordinary_skip",
+            "planned_cadence_modulation",
+            "visual_object_interception"
+          ],
+          "jointActions": [
+            "hip_flexion_extension",
+            "knee_flexion_extension",
+            "ankle_dorsiflexion_plantarflexion",
+            "shoulder_elbow_hand_toss_and_catch"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal",
+            "transverse_for_object_tracking"
+          ],
+          "laterality": "alternating_lower_body_with_defined_hand_rule",
+          "intent": "maintain_skip_and_cadence_rule_while_tracking_tossing_and_catching"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "soleus",
+            "gastrocnemius",
+            "gluteus_maximus",
+            "hip_flexors",
+            "hamstrings"
+          ],
+          "secondaryMuscles": [
+            "quadriceps",
+            "intrinsic_foot",
+            "gluteus_medius",
+            "obliques",
+            "deltoids",
+            "forearm_and_hand_muscles"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hand"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 64,
+          "absoluteLoadDemand": 18,
+          "coordinationDemand": 76,
+          "supervisionDemand": 52,
+          "failureConsequence": 38,
+          "impact": 28,
+          "workCapacityDemand": 35,
+          "baseOverallDifficulty": 64
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_step_hop_with_cadence_and_light_object_dual_task",
+          "impactClass": "low_to_moderate_by_contacts_and_visual_distraction",
+          "landingContactsPerRep": "record_contacts_per_side_and_successful_toss_catch_events",
+          "primaryStress": [
+            "plantar_flexor_cyclic_load",
+            "gait_timing",
+            "visual_tracking",
+            "upper_limb_interception",
+            "divided_attention"
+          ],
+          "fatigueSensitivity": "drops_misdirected_tosses_gaze_lock_pattern_loss_reaching_contact_sound_and_collision_risk"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "soft_light_high_visibility_ball",
+            "clear_level_lane",
+            "safe_ball_retrieval_zone"
+          ],
+          "optionalEquipment": [
+            "partner",
+            "colored_cones",
+            "video"
+          ],
+          "environment": [
+            "dry_non_slip_surface",
+            "no_cross_traffic",
+            "no_fragile_objects_or_bystanders"
+          ],
+          "population": [
+            "owns_ordinary_skip",
+            "can_toss_and_catch_while_walking",
+            "can_follow_cadence_and_ball_rules"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4_passes",
+          "eventsPerPass": "6-12_contacts_per_side_with_2-6_planned_toss_catch_events",
+          "restSeconds": "45-120",
+          "intensity": "submaximal_accuracy_first",
+          "progressWhen": "all catches and cadence changes occur without gait conversion, unsafe gaze, reaching, collision risk, or contact-quality loss"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Own the skip first",
+            "Toss into the assigned window",
+            "Track then catch softly",
+            "Reset before the next event"
+          ],
+          "athleteInstructions": [
+            "Keep the exact skip and cadence pattern while completing only the assigned tosses and catches; stop if the ball leaves the safe lane"
+          ],
+          "commonFaults": [
+            "undefined_toss_source",
+            "chasing_ball",
+            "turning_into_run",
+            "gaze_fixed_upward",
+            "missed_cadence_cue",
+            "throwing_too_hard"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "stable_skip",
+            "safe_stationary_toss_catch",
+            "understands_drop_rule",
+            "clear_lane"
+          ],
+          "stopRules": [
+            "pain",
+            "limp",
+            "ball_leaves_safe_zone",
+            "two_consecutive_drops",
+            "collision_risk",
+            "pattern_loss",
+            "loud_contacts",
+            "unsafe_finish"
+          ]
+        },
+        "programmingDecision": "Retain as a distinct controlled dual-task variant only after the toss source, ball specification, cadence sequence, event timing, success criteria, and drop rule are defined. Keep publication and all media quarantined pending exact-match human review."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=IepUawhaZ8Q",
+          "title": "Drills: Rhythm Skip",
+          "channelName": "focusnfly",
+          "sourceQuery": "skipping ball toss coordination drill",
+          "notes": "Skipping component only; no ball toss established."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=o4h9J6pXE8A",
+          "title": "PE at Home: Hand-Eye Coordination - Tossing/Catching/Juggling",
+          "channelName": "ThePEglobe",
+          "sourceQuery": "skip while tossing catching ball coordination",
+          "notes": "Toss-and-catch component only; no traveling skip established."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=0wQmYTn-Hpo",
+          "title": "Throw & Catch | Coordination",
+          "channelName": "Three Rivers and Watford School Sports Partnership",
+          "sourceQuery": "skip while tossing catching ball coordination",
+          "notes": "Object-interception component only; exact combined variant not shown by search evidence."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=FYS9o-__MwI",
+          "title": "6 individual Throwing & Catching challenges: Part 1",
+          "channelName": "Prime Coaching Sport",
+          "sourceQuery": "skip while tossing catching ball coordination",
+          "notes": "Throwing-and-catching progression only; non-exact adjacent candidate."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=E1t1_zKKdhg",
+          "title": "Tossing, Tracking & Catching Skills",
+          "channelName": "KidGo Coach Hayne",
+          "sourceQuery": "skip while tossing catching ball coordination",
+          "notes": "Tracking-and-catching component only; no verified cadence-changing skip match."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Skipping Rhythm Change",
+          "classification": "new_definition",
+          "rationale": "Removing the ball eliminates visual interception, hand use, drop rules, and ball logistics.",
+          "distinguishingDimensions": {
+            "objectTask": "none"
+          }
+        },
+        {
+          "name": "Self-Toss Rhythm Skip",
+          "classification": "new_variant",
+          "rationale": "Self-toss makes ball timing predictable and removes partner variability.",
+          "distinguishingDimensions": {
+            "tossSource": "self"
+          }
+        },
+        {
+          "name": "Partner-Toss Rhythm Skip",
+          "classification": "new_variant",
+          "rationale": "Partner toss adds external ball-flight variability, partner spacing, and collision controls.",
+          "distinguishingDimensions": {
+            "tossSource": "partner"
+          }
+        },
+        {
+          "name": "Ball Carry Rhythm Skip",
+          "classification": "modifier_annotation",
+          "rationale": "Carrying a secured ball changes arm action but removes interception and may be an equipment/context annotation.",
+          "distinguishingDimensions": {
+            "objectTask": "carry_only"
+          }
+        },
+        {
+          "name": "Reactive Color-Ball Skip",
+          "classification": "new_variant",
+          "rationale": "Selecting a response from ball color adds an explicit decision rule beyond catching.",
+          "distinguishingDimensions": {
+            "decisionRule": "color_response"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "power-skip-for-distance",
+      "assessmentSummary": {
+        "identity": "Alternating high-intent step-hop skips that maximize safe horizontal displacement on each projection, with coordinated reciprocal arms, complete take-off-leg extension, and controlled landing on the take-off leg before alternating.",
+        "currentCardFindings": [
+          "Two active variants carry conflicting doses and one has no difficulty profile, so the baseline programming unit is unresolved.",
+          "The description does not define the step-hop sequence, total versus per-side contacts, safe finish, maximal versus submaximal intent, or quality stops.",
+          "The current difficulty greatly understates impact, physical output, supervision, and consequences for a maximal horizontal plyometric."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "alternating_power_skip_for_distance",
+            "horizontal_repeated_step_hop_projection"
+          ],
+          "jointActions": [
+            "hip_knee_ankle_extension",
+            "swing_leg_hip_flexion",
+            "landing_hip_knee_ankle_flexion",
+            "contralateral_arm_drive"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_unilateral_takeoff_and_landing",
+          "intent": "maximal_safe_horizontal_projection_per_skip"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hip_flexors",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "gluteus_medius",
+            "obliques",
+            "shoulder_girdle"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 42,
+          "coordinationDemand": 62,
+          "supervisionDemand": 48,
+          "failureConsequence": 52,
+          "impact": 57,
+          "workCapacityDemand": 38,
+          "baseOverallDifficulty": 58
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_alternating_high_intent_horizontal_plyometric",
+          "impactClass": "moderate_to_high_by_projection_speed_surface_and_contacts",
+          "landingContactsPerRep": "one_takeoff_leg_landing_per_skip; count_total_and_per_side",
+          "primaryStress": [
+            "horizontal_propulsion",
+            "unilateral_landing",
+            "plantar_flexor_and_achilles_load",
+            "hip_extensor_output"
+          ],
+          "fatigueSensitivity": "distance_drop_landing_noise_reaching_pelvic_control_arm_timing_and_asymmetry"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clear_level_15_to_30_metre_lane",
+            "long_safe_finish_zone"
+          ],
+          "optionalEquipment": [
+            "start_finish_cones",
+            "tape_measure",
+            "video"
+          ],
+          "environment": [
+            "dry_non_slip_forgiving_surface",
+            "no_cross_traffic",
+            "adequate_ceiling"
+          ],
+          "population": [
+            "pain_free_single_leg_hop_and_land",
+            "owns_submaximal_skip",
+            "can_decelerate_safely"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "contactsPerSet": "3-6_per_side_or_10-20_metres",
+          "restSeconds": "90-180",
+          "intensity": "high_intent_with_submaximal_learning_entry",
+          "progressWhen": "distance and landing quality stay repeatable without reaching, noise, asymmetry, or loss of posture"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Project forward, not straight up",
+            "Finish the take-off leg",
+            "Drive opposite arm and knee",
+            "Land and continue under control"
+          ],
+          "athleteInstructions": [
+            "Cover safe horizontal distance on every skip while keeping each landing controlled and symmetric"
+          ],
+          "commonFaults": [
+            "confusing_with_power_skip_for_height",
+            "turning_into_bounds",
+            "reaching_foot_forward",
+            "collapsing_landing",
+            "chasing_distance_after_quality_loss",
+            "ambiguous_contact_count"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_single_leg_landing",
+            "adequate_lane",
+            "progressive_warm_up"
+          ],
+          "stopRules": [
+            "pain",
+            "limp",
+            "uncontrolled_landing",
+            "loud_contacts",
+            "distance_drop_over_10_percent",
+            "reaching",
+            "asymmetry",
+            "unsafe_finish"
+          ]
+        },
+        "programmingDecision": "Retain as a distinct horizontal power-skip identity. Consolidate the two baseline variants into one contact-based dose after human review, keep height skips separate, and replace unsupported direct sprint-transfer claims with an explicit horizontal plyometric purpose."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=um2R-OEz0-Q",
+          "title": "Skips For Distance",
+          "channelName": "Parabolic Performance and Rehab",
+          "sourceQuery": "power skips for distance exercise technique",
+          "notes": "Direct visible-search candidate; full exact-sequence and safety review pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=TQAuoQR2xao",
+          "title": "Power Skips - Height or Distance",
+          "channelName": "Golf Performance Training",
+          "sourceQuery": "power skips for distance exercise technique",
+          "notes": "Contains multiple intents; distance segment must be isolated and reviewed."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=M7ZiLBOQgYM",
+          "title": "Power Skip for Distance",
+          "channelName": "Simone Sports Performance",
+          "sourceQuery": "power skips for distance exercise technique",
+          "notes": "Direct title match; not yet fully viewed or approved."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=DdkM2bYxz3w",
+          "title": "Power Skips Distance",
+          "channelName": "OTA Coaching",
+          "sourceQuery": "power skips for distance exercise technique",
+          "notes": "Direct title match; complete movement and instructional-quality review pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=U0wlYfc00AE",
+          "title": "Power Skips for Distance",
+          "channelName": "Performance Course",
+          "sourceQuery": "power skips for distance exercise technique",
+          "notes": "Direct visible-search candidate; no approval or external exact-match claim."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Power Skip for Height",
+          "classification": "new_definition",
+          "rationale": "Maximal vertical rather than horizontal projection changes output intent and execution criteria.",
+          "distinguishingDimensions": {
+            "projectionIntent": "vertical"
+          }
+        },
+        {
+          "name": "Submaximal Power Skip for Distance",
+          "classification": "modifier_annotation",
+          "rationale": "Lower intent is a learning dosage that preserves horizontal step-hop identity.",
+          "distinguishingDimensions": {
+            "intensity": "submaximal_learning"
+          }
+        },
+        {
+          "name": "Loaded Power Skip for Distance",
+          "classification": "new_variant",
+          "rationale": "External load changes arm use, landing demand, and force direction.",
+          "distinguishingDimensions": {
+            "externalLoad": "present"
+          }
+        },
+        {
+          "name": "Alternating Bound for Distance",
+          "classification": "new_definition",
+          "rationale": "Bounding uses alternating single contacts rather than landing on the take-off leg in a step-hop skip.",
+          "distinguishingDimensions": {
+            "contactSequence": "alternating_single_contacts"
+          }
+        },
+        {
+          "name": "Ordinary Skipping Rhythm Drill",
+          "classification": "new_definition",
+          "rationale": "Relaxed submaximal skipping does not maximize horizontal displacement.",
+          "distinguishingDimensions": {
+            "primaryIntent": "rhythm_not_projection"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "fast-leg-cycle-drill",
+      "assessmentSummary": {
+        "identity": "A single-leg sprint-mechanics cycle in which one designated leg repeatedly completes a defined front-side recovery, downward and backward return, and ground contact while the support-side pattern remains explicitly controlled.",
+        "currentCardFindings": [
+          "The card does not state stationary versus traveling execution, support-leg behavior, number of cycles, contact sequence, side-change rule, arm action, or whether the working leg contacts every cycle.",
+          "Front-side cycle and hamstring recovery are named but no observable positions or transition criteria are supplied.",
+          "Visible candidates show several materially different fast-leg progressions, so the current identity and all media must remain quarantined."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "single_designated_leg_sprint_cycle",
+            "traveling_or_stationary_state_must_be_declared"
+          ],
+          "jointActions": [
+            "swing_hip_flexion_extension",
+            "swing_knee_flexion_extension",
+            "ankle_dorsiflexion_plantarflexion",
+            "support_leg_stance_control",
+            "reciprocal_arm_action"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "unilateral_working_leg_then_repeat_other_side",
+          "intent": "repeatable_defined_leg_cycle_and_contact_sequence"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "hip_flexors",
+            "hamstrings",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "quadriceps",
+            "tibialis_anterior",
+            "intrinsic_foot",
+            "gluteus_medius",
+            "obliques",
+            "shoulder_girdle"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 68,
+          "absoluteLoadDemand": 18,
+          "coordinationDemand": 76,
+          "supervisionDemand": 52,
+          "failureConsequence": 34,
+          "impact": 28,
+          "workCapacityDemand": 30,
+          "baseOverallDifficulty": 68
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_asymmetrical_cyclic_sprint_mechanics_drill",
+          "impactClass": "low_to_moderate_by_travel_speed_contact_pattern_and_cycles",
+          "landingContactsPerRep": "record_working_leg_cycles_contacts_and_support_leg_steps_separately",
+          "primaryStress": [
+            "swing_leg_cyclic_control",
+            "support_leg_stability",
+            "plantar_flexor_contact_load",
+            "asymmetrical_coordination"
+          ],
+          "fatigueSensitivity": "cycle_path_contact_reach_pelvic_rotation_support_pattern_posture_and_side_difference"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clear_level_lane_or_stationary_zone",
+            "safe_finish_if_traveling"
+          ],
+          "optionalEquipment": [
+            "wall_support_for_regression",
+            "cones",
+            "video"
+          ],
+          "environment": [
+            "dry_non_slip_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "owns_a_march_or_comparable_cycle_rehearsal",
+            "pain_free_low_contacts",
+            "can_control_single_side_pattern"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "1-3_per_side",
+          "cyclesPerSet": "3-6_clean_cycles_or_8-15_metres_after_identity_confirmation",
+          "restSeconds": "30-90_between_sides_or_attempts",
+          "intensity": "slow_learning_to_crisp_submaximal",
+          "progressWhen": "cycle path, contact placement, support pattern, posture, and left-right quality remain repeatable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Name the working leg",
+            "Recover through the defined path",
+            "Return beneath the hips",
+            "Keep the support pattern unchanged"
+          ],
+          "athleteInstructions": [
+            "Cycle only the assigned leg through the exact sequence while the other side maintains the prescribed support action"
+          ],
+          "commonFaults": [
+            "undefined_support_leg",
+            "bicycling_forward",
+            "reaching_contact",
+            "switching_sides_mid_rep",
+            "pelvic_rotation",
+            "turning_into_high_knee_running"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_march_and_low_contact",
+            "understands_side_rule",
+            "safe_lane"
+          ],
+          "stopRules": [
+            "pain",
+            "limp",
+            "repeated_reaching",
+            "support_pattern_loss",
+            "balance_loss",
+            "cycle_path_breakdown",
+            "unsafe_finish"
+          ]
+        },
+        "programmingDecision": "Retain provisionally as a distinct single-leg sprint-cycle definition, but quarantine publication until stationary or traveling state, support-leg action, cycle and contact sequence, side-change rule, dose unit, and finish are resolved through human review."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=xiYTMBLqp8c",
+          "title": "How To Get FASTER with DRILLS | Noah Lyles",
+          "channelName": "Noah Lyles, Olympian",
+          "sourceQuery": "fast leg cycle drill sprint technique",
+          "notes": "Visible chapters include fast legs, alternating fast legs, and double alternating fast legs; exact current-card variant must be isolated."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=miKRps7-HUo",
+          "title": "HOW TO: Fast Leg Drill",
+          "channelName": "Unapproved visible-search candidate",
+          "sourceQuery": "fast leg cycle drill sprint technique",
+          "notes": "Direct visible-search candidate converted from Shorts to watch URL; full sequence and channel metadata require review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=0SkN6KA1GgM",
+          "title": "How to do the fast leg drill",
+          "channelName": "Unapproved visible-search candidate",
+          "sourceQuery": "fast leg cycle drill sprint technique",
+          "notes": "Direct visible-search candidate; stationary versus traveling and support pattern unverified."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Wlp66ko3zJU",
+          "title": "How to do a single-leg cycling sprint drill correctly",
+          "channelName": "Unapproved visible-search candidate",
+          "sourceQuery": "fast leg cycle drill sprint technique",
+          "notes": "Single-leg-cycle title match; complete viewing and exact contact-sequence review pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=BHx5mLPDMUk",
+          "title": "How Single-Leg Cycling Can Make You Faster",
+          "channelName": "Unapproved visible-search candidate",
+          "sourceQuery": "fast leg cycle drill sprint technique",
+          "notes": "Candidate may include unsupported transfer claims; identity, instruction, and safety review required."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Alternating Fast Legs",
+          "classification": "new_variant",
+          "rationale": "Alternating the working side within the sequence changes coordination and cycle-count rules.",
+          "distinguishingDimensions": {
+            "sidePattern": "alternating"
+          }
+        },
+        {
+          "name": "Double Alternating Fast Legs",
+          "classification": "new_variant",
+          "rationale": "Two cycles or contacts before switching side creates a distinct reproducible coordination pattern.",
+          "distinguishingDimensions": {
+            "sidePattern": "double_then_switch"
+          }
+        },
+        {
+          "name": "Wall-Supported Single-Leg Cycle",
+          "classification": "new_variant",
+          "rationale": "Wall support changes posture, balance demand, displacement, and force direction.",
+          "distinguishingDimensions": {
+            "support": "wall"
+          }
+        },
+        {
+          "name": "Fast Leg 1-2-3 Drill",
+          "classification": "new_definition",
+          "rationale": "A counted compound sequence has a different event structure and terminal action.",
+          "distinguishingDimensions": {
+            "movementPattern": "counted_compound_sequence"
+          }
+        },
+        {
+          "name": "High-Knee Run",
+          "classification": "new_definition",
+          "rationale": "Continuous alternating running contacts differ from a designated single-leg cycle and controlled support-side pattern.",
+          "distinguishingDimensions": {
+            "contactSequence": "continuous_alternating_run"
+          }
+        }
+      ]
+    }
+  ]
+}

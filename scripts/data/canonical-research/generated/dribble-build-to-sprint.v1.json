@@ -1,0 +1,454 @@
+{
+  "facilityId": 1,
+  "slug": "dribble-build-to-sprint",
+  "researchVersion": "2026-07-25.8",
+  "assessmentSummary": {
+    "identity": "A compound drill-to-sprint transition that begins with a defined low-to-high or fixed-height dribble segment, progressively increases cadence and displacement, blends into free upright sprinting, and ends with controlled deceleration.",
+    "currentCardFindings": [
+      "The current phrase 'begin with low-to-high dribble rhythm' leaves the recovery-height sequence, segment distances, and transition threshold undefined.",
+      "Six seconds and one repetition do not record dribble contacts, sprint distance, peak-speed exposure, or deceleration demand.",
+      "The difficulty value of 40 materially understates a compound near-maximal sprint exposure."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "dribble_progression",
+        "transition_to_upright_sprint",
+        "controlled_deceleration"
+      ],
+      "jointActions": [
+        "progressive_hip_and_knee_cycle",
+        "ankle_dorsiflexion_and_plantarflexion",
+        "sprint_ground_contact",
+        "contralateral_arm_swing"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal"
+      ],
+      "laterality": "alternating_left_right",
+      "intent": "smoothly_increase_cycle_height_and_velocity_into_free_sprinting_without_reach"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "hamstrings",
+        "gluteus_maximus",
+        "hip_flexors",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "quadriceps",
+        "tibialis_anterior",
+        "intrinsic_foot",
+        "gluteus_medius",
+        "obliques",
+        "shoulder_girdle"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 75,
+      "absoluteLoadDemand": 36,
+      "coordinationDemand": 80,
+      "supervisionDemand": 65,
+      "failureConsequence": 65,
+      "impact": 62,
+      "workCapacityDemand": 42,
+      "baseOverallDifficulty": 75
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_compound_dribble_progression_to_high_speed_sprint",
+      "impactClass": "high_by_terminal_speed_and_total_contacts",
+      "landingContactsPerRep": "record_dribble_contacts_sprint_steps_total_metres_and_high_speed_metres",
+      "primaryStress": [
+        "hamstring_high_speed_load",
+        "plantar_flexor_loading",
+        "hip_cycle_velocity",
+        "neural_speed_demand",
+        "deceleration"
+      ],
+      "fatigueSensitivity": "transition_reach_contact_sound_tension_speed_posture_and_shutdown_quality"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "30_to_50_metre_clear_lane",
+        "marked_dribble_transition_sprint_and_deceleration_zones"
+      ],
+      "optionalEquipment": [
+        "cones",
+        "timing_gates",
+        "video"
+      ],
+      "environment": [
+        "level_dry_high_grip_surface",
+        "no_cross_traffic",
+        "suitable_footwear"
+      ],
+      "population": [
+        "owns_low_and_high_dribbles",
+        "recent_pain_free_fast_sprinting",
+        "can_decelerate_safely"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4",
+      "attemptsPerSet": "1-2",
+      "segmentDose": "10-20_metres_dribble_progression_then_10-20_metres_free_sprint_plus_15-25_metres_deceleration",
+      "restSeconds": "180-300_between_near_maximal_attempts",
+      "progressWhen": "the transition is continuous, contact stays close, speed and relaxation repeat, and the shutdown is controlled"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Build the circle gradually",
+        "Let cadence and travel increase together",
+        "Blend into the sprint",
+        "Do not reach",
+        "Run through and shut down gradually"
+      ],
+      "athleteInstructions": [
+        "Start with the assigned dribble, let the cycle grow smoothly into a fast relaxed sprint, and use the full deceleration zone"
+      ],
+      "commonFaults": [
+        "undefined_entry_pattern",
+        "abrupt_transition",
+        "overstriding",
+        "premature_maximal_effort",
+        "upper_body_tension",
+        "short_shutdown"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "owns_entry_dribble",
+        "recent_fast_sprint_exposure",
+        "full_clear_lane",
+        "safe_deceleration"
+      ],
+      "stopRules": [
+        "pain",
+        "limp",
+        "protective_mechanics",
+        "abrupt_or_stumbling_transition",
+        "speed_or_relaxation_drop",
+        "unsafe_shutdown"
+      ]
+    },
+    "programmingDecision": "Retain as a distinct compound definition and add Dribble Bleed to Sprint as an alias. Require one named entry pattern, explicit segment distances, target speed, high-speed exposure accounting, full recovery, and a marked deceleration zone.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T03:15:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Dribble Build to Sprint is a max velocity & rhythm exercise for speed, sprinting, and quick-release athletes. It emphasizes dribble transition, upright sprint cycle, elastic foot contact while keeping the session intent aligned with the Vortex phase sequence.",
+      "familyKey": "Max Velocity Projection Drills",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 30,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "sourceTitle": "Jereem Richards’ games and drills to help develop speed",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 77,
+      "claims": [
+        "World Athletics presents ankling and progressively larger knee actions as distinct drill constraints that are learned before cadence increases.",
+        "Dribble Build to Sprint must state the cyclic recovery height, contact sequence, displacement, cadence, arm action, approach, transition, sprint segment, and deceleration; low, high, build, bleed, and run are not interchangeable labels."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6872694/",
+      "sourceTitle": "The Training and Development of Elite Sprint Performance: an Integration of Scientific and Best Practice Literature",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Maximal sprint performance involves interacting spatiotemporal, segment-configuration, segment-velocity, and front- and back-side variables rather than one isolated technical feature.",
+        "Dribble Build to Sprint belongs to a traveling alternating dribble family, a controlled recovery-height variant, a supported repeated-contact family, or a compound drill-to-sprint transition; it is not itself a maximal sprint."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37989833/",
+      "sourceTitle": "Ankle and Plantar Flexor Muscle-Tendon Unit Function in Sprinters: A Narrative Review",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "The ankle and plantar-flexor muscle-tendon units contribute differently across sprint phases, with soleus and gastrocnemius supporting and accelerating the center of mass and transferring energy at high speed.",
+        "The card should include intrinsic-foot, soleus, gastrocnemius, tibialis-anterior, hamstring, quadriceps, hip-flexor and extensor, pelvic-stabilizer, trunk, and arm-action roles in proportion to recovery height and running speed."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11994691/",
+      "sourceTitle": "Angular kinematics during top speed sprinting in male intercollegiate track and field and team sport athletes",
+      "sourcePublisher": "Sports Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 85,
+      "claims": [
+        "Top-speed sprinting depends on coordinated lower-extremity angular behavior, and observed strategies differ between populations and sporting demands.",
+        "A dribble drill can constrain foot-path size, cadence, and contact placement, but its appearance cannot prove sprint force, joint stiffness, or transfer; observable quality should focus on compact cycling, contact close to the projected center of mass, posture, relaxation, and smooth transition."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8553457/",
+      "sourceTitle": "Application of Leg, Vertical, and Joint Stiffness in Running Performance: A Literature Overview",
+      "sourcePublisher": "Journal of Healthcare Engineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Mechanical stiffness varies with task, velocity, maturity, fatigue, and measurement method and should not be inferred as a fixed property from drill appearance.",
+        "Exercise difficulty must directly score technical complexity, physical and absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; audience experience remains programming context."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37989833/",
+      "sourceTitle": "Ankle and Plantar Flexor Muscle-Tendon Unit Function in Sprinters: A Narrative Review",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Plantar-flexor and ankle demands change as a sprint progresses from start through acceleration to maximal velocity.",
+        "Dribble Build to Sprint needs pass length, total steps or contacts, cycle height, cadence or speed intent, sprint metres when present, surface, footwear, weekly high-speed exposure, technical-fatigue thresholds, and between-attempt recovery."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Linear-speed work requires suitable space, clear start and finish zones, progressive intensity, adequate recovery, and coaching that preserves the session's speed intent.",
+        "Require a level, dry, non-slip lane; clear entry, finish, and deceleration zones; safe athlete spacing; suitable footwear; an immovable support only for supported variants; and readiness for the highest speed actually prescribed."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "sourceTitle": "Jereem Richards’ games and drills to help develop speed",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 77,
+      "claims": [
+        "World Athletics gives two passes over 10 to 20 metres as an example for progressive sprint drills and directs athletes to learn the movement before increasing cadence.",
+        "Use passes, metres, contact counts, cycle height, target intensity, and full recovery rather than a generic work interval; transition drills must separately prescribe drill, sprint, and deceleration distances."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8008308/",
+      "sourceTitle": "Kinematic Stride Characteristics of Maximal Sprint Running of Elite Sprinters – Verification of the Swing-Pull Technique",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Small horizontal foot distance from the center of mass at contact, active foot velocity before contact, and coordinated hip motion may help minimize braking during maximal sprinting.",
+        "Use a small observable cue set: make a compact circle, recover to the assigned height, step close beneath the hips, stay stacked and relaxed, keep the arms coordinated, increase cadence without reaching, and blend rather than lunge into a sprint."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6872694/",
+      "sourceTitle": "The Training and Development of Elite Sprint Performance: an Integration of Scientific and Best Practice Literature",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Sprint power demand rises steeply with velocity, so drill-to-sprint transitions should be treated as high-speed exposures rather than low-load warm-up repetitions.",
+        "Stop for foot, shin, calf, Achilles, hamstring, knee, hip, or back pain; a limp; repeated reaching or locked-knee braking; loud or lengthening contacts; cadence or speed loss; rising tension; unsafe support movement; an abrupt transition; or inadequate deceleration space."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/36513077/",
+      "sourceTitle": "Effect of Vertical Jump and Sprint Training on Power and Speed Performance Transfer",
+      "sourcePublisher": "Motor Control",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Training transfer depends on the relationship between the practiced task, performance outcome, population, dose, and intervention rather than similarity of one visible feature.",
+        "Dribble Build to Sprint belongs after general preparation and before maximal sprinting: use low and high dribbles for a named coordination constraint, and use dribble-to-sprint only as a fresh high-speed exposure when the athlete already owns both segments."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "sourceTitle": "Jereem Richards’ games and drills to help develop speed",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 77,
+      "claims": [
+        "Athlete support should show the movement first at learning cadence and then at the prescribed speed.",
+        "Show side and rear views, the ankle-, shin-, or knee-height recovery target, contact zone, lane and finish, arm rhythm, transition, deceleration, and a lower-cadence option; explain that fast feet do not justify longer reaches or forced foot strike."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11994691/",
+      "sourceTitle": "Angular kinematics during top speed sprinting in male intercollegiate track and field and team sport athletes",
+      "sourcePublisher": "Sports Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 85,
+      "claims": [
+        "Sprint kinematics can differ across athlete populations, so one visual template should not be treated as universal proof of efficiency.",
+        "Provide side and rear observation, exact cycle-height definitions, pass and contact counts, optional video or timing, left-right comparison, relaxation and posture checks, lane setup, recovery, progression criteria, and a clear distinction between a drill cue and measured sprint biomechanics."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should match readiness, technical competence, supervision, equipment scale, and the individual's physical and psychosocial context.",
+        "Accessibility options include slower cadence, shorter lanes, lower recovery height, walking cycles, flat contact targets, a stable support, fewer contacts, longer recovery, quieter instruction, and removing the sprint transition while keeping difficulty dimensions explicit."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6872694/",
+      "sourceTitle": "The Training and Development of Elite Sprint Performance: an Integration of Scientific and Best Practice Literature",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Sprint performance emerges from interacting mechanics and cannot be reduced to one preferred recovery height or cue.",
+        "Ankle-, shin-, calf-, and knee-height dribbles are controlled recovery-height variants of one cyclic pattern; cadence, lane length, and arm constraint are delivery annotations; a terminal sprint or a materially different supported contact sequence requires a distinct variant or definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Dribble Build to Sprint were discovered through visible YouTube search; current availability and embedding, exact cycle height and contact sequence, complete viewing, captions, instructional quality, safety, and approval remain separate review gates, and no candidate is approved by this packet."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=Rg4YE2CaiL8",
+      "title": "Dribble bleed to sprint",
+      "channelName": "Ethan Printy",
+      "sourceQuery": "dribble bleed into sprint track drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=xaoo0tjiwaI",
+      "title": "Dribble Bleed to Sprint",
+      "channelName": "nemet35",
+      "sourceQuery": "dribble bleed into sprint track drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=mVblhCw8roU",
+      "title": "Dribble Bleed-Sprint",
+      "channelName": "Paul Walshe",
+      "sourceQuery": "dribble bleed into sprint track drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=iYxXaFKqVpc",
+      "title": "Dribble Into Sprint",
+      "channelName": "Tinsley Performance",
+      "sourceQuery": "dribble bleed into sprint track drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=h6dhMAHh-P8",
+      "title": "How We Use Dribble Bleeds To Get Faster… Try This Drill Now!",
+      "channelName": "Les Spellman",
+      "sourceQuery": "dribble bleed into sprint track drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Dribble Bleed to Sprint",
+      "classification": "same_identity",
+      "rationale": "Bleed describes the gradual transition already required by this definition.",
+      "distinguishingDimensions": {
+        "transitionStyle": "gradual"
+      }
+    },
+    {
+      "name": "Low Dribble to Sprint",
+      "classification": "new_variant",
+      "rationale": "A fixed low entry changes the transition demand and target speed build.",
+      "distinguishingDimensions": {
+        "entryPattern": "low_dribble"
+      }
+    },
+    {
+      "name": "High Dribble to Sprint",
+      "classification": "new_variant",
+      "rationale": "A knee-height entry starts closer to the free sprint cycle.",
+      "distinguishingDimensions": {
+        "entryPattern": "high_dribble"
+      }
+    },
+    {
+      "name": "Low-to-High Dribble Progression without Sprint",
+      "classification": "new_definition",
+      "rationale": "Removing free sprinting materially reduces speed exposure and logistics.",
+      "distinguishingDimensions": {
+        "terminalAction": "dribble_run_out"
+      }
+    },
+    {
+      "name": "Timed Dribble Bleed Fly",
+      "classification": "new_variant",
+      "rationale": "A measured fly zone adds testing intent, timing equipment, and higher-speed accountability.",
+      "distinguishingDimensions": {
+        "terminalAction": "timed_fly"
+      }
+    }
+  ]
+}

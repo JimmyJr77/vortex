@@ -1,0 +1,551 @@
+{
+  "facilityId": 1,
+  "slug": "180-jump-rebound-to-sprint-out",
+  "researchVersion": "2026-07-25.22",
+  "assessmentSummary": {
+    "identity": "A high-impact composite that is provisionally interpreted as a bilateral half-turn jump, a bilateral landing, an immediate second rebound, and a short acceleration. The legacy card does not establish whether rebound means a second flight or merely a quick transition from the first landing into the sprint, so the exact contact sequence remains quarantined.",
+    "currentCardFindings": [
+      "The title and description do not identify the takeoff, first landing, second takeoff, second landing, sprint direction, turn side, or whether the rebound is a distinct flight.",
+      "The existing three videos demonstrate pro-agility or general deceleration rather than this aerial-turn sequence and must be superseded as direct candidates.",
+      "The legacy two-second rest value is incompatible with low-volume high-output work and would convert a precision plyometric sequence into conditioning.",
+      "The legacy difficulty scores understate impact, failure consequence, coordination, supervision, and body-mass loading across the landing-to-reacceleration transition."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "bilateral_rotational_jump",
+        "reactive_rebound",
+        "linear_acceleration"
+      ],
+      "jointActions": [
+        "triple_extension",
+        "transverse_body_rotation",
+        "landing_braking",
+        "ankle_knee_hip_reextension",
+        "horizontal_acceleration"
+      ],
+      "planes": [
+        "transverse",
+        "sagittal"
+      ],
+      "laterality": "bilateral_takeoff_and_first_landing_with_turn_direction_recorded",
+      "contactSequence": "jump_half_turn__bilateral_land__immediate_bilateral_rebound__bilateral_land__sprint_out",
+      "intent": "preserve_orientation_and_contact_quality_while_linking_a_reactive_half_turn_to_acceleration"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "quadriceps",
+        "soleus",
+        "gastrocnemius",
+        "hamstrings"
+      ],
+      "secondaryMuscles": [
+        "gluteus_medius",
+        "adductors",
+        "peroneals",
+        "tibialis_anterior",
+        "obliques",
+        "spinal_stabilizers",
+        "hip_flexors"
+      ],
+      "joints": [
+        "ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "lumbar_spine",
+        "thoracic_spine",
+        "shoulder"
+      ],
+      "primaryActions": [
+        "propulsive_triple_extension",
+        "whole_body_half_turn",
+        "eccentric_landing_braking",
+        "reactive_reextension",
+        "acceleration_projection"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 78,
+      "absoluteLoadDemand": 74,
+      "coordinationDemand": 82,
+      "supervisionDemand": 80,
+      "failureConsequence": 80,
+      "impact": 86,
+      "workCapacityDemand": 48,
+      "baseOverallDifficulty": 78
+    },
+    "proposedLoadProfile": {
+      "loadingType": "high_rate_bodyweight_plyometric_and_acceleration",
+      "impactClass": "high",
+      "externalLoadMethod": "none_for_baseline",
+      "primaryStress": [
+        "rotational_landing_braking",
+        "ankle_knee_hip_stretch_shortening_cycle",
+        "rapid_reorientation",
+        "initial_acceleration_steps"
+      ],
+      "fatigueProfile": [
+        "slower_contact",
+        "louder_landing",
+        "under_or_over_rotation",
+        "knee_or_trunk_collapse",
+        "flat_sprint_projection",
+        "hesitation"
+      ],
+      "recoveryHours": "typically_48_to_72_before_another_high_contact_exposure_subject_to_total_session_load_and_individual_response"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "two_direction_markers",
+        "measured_clear_sprint_lane"
+      ],
+      "optionalEquipment": [
+        "low_hurdle_only_if_the_sequence_requires_it",
+        "timing_gates",
+        "video_capture"
+      ],
+      "environment": [
+        "high_traction_level_surface",
+        "clear_overhead_and_sprint_space",
+        "no_cross_traffic",
+        "adequate_lighting"
+      ],
+      "population": [
+        "pain_free_jump_and_landing",
+        "owns_bilateral_180_jump_to_stick",
+        "owns_low_amplitude_rebound",
+        "owns_short_acceleration",
+        "can_follow_turn_side_and_exit_direction"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "2-4_sets_of_1-3_repetitions_per_turn_direction",
+      "restSeconds": "90-180_between_sets_and_at_least_20-40_between_individual_repetitions",
+      "sprintDistance": "3-10_meters_after_the_final_landing",
+      "intensity": "high_intent_only_after_submaximal_sequence_rehearsal",
+      "measurement": "turn_direction_contact_count_landing_location_contact_quality_exit_direction_and_first_5_meter_time_if_timed",
+      "progressWhen": "the_exact_contact_sequence_is_repeatable_on_both_turn_directions_without_extra_steps_noise_or_speed_loss"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Know the turn and exit before takeoff",
+        "Rotate as one unit",
+        "Land under your center",
+        "Be quick without being loud",
+        "Project through the exit"
+      ],
+      "athleteInstructions": [
+        "Start balanced between the markers",
+        "Jump and turn one half rotation",
+        "Land on both feet in the marked area",
+        "Complete the assigned rebound without an extra shuffle",
+        "Land and accelerate through the exit cone"
+      ],
+      "commonFaults": [
+        "unclear_contact_sequence",
+        "single_leg_first_landing",
+        "over_rotation",
+        "feet_crossing",
+        "valgus_collapse",
+        "heel_whip",
+        "pause_before_rebound",
+        "false_step_before_sprint",
+        "conditioning_pace"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "bilateral_jump_to_stick",
+        "180_jump_to_stick_both_directions",
+        "low_pogo_or_rebound_control",
+        "short_acceleration",
+        "pain_free_high_impact_exposure"
+      ],
+      "qualityGates": [
+        "assigned_contact_count_is_exact",
+        "landings_are_quiet_and_balanced",
+        "knees_and_trunk_remain_controlled",
+        "turn_finishes_toward_the_exit",
+        "first_sprint_step_has_clear_projection"
+      ],
+      "stopRules": [
+        "pain_or_guarding",
+        "dizziness_or_disorientation",
+        "uncontrolled_rotation",
+        "repeated_extra_contact",
+        "loud_or_flat_landing",
+        "knee_or_trunk_collapse",
+        "slip",
+        "sprint_lane_encroachment",
+        "visible_speed_or_contact_drop"
+      ]
+    },
+    "proposedContextualProfiles": [
+      {
+        "context": "movement_intelligence_sequence_rehearsal",
+        "dose": "2-3_sets_of_1-2_submaximal_repetitions_per_direction_with_full_reset",
+        "purpose": "learn_the_contact_order_turn_and_exit_without_maximal_speed"
+      },
+      {
+        "context": "output_reactive_transition",
+        "dose": "2-4_sets_of_1-3_high_quality_repetitions_per_direction_with_full_recovery",
+        "purpose": "link_a_reactive_rotational_landing_sequence_to_short_acceleration"
+      }
+    ],
+    "proposedRelationships": {
+      "regressions": [
+        "180_jump_to_stick",
+        "180_jump_land_and_walk_out",
+        "bilateral_rebound_to_stick",
+        "falling_start_short_acceleration"
+      ],
+      "progressions": [
+        "reactive_cue_180_jump_rebound_to_sprint_out",
+        "higher_entry_velocity_only_if_a_run_in_is_explicitly_added"
+      ],
+      "substitutions": [
+        "180_jump_to_sprint_out_without_second_flight",
+        "180_degree_turn_and_reaccelerate_for_non_aerial_cod"
+      ],
+      "doNotSubstitute": [
+        "505_change_of_direction_test",
+        "pro_agility_shuttle",
+        "repeated_180_jump_conditioning"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "contact_sequence_diagram",
+        "turn_direction_arrow",
+        "exit_lane_arrow",
+        "quiet_landing_example",
+        "stop_signal"
+      ],
+      "coach": [
+        "side_and_rear_view_checklist",
+        "contact_counter",
+        "landing_zone_and_lane_layout",
+        "left_right_comparison",
+        "contact_load_log"
+      ]
+    },
+    "calibrationEvidence": {
+      "basis": "plyometric reviews, sprint-transfer evidence, current-card comparison, and direct component-video discovery",
+      "uncertainty": "No authoritative source or exact video located in this pass establishes what the legacy author meant by rebound. Difficulty and dose are conservative proposals for the more demanding two-flight interpretation.",
+      "reviewNeeded": [
+        "legacy_author_or_domain_coach_identity_adjudication",
+        "exact_contact_sequence_review",
+        "difficulty_anchor_comparison",
+        "surface_and_contact_load_review",
+        "full_video_review"
+      ]
+    },
+    "programmingDecision": "Keep the card quarantined until rebound is defined. If a second flight is intended, retain one composite card with the exact five-stage contact sequence. If no second flight is intended, rename it 180 Jump to Sprint-Out and model the immediate acceleration as the baseline; do not use pro-agility media as an exact demonstration.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T04:00:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Perform 180 Jump Rebound to Sprint-Out as a low-volume, high-quality plyometric or reactive-output exposure. The exercise targets half-turn rebound linked to a short acceleration. The coach should cap volume, demand clean landings, and stop the set before contact quality fades.",
+      "familyKey": "High-Impact Level 3-4 Plyometric / Reactive Output",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 50,
+        "coordinationDemand": 60,
+        "technicalComplexity": 60,
+        "baseOverallDifficulty": 60
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10407309/",
+      "sourceTitle": "Plyometric Training Practices of Brazilian Olympic Sprint and Jump Coaches: Toward a Deeper Understanding of Their Choices and Insights",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Plyometric exercise selection varies by movement direction, contact type, intensity, and intended transfer, so the exact sequence is part of exercise identity.",
+        "The current name does not establish whether rebound is a second flight. 180 Jump Rebound to Sprint-Out must remain quarantined until takeoff, landing, rebound, and sprint contacts are explicit."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32897526/",
+      "sourceTitle": "Effects of Vertically and Horizontally Orientated Plyometric Training on Physical Performance: A Meta-analytical Comparison",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Vertically and horizontally oriented plyometric tasks are not interchangeable and show direction-specific training effects.",
+        "Classify 180 Jump Rebound to Sprint-Out by rotational angle, horizontal and vertical projection, takeoff and landing laterality, number of flights, contact sequence, exit direction, and sprint distance."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/28632055/",
+      "sourceTitle": "Muscle activity in sprinting: a review",
+      "sourcePublisher": "Sports Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Sprinting uses phase-dependent lower-limb muscle activity across force production, limb recovery, and ground contact.",
+        "The card must represent ankle, knee, hip, pelvis, trunk, and arm actions across both landing contacts and the acceleration exit rather than assigning the task to one muscle."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10115703/",
+      "sourceTitle": "Effects of Plyometric Jump Training on the Reactive Strength Index in Healthy Individuals Across the Lifespan: A Systematic Review with Meta-analysis",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Reactive-strength tasks depend on rapid coupling of eccentric landing and concentric takeoff actions.",
+        "A pause, extra step, collapsed landing, or undefined second contact changes the proposed reactive sequence and must be logged as a failed or different repetition."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Plyometric demand rises with movement intensity, complexity, and landing requirements and should be progressed from controlled foundations.",
+        "Assess technical complexity and physical load directly, with separate coordination, supervision, failure-consequence, impact, work-capacity, and overall scores; do not assign an athlete level to the card."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8938535/",
+      "sourceTitle": "Effects of Plyometric Training on Lower Body Muscle Architecture, Tendon Structure, Stiffness and Physical Performance: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Plyometric training loads the muscle-tendon unit and produces adaptations that depend on exposure characteristics.",
+        "Track high-impact contacts, turn direction, sprint accelerations, landing noise, contact speed, and overlapping jump or sprint work; the legacy two-second rest is not a quality-output prescription."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Safe plyometric progression requires appropriate foundations, surface, space, and exercise selection.",
+        "180 Jump Rebound to Sprint-Out requires a high-traction landing area, a clear sprint lane, defined markers, adequate lighting, and demonstrated control of its component jump, rebound, and sprint tasks."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10407309/",
+      "sourceTitle": "Plyometric Training Practices of Brazilian Olympic Sprint and Jump Coaches: Toward a Deeper Understanding of Their Choices and Insights",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "High-level coaching practice organizes plyometrics by contacts, intensity, exercise type, and recovery rather than treating all jumps as one volume.",
+        "The proposed one-to-three-repetition sets and full recovery are conservative programming inferences for quality; they are not a research-validated universal dose for this exact composite."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32897526/",
+      "sourceTitle": "Effects of Vertically and Horizontally Orientated Plyometric Training on Physical Performance: A Meta-analytical Comparison",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Projection direction is a meaningful property of plyometric work.",
+        "Instructions must name turn direction, takeoff and landing feet, whether a second flight occurs, landing zone, exit direction, sprint distance, reset rule, and what counts as one repetition."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Training should use qualified supervision, safe environments, technically appropriate tasks, and gradual progression.",
+        "Stop for pain, guarding, dizziness, uncontrolled rotation, extra contacts, repeated collapse, loud landings, slipping, unsafe spacing, or material loss of speed."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/36513077/",
+      "sourceTitle": "Effect of Vertical Jump and Sprint Training on Power and Speed Performance Transfer",
+      "sourcePublisher": "Motor Control",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Jump and sprint training transfer is direction- and task-dependent rather than automatic.",
+        "Use 180 Jump Rebound to Sprint-Out only when an athlete needs the defined rotational-contact-to-acceleration transition; do not claim general speed transfer or use it as conditioning."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Progressive plyometric instruction benefits from simple tasks and controlled landings before complex contacts.",
+        "Athlete support needs a contact-sequence animation, turn and exit arrows, a successful and failed landing example, repetition count, and a prominent stop cue."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10407309/",
+      "sourceTitle": "Plyometric Training Practices of Brazilian Olympic Sprint and Jump Coaches: Toward a Deeper Understanding of Their Choices and Insights",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Coaches manage plyometric exercise type, contact volume, intensity, and placement within training.",
+        "Coach support must include layout, side and rear observation, contact counting, turn-side balance, readiness prerequisites, fatigue evidence, and regression decisions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should match demonstrated movement control and be supervised appropriately.",
+        "Accessibility begins by separating the sequence into jump-to-stick, low rebound, and acceleration components, reducing speed and contacts, using visual floor arrows, and permitting extra reset time."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32897526/",
+      "sourceTitle": "Effects of Vertically and Horizontally Orientated Plyometric Training on Physical Performance: A Meta-analytical Comparison",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Changing projection direction changes the plyometric task and potential transfer.",
+        "A second flight, turn angle, takeoff or landing laterality, reactive cue, run-in, and sprint exit can change identity or variant classification; a 505 shuttle is not the same aerial sequence."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The selected links demonstrate only components or adjacent variants. None is represented as an exact full-sequence match, and link health, captions, safety, cue quality, reviewer identity, and approval remain pending."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=WbPVF7cwxwY",
+      "title": "180 Rotational Jump: Speed and Conditioning",
+      "channelName": "Barton College Sports Performance",
+      "sourceQuery": "180 jump sprint plyometric",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Component candidate for the bilateral 180-degree jump. It does not establish the required rebound-to-sprint contact sequence; exact-match review remains negative until a reviewer watches and adjudicates it."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=HPTljHyCk-E",
+      "title": "Bilateral snap down w/ 180 plyometric",
+      "channelName": "Drive Personal Training & Athletics",
+      "sourceQuery": "180 jump rebound plyometric",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Adjacent rotational plyometric candidate. Contact order and sprint exit may differ from the proposed card and require full human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=tCPAlYZBmYg",
+      "title": "Broad Jump 180 Turn | Simple Speed Coach OG Drills",
+      "channelName": "Simple Speed Coach",
+      "sourceQuery": "180 jump sprint plyometric",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Horizontal-projection 180-jump variant, not an asserted exact match. It helps reviewers distinguish projection and contact sequence."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=ixmsSe-gG04",
+      "title": "90 knee jump to sprint",
+      "channelName": "RONIN STRENGTH",
+      "sourceQuery": "jump to sprint transition",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Adjacent ground-to-sprint transition candidate with a different start and rotation. It is included for component review only and must not be approved for the full exercise."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "180 Jump to Sprint-Out",
+      "classification": "new_definition",
+      "rationale": "If there is no distinct second flight, the primary contact sequence changes from jump-rebound-sprint to jump-land-sprint and should be named directly rather than hidden under rebound.",
+      "distinguishingDimensions": {
+        "contactSequence": "one_flight_then_acceleration",
+        "primaryTrainingStimulus": "rotational_landing_to_acceleration_transition"
+      }
+    },
+    {
+      "name": "180 Jump to Stick",
+      "classification": "new_definition",
+      "rationale": "The deliberate held landing terminates the task and removes the reactive rebound and sprint transition.",
+      "distinguishingDimensions": {
+        "terminalOutcome": "held_bilateral_landing",
+        "contacts": "one_flight"
+      }
+    },
+    {
+      "name": "Reactive-Cue 180 Jump Rebound to Sprint-Out",
+      "classification": "new_variant",
+      "rationale": "An unpredictable cue adds perception and choice while preserving the same physical sequence; it is a controlled reactive variant only after the baseline identity is resolved.",
+      "distinguishingDimensions": {
+        "cue": "unpredictable_turn_or_exit_direction",
+        "decisionDemand": "added"
+      }
+    },
+    {
+      "name": "Single-Leg 180 Jump Rebound to Sprint-Out",
+      "classification": "new_definition",
+      "rationale": "Unilateral takeoff or landing materially changes joint loading, balance demand, laterality, failure consequence, and prerequisites.",
+      "distinguishingDimensions": {
+        "laterality": "unilateral",
+        "loading": "single_leg_landing_and_reacceleration"
+      }
+    },
+    {
+      "name": "5-0-5 Change of Direction",
+      "classification": "reject",
+      "rationale": "A sprint-in 180-degree planted turn has no aerial half-turn or rebound and is a separate change-of-direction identity.",
+      "distinguishingDimensions": {
+        "entry": "linear_sprint",
+        "turn": "grounded_plant",
+        "flight": "none"
+      }
+    }
+  ]
+}

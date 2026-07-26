@@ -1,0 +1,25 @@
+{
+  "batchKey": "three-point-start-collision-cluster-v1",
+  "researchVersion": "2026-07-25.14",
+  "generatedAt": "2026-07-26T09:05:00.000Z",
+  "cards": [
+    {
+      "slug": "3-point-start-10-20m",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "three-point-start-acceleration",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "three-point-acceleration-build-up",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 5
+    }
+  ]
+}

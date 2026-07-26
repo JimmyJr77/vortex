@@ -1,0 +1,448 @@
+{
+  "facilityId": 1,
+  "slug": "low-box-drop-to-quarter-squat-rebound",
+  "researchVersion": "2026-07-25.5",
+  "assessmentSummary": {
+    "identity": "A low-platform bilateral Drop Jump using a shallow quarter-squat bounce strategy, immediate vertical rebound, and controlled final bilateral landing.",
+    "currentCardFindings": [
+      "Quarter-squat specifies the bounce strategy but the card never defines observable depth or a contact-time target.",
+      "The claim that this is categorically level-3 high impact is not a controlled exercise difficulty score and must not become an exercise skill level.",
+      "The 40 absolute-load score and generic 50 overall score do not separate impact, consequence, supervision, and coordination."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "low_platform_step_off",
+        "bilateral_bounce_drop_jump",
+        "shallow_contact",
+        "vertical_rebound",
+        "final_bilateral_land"
+      ],
+      "jointActions": [
+        "rapid_ankle_dorsiflexion_to_plantarflexion",
+        "shallow_knee_flexion_to_extension",
+        "shallow_hip_flexion_to_extension",
+        "landing_absorption"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal"
+      ],
+      "laterality": "bilateral_contact_bilateral_final_landing",
+      "intent": "shallow_short_contact_vertical_rebound"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "soleus",
+        "gastrocnemius",
+        "quadriceps",
+        "gluteus_maximus"
+      ],
+      "secondaryMuscles": [
+        "hamstrings",
+        "gluteus_medius",
+        "intrinsic_foot",
+        "trunk_stabilizers"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 54,
+      "absoluteLoadDemand": 22,
+      "coordinationDemand": 58,
+      "supervisionDemand": 60,
+      "failureConsequence": 64,
+      "impact": 60,
+      "workCapacityDemand": 18,
+      "baseOverallDifficulty": 54
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_low_height_shallow_bounce_drop_jump",
+      "impactClass": "moderate_to_high",
+      "landingContactsPerRep": 2,
+      "primaryStress": [
+        "rapid_eccentric_loading",
+        "shallow_reactive_strategy",
+        "vertical_rebound",
+        "final_landing"
+      ],
+      "fatigueSensitivity": "contact_depth_time_rebound_height_and_alignment"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "very_low_stable_platform",
+        "level_reactive_surface"
+      ],
+      "optionalEquipment": [
+        "side_video",
+        "contact_mat"
+      ],
+      "environment": [
+        "coach_side_view",
+        "clear_vertical_and_landing_space"
+      ],
+      "population": [
+        "owns_depth_drop_stick_and_low_rebounds",
+        "can_use_shallow_strategy_without_locking"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4",
+      "repetitions": "2-4",
+      "interRepResetSeconds": "15-30",
+      "restSeconds": "90-180",
+      "intensity": "high_intent_from_low_height",
+      "qualityMetric": "contact_time_rebound_height_and_observed_shallow_flexion",
+      "progressWhen": "the athlete keeps a short, shallow, aligned contact and controlled final landing"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Step off",
+        "Shallow and springy",
+        "Rebound tall",
+        "Land the last jump"
+      ],
+      "athleteInstructions": [
+        "Use a quick quarter-squat on contact, rebound immediately, and control the finish"
+      ],
+      "commonFaults": [
+        "locked knees",
+        "deep countermovement",
+        "pause",
+        "loud contact",
+        "heel collapse",
+        "low rebound"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "low-platform landing",
+        "pogo rebound competency",
+        "adequate ankle-knee-hip alignment"
+      ],
+      "stopRules": [
+        "pain",
+        "locked or collapsed contact",
+        "deep strategy drift",
+        "contact slowing",
+        "rebound loss",
+        "poor final landing"
+      ]
+    },
+    "programmingDecision": "Treat quarter-squat as a bounce-strategy annotation within the low-height Drop Jump profile. Do not retain a duplicate definition solely for landing-depth wording.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-25T23:58:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Perform Low Box Drop to Quarter-Squat Rebound as a low-volume, high-quality plyometric or reactive-output exposure. The exercise targets short drop absorption and immediate vertical re-output. The coach should cap volume, demand clean landings, and stop the set before contact quality fades.",
+      "familyKey": "High-Impact Level 3-4 Plyometric / Reactive Output",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 40,
+        "coordinationDemand": 50,
+        "technicalComplexity": 50,
+        "baseOverallDifficulty": 50
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260527/",
+      "sourceTitle": "Effect of drop jump technique on the reactive strength index",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 85,
+      "claims": [
+        "A platform step-off identity must specify whether the first ground contact ends in a held landing or an immediate rebound, and a rebound must specify bounce versus countermovement strategy, direction, contact-time intent, final landing, and reset.",
+        "Low Box Drop to Quarter-Squat Rebound must not combine landing-only depth drops, short-contact bounce drop jumps, deeper countermovement depth jumps, horizontal or lateral rebounds, repeated contacts, box-to-box sequences, or unilateral contacts."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10115703/",
+      "sourceTitle": "Effects of Plyometric Jump Training on the Reactive Strength Index in Healthy Individuals Across the Lifespan: A Systematic Review with Meta-analysis",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Reactive strength describes producing a powerful concentric action immediately after an impact-induced eccentric action within the stretch-shortening cycle.",
+        "Low Box Drop to Quarter-Squat Rebound belongs to either landing absorption or reactive vertical power; platform height, ground-contact strategy, rebound direction, laterality, and final stabilization must remain controlled dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Step-off landing and rebound coordinate the foot and ankle, knee, hip, pelvis, and trunk under rapid eccentric loading.",
+        "The card should assign plantar-flexor complex and intrinsic-foot roles, quadriceps and hip-extensor braking and propulsion, hamstring and frontal-plane hip stabilization, and trunk control without claiming one isolated tissue absorbs the drop."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260527/",
+      "sourceTitle": "Effect of drop jump technique on the reactive strength index",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 85,
+      "claims": [
+        "Bounce drop jumps produced shorter contact times but lower rebound height than countermovement drop jumps in the studied youth basketball players.",
+        "Observable technique must therefore match intent: a bounce strategy limits flexion and prioritizes short contact, while a countermovement strategy allows greater center-of-mass displacement and prioritizes rebound height without pausing."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10160442/",
+      "sourceTitle": "Methodological considerations for determining the volume and intensity of drop jump training. A systematic, critical and prepositive review",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Drop height alone is not an adequate intensity determinant; ground reaction force, power output, jump height, strategy, and individual readiness also matter.",
+        "Exercise difficulty must score technical and physical demand, coordination, supervision, consequence of error, impact, work-capacity demand, and overall difficulty directly; exercise cards must not use skill-library levels."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10160442/",
+      "sourceTitle": "Methodological considerations for determining the volume and intensity of drop jump training. A systematic, critical and prepositive review",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Drop-jump exposure depends on platform height, body mass, contact strategy, ground reaction force, output, surface, contacts, and recovery rather than platform height alone.",
+        "Low Box Drop to Quarter-Squat Rebound needs drop and landing contacts, impact and eccentric stress, target contact or rebound metric, technical-fatigue criteria, inter-repetition reset, and recovery guidance."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Landing interventions depend on suitable materials, coaching knowledge, usable space, and task-specific progression.",
+        "The delivery profile should require a stable non-slip platform, unobstructed step-off edge, level landing surface, safe return route, adequate ceiling and spacing, athlete-specific drop height, and coach sightlines to both lower limbs."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10160442/",
+      "sourceTitle": "Methodological considerations for determining the volume and intensity of drop jump training. A systematic, critical and prepositive review",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Drop-jump programming requires explicit volume, intensity, recovery, surface, height-selection, and individualization criteria.",
+        "Prescribe discrete repetitions, platform-height rule, contact strategy, target contact or rebound outcome, final landing, inter-repetition reset, set rest, and stop threshold; do not use conditioning-style work intervals."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Specific feedback can improve landing mechanics, while excessive cue volume can interfere with learning.",
+        "Use a small strategy-specific cue set: step off without jumping up, meet the floor evenly, either absorb and own the landing or reverse immediately, finish tall in the prescribed direction, and control the final landing."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Depth and drop jumps impose advanced eccentric and reactive demands and require progression from lower-intensity landing and jumping tasks.",
+        "Stop for pain, giving way, apprehension, platform instability, asymmetrical contact, loud or collapsed landing, valgus, heel whip, trunk loss, unintended pause, missed strategy, slower contact, lower rebound, or uncontrolled final landing."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10115703/",
+      "sourceTitle": "Effects of Plyometric Jump Training on the Reactive Strength Index in Healthy Individuals Across the Lifespan: A Systematic Review with Meta-analysis",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Plyometric jump training can improve reactive strength, but effects and readiness differ across populations and training contexts.",
+        "Low Box Drop to Quarter-Squat Rebound belongs early in a fresh output block after the athlete owns landing absorption and lower-intensity rebounds; dose and height should be individualized and volume should end before contact or output quality declines."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Athlete support should show the platform, step-off direction, first contact, intended flexion strategy, rebound vector, final landing, and the one metric that defines success.",
+        "The interface should distinguish 'fast off the floor' from 'jump as high as possible' and explain that a higher platform is not automatically a better or harder prescription."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10160442/",
+      "sourceTitle": "Methodological considerations for determining the volume and intensity of drop jump training. A systematic, critical and prepositive review",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Coach support should individualize drop height and record contacts, surface, technique, output, and recovery rather than relying on a generic height progression.",
+        "Provide front and side observation, bounce-versus-countermovement criteria, contact-time and rebound-height options, left-right comparison, height-reduction rules, regressions, progressions, and final-landing gates."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Plyometric selection and progression should match physical and psychosocial readiness, technical competence, supervision, and equipment scale.",
+        "Accessibility can be improved with a lower step, landing-only depth drop, assisted step-down, visual landing marks, quieter environment, longer reset, or floor rebound regression without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260527/",
+      "sourceTitle": "Effect of drop jump technique on the reactive strength index",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 85,
+      "claims": [
+        "Bounce and countermovement drop-jump techniques produce materially different contact-time and rebound-height outcomes.",
+        "Platform height and submaximal intent are delivery modifiers; changing landing-only versus rebound intent, bounce versus countermovement strategy, rebound vector, laterality, obstacle sequence, or repeated contacts requires a controlled variant or distinct definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Low Box Drop to Quarter-Squat Rebound were discovered through visible YouTube search; availability, embedding, exact contact sequence and strategy, complete viewing, captions, instructional quality, safety, and approval remain separate review gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=3JY0pxIPaC4",
+      "title": "How To Drop Jumps",
+      "channelName": "Third Space London",
+      "sourceQuery": "drop jump exercise demonstration",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=LrZuW-sJPBo",
+      "title": "Drop Jump",
+      "channelName": "Champion Physical Therapy and Performance",
+      "sourceQuery": "drop jump exercise demonstration",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=jxlYrvBsQ7c",
+      "title": "How To Video: Drop Jump",
+      "channelName": "Hawkin Dynamics",
+      "sourceQuery": "drop jump exercise demonstration",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=nOASsaLMuQU",
+      "title": "Drop Jump - Exercise Demo",
+      "channelName": "Strength Coach Nause",
+      "sourceQuery": "drop jump exercise demonstration",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=gxg_wLu91Vg",
+      "title": "Drop Jump - Exercise Demo",
+      "channelName": "irl․coach",
+      "sourceQuery": "drop jump exercise demonstration",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Low Box Drop Jump",
+      "classification": "modifier_annotation",
+      "rationale": "Quarter-squat depth specifies the bounce strategy of the same low drop jump.",
+      "distinguishingDimensions": {
+        "contactStrategy": "shallow_bounce"
+      }
+    },
+    {
+      "name": "Countermovement Depth Jump",
+      "classification": "new_variant",
+      "rationale": "Deeper flexion and longer contact prioritize rebound height.",
+      "distinguishingDimensions": {
+        "contactStrategy": "countermovement"
+      }
+    },
+    {
+      "name": "Low Box Drop to Stick",
+      "classification": "new_definition",
+      "rationale": "A held first landing has no rebound.",
+      "distinguishingDimensions": {
+        "reboundIntent": "none"
+      }
+    },
+    {
+      "name": "Ankle-Dominant Drop Jump",
+      "classification": "modifier_annotation",
+      "rationale": "Ankle emphasis is a coaching strategy, not a separate identity, when contact sequence is unchanged.",
+      "distinguishingDimensions": {
+        "emphasis": "ankle_stiffness"
+      }
+    },
+    {
+      "name": "Loaded Quarter-Squat Drop Jump",
+      "classification": "reject",
+      "rationale": "External loading materially raises risk and should not be inferred as a routine alternate.",
+      "distinguishingDimensions": {
+        "externalLoad": "present"
+      }
+    }
+  ]
+}

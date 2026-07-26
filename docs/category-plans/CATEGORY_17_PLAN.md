@@ -23,7 +23,7 @@ Full prerequisite → assessment matrix (2026-07-09). Scoped to Category 17 only
 | C17-MOP-03 | Recommended age min filter | difficulty profiles, session ageMax | yes | `youth_recommended_age_min` | yes |
 | C17-MOP-04 | Recommended age max filter | difficulty profiles, session ageMin | yes | `youth_recommended_age_max` | yes |
 | C17-MOP-05 | Attention demand MI ceiling | MI primaries, attention_demand, ageMax ≤ 14 | yes | `mi_attention_demand_ceiling` | yes |
-| C17-MOP-06 | Beginner excluded slugs | skillLevel, BEGINNER_EXCLUDED_SLUG_PATTERNS | yes | `youth_beginner_excluded_slugs` | yes |
+| C17-MOP-06 | Early-experience excluded slugs | training experience, BEGINNER_EXCLUDED_SLUG_PATTERNS | yes | `youth_beginner_excluded_slugs` | yes |
 | C17-MOP-07 | Youth scaling cohort | audience_profile.scalingCohort, 8–14 band | yes | `youth_scaling_cohort` | yes |
 | C17-MOP-08 | High technical complexity cap | MI primaries, technical ≥ 8 share | yes | `youth_mi_technical_share` | yes |
 | C17-MOP-09 | Neural methodology in MI youth | MI items, methodology neural tag | yes | `youth_mi_neural_methodology` | yes |
@@ -35,13 +35,13 @@ Full prerequisite → assessment matrix (2026-07-09). Scoped to Category 17 only
 | C17-MOP-15 | MI load dimension ceiling | MI primaries, load ≥ 6, ageMax ≤ 14 | yes | `youth_mi_load_ceiling` | yes |
 | C17-MOP-16 | Gymnastics exception scope | sportKey, handstand block bypass | yes | `youth_gymnastics_handstand_scope` | yes |
 | C17-MOP-17 | Split 1 max variant D | per_split overall, split1 cap | yes | `split1_cap_adherence` | yes |
-| C17-MOP-18 | ADVANCED skill_level in youth Rx | exercise.skill_level, ageMax ≤ 14 | yes | `youth_advanced_skill_level` | yes |
-| C17-MOP-19 | Beginner penalty path inactive | beginnerAppropriatenessPenalty, skillLevel | yes | `youth_beginner_penalty_inactive` | yes (info) |
+| C17-MOP-18 | High-difficulty exercises in youth Rx (legacy check id) | technical/overall difficulty, ageMax ≤ 14 | yes | `youth_advanced_skill_level` | yes |
+| C17-MOP-19 | Beginner-experience penalty path inactive | beginnerAppropriatenessPenalty, training experience | yes | `youth_beginner_penalty_inactive` | yes (info) |
 | C17-MOP-20 | Resilience wall-handstand exception | controlResilienceValidation slug allowlist | yes | `youth_resilience_wall_handstand` | yes |
 | C17-MOP-21 | High-intent minutes × youth factor | block minutes, ageMax ≤ 12 | yes | `youth_high_intent_minutes` | yes |
 | C17-MOP-22 | Plyo density in Output (younger split) | Split 1 Output, plyo/jump tags | yes | `youth_split1_output_plyo_density` | yes |
 | C17-MOS-01 | Age inputs valid pre-gate | ageMin, ageMax ordering | yes | `youth_age_inputs_valid` | yes |
-| C17-MOS-02 | Scaling cohort resolvable | age + skillLevel → scalingCohort | yes | `youth_scaling_cohort_resolvable` | yes |
+| C17-MOS-02 | Scaling cohort resolvable | age + training experience → scalingCohort | yes | `youth_scaling_cohort_resolvable` | yes |
 | C17-MOE-01 | Parent/coach safety confidence | full youth prescription | yes | `category17_moe_review_packet` | partial (manual) |
 | C17-MOE-02 | No adult-only skills surfaced | prescribed items + coach audit | yes | `category17_moe_review_packet` | partial (manual) |
 | C17-MOE-03 | Scaling notes sufficient for youth | per_split scaling_guidance | yes | `youth_scaling_guidance_rate` | yes (info) |

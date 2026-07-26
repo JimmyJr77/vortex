@@ -624,8 +624,10 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       }
       const data = await coachFetch<PrescriptionResult>('/api/coach/needs-engine/prescribe', { method: 'POST', body: JSON.stringify(body) })
       const nextPatch: Parameters<typeof patch>[0] = { result: data }
-      if (data.audience_profile?.impliedSkillLevel && !skillLevel) {
-        nextPatch.skillLevel = data.audience_profile.impliedSkillLevel
+      const inferredTrainingExperience = data.audience_profile?.trainingExperience
+        ?? data.audience_profile?.impliedSkillLevel
+      if (inferredTrainingExperience && !skillLevel) {
+        nextPatch.skillLevel = inferredTrainingExperience
       }
       patch(nextPatch)
       setHasPrescription(true)
@@ -805,7 +807,12 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
       audience_json: {
         age_min: ageMinNum,
         age_max: ageMaxNum,
-        skill_level: skillLevel === 'N/A' ? null : (skillLevel || result.audience_profile?.impliedSkillLevel || null),
+        training_experience: skillLevel === 'N/A'
+          ? null
+          : (skillLevel
+            || result.audience_profile?.trainingExperience
+            || result.audience_profile?.impliedSkillLevel
+            || null),
         sport_id: sportId || null,
       },
       coach_rationale_json: {
@@ -1059,7 +1066,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
               <input type="number" value={ageMax} onChange={(e) => patch({ ageMax: e.target.value ? Number(e.target.value) : '' })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
             </label>
             <label className="text-sm">
-              <span className="block font-semibold text-gray-700 mb-1">Skill level</span>
+              <span className="block font-semibold text-gray-700 mb-1">Training experience</span>
               <select value={skillLevel} onChange={(e) => patch({ skillLevel: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
                 <option value="">Any</option>
                 <option value="N/A">N/A</option>
@@ -1521,7 +1528,9 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
                     {result.audience_profile.ageBandLabel}
                     {' · '}Max difficulty {difficultyTo100(result.audience_profile.caps.maxOverall)}/100
                     {result.audience_profile.scalingCohort ? ` · Cohort ${result.audience_profile.scalingCohort.replace(/_/g, ' ')}` : ''}
-                    {result.audience_profile.impliedSkillLevel ? ` · ${result.audience_profile.impliedSkillLevel}` : ''}
+                    {(result.audience_profile.trainingExperience ?? result.audience_profile.impliedSkillLevel)
+                      ? ` · Training experience ${result.audience_profile.trainingExperience ?? result.audience_profile.impliedSkillLevel}`
+                      : ''}
                   </p>
                   {(result.age_fit_warnings?.length ?? 0) > 0 && (
                     <ul className="mt-2 text-xs text-amber-800 list-disc ml-4">

@@ -705,10 +705,15 @@ describe('analyzeOutputAccelerationReadiness', () => {
   })
 
   it('warns on three-point start for beginner athletes', () => {
-    const exerciseSkillLevelById = new Map([['2', 'BEGINNER']])
     const findings = analyzeOutputAccelerationReadiness(
       [{ exercise_id: 2, exercise_name: 'Three-Point Start' }],
-      { slugByExercise, dosageByExercise, blockMeta: [], outputBlockIndex: 0, exerciseSkillLevelById },
+      {
+        slugByExercise,
+        dosageByExercise,
+        blockMeta: [],
+        outputBlockIndex: 0,
+        draft: { audience_json: { training_experience: 'BEGINNER' } },
+      },
     )
     assert.ok(findings.some((f) => f.rule_key === 'output_three_point_beginner'))
   })
@@ -788,7 +793,7 @@ describe('analyzeOutputMaxVelocityReadiness', () => {
         dosageByExercise: new Map(),
         blockMeta: [],
         outputBlockIndex: 0,
-        exerciseSkillLevelById: new Map([['4', 'BEGINNER']]),
+        draft: { audience_json: { training_experience: 'BEGINNER' } },
       },
     )
     assert.ok(findings.some((f) => f.rule_key === 'output_max_velocity_beginner_advanced'))
@@ -860,7 +865,7 @@ describe('analyzeOutputElasticReadiness', () => {
         dosageByExercise: new Map(),
         blockMeta: [],
         outputBlockIndex: 0,
-        exerciseSkillLevelById: new Map([['4', 'BEGINNER']]),
+        draft: { audience_json: { training_experience: 'BEGINNER' } },
       },
     )
     assert.ok(findings.some((f) => f.rule_key === 'output_elastic_depth_rebound_beginner'))
@@ -988,7 +993,7 @@ describe('analyzeOutputDecelCodReadiness', () => {
         dosageByExercise: new Map(),
         blockMeta: [],
         outputBlockIndex: 0,
-        exerciseSkillLevelById: new Map([['3', 'BEGINNER']]),
+        draft: { audience_json: { training_experience: 'BEGINNER' } },
       },
     )
     assert.ok(findings.some((f) => f.rule_key === 'output_decel_cod_180_beginner'))
@@ -1133,7 +1138,7 @@ describe('analyzeCapacityReadiness', () => {
         dosageByExercise: new Map(),
         blockMeta: [{ phaseKey: 'capacity', block: {} }],
         capacityBlockIndex: 0,
-        exerciseSkillLevelById: new Map([['2', 'BEGINNER']]),
+        draft: { audience_json: { training_experience: 'BEGINNER' } },
       },
     )
     assert.ok(findings.some((f) => f.rule_key === 'capacity_nordic_beginner'))
@@ -1426,7 +1431,7 @@ describe('analyzeCapacityPullReadiness', () => {
         dosageByExercise: new Map(),
         blockMeta: [],
         capacityBlockIndex: 0,
-        exerciseSkillLevelById: new Map([['4', 'BEGINNER']]),
+        draft: { audience_json: { training_experience: 'BEGINNER' } },
       },
     )
     assert.ok(findings.some((f) => f.rule_key === 'capacity_pull_eccentric_beginner'))
@@ -1598,7 +1603,7 @@ describe('analyzeCapacityTissueReadiness', () => {
         dosageByExercise: new Map(),
         blockMeta: [],
         capacityBlockIndex: 0,
-        exerciseSkillLevelById: new Map([['4', 'BEGINNER']]),
+        draft: { audience_json: { training_experience: 'BEGINNER' } },
       },
     )
     assert.ok(findings.some((f) => f.rule_key === 'capacity_tissue_copenhagen_beginner'))
@@ -1705,7 +1710,7 @@ describe('analyzeControlResilienceReadiness', () => {
         dosageByExercise: new Map(),
         blockMeta: [{ phaseKey: 'resilience', block: {} }],
         controlBlockIndex: 0,
-        exerciseSkillLevelById: new Map([['5', 'BEGINNER']]),
+        draft: { audience_json: { training_experience: 'BEGINNER' } },
       },
     )
     assert.ok(findings.some((f) => f.rule_key === 'control_resilience_handstand_prerequisite'))
@@ -1896,7 +1901,6 @@ describe('analyzeControlTrunkReadiness', () => {
     return {
       slugByExercise: new Map([[String(id), slug]]),
       dosageByExercise: extras.dosageByExercise ?? new Map(),
-      exerciseSkillLevelById: extras.exerciseSkillLevelById ?? new Map(),
       draft: { watch_points: Array.isArray(watchPoints) ? watchPoints : [watchPoints] },
       ...extras,
     }
@@ -1958,7 +1962,6 @@ describe('analyzeControlSlowEccentricReadiness', () => {
     return {
       slugByExercise: new Map([[String(id), slug]]),
       dosageByExercise: extras.dosageByExercise ?? new Map(),
-      exerciseSkillLevelById: extras.exerciseSkillLevelById ?? new Map(),
       blockMeta: extras.blockMeta ?? [],
       controlBlockIndex: extras.controlBlockIndex ?? 0,
       draft: { watch_points: Array.isArray(watchPoints) ? watchPoints : [watchPoints] },
@@ -2006,7 +2009,10 @@ describe('analyzeControlSlowEccentricReadiness', () => {
     const findings = analyzeControlSlowEccentricReadiness(
       [{ exercise_id: 50, exercise_name: 'Nordic Lean Isometric Partial Range' }],
       ctx(50, 'nordic-lean-isometric-partial-range', 'quality looks ok', {
-        exerciseSkillLevelById: new Map([['50', 'BEGINNER']]),
+        draft: {
+          watch_points: ['quality looks ok'],
+          audience_json: { training_experience: 'BEGINNER' },
+        },
       }),
     )
     assert.ok(findings.some((f) => f.rule_key === 'control_resilience_slow_ecc_nordic_beginner'))
@@ -2028,7 +2034,6 @@ describe('analyzeControlHandSupportReadiness', () => {
     return {
       slugByExercise: new Map([[String(id), slug]]),
       dosageByExercise: extras.dosageByExercise ?? new Map(),
-      exerciseSkillLevelById: extras.exerciseSkillLevelById ?? new Map(),
       blockMeta: extras.blockMeta ?? [],
       controlBlockIndex: extras.controlBlockIndex ?? 0,
       draft: { watch_points: Array.isArray(watchPoints) ? watchPoints : [watchPoints] },

@@ -1,0 +1,451 @@
+{
+  "facilityId": 1,
+  "slug": "lateral-skater-bound-stick",
+  "researchVersion": "2026-07-25.3",
+  "assessmentSummary": {
+    "identity": "A unilateral lateral bound from one leg to the opposite leg followed by a deliberate two-second single-leg landing hold.",
+    "currentCardFindings": [
+      "The legacy execution clearly describes a lateral bound to the opposite leg and a two-second stick, providing a stable unilateral identity.",
+      "Some existing media candidates show generic linear bounds and do not match the lateral direction.",
+      "Controlled taxonomy, anatomy, load, fatigue, equipment, environment, and population fields are empty despite meaningful unilateral impact and balance demands."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "bound",
+        "lateral_displacement",
+        "single_leg_land",
+        "brace"
+      ],
+      "jointActions": [
+        "ankle_plantarflexion_and_dorsiflexion_control",
+        "knee_extension_and_flexion_control",
+        "hip_extension_and_flexion_control",
+        "hip_abduction_control"
+      ],
+      "planes": [
+        "frontal",
+        "sagittal"
+      ],
+      "laterality": "unilateral_takeoff_contralateral_unilateral_landing",
+      "intent": "lateral_power_with_single_leg_braking"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_medius",
+        "gluteus_maximus",
+        "quadriceps",
+        "soleus"
+      ],
+      "secondaryMuscles": [
+        "hamstrings",
+        "gastrocnemius",
+        "adductors",
+        "hip_external_rotators",
+        "intrinsic_foot",
+        "trunk_stabilizers"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 58,
+      "absoluteLoadDemand": 18,
+      "coordinationDemand": 65,
+      "supervisionDemand": 52,
+      "failureConsequence": 58,
+      "impact": 52,
+      "workCapacityDemand": 24,
+      "baseOverallDifficulty": 58
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_unilateral_lateral_ballistic_eccentric",
+      "impactClass": "moderate",
+      "contactCountUnit": "single_leg_landings_per_side",
+      "primaryStress": [
+        "lateral_hip_propulsion",
+        "single_leg_knee_extensor_eccentric",
+        "ankle_foot_stabilization",
+        "frontal_plane_trunk_control"
+      ],
+      "fatigueSensitivity": "landing_stability_and_distance_symmetry_before_metabolic"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "lateral_floor_targets"
+      ],
+      "optionalEquipment": [
+        "assistance_band",
+        "video_feedback"
+      ],
+      "environment": [
+        "level_non_slip_surface",
+        "clear_lateral_landing_zone",
+        "coach_front_view"
+      ],
+      "population": [
+        "owns_single_leg_stance_and_low_amplitude_hop_to_stick",
+        "pain_free_lateral_push_off_and_landing"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4",
+      "repetitions": "3-5 per side",
+      "holdSeconds": "2-3",
+      "restSeconds": "60-90",
+      "intensity": "submaximal_distance_with_full_stick",
+      "progressWhen": "distance is symmetrical and every opposite-leg landing is quiet, aligned, and held without a touch-down"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Load the outside hip",
+        "Push the floor away sideways",
+        "Land softly on the opposite leg",
+        "Own the hip, knee, and foot for two seconds"
+      ],
+      "athleteInstructions": [
+        "Jump sideways from one leg to the other",
+        "Land quietly on the opposite leg",
+        "Hold without touching the free foot down"
+      ],
+      "commonFaults": [
+        "turning it into a forward bound",
+        "overreaching with the landing foot",
+        "knee collapse",
+        "pelvis drop",
+        "free-foot touch-down",
+        "continuous skating without a hold"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "stable single-leg squat pattern",
+        "controlled single-leg hop to stick",
+        "clear non-slip lateral zone"
+      ],
+      "stopRules": [
+        "pain or giving way",
+        "repeated valgus or pelvis drop",
+        "uncontrolled foot roll",
+        "free-foot touch-down",
+        "distance or hold degrades across repetitions"
+      ]
+    },
+    "programmingDecision": "Retain as the clear unilateral lateral power-and-braking card. Replace linear-bound media candidates, keep distance and assistance as modifiers, and treat continuous skater bounds as a separate reactive definition.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-25T22:50:01.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Lateral Skater Bound Stick is a elastic stiffness & plyometrics exercise for speed, sprinting, and quick-release athletes. It emphasizes lateral projection, single leg landing, hip stability while keeping the session intent aligned with the Vortex phase sequence.",
+      "familyKey": "Landing & Braking Control",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 20,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Landing-control exercises must distinguish a non-jump drop, a jump or hop with flight, an elevated drop, and a run-to-stop because approach momentum and drop height change the task.",
+        "Lateral Skater Bound Stick must encode takeoff, landing laterality, direction, approach speed, external height, rebound intent, and required hold as identity, variant, or dosage dimensions."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Landing and horizontal deceleration both train force attenuation, but horizontal stopping additionally requires braking impulse to reduce whole-body momentum.",
+        "Lateral Skater Bound Stick belongs to landing and braking control; reactive rebounding, maximal jumping, change of direction, and conditioning are separate programming intents."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Force absorption is shared across the foot and ankle, knee, and hip rather than isolated to one joint.",
+        "The card should identify plantar flexors and intrinsic foot muscles, quadriceps, hamstrings, gluteals, hip abductors and external rotators, and trunk stabilizers with task-specific primary and secondary roles."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Effective braking coordinates lower-limb flexion, centre-of-mass control, foot placement, and force direction to attenuate and apply braking force.",
+        "Observable quality includes quiet controlled contact, whole-foot pressure, coordinated ankle-knee-hip flexion, knee tracking, stable pelvis and trunk, and ownership of the final position without extra steps."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Plyometric and landing intensity changes with speed, external height, body mass, external load, and task complexity.",
+        "Exercise difficulty must score technical complexity and physical demand directly, including coordination, impact, supervision, work capacity, and consequence of error; it must not use a skill-library level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Horizontal deceleration creates high impact peaks, loading rates, and eccentric muscle demand; rapid or repeated exposures can contribute to muscle damage and need volume management.",
+        "Lateral Skater Bound Stick needs contact count, approach speed or drop height, laterality, eccentric braking demand, joint and tissue stress, performance-loss criteria, and recovery guidance rather than repetition count alone."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Landing interventions depend on appropriate materials, coaching knowledge, usable space, and task-specific progression.",
+        "The delivery profile should require a level non-slip surface, clear landing and run-out zones, stable equipment where applicable, suitable footwear, spacing, coach sightline, and a population-specific readiness screen."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Landing quality and force absorption should be learned before higher-speed, higher-height, repeated, or reactive plyometric work.",
+        "Prescribe low-repetition quality sets, landing contacts per side, approach speed or height, hold duration, rest, cue complexity, and progression criteria; stop before fatigue changes mechanics."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Prescriptive instructions and feedback can improve landing mechanics, while excessive or poorly targeted information can interfere with learning.",
+        "Use a small cue set: land quietly, share force through ankle-knee-hip flexion, keep knee over the middle toes, control pelvis and trunk, and hold the finish without a touch-down or extra step."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Loud contact, poor stabilization, loss of alignment, or inability to use the ankle, knee, and hip together indicate that intensity or volume exceeds current control.",
+        "Stop for pain, giving way, dizziness, repeated valgus or trunk collapse, uncontrolled foot contact, extra steps, loss of the required hold, unsafe surface or spacing, or persistent left-right asymmetry."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6592422/",
+      "sourceTitle": "Evidence-Based Best-Practice Guidelines for Preventing Anterior Cruciate Ligament Injuries in Young Female Athletes: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "The American Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Landing stabilization and lower-body strength are recurring components of effective neuromuscular injury-prevention programs.",
+        "Lateral Skater Bound Stick belongs after general preparation and before high-intensity jumping, sprinting, or change-of-direction work; rehabilitation and return-to-sport assessment require separate clinical context."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Athletes benefit from specific feedback tied to observable landing actions rather than abstract risk language.",
+        "Athlete support should show the start and finish positions, state the landing target and hold time, define a successful repetition, provide one primary cue, and explain the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Coach education and practical implementation affect whether landing interventions can be delivered effectively.",
+        "Coach support should provide front and side observation points, pass-fail criteria, contact counting, left-right comparison, regressions, progressions, equipment checks, and rules for reducing speed, height, distance, or laterality."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Beginners should establish landing and stabilization control before progressing from bilateral to unilateral, longer, faster, or shock-loading tasks.",
+        "Accessibility can be improved with visual floor targets, demonstrated start and finish shapes, plain-language cues, reduced amplitude, external support, longer holds, and reduced sensory or decision load without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "In-place landings, jumps covering distance, repeated hops, and elevated or externally loaded tasks have different intensity and programming implications.",
+        "Direction, laterality, support, cueing, and low amplitude are usually variants; rebound intent, approach momentum, external height, or a change to testing or return-to-sport purpose may require a distinct definition or contextual profile."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Lateral Skater Bound Stick were discovered or rechecked through visible YouTube search and public oEmbed metadata; full viewing, exact-version match, captions, instructional quality, safety, and approval remain pending human review."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=IyadMTSm5cc",
+      "title": "Lateral Bound w/ Stick (Speed Skater)",
+      "channelName": "Littauer Strength Training",
+      "sourceQuery": "lateral skater bound to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Duhh40Y0zyE",
+      "title": "Skater Bound to Stick",
+      "channelName": "Sledge Strength",
+      "sourceQuery": "lateral skater bound to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=4nTDP0G3nhc",
+      "title": "Lateral Bound with Stick",
+      "channelName": "ken whittier",
+      "sourceQuery": "lateral skater bound to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=abcUAF4sJpA",
+      "title": "Lateral Bound Quick to Stick",
+      "channelName": "Champion Physical Therapy and Performance",
+      "sourceQuery": "lateral skater bound to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=1IukLCtNqvM",
+      "title": "Lateral Skater Jump & Stick",
+      "channelName": "Garrett McLaughlin",
+      "sourceQuery": "lateral skater bound to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Lateral Bound with Stick",
+      "classification": "same_identity",
+      "rationale": "This common name describes the same unilateral lateral takeoff, opposite-leg landing, and stabilization hold.",
+      "distinguishingDimensions": {
+        "alias": "lateral_bound_with_stick"
+      }
+    },
+    {
+      "name": "Band-Assisted Lateral Bound to Stick",
+      "classification": "new_variant",
+      "rationale": "Assistance reduces displacement and landing demand while preserving unilateral lateral mechanics.",
+      "distinguishingDimensions": {
+        "supportLevel": "band_assisted"
+      }
+    },
+    {
+      "name": "Distance Lateral Bound to Stick",
+      "classification": "modifier_annotation",
+      "rationale": "Changing target distance scales intensity but does not create a new movement identity.",
+      "distinguishingDimensions": {
+        "distance": "prescribed_modifier"
+      }
+    },
+    {
+      "name": "Continuous Skater Bounds",
+      "classification": "new_definition",
+      "rationale": "Continuous side-to-side rebounds remove the stick and emphasize reactive power and work capacity.",
+      "distinguishingDimensions": {
+        "reboundIntent": "continuous",
+        "primaryTrainingStimulus": "reactive_lateral_power"
+      }
+    },
+    {
+      "name": "Bilateral Lateral Jump to Stick",
+      "classification": "new_variant",
+      "rationale": "Two-foot takeoff and landing materially reduce unilateral balance demand and serve as a regression.",
+      "distinguishingDimensions": {
+        "takeoffLaterality": "bilateral",
+        "landingLaterality": "bilateral"
+      }
+    }
+  ]
+}

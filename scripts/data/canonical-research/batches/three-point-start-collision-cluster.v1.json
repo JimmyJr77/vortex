@@ -1,0 +1,787 @@
+{
+  "batchKey": "three-point-start-collision-cluster-v1",
+  "researchVersion": "2026-07-25.14",
+  "snapshotAt": "2026-07-26T09:05:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "sprint_start_procedure_timing",
+      "claims": [
+        "Start position and procedure influence sprint performance, so the supported stance and initiation rule must be explicit.",
+        "{{canonicalName}} must define the grounded hand, stagger, static or build-up procedure, intent, target distance, finish, and run-out. Five yards, ten metres, or twenty metres alone does not create a new exercise identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "sprint_start_biomechanics_review",
+      "claims": [
+        "Sprint-start push-off and the early acceleration steps are connected but distinguishable phases.",
+        "{{canonicalName}} belongs to a three-point ground-supported start and short linear acceleration family; two-point, four-point, block, resisted, externally cued, and progressive build-up executions require controlled variant or delivery-profile labels."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "sprint_acceleration_hamstrings",
+      "claims": [
+        "Sprint acceleration requires coordinated hip, knee, and ankle action, including hamstring contribution to horizontal force production.",
+        "Represent hand, wrist, shoulder-girdle, trunk, gluteal, hamstring, quadriceps, hip-flexor, plantar-flexor, and foot roles without reducing the exercise to knee drive."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "sprint_start_biomechanics_review",
+      "claims": [
+        "Effective early acceleration is associated with forward-directed impulse, propulsive force, and progressive projection.",
+        "Use a repeatable stagger and hand position, clear the grounded hand, push through both legs according to the setup, coordinate the arms, and rise progressively without forcing one universal shin angle or step length."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "sprint_start_procedure_timing",
+      "claims": [
+        "Lower start positions change body position and timing compared with standing starts.",
+        "Score technical complexity, absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly; athlete experience remains programming context and is not an exercise-card skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "sprint_acceleration_performance",
+      "claims": [
+        "Power output is highest during the first acceleration steps.",
+        "{{canonicalName}} must track effort count, distance, sprint contacts, start-side distribution, grounded-hand side, surface, posterior-chain and plantar-flexor stress, technical fatigue, speed loss, run-out, recovery, and total session sprint volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Quality sprint work requires suitable space, surface, targets, separation, and recovery.",
+        "Require a clear dry level lane, safe hand-contact area, suitable footwear, visible target, athlete spacing, and sufficient run-out; cones, timing gates, and video are optional logistics or measurement tools."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Acceleration work should prescribe distance, intensity, repetitions, sets, and recovery rather than repetitions alone.",
+        "Use two to six high-quality efforts over roughly 5–20 metres with 60–180 seconds recovery; any longer progressive build-up must state its acceleration zone, target intensity, total distance, and longer contact budget."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "sprint_start_biomechanics_review",
+      "claims": [
+        "Start setup should support effective projection without forcing an anthropometrically inappropriate position.",
+        "Use a small cue set: place the hand and feet, load the stance, push the ground back, clear the hand, coordinate opposite arm and leg, accelerate through the target, and use the run-out."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Training should use qualified supervision, correct technique, manageable demands, and gradual progression.",
+        "Stop for hand or wrist pain, other lower- or upper-limb pain, slip, stumble, lane obstruction, unsafe spacing, repeated false step, loss of projection or arm-leg coordination, marked speed decline, or inability to decelerate safely."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Acceleration and maximal-velocity sprinting are distinct qualities, and high-quality speed work should not become dense conditioning.",
+        "{{canonicalName}} belongs after sprint preparation and before fatiguing work. Static maximal starts fit output work; a defined longer progressive build-up may fit approach-rhythm or transition work but must not be silently substituted."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "world_athletics_introduction_sprinting",
+      "claims": [
+        "Acceleration develops across successive steps rather than by immediately standing upright.",
+        "Show both stance sides, exact hand and foot setup, first three contacts, distance markers, finish and run-out, a slower rehearsal, and the difference between a short maximal start and a progressive build-up."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Coaches should distinguish acceleration quality from maximal velocity and conditioning.",
+        "Provide setup checks, side and rear observation, stance-side balance, step and contact counts, split timing when used, projection, hand clearance, speed-loss stops, and exact merge, variant, and delivery-profile guidance."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_long_term_development",
+      "claims": [
+        "Speed training should be developmentally appropriate and based on movement competency.",
+        "Accessibility options include a two-point start, taller stagger, chosen grounded hand, submaximal intent, shorter distance, untimed attempts, visual marks, extra demonstration, fewer efforts, and longer recovery."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "sprint_start_procedure_timing",
+      "claims": [
+        "Start position and timing procedure change the task and measured performance.",
+        "Small distance or measurement-system changes are dosage; changing support points, external cue, resistance, blocks, or a static maximal start into a longer progressive build-up requires a controlled variant or distinct delivery profile."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for {{canonicalName}} remain candidate-only. Availability, embedding, exact stance and delivery-profile match, complete viewing, captions, cue and safety quality, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "3-point-start-10-20m",
+      "assessmentSummary": {
+        "identity": "A static three-point short acceleration with one hand grounded, a staggered stance, and a high-intent sprint through a prescribed 5–20-metre target.",
+        "currentCardFindings": [
+          "The current card states a distance and generic sprint qualities but does not define which hand is down, the stance relationship, initiation cue, lead-side handling, target behavior, or run-out.",
+          "Its legacy aliases contain malformed plural and punctuation variants that should remain hidden search aliases rather than display names.",
+          "The four legacy difficulty values omit supervision, failure consequence, impact, work-capacity demand, and hand-supported transition demands."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "static_three_point_start",
+            "short_linear_acceleration"
+          ],
+          "jointActions": [
+            "hand_support_release",
+            "hip_knee_ankle_extension",
+            "swing_leg_recovery",
+            "reciprocal_arm_action"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal",
+            "transverse_control"
+          ],
+          "laterality": "one_hand_and_staggered_feet_then_alternating_sprint",
+          "intent": "high_quality_short_acceleration_from_three_point_stance"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hip_flexors",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "pectoralis_major",
+            "triceps",
+            "rotator_cuff",
+            "obliques"
+          ],
+          "joints": [
+            "hand",
+            "wrist",
+            "elbow",
+            "shoulder",
+            "spine",
+            "hip",
+            "knee",
+            "ankle",
+            "foot"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 12,
+          "coordinationDemand": 60,
+          "supervisionDemand": 58,
+          "failureConsequence": 58,
+          "impact": 58,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 58
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_three_point_high_intent_acceleration",
+          "impactClass": "moderate_to_high_by_speed_surface_and_distance",
+          "landingContactsPerRep": "count_all_acceleration_and_run_out_contacts",
+          "primaryStress": [
+            "grounded_hand_and_wrist",
+            "early_acceleration_force",
+            "posterior_chain",
+            "plantar_flexors"
+          ],
+          "fatigueSensitivity": "setup_hand_clearance_projection_first_steps_speed_and_run_out"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clean_hand_contact_area",
+            "clear_5_to_20_metre_lane",
+            "target_mark",
+            "safe_run_out"
+          ],
+          "optionalEquipment": [
+            "cones",
+            "timing_gates",
+            "video"
+          ],
+          "environment": [
+            "dry_level_non_slip_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_hand_support",
+            "stable_three_point_stance",
+            "pain_free_acceleration"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-6_efforts",
+          "distance": "5-20_metres",
+          "restSeconds": "90-180",
+          "intensity": "high_intent_after_rehearsal",
+          "progressWhen": "setup, hand clearance, projection, and split performance remain repeatable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Set the hand and feet",
+            "Load the stance",
+            "Push back and clear the hand",
+            "Sprint through the target"
+          ],
+          "athleteInstructions": [
+            "Start still from the same three-point setup, clear the grounded hand, and accelerate through the assigned line"
+          ],
+          "commonFaults": [
+            "undefined_hand_or_stagger",
+            "rocking_start",
+            "false_step",
+            "hand_slip",
+            "popping_upright",
+            "stopping_at_target"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_hand_support",
+            "stable_start",
+            "safe_lane",
+            "completed_warm_up"
+          ],
+          "stopRules": [
+            "pain",
+            "hand_slip",
+            "stumble",
+            "repeated_false_step",
+            "marked_speed_loss",
+            "unsafe_run_out"
+          ]
+        },
+        "programmingDecision": "Retain as the stable three-point short-acceleration identity. Move 5–20-metre choices into delivery profiles and preserve reviewed legacy names as aliases."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=-Ihg0il6gtw",
+          "title": "Sprint Training - How to do a 3-Point Start",
+          "channelName": "MomentumSports",
+          "sourceQuery": "existing three-point-start candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=EO6SbD2nrSc",
+          "title": "How to properly do a 3 point start #running #tips",
+          "channelName": "Lyfestyle Athletics",
+          "sourceQuery": "existing three-point-start candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=SE0SEbGSA-M",
+          "title": "Take Your 40 Yard Dash and 3 Point Starts to the Next Level",
+          "channelName": "Outperform",
+          "sourceQuery": "existing three-point-start candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=dgewJyq8ZFc",
+          "title": "How to do a 3-Point Start",
+          "channelName": "Science for Sport",
+          "sourceQuery": "existing three-point-start candidate"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Three-Point Start Acceleration",
+          "classification": "same_identity",
+          "rationale": "It defines the same static supported start and differs only by a 5–10-yard target.",
+          "distinguishingDimensions": {
+            "distance": "5_to_10_yards"
+          }
+        },
+        {
+          "name": "Three-Point Acceleration Build-Up",
+          "classification": "new_variant",
+          "rationale": "A longer progressive speed rise changes the delivery profile and contact budget if that is the intended execution.",
+          "distinguishingDimensions": {
+            "speedProfile": "progressive_build_up"
+          }
+        },
+        {
+          "name": "Two-Point Start",
+          "classification": "new_variant",
+          "rationale": "Removing hand support changes setup and transition.",
+          "distinguishingDimensions": {
+            "supportPoints": 2
+          }
+        },
+        {
+          "name": "Block Start",
+          "classification": "new_variant",
+          "rationale": "Blocks change equipment, stance, and push-off constraints.",
+          "distinguishingDimensions": {
+            "equipment": "starting_blocks"
+          }
+        },
+        {
+          "name": "Auditory Three-Point Start",
+          "classification": "new_variant",
+          "rationale": "An external sound cue adds a reaction requirement.",
+          "distinguishingDimensions": {
+            "cue": "auditory"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "three-point-start-acceleration",
+      "assessmentSummary": {
+        "identity": "The same static three-point short acceleration, expressed over a 5–10-yard target.",
+        "currentCardFindings": [
+          "The description identifies one grounded hand and staggered feet but omits the grounded-hand side rule, target behavior, total contacts, rest, surface, run-out, and stop rules.",
+          "The name does not materially differ from 3-Point Start 10–20m.",
+          "Its generic difficulty values omit hand support, coordination, supervision, failure consequence, impact, and work-capacity demand."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "static_three_point_start",
+            "short_linear_acceleration"
+          ],
+          "jointActions": [
+            "hand_support_release",
+            "hip_knee_ankle_extension",
+            "swing_leg_recovery",
+            "reciprocal_arm_action"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal",
+            "transverse_control"
+          ],
+          "laterality": "one_hand_and_staggered_feet_then_alternating",
+          "intent": "accelerate_through_5_to_10_yards_from_three_point_stance"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hip_flexors",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "pectoralis_major",
+            "triceps",
+            "rotator_cuff",
+            "obliques"
+          ],
+          "joints": [
+            "hand",
+            "wrist",
+            "elbow",
+            "shoulder",
+            "spine",
+            "hip",
+            "knee",
+            "ankle",
+            "foot"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 12,
+          "coordinationDemand": 60,
+          "supervisionDemand": 58,
+          "failureConsequence": 58,
+          "impact": 58,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 58
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_three_point_high_intent_acceleration",
+          "impactClass": "moderate_to_high",
+          "landingContactsPerRep": "all_contacts_through_target_and_run_out",
+          "primaryStress": [
+            "grounded_hand_and_wrist",
+            "early_acceleration_force",
+            "posterior_chain",
+            "plantar_flexors"
+          ],
+          "fatigueSensitivity": "setup_hand_clearance_projection_speed_and_run_out"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clean_hand_contact_area",
+            "clear_5_to_10_yard_lane",
+            "target_mark",
+            "safe_run_out"
+          ],
+          "optionalEquipment": [
+            "cones",
+            "timing_gates",
+            "video"
+          ],
+          "environment": [
+            "dry_level_non_slip_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_hand_support",
+            "stable_three_point_stance",
+            "pain_free_acceleration"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-6_efforts",
+          "distance": "5-10_yards",
+          "restSeconds": "60-150",
+          "intensity": "high_intent_after_rehearsal",
+          "progressWhen": "setup, hand clearance, first steps, and finish remain repeatable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Set the hand and stagger",
+            "Load the stance",
+            "Clear the hand",
+            "Sprint through the line"
+          ],
+          "athleteInstructions": [
+            "Start still with one hand grounded and sprint through the assigned 5- or 10-yard target"
+          ],
+          "commonFaults": [
+            "duplicate_identity",
+            "unstable_setup",
+            "rocking_start",
+            "false_step",
+            "hand_slip",
+            "stopping_on_line"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_hand_support",
+            "stable_start",
+            "safe_lane",
+            "completed_warm_up"
+          ],
+          "stopRules": [
+            "pain",
+            "hand_slip",
+            "stumble",
+            "repeated_false_step",
+            "speed_loss",
+            "unsafe_run_out"
+          ]
+        },
+        "programmingDecision": "Merge into 3-Point Start 10–20m. Preserve the name as an alias and the 5–10-yard range as an imperial delivery profile."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=-Ihg0il6gtw",
+          "title": "Sprint Training - How to do a 3-Point Start",
+          "channelName": "MomentumSports",
+          "sourceQuery": "existing three-point-start candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=EO6SbD2nrSc",
+          "title": "How to properly do a 3 point start #running #tips",
+          "channelName": "Lyfestyle Athletics",
+          "sourceQuery": "existing three-point-start candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=SE0SEbGSA-M",
+          "title": "Take Your 40 Yard Dash and 3 Point Starts to the Next Level",
+          "channelName": "Outperform",
+          "sourceQuery": "existing three-point-start candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=dgewJyq8ZFc",
+          "title": "How to do a 3-Point Start",
+          "channelName": "Science for Sport",
+          "sourceQuery": "existing three-point-start candidate"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "3-Point Start 10–20m",
+          "classification": "same_identity",
+          "rationale": "Only distance and measurement system differ.",
+          "distinguishingDimensions": {
+            "distance": "10_to_20_metres"
+          }
+        },
+        {
+          "name": "Three-Point Acceleration Build-Up",
+          "classification": "new_variant",
+          "rationale": "A longer progressive rise changes speed profile and contact dose.",
+          "distinguishingDimensions": {
+            "speedProfile": "progressive_build_up"
+          }
+        },
+        {
+          "name": "Two-Point Start",
+          "classification": "new_variant",
+          "rationale": "Removing the grounded hand changes the start.",
+          "distinguishingDimensions": {
+            "supportPoints": 2
+          }
+        },
+        {
+          "name": "Four-Point Start",
+          "classification": "new_variant",
+          "rationale": "Adding the second grounded hand changes support and transition.",
+          "distinguishingDimensions": {
+            "supportPoints": 4
+          }
+        },
+        {
+          "name": "Resisted Three-Point Start",
+          "classification": "new_variant",
+          "rationale": "External resistance changes equipment and the force-velocity constraint.",
+          "distinguishingDimensions": {
+            "externalResistance": "present"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "three-point-acceleration-build-up",
+      "assessmentSummary": {
+        "identity": "A provisionally controlled three-point-start delivery profile that uses a longer, progressive acceleration rise rather than a short maximal start.",
+        "currentCardFindings": [
+          "The description says the drill supports a distance-jump run-up but does not state the starting hand or foot setup, total distance, acceleration-zone length, target intensity, finish, or whether a jump approach follows.",
+          "The term build-up may describe either ordinary progressive acceleration from the same three-point start or a distinct approach-rhythm task; the current card cannot distinguish them.",
+          "No difficulty dimensions, contact budget, fatigue model, constraints, instructions, stop rules, or exact media are present."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "three_point_start",
+            "progressive_linear_acceleration"
+          ],
+          "jointActions": [
+            "hand_support_release",
+            "hip_knee_ankle_extension",
+            "swing_leg_recovery",
+            "reciprocal_arm_action"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal",
+            "transverse_control"
+          ],
+          "laterality": "one_hand_and_staggered_feet_then_alternating_sprint",
+          "intent": "progressively_build_speed_and_posture_from_three_point_start"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hip_flexors",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "pectoralis_major",
+            "triceps",
+            "rotator_cuff",
+            "obliques"
+          ],
+          "joints": [
+            "hand",
+            "wrist",
+            "elbow",
+            "shoulder",
+            "spine",
+            "hip",
+            "knee",
+            "ankle",
+            "foot"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 56,
+          "absoluteLoadDemand": 12,
+          "coordinationDemand": 60,
+          "supervisionDemand": 55,
+          "failureConsequence": 56,
+          "impact": 64,
+          "workCapacityDemand": 58,
+          "baseOverallDifficulty": 56
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_three_point_progressive_acceleration",
+          "impactClass": "moderate_to_high_by_final_speed_and_total_distance",
+          "landingContactsPerRep": "count_every_contact_across_acceleration_zone_finish_and_run_out",
+          "primaryStress": [
+            "grounded_hand_and_wrist",
+            "progressive_acceleration_contacts",
+            "posterior_chain",
+            "plantar_flexors",
+            "speed_endurance_if_extended"
+          ],
+          "fatigueSensitivity": "start_setup_rate_of_rise_posture_rhythm_speed_contact_count_and_run_out"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clean_hand_contact_area",
+            "marked_acceleration_zone",
+            "clear_lane",
+            "target_and_safe_run_out"
+          ],
+          "optionalEquipment": [
+            "cones",
+            "timing_gates",
+            "video",
+            "jump_runway_if_that_context_is_confirmed"
+          ],
+          "environment": [
+            "dry_level_non_slip_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_hand_support",
+            "can_control_progressive_speed_rise",
+            "can_decelerate_safely"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-5_efforts",
+          "distance": "must_be_human_defined_before_publication",
+          "restSeconds": "120-240_by_distance_and_final_speed",
+          "intensity": "progressive_not_automatically_maximal",
+          "progressWhen": "rate of rise, posture, rhythm, finish, and run-out remain repeatable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Define the exact three-point setup",
+            "Build speed across the marked zone",
+            "Rise progressively",
+            "Run through and out"
+          ],
+          "athleteInstructions": [
+            "Use the assigned three-point stance and build speed smoothly across the marked zone without rushing upright"
+          ],
+          "commonFaults": [
+            "undefined_build_up",
+            "ordinary_maximal_start_mislabeled",
+            "no_marked_zones",
+            "abrupt_posture_change",
+            "unplanned_jump_approach",
+            "unsafe_finish"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_hand_support",
+            "controlled_progressive_acceleration",
+            "safe_lane_and_run_out"
+          ],
+          "stopRules": [
+            "pain",
+            "hand_slip",
+            "stumble",
+            "zone_confusion",
+            "loss_of_rhythm",
+            "marked_speed_loss",
+            "unsafe_run_out"
+          ]
+        },
+        "programmingDecision": "Retain only as a quarantined controlled delivery profile of the stable three-point-start identity until a human specifies the exact start, distance, speed progression, terminal action, and jump-runway relationship. If no material execution difference remains, merge it as an alias."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=-Ihg0il6gtw",
+          "title": "Sprint Training - How to do a 3-Point Start",
+          "channelName": "MomentumSports",
+          "sourceQuery": "adjacent three-point-start candidate",
+          "notes": "Shows the start component; an exact progressive build-up profile was not established."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=EO6SbD2nrSc",
+          "title": "How to properly do a 3 point start #running #tips",
+          "channelName": "Lyfestyle Athletics",
+          "sourceQuery": "adjacent three-point-start candidate",
+          "notes": "Shows the start component; exact distance-jump build-up intent remains unverified."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=SE0SEbGSA-M",
+          "title": "Take Your 40 Yard Dash and 3 Point Starts to the Next Level",
+          "channelName": "Outperform",
+          "sourceQuery": "adjacent three-point-start candidate",
+          "notes": "Three-point acceleration candidate; exact progressive build-up delivery is unverified."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=dgewJyq8ZFc",
+          "title": "How to do a 3-Point Start",
+          "channelName": "Science for Sport",
+          "sourceQuery": "adjacent three-point-start candidate",
+          "notes": "Shows a three-point start, not a confirmed longer build-up or jump approach."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "3-Point Start 10–20m",
+          "classification": "new_variant",
+          "rationale": "The stable card uses a short high-intent start rather than a longer prescribed progressive rise.",
+          "distinguishingDimensions": {
+            "speedProfile": "short_high_intent"
+          }
+        },
+        {
+          "name": "Build-Up Sprint / Stride-Out",
+          "classification": "new_variant",
+          "rationale": "A standing or rolling build-up removes the three-point support constraint.",
+          "distinguishingDimensions": {
+            "startPosition": "standing_or_rolling"
+          }
+        },
+        {
+          "name": "Long-Jump Approach Run",
+          "classification": "new_definition",
+          "rationale": "A measured approach with a takeoff objective adds accuracy and a terminal action.",
+          "distinguishingDimensions": {
+            "terminalAction": "jump_takeoff"
+          }
+        },
+        {
+          "name": "Three-Point Start 30m",
+          "classification": "modifier_annotation",
+          "rationale": "Distance alone is a dose when the speed profile remains the same.",
+          "distinguishingDimensions": {
+            "distance": "30_metres"
+          }
+        },
+        {
+          "name": "Three-Point Sprint-Float-Sprint",
+          "classification": "new_variant",
+          "rationale": "A prescribed float zone changes the velocity sequence.",
+          "distinguishingDimensions": {
+            "speedProfile": "sprint_float_sprint"
+          }
+        }
+      ]
+    }
+  ]
+}

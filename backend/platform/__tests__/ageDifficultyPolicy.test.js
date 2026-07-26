@@ -43,6 +43,21 @@ test('resolveAudienceProfile auto-configures strength for ages 6-8', () => {
   assert.ok(profile.targets.some((t) => t.facetKey === 'strength'))
 })
 
+test('audience experience adjusts difficulty caps without classifying exercise cards', () => {
+  const beginner = resolveAudienceProfile({
+    ageMin: 18,
+    ageMax: 35,
+    skillLevel: 'BEGINNER',
+  })
+  assert.deepEqual(beginner.caps, {
+    maxOverall: 5,
+    maxTechnical: 5,
+    maxLoad: 4,
+    maxComplexity: 5,
+  })
+  assert.equal(beginner.trainingExperience, 'BEGINNER')
+})
+
 test('scoreAgeDifficultyFit soft penalty above caps', () => {
   const caps = { maxOverall: 5, maxTechnical: 5, maxLoad: 4 }
   assert.equal(scoreAgeDifficultyFit({ overall: 4, technical: 4, load: 3 }, caps), 1)

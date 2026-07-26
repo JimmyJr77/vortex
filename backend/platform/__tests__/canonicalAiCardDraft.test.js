@@ -23,11 +23,11 @@ function aiDraft() {
       displayName: 'Incline Push-Up',
       difficulty: {
         technicalComplexity: 20,
+        absoluteLoadDemand: 25,
         supervisionDemand: 15,
         failureConsequence: 10,
         impact: 5,
         workCapacityDemand: 35,
-        baseOverallDifficulty: 25,
       },
       profiles: [{
         profileKey: 'capacity-strength',
@@ -53,6 +53,7 @@ test('AI exercise draft is quarantined, confidence-capped, and never publication
   assert.equal(result.draft.status, 'draft')
   assert.equal(result.draft.contentConfidence, 60)
   assert.equal(result.draft.scoringConfidence, 60)
+  assert.equal(result.draft.variants[0].difficulty.baseOverallDifficulty, 25)
   assert.equal(result.draft.mediaConfidence, null)
   assert.equal(result.draft.approvedVideoUrl, null)
   assert.equal(result.draft.provenance.humanReviewRequired, true)

@@ -1,0 +1,37 @@
+{
+  "batchKey": "acceleration-starts-v1",
+  "researchVersion": "2026-07-25.1",
+  "generatedAt": "2026-07-25T21:30:00.000Z",
+  "cards": [
+    {
+      "slug": "2-point-acceleration-start",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 4
+    },
+    {
+      "slug": "3-point-start-10-20m",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 4
+    },
+    {
+      "slug": "falling-start-10m",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 4
+    },
+    {
+      "slug": "half-kneeling-start-sprint",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 4
+    },
+    {
+      "slug": "auditory-start-sprint",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    }
+  ]
+}

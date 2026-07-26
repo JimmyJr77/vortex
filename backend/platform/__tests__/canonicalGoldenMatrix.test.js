@@ -50,7 +50,7 @@ test('G02 mixed 10-14 group, two coaches, limited dumbbells and medicine balls, 
 test('G03 advanced speed and explosiveness on field with cones', () => {
   const output = generate({
     durationMinutes: 90, ageMin: 15, ageMax: 17, trainingAgeMonths: 36,
-    skillLevel: 'advanced', objective: 'speed_priority', equipmentAvailable: ['bodyweight', 'cone'],
+    trainingExperience: 'advanced', objective: 'speed_priority', equipmentAvailable: ['bodyweight', 'cone'],
     space: { environment: 'outdoor', floorAreaSquareFeet: 10000, laneLengthFeet: 60 },
     maxDifficulty: 80, maxTechnicalRisk: 80,
   })

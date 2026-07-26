@@ -1,0 +1,486 @@
+{
+  "facilityId": 1,
+  "slug": "slam-ball-rotational-slam",
+  "researchVersion": "2026-07-25.20",
+  "assessmentSummary": {
+    "identity": "A standing side-directed slam that moves the ball through an overhead or large diagonal arc, rotates through the feet, hips, and trunk, and releases into a floor target beside the body before a controlled reset or alternating repetition.",
+    "currentCardFindings": [
+      "The current card names rotational power but does not define side-on versus square stance, pivot, overhead arc, floor target, alternating rule, rebound, catch, ball mass, or finish.",
+      "Archived side-to-side, overhead-to-side, rainbow, and step-behind cards were cadence, trajectory-size, implement, or entry-footwork variants of this same rotational floor-slam identity.",
+      "The empty baseline difficulty and anatomy understate transverse coordination, side-specific bracing, deceleration, ball-target risk, and the greater consequence of a rebound crossing the athlete."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "standing_rotational_load",
+        "overhead_or_diagonal_ball_arc",
+        "side_directed_floor_slam"
+      ],
+      "jointActions": [
+        "foot_pivot",
+        "hip_rotation",
+        "pelvic_rotation",
+        "thoracic_rotation",
+        "shoulder_flexion_and_extension",
+        "trunk_bracing",
+        "bilateral_release"
+      ],
+      "planes": [
+        "transverse",
+        "frontal",
+        "sagittal"
+      ],
+      "laterality": "unilateral_execution_balanced_both_sides",
+      "intent": "maximal_safe_side_directed_ball_speed_from_sequenced_ground_up_rotation"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "gluteus_medius",
+        "adductors",
+        "external_obliques",
+        "internal_obliques",
+        "latissimus_dorsi"
+      ],
+      "secondaryMuscles": [
+        "quadriceps",
+        "hamstrings",
+        "plantar_flexors",
+        "spinal_stabilizers",
+        "deltoids",
+        "serratus_anterior",
+        "rotator_cuff",
+        "forearm_flexors"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "spine",
+        "scapulothoracic_articulation",
+        "shoulder",
+        "elbow",
+        "wrist",
+        "hand"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 56,
+      "absoluteLoadDemand": 32,
+      "coordinationDemand": 62,
+      "supervisionDemand": 58,
+      "failureConsequence": 56,
+      "impact": 22,
+      "workCapacityDemand": 46,
+      "baseOverallDifficulty": 56
+    },
+    "proposedLoadProfile": {
+      "loadingType": "external_ballistic_rotational_side_directed_floor_slam",
+      "impactClass": "low_body_impact_with_transverse_deceleration_and_ball_rebound_exposure",
+      "externalLoadMethod": "slam_rated_ball_mass_that_preserves_rotation_speed_and_target_control",
+      "primaryStress": [
+        "hips",
+        "adductors",
+        "obliques",
+        "lats",
+        "shoulders",
+        "grip"
+      ],
+      "fatigueProfile": [
+        "late_hip_rotation",
+        "lumbar_twist",
+        "knee_collapse",
+        "arm_only_pull",
+        "target_drift",
+        "side_asymmetry"
+      ],
+      "recoveryHours": "24-48_by_intensity_volume_side_balance_and_other_rotational_throwing"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "intact_slam_rated_ball",
+        "impact_rated_floor",
+        "two_clear_side_target_zones"
+      ],
+      "optionalEquipment": [
+        "side_targets",
+        "velocity_sensor",
+        "video"
+      ],
+      "environment": [
+        "non_slip_surface_that_permits_safe_pivot",
+        "adequate_arc_clearance",
+        "no_people_in_side_rebound_or_retrieval_paths"
+      ],
+      "population": [
+        "pain_free_rotation",
+        "can_pivot_and_decelerate",
+        "can_control_bilateral_ball_release",
+        "can_balance_both_sides"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "3-5_sets_of_2-5_slams_per_side",
+      "restSeconds": "75-180",
+      "intensity": "high_intent_rotation_with_exact_side_target",
+      "measurement": "ball_mass_optional_velocity_target_accuracy_and_left_right_symmetry",
+      "progressWhen": "both sides retain sequencing, target accuracy, pivot control, and output without lumbar-dominant rotation"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Own the feet first",
+        "Turn the hips and ribs together",
+        "Arc over and slam beside you",
+        "Finish balanced",
+        "Reset before speed"
+      ],
+      "athleteInstructions": [
+        "Load one side, rotate from the floor through your hips and trunk, guide the ball through the assigned arc, slam beside your foot target, and reset or alternate only as assigned"
+      ],
+      "commonFaults": [
+        "fixed_feet_with_lumbar_twist",
+        "knee_valgus",
+        "ball_too_heavy",
+        "undefined_side_target",
+        "arm_only_slam",
+        "cross_body_rebound",
+        "one_sided_volume"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "pain_free_trunk_rotation",
+        "pivot_control",
+        "stable_deceleration",
+        "clear_side_zones"
+      ],
+      "stopRules": [
+        "back_hip_knee_shoulder_or_hand_pain",
+        "loss_of_grip",
+        "uncontrolled_pivot",
+        "unsafe_side_rebound",
+        "lane_entry",
+        "two_asymmetric_or_mistargeted_reps"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "front_and_rear_oblique_demo",
+        "side_target_overlay",
+        "pivot_and_arc_animation",
+        "alternating_or_single_side_badge"
+      ],
+      "coach": [
+        "left_right_output_log",
+        "pivot_and_knee_observation",
+        "arc_variant_guide",
+        "rebound_crossing_warning"
+      ]
+    },
+    "programmingDecision": "Retain one rotational side-directed slam definition. Side-to-side alternation, rainbow arc, overhead-to-side nomenclature, step-behind entry, stance, and rebound behavior are controlled variants; wall rotational throws remain separate.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T02:15:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Perform Slam Ball Rotational Slam with a slam ball to train rotational hip-to-trunk power without needing a wall target. The load, distance, partner input, and volume should preserve the card's phase intent.",
+      "familyKey": "Rotational slam power",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/182/overhead-slams/",
+      "sourceTitle": "Overhead Slams",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The standing overhead slam is an overhead-to-floor ballistic action with an explicit hinge, whole-body extension, downward release, and ball-retrieval rule.",
+        "Slam Ball Rotational Slam must define support position, start and release path, force direction, rebound behavior, catch or retrieval rule, side order, and finish rather than relying on the generic word slam."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/287/rotational-slam/",
+      "sourceTitle": "Rotational Slam",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 77,
+      "claims": [
+        "A side-directed rotational slam differs from a straight overhead slam through its deliberate twist, lateral floor target, and alternating or single-side execution.",
+        "Classify Slam Ball Rotational Slam by support position, bilateral versus side-specific execution, overhead versus scoop start, vertical versus diagonal floor vector, rebound requirement, and static versus dynamic entry."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/19826303/",
+      "sourceTitle": "Analysis of trunk muscle activity in the side medicine-ball throw",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Medicine-ball rotational output involves trunk musculature including the external obliques, with muscle activity and ball velocity affected by the task and ball mass.",
+        "Represent the feet, ankles, knees, hips, pelvis, trunk, scapulae, shoulders, elbows, wrists, and hands actually used by the selected standing, kneeling, straight, or rotational slam."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/182/overhead-slams/",
+      "sourceTitle": "Overhead Slams",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The overhead slam uses lower-body loading and triple extension before a forceful overhead-to-floor action while trunk bracing and a hip hinge protect position.",
+        "Coach pressure from the floor through the hips and trunk into the ball, then redirect force into the assigned floor target without lumbar-dominant extension, flexion, or rotation."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Medicine-ball power exercises vary by position, task, dose, and population, so one generic category cannot represent their technical or physical demand.",
+        "Assess technical complexity, absolute physical load, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. Athlete experience is programming context, not exercise-card classification."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://www.power-systems.com/pdf/PSystems_DigitalGuide_Jan18.pdf",
+      "sourceTitle": "2018 Buyers Guide",
+      "sourcePublisher": "Power Systems",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "No-bounce slam balls and rebounding medicine balls have materially different retrieval, catch, and repeat-cadence behavior.",
+        "Slam Ball Rotational Slam must track ball mass and rebound type, high-intent slams, catches, side balance, technical speed loss, shoulder and trunk fatigue, floor contacts, recovery between sets, and weekly ballistic-ball volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/june-2019/7306/medicine-balls-an-ace-integrated-fitness-training-reg-model-workout/",
+      "sourceTitle": "Medicine Balls: An ACE Integrated Fitness Training Model Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "Medicine balls, wall balls, dead-weight balls, and slam balls are not interchangeable for every impact task; implement construction and rebound behavior must match the exercise.",
+        "Require an intact slam-rated ball, a floor rated for repeated impact, safe overhead and rebound clearance, stable footing or knee padding, athlete separation, and no bystanders in the impact, rebound, or retrieval zone."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.acefitness.org/resources/pros/expert-articles/6941/five-exercises-to-help-your-clients-develop-power/",
+      "sourceTitle": "Five Exercises to Help Your Clients Develop Power",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 76,
+      "claims": [
+        "High-velocity medicine-ball power work is commonly delivered in low-repetition sets with enough recovery to preserve output.",
+        "For power delivery, use roughly three to five sets of three to five high-quality slams or two to five per side with 60–180 seconds between sets; stop before velocity, target accuracy, posture, catch control, or safe retrieval declines."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/182/overhead-slams/",
+      "sourceTitle": "Overhead Slams",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The instructional sequence must identify the starting stance, grip, lower-body load, overhead path, bracing action, floor target, and rebound or retrieval behavior.",
+        "State the ball type and mass, stance, target, permitted countermovement or rotation, catch rule, reset, side order, and exact rep-quality rule before the first repetition."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Youth resistance and power training should be supervised, technically appropriate, progressively dosed, and performed with safe equipment and space.",
+        "Stop for pain, numbness, dizziness, loss of grip, unsafe rebound, floor or ball failure, lane entry, uncontrolled catch, lumbar-dominant motion, loss of balance, knee discomfort in kneeling, accuracy collapse, or repeatable output loss."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Upper-body plyometric and medicine-ball training can improve power outcomes, while transfer depends on the chosen task and population.",
+        "Place Slam Ball Rotational Slam early in Output work after relevant access and activation. Match stance, vector, ball mass, rebound behavior, and intent to the objective; do not turn maximal slams into indiscriminate fatigue work."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/blog/3801/heavy-slam-ball-workout/",
+      "sourceTitle": "Heavy Slam Ball Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 75,
+      "claims": [
+        "Standing, kneeling, around-the-world, and side-directed slam versions need visibly different setup and movement demonstrations.",
+        "Show front, side, and floor-target views; label ball mass and rebound type; demonstrate start, load, release, finish, catch or retrieval, reset, side change, acceptable miss, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/287/rotational-slam/",
+      "sourceTitle": "Rotational Slam",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 77,
+      "claims": [
+        "Rotational slam coaching must distinguish the side-directed floor target, alternating pattern, and rebound catch from a straight bilateral overhead slam.",
+        "Provide ball-selection and floor-inspection guidance, athlete spacing, target zones, side balance, optional velocity tracking, speed-loss rules, catch counts, camera angles, regression decisions, and weekly ballistic-contact budgeting."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/june-2019/7306/medicine-balls-an-ace-integrated-fitness-training-reg-model-workout/",
+      "sourceTitle": "Medicine Balls: An ACE Integrated Fitness Training Model Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "Ball type, position, movement range, and delivery mode can be changed while preserving a suitable training objective.",
+        "Accessibility options include a lighter or larger soft slam-rated ball, tall-kneeling or supported stance, shorter overhead range, no catch, dead-ball retrieval, reduced rotation, pre-positioned ball, fewer repetitions, longer recovery, and verbal plus visual cues."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/blog/3801/heavy-slam-ball-workout/",
+      "sourceTitle": "Heavy Slam Ball Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 75,
+      "claims": [
+        "Standing, kneeling, around-the-world, and side-directed slam patterns can be intentionally varied without treating every implement or cadence change as a new base exercise.",
+        "Treat implement, rebound behavior, stance, alternating cadence, arc size, and entry footwork as controlled variants when the force path stays the same; retain separate definitions when the start path, force vector, support position, or required reactive catch materially changes the task."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for Slam Ball Rotational Slam remain candidate-only. Availability, embedding, exact support and force-path match, full viewing, ball type, rebound behavior, captions, cue and safety quality, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=2ubF0fUggSc",
+      "title": "Rotational Med Ball Slam",
+      "channelName": "John Rusin",
+      "sourceQuery": "visible YouTube search: slam ball rotational slam side to side",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=W_4eq6r00zw",
+      "title": "Standing Medicine Ball Rotational Slam",
+      "channelName": "Performance Unlimited",
+      "sourceQuery": "visible YouTube search: slam ball rotational slam side to side",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=YDVD1m5vZLQ",
+      "title": "Rotational Ball Slam",
+      "channelName": "Jenny LaBaw",
+      "sourceQuery": "visible YouTube search: slam ball rotational slam side to side",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=bxmEsIhAfCg",
+      "title": "Rotation Dead Ball Slam",
+      "channelName": "Vital Health And Performance",
+      "sourceQuery": "visible YouTube search: slam ball rotational slam side to side",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=D9LnShWpXc8",
+      "title": "Side to Side Medicine Ball Slam",
+      "channelName": "Champion Fitness",
+      "sourceQuery": "visible YouTube search: slam ball rotational slam side to side",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Side-to-Side Slam",
+      "classification": "new_variant",
+      "rationale": "Alternating sides changes cadence and side order while preserving the same rotational side-directed slam.",
+      "distinguishingDimensions": {
+        "cadence": "alternating"
+      }
+    },
+    {
+      "name": "Rainbow Slam",
+      "classification": "new_variant",
+      "rationale": "A larger overhead arc changes range and timing without changing the terminal side-directed floor target.",
+      "distinguishingDimensions": {
+        "trajectory": "large_overhead_arc"
+      }
+    },
+    {
+      "name": "Overhead-to-Side Medicine-Ball Slam",
+      "classification": "same_identity",
+      "rationale": "This name describes the defining diagonal path of the rotational slam; medicine-ball construction changes rebound rules only.",
+      "distinguishingDimensions": {
+        "nomenclature": "trajectory_description"
+      }
+    },
+    {
+      "name": "Step-Behind Rotational Slam",
+      "classification": "new_variant",
+      "rationale": "Step-behind entry adds approach momentum and deceleration but preserves rotational release and floor target.",
+      "distinguishingDimensions": {
+        "entryFootwork": "step_behind"
+      }
+    },
+    {
+      "name": "Rotational Wall Throw",
+      "classification": "new_definition",
+      "rationale": "A horizontal wall release and return path create a different vector, target, catch, and spacing problem.",
+      "distinguishingDimensions": {
+        "terminalOutcome": "wall_throw"
+      }
+    }
+  ]
+}

@@ -177,13 +177,6 @@ function seedExec(card) {
   }
 }
 
-function skillForCard(card) {
-  const risk = card.safety?.risk_level ?? 2
-  if (risk >= 4) return 'ADVANCED'
-  if (risk >= 3) return 'INTERMEDIATE'
-  return 'BEGINNER'
-}
-
 function defaultIntensityCeiling(card) {
   return card.phaseProfile?.intensity_ceiling ?? (card.primaryPhaseKey === 'resilience' ? 'moderate' : 'high')
 }
@@ -276,7 +269,7 @@ SELECT
   f.id,
   d.name, d.slug, d.description,
   (SELECT id FROM coaching.sport WHERE key = 'fitness'),
-  d.skill::public.skill_level,
+  NULL::public.skill_level,
   d.age_min,
   d.sets, d.reps, d.work, d.rest, d.est,
   TRUE, 'facility', 'pairs',
@@ -290,12 +283,11 @@ FROM (VALUES\n`
     const fb = defaultDosageFallback(card)
     const reps = d.default_reps ?? null
     const work = d.default_work_seconds ?? null
-    const skill = skillForCard(card)
-    return `  (${sqlStr(card.name)}, ${sqlStr(card.slug)}, ${sqlStr(card.description)}, ${sqlStr(skill)}, 8, ${sqlInt(d.default_sets ?? fb.sets)}, ${sqlInt(reps)}, ${sqlInt(work)}, ${sqlInt(d.default_rest_seconds ?? fb.rest)}, ${sqlInt(d.est_seconds_per_set ?? fb.est)}, ${sqlStr(card.cardSummary)}, ${sqlStr(card.coachLanguage)}, ${sqlStr(card.athleteLanguage)}, ${sqlStr(card.family)}, ${sqlStr(card.primaryPhaseKey)}, ${sqlStr(card.subrole)}, ${sqlStr(card.slot)}, ${movementRequirementsJson(card).replace('::jsonb', '')}::jsonb, ${jsonb(seedExec(card)).replace('::jsonb', '')}::jsonb)`
+    return `  (${sqlStr(card.name)}, ${sqlStr(card.slug)}, ${sqlStr(card.description)}, 8, ${sqlInt(d.default_sets ?? fb.sets)}, ${sqlInt(reps)}, ${sqlInt(work)}, ${sqlInt(d.default_rest_seconds ?? fb.rest)}, ${sqlInt(d.est_seconds_per_set ?? fb.est)}, ${sqlStr(card.cardSummary)}, ${sqlStr(card.coachLanguage)}, ${sqlStr(card.athleteLanguage)}, ${sqlStr(card.family)}, ${sqlStr(card.primaryPhaseKey)}, ${sqlStr(card.subrole)}, ${sqlStr(card.slot)}, ${movementRequirementsJson(card).replace('::jsonb', '')}::jsonb, ${jsonb(seedExec(card)).replace('::jsonb', '')}::jsonb)`
   }).join(',\n')
 
   seedSql += `
-) AS d(name, slug, description, skill, age_min, sets, reps, work, rest, est, summary, coach_lang, athlete_lang, family, phase_key, subrole, slot, req, exec)
+) AS d(name, slug, description, age_min, sets, reps, work, rest, est, summary, coach_lang, athlete_lang, family, phase_key, subrole, slot, req, exec)
 CROSS JOIN public.facility f
 ON CONFLICT (facility_id, slug) DO NOTHING;
 

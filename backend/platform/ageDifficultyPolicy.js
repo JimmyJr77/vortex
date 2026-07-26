@@ -8,6 +8,17 @@ export const AGE_BAND_POLICIES = [
   { ageMin: 18, ageMax: 120, maxOverall: 10, maxTechnical: 10, maxLoad: 10, maxComplexity: 10, impliedSkillLevel: null, scalingCohort: 'adult_beginner' },
 ]
 
+// Audience experience is an input to difficulty-cap selection. It is not an
+// exercise-card classification. Exercise cards are assessed only through their
+// technical, load, and overall difficulty profiles.
+export const TRAINING_EXPERIENCE_DIFFICULTY_CAPS = Object.freeze({
+  EARLY_STAGE: { maxOverall: 3, maxTechnical: 3, maxLoad: 2, maxComplexity: 3 },
+  BEGINNER: { maxOverall: 5, maxTechnical: 5, maxLoad: 4, maxComplexity: 5 },
+  INTERMEDIATE: { maxOverall: 7, maxTechnical: 7, maxLoad: 6, maxComplexity: 7 },
+  ADVANCED: { maxOverall: 9, maxTechnical: 9, maxLoad: 8, maxComplexity: 9 },
+  ELITE: { maxOverall: 10, maxTechnical: 10, maxLoad: 10, maxComplexity: 10 },
+})
+
 const STRENGTH_KEYWORDS = /\b(strength|stronger|force|lifting|calisthenics|muscle)\b/i
 
 function clamp(n, min, max) {
@@ -102,8 +113,22 @@ export function resolveAudienceProfile(input = {}) {
   let sessionObjective = input.sessionObjective ?? input.session_objective ?? null
   if (strengthIntent && !sessionObjective) sessionObjective = 'strength_priority'
 
-  let skillLevel = input.skillLevel ?? input.skill_level ?? null
+  const explicitExperienceLevel = input.trainingExperience
+    ?? input.training_experience
+    ?? input.skillLevel
+    ?? input.skill_level
+    ?? null
+  let skillLevel = explicitExperienceLevel
   if (!skillLevel && band.impliedSkillLevel) skillLevel = band.impliedSkillLevel
+  const experienceCaps = explicitExperienceLevel
+    ? TRAINING_EXPERIENCE_DIFFICULTY_CAPS[String(explicitExperienceLevel).toUpperCase()]
+    : null
+  const caps = {
+    maxOverall: Math.min(band.maxOverall, experienceCaps?.maxOverall ?? 10),
+    maxTechnical: Math.min(band.maxTechnical, experienceCaps?.maxTechnical ?? 10),
+    maxLoad: Math.min(band.maxLoad, experienceCaps?.maxLoad ?? 10),
+    maxComplexity: Math.min(band.maxComplexity, experienceCaps?.maxComplexity ?? 10),
+  }
 
   let targets = Array.isArray(input.targets) ? [...input.targets] : []
   if (strengthIntent && !targets.some((t) => String(t.facetKey ?? t.key ?? '').toLowerCase() === 'strength' || String(t.facetName ?? '').toLowerCase().includes('strength'))) {
@@ -113,14 +138,10 @@ export function resolveAudienceProfile(input = {}) {
   return {
     ageMin,
     ageMax,
-    caps: {
-      maxOverall: band.maxOverall,
-      maxTechnical: band.maxTechnical,
-      maxLoad: band.maxLoad,
-      maxComplexity: band.maxComplexity,
-    },
+    caps,
     scalingCohort: band.scalingCohort,
     impliedSkillLevel: skillLevel,
+    trainingExperience: skillLevel,
     sessionObjective,
     targets,
     strengthIntent,

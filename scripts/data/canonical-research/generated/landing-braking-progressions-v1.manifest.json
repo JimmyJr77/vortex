@@ -1,0 +1,43 @@
+{
+  "batchKey": "landing-braking-progressions-v1",
+  "researchVersion": "2026-07-25.3",
+  "generatedAt": "2026-07-25T22:50:01.000Z",
+  "cards": [
+    {
+      "slug": "deceleration-step-down-stop-step-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "drop-landing-to-lateral-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "lateral-hop-to-stick-low-amplitude",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "lateral-skater-bound-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "low-box-drop-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "single-leg-snap-down-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    }
+  ]
+}

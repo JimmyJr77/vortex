@@ -13,14 +13,23 @@ const PHASES = [
   'restore',
 ] as const
 
-const DIFFICULTY_FIELDS = [
+const EDITABLE_DIFFICULTY_FIELDS = [
   'technicalComplexity',
+  'absoluteLoadDemand',
   'supervisionDemand',
   'failureConsequence',
   'impact',
   'workCapacityDemand',
-  'baseOverallDifficulty',
 ] as const
+
+const DIFFICULTY_LABELS: Record<(typeof EDITABLE_DIFFICULTY_FIELDS)[number], string> = {
+  technicalComplexity: 'Technical complexity',
+  absoluteLoadDemand: 'Physical difficulty',
+  supervisionDemand: 'Supervision demand',
+  failureConsequence: 'Failure consequence',
+  impact: 'Impact',
+  workCapacityDemand: 'Work-capacity demand',
+}
 
 const LOAD_FIELDS = ['gripDemand', 'spinalLoading', 'eccentricStress'] as const
 const FATIGUE_FIELDS = ['localMuscleFatigue', 'gripFatigue', 'technicalFatigueSensitivity', 'impactAccumulation'] as const
@@ -32,12 +41,36 @@ function splitList(value: string): string[] {
   return [...new Set(value.split(',').map((item) => item.trim()).filter(Boolean))]
 }
 
+function withDerivedOverallDifficulty(difficulty: Record<string, number>): Record<string, number> {
+  const technical = Number(difficulty.technicalComplexity)
+  const physical = Number(difficulty.absoluteLoadDemand)
+  if (
+    !Number.isInteger(technical)
+    || technical < 1
+    || technical > 100
+    || !Number.isInteger(physical)
+    || physical < 1
+    || physical > 100
+  ) {
+    const withoutOverall = { ...difficulty }
+    delete withoutOverall.baseOverallDifficulty
+    return withoutOverall
+  }
+  return {
+    ...difficulty,
+    baseOverallDifficulty: Math.max(technical, physical),
+  }
+}
+
 function initialVariant(): CanonicalVariant {
   return {
     variantKey: 'baseline',
     displayName: '',
     modifierKeys: [],
-    difficulty: Object.fromEntries(DIFFICULTY_FIELDS.map((field) => [field, 50])),
+    difficulty: {
+      ...Object.fromEntries(EDITABLE_DIFFICULTY_FIELDS.map((field) => [field, 50])),
+      baseOverallDifficulty: 50,
+    },
     loadProfile: {
       gripDemand: 1,
       spinalLoading: 1,
@@ -163,20 +196,39 @@ export function CanonicalCardEditor({ source, onClose, onSaved }: CanonicalCardE
     updateVariant({ profiles: [{ ...profile, ...updates }, ...variant.profiles.slice(1)] })
   }
 
+  const updateDifficulty = (
+    field: (typeof EDITABLE_DIFFICULTY_FIELDS)[number],
+    value: number,
+  ) => {
+    updateVariant({
+      difficulty: withDerivedOverallDifficulty({
+        ...variant.difficulty,
+        [field]: value,
+      }),
+    })
+  }
+
   const save = async () => {
     setSaving(true)
     setError(null)
     try {
+      const cardForSave = {
+        ...card,
+        variants: card.variants.map((item) => ({
+          ...item,
+          difficulty: withDerivedOverallDifficulty(item.difficulty),
+        })),
+      }
       const duplicates = await coachFetch<typeof duplicateCandidates>('/api/coach/canonical/cards/duplicate-check', {
         method: 'POST',
-        body: JSON.stringify(card),
+        body: JSON.stringify(cardForSave),
       })
       setDuplicateCandidates(duplicates)
       if (duplicates.length > 0 && !duplicateAcknowledged) {
         setError('Review the possible duplicate cards before saving this draft.')
         return
       }
-      const payload = { ...card, expectedUpdatedAt: card.updatedAt, changeSummary }
+      const payload = { ...cardForSave, expectedUpdatedAt: card.updatedAt, changeSummary }
       const saved = await coachFetch<CanonicalCard>(
         card.id ? `/api/coach/canonical/cards/${card.id}` : '/api/coach/canonical/cards',
         { method: card.id ? 'PUT' : 'POST', body: JSON.stringify(payload) },
@@ -414,11 +466,23 @@ export function CanonicalCardEditor({ source, onClose, onSaved }: CanonicalCardE
               </label>
             </div>
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
-              {DIFFICULTY_FIELDS.map((field) => (
-                <label key={field} className="text-xs">{field}
-                  <input disabled={!editable} type="number" min={1} max={100} value={variant.difficulty[field] ?? 50} onChange={(event) => updateVariant({ difficulty: { ...variant.difficulty, [field]: Number(event.target.value) } })} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 disabled:bg-gray-100" />
+              {EDITABLE_DIFFICULTY_FIELDS.map((field) => (
+                <label key={field} className="text-xs">{DIFFICULTY_LABELS[field]}
+                  <input disabled={!editable} type="number" min={1} max={100} value={variant.difficulty[field] ?? ''} onChange={(event) => updateDifficulty(field, Number(event.target.value))} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 disabled:bg-gray-100" />
                 </label>
               ))}
+              <label className="text-xs">Overall difficulty (derived)
+                <input
+                  readOnly
+                  aria-describedby="overall-difficulty-help"
+                  type="number"
+                  value={withDerivedOverallDifficulty(variant.difficulty).baseOverallDifficulty ?? ''}
+                  className="mt-1 w-full rounded border border-gray-300 bg-gray-100 px-2 py-1.5"
+                />
+                <span id="overall-difficulty-help" className="mt-1 block text-[11px] text-gray-500">
+                  Greater of technical complexity and physical difficulty.
+                </span>
+              </label>
             </div>
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
               {LOAD_FIELDS.map((field) => (

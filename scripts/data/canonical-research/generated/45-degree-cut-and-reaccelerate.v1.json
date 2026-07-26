@@ -1,0 +1,573 @@
+{
+  "facilityId": 1,
+  "slug": "45-degree-cut-and-reaccelerate",
+  "researchVersion": "2026-07-25.23",
+  "assessmentSummary": {
+    "identity": "A planned linear approach, approximately 45-degree sidestep cut, and immediate acceleration through a marked exit lane. The baseline is preplanned and alternates both cut directions; reactive cueing is a controlled variant rather than part of the base identity.",
+    "currentCardFindings": [
+      "The title and purpose match the NSCA run-and-cut sequence, but the current card omits approach distance, cut-foot convention, exit distance, valid angle tolerance, surface, lane, and timing boundaries.",
+      "The existing one-to-ten legacy load value understates rapid body-mass braking and repropulsion despite no external implement.",
+      "Four sets of two may be reasonable for high-quality work, but the legacy RPE 9 and 12-second work field can encourage conditioning unless each repetition is individually reset.",
+      "All five media links are candidate-only. The closest candidate names linear acceleration to a coach-led 45-degree cut, but full exact-version review remains outstanding."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "planned_linear_approach",
+        "45_degree_sidestep_cut",
+        "immediate_reacceleration"
+      ],
+      "jointActions": [
+        "multi_step_braking",
+        "hip_knee_ankle_flexion",
+        "medial_lateral_impulse",
+        "whole_body_redirection",
+        "horizontal_repropulsion"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal",
+        "transverse"
+      ],
+      "laterality": "unilateral_cut_plant_with_both_directions_programmed",
+      "intent": "redirect_horizontal_momentum_approximately_45_degrees_and_accelerate_without_a_false_step"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "quadriceps",
+        "hamstrings",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "gluteus_medius",
+        "adductors",
+        "peroneals",
+        "tibialis_anterior",
+        "hip_rotators",
+        "hip_flexors",
+        "obliques",
+        "spinal_stabilizers"
+      ],
+      "joints": [
+        "ankle",
+        "subtalar_joint",
+        "knee",
+        "hip",
+        "pelvis",
+        "lumbar_spine",
+        "thoracic_spine",
+        "shoulder"
+      ],
+      "primaryActions": [
+        "approach_speed_regulation",
+        "medial_lateral_force_generation",
+        "center_of_mass_redirection",
+        "horizontal_acceleration"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 56,
+      "absoluteLoadDemand": 66,
+      "coordinationDemand": 62,
+      "supervisionDemand": 62,
+      "failureConsequence": 64,
+      "impact": 64,
+      "workCapacityDemand": 40,
+      "baseOverallDifficulty": 66
+    },
+    "proposedLoadProfile": {
+      "loadingType": "high_rate_bodyweight_braking_redirection_and_propulsion",
+      "impactClass": "moderate_to_high_based_on_entry_speed",
+      "externalLoadMethod": "none_for_baseline",
+      "primaryStress": [
+        "approach_step_braking",
+        "cut_plant_force_acceptance",
+        "frontal_transverse_joint_control",
+        "first_exit_step_propulsion"
+      ],
+      "fatigueProfile": [
+        "late_braking",
+        "upright_center_of_mass",
+        "long_plant_contact",
+        "knee_or_trunk_collapse",
+        "false_step",
+        "exit_speed_drop",
+        "side_asymmetry"
+      ],
+      "recoveryHours": "typically_24_to_72_based_on_entry_speed_volume_surface_other_sprint_or_cod_load_and_individual_response"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "start_marker",
+        "cut_marker",
+        "45_degree_exit_lane",
+        "exit_finish_marker"
+      ],
+      "optionalEquipment": [
+        "timing_gates",
+        "video_capture",
+        "angle_template"
+      ],
+      "environment": [
+        "high_traction_level_surface",
+        "adequate_approach_and_exit_runoff",
+        "no_cross_traffic",
+        "weather_and_footwear_appropriate"
+      ],
+      "population": [
+        "pain_free_acceleration_and_deceleration",
+        "owns_45_degree_cut_and_stick_both_directions",
+        "can_accelerate_without_false_step",
+        "can_follow_lane_and_reset_rules"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "2-4_sets_of_1-3_repetitions_per_cut_direction",
+      "restSeconds": "45-90_between_repetitions_and_2-3_minutes_between_high_intent_sets",
+      "distance": "3-5_meter_approach_and_3-10_meter_exit_for_training",
+      "intensity": "submaximal_technique_then_high_intent_only_while_exit_quality_is_stable",
+      "measurement": "approach_distance_and_speed_cut_side_lane_error_contact_time_if_available_first_exit_step_false_steps_and_5_meter_exit_time_if_timed",
+      "progressWhen": "both_directions_show_distributed_braking_clean_plant_correct_lane_and_immediate_acceleration_without_alignment_or_speed_loss"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "See the lane before the plant",
+        "Lower across the last steps",
+        "Keep force inside your base",
+        "Turn hips trunk and eyes together",
+        "Push through the exit"
+      ],
+      "athleteInstructions": [
+        "Accelerate from the start marker at the assigned speed",
+        "Control speed across the final approach steps",
+        "Plant the foot opposite the new direction",
+        "Redirect through the 45-degree lane",
+        "Accelerate immediately through the finish marker"
+      ],
+      "commonFaults": [
+        "late_single_step_braking",
+        "overstriding",
+        "plant_slip",
+        "knee_collapse",
+        "excessive_or_opposite_trunk_lean",
+        "cut_angle_too_shallow_or_sharp",
+        "false_step",
+        "crossed_exit",
+        "conditioning_pace"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "linear_acceleration",
+        "linear_deceleration",
+        "45_degree_cut_and_stick",
+        "pain_free_ankle_knee_hip_and_groin"
+      ],
+      "qualityGates": [
+        "braking_begins_before_the_main_plant",
+        "plant_is_stable_without_slip",
+        "knee_hip_and_trunk_remain_controlled",
+        "exit_tracks_inside_the_marked_lane",
+        "first_exit_step_has_no_false_step_or_hesitation"
+      ],
+      "stopRules": [
+        "pain_or_guarding",
+        "slip",
+        "repeated_knee_or_trunk_collapse",
+        "wrong_lane_or_collision_risk",
+        "false_step_or_hesitation_on_two_repetitions",
+        "material_exit_speed_decline"
+      ]
+    },
+    "proposedContextualProfiles": [
+      {
+        "context": "movement_intelligence_technique",
+        "dose": "2-3_sets_of_2_submaximal_repetitions_per_side_with_45-60_second_resets",
+        "purpose": "learn_distributed_braking_cut_geometry_and_clean_exit"
+      },
+      {
+        "context": "output_planned_change_of_direction",
+        "dose": "2-4_sets_of_1-3_high_intent_repetitions_per_side_with_full_recovery",
+        "purpose": "express_angle_specific_redirection_and_reacceleration_quality"
+      }
+    ],
+    "proposedRelationships": {
+      "regressions": [
+        "45_degree_cut_and_stick",
+        "walk_in_45_degree_cut_and_exit",
+        "linear_deceleration_to_reacceleration"
+      ],
+      "progressions": [
+        "reactive_45_degree_cut",
+        "higher_entry_speed_45_degree_cut_and_reaccelerate",
+        "ball_or_opponent_cue_45_degree_cut"
+      ],
+      "substitutions": [
+        "matched_angle_crossover_cut_and_reaccelerate"
+      ],
+      "doNotSubstitute": [
+        "45_degree_cut_and_stick",
+        "90_degree_speed_cut",
+        "45_degree_bound_to_stick"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "overhead_lane_animation",
+        "left_right_plant_cue",
+        "braking_steps_example",
+        "clean_and_false_step_exit_examples",
+        "stop_signal"
+      ],
+      "coach": [
+        "standardized_lane_layout",
+        "entry_speed_progression",
+        "front_oblique_and_rear_observation",
+        "left_right_timing_and_quality_comparison",
+        "cod_exposure_log"
+      ]
+    },
+    "calibrationEvidence": {
+      "basis": "nsca_run_and_cut_45_degree_multistep_biomechanics_cutting_review_deceleration_review_and_candidate_video_metadata",
+      "uncertainty": "The proposed difficulty and dose are conservative library judgments, not validated universal thresholds. Exact angle, approach velocity, and technique materially change load.",
+      "reviewNeeded": [
+        "difficulty_anchor_comparison",
+        "approach_and_exit_standardization",
+        "population_and_surface_review",
+        "full_video_content_review",
+        "dosage_review"
+      ]
+    },
+    "programmingDecision": "Retain as the planned 45-degree cut with immediate exit acceleration. Keep reactive cueing, crossover technique, and entry-speed progressions as reviewed variants; do not merge the terminal-stick or diagonal-bound identities.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T05:00:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "45-Degree Cut and Reaccelerate is a planned cut and reacceleration drill. The athlete uses clear start, plant, stop, or exit targets to rehearse game-realistic shallow redirection, emphasizing low hips, clean foot placement, aligned braking, and an immediate reacceleration or stable stick depending on the drill intent.",
+      "familyKey": "Change of Direction Power",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 50,
+        "technicalComplexity": 50,
+        "baseOverallDifficulty": 50
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Youth training requires qualified supervision, technically appropriate progression, safe environments, and attention to individual readiness.",
+        "Stop 45-Degree Cut and Reaccelerate for pain, guarding, slipping, repeated loss of alignment or balance, unsafe lane traffic, or a material decline in the assigned movement quality."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Youth development should be individualized, progressive, and based on current physical and psychosocial readiness rather than a fixed exercise-card level.",
+        "Make 45-Degree Cut and Reaccelerate accessible with a walk-through, shorter approach or projection, lower speed, visible floor arrows, longer reset, and a simpler prerequisite task; do not label the exercise itself beginner or advanced."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied links are candidate demonstrations only. oEmbed availability was checked, but exact sequence, safety, cue quality, captions, full content, reviewer identity, and approval remain pending."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nsca.com/education/articles/kinetic-select/run-and-cut/",
+      "sourceTitle": "Run and Cut",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "The NSCA run-and-cut exercise uses a five-yard approach, deceleration into a cut step, and immediate acceleration approximately 45 degrees away.",
+        "45-Degree Cut and Reaccelerate matches that planned approach-cut-exit identity when approach, plant, angle, and immediate acceleration are explicit."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179697/",
+      "sourceTitle": "Center of mass direction and speed during a 45-degree change of direction task performed with maximal effort",
+      "sourcePublisher": "Frontiers in Sports and Active Living",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "A maximal 45-degree task shares direction change across approach, execution, and following steps.",
+        "Classify the full approach-to-exit sequence, plant side, sidestep technique, approximate angle, and planned cue state rather than only the named plant."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39574461/",
+      "sourceTitle": "Effect of foot strike patterns and angles on the biomechanics of side-step cutting",
+      "sourcePublisher": "Frontiers in Bioengineering and Biotechnology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Forty-five-degree sidestep cutting produces ankle, knee, hip, ground-reaction-force, and lower-limb muscle demands during loading and propulsion.",
+        "Represent ankle and subtalar stabilization, knee and hip force acceptance, pelvis and trunk control, and the lower-limb musculature that brakes and reaccelerates the body."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179697/",
+      "sourceTitle": "Center of mass direction and speed during a 45-degree change of direction task performed with maximal effort",
+      "sourcePublisher": "Frontiers in Sports and Active Living",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "At maximal effort, the execution step contributed only part of the 45-degree direction change while approach and following steps also redirected center-of-mass velocity.",
+        "The card must coach distributed braking and a coordinated following step rather than a single isolated plant claimed to create the entire angle."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8363537/",
+      "sourceTitle": "Biomechanical Determinants of Performance and Injury Risk During Cutting: A Performance-Injury Conflict?",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Cut performance and injury-related loading depend on interacting whole-body mechanics, angle, speed, and task strategy.",
+        "Score technical complexity and physical body-mass demand directly, derive overall as their maximum, and retain supervision, consequence, impact, coordination, and work capacity as separate planning dimensions."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Horizontal deceleration exposes athletes to high eccentric forces, and braking demands rise with momentum and task constraints.",
+        "Log approach speed, side, contact count, exit distance, surface, total cutting and sprint exposure, and technique degradation; bodyweight does not mean low load."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8016420/",
+      "sourceTitle": "Reliability of the Cutting Alignment Scoring Tool (CAST) to Assess Trunk and Limb Alignment During a 45-Degree Side-Step Cut",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Reliable qualitative observation of 45-degree side-step cutting depends on standardized task geometry and visible alignment.",
+        "45-Degree Cut and Reaccelerate requires a clear approach, cut marker, exit lane and runoff, reliable traction, no cross traffic, and views that show trunk, hip, knee, and foot behavior."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/education/articles/kinetic-select/run-and-cut/",
+      "sourceTitle": "Run and Cut",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "The professional exercise alternates cuts to the right and left and emphasizes immediate post-cut acceleration.",
+        "Low repetition counts and full recovery are programming inferences intended to preserve speed and mechanics; the cited source does not establish a universal set-rest prescription."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.nsca.com/education/articles/kinetic-select/run-and-cut/",
+      "sourceTitle": "Run and Cut",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "The NSCA coaching points keep the plant foot forward, body weight inside the base of support, and acceleration immediate after the cut.",
+        "Instructions must also identify approach speed, plant side, exit lane and distance, valid angle tolerance, reset, and what invalidates a repetition."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8363537/",
+      "sourceTitle": "Biomechanical Determinants of Performance and Injury Risk During Cutting: A Performance-Injury Conflict?",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Planned cutting mechanics are an appropriate motor-learning foundation before adding unanticipated perceptual demands.",
+        "Place 45-Degree Cut and Reaccelerate before fatigue when output is the goal, or use a slower technical profile; do not turn high-intent cutting into conditioning."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8016420/",
+      "sourceTitle": "Reliability of the Cutting Alignment Scoring Tool (CAST) to Assess Trunk and Limb Alignment During a 45-Degree Side-Step Cut",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Observable trunk and limb alignment features can support structured feedback during a 45-degree sidestep cut.",
+        "Athlete support should show the lane, braking steps, correct plant, whole-body orientation, immediate first exit step, invalid false step, and clear pain or confidence stop guidance."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179697/",
+      "sourceTitle": "Center of mass direction and speed during a 45-degree change of direction task performed with maximal effort",
+      "sourcePublisher": "Frontiers in Sports and Active Living",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Approach, execution, and following steps each contribute to the completed 45-degree task.",
+        "Coach support should standardize approach and exit distances, observe multiple steps, compare both sides, distinguish sidestep from crossover strategy, and progress one variable at a time."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8363537/",
+      "sourceTitle": "Biomechanical Determinants of Performance and Injury Risk During Cutting: A Performance-Injury Conflict?",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Cutting task demands and mechanics change with angle, anticipated versus unanticipated conditions, and technique.",
+        "Terminal hold, angle, cue predictability, cut technique, entry speed, and ball or opponent task are controlled identity or variant decisions and must not be silently conflated."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=atcDcplGsdI",
+      "title": "Linear Acceleration to 45 Degree Cut (Coach Led)",
+      "channelName": "Performance Course",
+      "sourceQuery": "linear acceleration 45 degree cut coach led",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T04:35:00.000Z"
+      },
+      "notes": "Closest title-level match for the planned acceleration-to-45-degree-cut sequence. Full content, exact plant and exit, captions, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=GJsAcnLHqdE",
+      "title": "45, 90 and 180 degree cuts - Drill (Deceleration)",
+      "channelName": "B7Tal",
+      "sourceQuery": "45 degree cut deceleration drill",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T04:35:00.000Z"
+      },
+      "notes": "Angle-specific cutting candidate. It may include multiple angles and is not asserted as an exact full-version match."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=I0m-RpTTQ50",
+      "title": "3 Change of Direction Drills for Football Players",
+      "channelName": "CAB Training",
+      "sourceQuery": "football 45 degree change of direction drills",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T04:35:00.000Z"
+      },
+      "notes": "Multi-drill candidate for reviewer comparison. The relevant segment and exact sequence require full review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=YyBMVaxWFsM",
+      "title": "Jog to 90° and 45° Change of Direction",
+      "channelName": "Miguel Aragoncillo",
+      "sourceQuery": "jog to 45 degree change of direction",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T04:35:00.000Z"
+      },
+      "notes": "Lower-speed teaching candidate that can help adjudicate approach and angle; exact immediate reacceleration remains to be reviewed."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=GqVqQK_j_zQ",
+      "title": "Deceleration Training For Athletes | Reduce Injuries and Improve Performance With These Exercises",
+      "channelName": "7mlc",
+      "sourceQuery": "deceleration training for 45 degree cut",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T04:35:00.000Z"
+      },
+      "notes": "General braking component candidate; it is not represented as an exact 45-degree cut-and-reaccelerate demonstration."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "45-Degree Cut-and-Stick",
+      "classification": "new_definition",
+      "rationale": "A deliberate held terminal position removes immediate acceleration and changes the primary outcome from exit speed to braking control.",
+      "distinguishingDimensions": {
+        "terminalOutcome": "held_finish",
+        "primaryTrainingStimulus": "braking_and_control"
+      }
+    },
+    {
+      "name": "Reactive 45-Degree Cut",
+      "classification": "new_variant",
+      "rationale": "An unpredictable directional cue adds perception and response selection while preserving the same physical cut-and-exit sequence.",
+      "distinguishingDimensions": {
+        "cue": "unanticipated",
+        "decisionDemand": "increased"
+      }
+    },
+    {
+      "name": "Crossover 45-Degree Cut and Reaccelerate",
+      "classification": "new_variant",
+      "rationale": "Crossover cutting changes the plant relationship and force strategy but can remain a technique variant under a matched route and outcome.",
+      "distinguishingDimensions": {
+        "cutTechnique": "crossover",
+        "plantRelationship": "same_side_to_new_direction"
+      }
+    },
+    {
+      "name": "90-Degree Speed Cut",
+      "classification": "new_definition",
+      "rationale": "The sharper angle changes braking, translation, joint loading, lane geometry, and performance strategy.",
+      "distinguishingDimensions": {
+        "cutAngle": 90,
+        "mechanicalDemand": "sharper_redirection"
+      }
+    },
+    {
+      "name": "Ball-Carry 45-Degree Cut and Reaccelerate",
+      "classification": "new_variant",
+      "rationale": "Adding a ball or implement imposes a motor-motor task and may alter trunk strategy while the locomotor identity remains the same.",
+      "distinguishingDimensions": {
+        "secondaryTask": "ball_carry_or_control",
+        "upperBodyConstraint": "added"
+      }
+    }
+  ]
+}

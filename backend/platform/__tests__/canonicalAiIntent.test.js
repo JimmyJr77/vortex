@@ -24,7 +24,7 @@ function interpretation(overrides = {}) {
     interpretedObjective: 'strength_priority',
     hardConstraints: { limitations: [], equipmentAvoid: [] },
     softPreferences: { exerciseInclude: [] },
-    athleteProfile: { athleteCount: 12, ageMin: 8, ageMax: 10, skillLevel: 'beginner' },
+    athleteProfile: { athleteCount: 12, ageMin: 8, ageMax: 10, trainingExperience: 'beginner' },
     facilityProfile: { coachCount: 1, equipmentAvailable: ['bodyweight'] },
     phasePreferences: {},
     uncertainties: [],
@@ -40,6 +40,8 @@ test('AI interpretation becomes canonical intent but cannot bypass deterministic
   assert.equal(intent.mode, 'ai_assisted')
   assert.equal(intent.objective, 'strength_priority')
   assert.equal(intent.randomSeed, 'ai-1')
+  assert.equal(intent.trainingExperience, 'beginner')
+  assert.equal(Object.hasOwn(intent, 'skillLevel'), false)
 })
 
 test('ambiguous AI request fails closed with clarification', () => {

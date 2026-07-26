@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 /**
- * Audit published exercise coverage for prescription (phase + tenet + skill band + HIIT/restore).
+ * Audit published exercise coverage for prescription by audience training
+ * experience. Exercises are admitted by difficulty caps, never by a card-level
+ * skill classification.
  * Usage: DATABASE_URL=... node scripts/audit-prescription-coverage.mjs
  */
 import pg from 'pg'
@@ -8,7 +10,11 @@ import pg from 'pg'
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL })
 
 const PHASES = ['prepare_and_access', 'movement_intelligence', 'output', 'capacity', 'resilience', 'sustained_capacity', 'restore']
-const SKILL_LEVELS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED']
+const TRAINING_EXPERIENCE_CAPS = {
+  BEGINNER: 5,
+  INTERMEDIATE: 7,
+  ADVANCED: 9,
+}
 
 function difficultyBucket(overall) {
   const d = Number(overall)
@@ -24,9 +30,9 @@ function difficultyBucket(overall) {
 async function main() {
   const client = await pool.connect()
   try {
-    console.log('phase,skill_level,tenet_key,exercise_count')
+    console.log('phase,training_experience,tenet_key,exercise_count')
     for (const phaseKey of PHASES) {
-      for (const skill of SKILL_LEVELS) {
+      for (const [experience, maxOverall] of Object.entries(TRAINING_EXPERIENCE_CAPS)) {
         const rows = await client.query(
           `
             SELECT t.key AS tenet_key, COUNT(DISTINCT e.id)::int AS exercise_count
@@ -34,24 +40,24 @@ async function main() {
             LEFT JOIN coaching.exercise_tag et ON et.facet_type = 'tenet' AND et.facet_id = t.id
             LEFT JOIN coaching.exercise e ON e.id = et.exercise_id
               AND e.archived = FALSE AND e.is_published = TRUE
-              AND (e.skill_level IS NULL OR e.skill_level = $2::public.skill_level)
+            LEFT JOIN coaching.exercise_difficulty_profile d ON d.exercise_id = e.id
             LEFT JOIN coaching.exercise_phase_profile p ON p.exercise_id = e.id
             LEFT JOIN coaching.session_phase sp ON sp.id = p.phase_id AND sp.key = $1
-            WHERE p.role IN ('primary', 'secondary')
+            WHERE p.role IN ('primary', 'secondary') AND d.overall <= $2
             GROUP BY t.key
             ORDER BY t.key
           `,
-          [phaseKey, skill],
+          [phaseKey, maxOverall],
         )
         for (const row of rows.rows) {
-          console.log(`${phaseKey},${skill},${row.tenet_key},${row.exercise_count}`)
+          console.log(`${phaseKey},${experience},${row.tenet_key},${row.exercise_count}`)
         }
       }
     }
 
-    console.log('\nphase,skill_level,methodology_hiit_count,restore_primary_count')
+    console.log('\nphase,training_experience,methodology_hiit_count,restore_primary_count')
     for (const phaseKey of ['sustained_capacity', 'restore']) {
-      for (const skill of SKILL_LEVELS) {
+      for (const [experience, maxOverall] of Object.entries(TRAINING_EXPERIENCE_CAPS)) {
         const hiit = await client.query(
           `
             SELECT COUNT(DISTINCT e.id)::int AS count
@@ -60,11 +66,12 @@ async function main() {
             JOIN coaching.session_phase sp ON sp.id = p.phase_id AND sp.key = $1
             JOIN coaching.exercise_tag et ON et.exercise_id = e.id AND et.facet_type = 'methodology'
             JOIN coaching.methodology m ON m.id = et.facet_id AND m.key = 'hiit'
+            JOIN coaching.exercise_difficulty_profile d ON d.exercise_id = e.id
             WHERE e.archived = FALSE AND e.is_published = TRUE
               AND p.role IN ('primary', 'secondary')
-              AND (e.skill_level IS NULL OR e.skill_level = $2::public.skill_level)
+              AND d.overall <= $2
           `,
-          [phaseKey, skill],
+          [phaseKey, maxOverall],
         )
         const restorePrimary = phaseKey === 'restore'
           ? await client.query(
@@ -73,21 +80,22 @@ async function main() {
                 FROM coaching.exercise e
                 JOIN coaching.exercise_phase_profile p ON p.exercise_id = e.id
                 JOIN coaching.session_phase sp ON sp.id = p.phase_id AND sp.key = 'restore'
+                JOIN coaching.exercise_difficulty_profile d ON d.exercise_id = e.id
                 WHERE e.archived = FALSE AND e.is_published = TRUE
                   AND e.primary_phase_key = 'restore'
                   AND p.role = 'primary'
-                  AND (e.skill_level IS NULL OR e.skill_level = $1::public.skill_level)
+                  AND d.overall <= $1
               `,
-              [skill],
+              [maxOverall],
             )
           : { rows: [{ count: 0 }] }
-        console.log(`${phaseKey},${skill},${hiit.rows[0].count},${restorePrimary.rows[0].count}`)
+        console.log(`${phaseKey},${experience},${hiit.rows[0].count},${restorePrimary.rows[0].count}`)
       }
     }
 
-    console.log('\nphase,skill_level,difficulty_bucket,exercise_count')
+    console.log('\nphase,training_experience,difficulty_bucket,exercise_count')
     for (const phaseKey of PHASES) {
-      for (const skill of SKILL_LEVELS) {
+      for (const [experience, maxOverall] of Object.entries(TRAINING_EXPERIENCE_CAPS)) {
         const rows = await client.query(
           `
             SELECT d.overall, COUNT(DISTINCT e.id)::int AS exercise_count
@@ -98,11 +106,11 @@ async function main() {
             WHERE e.archived = FALSE AND e.is_published = TRUE
               AND e.programming_kind = 'exercise'
               AND p.role IN ('primary', 'secondary')
-              AND (e.skill_level IS NULL OR e.skill_level = $2::public.skill_level)
+              AND d.overall <= $2
             GROUP BY d.overall
             ORDER BY d.overall NULLS LAST
           `,
-          [phaseKey, skill],
+          [phaseKey, maxOverall],
         )
         const bucketCounts = new Map()
         for (const row of rows.rows) {
@@ -112,7 +120,7 @@ async function main() {
         for (const bucket of ['D1-2', 'D3-4', 'D5', 'D6', 'D7-8', 'D9-10', 'unknown']) {
           const count = bucketCounts.get(bucket) ?? 0
           if (count > 0 || bucket === 'D6' || bucket === 'D7-8') {
-            console.log(`${phaseKey},${skill},${bucket},${count}`)
+            console.log(`${phaseKey},${experience},${bucket},${count}`)
           }
         }
       }

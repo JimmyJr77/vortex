@@ -42,6 +42,7 @@ function card(phaseKey, overrides = {}) {
     population: { ageMin: 5, ageMax: 18, athleteCompatibility: 90 },
     difficulty: {
       technicalComplexity: 25,
+      absoluteLoadDemand: 35,
       supervisionDemand: 20,
       failureConsequence: 15,
       impact: 20,

@@ -1,0 +1,470 @@
+{
+  "asOf": "2026-07-25",
+  "scope": "USA Gymnastics floor-focused skills: artistic floor, T&T power tumbling, acrobatic gymnastics, and youth Acrobatics & Tumbling.",
+  "editorialPolicy": "Card prose is original. Official names, classifications, requirements, and scoring facts are attributed and linked. Purchased manuals are not reproduced.",
+  "programs": [
+    {
+      "key": "acro-development-2025-2028",
+      "name": "Acrobatic Gymnastics Development Program",
+      "levels": ["2", "3", "4", "5", "6", "7", "8", "9", "10", "11–16", "12–18", "13–19", "Senior Elite"],
+      "events": ["Combined", "Balance", "Dynamic"],
+      "source": "https://static.usagym.org/PDFs/Acro/Rules/devcop_2528.pdf",
+      "publicElementText": true,
+      "batches": [
+        {
+          "key": "compulsory-recurring-level-2-5",
+          "status": "implemented",
+          "migration": "backend/migrations/260_usag_acro_level_2_5_skill_cards.sql",
+          "expectedSlugs": [
+            "usag-acro-straddle-on-thighs",
+            "usag-acro-mountain-on-table",
+            "usag-acro-toe-pitch-knees-straight-jump",
+            "usag-acro-straight-jump-off-thighs",
+            "usag-acro-plank-pyramid",
+            "usag-acro-t-lift",
+            "usag-acro-column-pyramid-rear-scale",
+            "usag-acro-supported-handstand-floor",
+            "usag-acro-stand-on-shoulders",
+            "usag-acro-handstand-pyramid",
+            "usag-acro-shoulder-stand",
+            "usag-acro-t-boost",
+            "usag-acro-toe-pitch-straight-jump",
+            "usag-acro-handstand-on-thighs",
+            "usag-acro-handstand-to-supported-straddle",
+            "usag-acro-fish-wrap-lift",
+            "usag-acro-low-foot-to-hand",
+            "usag-acro-basket-stand"
+          ]
+        },
+        {
+          "key": "remaining-level-2-5-variants",
+          "status": "implemented",
+          "migration": "backend/migrations/278_usag_acro_level_2_5_remaining_cards.sql",
+          "note": "All distinct Level 2-5 compulsory moves/formations not already represented by the shared recurring-element batch are implemented, with every official level/discipline occurrence attached.",
+          "expectedSlugs": [
+            "usag-acro-synchronized-forward-roll",
+            "usag-acro-synchronized-bridge",
+            "usag-acro-synchronized-cartwheel",
+            "usag-acro-power-entry-cartwheel",
+            "usag-acro-front-attitude-scale",
+            "usag-acro-rear-scale",
+            "usag-acro-jump-to-forearm-catch",
+            "usag-acro-basket-squat-return",
+            "usag-acro-log-roll",
+            "usag-acro-candlestick-pyramid",
+            "usag-acro-double-support-pyramid",
+            "usag-acro-column-with-scale",
+            "usag-acro-column-with-floor-handstand",
+            "usag-acro-group-assisted-shoulderstand",
+            "usag-acro-supine-knee-one-leg-balance",
+            "usag-acro-low-bent-arm-foot-to-hand",
+            "usag-acro-mg-shoulderstand-chair-stack",
+            "usag-acro-mg-tuck-chair-stack",
+            "usag-acro-mg-dual-shoulder-thigh-column",
+            "usag-acro-basket-quarter-back-layout",
+            "usag-acro-basket-sitting-dismount"
+          ]
+        },
+        {
+          "key": "level-6-compulsory-tables",
+          "status": "implemented",
+          "migration": "backend/migrations/273_usag_acro_level_6_compulsory_cards.sql",
+          "note": "All 34 Level 6 pair/group compulsory boxes across Women's Pair, Men's Pair, Mixed Pair, Women's Group, and Men's Group are implemented.",
+          "expectedSlugPattern": "'(usag-acro-l6-[^']+)'",
+          "expectedSlugCount": 34
+        },
+        {
+          "key": "level-7-compulsory-choice-tables",
+          "status": "implemented",
+          "migration": "backend/migrations/274_usag_acro_level_7_compulsory_cards.sql",
+          "note": "All 68 Level 7 A/B compulsory choice boxes across Women's Pair, Men's Pair, Mixed Pair, Women's Group, and Men's Group are implemented.",
+          "expectedSlugPattern": "'(usag-acro-l7-[^']+)'",
+          "expectedSlugCount": 68
+        },
+        {
+          "key": "level-8-pair-balance-tables",
+          "status": "implemented",
+          "migration": "backend/migrations/275_usag_acro_level_8_pair_balance_cards.sql",
+          "note": "All 48 Women's Pair, Men's Pair, and Mixed Pair Balance boxes are implemented.",
+          "expectedSlugPattern": "'(usag-acro-l8-(?:wp|mp|mxp)-bal-[^']+)'",
+          "expectedSlugCount": 48
+        },
+        {
+          "key": "level-8-pair-dynamic-tables",
+          "status": "implemented",
+          "migration": "backend/migrations/276_usag_acro_level_8_pair_dynamic_cards.sql",
+          "note": "All 48 Women's Pair, Men's Pair, and Mixed Pair Dynamic boxes are implemented.",
+          "expectedSlugPattern": "'(usag-acro-l8-(?:wp|mp|mxp)-dyn-[^']+)'",
+          "expectedSlugCount": 48
+        },
+        {
+          "key": "level-8-group-balance-dynamic-tables",
+          "status": "implemented",
+          "migration": "backend/migrations/277_usag_acro_level_8_group_cards.sql",
+          "note": "All 56 Women's Group and Men's Group Balance and Dynamic boxes are implemented.",
+          "expectedSlugPattern": "'(usag-acro-l8-(?:wg|mg)-(?:bal|dyn)-[^']+)'",
+          "expectedSlugCount": 56
+        },
+        {
+          "key": "level-9-10-and-international",
+          "status": "implemented",
+          "migration": "backend/migrations/279_usag_acro_level_9_10_fig_families.sql",
+          "note": "All 17 controlling FIG table families are implemented as parametric cards. Exact elite elements are combinations of FIG drawings/value parts, so cards deep-link to the controlling pages instead of reproducing protected diagrams.",
+          "expectedSlugs": [
+            "usag-acro-fig-pair-balance-static",
+            "usag-acro-fig-pair-balance-top-motion",
+            "usag-acro-fig-pair-balance-base-motion",
+            "usag-acro-fig-pair-balance-mount",
+            "usag-acro-fig-pair-dynamic-straight-flight",
+            "usag-acro-fig-pair-dynamic-salto",
+            "usag-acro-fig-wg-balance-top-work",
+            "usag-acro-fig-wg-balance-pyramid",
+            "usag-acro-fig-wg-dynamic",
+            "usag-acro-fig-mg-balance-transition-mount",
+            "usag-acro-fig-mg-balance-top-work",
+            "usag-acro-fig-mg-balance-pyramid",
+            "usag-acro-fig-mg-dynamic",
+            "usag-acro-fig-individual-flexibility",
+            "usag-acro-fig-individual-static-balance",
+            "usag-acro-fig-individual-agility",
+            "usag-acro-fig-individual-tumbling"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "tt-tumbling-development-2025-2029",
+      "name": "Trampoline & Tumbling Development Program — Tumbling",
+      "levels": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Open"],
+      "events": ["Tumbling"],
+      "source": "https://usagym.org/tt/rules/",
+      "publicElementText": true,
+      "batches": [
+        {
+          "key": "levels-1-7-compulsory-routines",
+          "status": "implemented",
+          "migration": "backend/migrations/261_usag_tt_tumbling_compulsory_skill_cards.sql",
+          "expectedSlugs": [
+            "usag-tt-forward-roll-tuck",
+            "usag-tt-cartwheel-step-in",
+            "usag-tt-straight-jump-rebound",
+            "usag-tt-backward-roll-tuck",
+            "usag-tt-back-roll-pike-push-up",
+            "usag-tt-hollow-push-up-hold",
+            "usag-tt-handstand-forward-roll",
+            "usag-tt-step-cartwheel",
+            "usag-tt-cartwheel",
+            "usag-tt-power-hurdle-roundoff",
+            "usag-tt-whipback",
+            "usag-tt-back-somersault-pike",
+            "usag-tt-back-somersault-straight",
+            "round-off",
+            "back-handspring",
+            "back-tuck"
+          ]
+        },
+        {
+          "key": "levels-8-10-open-optionals",
+          "status": "implemented",
+          "migration": "backend/migrations/280_usag_tt_optional_element_families.sql",
+          "note": "All eight controlling voluntary-element families are implemented. Exact elements are parametric combinations of direction, rotation, twist, shape, and twist phase under the USA difficulty formula.",
+          "expectedSlugs": [
+            "usag-tt-optional-support-elements",
+            "usag-tt-optional-whipback-family",
+            "usag-tt-optional-single-untwisted-salto",
+            "usag-tt-optional-single-twisting-salto",
+            "usag-tt-optional-double-untwisted-salto",
+            "usag-tt-optional-double-twisting-salto",
+            "usag-tt-optional-double-y-salto",
+            "usag-tt-optional-triple-salto"
+          ]
+        },
+        {
+          "key": "elite-tumbling-2025-2029",
+          "status": "implemented",
+          "migration": "backend/migrations/281_usag_tt_elite_tumbling_profiles.sql",
+          "note": "Exact elite moves use the eight FIG/USA voluntary-element families; four division overlays attach current USA routine requirements, caps, bonuses, and repetition rules.",
+          "expectedSlugs": [
+            "usag-tt-youth-elite-11-12-tumbling",
+            "usag-tt-youth-elite-13-14-tumbling",
+            "usag-tt-junior-elite-tumbling",
+            "usag-tt-senior-intermediate-elite-tumbling"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "women-artistic-development-floor",
+      "name": "Women's Artistic Development Program — Floor Exercise",
+      "levels": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
+      "events": ["Floor Exercise"],
+      "source": "https://usagym.org/women/development/",
+      "publicElementText": false,
+      "batches": [
+        {
+          "key": "foundational-shared-floor",
+          "status": "implemented",
+          "migration": "backend/migrations/259_coaching_skill_usag_metadata.sql",
+          "expectedSlugs": ["handstand", "round-off", "back-handspring", "front-handspring"]
+        },
+        {
+          "key": "levels-1-5-compulsory",
+          "status": "implemented",
+          "migration": "backend/migrations/283_usag_wag_compulsory_floor_cards.sql",
+          "note": "All 37 distinct required skills and specifically evaluated connections in the Level 1-5 floor routines are implemented. Cards summarize and deep-link to purchased W316 without reproducing protected choreography.",
+          "expectedSlugPattern": "'(wag-comp-[^']+)'",
+          "expectedSlugCount": 37
+        },
+        {
+          "key": "levels-6-10-optional-elements",
+          "status": "implemented",
+          "migration": "backend/migrations/282_usag_wag_floor_2026_2030_symbol_families.sql",
+          "note": "All 44 numbered USA Gymnastics 2026-2030 Floor Exercise symbol families (Groups 1-8) are implemented; each card covers every A-E variant drawn in that official family.",
+          "expectedSlugs": [
+            "wag-fx-g1-01", "wag-fx-g1-02", "wag-fx-g1-03", "wag-fx-g1-04",
+            "wag-fx-g1-05", "wag-fx-g1-06", "wag-fx-g1-07", "wag-fx-g1-08",
+            "wag-fx-g1-09", "wag-fx-g1-10", "wag-fx-g1-11", "wag-fx-g1-12",
+            "wag-fx-g1-13", "wag-fx-g1-14", "wag-fx-g1-15", "wag-fx-g1-16",
+            "wag-fx-g2-01", "wag-fx-g2-02", "wag-fx-g2-03", "wag-fx-g2-04",
+            "wag-fx-g2-05", "wag-fx-g2-06", "wag-fx-g2-07", "wag-fx-g2-08",
+            "wag-fx-g3-01",
+            "wag-fx-g4-01", "wag-fx-g4-02",
+            "wag-fx-g5-01", "wag-fx-g5-02", "wag-fx-g5-03", "wag-fx-g5-04",
+            "wag-fx-g5-05", "wag-fx-g5-06", "wag-fx-g5-07",
+            "wag-fx-g6-01", "wag-fx-g6-02",
+            "wag-fx-g7-01", "wag-fx-g7-02",
+            "wag-fx-g8-01", "wag-fx-g8-02", "wag-fx-g8-03", "wag-fx-g8-04",
+            "wag-fx-g8-05", "wag-fx-g8-06"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "men-artistic-development-floor",
+      "name": "Men's Artistic Development Program — Floor Exercise",
+      "levels": ["3", "4", "5", "6", "7", "8", "9", "10", "Technical Sequences"],
+      "events": ["Floor Exercise"],
+      "source": "https://usagym.org/men/development/",
+      "publicElementText": false,
+      "batches": [
+        {
+          "key": "levels-3-6-compulsory",
+          "status": "implemented",
+          "migration": "backend/migrations/285_usag_mag_compulsory_technical_floor_cards.sql",
+          "note": "All distinct public-facing Level 3-6 compulsory Floor foundations are represented as original instructional cards; protected routine choreography remains linked to the official purchased manuals.",
+          "expectedSlugPattern": "'(usag-mag-comp-[^']+)'",
+          "expectedSlugCount": 12
+        },
+        {
+          "key": "levels-7-10-optionals",
+          "status": "implemented",
+          "migration": "backend/migrations/284_usag_mag_optional_floor_elements.sql",
+          "note": "All 96 non-empty numbered elements in the current FIG 2025-2028 MAG Floor table are implemented individually with USA Development level guidance.",
+          "expectedSlugPattern": "'(usag-mag-fx-eg[1-4]-[0-9]{3})'",
+          "expectedSlugCount": 96
+        },
+        {
+          "key": "technical-sequences",
+          "status": "implemented",
+          "migration": "backend/migrations/285_usag_mag_compulsory_technical_floor_cards.sql",
+          "note": "All distinct Floor Technical Sequence refinement themes are represented as original instructional cards, with official refinement tables and current manual resources linked.",
+          "expectedSlugPattern": "'(usag-mag-ts-[^']+)'",
+          "expectedSlugCount": 8
+        }
+      ]
+    },
+    {
+      "key": "youth-acrobatics-tumbling-2025-2026",
+      "name": "Youth Acrobatics & Tumbling Development Program",
+      "levels": ["1", "2", "3", "4", "5"],
+      "events": ["Acro", "Pyramid", "Toss", "Tumbling", "Team"],
+      "source": "https://static.usagym.org/PDFs/gfa/at/25rp_cop.pdf",
+      "publicElementText": true,
+      "batches": [
+        {
+          "key": "levels-1-5-compulsory",
+          "status": "implemented",
+          "migrations": [
+            "backend/migrations/262_usag_youth_at_compulsory_tumbling_cards.sql",
+            "backend/migrations/263_usag_youth_at_level_1_2_acro_cards.sql",
+            "backend/migrations/264_usag_youth_at_level_3_5_acro_cards.sql",
+            "backend/migrations/267_usag_youth_at_compulsory_pyramid_toss_cards.sql"
+          ],
+          "migration": "backend/migrations/262_usag_youth_at_compulsory_tumbling_cards.sql",
+          "note": "All 20 compulsory tumbling heats, all 41 compulsory Acro elements, and all 10 compulsory Pyramid/Toss requirements implemented.",
+          "expectedSlugs": [
+            "usag-at-l1-tumbling-1-pike-bridge-kickover",
+            "usag-at-l1-tumbling-2-t-jump-back-roll",
+            "usag-at-l1-tumbling-3-mountain-climber-handstand",
+            "usag-at-l1-tumbling-4-roundoff-rebound",
+            "usag-at-l2-tumbling-1-back-walkover",
+            "usag-at-l2-tumbling-2-t-jump-back-roll-pushup",
+            "usag-at-l2-tumbling-3-handstand-back-walkover",
+            "usag-at-l2-tumbling-4-roundoff-bhs",
+            "usag-at-l3-tumbling-1-standing-bhs",
+            "usag-at-l3-tumbling-2-straddle-back-roll",
+            "usag-at-l3-tumbling-3-walkover-bhs",
+            "usag-at-l3-tumbling-4-roundoff-two-bhs",
+            "usag-at-l4-tumbling-1-back-tuck",
+            "usag-at-l4-tumbling-2-straddle-bhs",
+            "usag-at-l4-tumbling-3-two-bhs",
+            "usag-at-l4-tumbling-4-roundoff-bhs-tuck",
+            "usag-at-l5-tumbling-1-standing-back-tuck",
+            "usag-at-l5-tumbling-2-straddle-back-tuck",
+            "usag-at-l5-tumbling-3-bhs-back-tuck",
+            "usag-at-l5-tumbling-4-roundoff-bhs-layout"
+          ],
+          "additionalMigration": "backend/migrations/263_usag_youth_at_level_1_2_acro_cards.sql",
+          "additionalExpectedSlugs": [
+            "usag-at-l1-acro-1-assisted-straddle-inversion",
+            "usag-at-l1-acro-2-shoulder-sit",
+            "usag-at-l1-acro-3-shoulder-popoff",
+            "usag-at-l1-acro-4-sponge-to-prep",
+            "usag-at-l1-acro-5-prep-sponge-dismount",
+            "usag-at-l2-acro-1-half-up-shoulder-stand",
+            "usag-at-l2-acro-2-shoulder-to-invert",
+            "usag-at-l2-acro-3-invert-straight-down",
+            "usag-at-l2-acro-4-assisted-front-support",
+            "usag-at-l2-acro-5-front-support-90-dismount",
+            "usag-at-l2-acro-6-sponge-to-prep",
+            "usag-at-l2-acro-7-prep-to-cradle",
+            "usag-at-l2-acro-8-cradle-barrel-roll"
+          ],
+          "secondAdditionalMigration": "backend/migrations/264_usag_youth_at_level_3_5_acro_cards.sql",
+          "secondAdditionalExpectedSlugs": [
+            "usag-at-l3-acro-1-shoulder-stand",
+            "usag-at-l3-acro-2-single-base-front-support",
+            "usag-at-l3-acro-3-front-support-dismount",
+            "usag-at-l3-acro-4-half-up-shoulder-stand",
+            "usag-at-l3-acro-5-shoulder-to-invert",
+            "usag-at-l3-acro-6-invert-straight-down",
+            "usag-at-l3-acro-7-prep-liberty",
+            "usag-at-l3-acro-8-lib-to-two-foot",
+            "usag-at-l3-acro-9-full-twist-cradle",
+            "usag-at-l4-acro-1-toe-pitch-prep",
+            "usag-at-l4-acro-2-prep-popoff",
+            "usag-at-l4-acro-3-extended-straddle-support",
+            "usag-at-l4-acro-4-straddle-to-invert",
+            "usag-at-l4-acro-5-invert-straight-down",
+            "usag-at-l4-acro-6-extended-liberty",
+            "usag-at-l4-acro-7-liberty-foot-down",
+            "usag-at-l4-acro-8-extended-arabesque",
+            "usag-at-l4-acro-9-no-twist-cradle",
+            "usag-at-l5-acro-1-assisted-toe-pitch",
+            "usag-at-l5-acro-2-back-tuck-off",
+            "usag-at-l5-acro-3-single-base-straddle",
+            "usag-at-l5-acro-4-straddle-popover",
+            "usag-at-l5-acro-5-invert-hand-switch",
+            "usag-at-l5-acro-6-invert-popoff",
+            "usag-at-l5-acro-7-extended-liberty",
+            "usag-at-l5-acro-8-liberty-foot-down",
+            "usag-at-l5-acro-9-extended-arabesque",
+            "usag-at-l5-acro-10-full-down-cradle"
+          ],
+          "thirdAdditionalMigration": "backend/migrations/267_usag_youth_at_compulsory_pyramid_toss_cards.sql",
+          "thirdAdditionalExpectedSlugs": [
+            "usag-at-l1-pyramid-thighstand",
+            "usag-at-l1-toss-balance-cradle-pop",
+            "usag-at-l2-pyramid-front-support",
+            "usag-at-l2-toss-straight-ride",
+            "usag-at-l3-pyramid-front-support-half-down",
+            "usag-at-l3-toss-front-tuck-open",
+            "usag-at-l4-pyramid-half-up-front-support",
+            "usag-at-l4-toss-front-layout",
+            "usag-at-l5-pyramid-half-up-straddle",
+            "usag-at-l5-toss-back-tuck"
+          ]
+        },
+        {
+          "key": "levels-3-5-optional-running-tumbling",
+          "status": "implemented",
+          "migration": "backend/migrations/268_usag_youth_at_optional_running_tumbling_passes.sql",
+          "note": "All 106 pass rows in the official 2025-26 optional Running Tumbling table are implemented with exact shorthand and start values.",
+          "expectedSlugPrefix": "usag-at-run-",
+          "expectedSlugCount": 106,
+          "expectedSlugPad": 3
+        },
+        {
+          "key": "levels-3-5-optional-toss",
+          "status": "implemented",
+          "migration": "backend/migrations/270_usag_youth_at_optional_toss_cards.sql",
+          "note": "All 19 forward, backward, and Arabian rows in the official optional Toss table are implemented with exact names and start values.",
+          "expectedSlugs": [
+            "usag-at-toss-front-tuck-open",
+            "usag-at-toss-front-pike-open",
+            "usag-at-toss-front-layout",
+            "usag-at-toss-kick-front-layout",
+            "usag-at-toss-front-pike-open-360",
+            "usag-at-toss-front-layout-360",
+            "usag-at-toss-kick-front-layout-360",
+            "usag-at-toss-straight-ride",
+            "usag-at-toss-back-tuck",
+            "usag-at-toss-back-layout",
+            "usag-at-toss-kick-back-layout",
+            "usag-at-toss-back-layout-360",
+            "usag-at-toss-kick-back-layout-360",
+            "usag-at-toss-arabian-tuck-open",
+            "usag-at-toss-arabian-pike-open",
+            "usag-at-toss-arabian-layout",
+            "usag-at-toss-arabian-tuck-open-360",
+            "usag-at-toss-arabian-pike-open-360",
+            "usag-at-toss-arabian-layout-360"
+          ]
+        },
+        {
+          "key": "levels-3-5-optional-pyramid",
+          "status": "implemented",
+          "migration": "backend/migrations/271_usag_youth_at_optional_pyramid_cards.sql",
+          "note": "All 27 official Hand Support, Vertical, and Inverted optional Pyramid sequences are implemented with full notation and exact start values.",
+          "expectedSlugs": [
+            "usag-at-pyramid-phs1",
+            "usag-at-pyramid-phs2",
+            "usag-at-pyramid-phs3",
+            "usag-at-pyramid-phs4",
+            "usag-at-pyramid-phs5",
+            "usag-at-pyramid-phs6",
+            "usag-at-pyramid-phs7",
+            "usag-at-pyramid-phs8",
+            "usag-at-pyramid-phs9",
+            "usag-at-pyramid-phs10",
+            "usag-at-pyramid-phs11",
+            "usag-at-pyramid-phs12",
+            "usag-at-pyramid-phs13",
+            "usag-at-pyramid-phs14",
+            "usag-at-pyramid-phs15",
+            "usag-at-pyramid-phs16",
+            "usag-at-pyramid-pv1",
+            "usag-at-pyramid-pv2",
+            "usag-at-pyramid-pv3",
+            "usag-at-pyramid-pv4",
+            "usag-at-pyramid-pv5",
+            "usag-at-pyramid-pi1",
+            "usag-at-pyramid-pi2",
+            "usag-at-pyramid-pi3",
+            "usag-at-pyramid-pi4",
+            "usag-at-pyramid-pi5",
+            "usag-at-pyramid-pi6"
+          ]
+        },
+        {
+          "key": "levels-3-5-optional-acro",
+          "status": "implemented",
+          "migration": "backend/migrations/272_usag_youth_at_optional_acro_cards.sql",
+          "note": "All 259 rows in the official optional Acro ascending and descending A-E tables are implemented with element number, full notation, event value, Team value, and exact level restrictions.",
+          "expectedSlugPattern": "'(usag-at-acro-element-[0-9]+(?:-[0-9]+)?)'",
+          "expectedSlugCount": 259,
+          "evidenceFile": "scripts/data/usag-youth-at-optional-acro-elements.json"
+        },
+        {
+          "key": "levels-3-5-team-standing-tumbling",
+          "status": "implemented",
+          "migration": "backend/migrations/269_usag_youth_at_standing_tumbling_passes.sql",
+          "note": "All 82 rows in the official Team Event Standing Tumbling table are implemented with exact shorthand and start values.",
+          "expectedSlugPrefix": "usag-at-stand-",
+          "expectedSlugCount": 82,
+          "expectedSlugPad": 3
+        }
+      ]
+    }
+  ]
+}

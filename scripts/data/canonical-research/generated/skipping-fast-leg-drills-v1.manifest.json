@@ -1,0 +1,43 @@
+{
+  "batchKey": "skipping-fast-leg-drills-v1",
+  "researchVersion": "2026-07-25.10",
+  "generatedAt": "2026-07-26T06:10:00.000Z",
+  "cards": [
+    {
+      "slug": "skipping-rhythm-drill",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "skipping-rhythm-change",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "cone-skip-rhythm-build",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "skipping-rhythm-change-with-ball-toss",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "power-skip-for-distance",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "fast-leg-cycle-drill",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    }
+  ]
+}

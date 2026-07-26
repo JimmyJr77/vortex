@@ -1,0 +1,447 @@
+{
+  "facilityId": 1,
+  "slug": "athletic-box-jump-for-height-quality",
+  "researchVersion": "2026-07-25.4",
+  "assessmentSummary": {
+    "identity": "A high-intent standard countermovement box jump whose output and landing quality are preserved through low volume, full recovery, and a non-maximal platform height.",
+    "currentCardFindings": [
+      "The movement is the same as Box Jump and Countermovement Box Jump; 'for Height Quality' describes coaching intent rather than identity.",
+      "The title risks conflating box height with jump height even though higher platforms can be reached through extra hip flexion.",
+      "The 60-point score and empty anatomy, load, fatigue, constraints, and measurement fields do not define how height quality is assessed."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "countermovement",
+        "bilateral_vertical_jump",
+        "elevated_bilateral_land",
+        "step_down_reset"
+      ],
+      "jointActions": [
+        "ankle_plantarflexion",
+        "knee_extension",
+        "hip_extension",
+        "shoulder_flexion",
+        "landing_flexion_control"
+      ],
+      "planes": [
+        "sagittal"
+      ],
+      "laterality": "bilateral_takeoff_bilateral_landing",
+      "intent": "maximal_vertical_impulse_with_quality_constrained_landing"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "quadriceps",
+        "gluteus_maximus",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "hamstrings",
+        "gluteus_medius",
+        "intrinsic_foot",
+        "trunk_stabilizers",
+        "anterior_deltoid"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 40,
+      "absoluteLoadDemand": 20,
+      "coordinationDemand": 48,
+      "supervisionDemand": 48,
+      "failureConsequence": 54,
+      "impact": 34,
+      "workCapacityDemand": 20,
+      "baseOverallDifficulty": 40
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_max_intent_bilateral_ballistic_jump_and_elevated_landing",
+      "impactClass": "low_to_moderate_when_platform_is_below_maximal_clearance",
+      "landingContactsPerRep": 1,
+      "primaryStress": [
+        "maximal_vertical_impulse",
+        "whole_body_coordination",
+        "landing_precision"
+      ],
+      "fatigueSensitivity": "measured_output_takeoff_strategy_edge_clearance_and_landing_depth"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "stable_non_slip_box_below_maximal_clearance",
+        "safe_step_down_route"
+      ],
+      "optionalEquipment": [
+        "force_plate_or_jump_mat_for_actual_output",
+        "video_feedback"
+      ],
+      "environment": [
+        "full_recovery_area",
+        "clear_box_top_and_front_edge"
+      ],
+      "population": [
+        "technically_consistent_box_jump",
+        "can_distinguish_jump_output_from_box_height"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "3-5",
+      "repetitions": "2-3",
+      "landingHoldSeconds": "1-2",
+      "restSeconds": "90-180",
+      "intensity": "maximal_takeoff_intent_not_maximal_box_height",
+      "progressWhen": "objective output or visible takeoff remains stable and the landing depth does not increase to reach the box"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Jump high, not onto a high box",
+        "Same takeoff each rep",
+        "Land no deeper than your honest target allows",
+        "Full reset"
+      ],
+      "athleteInstructions": [
+        "Attack the jump, then land quietly",
+        "Do not pull the knees higher just to reach a taller box"
+      ],
+      "commonFaults": [
+        "using box height as score",
+        "excessive hip tuck",
+        "deeper landing each rep",
+        "short rest",
+        "ego height selection"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "stable baseline box jump",
+        "honest platform selection",
+        "full recovery"
+      ],
+      "stopRules": [
+        "output drop",
+        "deeper landing strategy",
+        "toe catch",
+        "hesitation",
+        "partial-foot contact",
+        "platform movement"
+      ]
+    },
+    "programmingDecision": "Consolidate with Box Jump after human review. Preserve maximal-intent and quality-measurement rules as an output delivery profile; never treat maximal box height as jump height.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-25T23:48:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Athletic Box Jump for Height Quality is a high-intent box-jump power exercise. The athlete creates a crisp takeoff, lands softly on the box with full-foot control, stands tall, steps down, and fully resets. The purpose is explosive force expression with low volume and full recovery, not conditioning.",
+      "familyKey": "Box Jump Explosive Power",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 60,
+        "coordinationDemand": 50,
+        "technicalComplexity": 50,
+        "baseOverallDifficulty": 60
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "A box-jump identity must specify start condition, countermovement permission, arm use, takeoff and landing laterality, approach, platform relationship, stabilization, exit, and reset behavior.",
+        "Athletic Box Jump for Height Quality must not combine a floor-to-box jump with a depth or drop jump, repeated rebound, box jump-over, unilateral landing, seated start, approach jump, or loaded jump."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "A reset box jump is a discrete ballistic propulsion task followed by an elevated landing and deliberate stabilization; repeated reactive box contacts are a different task.",
+        "Athletic Box Jump for Height Quality belongs to bilateral vertical power and landing control, with start condition, arm use, box height, landing strategy, and reset intent encoded as controlled dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Propulsion and elevated landing are coordinated across the foot, ankle, knee, hip, pelvis, trunk, and, when permitted, the shoulder girdle.",
+        "The card should assign propulsion to the plantar flexors, quadriceps, and hip extensors; stabilization to the foot, hip, and trunk stabilizers; and arm-swing contribution to coordinated shoulder flexion without claiming one isolated prime mover."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11166134/",
+      "sourceTitle": "Does Box Height Matter? A Comparative Analysis of Box Height on Box Jump Performance in Men and Women",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "In recreationally active adults asked to jump maximally, changing box height across the studied range generally did not change most propulsive performance variables.",
+        "Box height is therefore a landing target and constraint, not a valid stand-alone measure of vertical jump height; observable quality includes maximal intent when prescribed, full-foot clearance, quiet simultaneous contact, controlled landing depth, and a stable finish."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Box-jump difficulty changes with required impulse, box collision consequence, landing-space tolerance, start condition, arm restriction, laterality, approach, external load, repetition strategy, and fatigue.",
+        "Exercise cards must score technical complexity, physical or absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly; they must not use skill-library levels."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Jump volume is counted as discrete takeoffs and landings, while height, intent, start condition, arm use, body mass, external load, and reset duration govern exposure.",
+        "Athletic Box Jump for Height Quality needs contact count, output intent, impact and eccentric stress, technical-fatigue criteria, and recovery guidance; a reset power prescription must not be converted into a conditioning interval."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11166134/",
+      "sourceTitle": "Does Box Height Matter? A Comparative Analysis of Box Height on Box Jump Performance in Men and Women",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Different box heights can be used without assuming that a higher box produces a better propulsive effort, provided the athlete can clear and land on the platform safely.",
+        "The delivery profile should require a stable non-slip platform, unobstructed takeoff and top surfaces, adequate ceiling and forward clearance, a safe step-down route, athlete-specific height selection, and coach sightlines to the feet and landing."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Power-focused plyometrics use low-repetition sets, deliberate resets, and enough recovery to preserve takeoff output and landing quality.",
+        "Prescribe sets, discrete repetitions, box-height selection rule, landing hold, step-down behavior, rest, and stop criteria; do not prescribe maximal box height as the training target."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Specific external or movement-focused feedback can improve landing mechanics, while excessive cue volume can impair learning.",
+        "Use a small cue set: choose an honest box, load and drive, clear the front edge, land quietly with the whole foot, own the top, stand, step down, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Box-jump hazards include collision with the front edge, missed or partial foot contact, unstable or shifting equipment, uncontrolled landing, and an unsafe jump-down exit.",
+        "Stop for pain, giving way, hesitation, repeated toe catch, partial-foot landing, excessive hip tuck used to chase box height, loud or asymmetrical contact, valgus or trunk collapse, loss of output, or any platform movement."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11166134/",
+      "sourceTitle": "Does Box Height Matter? A Comparative Analysis of Box Height on Box Jump Performance in Men and Women",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Box height should be selected to support the intended landing or teaching goal rather than used as a proxy for jump performance.",
+        "Athletic Box Jump for Height Quality belongs early in an output block after readiness work, or in movement intelligence when explicitly submaximal and technique-focused; low volume and full reset preserve the intended stimulus."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Athlete support should show the prescribed start, target box, landing shape, hold, stand, step-down route, and one primary cue.",
+        "The interface should explain that a higher box can reward extra hip flexion without proving a higher jump and should display a lower-box or non-box regression without shame language."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11166134/",
+      "sourceTitle": "Does Box Height Matter? A Comparative Analysis of Box Height on Box Jump Performance in Men and Women",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Coaches can change box height for teaching and landing purposes without treating box height as the propulsive outcome.",
+        "Coach support should provide side and front observation, edge-clearance and full-foot criteria, landing-depth comparison, collision-risk rules, output and contact counting, regressions, progressions, and a prohibition on jumping down during reset prescriptions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should match physical and psychosocial readiness, technical competence, supervision, and equipment scale.",
+        "Accessibility can be improved with a lower soft-surface platform, visible takeoff line, contrasting box edge, landing footprint marks, demonstrated step-down route, longer reset, or a vertical jump-to-stick regression without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/28640774/",
+      "sourceTitle": "The Difference Between Countermovement and Squat Jump Performances: A Review of Underlying Mechanisms With Practical Applications",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "A countermovement jump and a static squat jump have different start mechanics and performance characteristics, so start condition must be explicit.",
+        "Box height and landing hold are usually delivery modifiers; a static start, arm restriction, seated start, approach, unilateral landing, external load, or prior drop changes the exercise sufficiently to require a controlled variant or separate definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Athletic Box Jump for Height Quality were discovered through visible YouTube search; current availability and embedding, exact movement match, full viewing, captions, instructional quality, safety, and approval remain separate review gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=52r_Ul5k03g",
+      "title": "The Box Jump",
+      "channelName": "CrossFit",
+      "sourceQuery": "box jump technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=d2z2_rRkpAo",
+      "title": "Box Jump | Olympic Weightlifting Exercise Library",
+      "channelName": "Catalyst Athletics",
+      "sourceQuery": "box jump technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=v9cZQqGX1Xk",
+      "title": "How to Box Jump for Beginners | Shane Heins",
+      "channelName": "Onnit",
+      "sourceQuery": "box jump technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=cLSB_Zn0awM",
+      "title": "The RIGHT WAY To Do Box Jumps (For Speed and Power)",
+      "channelName": "Outperform",
+      "sourceQuery": "box jump for power",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Bc_ycZFCEvQ",
+      "title": "How To Do The Plyometric Box Jump (TECHNIQUE BREAKDOWN 101)",
+      "channelName": "Criticalbench",
+      "sourceQuery": "box jump technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Box Jump",
+      "classification": "same_identity",
+      "rationale": "High output with quality control is an output profile of the baseline.",
+      "distinguishingDimensions": {
+        "deliveryIntent": "maximal_output"
+      }
+    },
+    {
+      "name": "Maximal Box-Height Test",
+      "classification": "reject",
+      "rationale": "Platform height confounds jump output with hip flexion, confidence, and collision tolerance.",
+      "distinguishingDimensions": {
+        "measurement": "box_height"
+      }
+    },
+    {
+      "name": "Countermovement Jump Test",
+      "classification": "new_definition",
+      "rationale": "A floor landing and validated flight or force measurement are required for jump-height testing.",
+      "distinguishingDimensions": {
+        "measurement": "flight_or_force"
+      }
+    },
+    {
+      "name": "Weighted Box Jump",
+      "classification": "new_variant",
+      "rationale": "External load changes propulsion and consequence.",
+      "distinguishingDimensions": {
+        "externalLoad": "prescribed"
+      }
+    },
+    {
+      "name": "Depth Jump to Box",
+      "classification": "new_definition",
+      "rationale": "A prior landing and rebound create a reactive task.",
+      "distinguishingDimensions": {
+        "precedingContact": "drop_landing"
+      }
+    }
+  ]
+}

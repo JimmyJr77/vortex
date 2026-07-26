@@ -1,0 +1,43 @@
+{
+  "batchKey": "falling-start-collision-cluster-v1",
+  "researchVersion": "2026-07-25.11",
+  "generatedAt": "2026-07-26T07:05:00.000Z",
+  "cards": [
+    {
+      "slug": "falling-start-sprint",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "falling-start-to-10-meters",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "falling-start-to-10-yards",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "falling-start-to-10-yard-cone",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "falling-start-to-5-10-yard-sprint",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "falling-start-hold",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    }
+  ]
+}

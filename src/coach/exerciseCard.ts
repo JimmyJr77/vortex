@@ -67,7 +67,6 @@ export function exerciseToCard(exercise: Exercise, taxonomy?: Taxonomy | null): 
       order_slot: orderSlot,
       sport_id: exercise.sport_id,
       sport_name: exercise.sport_name,
-      skill_level: exercise.skill_level,
       visibility: exercise.visibility,
       participant_structure: exercise.participant_structure ?? 'individual',
     },
@@ -148,6 +147,7 @@ export function exerciseToCard(exercise: Exercise, taxonomy?: Taxonomy | null): 
       contraindications: safety.contraindications ?? [],
       substitutions: safety.common_substitutions ?? [],
     } : null,
+    difficulty_profile: exercise.difficulty_profile ?? null,
     media_and_document_library: {
       demo_video_sources: asStringArray(mediaLib.demo_video_sources),
       coaching_articles: asStringArray(mediaLib.coaching_articles),

@@ -1,6 +1,6 @@
 # Canonical exercise-library audit
 
-Audit baseline: 2026-07-25, disposable PostgreSQL 15, facility 1.
+Audit baseline: 2026-07-26, disposable PostgreSQL 15, facility 1.
 
 ## Result
 
@@ -9,12 +9,13 @@ The migration preserves every legacy exercise:
 | Measure | Count |
 |---|---:|
 | Legacy exercise rows | 1,673 |
-| Canonical definitions | 1,673 |
+| Active canonical definitions | 1,555 |
+| Archived redundant definitions | 118 |
 | Canonical baseline variants | 1,673 |
 | Contextual delivery profiles | 1,717 |
 | Migration coverage | 100% |
 | Published canonical definitions | 0 |
-| Quarantined test packets | 1,673 |
+| Quarantined test packets | 1,555 |
 
 No migrated card is treated as production-approved. Migration creates stable
 canonical identity and provenance, then leaves the definition, variant, and
@@ -36,10 +37,44 @@ The baseline audit found these blockers on every card:
 The initial audit found 215 cards participating in potential identity matches,
 70 exact-name pairs, and 54 direct database identity pairs. Migration 252
 consolidates 83 redundant definitions while preserving every source variant and
-delivery profile. The resulting 1,590-definition library has zero direct
-identity collisions. Thirty-six similar-name pairs remain as non-blocking P2
-warnings because their modifiers describe meaningful execution differences.
-See `IDENTITY_RESOLUTION.md`.
+delivery profile. Migrations 299 and 300 consolidate six additional abbreviated
+identities. Migration 301 consolidates seven ball-slam cards whose differences
+are controlled implement, stance, cadence, trajectory, or entry-footwork
+variants. Migration 302 consolidates four 90/90 and shin-box cards whose
+differences are outcome wording, reach emphasis, equivalent nomenclature, or
+continuous-flow delivery. Migration 303 consolidates the spelled-out-degree
+duplicate of 180 Jump to Stick and a duplicate planned 180-degree
+turn-and-reaccelerate identity whose approach and turn details are controlled
+delivery dimensions. Migration 306 consolidates `45-Degree Cut to Stick` into
+`45-Degree Cut and Stick` because the connecting word does not change the
+planned 45-degree redirection or held terminal outcome. Immediate
+reacceleration and the aerial diagonal bound remain separate identities. The
+Migration 307 consolidates twelve Cossack cards whose differences are range,
+tempo, isometric hold, bottom-position motion, terminal pause, reach overlay,
+or external implement into `Cossack Squat`. The release/reception wall-ball
+composite remains separate and identity-quarantined. Migration 308 consolidates
+three adductor rock-back reach and half-kneeling-context cards into
+`Adductor Rockback`; incomplete generic-reach and half-kneeling execution
+dimensions remain explicitly quarantined. The resulting
+1,555-definition library preserves all
+1,673 source mappings and has zero direct canonical-name, display-name,
+alias-to-alias, or alias-to-name collisions. The post-migration-252 audit left
+36 name-based similar pairs as non-blocking P2 warnings; later family passes
+are adjudicating that historical queue explicitly because modifiers need
+movement context rather than an automatic merge. See `IDENTITY_RESOLUTION.md`.
+
+Migration 298 removes exercise-card skill-level classifications while retaining
+levels on the dedicated skill library. The fresh-database verification found
+zero exercise, scaling, or safety-profile skill levels and 1,112 retained
+skill-library levels.
+
+Migrations 304 and 305 complete the enforceable two-axis exercise difficulty
+contract. Technical complexity and physical difficulty are assessed
+independently, and overall difficulty is derived as their maximum. Existing
+traceable difficulty profiles supplied physical scores for 1,661 of 1,673
+variants; the other 12 have no source assessment and remain explicitly
+quarantined. Overall-difficulty calibration is no longer independently
+proposable, and no approval or publication state was created by the backfill.
 
 ## Run the audit
 

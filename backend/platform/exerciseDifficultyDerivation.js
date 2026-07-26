@@ -55,7 +55,7 @@ export async function ensureDerivedDifficultyProfiles(pool, { facilityId = null,
   try {
     missing = await pool.query(
       `
-        SELECT e.id, e.slug, e.name, e.skill_level, e.age_min, e.age_max,
+        SELECT e.id, e.slug, e.name, e.age_min, e.age_max,
                e.participant_structure, e.movement_requirements, e.movement_family,
                e.load_note, e.primary_phase_key, e.phase_subrole, e.programming_kind
         FROM coaching.exercise e

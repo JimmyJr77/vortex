@@ -1,0 +1,2266 @@
+{
+  "batchKey": "alternating-bounds-v1",
+  "researchVersion": "2026-07-25.6",
+  "snapshotAt": "2026-07-26T00:30:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "olympic_coach_plyometric_practices",
+      "claims": [
+        "Bounding is a multi-jump exercise commonly performed in alternate-leg, same-leg, or double-leg modes, usually with horizontal projection as a defining intent.",
+        "{{canonicalName}} must state contact sequence, takeoff and landing laterality, projection bias, continuity, number of contacts, terminal action, surface gradient, and reset; labels such as rhythm, distance, or height alone do not establish a new identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "horizontal_multi_step_jump_review",
+      "claims": [
+        "Horizontal multi-step jumps combine forward-directed force production with repeated unilateral contacts under temporal constraints.",
+        "{{canonicalName}} belongs to multi-contact plyometric output; alternate-leg and repeated same-leg contacts are controlled identities, while distance, height, rhythm, contact count, and measurement method are controlled variants or delivery dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Bounding coordinates rapid force production and absorption across the foot, ankle, knee, hip, pelvis, and trunk on repeated unilateral contacts.",
+        "The card should assign plantar-flexor and intrinsic-foot stiffness, knee-extensor and hip-extensor propulsion and braking, hamstring swing and stance roles, frontal-plane hip stabilization, arm action, and lumbopelvic control without reducing the task to one muscle."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "horizontal_vertical_plyometric_meta_analysis",
+      "claims": [
+        "Horizontally oriented plyometric training has direction-specific advantages for horizontal performance, while vertical and horizontal tasks should not be treated as mechanically interchangeable.",
+        "Observable execution must match the card: project the center of mass, strike beneath or only slightly ahead of it, resist braking and collapse, coordinate opposite arm and leg, and preserve the selected horizontal, vertical, or blended bias."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "horizontal_multi_step_jump_review",
+      "claims": [
+        "Multi-step horizontal jumps require forward force production, short contact constraints, repeated unilateral organization, and preservation of velocity across contacts.",
+        "Exercise difficulty must score technical complexity, physical and absolute-load demand, coordination, supervision, consequence of error, impact, work-capacity demand, and overall difficulty directly; projection distance or an athlete label is not an exercise difficulty score."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "adolescent_plyometric_contact_meta_analysis",
+      "claims": [
+        "Plyometric exposure is meaningfully affected by total ground contacts and accumulated intervention volume, so contacts must be counted rather than hidden inside generic repetitions or work intervals.",
+        "{{canonicalName}} needs per-leg and total contacts, surface, projection intent, approach, terminal landing, technical-fatigue thresholds, inter-attempt recovery, between-set recovery, and weekly high-impact accounting."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "High-intensity plyometrics require progressive preparation, adequate strength and landing control, safe equipment and surfaces, and sufficient recovery.",
+        "The delivery profile should require a long unobstructed lane, level or explicitly graded non-slip surface, suitable footwear, visible finish and run-out zones, safe athlete spacing, and coach sightlines to both frontal and sagittal mechanics."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "adolescent_plyometric_contact_meta_analysis",
+      "claims": [
+        "Ground-contact volume is a programming variable and should be interpreted with intervention duration, task intensity, maturity, training history, and outcome rather than copied as a universal dose.",
+        "Prescribe attempts or lanes, contacts per attempt and per leg, distance or contact cap, projection intent, terminal action, full walk-back or timed recovery, and a quality stop; do not prescribe two-second recovery for maximal multi-contact bounds."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "olympic_coach_plyometric_practices",
+      "claims": [
+        "Sprint and jump coaches use bounding to develop horizontally directed force and acceleration-related qualities, with execution differentiated by alternate, single, or double contacts.",
+        "Use a small cue set: tall but directionally projected posture, drive through the ground, exchange opposite arm and knee, contact under the hips, keep the pelvis level, and finish with the prescribed stick or run-out."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Advanced unilateral plyometrics require technical readiness, conservative progression, appropriate supervision, and discontinuation when quality or safety deteriorates.",
+        "Stop for pain, giving way, apprehension, repeated valgus or pelvic drop, foot collapse, reaching and braking, loud contacts, loss of rhythm, unintended contact pattern, decreasing distance or velocity, unsafe lane encroachment, or an uncontrolled final landing."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "horizontal_multi_step_jump_review",
+      "claims": [
+        "Horizontal multi-step jump performance and training can relate to sprint outcomes, but transfer depends on task, population, program, and measurement context.",
+        "{{canonicalName}} belongs early in a fresh output block after landing, hopping, and lower-amplitude bounding readiness; use it to train or measure a named quality, not as conditioning volume."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "Athlete support should show the exact left-right or same-leg contact pattern, the intended projection angle, arm timing, contact zone, finish, recovery, and what makes a repetition count.",
+        "Use lane markers and one outcome cue, explain the difference between rhythm and maximal-distance attempts, and show how to reduce amplitude without changing the contact sequence."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "olympic_coach_plyometric_practices",
+      "claims": [
+        "Coach support should distinguish alternate, same-leg, and double-leg bounding and select orientation according to the intended performance transfer.",
+        "Provide front and side observation, per-leg contact counts, contact-sequence diagrams, projection and braking criteria, side-to-side comparison, lane and surface setup, workload accounting, regressions, progressions, and terminal-landing rules."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Plyometric selection and progression should match physical and psychosocial readiness, technical competence, supervision, and equipment scale.",
+        "Accessibility can be improved with shorter lanes, lower amplitude, bound-and-stick contacts, visual footprints, external rhythm marks, fewer contacts, longer recovery, quieter settings, or supported single-leg landings while still assessing the exercise through its difficulty dimensions."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "horizontal_vertical_plyometric_meta_analysis",
+      "claims": [
+        "Horizontal and vertical plyometric orientations create meaningfully different directional demands and adaptations.",
+        "Contact pattern and surface gradient require a distinct definition or variant; height, distance, rhythm, contact count, approach length, terminal stick, and measurement intent normally belong in variant or delivery profiles unless they change the actual contact sequence."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for {{canonicalName}} were discovered through visible YouTube search; current availability and embedding, exact contact pattern and projection match, complete viewing, captions, instructional quality, safety, and approval remain separate review gates."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "alternating-bounds",
+      "assessmentSummary": {
+        "identity": "Continuous forward bounds alternating left and right single-leg contacts, using coordinated contralateral arm action and finishing with a controlled deceleration or run-out.",
+        "currentCardFindings": [
+          "This is the best stable base identity in the cluster, but the card omits anatomy, controlled taxonomy, surface and population constraints, fatigue model, measurement rules, and operational support.",
+          "The current three-repetition dose is ambiguous because a repetition could mean a contact, a lane, or a full sequence.",
+          "The generic difficulty values understate repeated unilateral coordination and impact."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "alternating_unilateral_bound",
+            "horizontal_projection",
+            "repeated_stretch_shortening_cycle"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "contralateral_hip_flexion",
+            "trunk_stabilization"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_left_right",
+          "intent": "repeatable_horizontal_projection_with_continuous_rhythm"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "hip_flexors",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "obliques",
+            "spinal_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 64,
+          "absoluteLoadDemand": 30,
+          "coordinationDemand": 70,
+          "supervisionDemand": 55,
+          "failureConsequence": 58,
+          "impact": 67,
+          "workCapacityDemand": 38,
+          "baseOverallDifficulty": 64
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_repeated_alternating_unilateral_horizontal_plyometric",
+          "impactClass": "high_and_projection_dependent",
+          "landingContactsPerRep": "define_as_contacts_or_lane_not_generic_reps",
+          "primaryStress": [
+            "unilateral_propulsion",
+            "rapid_force_absorption",
+            "ankle_tendon_stiffness",
+            "hip_stabilization"
+          ],
+          "fatigueSensitivity": "projection_velocity_contact_sound_pelvic_control_and_rhythm"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "long_clear_non_slip_lane",
+            "visible_finish_and_run_out_zone"
+          ],
+          "optionalEquipment": [
+            "contact_markers",
+            "distance_markers",
+            "timing_or_video_system"
+          ],
+          "environment": [
+            "level_forgiving_surface",
+            "no_cross_traffic",
+            "adequate_ceiling_and_spacing"
+          ],
+          "population": [
+            "pain_free_hopping_and_landing",
+            "owns_low_amplitude_alternating_bound",
+            "can_decelerate_after_last_contact"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "attemptsPerSet": "1-3",
+          "contactsPerAttempt": "4-10_total",
+          "restSeconds": "90-180_between_high_intent_attempts",
+          "intensity": "submaximal_rhythm_to_maximal_projection_by_profile",
+          "progressWhen": "contact sequence, projection, posture, and terminal control remain symmetric and repeatable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Project through the lane",
+            "Opposite arm and knee",
+            "Contact under the hips",
+            "Keep the belt line level"
+          ],
+          "athleteInstructions": [
+            "Bound left to right without reaching",
+            "Stay tall through the hips and finish under control"
+          ],
+          "commonFaults": [
+            "overstriding",
+            "excessive braking",
+            "pelvic drop",
+            "valgus",
+            "loud contacts",
+            "losing arm-leg opposition"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "controlled unilateral hop and stick",
+            "pain_free acceleration",
+            "safe lane and run-out"
+          ],
+          "stopRules": [
+            "pain",
+            "giving_way",
+            "two_consecutive_alignment_faults",
+            "reaching_and_braking",
+            "loss_of_rhythm",
+            "uncontrolled_finish"
+          ]
+        },
+        "programmingDecision": "Retain as the stable alternate-leg continuous bounding identity. Move distance, height, rhythm, contact count, and measurement emphasis into variants or delivery profiles."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=b3124L0KK3Q",
+          "title": "BOUNDING: Bounding Routine Alternate Leg Bounds",
+          "channelName": "Trackwired",
+          "sourceQuery": "alternating bounds exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LwsQ-AGc8JU",
+          "title": "BOUNDING DRILLS - ALTERNATE BOUND FOR SPEED",
+          "channelName": "Trackwired",
+          "sourceQuery": "alternating bounds exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=SyB8EaNDi-I",
+          "title": "Alternating Bounds for Linear Speed",
+          "channelName": "overtimeathletes",
+          "sourceQuery": "alternating bounds exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=nTwTgnkFsNk",
+          "title": "Alternate Leg Bounding | Plyometric | Strength and Conditioning Exercises",
+          "channelName": "Rehab My Patient",
+          "sourceQuery": "alternating bounds exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=tpAiIazgKnE",
+          "title": "Alternating Bounds",
+          "channelName": "Carleton Strength & Conditioning",
+          "sourceQuery": "alternating bounds exercise"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Alternate-Leg Bound for Distance",
+          "classification": "same_identity",
+          "rationale": "The contact sequence is the same; maximal horizontal distance is a delivery intent.",
+          "distinguishingDimensions": {
+            "deliveryIntent": "max_horizontal_projection"
+          }
+        },
+        {
+          "name": "Alternating Bounds for Rhythm",
+          "classification": "modifier_annotation",
+          "rationale": "Rhythm and amplitude are coaching and dosage constraints on the same contact sequence.",
+          "distinguishingDimensions": {
+            "deliveryIntent": "submaximal_repeatable_rhythm"
+          }
+        },
+        {
+          "name": "Alternating Bounds for Height",
+          "classification": "new_variant",
+          "rationale": "A deliberate vertical bias changes projection mechanics but retains the alternating contacts.",
+          "distinguishingDimensions": {
+            "projectionBias": "vertical"
+          }
+        },
+        {
+          "name": "Single-Leg Bounds",
+          "classification": "new_definition",
+          "rationale": "Repeated contacts on the same limb materially change laterality and loading.",
+          "distinguishingDimensions": {
+            "contactSequence": "same_leg_repeated"
+          }
+        },
+        {
+          "name": "Uphill Bound",
+          "classification": "new_variant",
+          "rationale": "An incline changes surface geometry, force direction, step length, and logistics.",
+          "distinguishingDimensions": {
+            "surfaceGradient": "uphill"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "alternate-leg-bound-for-distance",
+      "assessmentSummary": {
+        "identity": "Alternating left-right forward bounds performed with maximal controllable horizontal projection and a controlled terminal deceleration.",
+        "currentCardFindings": [
+          "The card is the same movement identity as Alternating Bounds for Distance and the base Alternating Bounds card.",
+          "The current impact value of five has no documented scale and the difficulty, load, fatigue, and support models are empty.",
+          "Six repetitions are ambiguous and must be replaced by explicit total and per-leg contacts or measured lanes."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "alternating_unilateral_bound",
+            "maximal_horizontal_projection",
+            "multi_contact_plyometric"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "contralateral_hip_flexion",
+            "trunk_stabilization"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_left_right",
+          "intent": "maximize_total_or_mean_horizontal_distance_without_contact_reach"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "hip_flexors",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "obliques"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 70,
+          "absoluteLoadDemand": 32,
+          "coordinationDemand": 74,
+          "supervisionDemand": 58,
+          "failureConsequence": 62,
+          "impact": 74,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 70
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_maximal_alternating_horizontal_bound",
+          "impactClass": "high",
+          "landingContactsPerRep": "4-8_total_contacts_by_profile",
+          "primaryStress": [
+            "horizontal_propulsion",
+            "unilateral_braking",
+            "ankle_tendon_load",
+            "hip_stabilization"
+          ],
+          "fatigueSensitivity": "distance_drop_reach_contact_noise_and_asymmetry"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "measured_clear_lane",
+            "safe_deceleration_zone"
+          ],
+          "optionalEquipment": [
+            "contact_markers",
+            "tape_measure",
+            "video"
+          ],
+          "environment": [
+            "level_forgiving_non_slip_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "owns_submaximal_alternating_bounds",
+            "pain_free_unilateral_landing",
+            "can_stop_after_maximal_projection"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "attemptsPerSet": "1-3",
+          "contactsPerAttempt": "4-8_total",
+          "restSeconds": "120-240",
+          "intensity": "maximal_controllable_horizontal_projection",
+          "progressWhen": "distance improves without overreach, braking, asymmetry, or terminal instability"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Push back and project forward",
+            "Exchange arm and knee",
+            "Land under the hips",
+            "Finish the lane under control"
+          ],
+          "athleteInstructions": [
+            "Cover ground without reaching your foot ahead",
+            "Keep every contact powerful and balanced"
+          ],
+          "commonFaults": [
+            "reaching",
+            "heel-first braking",
+            "pelvic drop",
+            "loss of alternating sequence",
+            "chasing distance after output falls"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "clean alternating bounds",
+            "controlled unilateral landing",
+            "adequate lane length"
+          ],
+          "stopRules": [
+            "pain",
+            "apprehension",
+            "valgus_or_pelvic_drop",
+            "distance_drop",
+            "overreach",
+            "uncontrolled_run_out"
+          ]
+        },
+        "programmingDecision": "Merge with Alternating Bounds for Distance after human review and attach maximal-distance work as a delivery profile of Alternating Bounds."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=NgclB0lb5DA",
+          "title": "BOUNDING DRILLS - ALTERNATE BOUND FOR DISTANCE",
+          "channelName": "Trackwired",
+          "sourceQuery": "alternating bounds for distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=b3124L0KK3Q",
+          "title": "BOUNDING: Bounding Routine Alternate Leg Bounds",
+          "channelName": "Trackwired",
+          "sourceQuery": "alternating bounds for distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=G7_hiWsPhkA",
+          "title": "Bounding for Distance",
+          "channelName": "AGY Performance",
+          "sourceQuery": "alternating bounds for distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=zegHQw9HWNY",
+          "title": "Learning How to Bound // Easy Bounding Progression for Jumpers and Athletes",
+          "channelName": "Coach Cale",
+          "sourceQuery": "alternating bounds for distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=wBLjYeJKW6M",
+          "title": "Plyometrics: Distance Bounding",
+          "channelName": "Explosive Strength Academy",
+          "sourceQuery": "alternating bounds for distance"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Alternating Bounds for Distance",
+          "classification": "same_identity",
+          "rationale": "The names and intended alternating maximal-distance execution are equivalent.",
+          "distinguishingDimensions": {
+            "canonicalSurvivor": "alternating_bounds"
+          }
+        },
+        {
+          "name": "Alternating Bounds",
+          "classification": "same_identity",
+          "rationale": "Distance is one delivery intent of the stable base contact sequence.",
+          "distinguishingDimensions": {
+            "deliveryIntent": "distance"
+          }
+        },
+        {
+          "name": "Alternating Bounds for Height",
+          "classification": "new_variant",
+          "rationale": "A vertical projection bias materially changes the task outcome.",
+          "distinguishingDimensions": {
+            "projectionBias": "vertical"
+          }
+        },
+        {
+          "name": "Single-Leg Bounds for Distance",
+          "classification": "new_definition",
+          "rationale": "Same-leg repeated contacts change laterality and tissue exposure.",
+          "distinguishingDimensions": {
+            "contactSequence": "same_leg_repeated"
+          }
+        },
+        {
+          "name": "Weighted-Vest Alternating Bounds",
+          "classification": "new_variant",
+          "rationale": "External load changes force, flight, contact, and readiness requirements.",
+          "distinguishingDimensions": {
+            "externalLoad": "weighted_vest"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "alternating-bounds-for-distance",
+      "assessmentSummary": {
+        "identity": "Alternating left-right bounds with maximal controllable horizontal projection over a specified contact count or lane.",
+        "currentCardFindings": [
+          "This duplicates Alternate-Leg Bound for Distance and is a delivery profile of Alternating Bounds.",
+          "The sentence construction is broken, difficulty and all operational profiles are empty, and the unanchored impact value is not sufficient.",
+          "The existing dose hides whether six means contacts, bounds per leg, or lane attempts."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "alternating_unilateral_bound",
+            "maximal_horizontal_projection",
+            "multi_contact_plyometric"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "contralateral_hip_flexion",
+            "trunk_stabilization"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_left_right",
+          "intent": "maximal_repeatable_horizontal_distance"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "hip_flexors",
+            "intrinsic_foot",
+            "obliques"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 70,
+          "absoluteLoadDemand": 32,
+          "coordinationDemand": 74,
+          "supervisionDemand": 58,
+          "failureConsequence": 62,
+          "impact": 74,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 70
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_maximal_alternating_horizontal_bound",
+          "impactClass": "high",
+          "landingContactsPerRep": "explicit_total_and_per_leg_contact_count",
+          "primaryStress": [
+            "horizontal_propulsion",
+            "unilateral_braking",
+            "ankle_tendon_load"
+          ],
+          "fatigueSensitivity": "distance_velocity_contact_position_and_terminal_control"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "measured_clear_lane",
+            "safe_run_out_zone"
+          ],
+          "optionalEquipment": [
+            "contact_markers",
+            "tape_measure",
+            "video"
+          ],
+          "environment": [
+            "level_forgiving_non_slip_surface",
+            "adequate_spacing"
+          ],
+          "population": [
+            "owns_rhythm_bounds",
+            "pain_free_unilateral_contacts",
+            "can_decelerate_safely"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "attemptsPerSet": "1-3",
+          "contactsPerAttempt": "4-8_total",
+          "restSeconds": "120-240",
+          "intensity": "maximal_controllable_distance",
+          "progressWhen": "measured output is repeatable with no reach, collapse, or asymmetry"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Project forward",
+            "Punch opposite knee",
+            "Contact under the hips",
+            "Run out or stick as prescribed"
+          ],
+          "athleteInstructions": [
+            "Cover distance with powerful alternating contacts",
+            "Stop before contacts get long or loud"
+          ],
+          "commonFaults": [
+            "overstriding",
+            "excessive vertical lift",
+            "pelvic drop",
+            "contact-sequence error",
+            "poor final deceleration"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "clean rhythm bounds",
+            "pain_free unilateral landing",
+            "safe measured lane"
+          ],
+          "stopRules": [
+            "pain",
+            "giving_way",
+            "asymmetry",
+            "overreach",
+            "output_drop",
+            "unsafe_finish"
+          ]
+        },
+        "programmingDecision": "Consolidate with Alternate-Leg Bound for Distance and keep distance as a profile of Alternating Bounds."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=NgclB0lb5DA",
+          "title": "BOUNDING DRILLS - ALTERNATE BOUND FOR DISTANCE",
+          "channelName": "Trackwired",
+          "sourceQuery": "alternating bounds for distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=b3124L0KK3Q",
+          "title": "BOUNDING: Bounding Routine Alternate Leg Bounds",
+          "channelName": "Trackwired",
+          "sourceQuery": "alternating bounds for distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=G7_hiWsPhkA",
+          "title": "Bounding for Distance",
+          "channelName": "AGY Performance",
+          "sourceQuery": "alternating bounds for distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=zegHQw9HWNY",
+          "title": "Learning How to Bound // Easy Bounding Progression for Jumpers and Athletes",
+          "channelName": "Coach Cale",
+          "sourceQuery": "alternating bounds for distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=wBLjYeJKW6M",
+          "title": "Plyometrics: Distance Bounding",
+          "channelName": "Explosive Strength Academy",
+          "sourceQuery": "alternating bounds for distance"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Alternate-Leg Bound for Distance",
+          "classification": "same_identity",
+          "rationale": "Both cards prescribe alternating maximal-distance bounds.",
+          "distinguishingDimensions": {
+            "canonicalSurvivor": "alternating_bounds"
+          }
+        },
+        {
+          "name": "Alternating Bounds",
+          "classification": "same_identity",
+          "rationale": "The base identity owns the alternating contact sequence.",
+          "distinguishingDimensions": {
+            "deliveryIntent": "distance"
+          }
+        },
+        {
+          "name": "Three-Bound Distance Series",
+          "classification": "modifier_annotation",
+          "rationale": "Three contacts are a dosage and measurement constraint.",
+          "distinguishingDimensions": {
+            "contactCount": 3
+          }
+        },
+        {
+          "name": "Alternating Bounds for Height",
+          "classification": "new_variant",
+          "rationale": "Vertical bias changes force direction and outcome.",
+          "distinguishingDimensions": {
+            "projectionBias": "vertical"
+          }
+        },
+        {
+          "name": "Uphill Bounds for Distance",
+          "classification": "new_variant",
+          "rationale": "Incline geometry changes the mechanics and logistics.",
+          "distinguishingDimensions": {
+            "surfaceGradient": "uphill"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "alternating-bounds-for-rhythm",
+      "assessmentSummary": {
+        "identity": "Alternating left-right forward bounds performed at submaximal amplitude to preserve even cadence, posture, arm-leg opposition, and contact placement.",
+        "currentCardFindings": [
+          "Rhythm is a delivery constraint, not a separate movement identity.",
+          "The card correctly discourages chaotic maximal leaps but has empty difficulty, load, fatigue, anatomy, support, and operational profiles.",
+          "Eight repetitions must be defined as total contacts or per-leg contacts."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "alternating_unilateral_bound",
+            "submaximal_horizontal_projection",
+            "rhythm_constrained_plyometric"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "contralateral_hip_flexion",
+            "trunk_stabilization"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_left_right",
+          "intent": "stable_cadence_and_contact_pattern_before_maximal_projection"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "hip_flexors",
+            "intrinsic_foot",
+            "obliques"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 55,
+          "absoluteLoadDemand": 20,
+          "coordinationDemand": 62,
+          "supervisionDemand": 44,
+          "failureConsequence": 46,
+          "impact": 55,
+          "workCapacityDemand": 32,
+          "baseOverallDifficulty": 55
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_submaximal_alternating_horizontal_bound",
+          "impactClass": "moderate_to_high",
+          "landingContactsPerRep": "6-12_total_contacts",
+          "primaryStress": [
+            "rhythmic_unilateral_contact",
+            "elastic_stiffness",
+            "postural_control"
+          ],
+          "fatigueSensitivity": "cadence_variability_contact_noise_and_posture"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clear_lane",
+            "safe_finish_zone"
+          ],
+          "optionalEquipment": [
+            "evenly_spaced_floor_marks",
+            "metronome_or_clap_cue",
+            "video"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "low_distraction_lane"
+          ],
+          "population": [
+            "owns_bound_and_stick",
+            "can_alternate_contacts_without_rush"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "attemptsPerSet": "1-3",
+          "contactsPerAttempt": "6-12_total",
+          "restSeconds": "60-120",
+          "intensity": "submaximal_amplitude_with_repeatable_cadence",
+          "progressWhen": "contact timing, posture, and left-right amplitude remain even"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Same beat each contact",
+            "Opposite arm and knee",
+            "Land under your hips",
+            "Stay smooth"
+          ],
+          "athleteInstructions": [
+            "Keep the bounds even rather than chasing distance",
+            "Stop if you lose the beat"
+          ],
+          "commonFaults": [
+            "accelerating uncontrollably",
+            "uneven step length",
+            "reaching",
+            "arm timing loss",
+            "turning rhythm work into conditioning"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "controlled alternating low bounds",
+            "pain_free unilateral contact"
+          ],
+          "stopRules": [
+            "pain",
+            "loss_of_sequence",
+            "two_uneven_contacts",
+            "loud_or_collapsed_contact",
+            "unsafe_finish"
+          ]
+        },
+        "programmingDecision": "Convert to a rhythm-acquisition delivery profile of Alternating Bounds; retain the phrase as a searchable alias and coach annotation."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=b3124L0KK3Q",
+          "title": "BOUNDING: Bounding Routine Alternate Leg Bounds",
+          "channelName": "Trackwired",
+          "sourceQuery": "alternating bounds rhythm"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LwsQ-AGc8JU",
+          "title": "BOUNDING DRILLS - ALTERNATE BOUND FOR SPEED",
+          "channelName": "Trackwired",
+          "sourceQuery": "alternating bounds rhythm"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=SyB8EaNDi-I",
+          "title": "Alternating Bounds for Linear Speed",
+          "channelName": "overtimeathletes",
+          "sourceQuery": "alternating bounds rhythm"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=nTwTgnkFsNk",
+          "title": "Alternate Leg Bounding | Plyometric | Strength and Conditioning Exercises",
+          "channelName": "Rehab My Patient",
+          "sourceQuery": "alternating bounds rhythm"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=tpAiIazgKnE",
+          "title": "Alternating Bounds",
+          "channelName": "Carleton Strength & Conditioning",
+          "sourceQuery": "alternating bounds rhythm"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Alternating Bounds",
+          "classification": "same_identity",
+          "rationale": "Rhythm is a delivery intent for the same alternating contact sequence.",
+          "distinguishingDimensions": {
+            "deliveryIntent": "rhythm"
+          }
+        },
+        {
+          "name": "Alternating Bounds for Distance",
+          "classification": "modifier_annotation",
+          "rationale": "Distance increases projection intent but can remain a profile of the same identity.",
+          "distinguishingDimensions": {
+            "deliveryIntent": "distance"
+          }
+        },
+        {
+          "name": "Bound and Stick Ladder",
+          "classification": "new_variant",
+          "rationale": "Deliberate stabilization after each contact interrupts continuity.",
+          "distinguishingDimensions": {
+            "contactContinuity": "held_each_contact"
+          }
+        },
+        {
+          "name": "Wicketed Alternating Bounds",
+          "classification": "new_variant",
+          "rationale": "Fixed spacing introduces an external obstacle constraint.",
+          "distinguishingDimensions": {
+            "externalConstraint": "wickets"
+          }
+        },
+        {
+          "name": "Metronome Bounds",
+          "classification": "modifier_annotation",
+          "rationale": "An auditory cadence cue does not change the movement identity.",
+          "distinguishingDimensions": {
+            "cueMode": "auditory"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "alternating-bounds-for-height",
+      "assessmentSummary": {
+        "identity": "Continuous alternating left-right bounds with a deliberate vertical projection bias and controlled forward travel.",
+        "currentCardFindings": [
+          "The description has broken sentence construction and does not define contact count, vertical target, forward travel, or terminal action.",
+          "The single-repetition dose is uninterpretable for a multi-contact exercise.",
+          "The vertical bias is a meaningful variant of Alternating Bounds, not evidence for a separate family."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "alternating_unilateral_bound",
+            "vertical_biased_projection",
+            "multi_contact_plyometric"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "contralateral_hip_flexion",
+            "trunk_stabilization"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_left_right",
+          "intent": "maximize_repeatable_vertical_displacement_with_continuous_alternation"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "quadriceps",
+            "hamstrings",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "hip_flexors",
+            "intrinsic_foot",
+            "obliques"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 70,
+          "absoluteLoadDemand": 28,
+          "coordinationDemand": 76,
+          "supervisionDemand": 60,
+          "failureConsequence": 64,
+          "impact": 72,
+          "workCapacityDemand": 40,
+          "baseOverallDifficulty": 70
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_vertical_biased_alternating_bound",
+          "impactClass": "high",
+          "landingContactsPerRep": "4-8_total_contacts",
+          "primaryStress": [
+            "vertical_impulse",
+            "unilateral_landing_absorption",
+            "ankle_tendon_stiffness"
+          ],
+          "fatigueSensitivity": "height_drop_contact_time_alignment_and_forward_drift"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clear_lane",
+            "safe_finish_zone"
+          ],
+          "optionalEquipment": [
+            "overhead_visual_target",
+            "contact_markers",
+            "video"
+          ],
+          "environment": [
+            "adequate_ceiling",
+            "level_forgiving_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "owns_standard_alternating_bounds",
+            "pain_free_vertical_unilateral_hops"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "attemptsPerSet": "1-3",
+          "contactsPerAttempt": "4-8_total",
+          "restSeconds": "120-240",
+          "intensity": "high_vertical_projection_without_pause_or_excessive_forward_reach",
+          "progressWhen": "height and contact timing stay repeatable with aligned landings"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Drive up through the ground",
+            "Punch the free knee",
+            "Land under the hips",
+            "Keep forward travel controlled"
+          ],
+          "athleteInstructions": [
+            "Bound upward from leg to leg",
+            "Stay aligned and finish under control"
+          ],
+          "commonFaults": [
+            "turning into distance bounds",
+            "long ground contact",
+            "pelvic drop",
+            "valgus",
+            "excessive back extension"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "clean alternating bounds",
+            "controlled unilateral vertical hop",
+            "adequate ceiling"
+          ],
+          "stopRules": [
+            "pain",
+            "alignment_loss",
+            "height_drop",
+            "unintended_pause",
+            "excessive_forward_reach",
+            "uncontrolled_finish"
+          ]
+        },
+        "programmingDecision": "Retain as a vertical-bias variant under Alternating Bounds, with explicit contacts and height-quality measurement."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=usu2fmGFiis",
+          "title": "F.S Library - Alternating bounds for height",
+          "channelName": "Fortitude Strength",
+          "sourceQuery": "alternating bounds for height plyometric"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=aIo6y6_gZ1Y",
+          "title": "Plyometrics- Power Bounds (Height/Distance)",
+          "channelName": "Got Em Fit",
+          "sourceQuery": "alternating bounds for height plyometric"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=xGnPlvCXgdE",
+          "title": "Vertical Alternating Bounds",
+          "channelName": "FIT | STRENGTH Performance",
+          "sourceQuery": "alternating bounds for height plyometric"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=b3124L0KK3Q",
+          "title": "BOUNDING: Bounding Routine Alternate Leg Bounds",
+          "channelName": "Trackwired",
+          "sourceQuery": "alternating bounds for height plyometric"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=x0jlxllaP58",
+          "title": "2nd Level Plyo - Bound for Height",
+          "channelName": "thebigkatjh",
+          "sourceQuery": "alternating bounds for height plyometric"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Alternating Bounds",
+          "classification": "new_variant",
+          "rationale": "The vertical bias is a controlled variant of the base contact sequence.",
+          "distinguishingDimensions": {
+            "projectionBias": "vertical"
+          }
+        },
+        {
+          "name": "Alternating Bounds for Distance",
+          "classification": "new_variant",
+          "rationale": "Horizontal maximal-distance intent uses a different projection strategy.",
+          "distinguishingDimensions": {
+            "projectionBias": "horizontal"
+          }
+        },
+        {
+          "name": "Alternate Bounds for Height and Distance",
+          "classification": "modifier_annotation",
+          "rationale": "A blended emphasis is a delivery profile, not a third contact identity.",
+          "distinguishingDimensions": {
+            "projectionBias": "blended"
+          }
+        },
+        {
+          "name": "Single-Leg Bounds for Height",
+          "classification": "new_definition",
+          "rationale": "Repeated contacts on the same leg materially change laterality and load.",
+          "distinguishingDimensions": {
+            "contactSequence": "same_leg_repeated"
+          }
+        },
+        {
+          "name": "Overhead-Target Alternating Bounds",
+          "classification": "modifier_annotation",
+          "rationale": "A visual target constrains the same vertical-bias variant.",
+          "distinguishingDimensions": {
+            "target": "overhead_visual"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "alternate-bounds-for-height-and-distance",
+      "assessmentSummary": {
+        "identity": "Continuous alternating left-right bounds using a deliberately blended vertical and horizontal projection target.",
+        "currentCardFindings": [
+          "The card's two-second rest is physiologically and operationally incompatible with maximal high-impact multi-contact output.",
+          "The card calls itself level four instead of describing exercise difficulty and lacks anatomy, load, fatigue, constraints, support, and measurement profiles.",
+          "Height plus distance is a mixed delivery emphasis of Alternating Bounds, not a stable new contact identity."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "alternating_unilateral_bound",
+            "blended_vertical_horizontal_projection",
+            "multi_contact_plyometric"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "contralateral_hip_flexion",
+            "trunk_stabilization"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_left_right",
+          "intent": "maximize_blended_projection_without_sacrificing_contact_quality"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "hip_flexors",
+            "intrinsic_foot",
+            "obliques"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 75,
+          "absoluteLoadDemand": 34,
+          "coordinationDemand": 80,
+          "supervisionDemand": 62,
+          "failureConsequence": 68,
+          "impact": 77,
+          "workCapacityDemand": 45,
+          "baseOverallDifficulty": 75
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_blended_projection_alternating_bound",
+          "impactClass": "high",
+          "landingContactsPerRep": "4-8_total_contacts",
+          "primaryStress": [
+            "blended_horizontal_vertical_impulse",
+            "unilateral_absorption",
+            "ankle_tendon_load"
+          ],
+          "fatigueSensitivity": "projection_tradeoff_contact_position_alignment_and_output"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "long_clear_lane",
+            "safe_finish_zone"
+          ],
+          "optionalEquipment": [
+            "height_and_distance_targets",
+            "contact_markers",
+            "video"
+          ],
+          "environment": [
+            "adequate_ceiling",
+            "level_forgiving_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "owns_horizontal_and_vertical_bound_variants",
+            "pain_free_high_intent_unilateral_contacts"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "attemptsPerSet": "1-3",
+          "contactsPerAttempt": "4-8_total",
+          "restSeconds": "150-300",
+          "intensity": "maximal_blended_projection_with_quality",
+          "progressWhen": "both projection components remain repeatable without longer contact or poorer alignment"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Drive up and forward",
+            "Exchange arm and knee",
+            "Contact under the hips",
+            "Keep every bound the same shape"
+          ],
+          "athleteInstructions": [
+            "Cover ground while keeping visible lift",
+            "Take full recovery before the next lane"
+          ],
+          "commonFaults": [
+            "chasing distance only",
+            "jumping vertically in place",
+            "overreach",
+            "pelvic drop",
+            "rushed recovery"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "competent horizontal and vertical bounds",
+            "pain_free unilateral plyometrics",
+            "safe lane"
+          ],
+          "stopRules": [
+            "pain",
+            "projection_or_height_drop",
+            "alignment_loss",
+            "contact_time_increase",
+            "uncontrolled_finish"
+          ]
+        },
+        "programmingDecision": "Convert to a blended-projection delivery profile of Alternating Bounds. Replace the two-second rest with full recovery and remove level language."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=aIo6y6_gZ1Y",
+          "title": "Plyometrics- Power Bounds (Height/Distance)",
+          "channelName": "Got Em Fit",
+          "sourceQuery": "alternating bounds height distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=usu2fmGFiis",
+          "title": "F.S Library - Alternating bounds for height",
+          "channelName": "Fortitude Strength",
+          "sourceQuery": "alternating bounds height distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=NgclB0lb5DA",
+          "title": "BOUNDING DRILLS - ALTERNATE BOUND FOR DISTANCE",
+          "channelName": "Trackwired",
+          "sourceQuery": "alternating bounds height distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=xGnPlvCXgdE",
+          "title": "Vertical Alternating Bounds",
+          "channelName": "FIT | STRENGTH Performance",
+          "sourceQuery": "alternating bounds height distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=b3124L0KK3Q",
+          "title": "BOUNDING: Bounding Routine Alternate Leg Bounds",
+          "channelName": "Trackwired",
+          "sourceQuery": "alternating bounds height distance"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Alternating Bounds",
+          "classification": "same_identity",
+          "rationale": "Blended projection retains the base alternating contact sequence.",
+          "distinguishingDimensions": {
+            "deliveryIntent": "blended_projection"
+          }
+        },
+        {
+          "name": "Alternating Bounds for Height",
+          "classification": "new_variant",
+          "rationale": "Vertical-dominant intent is a controlled projection variant.",
+          "distinguishingDimensions": {
+            "projectionBias": "vertical"
+          }
+        },
+        {
+          "name": "Alternating Bounds for Distance",
+          "classification": "new_variant",
+          "rationale": "Horizontal-dominant intent is a controlled projection variant.",
+          "distinguishingDimensions": {
+            "projectionBias": "horizontal"
+          }
+        },
+        {
+          "name": "Single-Leg Power Bounds",
+          "classification": "new_definition",
+          "rationale": "Same-leg repeated contacts change loading and identity.",
+          "distinguishingDimensions": {
+            "contactSequence": "same_leg_repeated"
+          }
+        },
+        {
+          "name": "Weighted Blended Bounds",
+          "classification": "new_variant",
+          "rationale": "External load materially changes flight and contact demands.",
+          "distinguishingDimensions": {
+            "externalLoad": "weighted"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "single-leg-bounds",
+      "assessmentSummary": {
+        "identity": "Repeated forward bounds on the same leg for a short contact count, followed by full recovery and repetition on the opposite side.",
+        "currentCardFindings": [
+          "The description correctly distinguishes same-leg contacts but the difficulty score of forty underestimates laterality, impact, and consequence of error.",
+          "The card lacks per-side dosage, asymmetry rules, surface and population constraints, anatomy, fatigue, and recovery guidance.",
+          "The terminal action and whether the last landing is stuck or run out are unspecified."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "same_leg_repeated_bound",
+            "horizontal_projection",
+            "unilateral_repeated_stretch_shortening_cycle"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "ipsilateral_landing_absorption",
+            "trunk_stabilization"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "unilateral_same_leg_then_switch_sides",
+          "intent": "repeat_horizontal_propulsion_and_absorption_on_one_limb"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "hip_flexors",
+            "obliques"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 78,
+          "absoluteLoadDemand": 32,
+          "coordinationDemand": 82,
+          "supervisionDemand": 66,
+          "failureConsequence": 72,
+          "impact": 82,
+          "workCapacityDemand": 48,
+          "baseOverallDifficulty": 78
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_repeated_same_leg_horizontal_plyometric",
+          "impactClass": "very_high_unilateral",
+          "landingContactsPerRep": "2-5_same_leg_contacts_per_side",
+          "primaryStress": [
+            "same_leg_propulsion",
+            "same_leg_braking",
+            "ankle_tendon_load",
+            "frontal_plane_hip_control"
+          ],
+          "fatigueSensitivity": "side_asymmetry_contact_noise_projection_drop_and_pelvic_control"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clear_lane",
+            "safe_terminal_landing_zone"
+          ],
+          "optionalEquipment": [
+            "contact_markers",
+            "distance_measurement",
+            "video"
+          ],
+          "environment": [
+            "level_forgiving_non_slip_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "owns_single_leg_hop_to_stick",
+            "owns_alternating_bounds",
+            "no_current_tendon_or_bone_stress_symptoms"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "attemptsPerSide": "1-3",
+          "contactsPerAttempt": "2-5_same_leg",
+          "restSeconds": "120-240_between_attempts_and_sides",
+          "intensity": "submaximal_to_high_by_readiness",
+          "progressWhen": "both sides preserve alignment, projection, contact quality, and terminal control"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Push from the same leg each time",
+            "Keep the pelvis level",
+            "Land under the hip",
+            "Finish before the leg gets heavy"
+          ],
+          "athleteInstructions": [
+            "Bound repeatedly on one leg, then rest and switch",
+            "Keep every landing quiet and aligned"
+          ],
+          "commonFaults": [
+            "accidental leg switch",
+            "pelvic drop",
+            "valgus",
+            "overreach",
+            "hopping vertically instead of projecting",
+            "excessive contacts"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free repeated unilateral hops",
+            "symmetric single-hop landing",
+            "adequate recovery"
+          ],
+          "stopRules": [
+            "pain",
+            "giving_way",
+            "side_to_side_quality_gap",
+            "valgus_or_pelvic_drop",
+            "output_drop",
+            "uncontrolled_terminal_landing"
+          ]
+        },
+        "programmingDecision": "Retain as a distinct same-leg bounding definition. Do not merge with alternating bounds; explicitly dose each side and require a terminal landing rule."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=iU9ir80X2P8",
+          "title": "Single Leg Bounds",
+          "channelName": "ProForm Physical Therapy",
+          "sourceQuery": "single leg bounds exercise plyometric"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=oEQVVlMR-iU",
+          "title": "Plyometric Drills: Single Leg Bounds",
+          "channelName": "Sweat City",
+          "sourceQuery": "single leg bounds exercise plyometric"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=I7ChaipZVM4",
+          "title": "Single Leg Bounds for Speed Training - 3 Step Progression",
+          "channelName": "Simple Speed Coach",
+          "sourceQuery": "single leg bounds exercise plyometric"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=1pfCX540xz4",
+          "title": "Single Leg Bounds",
+          "channelName": "XCELER8 Athletics",
+          "sourceQuery": "single leg bounds exercise plyometric"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=yUmxCUib7Fw",
+          "title": "Single Leg Bounding",
+          "channelName": "Athletes' Potential",
+          "sourceQuery": "single leg bounds exercise plyometric"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Alternating Bounds",
+          "classification": "new_definition",
+          "rationale": "Alternating limbs distribute contacts and use a different sequence.",
+          "distinguishingDimensions": {
+            "contactSequence": "alternating_left_right"
+          }
+        },
+        {
+          "name": "Single-Leg Bound to Stick",
+          "classification": "new_variant",
+          "rationale": "A full stabilization after each contact interrupts the repeated stretch-shortening cycle.",
+          "distinguishingDimensions": {
+            "contactContinuity": "held_each_contact"
+          }
+        },
+        {
+          "name": "Single-Leg Bounds for Distance",
+          "classification": "modifier_annotation",
+          "rationale": "Maximal distance is a delivery intent of the same same-leg sequence.",
+          "distinguishingDimensions": {
+            "deliveryIntent": "max_distance"
+          }
+        },
+        {
+          "name": "Single-Leg Bounds for Height",
+          "classification": "new_variant",
+          "rationale": "Vertical projection changes the directional demand.",
+          "distinguishingDimensions": {
+            "projectionBias": "vertical"
+          }
+        },
+        {
+          "name": "Assisted Single-Leg Bounds",
+          "classification": "new_variant",
+          "rationale": "External assistance changes effective loading and flight.",
+          "distinguishingDimensions": {
+            "supportLevel": "assisted"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "three-bound-distance-series",
+      "assessmentSummary": {
+        "identity": "A measured three-contact alternating-bound attempt for maximal controllable total horizontal distance, followed by a controlled terminal landing or run-out.",
+        "currentCardFindings": [
+          "The card is a contact-count and measurement profile of alternating distance bounds, not a distinct movement identity.",
+          "Its current six-repetition dose contradicts the three-contact name and should instead count attempts and contacts.",
+          "Difficulty, anatomy, load, fatigue, constraints, measurement error, and support are empty."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "alternating_unilateral_bound",
+            "three_contact_series",
+            "maximal_horizontal_projection"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "contralateral_hip_flexion",
+            "terminal_absorption"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_three_contacts",
+          "intent": "measure_total_distance_over_exactly_three_valid_contacts"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "hip_flexors",
+            "intrinsic_foot",
+            "obliques"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 70,
+          "absoluteLoadDemand": 30,
+          "coordinationDemand": 74,
+          "supervisionDemand": 60,
+          "failureConsequence": 64,
+          "impact": 73,
+          "workCapacityDemand": 30,
+          "baseOverallDifficulty": 70
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_three_contact_alternating_distance_bound",
+          "impactClass": "high",
+          "landingContactsPerRep": 3,
+          "primaryStress": [
+            "maximal_horizontal_impulse",
+            "unilateral_contact_transition",
+            "terminal_absorption"
+          ],
+          "fatigueSensitivity": "contact_validity_distance_drop_and_terminal_control"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "measured_lane",
+            "start_line",
+            "safe_finish_zone"
+          ],
+          "optionalEquipment": [
+            "tape_measure",
+            "contact_video",
+            "two_observers"
+          ],
+          "environment": [
+            "level_forgiving_surface",
+            "consistent_footwear_and_start"
+          ],
+          "population": [
+            "owns_distance_bounds",
+            "can_execute_exact_contact_sequence",
+            "can_finish_safely"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "1-3",
+          "attemptsPerSet": "2-4",
+          "contactsPerAttempt": 3,
+          "restSeconds": "180-300_for_maximal_testing",
+          "intensity": "maximal_valid_distance",
+          "progressWhen": "valid attempts are repeatable and measurement reliability is acceptable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Exactly three contacts",
+            "Project through each bound",
+            "Mark the final valid contact",
+            "Control the finish"
+          ],
+          "athleteInstructions": [
+            "Take three powerful alternating bounds for distance",
+            "The attempt only counts if the sequence and finish are valid"
+          ],
+          "commonFaults": [
+            "wrong contact count",
+            "start-line foul",
+            "overreach",
+            "invalid final mark",
+            "poor terminal landing",
+            "insufficient rest"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "competent maximal distance bounds",
+            "clear measurement lane",
+            "controlled terminal landing"
+          ],
+          "stopRules": [
+            "pain",
+            "contact_sequence_error",
+            "foul_start",
+            "alignment_loss",
+            "distance_drop",
+            "uncontrolled_finish"
+          ]
+        },
+        "programmingDecision": "Convert to a three-contact testing and delivery profile of Alternating Bounds for Distance. Define the starting limb, measurement mark, invalid-attempt rules, attempts, and recovery."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=NgclB0lb5DA",
+          "title": "BOUNDING DRILLS - ALTERNATE BOUND FOR DISTANCE",
+          "channelName": "Trackwired",
+          "sourceQuery": "three bound distance test exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=zegHQw9HWNY",
+          "title": "Learning How to Bound // Easy Bounding Progression for Jumpers and Athletes",
+          "channelName": "Coach Cale",
+          "sourceQuery": "three bound distance test exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=G7_hiWsPhkA",
+          "title": "Bounding for Distance",
+          "channelName": "AGY Performance",
+          "sourceQuery": "three bound distance test exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LwsQ-AGc8JU",
+          "title": "BOUNDING DRILLS - ALTERNATE BOUND FOR SPEED",
+          "channelName": "Trackwired",
+          "sourceQuery": "three bound distance test exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=wBLjYeJKW6M",
+          "title": "Plyometrics: Distance Bounding",
+          "channelName": "Explosive Strength Academy",
+          "sourceQuery": "three bound distance test exercise"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Alternating Bounds for Distance",
+          "classification": "same_identity",
+          "rationale": "Three contacts are a dose and measurement profile of the same alternating bounds.",
+          "distinguishingDimensions": {
+            "contactCount": 3
+          }
+        },
+        {
+          "name": "Three-Hop Bound Series",
+          "classification": "same_identity",
+          "rationale": "If its three contacts alternate, it is the same series; the word hop is misleading.",
+          "distinguishingDimensions": {
+            "identityReview": "confirm_alternating_sequence"
+          }
+        },
+        {
+          "name": "Five-Bound Distance Test",
+          "classification": "modifier_annotation",
+          "rationale": "Five contacts change the measurement protocol, not the movement identity.",
+          "distinguishingDimensions": {
+            "contactCount": 5
+          }
+        },
+        {
+          "name": "Single-Leg Triple Hop Test",
+          "classification": "new_definition",
+          "rationale": "Three same-leg hops use different laterality and are a clinical measurement task.",
+          "distinguishingDimensions": {
+            "contactSequence": "same_leg_three_hops"
+          }
+        },
+        {
+          "name": "Standing Triple Broad Jump",
+          "classification": "new_definition",
+          "rationale": "Repeated bilateral takeoffs and landings are not alternating bounds.",
+          "distinguishingDimensions": {
+            "contactSequence": "bilateral_repeated"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "three-hop-bound-series",
+      "assessmentSummary": {
+        "identity": "A three-contact forward bound series that must be adjudicated as either alternating contacts or same-leg hops before publication.",
+        "currentCardFindings": [
+          "The title combines hop and bound terminology while the description says three bounds and never states the limb sequence.",
+          "If contacts alternate, this duplicates Three-Bound Distance Series; if all three are on one leg, it is a different and substantially higher-load task.",
+          "The card is quarantined because laterality cannot be inferred safely from generic cues or dosage."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "three_contact_forward_plyometric",
+            "contact_sequence_pending"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "landing_absorption"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "human_review_required_alternating_or_same_leg",
+          "intent": "short_burst_horizontal_power_with_controlled_finish"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "intrinsic_foot",
+            "hip_flexors",
+            "obliques"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 67,
+          "absoluteLoadDemand": 28,
+          "coordinationDemand": 70,
+          "supervisionDemand": 62,
+          "failureConsequence": 66,
+          "impact": 72,
+          "workCapacityDemand": 28,
+          "baseOverallDifficulty": 67
+        },
+        "proposedLoadProfile": {
+          "loadingType": "pending_alternating_or_same_leg_three_contact_plyometric",
+          "impactClass": "high_and_laterality_dependent",
+          "landingContactsPerRep": 3,
+          "primaryStress": [
+            "horizontal_propulsion",
+            "unilateral_contact_loading",
+            "terminal_absorption"
+          ],
+          "fatigueSensitivity": "contact_sequence_alignment_output_and_finish"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clear_lane",
+            "safe_finish_zone"
+          ],
+          "optionalEquipment": [
+            "contact_footprints",
+            "video",
+            "distance_measurement"
+          ],
+          "environment": [
+            "level_forgiving_surface",
+            "coach_view_of_all_contacts"
+          ],
+          "population": [
+            "do_not_prescribe_until_laterality_is_resolved",
+            "owns_lower_level_bound_sequence"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "attemptsPerSet": "1-3",
+          "contactsPerAttempt": 3,
+          "restSeconds": "120-240",
+          "intensity": "high_but_only_after_contact_sequence_is_defined",
+          "progressWhen": "all three contacts and terminal landing are repeatable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Name the limb sequence before the attempt",
+            "Exactly three contacts",
+            "Project without reaching",
+            "Own the finish"
+          ],
+          "athleteInstructions": [
+            "Follow the demonstrated three-contact pattern",
+            "Stop if the sequence changes"
+          ],
+          "commonFaults": [
+            "ambiguous limb pattern",
+            "extra contact",
+            "switching from alternating to same-leg",
+            "overreach",
+            "uncontrolled finish"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "identity_and_laterality_resolved",
+            "competent_lower_level_sequence",
+            "pain_free_unilateral_contacts"
+          ],
+          "stopRules": [
+            "do_not_use_while_ambiguous",
+            "pain",
+            "sequence_error",
+            "alignment_loss",
+            "uncontrolled_finish"
+          ]
+        },
+        "programmingDecision": "Quarantine for human identity review. If alternating, merge with Three-Bound Distance Series; if three same-leg hops, rename Single-Leg Triple Bound and assign the higher unilateral load profile."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=NgclB0lb5DA",
+          "title": "BOUNDING DRILLS - ALTERNATE BOUND FOR DISTANCE",
+          "channelName": "Trackwired",
+          "sourceQuery": "three hop bound series"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=zegHQw9HWNY",
+          "title": "Learning How to Bound // Easy Bounding Progression for Jumpers and Athletes",
+          "channelName": "Coach Cale",
+          "sourceQuery": "three hop bound series"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=G7_hiWsPhkA",
+          "title": "Bounding for Distance",
+          "channelName": "AGY Performance",
+          "sourceQuery": "three hop bound series"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LwsQ-AGc8JU",
+          "title": "BOUNDING DRILLS - ALTERNATE BOUND FOR SPEED",
+          "channelName": "Trackwired",
+          "sourceQuery": "three hop bound series"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=wBLjYeJKW6M",
+          "title": "Plyometrics: Distance Bounding",
+          "channelName": "Explosive Strength Academy",
+          "sourceQuery": "three hop bound series"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Three-Bound Distance Series",
+          "classification": "same_identity",
+          "rationale": "This is the same task only if the three contacts alternate.",
+          "distinguishingDimensions": {
+            "condition": "alternating_contact_sequence"
+          }
+        },
+        {
+          "name": "Single-Leg Triple Hop",
+          "classification": "new_definition",
+          "rationale": "Three contacts on one leg materially change laterality and load.",
+          "distinguishingDimensions": {
+            "condition": "same_leg_contact_sequence"
+          }
+        },
+        {
+          "name": "Alternating Bounds",
+          "classification": "modifier_annotation",
+          "rationale": "Exactly three contacts can be a dose profile of the base identity.",
+          "distinguishingDimensions": {
+            "contactCount": 3
+          }
+        },
+        {
+          "name": "Three Bilateral Broad Jumps",
+          "classification": "new_definition",
+          "rationale": "Bilateral repeated jumps use a different takeoff and landing sequence.",
+          "distinguishingDimensions": {
+            "contactSequence": "bilateral_repeated"
+          }
+        },
+        {
+          "name": "Three Bounds to Sprint-Out",
+          "classification": "new_variant",
+          "rationale": "A sprint transition changes the terminal action and logistics.",
+          "distinguishingDimensions": {
+            "terminalAction": "sprint_out"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "uphill-bound",
+      "assessmentSummary": {
+        "identity": "Short-duration alternating forward bounds on a stable uphill grade, emphasizing propulsive hip extension and controlled grade-specific rhythm.",
+        "currentCardFindings": [
+          "The card's setup incorrectly says to use a flat surface even though incline is the defining constraint.",
+          "The claim that hills reduce landing speed is incomplete: incline can lower normal impact peaks at some speeds while increasing propulsive work and, at steeper grades, internal tibial loading.",
+          "The card lacks a grade range, hill inspection, downhill return rule, weather constraints, and distinction from hill running or sprinting."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "alternating_unilateral_bound",
+            "uphill_projection",
+            "graded_surface_plyometric"
+          ],
+          "jointActions": [
+            "hip_extension",
+            "knee_extension",
+            "ankle_plantarflexion",
+            "contralateral_hip_flexion",
+            "trunk_stabilization"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_left_right",
+          "intent": "repeat_propulsive_bounds_against_gravity_on_a_controlled_incline"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "hip_flexors",
+            "intrinsic_foot",
+            "obliques",
+            "spinal_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 69,
+          "absoluteLoadDemand": 30,
+          "coordinationDemand": 72,
+          "supervisionDemand": 58,
+          "failureConsequence": 62,
+          "impact": 61,
+          "workCapacityDemand": 50,
+          "baseOverallDifficulty": 69
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_alternating_uphill_bound",
+          "impactClass": "moderate_to_high_and_grade_speed_dependent",
+          "landingContactsPerRep": "4-10_total_contacts_or_5-15_seconds",
+          "primaryStress": [
+            "propulsive_hip_work",
+            "concentric_center_of_mass_elevation",
+            "ankle_tendon_load",
+            "grade_specific_balance"
+          ],
+          "fatigueSensitivity": "cadence_posture_contact_quality_and_grade_specific_output"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "inspected_stable_uphill_lane",
+            "safe_flat_start_and_finish"
+          ],
+          "optionalEquipment": [
+            "grade_measurement",
+            "cones",
+            "video"
+          ],
+          "environment": [
+            "dry_non_slip_surface",
+            "no_holes_or_cross_slope",
+            "walk_down_recovery_route",
+            "weather_and_visibility_check"
+          ],
+          "population": [
+            "owns_level_alternating_bounds",
+            "pain_free_hill_running",
+            "no_active_tibial_or_achilles_symptoms"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "attemptsPerSet": "1-3",
+          "contactsOrDuration": "4-10_contacts_or_5-15_seconds",
+          "restSeconds": "90-240_with_walk_down_recovery",
+          "intensity": "powerful_not_exhaustive_on_individually_selected_gentle_to_moderate_grade",
+          "progressWhen": "posture, cadence, projection, and symptoms remain stable across the grade"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Push the hill away",
+            "Drive through the hip",
+            "Keep contacts under you",
+            "Walk down to recover"
+          ],
+          "athleteInstructions": [
+            "Bound uphill with powerful alternating contacts",
+            "Stop before it becomes a slow run"
+          ],
+          "commonFaults": [
+            "using an uninspected or steep hill",
+            "turning into hill sprinting",
+            "excessive forward bend",
+            "long contacts",
+            "jogging downhill between efforts"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "competent level bounds",
+            "safe inspected grade",
+            "pain_free tibial and Achilles loading"
+          ],
+          "stopRules": [
+            "pain",
+            "loss_of_bound_pattern",
+            "slipping",
+            "unsafe_surface_or_weather",
+            "posture_collapse",
+            "slow_conditioning_stride"
+          ]
+        },
+        "programmingDecision": "Retain as an incline variant of Alternating Bounds. Correct the flat-surface setup, define grade and duration, require surface inspection and walk-down recovery, and avoid claiming that uphill work is universally lower load."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=Pq7RIUkj4rQ",
+          "title": "Hill Bounding with 2:13 Marathoner Enoch Nadler",
+          "channelName": "Enoch Nadler",
+          "sourceQuery": "uphill bounds exercise sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=65rWAnDr1cE",
+          "title": "HOW TO: Hill Bounding Like Kilian - IMPROVE YOUR POWER!",
+          "channelName": "Humble Running",
+          "sourceQuery": "uphill bounds exercise sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=5bGu4W5rQ1U",
+          "title": "Hill Bounding | How to Train Like Kilian Jornet",
+          "channelName": "Running for Views",
+          "sourceQuery": "uphill bounds exercise sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=4soeizlXoMM",
+          "title": "Lydiard Training - Why Hill Bounding improves your running",
+          "channelName": "Lydiard Foundation",
+          "sourceQuery": "uphill bounds exercise sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=OiNp4dTiIn0",
+          "title": "Top 3 Hill Exercises For Athletes!",
+          "channelName": "BrotherFaris",
+          "sourceQuery": "uphill bounds exercise sprint drill"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Alternating Bounds",
+          "classification": "new_variant",
+          "rationale": "The incline is a controlled surface variant of the base alternating contact sequence.",
+          "distinguishingDimensions": {
+            "surfaceGradient": "uphill"
+          }
+        },
+        {
+          "name": "Uphill Sprint",
+          "classification": "new_definition",
+          "rationale": "Running uses cyclical sprint gait rather than exaggerated bound contacts.",
+          "distinguishingDimensions": {
+            "movementPattern": "sprint_running"
+          }
+        },
+        {
+          "name": "Steep Hill Bounding",
+          "classification": "new_variant",
+          "rationale": "A steep grade changes step length, work demand, and internal loading enough to require separate constraints.",
+          "distinguishingDimensions": {
+            "surfaceGradient": "steep_uphill"
+          }
+        },
+        {
+          "name": "Uphill Straight-Leg Bounds",
+          "classification": "new_definition",
+          "rationale": "A straight-leg drill uses a different joint strategy and sprint-mechanics intent.",
+          "distinguishingDimensions": {
+            "jointStrategy": "stiff_knee_straight_leg"
+          }
+        },
+        {
+          "name": "Weighted Uphill Bounds",
+          "classification": "new_variant",
+          "rationale": "External load compounds grade-specific propulsion and tissue demand.",
+          "distinguishingDimensions": {
+            "externalLoad": "weighted"
+          }
+        }
+      ]
+    }
+  ]
+}

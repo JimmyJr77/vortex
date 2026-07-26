@@ -1,0 +1,156 @@
+-- USA Gymnastics Acrobatic Gymnastics Development Program 2025-2028.
+-- Remaining unique compulsory elements/formations used in the Level 2-5 tables.
+
+WITH source_data (
+  slug, official_name, levels, disciplines, description, instruction, predecessor, next_step, source_page
+) AS (
+  VALUES
+    ('usag-acro-synchronized-forward-roll', 'Synchronized forward roll', ARRAY['2','3'], ARRAY['Pair','Group'],
+      'Every partner performs a forward tuck roll and finishes standing with matched timing.',
+      'Start tall, squat with knees together, place hands shoulder-width, round through the upper back without loading the head, and rise to the feet on the shared count.',
+      NULL, 'usag-acro-synchronized-cartwheel', 12),
+    ('usag-acro-synchronized-bridge', 'Synchronized bridge', ARRAY['2','3','4','5'], ARRAY['Pair','Group'],
+      'All partners press from supine to a controlled bridge with feet together and legs straight.',
+      'Set parallel feet and hands, push through shoulders and legs together, open the shoulders over the hands, straighten knees, show control, and lower on count.',
+      NULL, 'usag-acro-candlestick-pyramid', 12),
+    ('usag-acro-synchronized-cartwheel', 'Synchronized cartwheel', ARRAY['3','4'], ARRAY['Pair','Group'],
+      'Every partner performs one cartwheel with the required shared choreography and controlled standing finish.',
+      'Lunge, reach long through the first hand, pass through a split handstand with straight legs and pointed feet, place the second foot on line, and finish facing the opposite direction.',
+      'usag-acro-synchronized-forward-roll', 'usag-acro-power-entry-cartwheel', 14),
+    ('usag-acro-power-entry-cartwheel', 'Power-hurdle, run, or skip to cartwheel', ARRAY['5'], ARRAY['Pair','Group'],
+      'Every partner connects an approved moving entry directly into a cartwheel.',
+      'Match entry rhythm, convert horizontal speed into a long lunge, keep the hand placement and split line square, and finish without extra steps.',
+      'usag-acro-synchronized-cartwheel', NULL, 20),
+    ('usag-acro-front-attitude-scale', 'Front attitude scale', ARRAY['4'], ARRAY['Pair','Group'],
+      'All partners show the prescribed front-attitude balance for 2 seconds.',
+      'Square the standing hip, lift the bent free leg to the declared attitude, lengthen the torso, fix the arms and eyes, and begin the 2-second count only after stillness.',
+      NULL, 'usag-acro-rear-scale', 16),
+    ('usag-acro-rear-scale', 'Rear scale', ARRAY['5'], ARRAY['Pair','Group'],
+      'All partners perform a rear scale and hold the completed position for 2 seconds.',
+      'Hinge from the standing hip, extend the free leg backward with square hips, lengthen crown-to-toe, fix the support foot, and hold two visible seconds.',
+      'usag-acro-front-attitude-scale', NULL, 20),
+    ('usag-acro-jump-to-forearm-catch', 'Jump to forearm catch on stomach', ARRAY['3','4','5'], ARRAY['Group'],
+      'The top jumps from standing or a run and is received face-down in the bases’ forearms.',
+      'Bases establish the catch shelf and absorb together; top jumps upward, maintains a straight braced body, tracks the bases, and presents the torso and legs to the assigned arms.',
+      'usag-acro-t-lift', 'usag-acro-log-roll', 15),
+    ('usag-acro-basket-squat-return', 'Basket stand with squat and return', ARRAY['2','4','5'], ARRAY['Group'],
+      'The top sits or stands on the basket while bases bend and return to standing without release.',
+      'Build the basket evenly, place the top over the center, bend through matched knees with level shoulders, keep the top rigid, and return vertically before the controlled exit.',
+      'usag-acro-basket-stand', 'usag-acro-basket-quarter-back-layout', 13),
+    ('usag-acro-log-roll', 'Forearm-catch log roll', ARRAY['5'], ARRAY['Women''s Group'],
+      'From a face-down forearm catch, bases throw the top through 180 or 360 degrees of longitudinal twist and recatch on the back or stomach.',
+      'Agree on twist and target, give a vertical synchronized throw, keep the top long and tight around the longitudinal axis, track continuously, and receive across the assigned forearms.',
+      'usag-acro-jump-to-forearm-catch', NULL, 23),
+    ('usag-acro-candlestick-pyramid', 'Candlestick shoulderstand pyramid', ARRAY['4'], ARRAY['Group'],
+      'The top jumps or presses from the floor or base’s knees into a supported shoulderstand while the middle assists and supports the legs; hold 3 seconds.',
+      'Base fixes the shoulder shelf, top rolls weight onto shoulders without loading the neck, middle guides the entry and aligns the legs, then all freeze before the 3-second count.',
+      'usag-acro-synchronized-bridge', 'usag-acro-group-assisted-shoulderstand', 17),
+    ('usag-acro-double-support-pyramid', 'Double-support straddle pyramid', ARRAY['4'], ARRAY['Group'],
+      'Two kneeling bases support the top in straddle with the top’s hands on the bases’ thighs; hold 3 seconds.',
+      'Bases kneel side by side with matched thigh height, top places hands and opens to a square straddle, bases support corresponding legs, and the group holds without shifting.',
+      'usag-acro-straddle-on-thighs', 'usag-acro-double-support-straddle-pike', 17),
+    ('usag-acro-column-with-scale', 'Chair-base column with partner scale', ARRAY['4'], ARRAY['Group'],
+      'A chair-position base supports one partner standing on the thighs while the remaining partner holds hands and performs a scale; hold 3 seconds.',
+      'Set the chair base, place the standing partner over the thighs with base support, establish the hand connection, then extend the third partner to scale and start the count after the whole column settles.',
+      'usag-acro-column-pyramid-rear-scale', 'usag-acro-column-with-floor-handstand', 17),
+    ('usag-acro-column-with-floor-handstand', 'Chair-base column with floor handstand', ARRAY['5'], ARRAY['Women''s Group'],
+      'A chair-position base supports the top standing on the thighs while the middle holds a floor handstand supported at the legs or feet by the top; hold 3 seconds.',
+      'Build the standing column first, place the middle’s hands on a measured line, kick or press to handstand, let the top stabilize only the legal leg/foot contact, then count after vertical alignment.',
+      'usag-acro-column-with-scale', NULL, 23),
+    ('usag-acro-group-assisted-shoulderstand', 'Group-assisted shoulderstand', ARRAY['5'], ARRAY['Women''s Group'],
+      'The top jumps or presses into the base-supported shoulderstand while the middle assists entry and supports one foot or leg; hold 3 seconds.',
+      'Base establishes shoulder and hand support, middle controls the entry path, top stacks hips over shoulders, middle finishes with the declared one-hand leg/foot contact, and all hold 3 seconds.',
+      'usag-acro-candlestick-pyramid', NULL, 23),
+    ('usag-acro-supine-knee-one-leg-balance', 'Supine knee-supported one-leg balance', ARRAY['5'], ARRAY['Women''s Pair','Men''s Pair'],
+      'With the base supine and knees raised, partners face the same direction and grip hands; the top stands on one or both knees then lifts one leg from support for a 3-second hold.',
+      'Base fixes feet and knee angle, partners set straight-arm hand grips, top transfers weight over the supported foot, lifts the free leg without pulling the base, and holds after balance is established.',
+      'usag-acro-plank-pyramid', 'usag-acro-low-foot-to-hand', 20),
+    ('usag-acro-low-bent-arm-foot-to-hand', 'Low bent-arm foot-to-hand', ARRAY['5'], ARRAY['Men''s Pair','Mixed Pair'],
+      'The supine base receives the standing top in low bent-arm foot-to-hand, with an official straight-leg or bent-leg base option; hold 3 seconds.',
+      'Set elbows beside the torso and hands under the top’s feet, use a secure foot or hand connection for entry, stack the top over the base’s forearms, and hold without wrist or elbow collapse.',
+      'usag-acro-supine-knee-one-leg-balance', 'usag-acro-low-foot-to-hand', 21),
+    ('usag-acro-mg-shoulderstand-chair-stack', 'Men’s-group shoulderstand chair stack', ARRAY['5'], ARRAY['Men''s Group'],
+      'A supine base and chair-position base support a standing middle and top shoulderstand; the middle supports the top’s feet or legs for a 3-second hold.',
+      'Fix the supine shoulderstand shelf and chair base, place the middle on the chair thighs, press the top to shoulderstand with controlled leg support, then verify all four load paths before counting.',
+      'usag-acro-group-assisted-shoulderstand', NULL, 24),
+    ('usag-acro-mg-tuck-chair-stack', 'Men’s-group tuck and chair stack', ARRAY['5'], ARRAY['Men''s Group'],
+      'A supine base supports the tucked top while a second chair-position base supports the standing middle; hold the complete formation for 3 seconds.',
+      'Build both low stations, set the top’s hand contacts and optional leg support on the supine base, place the middle over the chair thighs, and freeze both linked structures before counting.',
+      'usag-acro-mg-shoulderstand-chair-stack', NULL, 24),
+    ('usag-acro-mg-dual-shoulder-thigh-column', 'Men’s-group dual-shoulder/thigh column', ARRAY['5'], ARRAY['Men''s Group'],
+      'Two kneeling bases support the top standing across their shoulders and the middle standing across their thighs; top and middle connect hands or shoulders for a 3-second hold.',
+      'Match base kneeling height, place the middle on both thigh shelves, assist the top to both shoulder shelves, establish the upper connection, and count only after both levels are vertically settled.',
+      'usag-acro-column-with-scale', NULL, 24),
+    ('usag-acro-basket-quarter-back-layout', 'Basket quarter-back layout to forearms', ARRAY['5'], ARRAY['Men''s Group'],
+      'From a supported standing basket, the group throws the top through a one-quarter back layout to a face-up forearm catch.',
+      'Center the top in basket, share the dip and vertical release, top maintains an open straight body through the quarter rotation, bases track hips and shoulders, and all absorb the back catch together.',
+      'usag-acro-basket-squat-return', NULL, 24),
+    ('usag-acro-basket-sitting-dismount', 'Basket sitting throw dismount', ARRAY['5'], ARRAY['Men''s Group'],
+      'From sitting basket, three lower partners bend and throw the top to a controlled two-foot floor landing with landing support.',
+      'Center the seated top, set all hands under the basket, dip and extend together, release vertically, top rises to a straight landing shape, and assigned bases support the landing without pulling off line.',
+      'usag-acro-basket-squat-return', 'usag-acro-basket-quarter-back-layout', 24)
+),
+prepared AS (
+  SELECT d.*, jsonb_build_object(
+    'governing_body', 'USA Gymnastics',
+    'discipline', 'Acrobatic Gymnastics',
+    'event', array_to_string(d.disciplines, ', '),
+    'program', 'Acrobatic Gymnastics Development Program 2025-2028',
+    'official_name', d.official_name,
+    'official_code', 'Levels ' || array_to_string(d.levels, '/') || ' compulsory',
+    'usa_gymnastics_levels', to_jsonb(ARRAY(SELECT 'Acro Level ' || x FROM unnest(d.levels) x)),
+    'status', 'verified',
+    'last_verified', '2026-07-25',
+    'prerequisites', CASE WHEN d.predecessor IS NULL THEN '[]'::jsonb ELSE jsonb_build_array(jsonb_build_object('slug', d.predecessor, 'relationship', 'developmental predecessor')) END,
+    'next_progressions', CASE WHEN d.next_step IS NULL THEN '[]'::jsonb ELSE jsonb_build_array(jsonb_build_object('slug', d.next_step, 'relationship', 'direct progression')) END,
+    'athlete_cues', jsonb_build_array(d.instruction, 'Match the group count, finish the exact declared shape, and show control before moving to the exit.'),
+    'coach_checkpoints', jsonb_build_array(d.description, d.instruction, 'Compare contacts, roles, timing, hold duration, and exit with the official table row before crediting the skill.'),
+    'safety_and_readiness', jsonb_build_array(
+      'Use a qualified Acro coach, progressive mats, assigned support roles, and hands-on spotting appropriate to the formation.',
+      'Each athlete must own the individual shape and low-station contact before height, release, or a full group build is introduced.',
+      'Stop for neck loading, slipping contacts, mismatched counts, collapsing arms or legs, off-axis flight, or an uncontrolled landing.'
+    ),
+    'common_faults', jsonb_build_array(
+      jsonb_build_object('fault', 'Missing compulsory row', 'deduction', '-1.0 SR for each missing row', 'cue', 'Audit every row on the level-specific table.'),
+      jsonb_build_object('fault', 'Incorrect element, contact, or formation', 'deduction', 'Row not credited plus applicable technical deductions', 'cue', 'Use the official diagram/text as the controlling specification.'),
+      jsonb_build_object('fault', 'Required hold not shown for full duration', 'deduction', 'Per hold-time and technical-fault rules', 'cue', 'Begin the count only after the final shape is still.'),
+      jsonb_build_object('fault', 'Bent legs, flexed feet, poor shape, instability, or landing error', 'deduction', 'Per USA Gymnastics technical-fault tables', 'cue', 'Prioritize exact line and control over height or speed.')
+    ),
+    'scoring_summary', 'Levels 2-5 require every compulsory row. Each missing row receives a -1.0 special-requirement penalty; judges also apply execution deductions for body shape, alignment, instability, timing, contacts, incomplete holds, catches, and landings.',
+    'video_briefs', jsonb_build_array(
+      jsonb_build_object('title', 'Teach ' || d.official_name, 'purpose', 'learning', 'description', 'Show athlete roles and legal contacts, individual shape stations, a low assisted version, the shared count, the complete skill, and a safe exit from front and side views.'),
+      jsonb_build_object('title', d.official_name || ' - ideal compulsory model', 'purpose', 'model', 'description', 'Show full speed plus slow motion with the official level/row overlay. Highlight exact contacts, synchronized timing, straight load paths, declared shape, complete hold or flight, and controlled finish.')
+    ),
+    'sources', jsonb_build_array(jsonb_build_object(
+      'title', 'USA Gymnastics Acrobatic Gymnastics Development Program Code of Points 2025-2028',
+      'url', 'https://static.usagym.org/PDFs/Acro/Rules/devcop_2528.pdf#page=' || d.source_page,
+      'organization', 'USA Gymnastics',
+      'effective_cycle', '2025-2028',
+      'accessed_on', '2026-07-25',
+      'note', 'Official Level 2-5 compulsory row specification.'
+    )),
+    'editorial_note', 'Original coaching summary; official table text and diagrams control exact performance.'
+  ) metadata
+  FROM source_data d
+)
+INSERT INTO coaching.skill (
+  facility_id, name, slug, description, instructions, sport_id, skill_level,
+  skill_kind, evaluation_mode, execution_max_score, assistance_note,
+  is_published, visibility, official_metadata
+)
+SELECT
+  (SELECT id FROM public.facility ORDER BY id LIMIT 1),
+  'Acro - ' || p.official_name, p.slug, p.description, p.instruction,
+  (SELECT id FROM coaching.sport WHERE key = 'gymnastics'),
+  CASE WHEN '5' = ANY(p.levels) THEN 'INTERMEDIATE'::public.skill_level ELSE 'BEGINNER'::public.skill_level END,
+  'partner', 'execution', 10,
+  'Official compulsory use: ' || array_to_string(p.disciplines, ', ') || '; Levels ' || array_to_string(p.levels, ', '),
+  TRUE, 'facility', p.metadata
+FROM prepared p
+ON CONFLICT (facility_id, slug) DO UPDATE SET
+  name = EXCLUDED.name, description = EXCLUDED.description, instructions = EXCLUDED.instructions,
+  sport_id = EXCLUDED.sport_id, skill_level = EXCLUDED.skill_level,
+  skill_kind = EXCLUDED.skill_kind, evaluation_mode = EXCLUDED.evaluation_mode,
+  execution_max_score = EXCLUDED.execution_max_score, assistance_note = EXCLUDED.assistance_note,
+  is_published = EXCLUDED.is_published, visibility = EXCLUDED.visibility,
+  official_metadata = EXCLUDED.official_metadata, updated_at = NOW();

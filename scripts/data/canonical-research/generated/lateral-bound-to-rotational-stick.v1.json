@@ -1,0 +1,451 @@
+{
+  "facilityId": 1,
+  "slug": "lateral-bound-to-rotational-stick",
+  "researchVersion": "2026-07-25.3",
+  "assessmentSummary": {
+    "identity": "Proposed two-contact sequence: complete a unilateral lateral bound, use the landing to transition into one rotational bound, then land on one leg at the prescribed final orientation and stick; the legacy card is quarantined because the contact sequence is unstated.",
+    "currentCardFindings": [
+      "The name can mean one bound with rotation or a lateral bound followed by a second rotational bound; generic copy does not resolve the ambiguity.",
+      "No difficulty scores, laterality, turn angle, anatomy, load, fatigue, constraints, or contact-count dosage are present.",
+      "Visible media contains both one-contact rotational lateral bounds and two-bound sequences, so exact-version approval must wait for identity adjudication."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "lateral_bound",
+        "transition_contact",
+        "rotational_bound",
+        "single_leg_land",
+        "brace"
+      ],
+      "jointActions": [
+        "unilateral_projection",
+        "frontal_plane_braking_and_repropulsion",
+        "whole_body_rotation",
+        "single_leg_landing_control"
+      ],
+      "planes": [
+        "frontal",
+        "sagittal",
+        "transverse"
+      ],
+      "laterality": "alternating_unilateral_contacts",
+      "intent": "multi_contact_lateral_to_rotational_power_and_braking"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "gluteus_medius",
+        "quadriceps",
+        "soleus",
+        "gastrocnemius",
+        "obliques"
+      ],
+      "secondaryMuscles": [
+        "hamstrings",
+        "adductors",
+        "hip_external_rotators",
+        "intrinsic_foot",
+        "trunk_stabilizers"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex",
+        "thoracic_spine"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 72,
+      "absoluteLoadDemand": 22,
+      "coordinationDemand": 76,
+      "supervisionDemand": 65,
+      "failureConsequence": 70,
+      "impact": 64,
+      "workCapacityDemand": 28,
+      "baseOverallDifficulty": 72
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_unilateral_multicontact_multiplanar_ballistic",
+      "impactClass": "high",
+      "contactCountUnit": "two_contact_sequences_per_side_and_direction",
+      "primaryStress": [
+        "lateral_projection",
+        "transition_leg_braking_and_repropulsion",
+        "rotational_projection",
+        "single_leg_final_braking"
+      ],
+      "fatigueSensitivity": "transition_timing_turn_accuracy_distance_and_final_hold"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "three_contact_or_orientation_targets"
+      ],
+      "optionalEquipment": [
+        "video_feedback"
+      ],
+      "environment": [
+        "level_non_slip_surface",
+        "large_clear_multidirectional_zone",
+        "coach_front_and_finish_angle_view"
+      ],
+      "population": [
+        "owns_lateral_bound_to_stick",
+        "owns_single_contact_rotational_bound_to_stick",
+        "can_link_two_unilateral_contacts_without_alignment loss"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4",
+      "repetitions": "2-3 sequences per side and direction",
+      "landingHoldSeconds": "2-3 on final contact",
+      "restSeconds": "75-150",
+      "intensity": "submaximal_distance_with_crisp_two_contact_sequence",
+      "progressWhen": "the first landing remains aligned, the second bound turns to the target, and the final single-leg hold is stable"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Own the lateral contact enough to redirect",
+        "Turn from the hip and whole body",
+        "Find the final target",
+        "Stick the last landing"
+      ],
+      "athleteInstructions": [
+        "Bound sideways",
+        "Use that landing to make one turning bound",
+        "Land on one leg and hold"
+      ],
+      "commonFaults": [
+        "turning the first contact into a pause",
+        "extra contacts",
+        "unclear turn direction",
+        "knee collapse",
+        "pelvis drop",
+        "missing final orientation",
+        "free-foot touch"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "mastered both component bounds separately",
+        "pain-free two-contact unilateral sequence",
+        "large clear non-slip zone"
+      ],
+      "stopRules": [
+        "pain or giving way",
+        "unplanned extra contact",
+        "transition-leg collapse",
+        "missed final target",
+        "free-foot touch",
+        "sequence slows or becomes hesitant"
+      ]
+    },
+    "programmingDecision": "Quarantine pending contact-sequence review. If the intended task is only one lateral bound with body rotation, merge it as a Rotational Lateral Bound variant; retain a separate card only for the true lateral-bound-to-rotational-bound sequence.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-25T23:07:20.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Perform Lateral Bound to Rotational Stick as a low-volume rotational jump or bound. Take off with intent, orient the body in space, land quietly, and hold the finish before the next attempt.",
+      "familyKey": "Rotational landing and elastic control",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Rotational jump identity must specify takeoff and landing laterality, turn angle and direction, projection vector, contact sequence, external height, rebound intent, and required stabilization.",
+        "Lateral Bound to Rotational Stick must not combine bilateral jump turns, unilateral rotational bounds, multi-contact sequences, broad jumps, or repeated reactive turns under one generic rotational label."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "A jump-to-stick combines ballistic propulsion with a deliberate landing and stabilization phase; repeated reactive hopping is a different task.",
+        "Lateral Bound to Rotational Stick belongs to rotational jump or bound power with landing control, with direction, laterality, projection, contact sequence, and rebound intent encoded as controlled dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Propulsion and force absorption are coordinated across the foot and ankle, knee, hip, pelvis, and trunk.",
+        "The card should assign task-specific roles to plantar flexors, intrinsic foot muscles, quadriceps, hamstrings, gluteals, hip stabilizers, obliques, and trunk stabilizers without treating lumbar rotation as the primary driver."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Plyometric demand changes with projection speed, direction, external height, body mass, and time available to produce and absorb force.",
+        "Observable quality includes the prescribed takeoff, whole-body turn led by foot-hip-trunk coordination, visual orientation before contact, intended flight path, quiet landing, knee tracking, stable pelvis and trunk, and ownership of the finish."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Plyometric intensity changes with speed, height, distance, body mass, laterality, external load, and movement complexity.",
+        "Exercise difficulty must score technical and physical demand directly, including spatial coordination, impact, supervision, work capacity, and consequence of error; exercise cards must not use skill-library levels."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Landing contacts, jump height or distance, turn angle, laterality, contact sequence, and external load govern mechanical exposure; power repetitions require adequate rest.",
+        "Lateral Bound to Rotational Stick needs contact count per side and direction, output intent, impact and eccentric stress, spatial and technical-fatigue criteria, and recovery guidance rather than conditioning-style work time."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Effective jump-landing interventions depend on appropriate materials, coaching knowledge, usable space, and task-specific progression.",
+        "The delivery profile should require a level non-slip surface, clear flight and landing zones in every turn direction, adequate ceiling height, athlete spacing, coach sightline, and readiness for rotational orientation and landing."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Bilateral landing and stabilization should precede unilateral, larger-angle, farther, multi-contact, or reactive jumping.",
+        "Prescribe low-repetition sets, contacts per direction, turn angle, projection target, hold time, rest, and progression criteria; stop before fatigue alters orientation or landing."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Specific prescriptive feedback can improve landing mechanics, while excessive cue volume can interfere with learning.",
+        "Use a small cue set: load through the prescribed stance, turn the body as one coordinated unit, find the landing before contact, land quietly, and hold without a touch-down, shuffle, or rebound."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Loud contact, poor stabilization, loss of alignment, or inability to coordinate ankle, knee, and hip indicate excessive jump intensity or volume.",
+        "Stop for pain, giving way, dizziness, disorientation, repeated valgus or trunk collapse, forced lumbar twisting, missed turn angle, uncontrolled foot contact, extra steps, or loss of output."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6592422/",
+      "sourceTitle": "Evidence-Based Best-Practice Guidelines for Preventing Anterior Cruciate Ligament Injuries in Young Female Athletes: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "The American Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Landing stabilization and lower-body strength are recurring components of effective neuromuscular injury-prevention programs.",
+        "Lateral Bound to Rotational Stick belongs after linear and lateral landing foundations and before fatigued multidirectional work; use low volume and sufficient recovery to preserve spatial and landing quality."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Athletes benefit from feedback tied to visible movement actions rather than abstract risk language.",
+        "Athlete support should show start and finish orientations, turn direction and angle, foot contact sequence, landing target and hold time, one primary cue, and the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Coach education and practical implementation affect whether jump-landing interventions are delivered effectively.",
+        "Coach support should provide front, side, and finish-angle observation, pass-fail criteria, contact counting, left-right comparison, regressions, progressions, and rules for reducing angle, distance, laterality, or contact count."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Beginners should establish bilateral landing and stabilization before progressing to unilateral, higher, farther, or reactive tasks.",
+        "Accessibility can be improved with start and finish floor arrows, visual targets, demonstrated orientations, reduced turn angle or distance, assistance, longer reset time, and reduced sensory demand without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Different turn angles, projection directions, laterality, landing stance, repeated contacts, obstacles, and external load have different intensity and programming implications.",
+        "Turn direction, small angle adjustments, and submaximal targets are usually variants; a different takeoff or landing laterality, projection vector, contact sequence, rebound intent, or testing purpose may require a distinct definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Lateral Bound to Rotational Stick were discovered or rechecked through visible YouTube search and public oEmbed metadata; exact movement match, full viewing, captions, instructional quality, safety, and approval remain pending human review."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=ZVzrwpuDtzw",
+      "title": "Lateral Bound to Rotational Bound",
+      "channelName": "SPECTRUM Performance",
+      "sourceQuery": "lateral bound to rotational stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=SqQVLoDQY98",
+      "title": "Rotational Lateral Bound to Stick",
+      "channelName": "Kelly Cosgrove",
+      "sourceQuery": "lateral bound to rotational stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=GgNxWu0_1Po",
+      "title": "Lateral Bound with Rotation R to L",
+      "channelName": "Momentum Physical Therapy and Performance Training",
+      "sourceQuery": "lateral bound to rotational stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=GFYrCK_bXKU",
+      "title": "Lateral Bound to Rotational Bound",
+      "channelName": "Freedom Peak Performance",
+      "sourceQuery": "lateral bound to rotational stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=eYE5X8fOcWo",
+      "title": "Lateral Bound to Rotation",
+      "channelName": "Barrett Stover",
+      "sourceQuery": "lateral bound to rotational stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Lateral Bound to Rotational Bound and Stick",
+      "classification": "same_identity",
+      "rationale": "This explicit name captures the proposed two-contact sequence.",
+      "distinguishingDimensions": {
+        "contactSequence": "lateral_then_rotational_bound"
+      }
+    },
+    {
+      "name": "Rotational Lateral Bound to Stick",
+      "classification": "new_variant",
+      "rationale": "A single bound that combines lateral projection and rotation has one fewer contact.",
+      "distinguishingDimensions": {
+        "contactSequence": "single_rotational_lateral_bound"
+      }
+    },
+    {
+      "name": "Lateral Bound to Stick",
+      "classification": "new_variant",
+      "rationale": "Removing rotation and the second contact is the direct regression.",
+      "distinguishingDimensions": {
+        "rotation": "none",
+        "contacts": 1
+      }
+    },
+    {
+      "name": "Reactive Lateral-to-Rotational Bounds",
+      "classification": "new_definition",
+      "rationale": "Continuous sequences without a final hold emphasize reactive multiplanar power.",
+      "distinguishingDimensions": {
+        "reboundIntent": "continuous"
+      }
+    },
+    {
+      "name": "Medicine-Ball Lateral-to-Rotational Bound",
+      "classification": "new_variant",
+      "rationale": "An implement changes arm action, rotational inertia, and landing demand.",
+      "distinguishingDimensions": {
+        "implement": "medicine_ball"
+      }
+    }
+  ]
+}

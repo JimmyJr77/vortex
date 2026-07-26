@@ -1,0 +1,452 @@
+{
+  "facilityId": 1,
+  "slug": "depth-jump-to-vertical-jump",
+  "researchVersion": "2026-07-25.5",
+  "assessmentSummary": {
+    "identity": "A bilateral platform step-off into a continuous countermovement ground contact and maximal vertical rebound, followed by a controlled bilateral final landing.",
+    "currentCardFindings": [
+      "Vertical Jump states the proposed baseline direction and does not distinguish this from Depth Jump.",
+      "The description contains generic sport examples instead of contact strategy, drop height, final landing, or measurable outcome.",
+      "The 50-point score and 10-point load value understate the advanced physical and supervisory demands."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "platform_step_off",
+        "bilateral_countermovement_depth_jump",
+        "maximal_vertical_rebound",
+        "final_bilateral_land"
+      ],
+      "jointActions": [
+        "ankle_dorsiflexion_to_plantarflexion",
+        "knee_flexion_to_extension",
+        "hip_flexion_to_extension",
+        "landing_absorption"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal"
+      ],
+      "laterality": "bilateral_contact_bilateral_final_landing",
+      "intent": "maximal_vertical_rebound_height"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "quadriceps",
+        "gluteus_maximus",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "hamstrings",
+        "gluteus_medius",
+        "hip_external_rotators",
+        "intrinsic_foot",
+        "trunk_stabilizers"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 58,
+      "absoluteLoadDemand": 28,
+      "coordinationDemand": 60,
+      "supervisionDemand": 66,
+      "failureConsequence": 70,
+      "impact": 72,
+      "workCapacityDemand": 20,
+      "baseOverallDifficulty": 58
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_countermovement_depth_jump_to_vertical_rebound",
+      "impactClass": "high_and_height_dependent",
+      "landingContactsPerRep": 2,
+      "primaryStress": [
+        "eccentric_absorption",
+        "vertical_impulse",
+        "countermovement_reversal",
+        "final_landing"
+      ],
+      "fatigueSensitivity": "rebound_height_contact_strategy_alignment_and_finish"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "stable_platform",
+        "level_jump_surface"
+      ],
+      "optionalEquipment": [
+        "jump_height_device",
+        "contact_timer",
+        "video_feedback"
+      ],
+      "environment": [
+        "adequate_ceiling",
+        "clear_final_landing_zone",
+        "close_supervision"
+      ],
+      "population": [
+        "owns_depth_drop_and_drop_jump_progressions",
+        "adequate_eccentric_strength",
+        "no_pain_or_fear"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-5",
+      "repetitions": "1-4",
+      "interRepResetSeconds": "15-30",
+      "restSeconds": "120-300",
+      "intensity": "maximal_vertical_rebound",
+      "qualityMetric": "rebound_height_with_contact_time_and_strategy",
+      "progressWhen": "rebound height and continuous contact strategy remain stable with a controlled final landing"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Step off",
+        "Absorb and reverse",
+        "Jump straight up",
+        "Land the rebound"
+      ],
+      "athleteInstructions": [
+        "Step down, use one smooth countermovement, jump maximally upward, and control the landing"
+      ],
+      "commonFaults": [
+        "pause",
+        "horizontal drift",
+        "strategy changes",
+        "excessive collapse",
+        "output loss",
+        "poor finish"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "clean depth drop",
+        "clean drop jump",
+        "adequate strength and confidence"
+      ],
+      "stopRules": [
+        "pain",
+        "fear",
+        "pause",
+        "collapse",
+        "rebound drop",
+        "alignment loss",
+        "uncontrolled final landing"
+      ]
+    },
+    "programmingDecision": "Consolidate into Depth Jump after human identity review. Vertical rebound is the baseline direction; horizontal, lateral, or box-to-box outputs require separate definitions.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-25T23:58:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Depth Jump to Vertical Jump is a non-traditional strength-based explosiveness drill selected for athletes who need to express force quickly: football linemen off the line, sprinters from a start, baseball hitters and throwers, jumpers, and field/court athletes. The goal is high-output movement quality with low fatigue, not strength grinding or conditioning volume.",
+      "familyKey": "Reactive Jump Power",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 50,
+        "technicalComplexity": 50,
+        "baseOverallDifficulty": 50
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260527/",
+      "sourceTitle": "Effect of drop jump technique on the reactive strength index",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 85,
+      "claims": [
+        "A platform step-off identity must specify whether the first ground contact ends in a held landing or an immediate rebound, and a rebound must specify bounce versus countermovement strategy, direction, contact-time intent, final landing, and reset.",
+        "Depth Jump to Vertical Jump must not combine landing-only depth drops, short-contact bounce drop jumps, deeper countermovement depth jumps, horizontal or lateral rebounds, repeated contacts, box-to-box sequences, or unilateral contacts."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10115703/",
+      "sourceTitle": "Effects of Plyometric Jump Training on the Reactive Strength Index in Healthy Individuals Across the Lifespan: A Systematic Review with Meta-analysis",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Reactive strength describes producing a powerful concentric action immediately after an impact-induced eccentric action within the stretch-shortening cycle.",
+        "Depth Jump to Vertical Jump belongs to either landing absorption or reactive vertical power; platform height, ground-contact strategy, rebound direction, laterality, and final stabilization must remain controlled dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Step-off landing and rebound coordinate the foot and ankle, knee, hip, pelvis, and trunk under rapid eccentric loading.",
+        "The card should assign plantar-flexor complex and intrinsic-foot roles, quadriceps and hip-extensor braking and propulsion, hamstring and frontal-plane hip stabilization, and trunk control without claiming one isolated tissue absorbs the drop."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260527/",
+      "sourceTitle": "Effect of drop jump technique on the reactive strength index",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 85,
+      "claims": [
+        "Bounce drop jumps produced shorter contact times but lower rebound height than countermovement drop jumps in the studied youth basketball players.",
+        "Observable technique must therefore match intent: a bounce strategy limits flexion and prioritizes short contact, while a countermovement strategy allows greater center-of-mass displacement and prioritizes rebound height without pausing."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10160442/",
+      "sourceTitle": "Methodological considerations for determining the volume and intensity of drop jump training. A systematic, critical and prepositive review",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Drop height alone is not an adequate intensity determinant; ground reaction force, power output, jump height, strategy, and individual readiness also matter.",
+        "Exercise difficulty must score technical and physical demand, coordination, supervision, consequence of error, impact, work-capacity demand, and overall difficulty directly; exercise cards must not use skill-library levels."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10160442/",
+      "sourceTitle": "Methodological considerations for determining the volume and intensity of drop jump training. A systematic, critical and prepositive review",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Drop-jump exposure depends on platform height, body mass, contact strategy, ground reaction force, output, surface, contacts, and recovery rather than platform height alone.",
+        "Depth Jump to Vertical Jump needs drop and landing contacts, impact and eccentric stress, target contact or rebound metric, technical-fatigue criteria, inter-repetition reset, and recovery guidance."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Landing interventions depend on suitable materials, coaching knowledge, usable space, and task-specific progression.",
+        "The delivery profile should require a stable non-slip platform, unobstructed step-off edge, level landing surface, safe return route, adequate ceiling and spacing, athlete-specific drop height, and coach sightlines to both lower limbs."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10160442/",
+      "sourceTitle": "Methodological considerations for determining the volume and intensity of drop jump training. A systematic, critical and prepositive review",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Drop-jump programming requires explicit volume, intensity, recovery, surface, height-selection, and individualization criteria.",
+        "Prescribe discrete repetitions, platform-height rule, contact strategy, target contact or rebound outcome, final landing, inter-repetition reset, set rest, and stop threshold; do not use conditioning-style work intervals."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Specific feedback can improve landing mechanics, while excessive cue volume can interfere with learning.",
+        "Use a small strategy-specific cue set: step off without jumping up, meet the floor evenly, either absorb and own the landing or reverse immediately, finish tall in the prescribed direction, and control the final landing."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Depth and drop jumps impose advanced eccentric and reactive demands and require progression from lower-intensity landing and jumping tasks.",
+        "Stop for pain, giving way, apprehension, platform instability, asymmetrical contact, loud or collapsed landing, valgus, heel whip, trunk loss, unintended pause, missed strategy, slower contact, lower rebound, or uncontrolled final landing."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10115703/",
+      "sourceTitle": "Effects of Plyometric Jump Training on the Reactive Strength Index in Healthy Individuals Across the Lifespan: A Systematic Review with Meta-analysis",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Plyometric jump training can improve reactive strength, but effects and readiness differ across populations and training contexts.",
+        "Depth Jump to Vertical Jump belongs early in a fresh output block after the athlete owns landing absorption and lower-intensity rebounds; dose and height should be individualized and volume should end before contact or output quality declines."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Athlete support should show the platform, step-off direction, first contact, intended flexion strategy, rebound vector, final landing, and the one metric that defines success.",
+        "The interface should distinguish 'fast off the floor' from 'jump as high as possible' and explain that a higher platform is not automatically a better or harder prescription."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10160442/",
+      "sourceTitle": "Methodological considerations for determining the volume and intensity of drop jump training. A systematic, critical and prepositive review",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Coach support should individualize drop height and record contacts, surface, technique, output, and recovery rather than relying on a generic height progression.",
+        "Provide front and side observation, bounce-versus-countermovement criteria, contact-time and rebound-height options, left-right comparison, height-reduction rules, regressions, progressions, and final-landing gates."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Plyometric selection and progression should match physical and psychosocial readiness, technical competence, supervision, and equipment scale.",
+        "Accessibility can be improved with a lower step, landing-only depth drop, assisted step-down, visual landing marks, quieter environment, longer reset, or floor rebound regression without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260527/",
+      "sourceTitle": "Effect of drop jump technique on the reactive strength index",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 85,
+      "claims": [
+        "Bounce and countermovement drop-jump techniques produce materially different contact-time and rebound-height outcomes.",
+        "Platform height and submaximal intent are delivery modifiers; changing landing-only versus rebound intent, bounce versus countermovement strategy, rebound vector, laterality, obstacle sequence, or repeated contacts requires a controlled variant or distinct definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Depth Jump to Vertical Jump were discovered through visible YouTube search; availability, embedding, exact contact sequence and strategy, complete viewing, captions, instructional quality, safety, and approval remain separate review gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=AzPJZHOmGEg",
+      "title": "Max Effort Plyometrics: Depth Jumps",
+      "channelName": "Wil Fleming",
+      "sourceQuery": "depth jump vertical jump exercise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=GeN0S3XCZnM",
+      "title": "Depth Jump | Olympic Weightlifting Exercise Library",
+      "channelName": "Catalyst Athletics",
+      "sourceQuery": "depth jump vertical jump exercise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=DxzbXy0lC6Y",
+      "title": "How To Depth Jumps",
+      "channelName": "Third Space London",
+      "sourceQuery": "depth jump vertical jump exercise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Phf_HO1w9BA",
+      "title": "Long Jump 101: Drop Jumps Vs Depth Jumps",
+      "channelName": "Jumpers Junction",
+      "sourceQuery": "depth jump vertical jump exercise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=dGQRsuI_-ag",
+      "title": "Depth Jump to Vertical Jump",
+      "channelName": "YST Exercises",
+      "sourceQuery": "depth jump vertical jump exercise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Depth Jump",
+      "classification": "same_identity",
+      "rationale": "Maximal vertical rebound is the baseline.",
+      "distinguishingDimensions": {
+        "canonicalSurvivor": "depth_jump"
+      }
+    },
+    {
+      "name": "Depth Jump to Rebound",
+      "classification": "same_identity",
+      "rationale": "Rebound is inherent to the identity.",
+      "distinguishingDimensions": {
+        "alias": "depth_jump_to_rebound"
+      }
+    },
+    {
+      "name": "Bounce Drop Jump",
+      "classification": "new_variant",
+      "rationale": "A short-contact strategy trades some height for faster contact.",
+      "distinguishingDimensions": {
+        "contactStrategy": "bounce"
+      }
+    },
+    {
+      "name": "Depth Jump to Broad Jump",
+      "classification": "new_definition",
+      "rationale": "Horizontal direction changes output.",
+      "distinguishingDimensions": {
+        "reboundDirection": "horizontal"
+      }
+    },
+    {
+      "name": "Depth Jump to Sprint",
+      "classification": "new_definition",
+      "rationale": "Acceleration exit adds horizontal contacts.",
+      "distinguishingDimensions": {
+        "exit": "sprint"
+      }
+    }
+  ]
+}

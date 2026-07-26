@@ -102,6 +102,7 @@ import {
   deleteCoachNeedsEngineRequirements,
 } from './phaseAwarePrescription.js'
 import { textMentionsEquipment } from './equipmentNameMatching.js'
+import { exerciseLiftFamilyTerms } from './exerciseLibrarySearch.js'
 import {
   parseAgeRangeFromText,
   parseSessionObjectiveFromText,
@@ -126,6 +127,13 @@ import {
   recordAiIntentAudit,
   recordCanonicalCoachReview,
 } from './canonicalDataQuality.js'
+import { loadCanonicalResearchQueue } from './canonicalResearchReview.js'
+import {
+  loadCanonicalResearchReview,
+  reviewCanonicalAlternateAssessment,
+  reviewCanonicalMediaCandidate,
+  reviewCanonicalSectionEvidence,
+} from './canonicalResearchRepository.js'
 import {
   AiIntentError,
   deterministicFallbackAfterAiFailure,
@@ -558,11 +566,19 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const q = req.query.q ? String(req.query.q).trim() : null
       if (q) {
         params.push(`%${q}%`)
+        const literalSearchParam = params.length
+        const liftFamilyTerms = exerciseLiftFamilyTerms(q)
+        let liftFamilyClause = ''
+        if (liftFamilyTerms.length > 0) {
+          params.push(liftFamilyTerms.map((term) => `%${term}%`))
+          liftFamilyClause = `OR e.name ILIKE ANY($${params.length}::text[])`
+        }
         where.push(`(
-          e.name ILIKE $${params.length}
-          OR e.description ILIKE $${params.length}
-          OR e.slug ILIKE $${params.length}
-          OR e.card_summary ILIKE $${params.length}
+          e.name ILIKE $${literalSearchParam}
+          OR e.description ILIKE $${literalSearchParam}
+          OR e.slug ILIKE $${literalSearchParam}
+          OR e.card_summary ILIKE $${literalSearchParam}
+          ${liftFamilyClause}
         )`)
       }
 
@@ -576,11 +592,6 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (maxSeconds) {
         params.push(maxSeconds)
         where.push(`e.est_seconds_per_set <= $${params.length}`)
-      }
-
-      if (req.query.level) {
-        params.push(String(req.query.level))
-        where.push(`e.skill_level = $${params.length}::public.skill_level`)
       }
 
       const phaseId = num(req.query.phase ?? req.query.phase_id)
@@ -943,12 +954,12 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
             is_published, visibility, card_summary, coach_language, athlete_language, programming_logic, scalable_variables,
             participant_structure, programming_kind
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7::public.skill_level, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23::jsonb, $24, $25, $26)
+          VALUES ($1, $2, $3, $4, $5, $6, NULL, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22::jsonb, $23, $24, $25)
           RETURNING id
         `,
         [
           facilityId, name, slugify(name) || `ex-${Date.now()}`, req.body?.description || null,
-          req.body?.instructions || null, num(req.body?.sport_id), req.body?.skill_level || null,
+          req.body?.instructions || null, num(req.body?.sport_id),
           num(req.body?.age_min), num(req.body?.age_max), num(req.body?.default_sets), num(req.body?.default_reps),
           num(req.body?.default_work_seconds), num(req.body?.default_rest_seconds), req.body?.tempo || null,
           req.body?.load_note || null, num(req.body?.est_seconds_per_set) ?? 45, userId,
@@ -999,23 +1010,23 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         `
           UPDATE coaching.exercise SET
             name = COALESCE($2, name),
-            description = $3, instructions = $4, sport_id = $5, skill_level = $6::public.skill_level,
-            age_min = $7, age_max = $8, default_sets = $9, default_reps = $10, default_work_seconds = $11,
-            default_rest_seconds = $12, tempo = $13, load_note = $14, est_seconds_per_set = COALESCE($15, est_seconds_per_set),
-            is_published = COALESCE($16, is_published), visibility = COALESCE($17, visibility),
-            card_summary = COALESCE($18, card_summary), coach_language = COALESCE($19, coach_language),
-            athlete_language = COALESCE($20, athlete_language),
-            programming_logic = COALESCE($21::jsonb, programming_logic),
-            scalable_variables = COALESCE($22, scalable_variables),
-            why_publish_ready = COALESCE($23, why_publish_ready),
-            participant_structure = COALESCE($24, participant_structure),
-            programming_kind = COALESCE($25, programming_kind),
+            description = $3, instructions = $4, sport_id = $5, skill_level = NULL,
+            age_min = $6, age_max = $7, default_sets = $8, default_reps = $9, default_work_seconds = $10,
+            default_rest_seconds = $11, tempo = $12, load_note = $13, est_seconds_per_set = COALESCE($14, est_seconds_per_set),
+            is_published = COALESCE($15, is_published), visibility = COALESCE($16, visibility),
+            card_summary = COALESCE($17, card_summary), coach_language = COALESCE($18, coach_language),
+            athlete_language = COALESCE($19, athlete_language),
+            programming_logic = COALESCE($20::jsonb, programming_logic),
+            scalable_variables = COALESCE($21, scalable_variables),
+            why_publish_ready = COALESCE($22, why_publish_ready),
+            participant_structure = COALESCE($23, participant_structure),
+            programming_kind = COALESCE($24, programming_kind),
             updated_at = now()
           WHERE id = $1
         `,
         [
           id, req.body?.name ? String(req.body.name).trim() : null, req.body?.description || null,
-          req.body?.instructions || null, num(req.body?.sport_id), req.body?.skill_level || null,
+          req.body?.instructions || null, num(req.body?.sport_id),
           num(req.body?.age_min), num(req.body?.age_max), num(req.body?.default_sets), num(req.body?.default_reps),
           num(req.body?.default_work_seconds), num(req.body?.default_rest_seconds), req.body?.tempo || null,
           req.body?.load_note || null, num(req.body?.est_seconds_per_set),
@@ -1132,6 +1143,12 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   }
 
+  function skillOfficialMetadata(body, fallback = null) {
+    const value = body?.official_metadata ?? body?.officialMetadata
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return fallback
+    return value
+  }
+
   async function writeSkillRelations(client, skillId, body) {
     if (Array.isArray(body.components)) {
       await client.query(`DELETE FROM coaching.skill_component WHERE skill_id = $1`, [skillId])
@@ -1196,6 +1213,20 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         where.push(`sk.skill_level = $${params.length}::public.skill_level`)
       }
 
+      if (req.query.discipline) {
+        params.push(`%${String(req.query.discipline).trim()}%`)
+        where.push(`COALESCE(sk.official_metadata->>'discipline', '') ILIKE $${params.length}`)
+      }
+
+      if (req.query.usag_level) {
+        params.push(String(req.query.usag_level).trim())
+        where.push(`EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements_text(COALESCE(sk.official_metadata->'usa_gymnastics_levels', '[]'::jsonb)) AS official_level(value)
+          WHERE official_level.value = $${params.length}
+        )`)
+      }
+
       const result = await pool.query(
         `SELECT sk.*, s.name AS sport_name, e.name AS exercise_name
          FROM coaching.skill sk
@@ -1257,8 +1288,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           facility_id, name, slug, description, instructions, sport_id, skill_level,
           age_min, age_max, skill_kind, evaluation_mode, exercise_id,
           min_hold_seconds, default_hold_seconds, min_reps, default_reps, target_reps, execution_max_score,
-          assistance_note, created_by, is_published, visibility
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7::public.skill_level, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+          assistance_note, created_by, is_published, visibility, official_metadata
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7::public.skill_level, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23::jsonb)
         RETURNING id`,
         [
           facilityId, name, slugify(name) || `skill-${Date.now()}`, req.body?.description || null,
@@ -1267,6 +1298,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           metrics.min_hold_seconds, metrics.default_hold_seconds, metrics.min_reps, metrics.default_reps,
           metrics.target_reps, metrics.execution_max_score, req.body?.assistance_note || null,
           userId, req.body?.is_published !== false, req.body?.visibility === 'private' ? 'private' : 'facility',
+          JSON.stringify(skillOfficialMetadata(req.body, {})),
         ],
       )
       const id = Number(created.rows[0].id)
@@ -1311,6 +1343,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           min_reps = $14, default_reps = $15, target_reps = $16, execution_max_score = $17,
           assistance_note = $18,
           is_published = COALESCE($19, is_published), visibility = COALESCE($20, visibility),
+          official_metadata = COALESCE($21::jsonb, official_metadata),
           updated_at = now()
         WHERE id = $1`,
         [
@@ -1323,6 +1356,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
           req.body?.assistance_note || null,
           typeof req.body?.is_published === 'boolean' ? req.body.is_published : null,
           req.body?.visibility === 'private' ? 'private' : req.body?.visibility === 'facility' ? 'facility' : null,
+          skillOfficialMetadata(req.body) == null ? null : JSON.stringify(skillOfficialMetadata(req.body)),
         ],
       )
       await writeSkillRelations(client, id, req.body || {})
@@ -1865,6 +1899,19 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  app.get('/api/coach/canonical/research-queue', ...can('library.view'), async (req, res) => {
+    if (!canonicalFeatureEnabled()) return bad(res, 'Canonical library authoring is not enabled.', 404)
+    try {
+      ok(res, await loadCanonicalResearchQueue(
+        pool,
+        req.platformAuth.user.facility_id,
+        { limit: req.query.limit, offset: req.query.offset },
+      ))
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
   app.get('/api/coach/canonical/cards/:id', ...can('library.view'), async (req, res) => {
     if (!canonicalFeatureEnabled()) return bad(res, 'Canonical library authoring is not enabled.', 404)
     if (!isUuid(req.params.id)) return bad(res, 'A valid canonical card ID is required.')
@@ -1874,6 +1921,77 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       ok(res, card)
     } catch (error) {
       bad(res, error.message, 500)
+    }
+  })
+
+  app.get('/api/coach/canonical/cards/:id/research-review', ...can('library.view'), async (req, res) => {
+    if (!canonicalFeatureEnabled()) return bad(res, 'Canonical library authoring is not enabled.', 404)
+    if (!isUuid(req.params.id)) return bad(res, 'A valid canonical card ID is required.')
+    try {
+      ok(res, await loadCanonicalResearchReview(
+        pool,
+        req.platformAuth.user.facility_id,
+        req.params.id,
+      ))
+    } catch (error) {
+      bad(res, error.message, error.status ?? 500)
+    }
+  })
+
+  app.post('/api/coach/canonical/cards/:id/research/evidence/:evidenceId/review', ...can('library.manage'), async (req, res) => {
+    if (!canonicalFeatureEnabled()) return bad(res, 'Canonical library authoring is not enabled.', 404)
+    if (!isUuid(req.params.id) || !isUuid(req.params.evidenceId)) {
+      return bad(res, 'Valid canonical card and evidence IDs are required.')
+    }
+    try {
+      ok(res, await reviewCanonicalSectionEvidence(
+        pool,
+        req.platformAuth.user.facility_id,
+        req.params.id,
+        req.params.evidenceId,
+        Number(req.platformAuth.user.id),
+        req.body || {},
+      ))
+    } catch (error) {
+      bad(res, error.message, error.status ?? (error instanceof RangeError || error instanceof TypeError ? 400 : 500))
+    }
+  })
+
+  app.post('/api/coach/canonical/cards/:id/research/media/:mediaCandidateId/review', ...can('library.manage'), async (req, res) => {
+    if (!canonicalFeatureEnabled()) return bad(res, 'Canonical library authoring is not enabled.', 404)
+    if (!isUuid(req.params.id) || !isUuid(req.params.mediaCandidateId)) {
+      return bad(res, 'Valid canonical card and media-candidate IDs are required.')
+    }
+    try {
+      ok(res, await reviewCanonicalMediaCandidate(
+        pool,
+        req.platformAuth.user.facility_id,
+        req.params.id,
+        req.params.mediaCandidateId,
+        Number(req.platformAuth.user.id),
+        req.body || {},
+      ))
+    } catch (error) {
+      bad(res, error.message, error.status ?? (error instanceof RangeError || error instanceof TypeError ? 400 : 500))
+    }
+  })
+
+  app.post('/api/coach/canonical/cards/:id/research/alternates/:alternateAssessmentId/review', ...can('library.manage'), async (req, res) => {
+    if (!canonicalFeatureEnabled()) return bad(res, 'Canonical library authoring is not enabled.', 404)
+    if (!isUuid(req.params.id) || !isUuid(req.params.alternateAssessmentId)) {
+      return bad(res, 'Valid canonical card and alternate-assessment IDs are required.')
+    }
+    try {
+      ok(res, await reviewCanonicalAlternateAssessment(
+        pool,
+        req.platformAuth.user.facility_id,
+        req.params.id,
+        req.params.alternateAssessmentId,
+        Number(req.platformAuth.user.id),
+        req.body || {},
+      ))
+    } catch (error) {
+      bad(res, error.message, error.status ?? (error instanceof RangeError || error instanceof TypeError ? 400 : 500))
     }
   })
 

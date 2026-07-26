@@ -27,6 +27,7 @@
     "needs-engine:eval": "node scripts/evaluate-prescription-quality.mjs",
     "needs-engine:eval:baseline": "node scripts/evaluate-prescription-quality.mjs --tier=baseline",
     "needs-engine:metrics": "node scripts/generate-category-metrics.mjs",
+    "test:usag-skill-catalog": "node scripts/verify-usag-skill-catalog.mjs",
     "pull-lfs": "bash scripts/pull-lfs.sh || echo 'Git LFS pull failed, continuing build'",
     "lint": "eslint .",
     "preview": "vite preview",

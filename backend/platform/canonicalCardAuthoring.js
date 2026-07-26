@@ -1,4 +1,8 @@
-import { SESSION_PHASE_ORDER, score100 } from './canonicalWorkoutContract.js'
+import {
+  SESSION_PHASE_ORDER,
+  deriveOverallDifficulty,
+  score100,
+} from './canonicalWorkoutContract.js'
 
 export const CARD_STATUSES = Object.freeze(['draft', 'review', 'published', 'deprecated', 'archived'])
 export const RELATIONSHIP_TYPES = Object.freeze([
@@ -44,6 +48,30 @@ function list(value) {
 
 function text(value) {
   return typeof value === 'string' ? value.trim() : ''
+}
+
+function normalizeDifficulty(raw) {
+  const difficulty = object(raw)
+  const technical = difficulty.technicalComplexity == null
+    ? null
+    : score100(difficulty.technicalComplexity, {
+      nullable: false,
+      field: 'technicalComplexity',
+    })
+  const physical = difficulty.absoluteLoadDemand == null
+    ? null
+    : score100(difficulty.absoluteLoadDemand, {
+      nullable: false,
+      field: 'absoluteLoadDemand',
+    })
+  return {
+    ...difficulty,
+    technicalComplexity: technical,
+    absoluteLoadDemand: physical,
+    baseOverallDifficulty: technical == null || physical == null
+      ? null
+      : deriveOverallDifficulty(technical, physical),
+  }
 }
 
 function uniqueStrings(value) {
@@ -182,7 +210,7 @@ export function normalizeCanonicalCardDraft(raw = {}) {
       variantKey: text(variant.variantKey ?? variant.variant_key),
       displayName: text(variant.displayName ?? variant.display_name),
       modifierKeys: uniqueStrings(variant.modifierKeys ?? variant.modifier_keys),
-      difficulty: variant.difficulty && typeof variant.difficulty === 'object' ? variant.difficulty : {},
+      difficulty: normalizeDifficulty(variant.difficulty),
       requirements: variant.requirements && typeof variant.requirements === 'object' ? variant.requirements : {},
       programming: object(variant.programming ?? variant.programming_profile_json),
       loadProfile: {
@@ -356,7 +384,7 @@ export function evaluateCanonicalCardReadiness(raw, { mediaReview = null } = {})
     requireText(variant.variantKey, `${base}.variantKey`, 'Variant key')
     requireText(variant.displayName, `${base}.displayName`, 'Variant display name')
     const difficultyFields = [
-      'technicalComplexity', 'supervisionDemand', 'failureConsequence',
+      'technicalComplexity', 'absoluteLoadDemand', 'supervisionDemand', 'failureConsequence',
       'impact', 'workCapacityDemand', 'baseOverallDifficulty',
     ]
     for (const field of difficultyFields) {
@@ -365,6 +393,21 @@ export function evaluateCanonicalCardReadiness(raw, { mediaReview = null } = {})
       } catch {
         issues.push({ code: 'difficulty_score', path: `${base}.difficulty.${field}`, message: `${field} must be an integer from 1 to 100.` })
       }
+    }
+    if (
+      Number.isInteger(variant.difficulty.technicalComplexity)
+      && Number.isInteger(variant.difficulty.absoluteLoadDemand)
+      && Number.isInteger(variant.difficulty.baseOverallDifficulty)
+      && variant.difficulty.baseOverallDifficulty !== deriveOverallDifficulty(
+        variant.difficulty.technicalComplexity,
+        variant.difficulty.absoluteLoadDemand,
+      )
+    ) {
+      issues.push({
+        code: 'difficulty_model',
+        path: `${base}.difficulty.baseOverallDifficulty`,
+        message: 'Overall difficulty must be derived from technical complexity and physical difficulty.',
+      })
     }
     for (const field of ['gripDemand', 'spinalLoading', 'eccentricStress']) {
       if (variant.loadProfile[field] == null) {

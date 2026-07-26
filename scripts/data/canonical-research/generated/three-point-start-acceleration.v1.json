@@ -1,0 +1,447 @@
+{
+  "facilityId": 1,
+  "slug": "three-point-start-acceleration",
+  "researchVersion": "2026-07-25.14",
+  "assessmentSummary": {
+    "identity": "The same static three-point short acceleration, expressed over a 5–10-yard target.",
+    "currentCardFindings": [
+      "The description identifies one grounded hand and staggered feet but omits the grounded-hand side rule, target behavior, total contacts, rest, surface, run-out, and stop rules.",
+      "The name does not materially differ from 3-Point Start 10–20m.",
+      "Its generic difficulty values omit hand support, coordination, supervision, failure consequence, impact, and work-capacity demand."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "static_three_point_start",
+        "short_linear_acceleration"
+      ],
+      "jointActions": [
+        "hand_support_release",
+        "hip_knee_ankle_extension",
+        "swing_leg_recovery",
+        "reciprocal_arm_action"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal",
+        "transverse_control"
+      ],
+      "laterality": "one_hand_and_staggered_feet_then_alternating",
+      "intent": "accelerate_through_5_to_10_yards_from_three_point_stance"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "hamstrings",
+        "quadriceps",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "hip_flexors",
+        "intrinsic_foot",
+        "tibialis_anterior",
+        "pectoralis_major",
+        "triceps",
+        "rotator_cuff",
+        "obliques"
+      ],
+      "joints": [
+        "hand",
+        "wrist",
+        "elbow",
+        "shoulder",
+        "spine",
+        "hip",
+        "knee",
+        "ankle",
+        "foot"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 58,
+      "absoluteLoadDemand": 12,
+      "coordinationDemand": 60,
+      "supervisionDemand": 58,
+      "failureConsequence": 58,
+      "impact": 58,
+      "workCapacityDemand": 42,
+      "baseOverallDifficulty": 58
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_three_point_high_intent_acceleration",
+      "impactClass": "moderate_to_high",
+      "landingContactsPerRep": "all_contacts_through_target_and_run_out",
+      "primaryStress": [
+        "grounded_hand_and_wrist",
+        "early_acceleration_force",
+        "posterior_chain",
+        "plantar_flexors"
+      ],
+      "fatigueSensitivity": "setup_hand_clearance_projection_speed_and_run_out"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "clean_hand_contact_area",
+        "clear_5_to_10_yard_lane",
+        "target_mark",
+        "safe_run_out"
+      ],
+      "optionalEquipment": [
+        "cones",
+        "timing_gates",
+        "video"
+      ],
+      "environment": [
+        "dry_level_non_slip_surface",
+        "no_cross_traffic"
+      ],
+      "population": [
+        "pain_free_hand_support",
+        "stable_three_point_stance",
+        "pain_free_acceleration"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "2-6_efforts",
+      "distance": "5-10_yards",
+      "restSeconds": "60-150",
+      "intensity": "high_intent_after_rehearsal",
+      "progressWhen": "setup, hand clearance, first steps, and finish remain repeatable"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Set the hand and stagger",
+        "Load the stance",
+        "Clear the hand",
+        "Sprint through the line"
+      ],
+      "athleteInstructions": [
+        "Start still with one hand grounded and sprint through the assigned 5- or 10-yard target"
+      ],
+      "commonFaults": [
+        "duplicate_identity",
+        "unstable_setup",
+        "rocking_start",
+        "false_step",
+        "hand_slip",
+        "stopping_on_line"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "pain_free_hand_support",
+        "stable_start",
+        "safe_lane",
+        "completed_warm_up"
+      ],
+      "stopRules": [
+        "pain",
+        "hand_slip",
+        "stumble",
+        "repeated_false_step",
+        "speed_loss",
+        "unsafe_run_out"
+      ]
+    },
+    "programmingDecision": "Merge into 3-Point Start 10–20m. Preserve the name as an alias and the 5–10-yard range as an imperial delivery profile.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T09:05:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Athlete sets one hand on the ground and places the feet in a staggered sprint stance. From a still position, they push explosively out of the start and sprint 5–10 yards.",
+      "familyKey": "Acceleration & start speed",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22233797/",
+      "sourceTitle": "The difference is in the start: impact of timing and start procedure on sprint running performance",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Start position and procedure influence sprint performance, so the supported stance and initiation rule must be explicit.",
+        "Three-Point Start Acceleration must define the grounded hand, stagger, static or build-up procedure, intent, target distance, finish, and run-out. Five yards, ten metres, or twenty metres alone does not create a new exercise identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Sprint-start push-off and the early acceleration steps are connected but distinguishable phases.",
+        "Three-Point Start Acceleration belongs to a three-point ground-supported start and short linear acceleration family; two-point, four-point, block, resisted, externally cued, and progressive build-up executions require controlled variant or delivery-profile labels."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4689850/",
+      "sourceTitle": "Sprint Acceleration Mechanics: The Major Role of Hamstrings in Horizontal Force Production",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Sprint acceleration requires coordinated hip, knee, and ankle action, including hamstring contribution to horizontal force production.",
+        "Represent hand, wrist, shoulder-girdle, trunk, gluteal, hamstring, quadriceps, hip-flexor, plantar-flexor, and foot roles without reducing the exercise to knee drive."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Effective early acceleration is associated with forward-directed impulse, propulsive force, and progressive projection.",
+        "Use a repeatable stagger and hand position, clear the grounded hand, push through both legs according to the setup, coordinate the arms, and rise progressively without forcing one universal shin angle or step length."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22233797/",
+      "sourceTitle": "The difference is in the start: impact of timing and start procedure on sprint running performance",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Lower start positions change body position and timing compared with standing starts.",
+        "Score technical complexity, absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly; athlete experience remains programming context and is not an exercise-card skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6407765/",
+      "sourceTitle": "Correlations between muscle-tendon parameters and acceleration ability in 20 m sprints",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Power output is highest during the first acceleration steps.",
+        "Three-Point Start Acceleration must track effort count, distance, sprint contacts, start-side distribution, grounded-hand side, surface, posterior-chain and plantar-flexor stress, technical fatigue, speed loss, run-out, recovery, and total session sprint volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Quality sprint work requires suitable space, surface, targets, separation, and recovery.",
+        "Require a clear dry level lane, safe hand-contact area, suitable footwear, visible target, athlete spacing, and sufficient run-out; cones, timing gates, and video are optional logistics or measurement tools."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration work should prescribe distance, intensity, repetitions, sets, and recovery rather than repetitions alone.",
+        "Use two to six high-quality efforts over roughly 5–20 metres with 60–180 seconds recovery; any longer progressive build-up must state its acceleration zone, target intensity, total distance, and longer contact budget."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Start setup should support effective projection without forcing an anthropometrically inappropriate position.",
+        "Use a small cue set: place the hand and feet, load the stance, push the ground back, clear the hand, coordinate opposite arm and leg, accelerate through the target, and use the run-out."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Training should use qualified supervision, correct technique, manageable demands, and gradual progression.",
+        "Stop for hand or wrist pain, other lower- or upper-limb pain, slip, stumble, lane obstruction, unsafe spacing, repeated false step, loss of projection or arm-leg coordination, marked speed decline, or inability to decelerate safely."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration and maximal-velocity sprinting are distinct qualities, and high-quality speed work should not become dense conditioning.",
+        "Three-Point Start Acceleration belongs after sprint preparation and before fatiguing work. Static maximal starts fit output work; a defined longer progressive build-up may fit approach-rhythm or transition work but must not be silently substituted."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "Acceleration develops across successive steps rather than by immediately standing upright.",
+        "Show both stance sides, exact hand and foot setup, first three contacts, distance markers, finish and run-out, a slower rehearsal, and the difference between a short maximal start and a progressive build-up."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Coaches should distinguish acceleration quality from maximal velocity and conditioning.",
+        "Provide setup checks, side and rear observation, stance-side balance, step and contact counts, split timing when used, projection, hand clearance, speed-loss stops, and exact merge, variant, and delivery-profile guidance."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Speed training should be developmentally appropriate and based on movement competency.",
+        "Accessibility options include a two-point start, taller stagger, chosen grounded hand, submaximal intent, shorter distance, untimed attempts, visual marks, extra demonstration, fewer efforts, and longer recovery."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22233797/",
+      "sourceTitle": "The difference is in the start: impact of timing and start procedure on sprint running performance",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Start position and timing procedure change the task and measured performance.",
+        "Small distance or measurement-system changes are dosage; changing support points, external cue, resistance, blocks, or a static maximal start into a longer progressive build-up requires a controlled variant or distinct delivery profile."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for Three-Point Start Acceleration remain candidate-only. Availability, embedding, exact stance and delivery-profile match, complete viewing, captions, cue and safety quality, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=-Ihg0il6gtw",
+      "title": "Sprint Training - How to do a 3-Point Start",
+      "channelName": "MomentumSports",
+      "sourceQuery": "existing three-point-start candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=EO6SbD2nrSc",
+      "title": "How to properly do a 3 point start #running #tips",
+      "channelName": "Lyfestyle Athletics",
+      "sourceQuery": "existing three-point-start candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=SE0SEbGSA-M",
+      "title": "Take Your 40 Yard Dash and 3 Point Starts to the Next Level",
+      "channelName": "Outperform",
+      "sourceQuery": "existing three-point-start candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=dgewJyq8ZFc",
+      "title": "How to do a 3-Point Start",
+      "channelName": "Science for Sport",
+      "sourceQuery": "existing three-point-start candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "3-Point Start 10–20m",
+      "classification": "same_identity",
+      "rationale": "Only distance and measurement system differ.",
+      "distinguishingDimensions": {
+        "distance": "10_to_20_metres"
+      }
+    },
+    {
+      "name": "Three-Point Acceleration Build-Up",
+      "classification": "new_variant",
+      "rationale": "A longer progressive rise changes speed profile and contact dose.",
+      "distinguishingDimensions": {
+        "speedProfile": "progressive_build_up"
+      }
+    },
+    {
+      "name": "Two-Point Start",
+      "classification": "new_variant",
+      "rationale": "Removing the grounded hand changes the start.",
+      "distinguishingDimensions": {
+        "supportPoints": 2
+      }
+    },
+    {
+      "name": "Four-Point Start",
+      "classification": "new_variant",
+      "rationale": "Adding the second grounded hand changes support and transition.",
+      "distinguishingDimensions": {
+        "supportPoints": 4
+      }
+    },
+    {
+      "name": "Resisted Three-Point Start",
+      "classification": "new_variant",
+      "rationale": "External resistance changes equipment and the force-velocity constraint.",
+      "distinguishingDimensions": {
+        "externalResistance": "present"
+      }
+    }
+  ]
+}

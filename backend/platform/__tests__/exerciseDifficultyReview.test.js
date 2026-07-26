@@ -57,10 +57,21 @@ test('wall handstand push-up is exercise not skill drill', () => {
   assert.ok(d.load >= 5)
 })
 
-test('wall handstand hold is skill drill', () => {
+test('skill-linked drills retain physical and technical difficulty plus age guidance', () => {
   const d = score('wall-handstand-hold', 'Wall Handstand Hold', { skill_level: 'INTERMEDIATE' })
   assert.equal(d.programming_kind, 'skill_drill')
-  assert.equal(d.recommended_age_min, null)
+  assert.ok(d.load >= 1)
+  assert.ok(d.technical >= 1)
+  assert.ok(d.recommended_age_min != null)
+})
+
+test('legacy exercise skill_level does not alter exercise difficulty', () => {
+  const beginner = score('push-up', 'Push-Up', { skill_level: 'BEGINNER' })
+  const advanced = score('push-up', 'Push-Up', { skill_level: 'ADVANCED' })
+  assert.deepEqual(
+    { technical: beginner.technical, load: beginner.load, overall: beginner.overall },
+    { technical: advanced.technical, load: advanced.load, overall: advanced.overall },
+  )
 })
 
 test('integrated workout drills stay exercise even when DB says skill_drill', () => {

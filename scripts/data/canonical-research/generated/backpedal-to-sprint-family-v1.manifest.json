@@ -1,0 +1,31 @@
+{
+  "batchKey": "backpedal-to-sprint-family-v1",
+  "researchVersion": "2026-07-25.18",
+  "generatedAt": "2026-07-26T11:05:00.000Z",
+  "cards": [
+    {
+      "slug": "backpedal-to-sprint-turn",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "backpedal-to-sprint-open-turn",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "backpedal-to-sprint-turn-on-signal",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "backpedal-to-sprint-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    }
+  ]
+}

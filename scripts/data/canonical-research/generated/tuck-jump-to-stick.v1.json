@@ -1,0 +1,455 @@
+{
+  "facilityId": 1,
+  "slug": "tuck-jump-to-stick",
+  "researchVersion": "2026-07-25.3",
+  "assessmentSummary": {
+    "identity": "A single high-intent bilateral vertical jump with a deliberate knee-tuck action during flight, active leg re-extension before contact, and a bilateral landing held for two seconds.",
+    "currentCardFindings": [
+      "The legacy description identifies knee drive and re-extension but prescribes three repetitions and 20 work seconds, which risks turning a high-impact skill into a repeated fatigue drill.",
+      "The generic 40-point difficulty substantially understates flight coordination, re-extension timing, impact, supervision, and consequence of error.",
+      "Controlled anatomy, load, fatigue, constraints, and support fields are empty; repeated tuck jumps and obstacle or block variations are not separated."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "countermovement",
+        "vertical_jump",
+        "flight_tuck",
+        "re_extension",
+        "bilateral_land",
+        "brace"
+      ],
+      "jointActions": [
+        "ankle_plantarflexion",
+        "knee_extension",
+        "hip_extension",
+        "hip_flexion_in_flight",
+        "knee_flexion_in_flight",
+        "leg_re_extension",
+        "landing_flexion_control"
+      ],
+      "planes": [
+        "sagittal"
+      ],
+      "laterality": "bilateral_takeoff_bilateral_landing",
+      "intent": "vertical_power_and_air_position_control"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "quadriceps",
+        "gluteus_maximus",
+        "soleus",
+        "gastrocnemius",
+        "hip_flexors"
+      ],
+      "secondaryMuscles": [
+        "hamstrings",
+        "abdominals",
+        "gluteus_medius",
+        "intrinsic_foot",
+        "trunk_stabilizers"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 58,
+      "absoluteLoadDemand": 14,
+      "coordinationDemand": 62,
+      "supervisionDemand": 55,
+      "failureConsequence": 62,
+      "impact": 60,
+      "workCapacityDemand": 24,
+      "baseOverallDifficulty": 58
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_bilateral_high_amplitude_ballistic_and_eccentric_landing",
+      "impactClass": "high",
+      "contactCountUnit": "tuck_jump_landings",
+      "primaryStress": [
+        "vertical_power",
+        "rapid_hip_flexion_and_re_extension",
+        "high_vertical_force_attenuation"
+      ],
+      "fatigueSensitivity": "flight_timing_re_extension_jump_height_and_landing_quality"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "visual_knee_target",
+        "video_feedback"
+      ],
+      "environment": [
+        "level_non_slip_surface",
+        "generous_ceiling_height",
+        "clear_landing_zone",
+        "coach_side_view"
+      ],
+      "population": [
+        "owns_high_intent_countermovement_jump_and_stick",
+        "can_re_extend_legs_before_landing",
+        "tolerates_high_bilateral_landing_contacts"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4",
+      "repetitions": "1-3 with full reset",
+      "landingHoldSeconds": "2-3",
+      "restSeconds": "75-150",
+      "intensity": "high_intent_single_repetition",
+      "progressWhen": "the knees rise without trunk collapse, legs fully re-extend before contact, and every landing remains quiet and held"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Jump tall before you tuck",
+        "Bring knees up without folding the chest",
+        "Straighten the legs before the floor",
+        "Land quietly and freeze"
+      ],
+      "athleteInstructions": [
+        "Jump straight up",
+        "Tuck your knees in the air",
+        "Open the legs before landing",
+        "Land on both feet and hold"
+      ],
+      "commonFaults": [
+        "tucking before full takeoff",
+        "chest collapsing to knees",
+        "late or absent re-extension",
+        "feet behind the body",
+        "stiff loud landing",
+        "rushing repeated reps"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "mastered high-intent countermovement jump to stick",
+        "adequate ceiling clearance",
+        "demonstrates re-extension at submaximal height"
+      ],
+      "stopRules": [
+        "pain or giving way",
+        "head or object clearance risk",
+        "cannot re-extend before contact",
+        "landing gets louder or lower",
+        "jump height drops",
+        "rushing without reset"
+      ]
+    },
+    "programmingDecision": "Retain only as a single-repetition reset drill with active re-extension and full landing ownership. Continuous tuck jumps, work intervals, and block-drop tuck jumps require separate definitions or profiles and higher exposure controls.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-25T22:59:14.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "The athlete jumps vertically, briefly drives the knees upward, extends the legs back down, and sticks the landing.",
+      "familyKey": "Vertical air-control power",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Jump identity must distinguish the starting action, projection direction, takeoff and landing laterality, external height or obstacle, rebound intent, and required stabilization.",
+        "Tuck Jump to Stick must not combine a paused static start, countermovement, repeated rebound, loaded jump, testing protocol, or different landing laterality under one unspecified card."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "A jump-to-stick combines ballistic propulsion with a deliberate landing and stabilization phase; repeated reactive hopping is a different programming task.",
+        "Tuck Jump to Stick belongs to jump power with landing control, with direction, laterality, initiation, flight action, and rebound intent encoded as controlled dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Propulsion and force absorption are coordinated across the foot and ankle, knee, hip, pelvis, and trunk.",
+        "The card should assign task-specific roles to plantar flexors and intrinsic foot muscles, quadriceps, hamstrings, gluteals, hip stabilizers, and trunk stabilizers rather than naming one isolated muscle."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Jump demand changes with projection speed, direction, external height, body mass, and the time available to produce and absorb force.",
+        "Observable quality includes the prescribed initiation, coordinated ankle-knee-hip propulsion, intended flight path, re-extension before contact where needed, quiet whole-foot landing, knee tracking, trunk control, and ownership of the finish."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Plyometric intensity changes with speed, height, distance, body mass, external load, laterality, and movement complexity.",
+        "Exercise difficulty must score technical complexity and physical demand directly, including coordination, impact, supervision, work capacity, and consequence of error; an exercise card must not receive a skill-library level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Landing contacts, jump height or distance, approach and initiation, laterality, and external load govern mechanical exposure; high-quality power repetitions require adequate rest.",
+        "Tuck Jump to Stick needs contact count, intent, impact and eccentric stress, technical-fatigue sensitivity, performance-loss criteria, and recovery guidance instead of treating all jumps as conditioning repetitions."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Effective jump-landing interventions depend on appropriate materials, coaching knowledge, usable space, and task-specific progression.",
+        "The delivery profile should require a level non-slip surface, clear flight and landing zones, adequate ceiling height, suitable footwear, athlete spacing, coach sightline, and readiness for the prescribed landing demand."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Landing and stabilization control should precede higher, farther, unilateral, repeated, or reactive jumping.",
+        "Prescribe low-repetition quality sets, contacts, intent, target height or distance where relevant, hold duration, rest, and progression criteria; stop before fatigue alters takeoff or landing."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Specific prescriptive feedback can improve jump-landing mechanics, while excessive cue volume can interfere with learning.",
+        "Use a small cue set tied to the identity: perform the prescribed start, project in the intended direction, land quietly, align foot-knee-hip, and hold without a touch-down, shuffle, or rebound."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Loud contact, poor stabilization, loss of alignment, or inability to coordinate ankle, knee, and hip indicate that jump intensity or volume exceeds current control.",
+        "Stop for pain, giving way, dizziness, repeated valgus or trunk collapse, uncontrolled foot contact, failure to re-extend before landing, missed landing zone, extra steps, or loss of jump output."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6592422/",
+      "sourceTitle": "Evidence-Based Best-Practice Guidelines for Preventing Anterior Cruciate Ligament Injuries in Young Female Athletes: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "The American Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Landing stabilization and lower-body strength are recurring components of effective neuromuscular injury-prevention programs.",
+        "Tuck Jump to Stick belongs after preparation and before fatigued conditioning; high-intent jump work should use low volume and full enough recovery to preserve output and landing quality."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Athletes benefit from feedback tied to visible movement actions rather than abstract risk language.",
+        "Athlete support should show the start, flight, and landing shapes, define a successful repetition, identify the target and hold time, provide one primary cue, and explain the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Coach education and practical implementation affect whether jump-landing interventions are delivered effectively.",
+        "Coach support should provide front and side observation points, pass-fail criteria, contact counting, output-loss and asymmetry rules, progressions, regressions, equipment checks, and rules for reducing height, distance, laterality, or cue complexity."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Beginners should establish bilateral landing and stabilization before progressing to unilateral, higher, farther, or reactive tasks.",
+        "Accessibility can be improved with visual targets, demonstrated shapes, plain-language cues, reduced height or distance, assistance, longer reset time, and reduced sensory or decision load without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Static starts, countermovements, jumps covering distance, unilateral landings, repeated contacts, obstacles, and externally loaded jumps have different intensity and programming implications.",
+        "Arm action, target distance, submaximal intent, and assistance are usually variants or modifiers; different initiation, projection, landing laterality, rebound intent, or testing purpose may require a distinct definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Tuck Jump to Stick were discovered or rechecked through visible YouTube search and public oEmbed metadata; exact movement match, full-content review, captions, instructional quality, safety, and approval remain pending human review."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=tiI6-lZQVE4",
+      "title": "Tuck Jump - Stick Landing",
+      "channelName": "Henry Bergmann",
+      "sourceQuery": "tuck jump to stick landing",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=bQDviYUZt9E",
+      "title": "Tuck Jump Stick",
+      "channelName": "LundtG",
+      "sourceQuery": "tuck jump to stick landing",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=dmOPF9GGUgM",
+      "title": "Tuck jump → mid landing",
+      "channelName": "Ryan Ford",
+      "sourceQuery": "tuck jump to stick landing",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=eKWwQsYgU8c",
+      "title": "Tuck Jump Stick",
+      "channelName": "YST Exercises",
+      "sourceQuery": "tuck jump to stick landing",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=SYhl-26i2Cs",
+      "title": "Tuck Jumps Stick Landing",
+      "channelName": "CaseStrength",
+      "sourceQuery": "tuck jump to stick landing",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Single Tuck Jump and Stick",
+      "classification": "same_identity",
+      "rationale": "This name makes the required single repetition, reset, and landing stabilization explicit.",
+      "distinguishingDimensions": {
+        "repetitionStructure": "single_reset"
+      }
+    },
+    {
+      "name": "Submaximal Tuck Jump to Target",
+      "classification": "new_variant",
+      "rationale": "A lower knee target reduces flight demand while preserving the tuck and re-extension sequence.",
+      "distinguishingDimensions": {
+        "tuckHeight": "submaximal_target"
+      }
+    },
+    {
+      "name": "Continuous Tuck Jumps",
+      "classification": "new_definition",
+      "rationale": "Repeated rebound contacts remove the stick and sharply increase reactive and metabolic exposure.",
+      "distinguishingDimensions": {
+        "reboundIntent": "continuous",
+        "primaryTrainingStimulus": "reactive_power_or_capacity"
+      }
+    },
+    {
+      "name": "Tuck Jump Off Block to Stick",
+      "classification": "new_variant",
+      "rationale": "External drop height increases flight and landing demand and requires stable equipment and separate dosage.",
+      "distinguishingDimensions": {
+        "surfaceHeight": "elevated_takeoff"
+      }
+    },
+    {
+      "name": "Countermovement Jump to Stick",
+      "classification": "new_variant",
+      "rationale": "Removing the in-flight tuck is the direct lower-coordination regression while retaining vertical projection and landing.",
+      "distinguishingDimensions": {
+        "flightAction": "none"
+      }
+    }
+  ]
+}

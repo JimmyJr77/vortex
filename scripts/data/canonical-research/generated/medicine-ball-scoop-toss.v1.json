@@ -1,0 +1,487 @@
+{
+  "facilityId": 1,
+  "slug": "medicine-ball-scoop-toss",
+  "researchVersion": "2026-07-25.19",
+  "assessmentSummary": {
+    "identity": "A front-facing bilateral underhand medicine-ball throw using a controlled hip hinge and whole-body extension to project the ball forward for distance into a clear lane.",
+    "currentCardFindings": [
+      "The current name and description do not distinguish forward, vertical, reverse, rotational, wall, or free-flight scoop-toss paths.",
+      "One inherited media candidate is explicitly rotational and another is half-kneeling, so the legacy set does not prove one exact baseline.",
+      "The merged source variants repeat the baseline and mix distance-jump transfer with a generic quick-release label instead of specifying the forward projection identity."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "bilateral_hip_hinge",
+        "whole_body_extension",
+        "forward_underhand_ballistic_throw"
+      ],
+      "jointActions": [
+        "hip_knee_ankle_extension",
+        "trunk_bracing",
+        "shoulder_flexion",
+        "elbow_extension_near_release",
+        "bilateral_grip_release"
+      ],
+      "planes": [
+        "sagittal"
+      ],
+      "laterality": "bilateral",
+      "intent": "maximal_safe_forward_projection_with_clean_release_and_balanced_finish"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "hamstrings",
+        "quadriceps",
+        "soleus",
+        "gastrocnemius",
+        "rectus_abdominis",
+        "latissimus_dorsi",
+        "anterior_deltoid"
+      ],
+      "secondaryMuscles": [
+        "spinal_stabilizers",
+        "obliques",
+        "serratus_anterior",
+        "triceps_brachii",
+        "forearm_flexors",
+        "intrinsic_foot"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "spine",
+        "scapulothoracic_articulation",
+        "shoulder",
+        "elbow",
+        "wrist",
+        "hand"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 50,
+      "absoluteLoadDemand": 28,
+      "coordinationDemand": 56,
+      "supervisionDemand": 58,
+      "failureConsequence": 54,
+      "impact": 24,
+      "workCapacityDemand": 42,
+      "baseOverallDifficulty": 50
+    },
+    "proposedLoadProfile": {
+      "loadingType": "external_ballistic_bilateral_forward_projection",
+      "impactClass": "low_to_moderate_by_jump_and_finish_rule",
+      "externalLoadMethod": "medicine_ball_mass_selected_for_fast_projection_without_arm_only_compensation",
+      "primaryStress": [
+        "posterior_chain",
+        "quadriceps",
+        "plantar_flexors",
+        "anterior_trunk",
+        "shoulders",
+        "grip"
+      ],
+      "fatigueProfile": [
+        "slow_hip_extension",
+        "early_arm_lift",
+        "lumbar_hyperextension",
+        "short_or_high_release",
+        "stumble_after_release"
+      ],
+      "recoveryHours": "24-48_by_intensity_volume_and_lower_body_power_load"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "intact_medicine_ball",
+        "marked_forward_throw_lane",
+        "safe_landing_and_retrieval_space"
+      ],
+      "optionalEquipment": [
+        "distance_tape",
+        "release_line",
+        "radar_or_ball_sensor",
+        "video"
+      ],
+      "environment": [
+        "non_slip_surface",
+        "adequate_ceiling_and_forward_clearance",
+        "no_people_in_throw_or_retrieval_path"
+      ],
+      "population": [
+        "pain_free_hip_hinge_and_overhand_finish",
+        "can_release_without_chasing_ball",
+        "can_balance_after_maximal_extension"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "3-5_sets_of_2-5_throws",
+      "restSeconds": "75-180",
+      "intensity": "high_intent_forward_projection",
+      "measurement": "ball_mass_distance_release_velocity_and_foul_line",
+      "progressWhen": "distance or velocity is repeatable with hip-led extension, clean release, and controlled finish"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Face the lane",
+        "Load the hips",
+        "Drive the floor away",
+        "Throw forward through the ball",
+        "Finish balanced"
+      ],
+      "athleteInstructions": [
+        "Face forward, hinge with the ball between your legs or low in front, extend through your hips and legs, release the ball forward, and stay behind the line under control"
+      ],
+      "commonFaults": [
+        "undefined_throw_vector",
+        "ball_too_heavy",
+        "squat_without_hinge",
+        "arm_only_throw",
+        "lumbar_hyperextension",
+        "vertical_instead_of_forward_release",
+        "line_foul",
+        "chasing_ball"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "pain_free_hinge",
+        "overhead_and_forward_release_clearance",
+        "safe_grip",
+        "clear_lane"
+      ],
+      "stopRules": [
+        "back_shoulder_elbow_or_wrist_pain",
+        "loss_of_grip",
+        "lane_entry",
+        "ceiling_or_target_conflict",
+        "stumble_or_fall",
+        "two_slow_or_short_reps",
+        "unsafe_retrieval"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "front_and_side_demo",
+        "forward_vector_overlay",
+        "release_line_and_retrieval_map"
+      ],
+      "coach": [
+        "ball_mass_and_distance_log",
+        "foul_and_finish_rules",
+        "projection_angle_review",
+        "weekly_high_intent_throw_budget"
+      ]
+    },
+    "programmingDecision": "Retain only as the front-facing forward scoop-toss definition and rename the display label to Forward Medicine Ball Scoop Toss after review. Move rotational, vertical, reverse, kneeling, and dynamic-entry demonstrations to their own definitions or controlled variants.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T01:54:40.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Perform Medicine Ball Scoop Toss with a medicine ball to train hip extension, horizontal projection, and lower-to-upper body force transfer. The load, distance, partner input, and volume should preserve the card's phase intent.",
+      "familyKey": "Hip-to-hand projection power",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 40,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Medicine-ball power assessment depends on a standardized throw task, ball mass, execution, and outcome measure.",
+        "Medicine Ball Scoop Toss must define stance and orientation, one- or two-hand release, ball start position, primary force direction, rotational intent, entry steps, target or free-flight lane, catch or retrieval rule, and finish."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Medicine-ball throws are commonly used as upper-body plyometric or ballistic power exercises, but training protocols and throw positions vary.",
+        "Classify Medicine Ball Scoop Toss by forward versus rotational force direction, bilateral versus unilateral release, chest-level versus underhand start, static versus dynamic entry, and wall, partner, or open-lane outcome."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Standing and seated medicine-ball throws are measurably different tasks, so lower-body contribution and whole-body coordination cannot be inferred from an upper-body-only label.",
+        "Represent the feet, ankles, knees, hips, pelvis, trunk, scapulae, shoulders, elbows, wrists, and hands actually used by the selected standing, kneeling, seated, or supine version."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Rotational medicine-ball power can be assessed from release velocity or throw distance when the protocol is standardized.",
+        "Coach pressure from the floor through the hips and trunk into the ball, preserve the intended forward or transverse vector, release without a lumbar-dominant twist or backward lean, and finish in a controlled stance."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Throw technique and medicine-ball mass affect performance variability and therefore change the demands of the task.",
+        "Score technical complexity, absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. Athlete experience is programming context and never an exercise-card skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41460695/",
+      "sourceTitle": "Validation of a Supine Upper-Body Power Test in Physically Active Male and Female Adults Using a Medicine Ball With Accelerometer",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Medicine-ball power performance can decline after upper-body neuromuscular fatigue.",
+        "Medicine Ball Scoop Toss must track ball mass and type, throws and catches per side, entry contacts, release velocity or distance when measured, target accuracy, local shoulder and trunk fatigue, technical speed loss, recovery between sets, and weekly high-intent throw volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Reliable comparison requires the same technique and ball mass.",
+        "Require an intact appropriately sized medicine ball, a clear wall or open throwing lane matched to rebound behavior, safe retrieval space, a defined target and stop command, stable footing, athlete separation, and no bystanders in the flight or rebound path."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Upper-body plyometric studies use varied doses, with lower repetition ranges generally paired with maximal effort and adequate inter-set and inter-session recovery.",
+        "For power delivery, use roughly three to five sets of two to six high-quality throws per side or bilateral set with 60–180 seconds between sets; stop before speed, distance, accuracy, posture, or safe rebound control declines."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Measurement is meaningful only when the throwing protocol stays consistent.",
+        "State the stance, ball position, hand pattern, target, permitted step or rotation, release vector, catch or retrieval action, reset, side order, and exact rep-quality rule before the first throw."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Youth resistance and power training should be supervised, technically appropriate, progressively dosed, and performed with safe equipment and space.",
+        "Stop for pain, numbness, dizziness, unsafe ball rebound, target or wall failure, lane entry, loss of grip, uncontrolled catch, lumbar-dominant rotation, shoulder or elbow compensation, loss of balance, accuracy collapse, or repeatable output loss."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Upper-body plyometric training can improve medicine-ball throwing and sport-specific throwing performance, although certainty and transfer vary by task and population.",
+        "Place Medicine Ball Scoop Toss early in Output work after relevant access and activation. Match stance, vector, ball mass, and intent to the objective; do not turn maximal throws into dense conditioning."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/21572350/",
+      "sourceTitle": "The seated medicine ball throw as a test of upper body power in older adults",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "A medicine-ball throw can be repeatable when position, ball mass, trials, and measurement are standardized.",
+        "Show the exact front, side, and target views; label ball mass and rebound type; demonstrate start, load, release, follow-through, retrieval or catch, reset, side change, acceptable miss, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Velocity and distance can serve as field measures when the rotational medicine-ball protocol is controlled.",
+        "Provide ball-mass selection, lane and wall inspection, side balance, release-vector observation, target zones, optional velocity or distance tracking, speed-loss rules, catch counts, camera angles, regression decisions, and weekly throw-budget guidance."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/21572350/",
+      "sourceTitle": "The seated medicine ball throw as a test of upper body power in older adults",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Seated medicine-ball throwing can provide a reliable upper-body power task when lower-body contribution is intentionally constrained.",
+        "Accessibility options include a lighter or larger soft ball, seated or tall-kneeling support, shorter target distance, partner return instead of wall rebound, no catch, reduced rotation, pre-positioned ball, fewer throws, longer recovery, verbal and visual cues, and non-maximal familiarization."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Standing versus seated position, ball mass, and throw technique materially change the measured task.",
+        "Treat stance and entry as controlled variants when release pattern and vector stay the same; create a distinct definition when bilateral versus unilateral release, forward versus rotational vector, chest versus scoop path, overhead direction, rebound catch, or terminal outcome changes."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for Medicine Ball Scoop Toss remain candidate-only. Availability, embedding, exact stance and release match, full viewing, ball type, target and rebound behavior, captions, cue and safety quality, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=wPEYsRVChNE",
+      "title": "Medicine Ball Forward Scoop Toss for Distance",
+      "channelName": "Simone Sports Performance",
+      "sourceQuery": "visible YouTube search: standing forward medicine ball scoop toss distance",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=UmLEPjElr4s",
+      "title": "How To: Med Ball Forward Scoop Toss",
+      "channelName": "RAWR Strength",
+      "sourceQuery": "visible YouTube search: standing forward medicine ball scoop toss distance",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=npqgpBmI0ys",
+      "title": "Medicine Ball Scoop Toss for Distance",
+      "channelName": "Simone Sports Performance",
+      "sourceQuery": "existing exact forward-distance candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=GaUjwlJYWtw",
+      "title": "Forward Facing MB Scoop Toss",
+      "channelName": "Champion Physical Therapy and Performance",
+      "sourceQuery": "visible YouTube search: standing forward medicine ball scoop toss distance",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=aAeQkR2uDmo",
+      "title": "Med Ball Forward Scoop Throw",
+      "channelName": "Jordan Foley",
+      "sourceQuery": "visible YouTube search: standing forward medicine ball scoop toss distance",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Rotational Medicine Ball Scoop Toss",
+      "classification": "new_definition",
+      "rationale": "Side-on transverse loading and lateral release create a different vector and side-specific task.",
+      "distinguishingDimensions": {
+        "forceVector": "rotational"
+      }
+    },
+    {
+      "name": "Vertical Medicine Ball Scoop Toss",
+      "classification": "new_definition",
+      "rationale": "An upward release changes trajectory, space, catch risk, and outcome.",
+      "distinguishingDimensions": {
+        "forceVector": "vertical"
+      }
+    },
+    {
+      "name": "Reverse Overhead Medicine Ball Toss",
+      "classification": "new_definition",
+      "rationale": "Backward overhead projection changes direction, release path, visibility, and space.",
+      "distinguishingDimensions": {
+        "forceVector": "backward_overhead"
+      }
+    },
+    {
+      "name": "Half-Kneeling Forward Scoop Toss",
+      "classification": "new_variant",
+      "rationale": "Kneeling constrains lower-body extension while preserving the bilateral forward scoop path.",
+      "distinguishingDimensions": {
+        "supportPosition": "half_kneeling"
+      }
+    },
+    {
+      "name": "Forward Scoop Toss for Distance",
+      "classification": "modifier_annotation",
+      "rationale": "Distance measurement is the baseline outcome metric rather than a new exercise.",
+      "distinguishingDimensions": {
+        "measurement": "distance"
+      }
+    }
+  ]
+}

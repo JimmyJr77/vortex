@@ -1,0 +1,25 @@
+{
+  "batchKey": "180-degree-transitions-v1",
+  "researchVersion": "2026-07-25.22",
+  "generatedAt": "2026-07-26T04:00:00.000Z",
+  "cards": [
+    {
+      "slug": "180-jump-rebound-to-sprint-out",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "180-degree-turn-shuttle-cut",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "180-turn-wall-ball-catch-and-throw",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    }
+  ]
+}

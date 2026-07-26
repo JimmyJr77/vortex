@@ -659,7 +659,7 @@ test('all CATEGORY4_KPI_CHECK_IDS present when expectedBody provided', () => {
   })
   const exerciseById = new Map()
   for (const id of [10, 11, 12, 20, 21, 30, 101, 102, 103, 201, 202, 301]) {
-    exerciseById.set(id, { id, slug: `ex-${id}`, movement_family: 'sprint', skill_level: 'INTERMEDIATE' })
+    exerciseById.set(id, { id, slug: `ex-${id}`, movement_family: 'sprint' })
   }
   const evalResult = evaluatePrescriptionQuality(result, DEFAULT_STRICT_THRESHOLDS, {
     sessionAgeMax: 14,
@@ -1272,7 +1272,7 @@ test('all CATEGORY10_KPI_CHECK_IDS present when expectedBody provided', () => {
   })
   const exerciseById = new Map()
   for (const id of [10, 11, 12, 20, 21, 30, 101, 102, 103, 201, 202, 301]) {
-    exerciseById.set(id, { id, slug: `ex-${id}`, movement_family: 'sprint', skill_level: 'INTERMEDIATE' })
+    exerciseById.set(id, { id, slug: `ex-${id}`, movement_family: 'sprint' })
   }
   const evalResult = evaluatePrescriptionQuality(result, DEFAULT_STRICT_THRESHOLDS, {
     sessionAgeMax: 14,
@@ -1633,7 +1633,7 @@ test('all CATEGORY18_KPI_CHECK_IDS present when expectedBody provided', () => {
   })
   const exerciseById = new Map()
   for (const id of [10, 11, 12, 20, 21, 30, 101, 102, 103, 201, 202, 301]) {
-    exerciseById.set(id, { id, slug: `ex-${id}`, movement_family: 'sprint', skill_level: 'INTERMEDIATE' })
+    exerciseById.set(id, { id, slug: `ex-${id}`, movement_family: 'sprint' })
   }
   const evalResult = evaluatePrescriptionQuality(result, DEFAULT_STRICT_THRESHOLDS, {
     sessionAgeMax: 14,
@@ -2013,7 +2013,7 @@ test('all CATEGORY17_KPI_CHECK_IDS present when expectedBody provided', () => {
   })
   const exerciseById = new Map()
   for (const id of [10, 11, 12, 20, 21, 30, 101, 102, 103, 201, 202, 301]) {
-    exerciseById.set(id, { id, slug: `ex-${id}`, skill_level: 'INTERMEDIATE' })
+    exerciseById.set(id, { id, slug: `ex-${id}` })
   }
   const evalResult = evaluatePrescriptionQuality(result, DEFAULT_STRICT_THRESHOLDS, {
     sessionAgeMax: 14,

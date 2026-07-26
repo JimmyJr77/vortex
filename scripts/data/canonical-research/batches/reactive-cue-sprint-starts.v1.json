@@ -1,0 +1,1030 @@
+{
+  "batchKey": "reactive-cue-sprint-starts-v1",
+  "researchVersion": "2026-07-25.17",
+  "snapshotAt": "2026-07-26T10:25:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "auditory_sprint_start_reaction",
+      "claims": [
+        "An auditory sprint start includes a measurable interval between an unpredictable go-signal and force or movement onset.",
+        "{{canonicalName}} must define cue modality, cue meaning, waiting interval, allowed response choices, start stance, false-start rule, direction, sprint distance, finish, and run-out. Simple go reaction and directional choice reaction are not interchangeable."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "reactive_y_agility_visual_gate",
+      "claims": [
+        "A visually cued reactive task differs from a pre-planned task because the athlete must identify an unpredictable illuminated target before selecting the direction.",
+        "{{canonicalName}} belongs either to a simple externally cued sprint-start variant or to reactive agility with perceptual decision and direction selection; the exact cue-response mapping determines which."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "sprint_acceleration_hamstrings",
+      "claims": [
+        "Sprint acceleration requires coordinated hip, knee, and ankle action, including hamstring contribution to horizontal force production.",
+        "Represent visual or auditory processing and head-eye orientation as task demands, then gluteal, hamstring, quadriceps, hip-flexor, plantar-flexor, foot, trunk, and reciprocal arm roles; add braking and lateral control for directional choices."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "sprint_start_biomechanics_review",
+      "claims": [
+        "Early sprint acceleration is associated with forward-directed impulse, propulsive force, and progressive projection.",
+        "The prepared response should preserve a repeatable start and first steps. Directional-choice responses additionally require head-eye pickup, safe reorientation, braking or turning mechanics, and a clear target path."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "auditory_sprint_start_reaction",
+      "claims": [
+        "Auditory reaction time includes neural and neuromuscular components in addition to physical sprint-start execution.",
+        "Score technical complexity, absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly; athlete experience is programming context and never an exercise-card skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "sprint_acceleration_performance",
+      "claims": [
+        "Power output is highest during the first acceleration steps.",
+        "{{canonicalName}} must track attempts, accepted versus anticipated responses, decision errors, distance, sprint and braking contacts, stance and direction distribution, surface, posterior-chain and plantar-flexor stress, technical or perceptual fatigue, recovery, and total session volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Quality sprint work requires a suitable surface, target, spacing, run-out, and recovery.",
+        "Require a clear dry lane or direction grid, unobstructed sight or hearing, consistent non-startling cue delivery, athlete separation, safe targets and run-outs, and any light, whistle, cone, or timing equipment specified by the variant."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Acceleration work should prescribe distance, intensity, repetitions, sets, and recovery.",
+        "Use two to six quality reactions per cue or direction with randomized waits and roughly 60–180 seconds recovery for high-intent sprint starts; directional tasks must balance choices and record correct responses separately from movement time."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "reactive_y_agility_visual_gate",
+      "claims": [
+        "Reactive trials require the athlete to identify the presented target rather than execute a known direction.",
+        "Set the stance, focus on the defined cue source, wait without guessing, execute only the mapped response, accelerate through the target, and use the assigned deceleration or run-out path."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Training should use appropriate supervision, correct technique, manageable demands, and gradual progression.",
+        "Stop for pain, startle or distress, missed or ambiguous cue, repeated anticipation, slip, stumble, lane conflict, unsafe turn or brake, marked decision or speed decline, or inability to complete the run-out safely."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Acceleration and maximal-velocity sprinting are distinct qualities, and high-quality sprint work should not become dense conditioning.",
+        "{{canonicalName}} belongs after preparation and before fatigue. Program simple reaction before multiple-choice direction tasks, and separate reaction accuracy from sprint or agility output when reviewing performance."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "world_athletics_introduction_sprinting",
+      "claims": [
+        "Acceleration develops across successive steps rather than through immediate upright running.",
+        "Show the exact stance, cue device and location, allowed mappings, one accepted and one false-start example, all target directions, finish and run-out paths, and a pre-planned regression."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "reactive_y_agility_visual_gate",
+      "claims": [
+        "Reactive assessment separates the unplanned visual-target condition from the same pre-planned movement path.",
+        "Provide a randomized cue schedule, cue and movement timestamps when measured, response accuracy, anticipation and no-response rules, stance and direction balance, lane control, technique and speed stops, and exact simple-versus-choice classification."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_long_term_development",
+      "claims": [
+        "Speed training should be developmentally appropriate and based on movement competency.",
+        "Accessibility options include a comfortable stance, one cue modality, one known response, longer wait window, submaximal intent, shorter distance, high-contrast visual target, non-startling sound, demonstration, fewer choices, fewer reps, and longer recovery."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "reactive_y_agility_visual_gate",
+      "claims": [
+        "Pre-planned and reactive direction tasks use similar paths but differ in whether the target direction is known.",
+        "Whistle, clap, and verbal go can be aliases of one simple auditory signal; changing cue modality is a variant, while adding multiple response choices, a live opponent, a ball, or a required direction change may require a distinct definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for {{canonicalName}} remain candidate-only. Availability, embedding, exact stance, cue, choice count, direction and finish match, full viewing, captions, cue and safety quality, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "auditory-start-sprint",
+      "assessmentSummary": {
+        "identity": "A short linear sprint acceleration initiated from a prescribed stance in response to one unpredictable, standardized auditory go-signal.",
+        "currentCardFindings": [
+          "The generic strength-based explosiveness description does not define cue type, intensity, location, randomized wait, start stance, distance, false-start rule, finish, or run-out.",
+          "The task is simple reaction only when one sound maps to one prepared forward sprint; directional choice is a different definition.",
+          "Several inherited media candidates show a start or reaction component but not necessarily the exact combined task."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "auditory_reaction_start",
+            "short_linear_acceleration"
+          ],
+          "jointActions": [
+            "auditory_response_to_hip_knee_ankle_extension",
+            "swing_leg_recovery",
+            "reciprocal_arm_action"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal_control"
+          ],
+          "laterality": "stance_specific_then_alternating_sprint",
+          "intent": "accurate_unanticipated_response_then_high_quality_acceleration"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hip_flexors",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "gluteus_medius",
+            "obliques",
+            "shoulder_girdle"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "spine",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 55,
+          "absoluteLoadDemand": 12,
+          "coordinationDemand": 64,
+          "supervisionDemand": 60,
+          "failureConsequence": 60,
+          "impact": 56,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 55
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_auditory_reaction_to_high_intent_acceleration",
+          "impactClass": "moderate_to_high_by_speed_surface_and_stance",
+          "landingContactsPerRep": "all_contacts_through_target_and_run_out",
+          "primaryStress": [
+            "attention_and_anticipation_control",
+            "early_acceleration_force",
+            "posterior_chain",
+            "plantar_flexors"
+          ],
+          "fatigueSensitivity": "cue_detection_anticipation_start_quality_projection_speed_and_run_out"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clear_short_lane",
+            "audible_non_startling_cue",
+            "target",
+            "safe_run_out"
+          ],
+          "optionalEquipment": [
+            "whistle",
+            "speaker",
+            "timing_system",
+            "cones",
+            "video"
+          ],
+          "environment": [
+            "cue_audible_over_background_noise",
+            "dry_level_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "can_hear_or_access_equivalent_cue",
+            "can_execute_selected_start",
+            "pain_free_acceleration"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-6_accepted_reactions",
+          "distance": "5-20_metres",
+          "restSeconds": "60-180",
+          "intensity": "high_intent_after_cue_rehearsal",
+          "progressWhen": "reaction validity, start mechanics, speed, and finish remain repeatable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Set the exact stance",
+            "Wait for the sound",
+            "Do not guess",
+            "Sprint through the target"
+          ],
+          "athleteInstructions": [
+            "Hold the stance, react only to the assigned sound, and accelerate through the target"
+          ],
+          "commonFaults": [
+            "undefined_cue",
+            "predictable_wait",
+            "anticipation",
+            "wrong_sound_response",
+            "false_step",
+            "stopping_at_target"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "cue_access_confirmed",
+            "selected_start_competency",
+            "safe_lane"
+          ],
+          "stopRules": [
+            "pain",
+            "startle_or_distress",
+            "cue_ambiguity",
+            "repeated_anticipation",
+            "stumble",
+            "speed_loss",
+            "unsafe_run_out"
+          ]
+        },
+        "programmingDecision": "Retain as the simple auditory go-signal sprint-start identity. Treat whistle, clap, and verbal go as controlled cue implementations; stance remains an explicit variant."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=edfjTEu7O4I",
+          "title": "Speed & Agility: Auditory & Visual Reaction Time- Cone Drill",
+          "channelName": "Relentless Athletics",
+          "sourceQuery": "existing auditory-start candidate",
+          "notes": "Auditory and visual reaction component; exact simple forward sprint start requires review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=-Ihg0il6gtw",
+          "title": "Sprint Training - How to do a 3-Point Start",
+          "channelName": "MomentumSports",
+          "sourceQuery": "existing auditory-start candidate",
+          "notes": "Start component only; unpredictable auditory cue is unverified."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=TJc9SIXBjME",
+          "title": "Beginner Sprint Start Drills That Actually Work in 2025!",
+          "channelName": "Lyfestyle Athletics",
+          "sourceQuery": "existing auditory-start candidate",
+          "notes": "Sprint-start candidate; exact auditory reaction procedure requires review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=TNnKwjJo8Sc",
+          "title": "Whistle Reaction Advanced Agility",
+          "channelName": "ONEighty Athletics",
+          "sourceQuery": "existing auditory-start candidate",
+          "notes": "Whistle reaction component; may be agility rather than one forward sprint."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=yzrr3wy8bxY",
+          "title": "Sprinters: Improve Reaction Time With This Tool",
+          "channelName": "ATHLETE.X",
+          "sourceQuery": "existing auditory-start candidate",
+          "notes": "Reaction-time candidate; exact stance, distance, and cue procedure require review."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Whistle Start Sprint",
+          "classification": "same_identity",
+          "rationale": "A whistle is one implementation of the same simple auditory go-signal.",
+          "distinguishingDimensions": {
+            "cueDevice": "whistle"
+          }
+        },
+        {
+          "name": "Split-Stance Auditory Sprint Start",
+          "classification": "new_variant",
+          "rationale": "It fixes the stance while preserving one auditory response.",
+          "distinguishingDimensions": {
+            "startPosition": "split_stance"
+          }
+        },
+        {
+          "name": "Visual-Cue Start Sprint",
+          "classification": "new_variant",
+          "rationale": "Changing sensory modality alters detection and access requirements.",
+          "distinguishingDimensions": {
+            "cueModality": "visual"
+          }
+        },
+        {
+          "name": "Partner Point Reactive Sprint",
+          "classification": "new_definition",
+          "rationale": "Multiple directional choices add decision-making and change-of-direction demands.",
+          "distinguishingDimensions": {
+            "responseChoices": "left_right_forward"
+          }
+        },
+        {
+          "name": "Self-Selected Start Sprint",
+          "classification": "new_definition",
+          "rationale": "Removing the external cue removes reaction and anticipation control.",
+          "distinguishingDimensions": {
+            "cueModality": "self_selected"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "split-stance-auditory-sprint-start",
+      "assessmentSummary": {
+        "identity": "A controlled auditory-start variant using a static staggered two-point stance and one unpredictable sound cue before a short forward sprint.",
+        "currentCardFindings": [
+          "The title specifies split stance but the description does not define the stagger, lead-side distribution, cue source, wait range, forward-only mapping, sprint distance, false-start rule, or run-out.",
+          "The phrase selects the correct answer implies multiple choices even though clap, whistle, or verbal go normally maps to one forward response.",
+          "Existing videos separately show stance or sound-reaction components; none is yet confirmed as the exact combined task."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "split_stance_auditory_reaction_start",
+            "short_linear_acceleration"
+          ],
+          "jointActions": [
+            "auditory_response_to_hip_knee_ankle_extension",
+            "swing_leg_recovery",
+            "reciprocal_arm_action"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal_control"
+          ],
+          "laterality": "staggered_start_then_alternating_sprint",
+          "intent": "accurate_sound_response_from_split_stance_then_forward_acceleration"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hip_flexors",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "gluteus_medius",
+            "obliques",
+            "shoulder_girdle"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "spine",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 57,
+          "absoluteLoadDemand": 12,
+          "coordinationDemand": 66,
+          "supervisionDemand": 62,
+          "failureConsequence": 60,
+          "impact": 56,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 57
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_split_stance_auditory_reaction_acceleration",
+          "impactClass": "moderate_to_high",
+          "landingContactsPerRep": "all_contacts_through_target_and_run_out",
+          "primaryStress": [
+            "attention_and_anticipation_control",
+            "staggered_start_force",
+            "posterior_chain",
+            "plantar_flexors"
+          ],
+          "fatigueSensitivity": "cue_detection_anticipation_stance_first_step_projection_and_speed"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clear_short_lane",
+            "audible_non_startling_cue",
+            "start_and_target_marks",
+            "safe_run_out"
+          ],
+          "optionalEquipment": [
+            "whistle",
+            "speaker",
+            "timing_system",
+            "cones",
+            "video"
+          ],
+          "environment": [
+            "cue_audible_over_background_noise",
+            "dry_level_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "can_hear_or_access_equivalent_cue",
+            "stable_split_stance",
+            "pain_free_acceleration"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-6_accepted_reactions",
+          "distance": "5-15_metres",
+          "restSeconds": "60-150",
+          "intensity": "high_intent_after_rehearsal",
+          "progressWhen": "both assigned stance sides respond without guessing and preserve acceleration quality"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Set the split stance",
+            "Wait for the sound",
+            "Push from the stance",
+            "Run through"
+          ],
+          "athleteInstructions": [
+            "Hold the assigned stagger, react only to the sound, and sprint forward through the target"
+          ],
+          "commonFaults": [
+            "undefined_stagger",
+            "multiple_cue_mapping",
+            "anticipation",
+            "rocking_start",
+            "false_step",
+            "stopping_at_target"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "cue_access_confirmed",
+            "stable_split_stance",
+            "safe_lane"
+          ],
+          "stopRules": [
+            "pain",
+            "startle_or_distress",
+            "cue_ambiguity",
+            "repeated_anticipation",
+            "stumble",
+            "speed_loss",
+            "unsafe_run_out"
+          ]
+        },
+        "programmingDecision": "Retain as a controlled stance variant of Auditory Start Sprint. Quarantine publication and media until one sound-to-forward-sprint procedure and an exact combined demonstration are confirmed."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=jZvGC8kQdhQ",
+          "title": "Split stance sprint starts",
+          "channelName": "Mike Kozak",
+          "sourceQuery": "existing split-stance-start candidate",
+          "notes": "Exact stance component; auditory cue procedure is unverified."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=-5rySJSCayk",
+          "title": "How to do a Standing Start - learn to start faster",
+          "channelName": "MomentumSports",
+          "sourceQuery": "existing split-stance-start candidate",
+          "notes": "Standing-start component; exact auditory reaction is unverified."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=GzZjzBm-56k",
+          "title": "Standing Start Technique | Standing Sprint Starts for Acceleration",
+          "channelName": "Simple Speed Coach",
+          "sourceQuery": "existing split-stance-start candidate",
+          "notes": "Stance component; exact cue and distance are unverified."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=edfjTEu7O4I",
+          "title": "Speed & Agility: Auditory & Visual Reaction Time- Cone Drill",
+          "channelName": "Relentless Athletics",
+          "sourceQuery": "existing auditory-reaction candidate",
+          "notes": "Cue component; exact split-stance forward sprint is unverified."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=TNnKwjJo8Sc",
+          "title": "Whistle Reaction Advanced Agility",
+          "channelName": "ONEighty Athletics",
+          "sourceQuery": "existing auditory-reaction candidate",
+          "notes": "Whistle component; exact stance and forward-only response are unverified."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Auditory Start Sprint",
+          "classification": "new_variant",
+          "rationale": "This card fixes the otherwise variable start stance.",
+          "distinguishingDimensions": {
+            "startPosition": "split_stance"
+          }
+        },
+        {
+          "name": "Split-Stance Self-Selected Sprint",
+          "classification": "new_definition",
+          "rationale": "Removing the cue removes reaction time from the task.",
+          "distinguishingDimensions": {
+            "cueModality": "self_selected"
+          }
+        },
+        {
+          "name": "Three-Point Auditory Start",
+          "classification": "new_variant",
+          "rationale": "Grounding one hand changes support and transition.",
+          "distinguishingDimensions": {
+            "startPosition": "three_point"
+          }
+        },
+        {
+          "name": "Split-Stance Visual Start",
+          "classification": "new_variant",
+          "rationale": "Changing sensory modality changes detection requirements.",
+          "distinguishingDimensions": {
+            "cueModality": "visual"
+          }
+        },
+        {
+          "name": "Split-Stance Direction Choice",
+          "classification": "new_definition",
+          "rationale": "Adding multiple target directions changes decision and movement demands.",
+          "distinguishingDimensions": {
+            "responseChoices": "multiple_directions"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "light-visual-cue-sprint-start",
+      "assessmentSummary": {
+        "identity": "A visual-cue sprint-start variant that must be defined as either one light-to-one prepared sprint or a multiple-choice visual direction task.",
+        "currentCardFindings": [
+          "The title permits a simple flash go-signal while the description says selects the correct answer, which implies multiple cue-response mappings.",
+          "The card does not define light location, color meaning, response options, cue timing, start stance, direction, distance, false-start rule, finish, or run-out.",
+          "No direct legacy media exist, and visible candidates show visual-reaction components rather than a confirmed exact start."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "visual_reaction_start",
+            "short_acceleration_or_reactive_direction_choice"
+          ],
+          "jointActions": [
+            "visual_detection_to_hip_knee_ankle_extension",
+            "swing_leg_recovery",
+            "reciprocal_arm_action",
+            "braking_and_reorientation_if_directional"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal",
+            "transverse_control"
+          ],
+          "laterality": "cue_mapping_specific",
+          "intent": "accurate_visual_response_then_fast_controlled_movement"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "extraocular_and_head_orientation",
+            "hip_flexors",
+            "intrinsic_foot",
+            "gluteus_medius",
+            "adductors",
+            "obliques",
+            "shoulder_girdle"
+          ],
+          "joints": [
+            "cervical_spine",
+            "spine",
+            "hip",
+            "knee",
+            "ankle",
+            "foot",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 60,
+          "absoluteLoadDemand": 12,
+          "coordinationDemand": 70,
+          "supervisionDemand": 66,
+          "failureConsequence": 62,
+          "impact": 56,
+          "workCapacityDemand": 44,
+          "baseOverallDifficulty": 60
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_visual_reaction_to_acceleration_or_direction_choice",
+          "impactClass": "moderate_to_high_by_speed_and_direction",
+          "landingContactsPerRep": "all_acceleration_braking_direction_and_run_out_contacts",
+          "primaryStress": [
+            "visual_attention_and_choice",
+            "early_acceleration_force",
+            "braking_if_directional",
+            "posterior_chain",
+            "plantar_flexors"
+          ],
+          "fatigueSensitivity": "visual_detection_guessing_decision_accuracy_start_quality_direction_control_and_speed"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "visible_high_contrast_cue",
+            "defined_response_map",
+            "clear_lane_or_direction_grid",
+            "safe_run_outs"
+          ],
+          "optionalEquipment": [
+            "reaction_lights",
+            "colored_cones",
+            "timing_system",
+            "video"
+          ],
+          "environment": [
+            "controlled_glare_and_sightline",
+            "dry_level_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "can_access_visual_cue_or_equivalent",
+            "understands_response_mapping",
+            "pain_free_acceleration_and_braking"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-6_trials_per_response_choice",
+          "distance": "5-15_metres_or_defined_direction_grid",
+          "restSeconds": "60-180",
+          "intensity": "fast_but_accuracy_first",
+          "progressWhen": "response accuracy, reaction validity, movement quality, and speed remain repeatable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Define every light mapping",
+            "Wait without guessing",
+            "Move only to the true cue",
+            "Finish through the safe target"
+          ],
+          "athleteInstructions": [
+            "Watch the assigned cue source, wait for the real signal, and execute only its mapped sprint response"
+          ],
+          "commonFaults": [
+            "undefined_mapping",
+            "looking_at_wrong_source",
+            "guessing",
+            "wrong_direction",
+            "unsafe_turn",
+            "stopping_at_target"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "visual_access_confirmed",
+            "mapping_rehearsed",
+            "safe_grid_and_run_out"
+          ],
+          "stopRules": [
+            "pain",
+            "visual_discomfort",
+            "cue_ambiguity",
+            "repeated_guessing",
+            "wrong_lane",
+            "stumble",
+            "unsafe_brake_or_run_out"
+          ]
+        },
+        "programmingDecision": "Retain as a quarantined visual-cue family variant. Human review must choose simple go reaction or multiple-choice direction; if directional choice remains, publish it under reactive agility rather than a simple sprint-start card."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=tNZP61DUGlY",
+          "title": "How To Use Start By Light Feature",
+          "channelName": "FITLIGHT",
+          "sourceQuery": "visible YouTube search: FITLIGHT sprint start visual cue",
+          "notes": "Cue-device component; exact sprint stance, distance, and response mapping require review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=b23i9MRqjf8",
+          "title": "Sprinting Technique | Faster Starts - Acceleration & Reaction Time",
+          "channelName": "Outperform",
+          "sourceQuery": "visible YouTube search: visual cue sprint start reaction drill",
+          "notes": "Sprint-start and reaction candidate; exact visual-light procedure requires review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=edfjTEu7O4I",
+          "title": "Speed & Agility: Auditory & Visual Reaction Time- Cone Drill",
+          "channelName": "Relentless Athletics",
+          "sourceQuery": "visible YouTube search: visual cue sprint start reaction drill",
+          "notes": "Visual-reaction component; exact simple start versus directional choice requires review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=57lgl9JFtIw",
+          "title": "Color Call Sprint | Reaction Speed, First-Step Acceleration & Game-Speed Decision Making",
+          "channelName": "YouTube candidate",
+          "sourceQuery": "visible YouTube search: FITLIGHT sprint start visual cue",
+          "notes": "Color-choice sprint candidate; exact light implementation and full demonstration require review."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Auditory Start Sprint",
+          "classification": "new_variant",
+          "rationale": "Changing cue modality alters sensory processing and access.",
+          "distinguishingDimensions": {
+            "cueModality": "auditory"
+          }
+        },
+        {
+          "name": "Single-Light Forward Sprint",
+          "classification": "new_variant",
+          "rationale": "One light maps to one prepared response.",
+          "distinguishingDimensions": {
+            "responseChoices": 1
+          }
+        },
+        {
+          "name": "Color-Choice Direction Sprint",
+          "classification": "new_definition",
+          "rationale": "Multiple colors mapped to directions add choice and reorientation.",
+          "distinguishingDimensions": {
+            "responseChoices": "multiple_directions"
+          }
+        },
+        {
+          "name": "Partner Point Reactive Sprint",
+          "classification": "new_definition",
+          "rationale": "A live human point is a different visual stimulus and directional task.",
+          "distinguishingDimensions": {
+            "cueSource": "live_partner"
+          }
+        },
+        {
+          "name": "Pre-Planned Direction Sprint",
+          "classification": "new_definition",
+          "rationale": "Knowing the direction removes reaction and choice demands.",
+          "distinguishingDimensions": {
+            "cuePredictability": "preplanned"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "partner-point-reactive-sprint-start",
+      "assessmentSummary": {
+        "identity": "A live-partner choice-reaction task in which a point to left, right, or forward selects the sprint direction after the athlete is set.",
+        "currentCardFindings": [
+          "The description identifies three directions but not partner position, point visibility, start stance, wait interval, target angles, distances, first-step or turn rule, direction balance, finish, or run-out.",
+          "This is not a simple sprint-start reaction because the cue selects among multiple movement paths.",
+          "Existing legacy links are broad reactive drills; exact-title partner-point media found by visible search still require full review."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "live_visual_choice_reaction",
+            "multidirectional_acceleration",
+            "reactive_agility"
+          ],
+          "jointActions": [
+            "head_eye_orientation",
+            "hip_knee_ankle_extension",
+            "lateral_or_forward_projection",
+            "braking_and_reorientation",
+            "reciprocal_arm_action"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal",
+            "transverse"
+          ],
+          "laterality": "balanced_left_right_and_forward_choices",
+          "intent": "correct_live_cue_decision_then_fast_safe_acceleration"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius",
+            "gluteus_medius",
+            "adductors"
+          ],
+          "secondaryMuscles": [
+            "extraocular_and_head_orientation",
+            "hip_flexors",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "obliques",
+            "shoulder_girdle"
+          ],
+          "joints": [
+            "cervical_spine",
+            "spine",
+            "hip",
+            "knee",
+            "ankle",
+            "foot",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 68,
+          "absoluteLoadDemand": 12,
+          "coordinationDemand": 78,
+          "supervisionDemand": 72,
+          "failureConsequence": 70,
+          "impact": 64,
+          "workCapacityDemand": 48,
+          "baseOverallDifficulty": 68
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_live_choice_reaction_multidirectional_acceleration",
+          "impactClass": "moderate_to_high_by_angle_speed_and_braking",
+          "landingContactsPerRep": "all_decision_acceleration_turn_braking_and_run_out_contacts",
+          "primaryStress": [
+            "visual_choice_and_inhibition",
+            "lateral_or_forward_projection",
+            "braking",
+            "posterior_chain",
+            "plantar_flexors"
+          ],
+          "fatigueSensitivity": "cue_pickup_guessing_decision_accuracy_first_step_turn_control_speed_and_lane_safety"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "trained_cue_partner",
+            "defined_left_right_forward_targets",
+            "clear_direction_grid",
+            "safe_run_outs"
+          ],
+          "optionalEquipment": [
+            "cones",
+            "timing_system",
+            "video"
+          ],
+          "environment": [
+            "unobstructed_sightline",
+            "dry_level_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "understands_point_mapping",
+            "pain_free_acceleration_braking_and_turning",
+            "can_control_all_directions"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-5_trials_per_direction",
+          "distance": "3-10_metres_per_target",
+          "restSeconds": "60-180",
+          "intensity": "accuracy_then_high_intent",
+          "progressWhen": "correct choices, balanced direction quality, speed, braking, and run-out remain repeatable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Set the partner and targets",
+            "Point only after the hold",
+            "No guessing",
+            "Own the first step and finish"
+          ],
+          "athleteInstructions": [
+            "Watch the partner, wait for the true point, choose left, right, or forward, and accelerate through that target"
+          ],
+          "commonFaults": [
+            "ambiguous_point",
+            "partner_tells",
+            "anticipation",
+            "wrong_direction",
+            "crossed_first_step",
+            "unsafe_turn_or_finish"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "mapping_rehearsed",
+            "all_direction_competency",
+            "clear_grid_and_run_outs"
+          ],
+          "stopRules": [
+            "pain",
+            "ambiguous_cue",
+            "repeated_guessing",
+            "wrong_lane",
+            "slip",
+            "stumble",
+            "unsafe_turn_brake_or_run_out"
+          ]
+        },
+        "programmingDecision": "Retain as a distinct reactive-agility definition because the live point selects among three directions. Do not merge with simple auditory or one-light forward sprint starts."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=JrhLuQOCrR8",
+          "title": "Partner Point Reaction Drill",
+          "channelName": "Body Art Athletics",
+          "sourceQuery": "visible YouTube search: partner point reactive sprint start drill",
+          "notes": "Exact-title point-reaction candidate; full direction, distance, finish, and quality review remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=UY1BBZj99kA",
+          "title": "Partner Point Reactive Hip Turn to Sprint",
+          "channelName": "Devin Valencia",
+          "sourceQuery": "visible YouTube search: partner point reactive sprint start drill",
+          "notes": "Point-to-sprint candidate with a hip-turn variant; exact baseline mapping requires review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=lTQgKXKWVNI",
+          "title": "Vertical Jump + Partner Point Sprint | Reactive Power & Game-Speed Acceleration",
+          "channelName": "YouTube candidate",
+          "sourceQuery": "visible YouTube search: partner point reactive sprint start drill",
+          "notes": "Adds a vertical jump before the point response and is therefore an adjacent progression."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=ZN8w395mHWQ",
+          "title": "Reactive Sprint Start for Cricket",
+          "channelName": "Cricket Strength and Conditioning",
+          "sourceQuery": "visible YouTube search: partner point reactive sprint start drill",
+          "notes": "Reactive sprint-start candidate; exact partner-point mapping requires review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=4TDjuwjokEk",
+          "title": "How to Run the Reactive Agility Test",
+          "channelName": "SKLZ",
+          "sourceQuery": "existing partner-point candidate",
+          "notes": "Reactive-agility component; exact partner-point left/right/forward procedure requires review."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Auditory Start Sprint",
+          "classification": "new_definition",
+          "rationale": "One sound maps to one prepared forward sprint rather than multiple directions.",
+          "distinguishingDimensions": {
+            "responseChoices": 1
+          }
+        },
+        {
+          "name": "Single-Light Forward Sprint",
+          "classification": "new_definition",
+          "rationale": "One light-to-forward response removes directional choice.",
+          "distinguishingDimensions": {
+            "cueSource": "light"
+          }
+        },
+        {
+          "name": "Color-Choice Direction Sprint",
+          "classification": "new_variant",
+          "rationale": "Colors rather than a live point select the same direction choices.",
+          "distinguishingDimensions": {
+            "cueSource": "colored_light_or_cone"
+          }
+        },
+        {
+          "name": "Partner Point Hip-Turn Sprint",
+          "classification": "new_variant",
+          "rationale": "A required hip turn changes the initial reorientation technique.",
+          "distinguishingDimensions": {
+            "initialAction": "hip_turn"
+          }
+        },
+        {
+          "name": "Pre-Planned Left-Right-Forward Sprint",
+          "classification": "new_definition",
+          "rationale": "Knowing the direction removes perception and decision demands.",
+          "distinguishingDimensions": {
+            "cuePredictability": "preplanned"
+          }
+        }
+      ]
+    }
+  ]
+}

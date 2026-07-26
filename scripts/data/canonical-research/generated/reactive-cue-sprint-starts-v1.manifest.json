@@ -1,0 +1,31 @@
+{
+  "batchKey": "reactive-cue-sprint-starts-v1",
+  "researchVersion": "2026-07-25.17",
+  "generatedAt": "2026-07-26T10:25:00.000Z",
+  "cards": [
+    {
+      "slug": "auditory-start-sprint",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "split-stance-auditory-sprint-start",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "light-visual-cue-sprint-start",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "partner-point-reactive-sprint-start",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    }
+  ]
+}

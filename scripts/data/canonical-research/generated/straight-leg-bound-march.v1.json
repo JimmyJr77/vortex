@@ -1,0 +1,427 @@
+{
+  "facilityId": 1,
+  "slug": "straight-leg-bound-march",
+  "researchVersion": "2026-07-25.7",
+  "assessmentSummary": {
+    "identity": "A conflated card that mixes a no-flight straight-leg march with a flight-based straight-leg bound; these must be split before the card can be generated.",
+    "currentCardFindings": [
+      "The description says the athlete 'marches or bounds,' which makes contact sequence and impact unknowable.",
+      "The movement is assigned impact level one even though the bound interpretation carries materially higher unilateral impact.",
+      "Dosage is incomplete and the card duplicates the existing Straight-Leg Bound March — Distance Jump definition."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "unresolved_between_straight_leg_march_and_bound"
+      ],
+      "jointActions": [
+        "hip_flexion_extension",
+        "knee_extension_presentation",
+        "ankle_dorsiflexion",
+        "contact_retraction"
+      ],
+      "planes": [
+        "sagittal"
+      ],
+      "laterality": "alternating_left_right",
+      "intent": "must_be_split_into_learning_march_or_repeated_bound"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "hamstrings",
+        "hip_flexors",
+        "gluteus_maximus",
+        "plantar_flexors"
+      ],
+      "secondaryMuscles": [
+        "quadriceps",
+        "tibialis_anterior",
+        "intrinsic_foot",
+        "lumbopelvic_stabilizers"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 55,
+      "absoluteLoadDemand": 25,
+      "coordinationDemand": 60,
+      "supervisionDemand": 52,
+      "failureConsequence": 44,
+      "impact": 48,
+      "workCapacityDemand": 30,
+      "baseOverallDifficulty": 55
+    },
+    "proposedLoadProfile": {
+      "loadingType": "unresolved_no_flight_or_repeated_flight_drill",
+      "impactClass": "cannot_be_one_value",
+      "landingContactsPerRep": "must_be_defined_by_split_card",
+      "primaryStress": [
+        "hamstring_control",
+        "plantar_flexor_load",
+        "contact_timing"
+      ],
+      "fatigueSensitivity": "depends_on_march_or_bound_identity"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "human_identity_split",
+        "clear_lane"
+      ],
+      "optionalEquipment": [
+        "video",
+        "floor_marks"
+      ],
+      "environment": [
+        "quarantined_from_generation_until_split"
+      ],
+      "population": [
+        "none_until_march_or_bound_is_selected"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "not_prescribable_as_combined_card",
+      "contactsPerSet": "not_prescribable_as_combined_card",
+      "restSeconds": "select_after_split",
+      "intensity": "learning_for_march_or_output_for_bound",
+      "progressWhen": "each resulting card has one contact sequence and calibrated load"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Select march or bound before coaching"
+      ],
+      "athleteInstructions": [
+        "Do not alternate between marching and bounding inside an undefined repetition"
+      ],
+      "commonFaults": [
+        "mixing_contact_sequences",
+        "locked_knee",
+        "overreaching",
+        "unsupported_transfer_claims"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "human_card_split"
+      ],
+      "stopRules": [
+        "do_not_generate_combined_card"
+      ]
+    },
+    "programmingDecision": "Split. Merge the marching content into the canonical Straight-Leg March identity, and keep repeated flight-based straight-leg bounds in the existing Straight-Leg Bound definition.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T02:10:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Athlete marches or bounds forward with relatively straight legs, striking under the hip with dorsiflexed foot and quick pawing action. Emphasis is on reaching with the hamstring and pulling the ground back — not high knee lift.",
+      "familyKey": "Locomotion & sprint mechanics",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "sourceTitle": "Jereem Richards’ games and drills to help develop speed",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 77,
+      "claims": [
+        "World Athletics describes ankling as a progressive running drill that begins with learning a toe-to-ground loading action and then increases cadence.",
+        "Straight-Leg Bound March / Straight-Leg Run Prep must state whether it is stationary or traveling, bilateral or alternating, walking, marching, dribbling, hopping, or bounding, its knee strategy, contact sequence, displacement, cadence, and terminal transition; spring or stiffness alone does not define identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://worldathletics.org/download/download?filename=152a49b1-8225-498e-8283-9c580dcd45d9.pdf&urlslug=Women%27s+100m+-+2017+IAAF+World+Championships+Biomechanical+report",
+      "sourceTitle": "Women's 100 m — 2017 IAAF World Championships Biomechanical Report",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "World Athletics treats straight-leg shuffle into sprinting as a drill progression that can be combined into a movement pattern congruent with the technical model.",
+        "Straight-Leg Bound March / Straight-Leg Run Prep belongs to either low-amplitude cyclic plyometrics, sprint-mechanics locomotion, straight-leg shuffle or bound mechanics, or a compound transition; those categories must not be merged into one undifferentiated exercise."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37989833/",
+      "sourceTitle": "Ankle and Plantar Flexor Muscle-Tendon Unit Function in Sprinters: A Narrative Review",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "The ankle and plantar-flexor muscle-tendon units make phase-specific contributions to sprinting, with distinct roles for soleus and gastrocnemius and important energy transfer at maximum velocity.",
+        "The card should identify intrinsic foot, plantar-flexor, tibialis-anterior, knee-extensor, hamstring, hip-flexor and extensor, lumbopelvic, and arm-action roles according to the actual drill rather than labeling every drill ankle-only."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8008308/",
+      "sourceTitle": "Kinematic Stride Characteristics of Maximal Sprint Running of Elite Sprinters – Verification of the Swing-Pull Technique",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Active foot contact with backswing velocity, small horizontal foot distance from the center of mass at contact, hip-extension velocity, and controlled support-leg flexion may help minimize braking during maximal sprinting.",
+        "Straight-Leg Bound March / Straight-Leg Run Prep should cue contact close to the projected center of mass and observable rhythm without claiming that an isolated drill automatically reproduces or improves full-speed sprint mechanics."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8553457/",
+      "sourceTitle": "Application of Leg, Vertical, and Joint Stiffness in Running Performance: A Literature Overview",
+      "sourcePublisher": "Journal of Healthcare Engineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Mechanical stiffness is task- and velocity-dependent, changes with fatigue, and represents coordinated whole-limb behavior rather than a fixed athlete trait.",
+        "Exercise difficulty must directly score technical complexity, physical and absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; audience labels are not part of exercise difficulty."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8938535/",
+      "sourceTitle": "Effects of Plyometric Training on Lower Body Muscle Architecture, Tendon Structure, Stiffness and Physical Performance: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Plyometric training can change tendon stiffness and performance, so low-amplitude contacts still require progressive exposure and contact-volume accounting.",
+        "Straight-Leg Bound March / Straight-Leg Run Prep needs total and per-leg contacts, lane distance, surface, footwear, amplitude, cadence or velocity, approach and transition distance, technical-fatigue markers, between-attempt recovery, and weekly impact accounting."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Plyometric and sprint drills require progressive preparation, safe surfaces and lanes, suitable footwear, spacing, recovery, and supervision matched to intensity and complexity.",
+        "The card should require a level, dry, non-slip lane with a deceleration zone when traveling; a secured ladder only for the ladder variant; and an athlete who can tolerate the selected contact amplitude without pain or compensatory mechanics."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "sourceTitle": "Jereem Richards’ games and drills to help develop speed",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 77,
+      "claims": [
+        "World Athletics gives an example of two passes over 10 to 20 metres for ankling and related running drills, while instructing athletes to learn the movement before increasing pace.",
+        "Use passes, metres, seconds, and explicit contacts rather than ambiguous repetitions; low-skill learning passes may use walk-back recovery, while bounds and bound-to-sprint transitions need fuller recovery and immediate quality stops."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8008308/",
+      "sourceTitle": "Kinematic Stride Characteristics of Maximal Sprint Running of Elite Sprinters – Verification of the Swing-Pull Technique",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Sprint-contact instruction should prioritize observable contact placement, active downward and backward foot velocity, posture, and rhythm rather than an unsupported promise of ideal technique.",
+        "Use a small task-specific cue set: stay stacked, keep steps short for ankling, contact close to the hips, preserve dorsiflexion without forcing a forefoot strike, let the heel behave naturally, and transition without reaching or locking the knee."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37989833/",
+      "sourceTitle": "Ankle and Plantar Flexor Muscle-Tendon Unit Function in Sprinters: A Narrative Review",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Sprint plantar-flexor demand changes across start, acceleration, and maximum-velocity phases and should not be represented as uniformly low load.",
+        "Stop for foot, shin, calf, Achilles, hamstring, knee, hip, or back pain; loss of balance; repeated reaching or hard heel strike; locked-knee braking; loud or lengthening contacts; cadence drop; asymmetry; ladder displacement; or an unsafe sprint transition."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://worldathletics.org/download/download?filename=152a49b1-8225-498e-8283-9c580dcd45d9.pdf&urlslug=Women%27s+100m+-+2017+IAAF+World+Championships+Biomechanical+report",
+      "sourceTitle": "Women's 100 m — 2017 IAAF World Championships Biomechanical Report",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "Sprint drills can progress from simpler to more complex tasks and combine into a sprint transition when the movement time and pattern fit the intended technical model.",
+        "Straight-Leg Bound March / Straight-Leg Run Prep belongs after temperature and tissue preparation and before high-speed sprinting or high-output jumping; use learning versions in a mechanics block and bound or sprint-transition versions in a fresh output block."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "sourceTitle": "Jereem Richards’ games and drills to help develop speed",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 77,
+      "claims": [
+        "Athlete support should show the exact movement at learning and performance cadence, the lane, contact sound, heel behavior, arm action, finish, and how a successful pass differs from merely moving the feet quickly.",
+        "Explain that stiffness means controlled resistance to collapse, not locking the knees or forcing the ankle, and show a lower-amplitude or slower-cadence option that preserves the identity."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8553457/",
+      "sourceTitle": "Application of Leg, Vertical, and Joint Stiffness in Running Performance: A Literature Overview",
+      "sourcePublisher": "Journal of Healthcare Engineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Stiffness measures vary by task, speed, fatigue, maturity, and method, so coaches should not infer tendon or joint stiffness from appearance alone.",
+        "Provide side and rear observation, contact and distance counts, cadence or timing only when reliably measured, left-right comparison, surface and lane setup, phase placement, regression and progression rules, and a distinction between technical cueing and verified biomechanical measurement."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should match readiness, technical competence, supervision, equipment scale, and the individual's physical and psychosocial context.",
+        "Accessibility options include shorter lanes, slower cadence, supported ankle loading, no-flight ankling, fewer contacts, visual floor marks instead of a raised ladder, quieter settings, extra demonstration, and longer recovery without converting audience context into an exercise-card classification."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://worldathletics.org/download/download?filename=152a49b1-8225-498e-8283-9c580dcd45d9.pdf&urlslug=Women%27s+100m+-+2017+IAAF+World+Championships+Biomechanical+report",
+      "sourceTitle": "Women's 100 m — 2017 IAAF World Championships Biomechanical Report",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 82,
+      "claims": [
+        "A straight-leg shuffle into sprint is a compound drill progression, not merely a renamed stationary ankle hop.",
+        "Cadence, pass length, contact cap, and coaching intent are delivery annotations; stationary versus traveling, bilateral versus alternating, flight versus no flight, straight-leg bound versus march, ladder constraint, and a terminal sprint may require a controlled variant or distinct definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Straight-Leg Bound March / Straight-Leg Run Prep were discovered through visible YouTube search; current availability and embedding, exact movement identity and variant match, complete viewing, captions, instructional quality, safety, and approval remain separate review gates, and no candidate is approved by this packet."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=dlF9VDV-sJk",
+      "title": "Straight Leg Ankling",
+      "channelName": "TeamBuildr",
+      "sourceQuery": "straight leg ankling ladder drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Pv4t6m6VHBE",
+      "title": "Straight Leg Ankling",
+      "channelName": "JMU Strength",
+      "sourceQuery": "straight leg ankling ladder drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=NWL6Oo8VheA",
+      "title": "SPRINT DRILLS - Straight Leg Bound",
+      "channelName": "Trackwired",
+      "sourceQuery": "straight leg bound sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=RVl0cNJwTpo",
+      "title": "Straight Leg Bound (running drill)",
+      "channelName": "mandy mclane",
+      "sourceQuery": "straight leg bound sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=G6N4-kSTrXM",
+      "title": "Straight Leg Shuffle/Run Sprint Drill - Analysis",
+      "channelName": "N LS",
+      "sourceQuery": "straight leg bound sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Straight-Leg March",
+      "classification": "new_definition",
+      "rationale": "No-flight learning contacts belong in a distinct low-impact definition.",
+      "distinguishingDimensions": {
+        "contactSequence": "march"
+      }
+    },
+    {
+      "name": "Straight-Leg Bound",
+      "classification": "new_definition",
+      "rationale": "Repeated flight contacts belong in a higher-impact definition.",
+      "distinguishingDimensions": {
+        "contactSequence": "bound"
+      }
+    },
+    {
+      "name": "Straight-Leg Shuffle",
+      "classification": "new_variant",
+      "rationale": "A faster cyclic progression requires explicit cadence and flight rules.",
+      "distinguishingDimensions": {
+        "cadence": "shuffle"
+      }
+    },
+    {
+      "name": "Straight-Leg Ankling Ladder",
+      "classification": "new_variant",
+      "rationale": "The ladder is an external placement constraint.",
+      "distinguishingDimensions": {
+        "externalConstraint": "ladder"
+      }
+    },
+    {
+      "name": "Straight-Leg Bounds to Sprint",
+      "classification": "new_definition",
+      "rationale": "The sprint transition materially changes logistics and intensity.",
+      "distinguishingDimensions": {
+        "terminalAction": "sprint"
+      }
+    }
+  ]
+}

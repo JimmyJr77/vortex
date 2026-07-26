@@ -1,0 +1,558 @@
+{
+  "facilityId": 1,
+  "slug": "45-degree-cut-bound-to-stick",
+  "researchVersion": "2026-07-25.23",
+  "assessmentSummary": {
+    "identity": "A provisionally defined diagonal single-leg bound projected approximately 45 degrees from the athlete's initial facing direction, landing on the opposite leg and holding the landing. The legacy title says cut bound but does not establish whether there is a run-in or planted cut before takeoff; candidate media primarily shows a stationary 45-degree bound. The baseline must remain identity-quarantined until start position and contact sequence are adjudicated.",
+    "currentCardFindings": [
+      "The legacy purpose calls this a diagonal bound, while the title can be read as an approach cut followed by a bound; that ambiguity materially changes contacts and load.",
+      "The current three-by-three dose with 20-second work and RPE 9 risks repeated contacts or conditioning even though a held landing should be individually reset.",
+      "Physical load and impact are understated by the current 10/100 absolute-load value for a single-leg takeoff, diagonal flight, contralateral landing, and stabilization.",
+      "Four healthy oEmbed candidates cover single 45-degree bounds, repeated triple bounds, and a bound-to-vertical-jump progression. Only the single bound candidate is a plausible exact baseline and still requires full review."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "single_leg_diagonal_bound",
+        "contralateral_single_leg_landing",
+        "terminal_landing_hold"
+      ],
+      "jointActions": [
+        "unilateral_propulsive_triple_extension",
+        "diagonal_horizontal_projection",
+        "contralateral_eccentric_landing",
+        "frontal_transverse_stabilization"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal",
+        "transverse"
+      ],
+      "laterality": "alternating_unilateral_takeoff_to_contralateral_unilateral_landing",
+      "contactSequence": "single_leg_takeoff__flight_at_approximately_45_degrees__opposite_single_leg_land_and_hold",
+      "intent": "express_diagonal_single_leg_projection_and_own_the_opposite_leg_landing"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "quadriceps",
+        "hamstrings",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "gluteus_medius",
+        "adductors",
+        "peroneals",
+        "tibialis_anterior",
+        "hip_rotators",
+        "obliques",
+        "spinal_stabilizers"
+      ],
+      "joints": [
+        "ankle",
+        "subtalar_joint",
+        "knee",
+        "hip",
+        "pelvis",
+        "lumbar_spine",
+        "thoracic_spine",
+        "shoulder"
+      ],
+      "primaryActions": [
+        "diagonal_single_leg_propulsion",
+        "flight_orientation",
+        "contralateral_force_acceptance",
+        "landing_stabilization"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 60,
+      "absoluteLoadDemand": 64,
+      "coordinationDemand": 64,
+      "supervisionDemand": 62,
+      "failureConsequence": 66,
+      "impact": 70,
+      "workCapacityDemand": 34,
+      "baseOverallDifficulty": 64
+    },
+    "proposedLoadProfile": {
+      "loadingType": "high_rate_bodyweight_unilateral_plyometric",
+      "impactClass": "high_for_single_leg_landing",
+      "externalLoadMethod": "none_for_baseline",
+      "primaryStress": [
+        "takeoff_leg_propulsion",
+        "flight_and_pelvis_control",
+        "contralateral_ankle_knee_hip_force_acceptance",
+        "single_leg_frontal_plane_stabilization"
+      ],
+      "fatigueProfile": [
+        "shorter_or_lower_projection",
+        "louder_landing",
+        "stiff_or_collapsed_landing",
+        "knee_or_trunk_drift",
+        "extra_hop",
+        "side_asymmetry",
+        "loss_of_confidence"
+      ],
+      "recoveryHours": "typically_48_to_72_before_another_high_single_leg_contact_exposure_subject_to_total_contact_load_and_individual_response"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "takeoff_marker",
+        "45_degree_landing_zone",
+        "high_traction_level_surface"
+      ],
+      "optionalEquipment": [
+        "angle_template",
+        "distance_measure",
+        "video_capture"
+      ],
+      "environment": [
+        "clear_landing_and_fall_space",
+        "no_cross_traffic",
+        "adequate_lighting",
+        "surface_and_footwear_appropriate_for_single_leg_landing"
+      ],
+      "population": [
+        "pain_free_single_leg_jump_and_landing",
+        "owns_lateral_bound_to_stick",
+        "owns_forward_diagonal_hop_to_stick",
+        "can_stabilize_both_legs_without_extra_contact"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "2-4_sets_of_2-4_individual_bounds_per_takeoff_side",
+      "restSeconds": "20-40_between_individual_bounds_and_90-180_between_sets",
+      "projection": "submaximal_distance_until_landing_shape_is_repeatable_then_progress_distance_not_fatigue",
+      "hold": "two_to_three_seconds",
+      "measurement": "takeoff_side_landing_side_angle_distance_landing_zone_contact_noise_hold_time_extra_contacts_and_alignment",
+      "progressWhen": "both_sides_land_quietly_in_the_zone_and_hold_without_knee_trunk_or_pelvis_loss"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Aim through the diagonal zone",
+        "Push from one leg",
+        "Land on the opposite leg",
+        "Absorb through ankle knee and hip",
+        "Freeze before you reset"
+      ],
+      "athleteInstructions": [
+        "Start balanced on the assigned takeoff leg",
+        "Project forward and sideways toward the 45-degree target",
+        "Land on the opposite leg in the marked zone",
+        "Absorb quietly with your knee and hip aligned",
+        "Hold for two to three seconds before stepping out"
+      ],
+      "commonFaults": [
+        "undefined_run_in_or_extra_step",
+        "wrong_takeoff_or_landing_leg",
+        "vertical_instead_of_diagonal_projection",
+        "overreaching_for_distance",
+        "stiff_landing",
+        "knee_collapse",
+        "trunk_or_pelvis_drop",
+        "extra_hop",
+        "continuous_repetition_without_reset"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "single_leg_balance",
+        "single_leg_hop_to_stick",
+        "lateral_bound_to_stick",
+        "pain_free_ankle_knee_hip_and_groin"
+      ],
+      "qualityGates": [
+        "contact_sequence_matches_the_declared_baseline",
+        "landing_is_quiet_and_inside_the_zone",
+        "knee_hip_pelvis_and_trunk_are_controlled",
+        "hold_is_completed_without_extra_contact",
+        "both_sides_remain_comparable"
+      ],
+      "stopRules": [
+        "pain_or_guarding",
+        "loss_of_confidence",
+        "loud_or_stiff_landing",
+        "repeated_knee_trunk_or_pelvis_collapse",
+        "extra_hop_on_two_repetitions",
+        "distance_or_landing_quality_drop"
+      ]
+    },
+    "proposedContextualProfiles": [
+      {
+        "context": "movement_intelligence_diagonal_landing",
+        "dose": "2-3_sets_of_2_submaximal_bounds_per_side_with_full_reset",
+        "purpose": "learn_projection_angle_contact_sequence_and_opposite_leg_landing"
+      },
+      {
+        "context": "output_diagonal_bound",
+        "dose": "2-4_sets_of_2-4_high_quality_bounds_per_side_with_20-40_second_repetition_resets",
+        "purpose": "express_diagonal_single_leg_power_with_a_controlled_terminal_landing"
+      }
+    ],
+    "proposedRelationships": {
+      "regressions": [
+        "lateral_step_to_single_leg_hold",
+        "lateral_bound_to_stick",
+        "forward_diagonal_hop_to_stick"
+      ],
+      "progressions": [
+        "repeated_45_degree_bounds",
+        "45_degree_bound_to_vertical_jump",
+        "run_in_cut_to_45_degree_bound"
+      ],
+      "substitutions": [
+        "matched_distance_diagonal_hop_to_stick"
+      ],
+      "doNotSubstitute": [
+        "45_degree_cut_and_stick",
+        "45_degree_cut_and_reaccelerate",
+        "continuous_skater_bound"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "takeoff_and_landing_foot_diagram",
+        "45_degree_floor_arrow",
+        "landing_zone",
+        "quiet_landing_and_failed_hop_examples",
+        "stop_signal"
+      ],
+      "coach": [
+        "front_and_rear_observation_checklist",
+        "contact_sequence_adjudication",
+        "left_right_distance_and_quality_comparison",
+        "contact_load_log",
+        "regression_decision_tree"
+      ]
+    },
+    "calibrationEvidence": {
+      "basis": "plyometric_direction_evidence_landing_intervention_evidence_current_card_comparison_and_candidate_video_metadata",
+      "uncertainty": "No authoritative source located in this pass resolves whether cut bound means a stationary diagonal bound or a run-in cut followed by flight. Scores and dose are conservative proposals for the stationary single-bound interpretation.",
+      "reviewNeeded": [
+        "start_position_and_contact_sequence_identity_adjudication",
+        "difficulty_anchor_comparison",
+        "single_leg_contact_load_review",
+        "full_video_content_review",
+        "dosage_review"
+      ]
+    },
+    "programmingDecision": "Keep quarantined until a domain coach declares whether the baseline is a stationary diagonal bound or a run-in cut-to-bound composite. If a run-in and plant precede flight, create a separate composite definition rather than hiding those extra contacts in this card.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T05:00:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "The athlete bounds or hops at a 45-degree angle to a cone target, lands, and holds the position before resetting.",
+      "familyKey": "Angled cut power",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 50,
+        "technicalComplexity": 50,
+        "baseOverallDifficulty": 50
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Youth training requires qualified supervision, technically appropriate progression, safe environments, and attention to individual readiness.",
+        "Stop 45-Degree Cut Bound to Stick for pain, guarding, slipping, repeated loss of alignment or balance, unsafe lane traffic, or a material decline in the assigned movement quality."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Youth development should be individualized, progressive, and based on current physical and psychosocial readiness rather than a fixed exercise-card level.",
+        "Make 45-Degree Cut Bound to Stick accessible with a walk-through, shorter approach or projection, lower speed, visible floor arrows, longer reset, and a simpler prerequisite task; do not label the exercise itself beginner or advanced."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied links are candidate demonstrations only. oEmbed availability was checked, but exact sequence, safety, cue quality, captions, full content, reviewer identity, and approval remain pending."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32897526/",
+      "sourceTitle": "Effects of Vertically and Horizontally Orientated Plyometric Training on Physical Performance: A Meta-analytical Comparison",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Plyometric tasks show direction-specific characteristics and adaptations, so projection direction and contact sequence are material exercise properties.",
+        "45-Degree Cut Bound to Stick must explicitly define start position, takeoff leg, diagonal projection, landing leg, and held terminal outcome; a run-in cut before flight would be a different composite identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32897526/",
+      "sourceTitle": "Effects of Vertically and Horizontally Orientated Plyometric Training on Physical Performance: A Meta-analytical Comparison",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Horizontal and vertical plyometric training are not interchangeable and demonstrate direction-specific effects.",
+        "Classify diagonal angle, horizontal-versus-vertical emphasis, unilateral takeoff and landing, contact count, terminal hold, and whether the task is single or repeated."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Landing tasks involve coordinated lower-extremity joint kinematics and kinetics that can be modified through training.",
+        "Represent takeoff propulsion and contralateral ankle, knee, hip, pelvis, and trunk force acceptance rather than reducing the bound to a generic leg exercise."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32897526/",
+      "sourceTitle": "Effects of Vertically and Horizontally Orientated Plyometric Training on Physical Performance: A Meta-analytical Comparison",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Projection direction is a defining feature of plyometric exercise and relates to direction-specific performance outcomes.",
+        "The athlete must project diagonally rather than simply jump laterally or vertically, then absorb and stabilize the opposite-leg landing without an extra contact."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Landing interventions address joint-loading and movement-control variables, but task demands depend on the exact landing movement.",
+        "Assess technical complexity and single-leg body-mass demand directly, derive overall as their maximum, and keep impact, supervision, coordination, consequence, and work capacity separate."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8938535/",
+      "sourceTitle": "Effects of Plyometric Training on Lower Body Muscle Architecture, Tendon Structure, Stiffness and Physical Performance: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Plyometric exposure loads the muscle-tendon unit and adaptations depend on training characteristics.",
+        "Track each unilateral takeoff and landing contact, side, angle, distance, surface, landing quality, other jump or sprint exposure, and recovery response rather than using work time alone."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Plyometric progression should begin with appropriate foundations, landing control, suitable surfaces, and exercise selection.",
+        "45-Degree Cut Bound to Stick requires pain-free single-leg landing readiness, a marked takeoff and diagonal landing zone, high traction, clear fall space, and no cross traffic."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10407309/",
+      "sourceTitle": "Plyometric Training Practices of Brazilian Olympic Sprint and Jump Coaches: Toward a Deeper Understanding of Their Choices and Insights",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Plyometric programming practice differentiates exercises by intensity, contact type, volume, and recovery.",
+        "Count individual bounds and landings per side with full reset; the proposed dose is conservative and must be calibrated rather than treating 20 seconds as continuous work."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Augmented feedback can change landing mechanics when it targets observable task features.",
+        "Instructions and feedback must identify takeoff leg, landing leg, diagonal target, quiet absorption, hold duration, extra-contact failure, and reset."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32897526/",
+      "sourceTitle": "Effects of Vertically and Horizontally Orientated Plyometric Training on Physical Performance: A Meta-analytical Comparison",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Plyometric transfer is direction specific rather than universal.",
+        "Use 45-Degree Cut Bound to Stick for diagonal projection and terminal single-leg landing control; do not claim it substitutes for grounded cutting, continuous lateral bounding, or vertical jumping."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Visual and verbal feedback can support changes in landing technique.",
+        "Athlete support needs takeoff and landing-foot graphics, a 45-degree arrow and zone, quiet-versus-loud landing examples, a visible hold count, and pain or confidence stop guidance."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10407309/",
+      "sourceTitle": "Plyometric Training Practices of Brazilian Olympic Sprint and Jump Coaches: Toward a Deeper Understanding of Their Choices and Insights",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Coaches organize plyometrics by exercise type, intensity, contact volume, and recovery.",
+        "Coach support should count unilateral contacts, compare sides, observe projection and landing from front and rear, distinguish single from repeated bounds, and regress distance before adding speed or a run-in."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32897526/",
+      "sourceTitle": "Effects of Vertically and Horizontally Orientated Plyometric Training on Physical Performance: A Meta-analytical Comparison",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Changing projection direction changes the plyometric task and its likely transfer.",
+        "Start position, approach contacts, takeoff and landing laterality, projection angle, repeated contacts, vertical-jump continuation, load, and terminal outcome require explicit alternate classification."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=Xo6DsuXt9kY",
+      "title": "45 Degree Bound w/ Stick",
+      "channelName": "Champion Physical Therapy and Performance",
+      "sourceQuery": "45 degree bound with stick",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T04:35:00.000Z"
+      },
+      "notes": "Closest title-level candidate for a single 45-degree bound with a held landing. Full sequence, laterality, content, captions, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=EXHwFBNguMs",
+      "title": "SL 45 Degree Bound Triple to Stick",
+      "channelName": "Flight Performance & Fitness",
+      "sourceQuery": "single leg 45 degree bound triple to stick",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T04:35:00.000Z"
+      },
+      "notes": "Repeated triple-bound progression candidate, not the proposed single-bound baseline. It helps adjudicate contact-count boundaries."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=SRZQXtpK9EE",
+      "title": "Lateral Bound at 45 Degrees with Stick",
+      "channelName": "ken whittier",
+      "sourceQuery": "lateral bound 45 degrees stick",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T04:35:00.000Z"
+      },
+      "notes": "Angle-specific bound candidate. Start position, exact projection, landing leg, and demonstration quality require full review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=4FywCAF0zR4",
+      "title": "45 Degree Bound to Vertical Jump - Stick Landing",
+      "channelName": "Depth Training and Physiotherapy Waterloo",
+      "sourceQuery": "45 degree bound to vertical jump stick landing",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T04:35:00.000Z"
+      },
+      "notes": "Progression candidate with an added vertical jump. It is deliberately not an exact match for the terminal single-bound baseline."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Lateral Bound to Stick",
+      "classification": "new_variant",
+      "rationale": "Changing the projection from approximately 45 degrees to purely lateral changes direction emphasis while preserving a single unilateral bound and held opposite-leg landing.",
+      "distinguishingDimensions": {
+        "projectionAngle": "approximately_90_degrees_lateral",
+        "contactSequence": "single_bound_and_hold"
+      }
+    },
+    {
+      "name": "Repeated 45-Degree Bounds",
+      "classification": "new_definition",
+      "rationale": "Removing the terminal hold and linking repeated contacts changes reactive demand, contact count, fatigue, measurement, and stop rules.",
+      "distinguishingDimensions": {
+        "contactSequence": "repeated_alternating_bounds",
+        "terminalOutcome": "continuous"
+      }
+    },
+    {
+      "name": "45-Degree Bound to Vertical Jump",
+      "classification": "new_definition",
+      "rationale": "Adding a second takeoff and vertical flight creates a composite diagonal-to-vertical plyometric sequence.",
+      "distinguishingDimensions": {
+        "contactSequence": "diagonal_bound_land_vertical_jump_land",
+        "projection": "horizontal_then_vertical"
+      }
+    },
+    {
+      "name": "Resisted 45-Degree Bound to Stick",
+      "classification": "new_variant",
+      "rationale": "Band or cable resistance changes implement, vector, and physical demand while the core single-bound contact sequence remains.",
+      "distinguishingDimensions": {
+        "implement": "band_or_cable",
+        "resistanceVector": "coach_defined"
+      }
+    },
+    {
+      "name": "Run-In Cut to 45-Degree Bound",
+      "classification": "new_definition",
+      "rationale": "An approach, braking plant, and subsequent aerial bound adds contacts and a grounded-cut-to-flight transition absent from the proposed stationary baseline.",
+      "distinguishingDimensions": {
+        "startPosition": "running_approach",
+        "contactSequence": "approach_cut_bound_land_and_hold"
+      }
+    }
+  ]
+}

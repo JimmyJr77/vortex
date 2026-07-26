@@ -1,0 +1,528 @@
+{
+  "facilityId": 1,
+  "slug": "9090-breathing-with-reach",
+  "researchVersion": "2026-07-25.21",
+  "assessmentSummary": {
+    "identity": "A supported supine breathing drill with hips and knees near 90 degrees, feet on a wall or calves on a stable support, and a gentle bilateral reach during a slow exhale while the rib cage and pelvis remain comfortably organized.",
+    "currentCardFindings": [
+      "The existing card describes the supine support and reach clearly but overstates a universal rib-down or pelvic-position outcome and does not define support stability, breath duration, permitted effort, dizziness rules, or dosage boundaries.",
+      "The archived Hip Reset card described the same supported 90/90 breathing action; hip reset is an intended context, not a separate movement identity.",
+      "The legacy 20-point difficulty obscures the very low physical load and the modest respiratory, rib-cage, pelvic, and reaching coordination required."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "supine_supported_breathing",
+        "bilateral_reach",
+        "low_intensity_trunk_control"
+      ],
+      "jointActions": [
+        "diaphragmatic_inhalation",
+        "controlled_exhalation",
+        "rib_cage_expansion_and_recoil",
+        "scapular_protraction",
+        "shoulder_flexion_hold",
+        "hip_and_knee_flexion_support"
+      ],
+      "planes": [
+        "multi_planar_rib_cage_expansion",
+        "sagittal_support_position"
+      ],
+      "laterality": "bilateral",
+      "intent": "slow_supported_breathing_with_low_effort_rib_pelvis_and_reach_coordination"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "diaphragm",
+        "intercostals",
+        "abdominal_wall"
+      ],
+      "secondaryMuscles": [
+        "pelvic_floor",
+        "serratus_anterior",
+        "obliques",
+        "transversus_abdominis",
+        "hamstrings_if_feet_are_actively_anchored"
+      ],
+      "joints": [
+        "rib_cage",
+        "thoracic_spine",
+        "lumbopelvic_complex",
+        "scapulothoracic_articulation",
+        "shoulder",
+        "hip",
+        "knee"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 22,
+      "absoluteLoadDemand": 4,
+      "coordinationDemand": 24,
+      "supervisionDemand": 14,
+      "failureConsequence": 8,
+      "impact": 1,
+      "workCapacityDemand": 5,
+      "baseOverallDifficulty": 22
+    },
+    "proposedLoadProfile": {
+      "loadingType": "supported_bodyweight_respiratory_motor_control",
+      "impactClass": "none",
+      "externalLoadMethod": "none",
+      "primaryStress": [
+        "respiratory_coordination",
+        "low_level_abdominal_and_reach_control"
+      ],
+      "fatigueProfile": [
+        "neck_or_jaw_tension",
+        "shoulder_shrug",
+        "rib_flare",
+        "forced_exhale",
+        "hamstring_cramp",
+        "air_hunger_or_dizziness"
+      ],
+      "recoveryHours": "minimal_when_low_effort_and_symptom_free"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "stable_wall_bench_or_box_for_leg_support"
+      ],
+      "optionalEquipment": [
+        "mat",
+        "head_support",
+        "small_ball_between_knees",
+        "visual_breath_timer"
+      ],
+      "environment": [
+        "quiet_space",
+        "stable_non_slip_support",
+        "comfortable_temperature"
+      ],
+      "population": [
+        "can_lie_supine_and_breathe_without_distress",
+        "pain_free_supported_hip_and_knee_flexion",
+        "can_reach_without_shoulder_symptoms"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndBreaths": "1-3_sets_of_3-6_slow_breaths",
+      "breathTiming": "comfortable_nasal_inhale_then_approximately_4-8_second_unforced_exhale",
+      "restSeconds": "as_needed_for_normal_comfortable_breathing",
+      "intensity": "low_effort_without_maximal_inhalation_exhalation_or_breath_hold",
+      "measurement": "breaths_completed_reach_position_symptoms_and_visible_neck_or_rib_compensation",
+      "progressWhen": "breathing stays calm and repeatable without strain, dizziness, shoulder shrug, back discomfort, or support movement"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Let the support carry your legs",
+        "Reach long without shrugging",
+        "Breathe in quietly and low",
+        "Exhale slowly without crunching",
+        "Stop before strain"
+      ],
+      "athleteInstructions": [
+        "Lie on your back with your legs fully supported near 90/90",
+        "Reach your hands toward the ceiling",
+        "Breathe in gently through your nose",
+        "Exhale slowly while reaching a little longer",
+        "Pause only if comfortable, then let the next inhale arrive"
+      ],
+      "commonFaults": [
+        "unstable_support",
+        "hard_heel_drive",
+        "neck_or_jaw_tension",
+        "shoulder_shrug",
+        "forceful_abdominal_crunch",
+        "maximal_breath_hold",
+        "repeated_dizziness"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "comfortable_supine_position",
+        "stable_leg_support",
+        "normal_resting_breathing",
+        "pain_free_reach"
+      ],
+      "qualityGates": [
+        "support_does_not_move",
+        "breath_remains_unforced",
+        "neck_and_jaw_stay_relaxed",
+        "reach_does_not_create_pain_or_shrug"
+      ],
+      "stopRules": [
+        "dizziness_or_faintness",
+        "chest_pain",
+        "unusual_shortness_of_breath",
+        "panic_or_air_hunger",
+        "new_neurologic_symptoms",
+        "neck_back_hip_or_shoulder_pain",
+        "repeated_hamstring_cramp"
+      ]
+    },
+    "proposedContextualProfiles": [
+      {
+        "context": "prepare_and_access",
+        "dose": "1-2_sets_of_3-4_breaths",
+        "purpose": "rehearse_low_effort_breathing_and_trunk_position_before_training"
+      },
+      {
+        "context": "restore",
+        "dose": "1-3_sets_of_4-6_breaths",
+        "purpose": "support_a_gradual_return_to_comfortable_breathing_after_training"
+      }
+    ],
+    "proposedRelationships": {
+      "regressions": [
+        "supine_diaphragmatic_breathing_without_reach",
+        "head_supported_9090_breathing"
+      ],
+      "progressions": [
+        "9090_breathing_with_alternating_reach",
+        "dead_bug_breathing_with_controlled_limb_motion"
+      ],
+      "substitutions": [
+        "hook_lying_diaphragmatic_breathing",
+        "side_lying_supported_breathing"
+      ],
+      "doNotSubstitute": [
+        "loaded_dead_bug",
+        "maximal_respiratory_muscle_training"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "side_view_setup",
+        "support_height_badge",
+        "breath_timing_animation",
+        "dizziness_stop_message"
+      ],
+      "coach": [
+        "support_stability_check",
+        "neck_and_shoulder_observation",
+        "breath_strain_check",
+        "context_specific_dose"
+      ]
+    },
+    "calibrationEvidence": {
+      "basis": "VA diaphragmatic-breathing instruction, slow-breathing systematic review, exact-title candidate videos, and current-card comparison",
+      "uncertainty": "No trial establishes a unique difficulty score, sport-transfer effect, or universal pelvic-position outcome for this exact supported reach variant.",
+      "reviewNeeded": [
+        "respiratory_clinician_or_qualified_coach_content_review",
+        "difficulty_anchor_comparison",
+        "athlete_comprehension_test",
+        "full_video_review"
+      ]
+    },
+    "programmingDecision": "Retain one supported supine 90/90 breathing-with-reach definition. Hip reset, feet-on-wall versus calves-on-bench support, reach angle, and non-loaded breath cadence are variants or contextual annotations; avoid structural-reset and automatic-recovery claims.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T02:35:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Lie on the back with feet on a wall, bench, or box so hips and knees are bent to roughly 90 degrees. Keep the neck neutral. Reach arms toward the ceiling or slightly forward to bring the ribs down. Inhale through the nose, expanding the abdomen and lower ribs. Exhale slowly and fully, letting the ribs soften down without crunching.",
+      "familyKey": "Breathing reset",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 20,
+        "technicalComplexity": 20,
+        "baseOverallDifficulty": 20
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://veteranshealthlibrary.va.gov/encyclopedia/142%2C82451_VA",
+      "sourceTitle": "Breathing Retraining: Diaphragmatic Breathing",
+      "sourcePublisher": "U.S. Department of Veterans Affairs",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "VA guidance defines diaphragmatic breathing as a supported lying or seated exercise using a slow nasal inhale and longer controlled exhale.",
+        "90/90 Breathing with Reach adds the explicit supported 90/90 leg position and gentle reach; the card must not treat a claimed hip reset as a second identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The shin-box paper describes hand support, arm position, external load, tall kneeling, half kneeling, standing, and single-leg finish as regressions, stages, or progressions within a named movement sequence.",
+        "Classify 90/90 Breathing with Reach by body orientation, support position, hip actions, transition endpoint, arm task, assistance, external load, cadence, laterality, and whether standing is required."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8725321/",
+      "sourceTitle": "Impacts of external rotators and the ischiofemoral ligament on preventing excessive internal hip rotation: a cadaveric study",
+      "sourcePublisher": "Journal of Orthopaedic Surgery and Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Hip-rotator leverage changes with hip-flexion angle; a muscle may not perform the same rotational role across upright, flexed, and deeply flexed positions.",
+        "Represent the diaphragm and rib cage for the breathing card and the hip rotators, gluteals, adductors, knee flexors, foot contacts, pelvis, and trunk stabilizers actually used by each seated or get-up variant without reducing hip rotation to one named muscle."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://veteranshealthlibrary.va.gov/encyclopedia/142%2C82451_VA",
+      "sourceTitle": "Breathing Retraining: Diaphragmatic Breathing",
+      "sourcePublisher": "U.S. Department of Veterans Affairs",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Diaphragmatic breathing uses abdominal excursion with comparatively quiet upper-chest accessory-muscle activity.",
+        "The reach should remain low effort and free of shrugging or crunching while the stable leg support prevents balance demand from obscuring breathing."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Hand support, arm position, external load, and the standing or single-leg endpoint materially change coordination and physical demand.",
+        "Assess technical complexity, absolute physical load, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. These are exercise attributes; athlete experience is programming context and is not a card level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10980866/",
+      "sourceTitle": "Chronic effects of stretching on range of motion with consideration of potential moderating variables: A systematic review with meta-analysis",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Range-of-motion interventions vary substantially in technique, intensity, duration, frequency, target tissue, supervision, and population, so generic mobility labels do not determine dose or recovery.",
+        "90/90 Breathing with Reach must track active versus supported range, sides or breaths, assistance, external load, tempo, end-position control, symptom response, technique loss, and overlap with other hip, trunk, kneeling, or respiratory work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published sequence uses floor contact, an upright torso, optional hand support, and progressively more demanding arm, load, kneeling, standing, and balance positions.",
+        "Require a non-slip padded surface, clear transition space, stable support where assigned, and pain-free hip, knee, back, and breathing tolerance; do not force a nominal 90-degree shape when anatomy or symptoms prevent it."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://veteranshealthlibrary.va.gov/encyclopedia/142%2C82451_VA",
+      "sourceTitle": "Breathing Retraining: Diaphragmatic Breathing",
+      "sourcePublisher": "U.S. Department of Veterans Affairs",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "VA instruction uses a slow inhale and a longer exhale, then progresses practice position as control improves.",
+        "For a workout card, use a shorter conservative dose of three to six comfortable breaths per set; this is a programming inference, not a clinical prescription."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published get-up procedure specifies an upright torso, approximately right-angle knees, controlled rotation, knee pressure into the floor, hip extension, half-kneeling transition, standing finish, and controlled reversal.",
+        "Instructions for 90/90 Breathing with Reach must name the exact support, limb position, allowed assistance, movement path, breath or tempo, endpoint, return, side order, and definition of a successful repetition."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/30245619/",
+      "sourceTitle": "How Breath-Control Can Change Your Life: A Systematic Review on Psycho-Physiological Correlates of Slow Breathing",
+      "sourcePublisher": "Frontiers in Human Neuroscience",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Slow-breathing research includes varied protocols and proposed autonomic effects, while mechanisms and generalization remain uncertain.",
+        "Do not force breath depth, duration, or retention. Stop for dizziness, faintness, chest pain, unusual shortness of breath, panic, neurologic symptoms, or musculoskeletal pain."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/30245619/",
+      "sourceTitle": "How Breath-Control Can Change Your Life: A Systematic Review on Psycho-Physiological Correlates of Slow Breathing",
+      "sourcePublisher": "Frontiers in Human Neuroscience",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Slow breathing can influence cardiorespiratory and autonomic measures, but protocols and mechanisms vary.",
+        "Use the card as low-intensity breathing practice or a transition to comfortable post-session breathing; do not promise nervous-system reset, structural repositioning, recovery acceleration, or sport-performance transfer."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published get-up uses sequential front, side, and angled images to distinguish the seated, tall-kneeling, half-kneeling, standing, and single-leg stages.",
+        "Athlete support should show the exact start and finish, both sides, permitted hand support, the primary cue, a successful repetition, a comfortable-range option, and the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published sequence supplies regressions and progressions based on hand support, arm position, load, standing, and single-leg balance.",
+        "Coach support should distinguish position access from active control, provide front and side observation points, side comparison, assistance and load decisions, floor and spacing checks, dosage logging, and rules for shortening or ending the sequence."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published sequence explicitly permits hands behind the body to support an upright posture and progresses by changing arm position or adding load.",
+        "Accessibility options include elevating the hips, opening the knee angles, using hands or a stable support, shortening the transition, omitting the stand, adding padding, reducing sensory load, and using visual plus plain-language cues."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The paper distinguishes the seated switch, hip lift, half-kneeling transition, standing get-up, single-leg finish, arm positions, assistance, and external loading.",
+        "Treat hand support, arm position, reach, cadence, and light load as controlled variants when the primary sequence remains; retain separate definitions when the primary joint action or training stimulus changes, such as isolated end-range lift-offs or a Turkish get-up."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct videos for 90/90 Breathing with Reach returned healthy oEmbed player metadata on 2026-07-26. Exact support position, full sequence, safety, cue quality, captions, accessibility, and demonstration quality remain pending human review."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=GZ6X2M6gRvQ",
+      "title": "90/90 Breathing with Reach",
+      "channelName": "Premier Rehab Patient Exercise Library",
+      "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T02:34:46Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=O-cf22YQzAg",
+      "title": "90/90 Breathing with Reach",
+      "channelName": "Erica Friedman Wellness",
+      "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T02:34:46Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=QN77knnBw8o",
+      "title": "Supine 90/90 reach with breathing",
+      "channelName": "Stark Performance",
+      "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T02:34:46Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=yFGJI00OZ8k",
+      "title": "90/90 Breathing With Reach",
+      "channelName": "Stronger Strides",
+      "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T02:34:46Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "90/90 Breathing without Reach",
+      "classification": "new_variant",
+      "rationale": "Removing the reach lowers scapular and abdominal coordination while preserving supported supine breathing.",
+      "distinguishingDimensions": {
+        "armTask": "resting"
+      }
+    },
+    {
+      "name": "Feet-on-Wall 90/90 Breathing",
+      "classification": "new_variant",
+      "rationale": "Wall support permits active foot pressure but preserves the same body position and breathing task.",
+      "distinguishingDimensions": {
+        "legSupport": "feet_on_wall"
+      }
+    },
+    {
+      "name": "Calves-on-Bench 90/90 Breathing",
+      "classification": "new_variant",
+      "rationale": "Bench support reduces the need for active foot pressure while preserving the same breathing and reach identity.",
+      "distinguishingDimensions": {
+        "legSupport": "calves_on_bench"
+      }
+    },
+    {
+      "name": "90/90 Hip Lift with Reach",
+      "classification": "new_definition",
+      "rationale": "Actively lifting or posteriorly tilting the pelvis with a heel drive adds a distinct hamstring-dominant hip-lift action rather than a support annotation.",
+      "distinguishingDimensions": {
+        "primaryJointAction": "active_hip_lift_and_pelvic_tilt"
+      }
+    },
+    {
+      "name": "Dead Bug Breathing",
+      "classification": "new_definition",
+      "rationale": "Adding unsupported alternating limb motion changes the primary task to dynamic trunk control under a longer lever.",
+      "distinguishingDimensions": {
+        "primaryTrainingStimulus": "dynamic_anti_extension_control"
+      }
+    }
+  ]
+}

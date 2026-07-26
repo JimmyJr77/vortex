@@ -1,0 +1,454 @@
+{
+  "facilityId": 1,
+  "slug": "split-stance-auditory-sprint-start",
+  "researchVersion": "2026-07-25.17",
+  "assessmentSummary": {
+    "identity": "A controlled auditory-start variant using a static staggered two-point stance and one unpredictable sound cue before a short forward sprint.",
+    "currentCardFindings": [
+      "The title specifies split stance but the description does not define the stagger, lead-side distribution, cue source, wait range, forward-only mapping, sprint distance, false-start rule, or run-out.",
+      "The phrase selects the correct answer implies multiple choices even though clap, whistle, or verbal go normally maps to one forward response.",
+      "Existing videos separately show stance or sound-reaction components; none is yet confirmed as the exact combined task."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "split_stance_auditory_reaction_start",
+        "short_linear_acceleration"
+      ],
+      "jointActions": [
+        "auditory_response_to_hip_knee_ankle_extension",
+        "swing_leg_recovery",
+        "reciprocal_arm_action"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal_control"
+      ],
+      "laterality": "staggered_start_then_alternating_sprint",
+      "intent": "accurate_sound_response_from_split_stance_then_forward_acceleration"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "hamstrings",
+        "quadriceps",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "hip_flexors",
+        "intrinsic_foot",
+        "tibialis_anterior",
+        "gluteus_medius",
+        "obliques",
+        "shoulder_girdle"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "spine",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 57,
+      "absoluteLoadDemand": 12,
+      "coordinationDemand": 66,
+      "supervisionDemand": 62,
+      "failureConsequence": 60,
+      "impact": 56,
+      "workCapacityDemand": 42,
+      "baseOverallDifficulty": 57
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_split_stance_auditory_reaction_acceleration",
+      "impactClass": "moderate_to_high",
+      "landingContactsPerRep": "all_contacts_through_target_and_run_out",
+      "primaryStress": [
+        "attention_and_anticipation_control",
+        "staggered_start_force",
+        "posterior_chain",
+        "plantar_flexors"
+      ],
+      "fatigueSensitivity": "cue_detection_anticipation_stance_first_step_projection_and_speed"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "clear_short_lane",
+        "audible_non_startling_cue",
+        "start_and_target_marks",
+        "safe_run_out"
+      ],
+      "optionalEquipment": [
+        "whistle",
+        "speaker",
+        "timing_system",
+        "cones",
+        "video"
+      ],
+      "environment": [
+        "cue_audible_over_background_noise",
+        "dry_level_surface",
+        "no_cross_traffic"
+      ],
+      "population": [
+        "can_hear_or_access_equivalent_cue",
+        "stable_split_stance",
+        "pain_free_acceleration"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "2-6_accepted_reactions",
+      "distance": "5-15_metres",
+      "restSeconds": "60-150",
+      "intensity": "high_intent_after_rehearsal",
+      "progressWhen": "both assigned stance sides respond without guessing and preserve acceleration quality"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Set the split stance",
+        "Wait for the sound",
+        "Push from the stance",
+        "Run through"
+      ],
+      "athleteInstructions": [
+        "Hold the assigned stagger, react only to the sound, and sprint forward through the target"
+      ],
+      "commonFaults": [
+        "undefined_stagger",
+        "multiple_cue_mapping",
+        "anticipation",
+        "rocking_start",
+        "false_step",
+        "stopping_at_target"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "cue_access_confirmed",
+        "stable_split_stance",
+        "safe_lane"
+      ],
+      "stopRules": [
+        "pain",
+        "startle_or_distress",
+        "cue_ambiguity",
+        "repeated_anticipation",
+        "stumble",
+        "speed_loss",
+        "unsafe_run_out"
+      ]
+    },
+    "programmingDecision": "Retain as a controlled stance variant of Auditory Start Sprint. Quarantine publication and media until one sound-to-forward-sprint procedure and an exact combined demonstration are confirmed.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T10:25:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "The athlete waits for a live cue (coach clap, whistle, or verbal go), selects the correct answer, performs the movement response, and resets before the next rep. The rep counts only when the athlete reacts to the real stimulus rather than guessing early.",
+      "familyKey": "Simple Cue Response & Start Reaction",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17127583/",
+      "sourceTitle": "Sprint starts and the minimum auditory reaction time",
+      "sourcePublisher": "Journal of Sports Sciences",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "An auditory sprint start includes a measurable interval between an unpredictable go-signal and force or movement onset.",
+        "Split-Stance Auditory Sprint Start must define cue modality, cue meaning, waiting interval, allowed response choices, start stance, false-start rule, direction, sprint distance, finish, and run-out. Simple go reaction and directional choice reaction are not interchangeable."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5465987/",
+      "sourceTitle": "Are Change of Direction Speed and Reactive Agility Useful for Determining the Optimal Field Position for Young Soccer Players?",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "A visually cued reactive task differs from a pre-planned task because the athlete must identify an unpredictable illuminated target before selecting the direction.",
+        "Split-Stance Auditory Sprint Start belongs either to a simple externally cued sprint-start variant or to reactive agility with perceptual decision and direction selection; the exact cue-response mapping determines which."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4689850/",
+      "sourceTitle": "Sprint Acceleration Mechanics: The Major Role of Hamstrings in Horizontal Force Production",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Sprint acceleration requires coordinated hip, knee, and ankle action, including hamstring contribution to horizontal force production.",
+        "Represent visual or auditory processing and head-eye orientation as task demands, then gluteal, hamstring, quadriceps, hip-flexor, plantar-flexor, foot, trunk, and reciprocal arm roles; add braking and lateral control for directional choices."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Early sprint acceleration is associated with forward-directed impulse, propulsive force, and progressive projection.",
+        "The prepared response should preserve a repeatable start and first steps. Directional-choice responses additionally require head-eye pickup, safe reorientation, braking or turning mechanics, and a clear target path."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17127583/",
+      "sourceTitle": "Sprint starts and the minimum auditory reaction time",
+      "sourcePublisher": "Journal of Sports Sciences",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Auditory reaction time includes neural and neuromuscular components in addition to physical sprint-start execution.",
+        "Score technical complexity, absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly; athlete experience is programming context and never an exercise-card skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6407765/",
+      "sourceTitle": "Correlations between muscle-tendon parameters and acceleration ability in 20 m sprints",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Power output is highest during the first acceleration steps.",
+        "Split-Stance Auditory Sprint Start must track attempts, accepted versus anticipated responses, decision errors, distance, sprint and braking contacts, stance and direction distribution, surface, posterior-chain and plantar-flexor stress, technical or perceptual fatigue, recovery, and total session volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Quality sprint work requires a suitable surface, target, spacing, run-out, and recovery.",
+        "Require a clear dry lane or direction grid, unobstructed sight or hearing, consistent non-startling cue delivery, athlete separation, safe targets and run-outs, and any light, whistle, cone, or timing equipment specified by the variant."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration work should prescribe distance, intensity, repetitions, sets, and recovery.",
+        "Use two to six quality reactions per cue or direction with randomized waits and roughly 60–180 seconds recovery for high-intent sprint starts; directional tasks must balance choices and record correct responses separately from movement time."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5465987/",
+      "sourceTitle": "Are Change of Direction Speed and Reactive Agility Useful for Determining the Optimal Field Position for Young Soccer Players?",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "Reactive trials require the athlete to identify the presented target rather than execute a known direction.",
+        "Set the stance, focus on the defined cue source, wait without guessing, execute only the mapped response, accelerate through the target, and use the assigned deceleration or run-out path."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Training should use appropriate supervision, correct technique, manageable demands, and gradual progression.",
+        "Stop for pain, startle or distress, missed or ambiguous cue, repeated anticipation, slip, stumble, lane conflict, unsafe turn or brake, marked decision or speed decline, or inability to complete the run-out safely."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration and maximal-velocity sprinting are distinct qualities, and high-quality sprint work should not become dense conditioning.",
+        "Split-Stance Auditory Sprint Start belongs after preparation and before fatigue. Program simple reaction before multiple-choice direction tasks, and separate reaction accuracy from sprint or agility output when reviewing performance."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "Acceleration develops across successive steps rather than through immediate upright running.",
+        "Show the exact stance, cue device and location, allowed mappings, one accepted and one false-start example, all target directions, finish and run-out paths, and a pre-planned regression."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5465987/",
+      "sourceTitle": "Are Change of Direction Speed and Reactive Agility Useful for Determining the Optimal Field Position for Young Soccer Players?",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "Reactive assessment separates the unplanned visual-target condition from the same pre-planned movement path.",
+        "Provide a randomized cue schedule, cue and movement timestamps when measured, response accuracy, anticipation and no-response rules, stance and direction balance, lane control, technique and speed stops, and exact simple-versus-choice classification."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Speed training should be developmentally appropriate and based on movement competency.",
+        "Accessibility options include a comfortable stance, one cue modality, one known response, longer wait window, submaximal intent, shorter distance, high-contrast visual target, non-startling sound, demonstration, fewer choices, fewer reps, and longer recovery."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5465987/",
+      "sourceTitle": "Are Change of Direction Speed and Reactive Agility Useful for Determining the Optimal Field Position for Young Soccer Players?",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "Pre-planned and reactive direction tasks use similar paths but differ in whether the target direction is known.",
+        "Whistle, clap, and verbal go can be aliases of one simple auditory signal; changing cue modality is a variant, while adding multiple response choices, a live opponent, a ball, or a required direction change may require a distinct definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for Split-Stance Auditory Sprint Start remain candidate-only. Availability, embedding, exact stance, cue, choice count, direction and finish match, full viewing, captions, cue and safety quality, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=jZvGC8kQdhQ",
+      "title": "Split stance sprint starts",
+      "channelName": "Mike Kozak",
+      "sourceQuery": "existing split-stance-start candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Exact stance component; auditory cue procedure is unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=-5rySJSCayk",
+      "title": "How to do a Standing Start - learn to start faster",
+      "channelName": "MomentumSports",
+      "sourceQuery": "existing split-stance-start candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Standing-start component; exact auditory reaction is unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=GzZjzBm-56k",
+      "title": "Standing Start Technique | Standing Sprint Starts for Acceleration",
+      "channelName": "Simple Speed Coach",
+      "sourceQuery": "existing split-stance-start candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Stance component; exact cue and distance are unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=edfjTEu7O4I",
+      "title": "Speed & Agility: Auditory & Visual Reaction Time- Cone Drill",
+      "channelName": "Relentless Athletics",
+      "sourceQuery": "existing auditory-reaction candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Cue component; exact split-stance forward sprint is unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=TNnKwjJo8Sc",
+      "title": "Whistle Reaction Advanced Agility",
+      "channelName": "ONEighty Athletics",
+      "sourceQuery": "existing auditory-reaction candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Whistle component; exact stance and forward-only response are unverified."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Auditory Start Sprint",
+      "classification": "new_variant",
+      "rationale": "This card fixes the otherwise variable start stance.",
+      "distinguishingDimensions": {
+        "startPosition": "split_stance"
+      }
+    },
+    {
+      "name": "Split-Stance Self-Selected Sprint",
+      "classification": "new_definition",
+      "rationale": "Removing the cue removes reaction time from the task.",
+      "distinguishingDimensions": {
+        "cueModality": "self_selected"
+      }
+    },
+    {
+      "name": "Three-Point Auditory Start",
+      "classification": "new_variant",
+      "rationale": "Grounding one hand changes support and transition.",
+      "distinguishingDimensions": {
+        "startPosition": "three_point"
+      }
+    },
+    {
+      "name": "Split-Stance Visual Start",
+      "classification": "new_variant",
+      "rationale": "Changing sensory modality changes detection requirements.",
+      "distinguishingDimensions": {
+        "cueModality": "visual"
+      }
+    },
+    {
+      "name": "Split-Stance Direction Choice",
+      "classification": "new_definition",
+      "rationale": "Adding multiple target directions changes decision and movement demands.",
+      "distinguishingDimensions": {
+        "responseChoices": "multiple_directions"
+      }
+    }
+  ]
+}

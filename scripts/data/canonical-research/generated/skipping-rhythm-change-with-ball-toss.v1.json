@@ -1,0 +1,460 @@
+{
+  "facilityId": 1,
+  "slug": "skipping-rhythm-change-with-ball-toss",
+  "researchVersion": "2026-07-25.10",
+  "assessmentSummary": {
+    "identity": "Traveling ordinary step-hop skipping through a defined cadence sequence while completing an explicitly timed self- or partner-toss and catch with a soft light ball.",
+    "currentCardFindings": [
+      "The card does not define ball type or mass, self versus partner toss, toss direction, cadence cue, catch timing, successful repetition, or dropped-ball procedure.",
+      "Seeing, deciding, moving, catching, and resetting are asserted without a reproducible event sequence.",
+      "Visible YouTube searches produced skipping and ball-toss components but no exact combined demonstration, so all media remain quarantined."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "traveling_ordinary_skip",
+        "planned_cadence_modulation",
+        "visual_object_interception"
+      ],
+      "jointActions": [
+        "hip_flexion_extension",
+        "knee_flexion_extension",
+        "ankle_dorsiflexion_plantarflexion",
+        "shoulder_elbow_hand_toss_and_catch"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal",
+        "transverse_for_object_tracking"
+      ],
+      "laterality": "alternating_lower_body_with_defined_hand_rule",
+      "intent": "maintain_skip_and_cadence_rule_while_tracking_tossing_and_catching"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "soleus",
+        "gastrocnemius",
+        "gluteus_maximus",
+        "hip_flexors",
+        "hamstrings"
+      ],
+      "secondaryMuscles": [
+        "quadriceps",
+        "intrinsic_foot",
+        "gluteus_medius",
+        "obliques",
+        "deltoids",
+        "forearm_and_hand_muscles"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex",
+        "shoulder",
+        "elbow",
+        "wrist",
+        "hand"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 64,
+      "absoluteLoadDemand": 18,
+      "coordinationDemand": 76,
+      "supervisionDemand": 52,
+      "failureConsequence": 38,
+      "impact": 28,
+      "workCapacityDemand": 35,
+      "baseOverallDifficulty": 64
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_step_hop_with_cadence_and_light_object_dual_task",
+      "impactClass": "low_to_moderate_by_contacts_and_visual_distraction",
+      "landingContactsPerRep": "record_contacts_per_side_and_successful_toss_catch_events",
+      "primaryStress": [
+        "plantar_flexor_cyclic_load",
+        "gait_timing",
+        "visual_tracking",
+        "upper_limb_interception",
+        "divided_attention"
+      ],
+      "fatigueSensitivity": "drops_misdirected_tosses_gaze_lock_pattern_loss_reaching_contact_sound_and_collision_risk"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "soft_light_high_visibility_ball",
+        "clear_level_lane",
+        "safe_ball_retrieval_zone"
+      ],
+      "optionalEquipment": [
+        "partner",
+        "colored_cones",
+        "video"
+      ],
+      "environment": [
+        "dry_non_slip_surface",
+        "no_cross_traffic",
+        "no_fragile_objects_or_bystanders"
+      ],
+      "population": [
+        "owns_ordinary_skip",
+        "can_toss_and_catch_while_walking",
+        "can_follow_cadence_and_ball_rules"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4_passes",
+      "eventsPerPass": "6-12_contacts_per_side_with_2-6_planned_toss_catch_events",
+      "restSeconds": "45-120",
+      "intensity": "submaximal_accuracy_first",
+      "progressWhen": "all catches and cadence changes occur without gait conversion, unsafe gaze, reaching, collision risk, or contact-quality loss"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Own the skip first",
+        "Toss into the assigned window",
+        "Track then catch softly",
+        "Reset before the next event"
+      ],
+      "athleteInstructions": [
+        "Keep the exact skip and cadence pattern while completing only the assigned tosses and catches; stop if the ball leaves the safe lane"
+      ],
+      "commonFaults": [
+        "undefined_toss_source",
+        "chasing_ball",
+        "turning_into_run",
+        "gaze_fixed_upward",
+        "missed_cadence_cue",
+        "throwing_too_hard"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "stable_skip",
+        "safe_stationary_toss_catch",
+        "understands_drop_rule",
+        "clear_lane"
+      ],
+      "stopRules": [
+        "pain",
+        "limp",
+        "ball_leaves_safe_zone",
+        "two_consecutive_drops",
+        "collision_risk",
+        "pattern_loss",
+        "loud_contacts",
+        "unsafe_finish"
+      ]
+    },
+    "programmingDecision": "Retain as a distinct controlled dual-task variant only after the toss source, ball specification, cadence sequence, event timing, success criteria, and drop rule are defined. Keep publication and all media quarantined pending exact-match human review.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T06:10:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Skipping drill with cadence change and light ball toss to train contralateral coordination without conditioning. The goal is not random difficulty; it is coordinated seeing, deciding, moving, catching, and resetting with repeatable mechanics.",
+      "familyKey": "Whole-Body Rhythm + Multi-Limb Timing",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Skipping contains two functionally different successive contacts, with distinct braking and propelling contributions, and is not interchangeable with running or a generic series of hops.",
+        "Skipping Rhythm Change with Ball Toss must define its contact sequence, travel direction, displacement, amplitude, cadence or cue sequence, laterality, object task, external spacing, and finish; rhythm, quickness, neural, and power labels alone do not establish identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Skipping is a locomotor gait with flight, single-support, and double-support phases and successive steps that partition braking and propulsion differently.",
+        "Skipping Rhythm Change with Ball Toss belongs to ordinary alternating step-hop skipping, maximal horizontal power skipping, externally spaced skipping, a defined dual-task skip, or single-leg sprint-cycle mechanics; it is not automatically A-skip, running, bounding, or a change-of-direction drill."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/36265840/",
+      "sourceTitle": "Differences in Muscle Demand and Joint Contact Forces Between Running and Skipping",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "At matched treadmill speed in a small modeling study, skipping produced greater energetic demand from uniarticular ankle plantar flexors and greater ankle contact force than running, while running produced greater knee and patellofemoral contact forces.",
+        "The card should represent intrinsic-foot, plantar-flexor, knee-extensor, hip-flexor and extensor, hamstring, frontal-plane pelvic, trunk, arm-action, and visual-manual roles in proportion to the actual skip, projection, cycle, or catch task."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Skipping and running differ in cadence, step length, ground-reaction forces, joint torques, powers, and work distribution; the first and second skipping contacts also differ from each other.",
+        "Cue the observable step-hop sequence, posture, arm-leg timing, contact placement, projection, or defined cycle without claiming that the drill reproduces sprint kinetics or that every contact is mechanically identical."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8553457/",
+      "sourceTitle": "Application of Leg, Vertical, and Joint Stiffness in Running Performance: A Literature Overview",
+      "sourcePublisher": "Journal of Healthcare Engineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Whole-limb stiffness and movement behavior change with task, speed, fatigue, maturity, and measurement method and cannot be inferred as a fixed quality from an exercise name.",
+        "Exercise difficulty must directly score technical complexity, physical and absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; athlete readiness remains programming context."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8938535/",
+      "sourceTitle": "Effects of Plyometric Training on Lower Body Muscle Architecture, Tendon Structure, Stiffness and Physical Performance: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Repeated flight contacts can provide meaningful muscle-tendon loading even without external resistance, and amplitude, surface, and contact volume change the exposure.",
+        "Skipping Rhythm Change with Ball Toss needs total and per-side contacts, distance, surface, footwear, amplitude or projection intent, cadence or cue sequence, ball mass and toss count when used, quality-loss markers, recovery, and weekly impact accounting."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Linear-speed preparation requires appropriate space, a safe finish, progressive intensity, suitable surfaces, recovery, and coaching matched to the intended movement quality.",
+        "Require a level dry non-slip lane, no cross traffic, a safe finish, suitable footwear, visible flat markers when prescribed, and a soft appropriately sized ball plus a separated partner or wall zone only for the ball-toss task."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The NSCA manual distinguishes power skips for height from power skips for distance and directs maximal distance on each distance skip with full take-off-leg extension.",
+        "Use passes, metres, total and per-side contacts, exact cadence segments, object tosses, and recovery rather than an ambiguous repetition count or a fatigue-driven interval; maximal projections require fewer contacts and fuller recovery than relaxed rhythm skips."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Because successive skipping contacts have different braking and propelling roles, instruction should preserve the defined step-hop pattern rather than force every contact to look or feel identical.",
+        "Use a small task-specific cue set: stay tall unless projection is assigned, step-hop and alternate, contact close enough to preserve balance, coordinate opposite arm and leg, project forward only for distance skips, and complete the exact cue, cone, cycle, or catch rule."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/36265840/",
+      "sourceTitle": "Differences in Muscle Demand and Joint Contact Forces Between Running and Skipping",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Lower knee contact force during skipping at one studied speed does not mean globally low tissue load; ankle contact forces and plantar-flexor demand were higher than running in the model.",
+        "Stop for foot, ankle, shin, calf, Achilles, knee, hamstring, hip, or back pain; limping; repeated stumbles; loud or lengthening contacts; balance loss; unsafe reaching; cadence or pattern loss; missed cones; dropped or misdirected balls; collision risk; or an unsafe finish."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41209369/",
+      "sourceTitle": "Development and Validation of a Running Drill Test Battery to Predict 5 m and 20 m Sprint Performance",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "A published running-drill battery found no statistically significant association between A-skip score and 5 m or 20 m sprint performance in its sample, cautioning against direct transfer promises from visually related drills.",
+        "Skipping Rhythm Change with Ball Toss should have an explicit coordination, rhythm, plyometric projection, perception-action, or sprint-cycle purpose and be placed while fresh enough to preserve that purpose; do not promise faster sprinting, improved agility, or better sport performance from the drill alone."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "The alternating step-hop gait should be demonstrated as a complete sequence because a still image or high-knee label cannot communicate its two different successive contacts.",
+        "Show side and rear views, travel direction, step-hop rhythm, contact count, amplitude, arm action, cue or cone map, ball flight and catch rule when used, finish, one regression, and a clear explanation that faster or higher is not automatically better."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23435115/",
+      "sourceTitle": "Did you see that? Dissociating advanced visual information and ball flight constrains perception and action processes during one-handed catching",
+      "sourcePublisher": "Acta Psychologica",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Catching performance depends on ball-flight information and the regulation of gaze and hand movement, so a ball-toss task adds a real perception-action demand rather than merely decorative equipment.",
+        "Provide observation positions, pass and contact counts, exact cadence segments, cone spacing and contact rule, ball mass and toss source, successful-catch definition, left-right comparison, quality stops, and a distinction between coaching observations and verified biomechanical measurement."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should match readiness, technical competence, supervision, equipment scale, and the individual's physical and psychosocial context.",
+        "Accessibility options include shorter lanes, lower amplitude, slower cadence, ordinary walking or marching before skipping, fewer contacts, larger softer balls, self-toss before partner toss, floor marks instead of cones, quieter cueing, extra demonstration, and longer recovery."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The NSCA manual defines power skips for height and power skips for distance by different outcome intents even though both retain a skipping contact pattern.",
+        "Pass length, coaching emphasis, and ordinary cadence are delivery annotations; maximal horizontal versus vertical projection, external spacing, a prescribed cadence-change sequence, object interception, stationary versus traveling cycles, and a terminal sprint can require controlled variants or distinct definitions."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Candidates for Skipping Rhythm Change with Ball Toss were discovered through visible YouTube search; availability and embedding, exact contact sequence and constraint, complete viewing, captions, instructional quality, safety, and approval remain separate review gates. Adjacent component demonstrations are explicitly quarantined and no candidate is approved by this packet."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=IepUawhaZ8Q",
+      "title": "Drills: Rhythm Skip",
+      "channelName": "focusnfly",
+      "sourceQuery": "skipping ball toss coordination drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Skipping component only; no ball toss established."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=o4h9J6pXE8A",
+      "title": "PE at Home: Hand-Eye Coordination - Tossing/Catching/Juggling",
+      "channelName": "ThePEglobe",
+      "sourceQuery": "skip while tossing catching ball coordination",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Toss-and-catch component only; no traveling skip established."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=0wQmYTn-Hpo",
+      "title": "Throw & Catch | Coordination",
+      "channelName": "Three Rivers and Watford School Sports Partnership",
+      "sourceQuery": "skip while tossing catching ball coordination",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Object-interception component only; exact combined variant not shown by search evidence."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=FYS9o-__MwI",
+      "title": "6 individual Throwing & Catching challenges: Part 1",
+      "channelName": "Prime Coaching Sport",
+      "sourceQuery": "skip while tossing catching ball coordination",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Throwing-and-catching progression only; non-exact adjacent candidate."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=E1t1_zKKdhg",
+      "title": "Tossing, Tracking & Catching Skills",
+      "channelName": "KidGo Coach Hayne",
+      "sourceQuery": "skip while tossing catching ball coordination",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Tracking-and-catching component only; no verified cadence-changing skip match."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Skipping Rhythm Change",
+      "classification": "new_definition",
+      "rationale": "Removing the ball eliminates visual interception, hand use, drop rules, and ball logistics.",
+      "distinguishingDimensions": {
+        "objectTask": "none"
+      }
+    },
+    {
+      "name": "Self-Toss Rhythm Skip",
+      "classification": "new_variant",
+      "rationale": "Self-toss makes ball timing predictable and removes partner variability.",
+      "distinguishingDimensions": {
+        "tossSource": "self"
+      }
+    },
+    {
+      "name": "Partner-Toss Rhythm Skip",
+      "classification": "new_variant",
+      "rationale": "Partner toss adds external ball-flight variability, partner spacing, and collision controls.",
+      "distinguishingDimensions": {
+        "tossSource": "partner"
+      }
+    },
+    {
+      "name": "Ball Carry Rhythm Skip",
+      "classification": "modifier_annotation",
+      "rationale": "Carrying a secured ball changes arm action but removes interception and may be an equipment/context annotation.",
+      "distinguishingDimensions": {
+        "objectTask": "carry_only"
+      }
+    },
+    {
+      "name": "Reactive Color-Ball Skip",
+      "classification": "new_variant",
+      "rationale": "Selecting a response from ball color adds an explicit decision rule beyond catching.",
+      "distinguishingDimensions": {
+        "decisionRule": "color_response"
+      }
+    }
+  ]
+}

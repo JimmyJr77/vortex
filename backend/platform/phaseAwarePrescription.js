@@ -18,7 +18,6 @@ import {
   effectiveEquipmentAvoidIds,
   loadBodyweightEquipmentIds,
 } from './equipmentAvoidPolicy.js'
-import { buildSkillLevelSql } from './skillLevelPolicy.js'
 import { beginnerAppropriatenessPenalty } from './beginnerExclusionPolicy.js'
 import { implicitPhaseFocusHints } from './sessionObjectivePolicy.js'
 import {
@@ -109,7 +108,10 @@ function buildSplitProfiles(audienceSplits, body) {
     const profile = resolveAudienceProfile({
       ageMin: split.ageMin ?? split.age_min,
       ageMax: split.ageMax ?? split.age_max,
-      skillLevel: body.skillLevel ?? body.skill_level,
+      trainingExperience: body.trainingExperience
+        ?? body.training_experience
+        ?? body.skillLevel
+        ?? body.skill_level,
       sessionObjective: body.sessionObjective ?? body.session_objective,
       targets: body.targets,
     })
@@ -1025,7 +1027,10 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
   const audience = resolveAudienceProfile({
     ageMin: body.ageMin ?? body.age_min,
     ageMax: body.ageMax ?? body.age_max,
-    skillLevel: body.skillLevel ?? body.skill_level,
+    trainingExperience: body.trainingExperience
+      ?? body.training_experience
+      ?? body.skillLevel
+      ?? body.skill_level,
     sessionObjective: body.sessionObjective ?? body.session_objective,
     targets: body.targets,
     prompt: body.prompt,
@@ -1049,7 +1054,13 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     const sportRow = await pool.query(`SELECT key FROM coaching.sport WHERE id = $1 LIMIT 1`, [sportId])
     sportKey = sportRow.rows[0]?.key ?? null
   }
-  const level = body.skillLevel || body.skill_level || audience.impliedSkillLevel || null
+  const trainingExperience = body.trainingExperience
+    || body.training_experience
+    || body.skillLevel
+    || body.skill_level
+    || audience.trainingExperience
+    || audience.impliedSkillLevel
+    || null
   const ageMin = audience.ageMin
   const ageMax = audience.ageMax
   const caps = audience.caps
@@ -1135,13 +1146,6 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
     // card in the facility. Explicit sport cards only enter the pool when that
     // sport is selected.
     where.push(`e.sport_id IS NULL`)
-  }
-  if (level && level !== 'N/A') {
-    const skillSql = buildSkillLevelSql(level, params.length + 1)
-    if (skillSql.clause) {
-      params.push(...skillSql.params)
-      where.push(skillSql.clause)
-    }
   }
   let ageMinParamIndex = null
   if (ageMin != null) {
@@ -1253,17 +1257,15 @@ export async function runPhaseAwarePrescription(pool, facilityId, body) {
       const profiles = bundle.phaseProfiles.get(String(ex.id)) ?? []
       const difficulty = bundle.difficultyProfiles?.get(String(ex.id)) ?? null
       const primary = profiles.find((p) => p.role === 'primary') ?? profiles[0]
-      const isSkillDrill = ex.programming_kind === 'skill_drill'
-
-      if (hardDifficultyExclude && !isSkillDrill && !difficultyWithinCaps(difficulty, poolCaps, true)) return null
+      if (hardDifficultyExclude && !difficultyWithinCaps(difficulty, poolCaps, true)) return null
 
       if (strengthIntent && primary?.phaseKey === 'capacity') score += 4
       if (strengthIntent && (primary?.impactLevel ?? 99) <= 1) score += 2
 
-      const beginnerPenalty = beginnerAppropriatenessPenalty(ex, primary, level, sportKey)
+      const beginnerPenalty = beginnerAppropriatenessPenalty(ex, primary, trainingExperience, sportKey)
       score -= beginnerPenalty
 
-      const ageMultiplier = isSkillDrill ? 1 : scoreAgeDifficultyFit(difficulty, poolCaps)
+      const ageMultiplier = scoreAgeDifficultyFit(difficulty, poolCaps)
       score *= ageMultiplier
       score *= sportContextMultiplier(ex, sportKey, sportIdByKey)
 

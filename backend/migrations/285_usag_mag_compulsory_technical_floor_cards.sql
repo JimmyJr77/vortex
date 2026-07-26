@@ -1,0 +1,176 @@
+-- USA Gymnastics Men's Development Program 2025-2028.
+-- MDP-specific Floor foundations for Levels 3-6 and Technical Sequence
+-- refinement cards. Shared saltos/handsprings use the FIG cards in migration 284.
+
+WITH source_data (
+  slug, track, official_name, levels, description, instruction, predecessor, next_step, source_title, source_url
+) AS (
+  VALUES
+    ('usag-mag-comp-headstand','Headstand hold progression','Headstand',ARRAY['MAG Level 3'],
+      'The Level 3 compulsory headstand progression establishes a stable three-point support and straight vertical body before the controlled exit.',
+      'Place hands and head as a stable triangle, keep pressure active through both hands, stack hips over the base, extend knees and toes to vertical, hold without rolling onto the neck, and lower under control.',
+      'usag-acro-supported-handstand-floor','usag-mag-comp-press-handstand',
+      'USA Gymnastics MDP Newsletter #3','https://www.ngja.org/wp-content/uploads/2025/02/MDP-Newsletter-3-V2.pdf'),
+    ('usag-mag-comp-press-handstand','Compulsory press-handstand progression','Press handstand',ARRAY['MAG Level 3','MAG Level 4','MAG Level 5','MAG Level 6'],
+      'The MDP press-handstand progression moves from the prescribed support through compression to vertical handstand; Level 3 may substitute it for the headstand and Level 4 may substitute it for jump handstand under current rules.',
+      'Shift shoulders over hands, compress hips with straight knees, lift the feet without jumping, open hips only after the center of mass passes over the hands, reach vertical, and show the required hold.',
+      'usag-mag-comp-headstand','usag-mag-fx-eg1-007',
+      'USA Gymnastics MDP Newsletter #5','https://static.usagym.org/PDFs/Men/devprogram/newsletters/2026_jan27.pdf'),
+    ('usag-mag-comp-jump-handstand','Jump to handstand','Jump handstand',ARRAY['MAG Level 4'],
+      'The Level 4 compulsory jump-handstand uses a two-foot jump through straddle or pike to arrive at the prescribed vertical handstand.',
+      'Set hands shoulder-width, jump the hips above the shoulders, control the straddle/pike pathway, join legs only after balance is established, push tall through shoulders, and finish vertical without walking the hands.',
+      'handstand','usag-mag-comp-press-handstand',
+      'USA Gymnastics MDP Newsletter #3','https://www.ngja.org/wp-content/uploads/2025/02/MDP-Newsletter-3-V2.pdf'),
+    ('usag-mag-comp-l-sit','Compulsory L-sit progression','L-sit',ARRAY['MAG Level 3','MAG Level 4','MAG Level 5','MAG Level 6'],
+      'A straight-arm support holds the legs together at or above horizontal for the prescribed compulsory duration.',
+      'Press shoulders down, lock elbows, lift hips clear of the floor, compress thighs toward the torso, keep knees and toes straight, show horizontal legs and the full hold, then lower without collapse.',
+      NULL,'usag-mag-fx-eg1-001',
+      'USA Gymnastics Men''s Development Program Competition Manual','https://usagym.org/store/'),
+    ('usag-mag-comp-straddle-l','Compulsory straddle-L progression','Straddle L-sit',ARRAY['MAG Level 3','MAG Level 4','MAG Level 5','MAG Level 6'],
+      'A straight-arm support holds both legs in a symmetrical straddle at the prescribed height and duration.',
+      'Depress shoulders, lift hips, open both legs evenly, turn knees upward, keep feet above the support line, hold without touching the floor, and return with control.',
+      'usag-mag-comp-l-sit','usag-mag-fx-eg1-001',
+      'USA Gymnastics Men''s Development Program Competition Manual','https://usagym.org/store/'),
+    ('usag-mag-comp-split','Compulsory cross or side split','Cross/side split',ARRAY['MAG Level 3','MAG Level 4','MAG Level 5','MAG Level 6'],
+      'The compulsory flexibility element shows the selected cross or side split with straight legs, pointed feet, square/declared hip position, and a visible stop.',
+      'Enter under control, extend both knees, align the legs to the declared split direction, keep hips and torso placed, show the stop, and exit without pushing past safe range.',
+      'usag-acro-rear-scale','usag-mag-fx-eg1-055',
+      'USA Gymnastics Men''s Development Program Competition Manual','https://usagym.org/store/'),
+    ('usag-mag-comp-scale','Compulsory standing scale','Standing scale',ARRAY['MAG Level 3','MAG Level 4','MAG Level 5','MAG Level 6'],
+      'A one-leg standing scale shows the compulsory rear/side leg height, straight supporting leg, posture, and required hold.',
+      'Fix the support foot, hinge from the hip, extend the free leg to the declared line, keep shoulders and pelvis controlled, point both feet, show the full hold, and return without a step.',
+      'usag-acro-front-attitude-scale','usag-mag-fx-eg1-061',
+      'USA Gymnastics Men''s Development Program Competition Manual','https://usagym.org/store/'),
+    ('usag-mag-comp-forward-roll-handstand','Forward-roll to handstand progression','Roll/rock to handstand',ARRAY['MAG Level 3','MAG Level 4','MAG Level 5','MAG Level 6'],
+      'The compulsory roll/rock pathway converts forward or prone momentum into a controlled handstand position.',
+      'Round through the shoulders, place hands early, direct hips over the support, extend arms and legs without head pressure, reach vertical before the hold count, and exit as prescribed.',
+      'usag-acro-synchronized-forward-roll','usag-mag-fx-eg1-013',
+      'USA Gymnastics Men''s Development Program Competition Manual','https://usagym.org/store/'),
+    ('usag-mag-comp-back-extension','Backward roll through handstand','Back extension / roll through handstand',ARRAY['MAG Level 3','MAG Level 4','MAG Level 5','MAG Level 6'],
+      'A backward roll extends through the official handstand and turn pathway before the prescribed finish.',
+      'Roll with a rounded back, place hands early, push through straight arms, extend hips and legs to the handstand line, complete any declared half/full turn, and finish without extra hand steps.',
+      'wag-comp-back-extension-roll','usag-mag-fx-eg1-109',
+      'USA Gymnastics Men''s Development Program Competition Manual','https://usagym.org/store/'),
+    ('usag-mag-comp-circle-flair','Floor circle and flair progression','Circle/flair',ARRAY['MAG Level 4','MAG Level 5','MAG Level 6'],
+      'The compulsory floor circle/flair progression travels around straight supporting arms with continuous hip and leg clearance.',
+      'Shift weight hand to hand before the legs arrive, keep elbows locked, extend hips, lead the circle with the heels, maintain even rhythm, and complete the required number without foot contact.',
+      'usag-mag-comp-straddle-l','usag-mag-fx-eg1-079',
+      'USA Gymnastics Men''s Development Program Competition Manual','https://usagym.org/store/'),
+    ('usag-mag-comp-forward-tumbling','Compulsory forward-tumbling progression','Forward handspring, flyspring, dive-roll, and salto pathway',ARRAY['MAG Level 3','MAG Level 4','MAG Level 5','MAG Level 6'],
+      'The Levels 3-6 forward-tumbling boxes develop from dive roll and handspring/flyspring actions toward forward saltos.',
+      'Run and hurdle on line, block the floor with open shoulders, create a rising bound, keep the head neutral, show the declared flight/body shape, and finish the roll or landing without a direction change.',
+      'front-handspring','usag-mag-fx-eg2-013',
+      'USA Gymnastics Men''s Development Program Competition Manual','https://usagym.org/store/'),
+    ('usag-mag-comp-backward-tumbling','Compulsory backward-tumbling progression','Round-off, back-handspring, tempo, and back-salto pathway',ARRAY['MAG Level 3','MAG Level 4','MAG Level 5','MAG Level 6'],
+      'The Levels 3-6 backward-tumbling boxes develop round-off turnover through back handspring/tempo actions into backward saltos.',
+      'Turn the round-off down the line, snap feet under the hips, keep the handspring or tempo long and rising, set the salto vertically, show the declared shape, and control the two-foot landing.',
+      'round-off','usag-mag-fx-eg3-001',
+      'USA Gymnastics Men''s Development Program Competition Manual','https://usagym.org/store/'),
+
+    ('usag-mag-ts-roundoff-turnover','Technical Sequence: round-off turnover','Efficient round-off turnover',ARRAY['MAG Technical Sequence'],
+      'The Technical Sequence evaluates a fast hollow round-off turnover that converts forward approach speed into a rising backward line.',
+      'Reach arms in front/below the head, keep hips tucked and chest hollow, place hands on line, snap straight legs well in front of the hips, keep shoulders over/behind the hips at foot contact, and lift the upper back to full extension.',
+      'round-off','usag-mag-ts-back-handspring-whip',
+      'USA Gymnastics Men''s Technical Sequence Refinement Table','https://static.usagym.org/PDFs/Men/Rules/devprogram/jetechseq.pdf'),
+    ('usag-mag-ts-arabian-takeoff','Technical Sequence: Arabian takeoff','Arabian salto takeoff and twist timing',ARRAY['MAG Technical Sequence'],
+      'The sequence evaluates a square vertical set and completion of the half turn before the Arabian salto closes into tuck/pike.',
+      'Take off with feet and shoulders square, rise to a visible quarter-set position, complete the half turn while extended, then initiate the salto shape without leaning or twisting from the floor.',
+      'usag-mag-ts-roundoff-turnover','usag-mag-fx-eg3-004',
+      'USA Gymnastics Men''s Technical Sequence Refinement Table','https://static.usagym.org/PDFs/Men/Rules/devprogram/jetechseq.pdf'),
+    ('usag-mag-ts-aesthetic-transition','Technical Sequence: aesthetic transition','Prone scale, sissone, hitch-kick, and lunge transition',ARRAY['MAG Technical Sequence'],
+      'The sequence’s transition section evaluates extension, flexibility, posture, and continuous rhythm through the prescribed prone scale, sissone, hitch kick, and turned-out lunge.',
+      'Show the single leg at vertical in prone, at least 45 degrees in the sissone, both hitch-kick legs at horizontal, a turned-out front foot in lunge, and no rhythm interruption.',
+      'usag-mag-comp-scale','usag-mag-ts-arabian-takeoff',
+      'USA Gymnastics Men''s Technical Sequence Refinement Table','https://static.usagym.org/PDFs/Men/Rules/devprogram/jetechseq.pdf'),
+    ('usag-mag-ts-back-handspring-whip','Technical Sequence: back handspring and whip turnover','Back-handspring/whip extension and turnover',ARRAY['MAG Technical Sequence'],
+      'The Technical Sequence evaluates efficient shoulder/hip extension and backward turnover through power back handsprings and whips.',
+      'Keep arms in front/below the head at foot contact, chest hollow and head neutral, drive knees backward, reach a tight arch through flight, pull arms to shoulder height at landing, and rise into the next element.',
+      'back-handspring','usag-mag-ts-layout-full',
+      'USA Gymnastics Men''s Technical Sequence Refinement Table','https://static.usagym.org/PDFs/Men/Rules/devprogram/jetechseq.pdf'),
+    ('usag-mag-ts-front-handspring-bounder','Technical Sequence: front handspring and bounder','Front-handspring/bounder extension',ARRAY['MAG Technical Sequence'],
+      'The sequence evaluates open shoulders through front handspring and a hollow forward-extending bounder.',
+      'Keep arms overhead and shoulders/chest open through hand support, block upward, extend the body in a tight arch, then hollow forward through the bounder with arms overhead at the finish.',
+      'front-handspring','usag-mag-ts-dive-roll',
+      'USA Gymnastics Men''s Technical Sequence Refinement Table','https://static.usagym.org/PDFs/Men/Rules/devprogram/jetechseq.pdf'),
+    ('usag-mag-ts-dive-roll','Technical Sequence: vertical dive-roll takeoff','Dive roll',ARRAY['MAG Technical Sequence'],
+      'The sequence requires a vertically directed takeoff into an extended dive-roll flight and safe rounded roll.',
+      'Take off vertically with arms overhead, body straight and head neutral/up, maintain extension during flight, place hands before the head, round through the upper back, and rise without collapsing.',
+      'usag-mag-comp-forward-tumbling','usag-mag-fx-eg2-007',
+      'USA Gymnastics Men''s Technical Sequence Refinement Table','https://static.usagym.org/PDFs/Men/Rules/devprogram/jetechseq.pdf'),
+    ('usag-mag-ts-pike-open-back','Technical Sequence: pike-open back salto','Pike-open backward somersault',ARRAY['MAG Technical Sequence'],
+      'The sequence evaluates a vertical back-salto takeoff, at least 90 degrees of pike compression, and an immediate controlled opening.',
+      'Set vertically with chest/arms up and head neutral, lift hips and straight legs aggressively to a tight pike of at least 90 degrees, open immediately to full extension, lift the chest, and finish rotation before landing.',
+      'usag-mag-fx-eg3-001','usag-mag-fx-eg3-016',
+      'USA Gymnastics Men''s Technical Sequence Refinement Table','https://static.usagym.org/PDFs/Men/Rules/devprogram/jetechseq.pdf'),
+    ('usag-mag-ts-layout-full','Technical Sequence: round-off, power back handspring, layout full','Backward layout with full twist pass',ARRAY['MAG Technical Sequence','MAG Technical Sequence age 10-12'],
+      'The current Technical Sequence includes a run/hurdle, round-off, power back handspring, and straight backward salto with a full twist.',
+      'Use the refined round-off and rising power handspring, set a straight layout axis before twisting, complete 360 degrees without piking, spot the floor, and land square on two feet.',
+      'usag-mag-ts-back-handspring-whip','usag-mag-fx-eg4-009',
+      'USA Gymnastics MDP Newsletter #6','https://static.usagym.org/PDFs/Men/devprogram/newsletters/2026_mar22.pdf')
+),
+prepared AS (
+  SELECT d.*, jsonb_build_object(
+    'governing_body','USA Gymnastics',
+    'discipline','Men''s Artistic Gymnastics',
+    'event','Floor Exercise',
+    'program','Men''s Development Program 2025-2028',
+    'official_name',d.official_name,
+    'official_code',d.track || ' - ' || array_to_string(d.levels,', '),
+    'usa_gymnastics_levels',to_jsonb(d.levels),
+    'status','verified',
+    'last_verified','2026-07-25',
+    'prerequisites',CASE WHEN d.predecessor IS NULL THEN '[]'::jsonb ELSE jsonb_build_array(jsonb_build_object('slug',d.predecessor,'relationship','developmental predecessor')) END,
+    'next_progressions',CASE WHEN d.next_step IS NULL THEN '[]'::jsonb ELSE jsonb_build_array(jsonb_build_object('slug',d.next_step,'relationship','direct progression')) END,
+    'athlete_cues',jsonb_build_array(d.instruction,'Complete the entire prescribed box/sequence portion; missing one linked portion can remove specified-bonus or major-element credit.'),
+    'coach_checkpoints',jsonb_build_array(
+      d.description,d.instruction,
+      'Verify exact box text, order, division, specified-bonus option, major-element status, hold, and current newsletter clarification in the purchased manual.',
+      'MDP applies a 50% recognition rule to a genuine attempt, but not when the intended skill is omitted or replaced by a simpler different skill.'
+    ),
+    'safety_and_readiness',jsonb_build_array(
+      'Use a qualified men''s artistic coach, progressive mats and pits, appropriate spotting, and a documented emergency plan.',
+      'Master each shape and individual element before connecting the compulsory box or Technical Sequence at competition speed.'
+    ),
+    'common_faults',jsonb_build_array(
+      jsonb_build_object('fault','Required element or entire major box omitted','deduction','-1.0 missing element/major element','cue','Audit each box and purple major element.'),
+      jsonb_build_object('fault','Attempt completes less than the recognition threshold or substitutes a different skill','deduction','No value; -1.0 missing element plus execution as applicable','cue','Show at least 50% of the intended skill; a different simpler element is not an attempt.'),
+      jsonb_build_object('fault','Small / medium / large compulsory error','deduction','0.1 / 0.2 / 0.3','cue','Correct line, amplitude, rhythm, hold, and landing.'),
+      jsonb_build_object('fault','Press uses small/medium foot push','deduction','0.1 / 0.2 but may receive required credit','cue','Shift farther over hands before lifting.'),
+      jsonb_build_object('fault','Press jumps through straddle or never shows a valid attempt','deduction','No credit, -1.0 missing element and 0.3 large error','cue','Separate compression/press from jump-handstand technique.'),
+      jsonb_build_object('fault','Specified-bonus box incomplete','deduction','No specified bonus','cue','Perform every linked portion of the bonus box.'),
+      jsonb_build_object('fault','Non-permitted spotter / assistance on floor','deduction','-0.3 compulsory spotter presence / -0.5 assistance','cue','Keep coach outside the floor unless permitted.')
+    ),
+    'scoring_summary','Levels 3-6 compulsory boxes and Technical Sequences use prescribed element values, major-element/box penalties, specified bonuses, and 0.1/0.2/0.3 error categories. A missing required or Technical Sequence major element is generally -1.0; current newsletters clarify the 50% recognition rule and press-handstand credit. The purchased 2025-2028 manuals control exact box values and sequence text.',
+    'video_briefs',jsonb_build_array(
+      jsonb_build_object('title','Teach ' || d.official_name,'purpose','learning','description','Show the controlling box/sequence reference, prerequisite shapes, low-risk stations, spotting, each linked part, exact hold/count, then the complete skill from side and judging angles.'),
+      jsonb_build_object('title',d.official_name || ' - ideal MDP model','purpose','model','description','Show full speed and slow motion with box/major-element overlay. Mark recognition threshold, alignment, amplitude, rhythm, hold, landing, and whether every specified-bonus portion is complete.')
+    ),
+    'sources',jsonb_build_array(
+      jsonb_build_object('title',d.source_title,'url',d.source_url,'organization','USA Gymnastics','effective_cycle','2025-2028','accessed_on','2026-07-25','note','Official skill/technical clarification or public refinement standard.'),
+      jsonb_build_object('title','USA Gymnastics Men''s Development Program Competition and Technical Sequence Manuals','url','https://usagym.org/store/','organization','USA Gymnastics','effective_cycle','2025-2028','accessed_on','2026-07-25','note','Controlling purchased manual for exact boxes, sequences, values, bonuses, and deductions.'),
+      jsonb_build_object('title','USA Gymnastics Men''s Rules and Updates','url','https://usagym.org/men/rules/','organization','USA Gymnastics','effective_cycle','current','accessed_on','2026-07-25','note','Current official manual access and newsletters.')
+    ),
+    'editorial_note','Original coaching summary; does not reproduce protected manual text. The purchased current manual and newsletters control.'
+  ) metadata
+  FROM source_data d
+)
+INSERT INTO coaching.skill (
+  facility_id,name,slug,description,instructions,sport_id,skill_level,
+  skill_kind,evaluation_mode,execution_max_score,assistance_note,
+  is_published,visibility,official_metadata
+)
+SELECT
+  (SELECT id FROM public.facility ORDER BY id LIMIT 1),
+  'MAG ' || p.track || ' - ' || p.official_name,p.slug,p.description,p.instruction,
+  (SELECT id FROM coaching.sport WHERE key='gymnastics'),
+  CASE WHEN p.track='Technical Sequence' THEN 'ADVANCED'::public.skill_level ELSE 'BEGINNER'::public.skill_level END,
+  'individual','execution',10,
+  array_to_string(p.levels,', '),
+  TRUE,'facility',p.metadata
+FROM prepared p
+ON CONFLICT (facility_id,slug) DO UPDATE SET
+  name=EXCLUDED.name,description=EXCLUDED.description,instructions=EXCLUDED.instructions,
+  sport_id=EXCLUDED.sport_id,skill_level=EXCLUDED.skill_level,skill_kind=EXCLUDED.skill_kind,
+  evaluation_mode=EXCLUDED.evaluation_mode,execution_max_score=EXCLUDED.execution_max_score,
+  assistance_note=EXCLUDED.assistance_note,is_published=EXCLUDED.is_published,
+  visibility=EXCLUDED.visibility,official_metadata=EXCLUDED.official_metadata,updated_at=NOW();

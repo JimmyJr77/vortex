@@ -3,12 +3,17 @@ import { AlertTriangle, CheckCircle2, Gauge, Loader2, RefreshCw, XCircle } from 
 import { coachFetch } from '../../coach/api'
 
 const DIMENSIONS = [
-  'baseOverallDifficulty', 'technicalComplexity', 'supervisionDemand',
+  'technicalComplexity', 'absoluteLoadDemand', 'supervisionDemand',
   'failureConsequence', 'impact', 'workCapacityDemand',
   'gripDemand', 'spinalLoading', 'eccentricStress',
   'localMuscleFatigue', 'gripFatigue', 'technicalFatigueSensitivity',
   'impactAccumulation',
 ] as const
+
+const DIMENSION_LABELS: Partial<Record<(typeof DIMENSIONS)[number], string>> = {
+  technicalComplexity: 'Technical complexity',
+  absoluteLoadDemand: 'Physical difficulty',
+}
 
 interface Candidate {
   variant_id: string
@@ -46,7 +51,7 @@ export function CanonicalCalibrationWorkspace() {
   const [candidates, setCandidates] = useState<Candidate[]>([])
   const [calibrations, setCalibrations] = useState<Calibration[]>([])
   const [variantId, setVariantId] = useState('')
-  const [dimension, setDimension] = useState<string>('baseOverallDifficulty')
+  const [dimension, setDimension] = useState<string>('technicalComplexity')
   const [score, setScore] = useState(40)
   const [tier, setTier] = useState(40)
   const [rationale, setRationale] = useState('')
@@ -127,7 +132,7 @@ export function CanonicalCalibrationWorkspace() {
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 id="calibration-heading" className="flex items-center gap-2 text-lg font-bold text-gray-950"><Gauge className="h-5 w-5 text-blue-700" />Score calibration workspace</h3>
-          <p className="mt-1 max-w-3xl text-sm text-gray-600">Compare published variants to 20/40/60/80 anchors. Proposals require an independent reviewer and preserve their full history.</p>
+          <p className="mt-1 max-w-3xl text-sm text-gray-600">Compare published variants to 20/40/60/80 anchors. Technical complexity and physical difficulty are assessed independently; overall difficulty is derived from them. Proposals require an independent reviewer and preserve their full history.</p>
         </div>
         <button type="button" onClick={() => void load()} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm"><RefreshCw className="h-4 w-4" />Refresh</button>
       </header>
@@ -144,7 +149,7 @@ export function CanonicalCalibrationWorkspace() {
           </label>
           <label className="text-sm">Dimension
             <select value={dimension} onChange={(event) => setDimension(event.target.value)} className="mt-1 w-full rounded border border-blue-200 bg-white px-3 py-2">
-              {DIMENSIONS.map((value) => <option key={value}>{value}</option>)}
+              {DIMENSIONS.map((value) => <option key={value} value={value}>{DIMENSION_LABELS[value] ?? value}</option>)}
             </select>
           </label>
           <label className="text-sm">Proposed score (current: {currentScore(selected, dimension) ?? 'unset'})

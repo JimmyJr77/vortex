@@ -1,0 +1,567 @@
+{
+  "facilityId": 1,
+  "slug": "180-degree-turn-shuttle-cut",
+  "researchVersion": "2026-07-25.22",
+  "assessmentSummary": {
+    "identity": "A planned linear approach followed by horizontal braking, a planted 180-degree turn, and reacceleration back in the opposite direction. Approach distance, turn foot, pivot strategy, timing method, and exit distance are delivery variables; a second turn or an unpredictable cue creates a different task.",
+    "currentCardFindings": [
+      "The merged Turn and Sprint source is the same base identity; its useful full-stop and loop-turn language should become delivery guidance, not a second card.",
+      "The current card omits approach and exit distances, plant-side rules, valid line contact, turn strategy, timing boundaries, and lower-speed teaching doses.",
+      "Absolute physical load is not low: reversing body-mass momentum at speed creates substantial eccentric braking and propulsive demand even without external weight.",
+      "The three legacy links are relevant candidates but require full content, exact-version, captions, and quality review."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "linear_sprint",
+        "horizontal_deceleration",
+        "planned_180_change_of_direction",
+        "reacceleration"
+      ],
+      "jointActions": [
+        "penultimate_contact_braking",
+        "hip_knee_ankle_flexion",
+        "plant_and_whole_body_rotation",
+        "horizontal_propulsion"
+      ],
+      "planes": [
+        "sagittal_with_transverse_reorientation",
+        "frontal_stabilization"
+      ],
+      "laterality": "unilateral_turn_foot_recorded_both_sides_programmed",
+      "intent": "decelerate_rotate_and_reaccelerate_through_a_planned_180_degree_direction_change"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "quadriceps",
+        "gluteus_maximus",
+        "hamstrings",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "gluteus_medius",
+        "adductors",
+        "peroneals",
+        "tibialis_anterior",
+        "hip_rotators",
+        "obliques",
+        "spinal_stabilizers"
+      ],
+      "joints": [
+        "ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "lumbar_spine",
+        "thoracic_spine"
+      ],
+      "primaryActions": [
+        "horizontal_braking",
+        "center_of_mass_lowering",
+        "whole_body_reorientation",
+        "horizontal_reacceleration"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 68,
+      "absoluteLoadDemand": 74,
+      "coordinationDemand": 68,
+      "supervisionDemand": 74,
+      "failureConsequence": 76,
+      "impact": 72,
+      "workCapacityDemand": 48,
+      "baseOverallDifficulty": 74
+    },
+    "proposedLoadProfile": {
+      "loadingType": "high_rate_bodyweight_horizontal_braking_and_propulsion",
+      "impactClass": "high_at_fast_approach_velocity",
+      "externalLoadMethod": "none_for_baseline",
+      "primaryStress": [
+        "penultimate_and_final_contact_braking",
+        "turn_foot_force_acceptance",
+        "whole_body_rotation",
+        "first_reacceleration_contacts"
+      ],
+      "fatigueProfile": [
+        "upright_late_braking",
+        "overstriding",
+        "long_plant_contact",
+        "foot_slip",
+        "knee_or_trunk_collapse",
+        "extra_exit_step",
+        "side_asymmetry"
+      ],
+      "recoveryHours": "typically_24_to_72_based_on_entry_speed_volume_surface_and_other_sprint_or_cod_load"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "turn_line_or_cone",
+        "start_and_exit_markers",
+        "measured_clear_lane"
+      ],
+      "optionalEquipment": [
+        "timing_gates",
+        "force_plates_for_testing_only",
+        "video_capture"
+      ],
+      "environment": [
+        "high_traction_level_surface",
+        "adequate_braking_and_runoff_space",
+        "no_cross_traffic",
+        "weather_and_footwear_appropriate"
+      ],
+      "population": [
+        "pain_free_linear_acceleration_and_deceleration",
+        "owns_submaximal_180_turn_both_plant_sides",
+        "can_follow_line_and_lane_rules"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "2-4_sets_of_1-3_repetitions_per_plant_side",
+      "restSeconds": "60-120_between_repetitions_and_2-4_minutes_between_maximal_timed_sets",
+      "distance": "3-5_meter_approach_for_learning_then_5-15_meter_approach_only_as_entry_speed_is_intentionally_progressed",
+      "intensity": "submaximal_to_learn_then_high_intent_for_output_or_testing",
+      "measurement": "approach_distance_plant_side_valid_line_contact_turn_time_exit_time_total_time_and_technical_quality",
+      "progressWhen": "the_athlete_brakes_before_the_line_turns_without_slip_or_collapse_and_reaccelerates_cleanly_on_both_sides"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Brake before the line",
+        "Lower across the last steps",
+        "Plant and turn your whole body",
+        "Point the next step home",
+        "Push away clean"
+      ],
+      "athleteInstructions": [
+        "Accelerate toward the line at the assigned speed",
+        "Use the last steps to lower and brake",
+        "Place the assigned turn foot on the target",
+        "Turn your hips trunk and eyes toward the exit",
+        "Drive back through the finish without an extra shuffle"
+      ],
+      "commonFaults": [
+        "late_single_step_brake",
+        "upright_center_of_mass",
+        "foot_too_far_ahead",
+        "plant_slip",
+        "knee_collapse",
+        "excessive_trunk_lean",
+        "turning_only_the_feet",
+        "false_step_on_exit",
+        "crossing_the_lane"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "linear_acceleration",
+        "progressive_deceleration_to_stick",
+        "lower_speed_180_turn_both_sides",
+        "pain_free_ankle_knee_hip_and_groin"
+      ],
+      "qualityGates": [
+        "braking_begins_before_final_contact",
+        "turn_foot_hits_valid_zone",
+        "foot_does_not_slip",
+        "knee_and_trunk_remain_controlled",
+        "body_aligns_with_exit",
+        "first_exit_steps_are_clean"
+      ],
+      "stopRules": [
+        "pain_or_guarding",
+        "slip",
+        "repeated_line_overrun",
+        "plant_collapse",
+        "loss_of_balance",
+        "unsafe_lane_or_surface",
+        "visible_asymmetry_or_speed_drop",
+        "fatigue_prevents_controlled_braking"
+      ]
+    },
+    "proposedContextualProfiles": [
+      {
+        "context": "movement_intelligence_turn_mechanics",
+        "dose": "2-3_sets_of_2_repetitions_per_side_at_50-75_percent_entry_speed",
+        "purpose": "rehearse_penultimate_braking_plant_and_exit_alignment"
+      },
+      {
+        "context": "output_planned_cod",
+        "dose": "2-4_sets_of_1-3_repetitions_per_side_with_full_recovery",
+        "purpose": "express_high_quality_180_degree_braking_turning_and_reacceleration"
+      },
+      {
+        "context": "assessment_modified_505",
+        "dose": "familiarization_then_2-3_valid_timed_trials_per_side_with_2-4_minutes_recovery",
+        "purpose": "measure_a_standardized_5_meter_approach_turn_and_5_meter_exit_separately_from_training"
+      }
+    ],
+    "proposedRelationships": {
+      "regressions": [
+        "walk_in_180_turn",
+        "jog_in_180_turn_to_stick",
+        "short_approach_180_turn_and_reaccelerate"
+      ],
+      "progressions": [
+        "longer_faster_approach_180_turn",
+        "timed_modified_505",
+        "traditional_505_with_flying_approach"
+      ],
+      "substitutions": [
+        "5_yard_accel_to_decel_stick_for_braking_only",
+        "crossover_or_drop_step_turn_for_lower_braking_demand"
+      ],
+      "doNotSubstitute": [
+        "reactive_180_turn_on_cue",
+        "5_10_5_pro_agility_shuttle",
+        "180_jump_to_stick"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "overhead_lane_diagram",
+        "left_and_right_plant_examples",
+        "last_three_step_braking_animation",
+        "valid_line_contact_example",
+        "stop_signal"
+      ],
+      "coach": [
+        "approach_speed_progression",
+        "penultimate_and_final_contact_checklist",
+        "left_right_timing_and_quality_log",
+        "surface_and_lane_check",
+        "testing_protocol_badge"
+      ]
+    },
+    "calibrationEvidence": {
+      "basis": "modified-505 biomechanical research, 180-degree technique-intervention research, horizontal-deceleration review, current-card comparison, and direct candidate media",
+      "uncertainty": "No study validates a universal difficulty score or dose across ages, surfaces, approach speeds, and plant strategies. Score calibration requires comparison with other high-angle COD anchors.",
+      "reviewNeeded": [
+        "cod_coach_or_biomechanist_content_review",
+        "difficulty_anchor_comparison",
+        "youth_and_return_to_play_scope_review",
+        "full_video_review"
+      ]
+    },
+    "programmingDecision": "Retain one planned 180-degree turn-and-reaccelerate identity. The archived Turn and Sprint name becomes an alias. Modified versus traditional 505 approach, turn foot, pivot strategy, testing versus training, and exit distance are controlled variants or delivery profiles; reactive cues and multi-turn shuttles remain separate definitions.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T04:00:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "The athlete sprints toward a line or cone, brakes, plants, turns 180 degrees, and accelerates back in the opposite direction.",
+      "familyKey": "Deceleration / change-of-direction power",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 50,
+        "technicalComplexity": 50,
+        "baseOverallDifficulty": 50
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8196559/",
+      "sourceTitle": "The Biomechanical Characterization of the Turning Phase during a 180-Degree Change of Direction",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "The modified 505 uses a 5-meter forward sprint, one 180-degree change of direction, and a 5-meter sprint back.",
+        "This establishes the same base sequence described by the Turn / Shuttle Cut and Turn and Sprint cards; approach length and test setup do not create a second identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8196559/",
+      "sourceTitle": "The Biomechanical Characterization of the Turning Phase during a 180-Degree Change of Direction",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "The study separates penultimate foot contact, final turning contact, and first accelerating contact within the 180-degree turn.",
+        "Taxonomy must record planned versus reactive context, approach and exit distance, plant side, turn contact strategy, timing method, and whether the drill contains one or multiple turns."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Horizontal deceleration is a whole-body action requiring lower-limb eccentric force, neuromuscular control, and trunk and pelvis organization.",
+        "Represent ankle plantar flexors and dorsiflexors, knee extensors and flexors, hip extensors and abductors, adductors, trunk stabilizers, and their joint actions across braking and reacceleration."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8196559/",
+      "sourceTitle": "The Biomechanical Characterization of the Turning Phase during a 180-Degree Change of Direction",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "The turning phase involves distinct braking and propulsive contributions from the penultimate, final, and first accelerating contacts.",
+        "Coach the approach, multi-step braking, plant and whole-body reorientation, then exit rather than treating the final foot as the only braking contact."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Deceleration demand depends on momentum, approach velocity, braking time and distance, and the athlete's capacity to accept force.",
+        "Assess technical complexity and physical load directly, plus coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; no athlete level belongs on the exercise card."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "High-intensity horizontal deceleration imposes substantial mechanical and neuromuscular demand that is not captured by external load alone.",
+        "Track approach speed, high-intensity decelerations, turn side, surface, plant quality, symptoms, and overlap with sprint, jump, and COD exposure."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8196559/",
+      "sourceTitle": "The Biomechanical Characterization of the Turning Phase during a 180-Degree Change of Direction",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "The research protocol uses a measured course, visual target, controlled approach, and defined turn and exit.",
+        "Require a measured clear lane, high-traction surface, valid turn zone, appropriate footwear, and sufficient braking and runoff space; entry speed must match demonstrated control."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8225134/",
+      "sourceTitle": "Change of Direction Speed and Technique Modification Training Improves 180-Degree Turning Performance, Kinetics, and Kinematics",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "A structured technique-modification intervention changed 180-degree turning mechanics and performance over six weeks.",
+        "The proposed low-repetition, side-balanced, full-recovery session dose is a programming inference for quality and testing; it is not a universal protocol validated by the study."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8225134/",
+      "sourceTitle": "Change of Direction Speed and Technique Modification Training Improves 180-Degree Turning Performance, Kinetics, and Kinematics",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Efficient 180-degree turning requires reducing horizontal momentum, rotating the body, planting relative to the center of mass, and producing braking and propulsive impulse before reacceleration.",
+        "Instructions must separate the last braking steps, plant, whole-body turn, and exit and must state approach speed, side, line rule, and finish."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Training should be supervised, technically appropriate, progressively dosed, and performed in a safe environment.",
+        "Stop for pain, guarding, slipping, repeated overrun, uncontrolled knee or trunk motion, loss of balance, unsafe traffic, or fatigue that prevents braking before the turn."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8225134/",
+      "sourceTitle": "Change of Direction Speed and Technique Modification Training Improves 180-Degree Turning Performance, Kinetics, and Kinematics",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "180-degree performance reflects the interaction of velocity, technique, braking strategy, strength, force production, and neuromuscular control.",
+        "Program lower-speed mechanics before high-speed output or standardized testing and distinguish planned COD from reactive agility."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8196559/",
+      "sourceTitle": "The Biomechanical Characterization of the Turning Phase during a 180-Degree Change of Direction",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "The task has observable approach, turn, and reacceleration phases.",
+        "Athlete support should show the overhead course, assigned plant side, last braking contacts, turn target, exit direction, valid and invalid trials, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8225134/",
+      "sourceTitle": "Change of Direction Speed and Technique Modification Training Improves 180-Degree Turning Performance, Kinetics, and Kinematics",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Technique modification can alter 180-degree kinetics, kinematics, and performance.",
+        "Coach support needs approach-speed progression, penultimate and final contact observation, plant-side comparison, timing boundaries, surface checks, and regression rules."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should be appropriate to demonstrated technique and physical capacity.",
+        "Scale by walking or jogging, shortening the approach, enlarging the turn zone, removing timing, rehearsing each side separately, and using visual and verbal cues."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8196559/",
+      "sourceTitle": "The Biomechanical Characterization of the Turning Phase during a 180-Degree Change of Direction",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Modified and traditional 505 protocols share a single 180-degree turn but differ in approach conditions and measurement.",
+        "Treat approach distance, plant side, and timing as variants; a reactive cue, multiple turns, aerial rotation, or terminal stick changes the task enough to require separate assessment."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The five direct candidates returned public oEmbed metadata during discovery. Exact protocol, plant side, full content, captions, cue and safety quality, reviewer identity, and approval remain pending."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=ZCCr5xHKWB4",
+      "title": "Acceleration to 180 Turn",
+      "channelName": "Athletes Warehouse",
+      "sourceQuery": "180 degree turn sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Direct sequence candidate for human review. Approach, plant, exit distance, and complete instructional quality remain unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=PYkYKWalqOA",
+      "title": "Forward Sprint - 180 Degree Turn",
+      "channelName": "Lifetime Lean",
+      "sourceQuery": "180 degree turn sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Direct sequence candidate; exact delivery profile, both-side coverage, captions, and safety instruction require full review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=kuloWSUJqu4",
+      "title": "180 Deg Turn to Sprint",
+      "channelName": "ONU Strength and Conditioning Exercise Library",
+      "sourceQuery": "180 degree turn sprint drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Direct title candidate. No exact-version or demonstration-quality approval is inferred from title or oEmbed metadata."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=6HZOpP_l5DE",
+      "title": "180 Degree COD",
+      "channelName": "Todd Davidson P2P Coaching",
+      "sourceQuery": "legacy direct candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Retained legacy candidate after current oEmbed discovery; full movement, coaching, captions, and safety review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=7FfkEtUkwQ0",
+      "title": "180 Cut Mechanics Progression",
+      "channelName": "Drach Performance",
+      "sourceQuery": "legacy direct candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Mechanics-progression candidate. Review must determine which approach, plant, and exit variants are demonstrated and whether the complete content is suitable."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "180-Degree Turn and Sprint",
+      "classification": "same_identity",
+      "rationale": "It contains the same planned sprint approach, braking, planted half-turn, and opposite-direction reacceleration; the source card has been archived and retained as an alias.",
+      "distinguishingDimensions": {
+        "identityDifference": "none",
+        "deliveryDifferences": [
+          "approach_distance",
+          "turn_style",
+          "terminal_stick_option"
+        ]
+      }
+    },
+    {
+      "name": "Modified 505",
+      "classification": "new_variant",
+      "rationale": "A standardized 5-meter approach, 180-degree turn, and 5-meter exit preserve the identity while fixing testing distances, line rules, timing, and trial validity.",
+      "distinguishingDimensions": {
+        "approach": "5_meters",
+        "exit": "5_meters",
+        "context": "standardized_assessment"
+      }
+    },
+    {
+      "name": "Traditional 505",
+      "classification": "new_variant",
+      "rationale": "A flying approach raises entry velocity and testing demand but retains one planned 180-degree turn and reacceleration.",
+      "distinguishingDimensions": {
+        "approach": "flying_longer_approach",
+        "entryVelocity": "higher",
+        "context": "standardized_assessment"
+      }
+    },
+    {
+      "name": "Reactive 180-Degree Turn on Cue",
+      "classification": "new_definition",
+      "rationale": "An unpredictable cue adds perception, decision, and response-time demands and is reactive agility rather than planned COD.",
+      "distinguishingDimensions": {
+        "cue": "unpredictable",
+        "decisionDemand": "direction_choice"
+      }
+    },
+    {
+      "name": "5-10-5 Pro Agility Shuttle",
+      "classification": "new_definition",
+      "rationale": "The two-turn, three-segment shuttle has a different route, contact sequence, side order, fatigue profile, and timing outcome.",
+      "distinguishingDimensions": {
+        "turnCount": 2,
+        "route": "5_10_5",
+        "contactSequence": "two_opposed_turns"
+      }
+    }
+  ]
+}

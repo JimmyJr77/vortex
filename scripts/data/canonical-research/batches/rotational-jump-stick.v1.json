@@ -1,0 +1,1665 @@
+{
+  "batchKey": "rotational-jump-stick-v1",
+  "facilityId": 1,
+  "researchVersion": "2026-07-25.3",
+  "snapshotAt": "2026-07-25T23:07:20.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Rotational jump identity must specify takeoff and landing laterality, turn angle and direction, projection vector, contact sequence, external height, rebound intent, and required stabilization.",
+        "{{canonicalName}} must not combine bilateral jump turns, unilateral rotational bounds, multi-contact sequences, broad jumps, or repeated reactive turns under one generic rotational label."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "A jump-to-stick combines ballistic propulsion with a deliberate landing and stabilization phase; repeated reactive hopping is a different task.",
+        "{{canonicalName}} belongs to rotational jump or bound power with landing control, with direction, laterality, projection, contact sequence, and rebound intent encoded as controlled dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "Propulsion and force absorption are coordinated across the foot and ankle, knee, hip, pelvis, and trunk.",
+        "The card should assign task-specific roles to plantar flexors, intrinsic foot muscles, quadriceps, hamstrings, gluteals, hip stabilizers, obliques, and trunk stabilizers without treating lumbar rotation as the primary driver."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Plyometric demand changes with projection speed, direction, external height, body mass, and time available to produce and absorb force.",
+        "Observable quality includes the prescribed takeoff, whole-body turn led by foot-hip-trunk coordination, visual orientation before contact, intended flight path, quiet landing, knee tracking, stable pelvis and trunk, and ownership of the finish."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Plyometric intensity changes with speed, height, distance, body mass, laterality, external load, and movement complexity.",
+        "Exercise difficulty must score technical and physical demand directly, including spatial coordination, impact, supervision, work capacity, and consequence of error; exercise cards must not use skill-library levels."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Landing contacts, jump height or distance, turn angle, laterality, contact sequence, and external load govern mechanical exposure; power repetitions require adequate rest.",
+        "{{canonicalName}} needs contact count per side and direction, output intent, impact and eccentric stress, spatial and technical-fatigue criteria, and recovery guidance rather than conditioning-style work time."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "landing_intervention_systematic_review",
+      "claims": [
+        "Effective jump-landing interventions depend on appropriate materials, coaching knowledge, usable space, and task-specific progression.",
+        "The delivery profile should require a level non-slip surface, clear flight and landing zones in every turn direction, adequate ceiling height, athlete spacing, coach sightline, and readiness for rotational orientation and landing."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "Bilateral landing and stabilization should precede unilateral, larger-angle, farther, multi-contact, or reactive jumping.",
+        "Prescribe low-repetition sets, contacts per direction, turn angle, projection target, hold time, rest, and progression criteria; stop before fatigue alters orientation or landing."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Specific prescriptive feedback can improve landing mechanics, while excessive cue volume can interfere with learning.",
+        "Use a small cue set: load through the prescribed stance, turn the body as one coordinated unit, find the landing before contact, land quietly, and hold without a touch-down, shuffle, or rebound."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "Loud contact, poor stabilization, loss of alignment, or inability to coordinate ankle, knee, and hip indicate excessive jump intensity or volume.",
+        "Stop for pain, giving way, dizziness, disorientation, repeated valgus or trunk collapse, forced lumbar twisting, missed turn angle, uncontrolled foot contact, extra steps, or loss of output."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "youth_landing_stabilization_best_practice",
+      "claims": [
+        "Landing stabilization and lower-body strength are recurring components of effective neuromuscular injury-prevention programs.",
+        "{{canonicalName}} belongs after linear and lateral landing foundations and before fatigued multidirectional work; use low volume and sufficient recovery to preserve spatial and landing quality."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Athletes benefit from feedback tied to visible movement actions rather than abstract risk language.",
+        "Athlete support should show start and finish orientations, turn direction and angle, foot contact sequence, landing target and hold time, one primary cue, and the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "landing_intervention_systematic_review",
+      "claims": [
+        "Coach education and practical implementation affect whether jump-landing interventions are delivered effectively.",
+        "Coach support should provide front, side, and finish-angle observation, pass-fail criteria, contact counting, left-right comparison, regressions, progressions, and rules for reducing angle, distance, laterality, or contact count."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "Beginners should establish bilateral landing and stabilization before progressing to unilateral, higher, farther, or reactive tasks.",
+        "Accessibility can be improved with start and finish floor arrows, visual targets, demonstrated orientations, reduced turn angle or distance, assistance, longer reset time, and reduced sensory demand without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Different turn angles, projection directions, laterality, landing stance, repeated contacts, obstacles, and external load have different intensity and programming implications.",
+        "Turn direction, small angle adjustments, and submaximal targets are usually variants; a different takeoff or landing laterality, projection vector, contact sequence, rebound intent, or testing purpose may require a distinct definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for {{canonicalName}} were discovered or rechecked through visible YouTube search and public oEmbed metadata; exact movement match, full viewing, captions, instructional quality, safety, and approval remain pending human review."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "180-jump-to-stick",
+      "assessmentSummary": {
+        "identity": "A bilateral in-place vertical jump with a 180-degree turn in flight, bilateral landing facing the opposite direction, and a deliberate two-second stick.",
+        "currentCardFindings": [
+          "The description is generic rotational copy and does not state bilateral takeoff and landing, in-place projection, turn direction, or hold duration.",
+          "The separate 180-Degree Jump to Stick card has the same angle, output intent, dosage family, difficulty, and candidate media identity.",
+          "The 50-point legacy score omits impact, supervision, failure consequence, and work-capacity demand; anatomy, load, fatigue, and constraints are empty."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "countermovement",
+            "vertical_jump",
+            "half_turn",
+            "bilateral_land",
+            "brace"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "whole_body_rotation",
+            "landing_flexion_control"
+          ],
+          "planes": [
+            "sagittal",
+            "transverse"
+          ],
+          "laterality": "bilateral_takeoff_bilateral_landing",
+          "intent": "half_turn_air_orientation_and_landing_control"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius",
+            "obliques"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "thoracic_spine"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 16,
+          "coordinationDemand": 64,
+          "supervisionDemand": 52,
+          "failureConsequence": 58,
+          "impact": 54,
+          "workCapacityDemand": 20,
+          "baseOverallDifficulty": 58
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_rotational_ballistic_and_eccentric_landing",
+          "impactClass": "moderate",
+          "contactCountUnit": "half_turn_landings_per_direction",
+          "primaryStress": [
+            "vertical_power",
+            "air_orientation",
+            "rotational_braking",
+            "bilateral_force_attenuation"
+          ],
+          "fatigueSensitivity": "turn_accuracy_visual_orientation_and_landing_quality"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "start_and_finish_orientation_marks"
+          ],
+          "optionalEquipment": [
+            "visual_spot_target",
+            "video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "adequate_ceiling_height",
+            "clear_360_degree_zone"
+          ],
+          "population": [
+            "owns_bilateral_jump_to_stick",
+            "owns_90_degree_jump_turn_both_directions",
+            "no_motion_triggered_dizziness"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "2-4 per direction",
+          "landingHoldSeconds": "2-3",
+          "restSeconds": "60-120",
+          "intensity": "submaximal_height_with_exact_half_turn",
+          "progressWhen": "the athlete completes both directions to the target orientation and lands quietly in place without a shuffle"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Load evenly and jump up",
+            "Turn the whole body together",
+            "Find the opposite wall before landing",
+            "Land on both feet and freeze"
+          ],
+          "athleteInstructions": [
+            "Jump from two feet",
+            "Turn halfway around in the air",
+            "Land on two feet facing backward and hold"
+          ],
+          "commonFaults": [
+            "traveling away from start",
+            "under- or over-rotation",
+            "feet landing at different times",
+            "forced low-back twist",
+            "loud contact",
+            "extra step"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain-free bilateral jump and stick",
+            "controlled 90-degree turns both directions",
+            "clear non-slip zone"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "dizziness or disorientation",
+            "repeated missed angle",
+            "asymmetrical landing",
+            "extra step",
+            "forced lumbar rotation"
+          ]
+        },
+        "programmingDecision": "Consolidate with 180-Degree Jump to Stick after human identity review. Preserve both names as aliases and one stable bilateral half-turn definition; turn direction and arm action are delivery dimensions."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=IDRbGv2uacU",
+          "title": "180 Jump & Stick",
+          "channelName": "JMTrainingSolutions",
+          "sourceQuery": "180 jump and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=z_FNUXwP9Sw",
+          "title": "180 Degree Rotational Jump - Stick Landing",
+          "channelName": "Collin Lawless // Lawless Performance",
+          "sourceQuery": "180 degree jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=iYgq7sCABL4",
+          "title": "180 Degree Jump & Stick",
+          "channelName": "Earth Quaker",
+          "sourceQuery": "180 jump and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=IGrLN9G-67I",
+          "title": "Rotational Jump to Stick - 180 Degrees",
+          "channelName": "Trainer Stone",
+          "sourceQuery": "180 degree jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=lyQIQmeoJN8",
+          "title": "180-degree vertical jump with stick",
+          "channelName": "Michael Anderson",
+          "sourceQuery": "180 jump and stick"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "180-Degree Jump to Stick",
+          "classification": "same_identity",
+          "rationale": "The other active card describes the same bilateral half-turn jump, landing, and hold.",
+          "distinguishingDimensions": {
+            "alias": "180_degree_jump_to_stick"
+          }
+        },
+        {
+          "name": "90-Degree Jump Turn to Stick",
+          "classification": "new_variant",
+          "rationale": "A quarter turn is the direct lower-coordination progression step.",
+          "distinguishingDimensions": {
+            "turnAngleDegrees": 90
+          }
+        },
+        {
+          "name": "180-Degree Jump to Single-Leg Stick",
+          "classification": "new_variant",
+          "rationale": "Unilateral landing materially raises impact, balance, and frontal-plane demand.",
+          "distinguishingDimensions": {
+            "landingLaterality": "unilateral"
+          }
+        },
+        {
+          "name": "Continuous 180-Degree Jump Turns",
+          "classification": "new_definition",
+          "rationale": "Repeated rebounds remove the stick and change the stimulus to reactive output or conditioning.",
+          "distinguishingDimensions": {
+            "reboundIntent": "continuous"
+          }
+        },
+        {
+          "name": "Loaded 180-Degree Jump to Stick",
+          "classification": "new_variant",
+          "rationale": "External load changes rotational inertia and landing demand and requires separate dosage.",
+          "distinguishingDimensions": {
+            "externalLoad": "prescribed"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "180-degree-jump-to-stick",
+      "assessmentSummary": {
+        "identity": "A bilateral in-place vertical jump with a 180-degree turn in flight, bilateral landing facing the opposite direction, and a deliberate two-second stick.",
+        "currentCardFindings": [
+          "The description is generic multi-sport explosiveness copy and does not define the takeoff, landing, projection, turn direction, or hold.",
+          "The active 180 Jump to Stick card is the same candidate identity and shares the same legacy difficulty and media pool.",
+          "The 50-point score omits impact, supervision, failure consequence, and work-capacity demand; controlled anatomy, load, fatigue, and constraints are empty."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "countermovement",
+            "vertical_jump",
+            "half_turn",
+            "bilateral_land",
+            "brace"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "whole_body_rotation",
+            "landing_flexion_control"
+          ],
+          "planes": [
+            "sagittal",
+            "transverse"
+          ],
+          "laterality": "bilateral_takeoff_bilateral_landing",
+          "intent": "half_turn_air_orientation_and_landing_control"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius",
+            "obliques"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "thoracic_spine"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 16,
+          "coordinationDemand": 64,
+          "supervisionDemand": 52,
+          "failureConsequence": 58,
+          "impact": 54,
+          "workCapacityDemand": 20,
+          "baseOverallDifficulty": 58
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_rotational_ballistic_and_eccentric_landing",
+          "impactClass": "moderate",
+          "contactCountUnit": "half_turn_landings_per_direction",
+          "primaryStress": [
+            "vertical_power",
+            "air_orientation",
+            "rotational_braking",
+            "bilateral_force_attenuation"
+          ],
+          "fatigueSensitivity": "turn_accuracy_visual_orientation_and_landing_quality"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "start_and_finish_orientation_marks"
+          ],
+          "optionalEquipment": [
+            "visual_spot_target",
+            "video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "adequate_ceiling_height",
+            "clear_360_degree_zone"
+          ],
+          "population": [
+            "owns_bilateral_jump_to_stick",
+            "owns_90_degree_jump_turn_both_directions",
+            "no_motion_triggered_dizziness"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "2-4 per direction",
+          "landingHoldSeconds": "2-3",
+          "restSeconds": "60-120",
+          "intensity": "submaximal_height_with_exact_half_turn",
+          "progressWhen": "both directions finish on the target orientation with a quiet in-place bilateral landing and no shuffle"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Jump up before turning",
+            "Rotate feet, hips, and trunk together",
+            "Spot the opposite wall",
+            "Land evenly and freeze"
+          ],
+          "athleteInstructions": [
+            "Jump from two feet",
+            "Turn halfway around",
+            "Land on two feet facing the opposite way and hold"
+          ],
+          "commonFaults": [
+            "horizontal drift",
+            "under- or over-rotation",
+            "split-time foot contact",
+            "forced lumbar twist",
+            "loud landing",
+            "extra step"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain-free bilateral jump and stick",
+            "controlled quarter turns",
+            "clear non-slip zone"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "dizziness",
+            "repeated missed angle",
+            "asymmetrical contact",
+            "extra step",
+            "forced lumbar rotation"
+          ]
+        },
+        "programmingDecision": "Merge into the same stable definition as 180 Jump to Stick after identity review. Do not retain two active cards whose only difference is spelling."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=IDRbGv2uacU",
+          "title": "180 Jump & Stick",
+          "channelName": "JMTrainingSolutions",
+          "sourceQuery": "180 jump and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=z_FNUXwP9Sw",
+          "title": "180 Degree Rotational Jump - Stick Landing",
+          "channelName": "Collin Lawless // Lawless Performance",
+          "sourceQuery": "180 degree jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=iYgq7sCABL4",
+          "title": "180 Degree Jump & Stick",
+          "channelName": "Earth Quaker",
+          "sourceQuery": "180 jump and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=IGrLN9G-67I",
+          "title": "Rotational Jump to Stick - 180 Degrees",
+          "channelName": "Trainer Stone",
+          "sourceQuery": "180 degree jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=lyQIQmeoJN8",
+          "title": "180-degree vertical jump with stick",
+          "channelName": "Michael Anderson",
+          "sourceQuery": "180 jump and stick"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "180 Jump to Stick",
+          "classification": "same_identity",
+          "rationale": "The other active card is the same bilateral half-turn task.",
+          "distinguishingDimensions": {
+            "alias": "180_jump_to_stick"
+          }
+        },
+        {
+          "name": "90-Degree Jump Turn to Stick",
+          "classification": "new_variant",
+          "rationale": "A smaller turn angle is a direct regression.",
+          "distinguishingDimensions": {
+            "turnAngleDegrees": 90
+          }
+        },
+        {
+          "name": "180-Degree Jump to Single-Leg Stick",
+          "classification": "new_variant",
+          "rationale": "Unilateral landing changes balance and impact demand.",
+          "distinguishingDimensions": {
+            "landingLaterality": "unilateral"
+          }
+        },
+        {
+          "name": "Continuous 180-Degree Jump Turns",
+          "classification": "new_definition",
+          "rationale": "Continuous rebounds remove stabilization and change the primary stimulus.",
+          "distinguishingDimensions": {
+            "reboundIntent": "continuous"
+          }
+        },
+        {
+          "name": "Reactive-Cue 180-Degree Jump",
+          "classification": "new_variant",
+          "rationale": "An external left-right cue changes decision demand while preserving the movement.",
+          "distinguishingDimensions": {
+            "cueType": "reactive_direction"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "90-degree-jump-turn-to-stick",
+      "assessmentSummary": {
+        "identity": "A bilateral in-place vertical jump with a 90-degree turn in flight, bilateral landing on a perpendicular orientation target, and a deliberate two-second stick.",
+        "currentCardFindings": [
+          "The current card gives the turn angle but not takeoff and landing laterality, in-place projection, direction balance, or hold duration.",
+          "The separate 90-Degree Hop to Stick card uses generic rotational copy and is likely the same identity unless hop is explicitly unilateral.",
+          "Absolute-load demand 40 is inconsistent with bodyweight jumping while impact, supervision, failure consequence, anatomy, load, and fatigue are missing."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "countermovement",
+            "vertical_jump",
+            "quarter_turn",
+            "bilateral_land",
+            "brace"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "whole_body_rotation",
+            "landing_flexion_control"
+          ],
+          "planes": [
+            "sagittal",
+            "transverse"
+          ],
+          "laterality": "bilateral_takeoff_bilateral_landing",
+          "intent": "quarter_turn_air_orientation_and_landing_control"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius",
+            "obliques"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "thoracic_spine"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 48,
+          "absoluteLoadDemand": 14,
+          "coordinationDemand": 54,
+          "supervisionDemand": 44,
+          "failureConsequence": 50,
+          "impact": 48,
+          "workCapacityDemand": 18,
+          "baseOverallDifficulty": 48
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_rotational_ballistic_and_eccentric_landing",
+          "impactClass": "moderate",
+          "contactCountUnit": "quarter_turn_landings_per_direction",
+          "primaryStress": [
+            "vertical_power",
+            "air_orientation",
+            "rotational_braking",
+            "bilateral_force_attenuation"
+          ],
+          "fatigueSensitivity": "turn_accuracy_and_landing_quality"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "perpendicular_floor_orientation_marks"
+          ],
+          "optionalEquipment": [
+            "visual_spot_target",
+            "video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "adequate_ceiling_height",
+            "clear_360_degree_zone"
+          ],
+          "population": [
+            "owns_bilateral_jump_to_stick",
+            "can_follow_left_and_right_turn targets",
+            "no_motion_triggered_dizziness"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "3-5 per direction",
+          "landingHoldSeconds": "2-3",
+          "restSeconds": "45-90",
+          "intensity": "submaximal_height_with_exact_quarter_turn",
+          "progressWhen": "both directions land on the perpendicular marks quietly and in place without a shuffle"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Jump up before turning",
+            "Turn the body together",
+            "Find the side wall",
+            "Land on both feet and freeze"
+          ],
+          "athleteInstructions": [
+            "Jump from two feet",
+            "Turn one quarter in the air",
+            "Land on two feet facing the side and hold"
+          ],
+          "commonFaults": [
+            "horizontal drift",
+            "under- or over-rotation",
+            "feet contact at different times",
+            "knee collapse",
+            "extra step",
+            "continuous turning"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "mastered bilateral vertical jump and stick",
+            "pain-free rotation both directions",
+            "clear non-slip zone"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "dizziness",
+            "repeated missed target",
+            "asymmetrical landing",
+            "extra step",
+            "loss of confidence"
+          ]
+        },
+        "programmingDecision": "Retain as the stable bilateral quarter-turn card. Consolidate 90-Degree Hop to Stick into it unless human review proves a distinct unilateral hop contact sequence."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=Q38H9arCGtU",
+          "title": "90 Degree Jump + Stick",
+          "channelName": "Macalester Strength & Conditioning",
+          "sourceQuery": "90 degree jump and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=cqwy0-74LA0",
+          "title": "90’ Rotational jump, stick",
+          "channelName": "Rick Gannon, M.S. CSCS",
+          "sourceQuery": "90 degree jump and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=M3mt-4ODmUk",
+          "title": "Jump w/90 degrees Rotation & Stick",
+          "channelName": "Thomas Scarr",
+          "sourceQuery": "90 degree jump and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=VZ_0JbuAUHs",
+          "title": "90 Degree Jump Stick",
+          "channelName": "ForFitness and Athletics",
+          "sourceQuery": "90 degree jump and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Dh2xEBucIn8",
+          "title": "90 Degree Jump + Stick",
+          "channelName": "Joe Aratari",
+          "sourceQuery": "90 degree jump and stick"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "90-Degree Hop to Stick",
+          "classification": "same_identity",
+          "rationale": "The current hop card does not define a unilateral contact sequence and otherwise describes the same quarter-turn task.",
+          "distinguishingDimensions": {
+            "aliasPendingLateralityReview": true
+          }
+        },
+        {
+          "name": "45-Degree Jump Turn to Stick",
+          "classification": "new_variant",
+          "rationale": "A smaller turn angle reduces spatial demand.",
+          "distinguishingDimensions": {
+            "turnAngleDegrees": 45
+          }
+        },
+        {
+          "name": "180-Degree Jump to Stick",
+          "classification": "new_variant",
+          "rationale": "A half turn is the direct higher-coordination progression.",
+          "distinguishingDimensions": {
+            "turnAngleDegrees": 180
+          }
+        },
+        {
+          "name": "90-Degree Jump to Single-Leg Stick",
+          "classification": "new_variant",
+          "rationale": "Unilateral landing materially changes balance and impact.",
+          "distinguishingDimensions": {
+            "landingLaterality": "unilateral"
+          }
+        },
+        {
+          "name": "Continuous 90-Degree Jump Turns",
+          "classification": "new_definition",
+          "rationale": "Repeated rebounds remove the hold and emphasize reactive output or conditioning.",
+          "distinguishingDimensions": {
+            "reboundIntent": "continuous"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "90-degree-hop-to-stick",
+      "assessmentSummary": {
+        "identity": "The legacy identity is unresolved: if performed from two feet to two feet it is the same bilateral 90-degree jump-turn card; if hop means a one-foot takeoff and landing, laterality and same-leg versus opposite-leg contact must be stated before publication.",
+        "currentCardFindings": [
+          "The card supplies no difficulty scores and never defines whether hop is unilateral or colloquial bilateral usage.",
+          "Generic copy does not state start stance, turn direction, projection, landing stance, or hold.",
+          "The active 90-Degree Jump Turn to Stick card already owns the clear bilateral quarter-turn identity; taxonomy, anatomy, load, fatigue, and constraints are empty."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "jump_or_hop_unresolved",
+            "quarter_turn",
+            "land",
+            "brace"
+          ],
+          "jointActions": [
+            "lower_limb_propulsion",
+            "whole_body_rotation",
+            "landing_flexion_control"
+          ],
+          "planes": [
+            "sagittal",
+            "transverse"
+          ],
+          "laterality": "unresolved",
+          "intent": "quarter_turn_air_orientation_and_landing_control"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius",
+            "obliques"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "thoracic_spine"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 48,
+          "absoluteLoadDemand": 14,
+          "coordinationDemand": 54,
+          "supervisionDemand": 44,
+          "failureConsequence": 50,
+          "impact": 48,
+          "workCapacityDemand": 18,
+          "baseOverallDifficulty": 48
+        },
+        "proposedLoadProfile": {
+          "loadingType": "unresolved_until_laterality_review",
+          "impactClass": "moderate_if_bilateral_higher_if_unilateral",
+          "contactCountUnit": "quarter_turn_landings_per_direction_and_side",
+          "primaryStress": [
+            "air_orientation",
+            "rotational_braking",
+            "landing_force_attenuation"
+          ],
+          "fatigueSensitivity": "turn_accuracy_laterality_and_landing_quality"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "perpendicular_floor_orientation_marks"
+          ],
+          "optionalEquipment": [
+            "visual_spot_target",
+            "support_if_unilateral",
+            "video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "adequate_ceiling_height",
+            "clear_360_degree_zone"
+          ],
+          "population": [
+            "owns_the_selected_bilateral_or_unilateral_jump_to_stick_regression",
+            "no_motion_triggered_dizziness"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "3-5 per direction and side when unilateral",
+          "landingHoldSeconds": "2-3",
+          "restSeconds": "45-90",
+          "intensity": "submaximal_until_laterality_is_resolved",
+          "progressWhen": "the prescribed contact sequence and turn target are repeatable without an extra step"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "State the takeoff and landing feet before starting",
+            "Jump up then turn",
+            "Find the target",
+            "Land quietly and hold"
+          ],
+          "athleteInstructions": [
+            "Use exactly the foot pattern your coach demonstrates",
+            "Turn one quarter in the air",
+            "Land on the target and freeze"
+          ],
+          "commonFaults": [
+            "changing foot pattern between repetitions",
+            "unplanned bilateral or unilateral landing",
+            "missed angle",
+            "extra step",
+            "continuous rebound"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "contact sequence has been defined",
+            "owns the matching landing regression",
+            "clear non-slip zone"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "dizziness",
+            "unplanned foot contact",
+            "repeated missed angle",
+            "extra step",
+            "loss of confidence"
+          ]
+        },
+        "programmingDecision": "Quarantine pending laterality adjudication. Merge with 90-Degree Jump Turn to Stick if bilateral; otherwise rename to Single-Leg 90-Degree Hop to Stick and specify same-leg or opposite-leg landing with higher difficulty."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=Q38H9arCGtU",
+          "title": "90 Degree Jump + Stick",
+          "channelName": "Macalester Strength & Conditioning",
+          "sourceQuery": "90 degree jump and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=cqwy0-74LA0",
+          "title": "90’ Rotational jump, stick",
+          "channelName": "Rick Gannon, M.S. CSCS",
+          "sourceQuery": "90 degree jump and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=M3mt-4ODmUk",
+          "title": "Jump w/90 degrees Rotation & Stick",
+          "channelName": "Thomas Scarr",
+          "sourceQuery": "90 degree jump and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=VZ_0JbuAUHs",
+          "title": "90 Degree Jump Stick",
+          "channelName": "ForFitness and Athletics",
+          "sourceQuery": "90 degree jump and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Dh2xEBucIn8",
+          "title": "90 Degree Jump + Stick",
+          "channelName": "Joe Aratari",
+          "sourceQuery": "90 degree jump and stick"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "90-Degree Jump Turn to Stick",
+          "classification": "same_identity",
+          "rationale": "If the current hop uses bilateral takeoff and landing, it duplicates the established quarter-turn card.",
+          "distinguishingDimensions": {
+            "condition": "bilateral_takeoff_and_landing"
+          }
+        },
+        {
+          "name": "Single-Leg 90-Degree Hop to Same-Leg Stick",
+          "classification": "new_variant",
+          "rationale": "A true hop requires one-foot takeoff and same-foot landing and materially raises balance demand.",
+          "distinguishingDimensions": {
+            "takeoffLaterality": "unilateral",
+            "landingLaterality": "same_leg"
+          }
+        },
+        {
+          "name": "Single-Leg 90-Degree Jump to Opposite-Leg Stick",
+          "classification": "new_variant",
+          "rationale": "Opposite-leg landing is a distinct unilateral contact sequence.",
+          "distinguishingDimensions": {
+            "takeoffLaterality": "unilateral",
+            "landingLaterality": "opposite_leg"
+          }
+        },
+        {
+          "name": "180-Degree Jump to Stick",
+          "classification": "new_variant",
+          "rationale": "A larger turn angle increases spatial demand.",
+          "distinguishingDimensions": {
+            "turnAngleDegrees": 180
+          }
+        },
+        {
+          "name": "Continuous Quarter-Turn Hops",
+          "classification": "new_definition",
+          "rationale": "Continuous contacts remove the stabilization hold.",
+          "distinguishingDimensions": {
+            "reboundIntent": "continuous"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "rotational-bound-to-stick",
+      "assessmentSummary": {
+        "identity": "Proposed base identity: a single-leg diagonal bound with approximately 90 degrees of body rotation, landing on the opposite leg and holding the final orientation for two seconds; the legacy card is quarantined because none of those contact dimensions are stated.",
+        "currentCardFindings": [
+          "Generic explosiveness copy does not define takeoff leg, landing leg, bound direction, turn angle, or whether the task uses one or multiple contacts.",
+          "The 40-point legacy score understates spatial, unilateral, impact, and landing demands and omits supervision and consequence of error.",
+          "Existing media names support a unilateral rotational bound, but versions vary; anatomy, load, fatigue, constraints, and support are empty."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "single_leg_bound",
+            "diagonal_projection",
+            "quarter_turn",
+            "single_leg_land",
+            "brace"
+          ],
+          "jointActions": [
+            "unilateral_ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "whole_body_rotation",
+            "single_leg_landing_control"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal",
+            "transverse"
+          ],
+          "laterality": "unilateral_takeoff_opposite_leg_landing_proposed",
+          "intent": "rotational_projection_and_single_leg_braking"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "gluteus_medius",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius",
+            "obliques"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "adductors",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "thoracic_spine"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 64,
+          "absoluteLoadDemand": 20,
+          "coordinationDemand": 70,
+          "supervisionDemand": 58,
+          "failureConsequence": 65,
+          "impact": 58,
+          "workCapacityDemand": 22,
+          "baseOverallDifficulty": 64
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_unilateral_multiplanar_ballistic_and_eccentric_landing",
+          "impactClass": "moderate_to_high",
+          "contactCountUnit": "single_leg_rotational_landings_per_side_and_direction",
+          "primaryStress": [
+            "unilateral_projection",
+            "rotational_braking",
+            "hip_abductor_control",
+            "single_leg_force_attenuation"
+          ],
+          "fatigueSensitivity": "turn_angle_distance_pelvis_control_and_landing_hold"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "takeoff_and_landing_orientation_targets"
+          ],
+          "optionalEquipment": [
+            "assistance_band",
+            "video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "clear_multidirectional_zone",
+            "coach_front_and_finish_angle_view"
+          ],
+          "population": [
+            "owns_single_leg_lateral_bound_to_stick",
+            "owns_bilateral_90_degree_jump turn",
+            "pain_free_single_leg_rotational_landing"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "2-4 per side and direction",
+          "landingHoldSeconds": "2-3",
+          "restSeconds": "60-120",
+          "intensity": "submaximal_distance_until_contact_sequence_is_stable",
+          "progressWhen": "both sides reproduce the prescribed opposite-leg contact, turn angle, target distance, and stable hold"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Load one hip",
+            "Project diagonally and turn as one unit",
+            "Find the opposite foot and landing target",
+            "Own the pelvis and knee"
+          ],
+          "athleteInstructions": [
+            "Jump from one leg",
+            "Turn toward the target",
+            "Land on the opposite leg and hold"
+          ],
+          "commonFaults": [
+            "changing landing leg",
+            "unclear turn angle",
+            "overreaching",
+            "knee collapse",
+            "pelvis drop",
+            "free-foot touch",
+            "extra hop"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "mastered lateral bound and single-leg stick",
+            "controlled bilateral quarter turn",
+            "clear non-slip zone"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "dizziness",
+            "unplanned landing leg",
+            "repeated valgus or pelvis drop",
+            "free-foot touch",
+            "missed target"
+          ]
+        },
+        "programmingDecision": "Quarantine until takeoff, landing, turn angle, and projection are adjudicated. The proposed single-contact opposite-leg 90-degree bound is distinct from a bilateral jump turn and from a two-bound lateral-to-rotational sequence."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=PDezjzuC3Kc",
+          "title": "Rotational Bound to Stick",
+          "channelName": "Waterloo Warriors Varsity Strength and Conditioning",
+          "sourceQuery": "rotational bound to stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=k6fqQi52I4g",
+          "title": "90* Rotational Bound and Stick",
+          "channelName": "Repattern Co (Formerly Swell Wellness)",
+          "sourceQuery": "rotational bound to stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=D5YeB42KzMo",
+          "title": "Rotational Bound (Stick)",
+          "channelName": "Orthopedic Institute Performance",
+          "sourceQuery": "rotational bound to stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Wzk8mQ1j6Yg",
+          "title": "SL 90 degree rotational \"bound\" to stick",
+          "channelName": "Sustain Physical Therapy and Performance",
+          "sourceQuery": "rotational bound to stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=JQ3zy2vBlFg",
+          "title": "Rotational Bound to 1-Leg Stick",
+          "channelName": "Hockey Training Exercise Demonstrations",
+          "sourceQuery": "rotational bound to stick"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "90-Degree Rotational Bound to Opposite-Leg Stick",
+          "classification": "same_identity",
+          "rationale": "This explicit name captures the proposed single-contact contact sequence.",
+          "distinguishingDimensions": {
+            "turnAngleDegrees": 90,
+            "landingLeg": "opposite"
+          }
+        },
+        {
+          "name": "Rotational Bound to Same-Leg Stick",
+          "classification": "new_variant",
+          "rationale": "Same-leg landing changes flight and braking strategy.",
+          "distinguishingDimensions": {
+            "landingLeg": "same"
+          }
+        },
+        {
+          "name": "Assisted Rotational Bound to Stick",
+          "classification": "new_variant",
+          "rationale": "Band assistance reduces projection and landing demand.",
+          "distinguishingDimensions": {
+            "supportLevel": "assisted"
+          }
+        },
+        {
+          "name": "Lateral Bound to Rotational Bound and Stick",
+          "classification": "new_definition",
+          "rationale": "Two successive bounds create a distinct multi-contact sequence.",
+          "distinguishingDimensions": {
+            "contactSequence": "lateral_bound_then_rotational_bound"
+          }
+        },
+        {
+          "name": "Continuous Rotational Bounds",
+          "classification": "new_definition",
+          "rationale": "Continuous contacts remove the stick and emphasize reactive multiplanar power.",
+          "distinguishingDimensions": {
+            "reboundIntent": "continuous"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "lateral-bound-to-rotational-stick",
+      "assessmentSummary": {
+        "identity": "Proposed two-contact sequence: complete a unilateral lateral bound, use the landing to transition into one rotational bound, then land on one leg at the prescribed final orientation and stick; the legacy card is quarantined because the contact sequence is unstated.",
+        "currentCardFindings": [
+          "The name can mean one bound with rotation or a lateral bound followed by a second rotational bound; generic copy does not resolve the ambiguity.",
+          "No difficulty scores, laterality, turn angle, anatomy, load, fatigue, constraints, or contact-count dosage are present.",
+          "Visible media contains both one-contact rotational lateral bounds and two-bound sequences, so exact-version approval must wait for identity adjudication."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "lateral_bound",
+            "transition_contact",
+            "rotational_bound",
+            "single_leg_land",
+            "brace"
+          ],
+          "jointActions": [
+            "unilateral_projection",
+            "frontal_plane_braking_and_repropulsion",
+            "whole_body_rotation",
+            "single_leg_landing_control"
+          ],
+          "planes": [
+            "frontal",
+            "sagittal",
+            "transverse"
+          ],
+          "laterality": "alternating_unilateral_contacts",
+          "intent": "multi_contact_lateral_to_rotational_power_and_braking"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "gluteus_medius",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius",
+            "obliques"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "adductors",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "thoracic_spine"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 72,
+          "absoluteLoadDemand": 22,
+          "coordinationDemand": 76,
+          "supervisionDemand": 65,
+          "failureConsequence": 70,
+          "impact": 64,
+          "workCapacityDemand": 28,
+          "baseOverallDifficulty": 72
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_unilateral_multicontact_multiplanar_ballistic",
+          "impactClass": "high",
+          "contactCountUnit": "two_contact_sequences_per_side_and_direction",
+          "primaryStress": [
+            "lateral_projection",
+            "transition_leg_braking_and_repropulsion",
+            "rotational_projection",
+            "single_leg_final_braking"
+          ],
+          "fatigueSensitivity": "transition_timing_turn_accuracy_distance_and_final_hold"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "three_contact_or_orientation_targets"
+          ],
+          "optionalEquipment": [
+            "video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "large_clear_multidirectional_zone",
+            "coach_front_and_finish_angle_view"
+          ],
+          "population": [
+            "owns_lateral_bound_to_stick",
+            "owns_single_contact_rotational_bound_to_stick",
+            "can_link_two_unilateral_contacts_without_alignment loss"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "2-3 sequences per side and direction",
+          "landingHoldSeconds": "2-3 on final contact",
+          "restSeconds": "75-150",
+          "intensity": "submaximal_distance_with_crisp_two_contact_sequence",
+          "progressWhen": "the first landing remains aligned, the second bound turns to the target, and the final single-leg hold is stable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Own the lateral contact enough to redirect",
+            "Turn from the hip and whole body",
+            "Find the final target",
+            "Stick the last landing"
+          ],
+          "athleteInstructions": [
+            "Bound sideways",
+            "Use that landing to make one turning bound",
+            "Land on one leg and hold"
+          ],
+          "commonFaults": [
+            "turning the first contact into a pause",
+            "extra contacts",
+            "unclear turn direction",
+            "knee collapse",
+            "pelvis drop",
+            "missing final orientation",
+            "free-foot touch"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "mastered both component bounds separately",
+            "pain-free two-contact unilateral sequence",
+            "large clear non-slip zone"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "unplanned extra contact",
+            "transition-leg collapse",
+            "missed final target",
+            "free-foot touch",
+            "sequence slows or becomes hesitant"
+          ]
+        },
+        "programmingDecision": "Quarantine pending contact-sequence review. If the intended task is only one lateral bound with body rotation, merge it as a Rotational Lateral Bound variant; retain a separate card only for the true lateral-bound-to-rotational-bound sequence."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=ZVzrwpuDtzw",
+          "title": "Lateral Bound to Rotational Bound",
+          "channelName": "SPECTRUM Performance",
+          "sourceQuery": "lateral bound to rotational stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=SqQVLoDQY98",
+          "title": "Rotational Lateral Bound to Stick",
+          "channelName": "Kelly Cosgrove",
+          "sourceQuery": "lateral bound to rotational stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=GgNxWu0_1Po",
+          "title": "Lateral Bound with Rotation R to L",
+          "channelName": "Momentum Physical Therapy and Performance Training",
+          "sourceQuery": "lateral bound to rotational stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=GFYrCK_bXKU",
+          "title": "Lateral Bound to Rotational Bound",
+          "channelName": "Freedom Peak Performance",
+          "sourceQuery": "lateral bound to rotational stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=eYE5X8fOcWo",
+          "title": "Lateral Bound to Rotation",
+          "channelName": "Barrett Stover",
+          "sourceQuery": "lateral bound to rotational stick"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Lateral Bound to Rotational Bound and Stick",
+          "classification": "same_identity",
+          "rationale": "This explicit name captures the proposed two-contact sequence.",
+          "distinguishingDimensions": {
+            "contactSequence": "lateral_then_rotational_bound"
+          }
+        },
+        {
+          "name": "Rotational Lateral Bound to Stick",
+          "classification": "new_variant",
+          "rationale": "A single bound that combines lateral projection and rotation has one fewer contact.",
+          "distinguishingDimensions": {
+            "contactSequence": "single_rotational_lateral_bound"
+          }
+        },
+        {
+          "name": "Lateral Bound to Stick",
+          "classification": "new_variant",
+          "rationale": "Removing rotation and the second contact is the direct regression.",
+          "distinguishingDimensions": {
+            "rotation": "none",
+            "contacts": 1
+          }
+        },
+        {
+          "name": "Reactive Lateral-to-Rotational Bounds",
+          "classification": "new_definition",
+          "rationale": "Continuous sequences without a final hold emphasize reactive multiplanar power.",
+          "distinguishingDimensions": {
+            "reboundIntent": "continuous"
+          }
+        },
+        {
+          "name": "Medicine-Ball Lateral-to-Rotational Bound",
+          "classification": "new_variant",
+          "rationale": "An implement changes arm action, rotational inertia, and landing demand.",
+          "distinguishingDimensions": {
+            "implement": "medicine_ball"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "rotational-broad-jump-to-stick",
+      "assessmentSummary": {
+        "identity": "Proposed base identity: a bilateral standing broad jump projected diagonally with approximately 90 degrees of body rotation, bilateral landing on a rotated target, and a deliberate two-second stick.",
+        "currentCardFindings": [
+          "The legacy card names horizontal projection and rotation but never specifies turn angle, takeoff and landing laterality, direction, or hold.",
+          "Kicking-athlete transfer language is contextual rather than part of stable movement identity.",
+          "No difficulty, anatomy, load, fatigue, constraints, or distance and angle dosage are present."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "countermovement",
+            "horizontal_jump",
+            "diagonal_projection",
+            "quarter_turn",
+            "bilateral_land",
+            "brace"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "whole_body_rotation",
+            "horizontal_and_rotational_landing_control"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal",
+            "transverse"
+          ],
+          "laterality": "bilateral_takeoff_bilateral_landing",
+          "intent": "rotational_horizontal_projection_and_braking"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "quadriceps",
+            "hamstrings",
+            "soleus",
+            "gastrocnemius",
+            "obliques"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "adductors",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "thoracic_spine"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 60,
+          "absoluteLoadDemand": 20,
+          "coordinationDemand": 66,
+          "supervisionDemand": 55,
+          "failureConsequence": 62,
+          "impact": 60,
+          "workCapacityDemand": 22,
+          "baseOverallDifficulty": 60
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_multiplanar_ballistic_and_eccentric_braking",
+          "impactClass": "moderate_to_high",
+          "contactCountUnit": "rotational_broad_jump_landings_per_direction",
+          "primaryStress": [
+            "horizontal_and_diagonal_projection",
+            "rotational_braking",
+            "bilateral_force_attenuation"
+          ],
+          "fatigueSensitivity": "distance_turn_accuracy_and_landing_ownership"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "takeoff_line",
+            "rotated_landing_targets"
+          ],
+          "optionalEquipment": [
+            "distance_marks",
+            "video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "large_clear_diagonal_landing_zone",
+            "clear_run_out"
+          ],
+          "population": [
+            "owns_broad_jump_to_stick",
+            "owns_bilateral_90_degree_jump turn",
+            "can_absorb combined horizontal and rotational momentum"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "2-4 per direction",
+          "landingHoldSeconds": "2-3",
+          "restSeconds": "75-150",
+          "intensity": "submaximal_distance_until_angle_and_landing_are_repeatable",
+          "progressWhen": "both directions reach the target angle and distance with a quiet two-foot landing and no hand touch or extra step"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Load both hips",
+            "Project diagonally and turn together",
+            "Bring the hips over the landing feet",
+            "Land on the rotated target and freeze"
+          ],
+          "athleteInstructions": [
+            "Jump forward and across from two feet",
+            "Turn toward the target",
+            "Land on two feet and hold"
+          ],
+          "commonFaults": [
+            "stepping into takeoff",
+            "unclear turn angle",
+            "under- or over-rotation",
+            "feet too far ahead of hips",
+            "hand touch",
+            "extra step"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "mastered broad jump and bilateral quarter turn separately",
+            "pain-free multiplanar landing",
+            "large clear non-slip zone"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "missed landing zone",
+            "hand touch",
+            "extra step",
+            "repeated valgus",
+            "distance or angle degrades"
+          ]
+        },
+        "programmingDecision": "Retain as a distinct combined horizontal-projection and rotation card only after fixing the base angle and bilateral contact sequence. Keep sport transfer in contextual profiles, not stable identity."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=zGGOXMLYqX4",
+          "title": "Rotational Broad Jump - Do these to increase rotational power and athleticism 🔥🚀",
+          "channelName": "Plyomorph",
+          "sourceQuery": "rotational broad jump to stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=imxxbQeKQss",
+          "title": "Lateral Rotational Broad Jump",
+          "channelName": "Bullett Performance Training",
+          "sourceQuery": "rotational broad jump to stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=UXTNc73zsOQ",
+          "title": "Lateral Rotational Broad Jump",
+          "channelName": "Josh Raies",
+          "sourceQuery": "rotational broad jump to stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=d6hpdhRWyus",
+          "title": "Rotational Broad Jump",
+          "channelName": "Jack Brown",
+          "sourceQuery": "rotational broad jump to stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=tE-cioALo6o",
+          "title": "Rotational Broad Jump w/ Stick",
+          "channelName": "Belmont Hill School Strength and Conditioning",
+          "sourceQuery": "rotational broad jump to stick"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "90-Degree Rotational Broad Jump to Stick",
+          "classification": "same_identity",
+          "rationale": "This explicit name fixes the proposed base angle and stabilization requirement.",
+          "distinguishingDimensions": {
+            "turnAngleDegrees": 90
+          }
+        },
+        {
+          "name": "45-Degree Rotational Broad Jump",
+          "classification": "new_variant",
+          "rationale": "A smaller angle reduces rotational demand.",
+          "distinguishingDimensions": {
+            "turnAngleDegrees": 45
+          }
+        },
+        {
+          "name": "Single-Leg Rotational Broad Jump to Stick",
+          "classification": "new_variant",
+          "rationale": "Unilateral takeoff or landing materially changes balance and tissue demand.",
+          "distinguishingDimensions": {
+            "laterality": "unilateral"
+          }
+        },
+        {
+          "name": "Broad Jump to Stick",
+          "classification": "new_variant",
+          "rationale": "Removing rotation is the direct lower-complexity regression.",
+          "distinguishingDimensions": {
+            "turnAngleDegrees": 0
+          }
+        },
+        {
+          "name": "Repeated Rotational Broad Jumps",
+          "classification": "new_definition",
+          "rationale": "Repeated contacts without a hold change the stimulus to reactive or repeated multiplanar power.",
+          "distinguishingDimensions": {
+            "reboundIntent": "repeated"
+          }
+        }
+      ]
+    }
+  ]
+}

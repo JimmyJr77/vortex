@@ -1,0 +1,37 @@
+{
+  "batchKey": "ball-slam-foundations-v1",
+  "researchVersion": "2026-07-25.20",
+  "generatedAt": "2026-07-26T02:15:00.000Z",
+  "cards": [
+    {
+      "slug": "medicine-ball-overhead-slam",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "tall-kneeling-overhead-medicine-ball-slam",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "slam-ball-rotational-slam",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "slam-ball-scoop-slam",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "medicine-ball-rebound-slam-to-catch",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25T20:48:41.093Z",
+  "generated_at": "2026-07-26T05:39:09.580Z",
   "source": [
     "docs/category-plans/CATEGORY_*_PLAN.md (primary for categories 1–5, 8–25)",
     "docs/NEEDS_ENGINE_QUALITY_CHECK.md (primary for categories 6–7; prerequisites for all)"
@@ -726,8 +726,8 @@
         },
         {
           "ID": "C4-MOP-04",
-          "Metric": "Implied skill level",
-          "Prerequisites": "body `skillLevel` vs profile",
+          "Metric": "Training experience (legacy check id)",
+          "Prerequisites": "request experience vs profile",
           "In app?": "yes",
           "check_id": "audience_implied_skill_level",
           "Evaluable?": "yes"
@@ -735,7 +735,7 @@
         {
           "ID": "C4-MOP-05",
           "Metric": "Scaling cohort",
-          "Prerequisites": "age + skill → cohort matrix",
+          "Prerequisites": "age + training experience → cohort matrix",
           "In app?": "yes",
           "check_id": "audience_scaling_cohort",
           "Evaluable?": "yes"
@@ -782,8 +782,8 @@
         },
         {
           "ID": "C4-MOP-11",
-          "Metric": "Skill level filter adherence",
-          "Prerequisites": "exercise `skill_level` vs audience",
+          "Metric": "Difficulty-cap adherence (legacy check id)",
+          "Prerequisites": "exercise difficulty vs audience caps",
           "In app?": "yes",
           "check_id": "audience_skill_level_adherence",
           "Evaluable?": "yes (info)"
@@ -839,7 +839,7 @@
         {
           "ID": "C4-MOS-01",
           "Metric": "Audience inputs valid",
-          "Prerequisites": "age order, skill enum",
+          "Prerequisites": "age order, training-experience enum",
           "In app?": "yes",
           "check_id": "audience_inputs_valid",
           "Evaluable?": "yes"
@@ -2146,8 +2146,8 @@
         },
         {
           "ID": "C10-MOP-14",
-          "Metric": "Skill level residuals",
-          "Prerequisites": "`exercise.skill_level`, youth session",
+          "Metric": "Difficulty residuals (legacy check id)",
+          "Prerequisites": "exercise difficulty vs youth audience caps",
           "In app?": "yes",
           "check_id": "skill_level_residuals",
           "Evaluable?": "yes"
@@ -4052,8 +4052,8 @@
         },
         {
           "ID": "C17-MOP-06",
-          "Metric": "Beginner excluded slugs",
-          "Prerequisites": "skillLevel, BEGINNER_EXCLUDED_SLUG_PATTERNS",
+          "Metric": "Early-experience excluded slugs",
+          "Prerequisites": "training experience, BEGINNER_EXCLUDED_SLUG_PATTERNS",
           "In app?": "yes",
           "check_id": "youth_beginner_excluded_slugs",
           "Evaluable?": "yes"
@@ -4148,16 +4148,16 @@
         },
         {
           "ID": "C17-MOP-18",
-          "Metric": "ADVANCED skill_level in youth Rx",
-          "Prerequisites": "exercise.skill_level, ageMax ≤ 14",
+          "Metric": "High-difficulty exercises in youth Rx (legacy check id)",
+          "Prerequisites": "technical/overall difficulty, ageMax ≤ 14",
           "In app?": "yes",
           "check_id": "youth_advanced_skill_level",
           "Evaluable?": "yes"
         },
         {
           "ID": "C17-MOP-19",
-          "Metric": "Beginner penalty path inactive",
-          "Prerequisites": "beginnerAppropriatenessPenalty, skillLevel",
+          "Metric": "Beginner-experience penalty path inactive",
+          "Prerequisites": "beginnerAppropriatenessPenalty, training experience",
           "In app?": "yes",
           "check_id": "youth_beginner_penalty_inactive",
           "Evaluable?": "yes (info)"
@@ -4197,7 +4197,7 @@
         {
           "ID": "C17-MOS-02",
           "Metric": "Scaling cohort resolvable",
-          "Prerequisites": "age + skillLevel → scalingCohort",
+          "Prerequisites": "age + training experience → scalingCohort",
           "In app?": "yes",
           "check_id": "youth_scaling_cohort_resolvable",
           "Evaluable?": "yes"
@@ -7267,8 +7267,8 @@
     {
       "category": 4,
       "ID": "C4-MOP-04",
-      "Metric": "Implied skill level",
-      "Prerequisites": "body `skillLevel` vs profile",
+      "Metric": "Training experience (legacy check id)",
+      "Prerequisites": "request experience vs profile",
       "In app?": "yes",
       "check_id": "audience_implied_skill_level",
       "Evaluable?": "yes"
@@ -7277,7 +7277,7 @@
       "category": 4,
       "ID": "C4-MOP-05",
       "Metric": "Scaling cohort",
-      "Prerequisites": "age + skill → cohort matrix",
+      "Prerequisites": "age + training experience → cohort matrix",
       "In app?": "yes",
       "check_id": "audience_scaling_cohort",
       "Evaluable?": "yes"
@@ -7330,8 +7330,8 @@
     {
       "category": 4,
       "ID": "C4-MOP-11",
-      "Metric": "Skill level filter adherence",
-      "Prerequisites": "exercise `skill_level` vs audience",
+      "Metric": "Difficulty-cap adherence (legacy check id)",
+      "Prerequisites": "exercise difficulty vs audience caps",
       "In app?": "yes",
       "check_id": "audience_skill_level_adherence",
       "Evaluable?": "yes (info)"
@@ -7394,7 +7394,7 @@
       "category": 4,
       "ID": "C4-MOS-01",
       "Metric": "Audience inputs valid",
-      "Prerequisites": "age order, skill enum",
+      "Prerequisites": "age order, training-experience enum",
       "In app?": "yes",
       "check_id": "audience_inputs_valid",
       "Evaluable?": "yes"
@@ -8824,8 +8824,8 @@
     {
       "category": 10,
       "ID": "C10-MOP-14",
-      "Metric": "Skill level residuals",
-      "Prerequisites": "`exercise.skill_level`, youth session",
+      "Metric": "Difficulty residuals (legacy check id)",
+      "Prerequisites": "exercise difficulty vs youth audience caps",
       "In app?": "yes",
       "check_id": "skill_level_residuals",
       "Evaluable?": "yes"
@@ -10917,8 +10917,8 @@
     {
       "category": 17,
       "ID": "C17-MOP-06",
-      "Metric": "Beginner excluded slugs",
-      "Prerequisites": "skillLevel, BEGINNER_EXCLUDED_SLUG_PATTERNS",
+      "Metric": "Early-experience excluded slugs",
+      "Prerequisites": "training experience, BEGINNER_EXCLUDED_SLUG_PATTERNS",
       "In app?": "yes",
       "check_id": "youth_beginner_excluded_slugs",
       "Evaluable?": "yes"
@@ -11025,8 +11025,8 @@
     {
       "category": 17,
       "ID": "C17-MOP-18",
-      "Metric": "ADVANCED skill_level in youth Rx",
-      "Prerequisites": "exercise.skill_level, ageMax ≤ 14",
+      "Metric": "High-difficulty exercises in youth Rx (legacy check id)",
+      "Prerequisites": "technical/overall difficulty, ageMax ≤ 14",
       "In app?": "yes",
       "check_id": "youth_advanced_skill_level",
       "Evaluable?": "yes"
@@ -11034,8 +11034,8 @@
     {
       "category": 17,
       "ID": "C17-MOP-19",
-      "Metric": "Beginner penalty path inactive",
-      "Prerequisites": "beginnerAppropriatenessPenalty, skillLevel",
+      "Metric": "Beginner-experience penalty path inactive",
+      "Prerequisites": "beginnerAppropriatenessPenalty, training experience",
       "In app?": "yes",
       "check_id": "youth_beginner_penalty_inactive",
       "Evaluable?": "yes (info)"
@@ -11080,7 +11080,7 @@
       "category": 17,
       "ID": "C17-MOS-02",
       "Metric": "Scaling cohort resolvable",
-      "Prerequisites": "age + skillLevel → scalingCohort",
+      "Prerequisites": "age + training experience → scalingCohort",
       "In app?": "yes",
       "check_id": "youth_scaling_cohort_resolvable",
       "Evaluable?": "yes"

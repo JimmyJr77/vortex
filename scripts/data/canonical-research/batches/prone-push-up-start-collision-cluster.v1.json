@@ -1,0 +1,1024 @@
+{
+  "batchKey": "prone-push-up-start-collision-cluster-v1",
+  "researchVersion": "2026-07-25.13",
+  "snapshotAt": "2026-07-26T08:15:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "sprint_start_procedure_timing",
+      "claims": [
+        "Start procedure and body position influence sprint-start performance and must be specified separately from distance.",
+        "{{canonicalName}} must define chest contact, hand placement, elbow position, cue, lead-foot recovery, push-up or prone transition, sprint distance, and run-out; a cone or 10-metre label does not create a new exercise."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "sprint_start_biomechanics_review",
+      "claims": [
+        "Start push-off and early acceleration are connected but distinguishable portions of a sprint effort.",
+        "{{canonicalName}} belongs to a ground-start-to-short-acceleration family with controlled push-up-bottom and fully prone start-position variants; it is not a conventional push-up set, burpee, reaction test, or cone-agility drill."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "sprint_acceleration_hamstrings",
+      "claims": [
+        "Sprint acceleration requires coordinated hip, knee, and ankle action, including hamstring contribution to horizontal force production.",
+        "The ground transition additionally loads pectoral, triceps, shoulder-girdle, wrist, trunk, hip-flexor, and lead-leg recovery functions before gluteal, hamstring, quadriceps, plantar-flexor, foot, and arm-action roles dominate acceleration."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "sprint_start_biomechanics_review",
+      "claims": [
+        "Early acceleration is associated with forward-directed impulse, propulsive force, and progressive projection.",
+        "The athlete must clear the hands, recover one foot beneath the body without crowding the knee or twisting, project from the first support, and rise progressively; do not prescribe one universal recovery foot or forced step length."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "sprint_start_procedure_timing",
+      "claims": [
+        "Lower and standing start procedures have different body-position and timing effects.",
+        "Exercise difficulty must directly score technical complexity, physical and absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; audience experience remains programming context."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "sprint_acceleration_performance",
+      "claims": [
+        "Power output is highest during the first sprint-acceleration steps.",
+        "{{canonicalName}} combines upper-body floor push, trunk transition, hip recovery, and high-intent acceleration contacts, so dosage must track attempts, distance, sprint contacts, start-side distribution, wrist and shoulder tolerance, posterior-chain stress, technical fatigue, recovery, and total sprint volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Quality sprint work requires a suitable surface, marked target, run-out, spacing, and recovery that preserves speed quality.",
+        "Require a clean non-abrasive hand-contact surface, clear dry sprint lane, safe separation, appropriate footwear, target, and run-out; wrist, elbow, shoulder, trunk, and acceleration readiness must match the chosen ground-start variant."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Acceleration sessions should prescribe distance, intensity, repetitions, sets, and recovery rather than repetitions alone.",
+        "Use 2-5 high-quality starts over 5-15 metres with roughly 90-180 seconds recovery, alternating intended recovery side when appropriate; use slower transition rehearsals separately from maximal sprint attempts."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "sprint_start_biomechanics_review",
+      "claims": [
+        "Start setup should support effective projection without forcing an anthropometrically inappropriate position.",
+        "Use a small cue set: set hands and chest exactly, push the floor away, recover one foot beneath the hips, clear the hands, project forward, coordinate the arms, and sprint through the target."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Training should use qualified supervision, correct technique, manageable demands, and gradual progression.",
+        "Stop for wrist, elbow, shoulder, chest, back, hip, hamstring, knee, ankle, or foot pain; head or knee contact; hand slip; failed foot recovery; stumble; lane obstruction; marked speed loss; collision risk; or unsafe run-out."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Acceleration and maximal velocity are distinct qualities, and start work should not become dense conditioning.",
+        "{{canonicalName}} belongs after joint and sprint preparation and before fatiguing work; use a slower ground-transition drill for learning and high-intent full starts only when the athlete can recover cleanly and accelerate safely."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "world_athletics_introduction_sprinting",
+      "claims": [
+        "Acceleration develops across successive steps rather than by immediately standing upright.",
+        "Show side and front views of exact hand, chest, and elbow setup, both lead-foot recoveries, the transition at slow and full speed, first three contacts, finish, run-out, and a two-point-start regression."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Coaches should distinguish acceleration output from maximal-velocity and conditioning work.",
+        "Provide setup checks, side and front observation, start-side distribution, transition time if measured, first-step and distance counts, lane and floor inspection, upper-limb symptom gates, speed-loss stops, and exact duplicate or variant decisions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_long_term_development",
+      "claims": [
+        "Speed work should be developmentally appropriate and based on movement competency.",
+        "Accessibility options include a two-point start, elevated hands, hands-and-knees transition rehearsal, slower cue, chosen lead foot, shorter distance, submaximal intent, untimed attempts, extra demonstration, and longer recovery."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "sprint_start_procedure_timing",
+      "claims": [
+        "Start position and timing procedure can change the task and measured result.",
+        "Ten metres, five-to-ten yards, and a cone target are dosage or logistics; chest fully supported versus bottom push-up position, elevated hands, external cue, partner contact, and added push-up repetitions require controlled variants or distinct definitions."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Candidates for {{canonicalName}} remain unapproved. Current embedding, exact prone or push-up-bottom setup, complete viewing, captions, instructional quality, safety, reviewer identity, and approval remain separate gates; unrelated cone and build-up videos are excluded from the replacement packet."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "push-up-prone-start-sprint",
+      "assessmentSummary": {
+        "identity": "A ground-start short acceleration in which the athlete begins either fully prone or at the bottom of one push-up, pushes the floor away, recovers one foot beneath the body, clears the hands, and accelerates through a short target.",
+        "currentCardFindings": [
+          "The title and description conflate two start-contact states: fully prone chest-supported and a controlled bottom push-up position.",
+          "Two active baseline variants duplicate each other without declaring which legacy start state they represent.",
+          "The current 40-point template omits upper-body floor demand, complex reorientation, supervision, fall consequence, impact, and recovery."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "ground_start_to_sprint",
+            "push_up_or_prone_transition",
+            "short_linear_acceleration"
+          ],
+          "jointActions": [
+            "shoulder_horizontal_adduction",
+            "elbow_extension",
+            "wrist_extension_loading",
+            "hip_flexion_recovery",
+            "hip_knee_ankle_extension",
+            "reciprocal_arm_action"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal",
+            "transverse_control"
+          ],
+          "laterality": "chosen_lead_foot_then_alternating_sprint",
+          "intent": "clean_ground_reorientation_into_high_quality_acceleration"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "pectoralis_major",
+            "triceps",
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus"
+          ],
+          "secondaryMuscles": [
+            "serratus_anterior",
+            "rotator_cuff",
+            "hip_flexors",
+            "gastrocnemius",
+            "intrinsic_foot",
+            "obliques",
+            "shoulder_girdle"
+          ],
+          "joints": [
+            "hand",
+            "wrist",
+            "elbow",
+            "shoulder",
+            "spine",
+            "hip",
+            "knee",
+            "ankle",
+            "foot"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 66,
+          "absoluteLoadDemand": 20,
+          "coordinationDemand": 72,
+          "supervisionDemand": 62,
+          "failureConsequence": 64,
+          "impact": 58,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 66
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_upper_body_floor_push_to_high_intent_acceleration",
+          "impactClass": "moderate_to_high_by_transition_speed_surface_and_sprint",
+          "landingContactsPerRep": "one_ground_transition_plus_all_sprint_contacts_through_target_and_run_out",
+          "primaryStress": [
+            "wrist_and_shoulder_support",
+            "trunk_reorientation",
+            "hip_recovery",
+            "early_acceleration_force",
+            "plantar_flexors"
+          ],
+          "fatigueSensitivity": "hand_slip_push_speed_foot_recovery_twist_stumble_projection_and_sprint_speed"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clean_non_abrasive_floor_start_zone",
+            "clear_5_to_15_metre_lane",
+            "safe_run_out"
+          ],
+          "optionalEquipment": [
+            "start_mat",
+            "cones",
+            "timing_gates",
+            "video"
+          ],
+          "environment": [
+            "dry_non_slip_surface",
+            "hands_clear_of_debris",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_push_up_support",
+            "can_recover_foot_under_body",
+            "pain_free_acceleration"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-5_efforts",
+          "distance": "5-15_metres",
+          "restSeconds": "90-180",
+          "intensity": "high_intent_after_slow_rehearsal",
+          "progressWhen": "both chosen lead sides clear the hands and enter acceleration without stumble or twist"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Set the exact ground position",
+            "Push the floor away",
+            "Recover one foot beneath you",
+            "Project and sprint through"
+          ],
+          "athleteInstructions": [
+            "On the cue, clear the floor, bring one foot under your hips, and accelerate through the target without standing up first"
+          ],
+          "commonFaults": [
+            "undefined_chest_state",
+            "extra_push_up_repetition",
+            "knee_to_floor",
+            "foot_too_far_forward",
+            "trunk_twist",
+            "standing_before_sprinting"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_floor_support",
+            "clean_transition_rehearsal",
+            "safe_lane"
+          ],
+          "stopRules": [
+            "pain",
+            "hand_slip",
+            "head_or_knee_contact",
+            "failed_foot_recovery",
+            "stumble",
+            "speed_loss",
+            "unsafe_run_out"
+          ]
+        },
+        "programmingDecision": "Retain one ground-start-to-sprint definition with explicit fully prone and push-up-bottom controlled variants. Consolidate its duplicate baseline rows after human review and do not treat distance or a cone as separate identities."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=HMYhfEko-p0",
+          "title": "Accelerate Faster with the Push-Up Start Series",
+          "channelName": "Matt Tometz",
+          "sourceQuery": "legacy direct candidate checked by oEmbed"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=IKf8i7b5VfY",
+          "title": "SPRINT DRILLS: Acceleration Drills, 10m Push Up Start",
+          "channelName": "Trackwired",
+          "sourceQuery": "legacy direct candidate checked by oEmbed"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=JBaNFVQCzkk",
+          "title": "PUSH UP START - SPEED TRAINING - ACCELERATION DRILL",
+          "channelName": "King Sports",
+          "sourceQuery": "legacy direct candidate checked by oEmbed"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LumUMzOFkAU",
+          "title": "Push Up Starts",
+          "channelName": "Simple Speed Coach",
+          "sourceQuery": "legacy direct candidate checked by oEmbed"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=hptG0Ek9d0o",
+          "title": "Sprint Push up Start",
+          "channelName": "Warbird Academy",
+          "sourceQuery": "legacy direct candidate checked by oEmbed"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Fully Prone Start Sprint",
+          "classification": "new_variant",
+          "rationale": "Chest-supported prone setup changes the initial push distance and contact state.",
+          "distinguishingDimensions": {
+            "startContact": "chest_supported"
+          }
+        },
+        {
+          "name": "Bottom Push-Up Start Sprint",
+          "classification": "new_variant",
+          "rationale": "Holding the bottom push-up position changes upper-body isometric demand and cue timing.",
+          "distinguishingDimensions": {
+            "startContact": "bottom_push_up_hold"
+          }
+        },
+        {
+          "name": "Push-Up Start 10m",
+          "classification": "same_identity",
+          "rationale": "Ten metres is dosage for the same ground-start acceleration.",
+          "distinguishingDimensions": {
+            "distance": "10_metres"
+          }
+        },
+        {
+          "name": "Push-Up Start to Cone",
+          "classification": "same_identity",
+          "rationale": "A cone is only a distance marker.",
+          "distinguishingDimensions": {
+            "finishMarker": "cone"
+          }
+        },
+        {
+          "name": "Burpee to Sprint",
+          "classification": "new_definition",
+          "rationale": "A burpee adds squat or jump phases and materially changes the movement and fatigue profile.",
+          "distinguishingDimensions": {
+            "movementPattern": "burpee_then_sprint"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "prone-pop-up-to-sprint",
+      "assessmentSummary": {
+        "identity": "The fully prone start-position variant of the same ground-start short acceleration: push from the floor, recover one foot, clear the hands, and sprint through a prescribed target.",
+        "currentCardFindings": [
+          "The generated description contains no ground setup, recovery sequence, distance, run-out, dosage, or safety information.",
+          "Its broad sport and explosiveness claims do not distinguish it from Push-Up / Prone Start Sprint.",
+          "Four legacy videos are direct prone-to-sprint candidates, but exact chest, hand, and cue setup still requires full viewing."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "fully_prone_ground_start",
+            "pop_up_to_short_acceleration"
+          ],
+          "jointActions": [
+            "shoulder_horizontal_adduction",
+            "elbow_extension",
+            "hip_flexion_recovery",
+            "hip_knee_ankle_extension",
+            "reciprocal_arm_action"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal",
+            "transverse_control"
+          ],
+          "laterality": "chosen_lead_foot_then_alternating",
+          "intent": "clean_fully_prone_reorientation_into_acceleration"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "pectoralis_major",
+            "triceps",
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus"
+          ],
+          "secondaryMuscles": [
+            "serratus_anterior",
+            "rotator_cuff",
+            "hip_flexors",
+            "gastrocnemius",
+            "intrinsic_foot",
+            "obliques"
+          ],
+          "joints": [
+            "hand",
+            "wrist",
+            "elbow",
+            "shoulder",
+            "spine",
+            "hip",
+            "knee",
+            "ankle",
+            "foot"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 66,
+          "absoluteLoadDemand": 20,
+          "coordinationDemand": 72,
+          "supervisionDemand": 62,
+          "failureConsequence": 64,
+          "impact": 58,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 66
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_fully_prone_push_to_high_intent_acceleration",
+          "impactClass": "moderate_to_high",
+          "landingContactsPerRep": "one_ground_transition_plus_all_sprint_contacts",
+          "primaryStress": [
+            "upper_body_floor_push",
+            "trunk_reorientation",
+            "hip_recovery",
+            "early_acceleration_force"
+          ],
+          "fatigueSensitivity": "push_speed_foot_recovery_trunk_twist_stumble_projection_and_sprint_speed"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clean_start_surface",
+            "clear_short_lane",
+            "safe_run_out"
+          ],
+          "optionalEquipment": [
+            "mat",
+            "cones",
+            "video"
+          ],
+          "environment": [
+            "dry_non_slip_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_floor_push",
+            "controlled_pop_up",
+            "pain_free_acceleration"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-5_efforts",
+          "distance": "5-15_metres",
+          "restSeconds": "90-180",
+          "intensity": "high_intent_after_rehearsal",
+          "progressWhen": "ground exit and first steps are repeatable on both chosen lead sides"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Chest and hands set",
+            "Push and recover one foot",
+            "Clear the floor",
+            "Sprint through"
+          ],
+          "athleteInstructions": [
+            "Start fully prone, push up, recover one foot under you, and accelerate without pausing upright"
+          ],
+          "commonFaults": [
+            "duplicate_identity",
+            "hands_too_wide",
+            "knees_on_floor",
+            "two_foot_recovery",
+            "trunk_twist",
+            "pause_before_sprint"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_floor_support",
+            "clean_slow_pop_up",
+            "safe_lane"
+          ],
+          "stopRules": [
+            "pain",
+            "hand_slip",
+            "head_or_knee_contact",
+            "stumble",
+            "failed_recovery",
+            "unsafe_run_out"
+          ]
+        },
+        "programmingDecision": "Merge into Push-Up / Prone Start Sprint as its fully prone start-position variant and preserve Prone Pop-Up to Sprint as an alias."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=HG1f420KEg0",
+          "title": "Speed Training: Prone (Lying) Starts",
+          "channelName": "Raymer Strength",
+          "sourceQuery": "legacy direct candidate checked by oEmbed"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Ysu5ofnxW68",
+          "title": "Prone Sprint Start",
+          "channelName": "Coach__Panch",
+          "sourceQuery": "legacy direct candidate checked by oEmbed"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=iVjq4DD1riQ",
+          "title": "Prone to Sprint",
+          "channelName": "Mountain Tactical Institute",
+          "sourceQuery": "legacy direct candidate checked by oEmbed"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=otXTKDVMvBs",
+          "title": "Prone to Sprint",
+          "channelName": "Garrett McLaughlin",
+          "sourceQuery": "legacy direct candidate checked by oEmbed"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=HMYhfEko-p0",
+          "title": "Accelerate Faster with the Push-Up Start Series",
+          "channelName": "Matt Tometz",
+          "sourceQuery": "adjacent push-up-start candidate",
+          "notes": "May show a different chest-support state; exact match requires review."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Push-Up / Prone Start Sprint",
+          "classification": "same_identity",
+          "rationale": "This is the fully prone controlled variant of the consolidated ground-start definition.",
+          "distinguishingDimensions": {
+            "startContact": "fully_prone"
+          }
+        },
+        {
+          "name": "Bottom Push-Up Start",
+          "classification": "new_variant",
+          "rationale": "An isometric bottom position changes initial upper-body demand.",
+          "distinguishingDimensions": {
+            "startContact": "bottom_push_up_hold"
+          }
+        },
+        {
+          "name": "Prone Start 10m",
+          "classification": "modifier_annotation",
+          "rationale": "Distance is dosage.",
+          "distinguishingDimensions": {
+            "distance": "10_metres"
+          }
+        },
+        {
+          "name": "Partner-Touch Prone Start",
+          "classification": "new_variant",
+          "rationale": "An external tactile cue adds reaction timing.",
+          "distinguishingDimensions": {
+            "cue": "tactile"
+          }
+        },
+        {
+          "name": "Burpee to Sprint",
+          "classification": "new_definition",
+          "rationale": "The squat and possible jump phases create a different movement.",
+          "distinguishingDimensions": {
+            "movementPattern": "burpee"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "push-up-start-10m",
+      "assessmentSummary": {
+        "identity": "The same ground-start-to-short-acceleration identity, delivered through a 10-metre sprint target.",
+        "currentCardFindings": [
+          "The title adds only a distance dose to the consolidated push-up/prone start.",
+          "The description names horizontal push and reorientation but never defines the ground or foot-recovery sequence.",
+          "Its generic difficulty values materially understate the upper-body push, reorientation complexity, supervision, and impact."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "ground_start_to_sprint",
+            "short_linear_acceleration"
+          ],
+          "jointActions": [
+            "elbow_extension",
+            "shoulder_horizontal_adduction",
+            "hip_flexion_recovery",
+            "hip_knee_ankle_extension",
+            "reciprocal_arm_action"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal",
+            "transverse_control"
+          ],
+          "laterality": "chosen_lead_foot_then_alternating",
+          "intent": "ground_reorientation_into_10_metre_acceleration"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "pectoralis_major",
+            "triceps",
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus"
+          ],
+          "secondaryMuscles": [
+            "serratus_anterior",
+            "rotator_cuff",
+            "hip_flexors",
+            "gastrocnemius",
+            "intrinsic_foot",
+            "obliques"
+          ],
+          "joints": [
+            "hand",
+            "wrist",
+            "elbow",
+            "shoulder",
+            "spine",
+            "hip",
+            "knee",
+            "ankle",
+            "foot"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 66,
+          "absoluteLoadDemand": 20,
+          "coordinationDemand": 72,
+          "supervisionDemand": 62,
+          "failureConsequence": 64,
+          "impact": 58,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 66
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_ground_push_to_10_metre_high_intent_acceleration",
+          "impactClass": "moderate_to_high",
+          "landingContactsPerRep": "one_ground_transition_plus_all_contacts_through_10_metres_and_run_out",
+          "primaryStress": [
+            "wrist_and_shoulder_support",
+            "trunk_reorientation",
+            "hip_recovery",
+            "early_acceleration_force"
+          ],
+          "fatigueSensitivity": "ground_exit_recovery_stumble_projection_speed_and_run_out"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clean_start_surface",
+            "10_metre_lane",
+            "safe_run_out"
+          ],
+          "optionalEquipment": [
+            "mat",
+            "cones",
+            "timing_gates",
+            "video"
+          ],
+          "environment": [
+            "dry_non_slip_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_floor_support",
+            "clean_ground_transition",
+            "pain_free_acceleration"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-5_efforts",
+          "distance": "10_metres",
+          "restSeconds": "90-180",
+          "intensity": "high_intent",
+          "progressWhen": "transition and 10-metre performance remain repeatable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Set the ground position",
+            "Push and recover",
+            "Project forward",
+            "Run through ten metres"
+          ],
+          "athleteInstructions": [
+            "Use the assigned ground-start variant and accelerate through the ten-metre line"
+          ],
+          "commonFaults": [
+            "duplicate_identity",
+            "undefined_start_state",
+            "knee_contact",
+            "foot_reach",
+            "standing_before_sprint"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_support",
+            "clean_rehearsal",
+            "safe_lane"
+          ],
+          "stopRules": [
+            "pain",
+            "hand_slip",
+            "failed_recovery",
+            "stumble",
+            "speed_loss",
+            "unsafe_run_out"
+          ]
+        },
+        "programmingDecision": "Merge into Push-Up / Prone Start Sprint and retain 10 metres as dosage. Preserve the name as an alias."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=HMYhfEko-p0",
+          "title": "Accelerate Faster with the Push-Up Start Series",
+          "channelName": "Matt Tometz",
+          "sourceQuery": "legacy direct candidate checked by oEmbed"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=IKf8i7b5VfY",
+          "title": "SPRINT DRILLS: Acceleration Drills, 10m Push Up Start",
+          "channelName": "Trackwired",
+          "sourceQuery": "legacy direct candidate checked by oEmbed"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=JBaNFVQCzkk",
+          "title": "PUSH UP START - SPEED TRAINING - ACCELERATION DRILL",
+          "channelName": "King Sports",
+          "sourceQuery": "legacy direct candidate checked by oEmbed"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LumUMzOFkAU",
+          "title": "Push Up Starts",
+          "channelName": "Simple Speed Coach",
+          "sourceQuery": "legacy direct candidate checked by oEmbed"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=hptG0Ek9d0o",
+          "title": "Sprint Push up Start",
+          "channelName": "Warbird Academy",
+          "sourceQuery": "legacy direct candidate checked by oEmbed"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Push-Up / Prone Start Sprint",
+          "classification": "same_identity",
+          "rationale": "Ten metres is dosage for the consolidated definition.",
+          "distinguishingDimensions": {
+            "distance": "10_metres"
+          }
+        },
+        {
+          "name": "Push-Up Start to Cone",
+          "classification": "same_identity",
+          "rationale": "A cone is a target marker.",
+          "distinguishingDimensions": {
+            "finishMarker": "cone"
+          }
+        },
+        {
+          "name": "Prone Pop-Up to Sprint",
+          "classification": "new_variant",
+          "rationale": "Fully prone is one controlled start-contact variant.",
+          "distinguishingDimensions": {
+            "startContact": "fully_prone"
+          }
+        },
+        {
+          "name": "Elevated-Hand Push-Up Start",
+          "classification": "new_variant",
+          "rationale": "Elevation changes range, support, and upper-body demand.",
+          "distinguishingDimensions": {
+            "handElevation": "raised"
+          }
+        },
+        {
+          "name": "Push-Up Repetition to Sprint",
+          "classification": "new_definition",
+          "rationale": "Adding a complete push-up repetition changes event sequence and fatigue.",
+          "distinguishingDimensions": {
+            "preSprintTask": "full_push_up_rep"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "push-up-start-to-cone",
+      "assessmentSummary": {
+        "identity": "The same ground-start short acceleration, with a cone marking the 10-yard finish target outside the athlete's foot path.",
+        "currentCardFindings": [
+          "The cone is logistics, not identity, and the title duplicates the ground-start movement.",
+          "The uniform 60 values have no evidence and omit supervision, consequence, impact, and work-capacity dimensions.",
+          "All four legacy media links resolve to unrelated cone agility, build-up sprint, or general mechanics videos and are excluded from this replacement packet."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "ground_start_to_sprint",
+            "short_linear_acceleration"
+          ],
+          "jointActions": [
+            "elbow_extension",
+            "shoulder_horizontal_adduction",
+            "hip_flexion_recovery",
+            "hip_knee_ankle_extension",
+            "reciprocal_arm_action"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal",
+            "transverse_control"
+          ],
+          "laterality": "chosen_lead_foot_then_alternating",
+          "intent": "ground_reorientation_into_cone_marked_10_yard_acceleration"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "pectoralis_major",
+            "triceps",
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus"
+          ],
+          "secondaryMuscles": [
+            "serratus_anterior",
+            "rotator_cuff",
+            "hip_flexors",
+            "gastrocnemius",
+            "intrinsic_foot",
+            "obliques"
+          ],
+          "joints": [
+            "hand",
+            "wrist",
+            "elbow",
+            "shoulder",
+            "spine",
+            "hip",
+            "knee",
+            "ankle",
+            "foot"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 66,
+          "absoluteLoadDemand": 20,
+          "coordinationDemand": 72,
+          "supervisionDemand": 62,
+          "failureConsequence": 64,
+          "impact": 58,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 66
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_ground_push_to_10_yard_acceleration",
+          "impactClass": "moderate_to_high",
+          "landingContactsPerRep": "one_ground_transition_plus_all_contacts_through_cone_and_run_out",
+          "primaryStress": [
+            "upper_body_floor_support",
+            "trunk_reorientation",
+            "hip_recovery",
+            "early_acceleration_force"
+          ],
+          "fatigueSensitivity": "ground_exit_recovery_cone_fixation_stumble_speed_and_run_out"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clean_start_surface",
+            "low_profile_finish_cone_or_line",
+            "clear_10_yard_lane",
+            "safe_run_out"
+          ],
+          "optionalEquipment": [
+            "mat",
+            "timing_gates",
+            "video"
+          ],
+          "environment": [
+            "cone_outside_foot_path",
+            "dry_non_slip_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_floor_support",
+            "clean_ground_transition",
+            "pain_free_acceleration"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-5_efforts",
+          "distance": "10_yards",
+          "restSeconds": "90-180",
+          "intensity": "high_intent",
+          "progressWhen": "athlete runs through rather than toward the cone with stable transition quality"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Set the exact ground position",
+            "Push and recover",
+            "Project forward",
+            "Run past the cone"
+          ],
+          "athleteInstructions": [
+            "Use the cone only as a distance mark and continue into the safe run-out"
+          ],
+          "commonFaults": [
+            "cone_as_identity",
+            "unrelated_media",
+            "looking_at_cone",
+            "stopping_at_cone",
+            "failed_foot_recovery"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_floor_support",
+            "cone_outside_path",
+            "safe_lane"
+          ],
+          "stopRules": [
+            "pain",
+            "hand_slip",
+            "failed_recovery",
+            "cone_in_path",
+            "stumble",
+            "unsafe_stop"
+          ]
+        },
+        "programmingDecision": "Merge into Push-Up / Prone Start Sprint, retain the cone as logistics and 10 yards as dosage, and replace all four mismatched legacy media candidates with the five direct push-up-start candidates in this packet."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=HMYhfEko-p0",
+          "title": "Accelerate Faster with the Push-Up Start Series",
+          "channelName": "Matt Tometz",
+          "sourceQuery": "replacement exact-title push-up-start candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=IKf8i7b5VfY",
+          "title": "SPRINT DRILLS: Acceleration Drills, 10m Push Up Start",
+          "channelName": "Trackwired",
+          "sourceQuery": "replacement exact-title push-up-start candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=JBaNFVQCzkk",
+          "title": "PUSH UP START - SPEED TRAINING - ACCELERATION DRILL",
+          "channelName": "King Sports",
+          "sourceQuery": "replacement exact-title push-up-start candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LumUMzOFkAU",
+          "title": "Push Up Starts",
+          "channelName": "Simple Speed Coach",
+          "sourceQuery": "replacement exact-title push-up-start candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=hptG0Ek9d0o",
+          "title": "Sprint Push up Start",
+          "channelName": "Warbird Academy",
+          "sourceQuery": "replacement exact-title push-up-start candidate"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Push-Up Start 10m",
+          "classification": "same_identity",
+          "rationale": "The cone and small unit change are logistics and dosage.",
+          "distinguishingDimensions": {
+            "distance": "10_metres"
+          }
+        },
+        {
+          "name": "Push-Up / Prone Start Sprint",
+          "classification": "same_identity",
+          "rationale": "This is the consolidated ground-start definition.",
+          "distinguishingDimensions": {
+            "finishMarker": "optional_cone"
+          }
+        },
+        {
+          "name": "Reactive Target Push-Up Start",
+          "classification": "new_variant",
+          "rationale": "An unpredictable gate or cone cue adds response selection.",
+          "distinguishingDimensions": {
+            "cue": "reactive_target"
+          }
+        },
+        {
+          "name": "Push-Up Start Cone Agility Drill",
+          "classification": "new_definition",
+          "rationale": "Multiple cones and direction changes create a change-of-direction task.",
+          "distinguishingDimensions": {
+            "travelPath": "multidirectional"
+          }
+        },
+        {
+          "name": "20-20-20 Build-Up Sprint",
+          "classification": "reject",
+          "rationale": "This unrelated rolling maximal-velocity drill was a mismatched legacy media candidate.",
+          "distinguishingDimensions": {
+            "identityMismatch": "build_up_sprint"
+          }
+        }
+      ]
+    }
+  ]
+}

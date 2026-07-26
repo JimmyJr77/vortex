@@ -1,0 +1,586 @@
+{
+  "registryVersion": "2026-07-26.25",
+  "sources": {
+    "sprint_start_biomechanics_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "title": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "publisher": "International Journal of Environmental Research and Public Health",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "sprint_acceleration_hamstrings": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4689850/",
+      "title": "Sprint Acceleration Mechanics: The Major Role of Hamstrings in Horizontal Force Production",
+      "publisher": "Frontiers in Physiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "sprint_acceleration_performance": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6407765/",
+      "title": "Correlations between muscle-tendon parameters and acceleration ability in 20 m sprints",
+      "publisher": "PLOS ONE",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "sprint_start_procedure_timing": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/22233797/",
+      "title": "The difference is in the start: impact of timing and start procedure on sprint running performance",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "auditory_sprint_start_reaction": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17127583/",
+      "title": "Sprint starts and the minimum auditory reaction time",
+      "publisher": "Journal of Sports Sciences",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "reactive_y_agility_visual_gate": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5465987/",
+      "title": "Are Change of Direction Speed and Reactive Agility Useful for Determining the Optimal Field Position for Young Soccer Players?",
+      "publisher": "Journal of Sports Science and Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 78
+    },
+    "backward_running_joint_kinetics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/2072839/",
+      "title": "Lower extremity joint kinetics and energetics during backward running",
+      "publisher": "Medicine and Science in Sports and Exercise",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 76
+    },
+    "upper_body_plyometric_meta_analysis": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "title": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "publisher": "Sports Medicine - Open",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "medicine_ball_rotational_power_validity": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "title": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "seated_medicine_ball_power_reliability": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21572350/",
+      "title": "The seated medicine ball throw as a test of upper body power in older adults",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 80
+    },
+    "medicine_ball_velocity_reliability": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "title": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 81
+    },
+    "medicine_ball_power_fatigue": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41460695/",
+      "title": "Validation of a Supine Upper-Body Power Test in Physically Active Male and Female Adults Using a Medicine Ball With Accelerometer",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "nsca_developing_linear_speed": {
+      "url": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "title": "Developing Linear Speed",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "nsca_youth_resistance_position": {
+      "url": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "title": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 88
+    },
+    "nsca_youth_long_term_development": {
+      "url": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "title": "Youth Training and Long-Term Athletic Development",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "world_athletics_introduction_sprinting": {
+      "url": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "title": "Introduction to Sprinting",
+      "publisher": "World Athletics",
+      "kind": "governing_body",
+      "evidenceQuality": 78
+    },
+    "max_velocity_training_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6872694/",
+      "title": "The Training and Development of Elite Sprint Performance: an Integration of Scientific and Best Practice Literature",
+      "publisher": "Sports Medicine - Open",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "resisted_assisted_sprint_systematic_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11469994/",
+      "title": "The Longitudinal Effects of Resisted and Assisted Sprint Training on Sprint Kinematics, Acceleration, and Maximum Velocity: A Systematic Review and Meta-analysis",
+      "publisher": "Sports Medicine - Open",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "nsca_need_for_speed": {
+      "url": "https://www.nsca.com/contentassets/79174a4ecd01444198cba1c516d9703b/coach-5.4.2-the-need-for-speed-improving-sprinting-performance-in-football-players.pdf",
+      "title": "The Need for Speed—Improving Sprinting Performance in Football Players",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 84
+    },
+    "maximum_velocity_hamstring_load": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9414047/",
+      "title": "The Influence of Weekly Sprint Volume and Maximal Velocity Exposures on Eccentric Hamstring Strength in Professional Football Players",
+      "publisher": "Sports",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "horizontal_deceleration_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "title": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "publisher": "Sports Medicine - Open",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "landing_intervention_systematic_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "title": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "publisher": "BMJ Open Sport & Exercise Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 89
+    },
+    "landing_feedback_systematic_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "title": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "publisher": "Journal of Athletic Training",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "youth_landing_stabilization_best_practice": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6592422/",
+      "title": "Evidence-Based Best-Practice Guidelines for Preventing Anterior Cruciate Ligament Injuries in Young Female Athletes: A Systematic Review and Meta-analysis",
+      "publisher": "The American Journal of Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "nsca_basics_strength_conditioning": {
+      "url": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "title": "Basics of Strength and Conditioning Manual",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 84
+    },
+    "world_athletics_plyometrics_beginners": {
+      "url": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "title": "Plyometrics for Beginners: Basic Considerations",
+      "publisher": "World Athletics",
+      "kind": "governing_body",
+      "evidenceQuality": 76
+    },
+    "box_jump_height_performance_study": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11166134/",
+      "title": "Does Box Height Matter? A Comparative Analysis of Box Height on Box Jump Performance in Men and Women",
+      "publisher": "International Journal of Exercise Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "arm_swing_countermovement_jump_study": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260575/",
+      "title": "Effect of an Arm Swing on Countermovement Vertical Jump Performance in Elite Volleyball Players",
+      "publisher": "Journal of Human Kinetics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "countermovement_squat_jump_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28640774/",
+      "title": "The Difference Between Countermovement and Squat Jump Performances: A Review of Underlying Mechanisms With Practical Applications",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "drop_jump_technique_rsi_study": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5260527/",
+      "title": "Effect of drop jump technique on the reactive strength index",
+      "publisher": "Journal of Human Kinetics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 85
+    },
+    "drop_jump_training_methodology_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10160442/",
+      "title": "Methodological considerations for determining the volume and intensity of drop jump training. A systematic, critical and prepositive review",
+      "publisher": "Frontiers in Physiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 89
+    },
+    "reactive_strength_plyometric_meta_analysis": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10115703/",
+      "title": "Effects of Plyometric Jump Training on the Reactive Strength Index in Healthy Individuals Across the Lifespan: A Systematic Review with Meta-analysis",
+      "publisher": "Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "horizontal_multi_step_jump_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028155/",
+      "title": "Relationship and Training Effects of Horizontal Multi-Step Jumps on Sprint Performance: A Systematic Review",
+      "publisher": "Sports Medicine - Open",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "horizontal_vertical_plyometric_meta_analysis": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32897526/",
+      "title": "Effects of Vertically and Horizontally Orientated Plyometric Training on Physical Performance: A Meta-analytical Comparison",
+      "publisher": "Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "olympic_coach_plyometric_practices": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10407309/",
+      "title": "Plyometric Training Practices of Brazilian Olympic Sprint and Jump Coaches: Toward a Deeper Understanding of Their Choices and Insights",
+      "publisher": "Sports",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 83
+    },
+    "adolescent_plyometric_contact_meta_analysis": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10692103/",
+      "title": "Maximizing plyometric training for adolescents: a meta-analysis of ground contact frequency and overall intervention time on jumping ability",
+      "publisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "uphill_running_biomechanics_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12592170/",
+      "title": "A review of uphill and downhill running: biomechanics, physiology and modulating factors",
+      "publisher": "Frontiers in Physiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "running_stiffness_literature_overview": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8553457/",
+      "title": "Application of Leg, Vertical, and Joint Stiffness in Running Performance: A Literature Overview",
+      "publisher": "Journal of Healthcare Engineering",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "sprint_ankle_plantar_flexor_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37989833/",
+      "title": "Ankle and Plantar Flexor Muscle-Tendon Unit Function in Sprinters: A Narrative Review",
+      "publisher": "Sports Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 89
+    },
+    "max_velocity_swing_pull_kinematics": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8008308/",
+      "title": "Kinematic Stride Characteristics of Maximal Sprint Running of Elite Sprinters – Verification of the Swing-Pull Technique",
+      "publisher": "Journal of Human Kinetics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "world_athletics_ankling_drill": {
+      "url": "https://worldathletics.org/personal-best/performance/jereem-richards-games-drills-develop-speed",
+      "title": "Jereem Richards’ games and drills to help develop speed",
+      "publisher": "World Athletics",
+      "kind": "governing_body",
+      "evidenceQuality": 77
+    },
+    "world_athletics_sprint_biomechanical_report": {
+      "url": "https://worldathletics.org/download/download?filename=152a49b1-8225-498e-8283-9c580dcd45d9.pdf&urlslug=Women%27s+100m+-+2017+IAAF+World+Championships+Biomechanical+report",
+      "title": "Women's 100 m — 2017 IAAF World Championships Biomechanical Report",
+      "publisher": "World Athletics",
+      "kind": "governing_body",
+      "evidenceQuality": 82
+    },
+    "plyometric_tendon_adaptation_meta_analysis": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8938535/",
+      "title": "Effects of Plyometric Training on Lower Body Muscle Architecture, Tendon Structure, Stiffness and Physical Performance: A Systematic Review and Meta-analysis",
+      "publisher": "Sports Medicine - Open",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 91
+    },
+    "top_speed_angular_kinematics": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11994691/",
+      "title": "Angular kinematics during top speed sprinting in male intercollegiate track and field and team sport athletes",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 85
+    },
+    "sprint_jump_transfer_systematic_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36513077/",
+      "title": "Effect of Vertical Jump and Sprint Training on Power and Speed Performance Transfer",
+      "publisher": "Motor Control",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "sprint_muscle_activity_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28632055/",
+      "title": "Muscle activity in sprinting: a review",
+      "publisher": "Sports Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "running_drill_test_battery": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41209369/",
+      "title": "Development and Validation of a Running Drill Test Battery to Predict 5 m and 20 m Sprint Performance",
+      "publisher": "International Journal of Exercise Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "skipping_gait_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "title": "Gait biomechanics of skipping are substantially different than those of running",
+      "publisher": "Journal of Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "skipping_joint_contact_model": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36265840/",
+      "title": "Differences in Muscle Demand and Joint Contact Forces Between Running and Skipping",
+      "publisher": "Journal of Applied Biomechanics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 83
+    },
+    "ball_catching_visual_information": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23435115/",
+      "title": "Did you see that? Dissociating advanced visual information and ball flight constrains perception and action processes during one-handed catching",
+      "publisher": "Acta Psychologica",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "ace_overhead_slams": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/182/overhead-slams/",
+      "title": "Overhead Slams",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 78
+    },
+    "ace_rotational_slam": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/287/rotational-slam/",
+      "title": "Rotational Slam",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 77
+    },
+    "ace_heavy_slam_ball_workout": {
+      "url": "https://www.acefitness.org/resources/everyone/blog/3801/heavy-slam-ball-workout/",
+      "title": "Heavy Slam Ball Workout",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 75
+    },
+    "ace_medicine_ball_ift_workout": {
+      "url": "https://www.acefitness.org/continuing-education/certified/june-2019/7306/medicine-balls-an-ace-integrated-fitness-training-reg-model-workout/",
+      "title": "Medicine Balls: An ACE Integrated Fitness Training Model Workout",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 78
+    },
+    "ace_power_medicine_ball_slam": {
+      "url": "https://www.acefitness.org/resources/pros/expert-articles/6941/five-exercises-to-help-your-clients-develop-power/",
+      "title": "Five Exercises to Help Your Clients Develop Power",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 76
+    },
+    "side_medicine_ball_throw_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/19826303/",
+      "title": "Analysis of trunk muscle activity in the side medicine-ball throw",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 80
+    },
+    "power_systems_slam_ball_guide": {
+      "url": "https://www.power-systems.com/pdf/PSystems_DigitalGuide_Jan18.pdf",
+      "title": "2018 Buyers Guide",
+      "publisher": "Power Systems",
+      "kind": "manufacturer_instruction",
+      "evidenceQuality": 72
+    },
+    "shin_box_get_up_jbmt": {
+      "url": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "title": "The shin box get-up",
+      "publisher": "Journal of Bodywork & Movement Therapies",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "stretching_rom_meta_analysis": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10980866/",
+      "title": "Chronic effects of stretching on range of motion with consideration of potential moderating variables: A systematic review with meta-analysis",
+      "publisher": "Journal of Sport and Health Science",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "hip_external_rotator_flexion_biomechanics": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8725321/",
+      "title": "Impacts of external rotators and the ischiofemoral ligament on preventing excessive internal hip rotation: a cadaveric study",
+      "publisher": "Journal of Orthopaedic Surgery and Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 80
+    },
+    "va_diaphragmatic_breathing": {
+      "url": "https://veteranshealthlibrary.va.gov/encyclopedia/142%2C82451_VA",
+      "title": "Breathing Retraining: Diaphragmatic Breathing",
+      "publisher": "U.S. Department of Veterans Affairs",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "slow_breathing_systematic_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30245619/",
+      "title": "How Breath-Control Can Change Your Life: A Systematic Review on Psycho-Physiological Correlates of Slow Breathing",
+      "publisher": "Frontiers in Human Neuroscience",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "mod505_turning_phase_biomechanics": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8196559/",
+      "title": "The Biomechanical Characterization of the Turning Phase during a 180-Degree Change of Direction",
+      "publisher": "International Journal of Environmental Research and Public Health",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "cod_technique_training_180": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8225134/",
+      "title": "Change of Direction Speed and Technique Modification Training Improves 180-Degree Turning Performance, Kinetics, and Kinematics",
+      "publisher": "Sports",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "kit_180_throw_catch": {
+      "url": "https://www.ifss.kit.edu/more/english/245.php",
+      "title": "Throw and Catch (T&C)",
+      "publisher": "Karlsruhe Institute of Technology",
+      "kind": "professional_standard",
+      "evidenceQuality": 78
+    },
+    "cod45_multistep_com": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12179697/",
+      "title": "Center of mass direction and speed during a 45-degree change of direction task performed with maximal effort",
+      "publisher": "Frontiers in Sports and Active Living",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "cutting_performance_injury_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8363537/",
+      "title": "Biomechanical Determinants of Performance and Injury Risk During Cutting: A Performance-Injury Conflict?",
+      "publisher": "Sports Medicine - Open",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "cutting_alignment_scoring_tool": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8016420/",
+      "title": "Reliability of the Cutting Alignment Scoring Tool (CAST) to Assess Trunk and Limb Alignment During a 45-Degree Side-Step Cut",
+      "publisher": "International Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "cut_angle_foot_strike_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/39574461/",
+      "title": "Effect of foot strike patterns and angles on the biomechanics of side-step cutting",
+      "publisher": "Frontiers in Bioengineering and Biotechnology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 83
+    },
+    "nsca_run_and_cut": {
+      "url": "https://www.nsca.com/education/articles/kinetic-select/run-and-cut/",
+      "title": "Run and Cut",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "lateral_lunge_older_adult_biomechanics": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3463242/",
+      "title": "Biomechanical Attributes of Lunging Activities for Older Adults",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "lateral_lunge_healthy_biomechanics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41886869/",
+      "title": "Biomechanical comparison of lower limb kinetics and kinematics between lateral lunge and walking and implications for rehabilitation in the healthy",
+      "publisher": "Rehabilitacion",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 80
+    },
+    "side_lunge_adductor_mobility": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4725067/",
+      "title": "The Back Squat Part 2: Targeted Training Techniques to Correct Functional Deficits and Technical Factors that Limit Performance",
+      "publisher": "Strength and Conditioning Journal",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "acute_stretching_warmup_review": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/26642915/",
+      "title": "Acute effects of muscle stretching on physical performance, range of motion, and injury incidence in healthy active individuals: a systematic review",
+      "publisher": "Applied Physiology, Nutrition, and Metabolism",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 90
+    },
+    "acute_stretching_rom_meta_analysis": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/37962709/",
+      "title": "Acute Effects of Various Stretching Techniques on Range of Motion: A Systematic Review with Meta-Analysis",
+      "publisher": "Sports Medicine - Open",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "medial_thigh_muscle_anatomy": {
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK534775/",
+      "title": "Anatomy, Bony Pelvis and Lower Limb: Medial Thigh Muscles",
+      "publisher": "NCBI Bookshelf / StatPearls",
+      "kind": "professional_standard",
+      "evidenceQuality": 82
+    },
+    "adductor_load_management_clinical_concepts": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10569248/",
+      "title": "Current Clinical Concepts: Exercise and Load Management of Adductor Strains, Adductor Ruptures, and Long-Standing Adductor-Related Groin Pain",
+      "publisher": "Journal of Athletic Training",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 92
+    },
+    "thoracic_exercise_prescription_review": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7173996/",
+      "title": "Clinical reasoning framework for thoracic spine exercise prescription in sport: a systematic review and narrative synthesis",
+      "publisher": "BMJ Open Sport & Exercise Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "movement_fix_adductor_rockback": {
+      "url": "https://themovementfix.com/how-to-stretch-your-adductors-with-the-adductor-rock-back/",
+      "title": "How to Stretch Your Adductors with the Adductor Rock Back",
+      "publisher": "The Movement Fix",
+      "kind": "expert_instruction",
+      "evidenceQuality": 72
+    },
+    "prehab_adductor_rockback": {
+      "url": "https://library.theprehabguys.com/vimeo-video/quadruped-dynamic-long-adductor-stretch/",
+      "title": "Adductor Rock Back",
+      "publisher": "[P]rehab",
+      "kind": "expert_instruction",
+      "evidenceQuality": 72
+    },
+    "catalyst_half_kneeling_adductor_rock": {
+      "url": "https://www.catalystathletics.com/exercise/754/Half-Kneeling-Adductor-Rock/",
+      "title": "Half-Kneeling Adductor Rock",
+      "publisher": "Catalyst Athletics",
+      "kind": "expert_instruction",
+      "evidenceQuality": 70
+    },
+    "ace_overhead_medicine_ball_throw": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
+      "title": "Overhead Medicine Ball Throws",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 74
+    },
+    "youtube_embed_help": {
+      "url": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "title": "Embed videos and playlists",
+      "publisher": "YouTube Help",
+      "kind": "manufacturer_instruction",
+      "evidenceQuality": 82
+    }
+  }
+}

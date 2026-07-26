@@ -1,0 +1,37 @@
+{
+  "batchKey": "landing-braking-foundations-v1",
+  "researchVersion": "2026-07-25.3",
+  "generatedAt": "2026-07-25T22:38:27.000Z",
+  "cards": [
+    {
+      "slug": "drop-squat-to-stick",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "snap-down-to-stick-control-version",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "forward-hop-to-stick-low-amplitude",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "single-leg-hop-to-stick-low-amplitude",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "jog-to-stick-linear-deceleration",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    }
+  ]
+}

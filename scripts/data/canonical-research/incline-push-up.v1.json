@@ -1,0 +1,290 @@
+{
+  "facilityId": 1,
+  "slug": "incline-push-up",
+  "researchVersion": "2026-07-25.1",
+  "assessmentSummary": {
+    "identity": "Hands-elevated horizontal push-up using a stable surface; surface height changes external demand without changing the core movement identity.",
+    "difficulty": {
+      "technicalComplexity": 28,
+      "absoluteLoadDemand": 25,
+      "coordinationDemand": 24,
+      "supervisionDemand": 18,
+      "failureConsequence": 20,
+      "impact": 5,
+      "workCapacityDemand": 35,
+      "baseOverallDifficulty": 28
+    },
+    "loadInterpretation": "Do not assign one fixed body-mass percentage. Hand load varies with surface height, body dimensions, position in the repetition, and tempo.",
+    "programmingDecision": "Use surface height as the primary regression/progression variable. Preserve range, whole-body alignment, scapular motion, and target RPE before lowering the surface."
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nasm.org/resource-center/exercise-library/incline-push-up",
+      "sourceTitle": "Incline Push-Up",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "The hands are elevated on a stable bench or surface.",
+        "Elevation reduces pressing demand and supports progression toward a floor push-up."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.nasm.org/resource-center/exercise-library/incline-push-up",
+      "sourceTitle": "Incline Push-Up",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "The exercise is a beginner horizontal pressing pattern using body mass and an elevated support.",
+        "The stable elevated surface is an equipment and setup attribute, not a different primary movement pattern."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12738558/",
+      "sourceTitle": "A predictive model for vertical ground reaction force during incline push-ups",
+      "sourcePublisher": "Scientific Reports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Body mass, incline angle, and movement tempo influence vertical ground-reaction force.",
+        "Individual body mass and execution conditions should be retained when prescribing intensity."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9121296/",
+      "sourceTitle": "Shoulder electromyography activity during push-up variations: a scoping review",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Push-up variants recruit shoulder and scapular musculature, with activation affected by variation and support conditions.",
+        "Incline evidence is more limited than evidence for standard push-ups, so precise muscle-activation claims should remain conservative."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/20179649/",
+      "sourceTitle": "The effect of position on the percentage of body mass supported during traditional and modified push-up variants",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Upper-extremity load changes between the top and bottom of a push-up.",
+        "Difficulty should not be inferred from exercise name alone."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Youth should begin with manageable resistance, learn correct technique, and progress gradually.",
+        "Training variables should be adjusted to experience and objective with adequate recovery."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Progressive movement competency and foundational strength precede more demanding loading.",
+        "Coaching and progression should be developmentally appropriate."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7196742/",
+      "sourceTitle": "Push-Ups vs. Bench Press Differences in Repetitions and Muscle Activation between Sexes",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Push-ups can be treated as a quantifiable resistance exercise rather than a generic conditioning movement.",
+        "Relative external demand and repetition capacity should both inform dosage."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nasm.org/resource-center/exercise-library/incline-push-up",
+      "sourceTitle": "Incline Push-Up",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "The exercise requires a stable elevated surface that will not slide or tip under forward and downward force.",
+        "Support height and available clear floor space constrain setup and the attainable loading range."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Resistance-training dosage should be selected from the athlete's training age, movement competency, objective, and recovery capacity.",
+        "Load or difficulty should progress gradually after correct technique can be maintained."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.nasm.org/resource-center/exercise-library/incline-push-up",
+      "sourceTitle": "Incline Push-Up",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Set the hands slightly wider than shoulder width on an elevated surface and place the feet to form an inclined straight-body position.",
+        "Lower the chest toward the support with whole-body alignment, then press to the start without losing trunk position."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Athletes benefit from developmentally appropriate language, visible success criteria, and a progression that preserves movement competency.",
+        "The card should explain that raising the support is a valid load adjustment rather than a failed repetition."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/education/articles/ptq/youth-performance-and-fitnessstrength-and-conditioning-information-for-parents/",
+      "sourceTitle": "Youth Performance and Fitness—Strength and Conditioning Information for Parents",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 78,
+      "claims": [
+        "Qualified supervision, clear technique instruction, and appropriate program administration are core safety controls for youth resistance training.",
+        "Coaches should observe alignment and range, adjust support height before form failure, and avoid treating all athletes as having the same relative load."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nasm.org/resource-center/exercise-library/incline-push-up",
+      "sourceTitle": "Incline Push-Up",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 76,
+      "claims": [
+        "Support elevation makes the pressing task more manageable than a floor push-up for many beginners.",
+        "Surface height can be individualized in small steps while retaining the exercise's core identity."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9121296/",
+      "sourceTitle": "Shoulder electromyography activity during push-up variations: a scoping review",
+      "sourcePublisher": "International Journal of Sports Physical Therapy",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Support conditions and push-up variations can materially change muscular demand.",
+        "Alternate classification should distinguish simple dosage or setup modifiers from changes in laterality, support, and movement demand."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube provides privacy-enhanced embedding through the youtube-nocookie.com domain.",
+        "An embeddable player URL does not establish that a video is an exact exercise match; each candidate still needs link, embedding, content, and safety review."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=3WUUeM07i_Q",
+      "title": "How to Do: INCLINE PUSH-UPS",
+      "channelName": "Leap Fitness",
+      "sourceQuery": "incline push up proper form",
+      "notes": "Title is an exact exercise match; visual, caption, safety, and embedding review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=49jfZ_z7-us",
+      "title": "Incline Push Ups // Learn to Push Up for Beginners!",
+      "channelName": "Tom Morrison",
+      "sourceQuery": "incline push up proper form",
+      "notes": "Title is an exact exercise match; visual, caption, safety, and embedding review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=7f8JOu0i1cQ",
+      "title": "Incline Pushup",
+      "channelName": "Coach B",
+      "sourceQuery": "incline push up proper form",
+      "notes": "Title is an exact exercise match; visual, caption, safety, and embedding review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=DORUKQ3zLIo",
+      "title": "INCLINE PUSH UPS AND BENEFITS",
+      "channelName": "CrackTheWorkout",
+      "sourceQuery": "incline push up proper form",
+      "notes": "Title is an exact exercise match; visual, caption, safety, and embedding review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=0GsVJsS6474",
+      "title": "You CAN do pushups, my friend!",
+      "channelName": "Hybrid Calisthenics",
+      "sourceQuery": "incline push up progression",
+      "notes": "Progression candidate that may include elevated push-ups; exact-variant visual review remains pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Wall Push-Up",
+      "classification": "new_variant",
+      "rationale": "The same horizontal pressing pattern uses a higher support and substantially lower relative load.",
+      "distinguishingDimensions": {
+        "surfaceHeight": "wall",
+        "loadDemand": "lower",
+        "balanceDemand": "lower"
+      }
+    },
+    {
+      "name": "Neutral-Grip Incline Push-Up on Handles",
+      "classification": "modifier_annotation",
+      "rationale": "The implement changes wrist position without changing the core stimulus or exercise identity.",
+      "distinguishingDimensions": {
+        "wristPosition": "neutral",
+        "equipment": ["push_up_handles"]
+      }
+    },
+    {
+      "name": "Tempo Incline Push-Up",
+      "classification": "modifier_annotation",
+      "rationale": "Tempo is a dosage modifier and should remain contextual rather than creating a duplicate card.",
+      "distinguishingDimensions": {
+        "tempo": "controlled_eccentric_or_pause"
+      }
+    },
+    {
+      "name": "Single-Arm Incline Push-Up",
+      "classification": "new_definition",
+      "rationale": "Unilateral loading materially changes anti-rotation demand, strength requirement, supervision, and progression relationships.",
+      "distinguishingDimensions": {
+        "laterality": "unilateral",
+        "trunkDemand": "high_anti_rotation",
+        "difficulty": "substantially_higher"
+      }
+    }
+  ]
+}

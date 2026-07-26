@@ -155,13 +155,19 @@ export async function runPreflight(body, pool = null, context = {}) {
     })
   }
 
-  const skillLevel = body.skillLevel ?? body.skill_level
-  if (skillLevel != null && skillLevel !== '' && skillLevelRank(skillLevel) == null) {
+  const trainingExperience = body.trainingExperience
+    ?? body.training_experience
+    ?? body.skillLevel
+    ?? body.skill_level
+  if (trainingExperience != null && trainingExperience !== '' && skillLevelRank(trainingExperience) == null) {
     blocking_requirements.push({
-      requirement_id: findRequirementId(requirements, 'skillLevel'),
+      requirement_id: findRequirementId(requirements, 'trainingExperience')
+        ?? findRequirementId(requirements, 'skillLevel'),
       check_id: 'skill_level_valid',
-      message: `Invalid skillLevel: ${skillLevel}`,
-      evidence_path: 'body.skillLevel',
+      message: `Invalid training experience: ${trainingExperience}`,
+      evidence_path: body.trainingExperience != null || body.training_experience != null
+        ? 'body.trainingExperience'
+        : 'body.skillLevel',
     })
   }
 

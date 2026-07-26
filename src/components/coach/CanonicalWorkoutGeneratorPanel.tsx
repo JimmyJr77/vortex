@@ -133,7 +133,7 @@ export function CanonicalWorkoutGeneratorPanel() {
   const [coachCount, setCoachCount] = useState(1)
   const [ageMin, setAgeMin] = useState(8)
   const [ageMax, setAgeMax] = useState(10)
-  const [skillLevel, setSkillLevel] = useState('beginner')
+  const [trainingExperience, setTrainingExperience] = useState('beginner')
   const [seed, setSeed] = useState('coach-pilot-1')
   const [equipment, setEquipment] = useState('bodyweight')
   const [equipmentAvoid, setEquipmentAvoid] = useState('')
@@ -165,7 +165,7 @@ export function CanonicalWorkoutGeneratorPanel() {
         coachCount,
         ageMin,
         ageMax,
-        skillLevel,
+        trainingExperience,
         randomSeed: seed,
         equipmentAvailable: parsedEquipment.available,
         equipmentQuantities: parsedEquipment.quantities,
@@ -330,8 +330,8 @@ export function CanonicalWorkoutGeneratorPanel() {
               <input type="number" min={5} max={99} value={ageMax} onChange={(event) => setAgeMax(Number(event.target.value))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" />
             </label>
             <label className="text-sm">
-              <span className="font-medium text-gray-700">Skill level</span>
-              <select value={skillLevel} onChange={(event) => setSkillLevel(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2">
+              <span className="font-medium text-gray-700">Training experience</span>
+              <select value={trainingExperience} onChange={(event) => setTrainingExperience(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2">
                 {['beginner', 'intermediate', 'advanced'].map((level) => <option key={level} value={level}>{level}</option>)}
               </select>
             </label>

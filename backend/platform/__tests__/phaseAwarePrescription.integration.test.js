@@ -3,14 +3,6 @@ import test from 'node:test'
 import { runPhaseAwarePrescription } from '../phaseAwarePrescription.js'
 import { exerciseViolatesEquipmentAvoid } from '../equipmentAvoidPolicy.js'
 import { isBeginnerExcludedSlug } from '../beginnerExclusionPolicy.js'
-import { allowedSkillLevelsFor } from '../skillLevelPolicy.js'
-
-test('beginner skill filter allows early stage and beginner only', () => {
-  const allowed = allowedSkillLevelsFor('BEGINNER')
-  assert.ok(allowed?.has('BEGINNER'))
-  assert.ok(allowed?.has('EARLY_STAGE'))
-  assert.ok(!allowed?.has('ADVANCED'))
-})
 
 test('beginner excludes handstand slugs', () => {
   assert.equal(isBeginnerExcludedSlug('wall-handstand-hold', 'Wall Handstand Hold'), true)
@@ -24,7 +16,7 @@ test('semantic box avoid catches drop landing slug', () => {
   )
 })
 
-test('prescription scenario: beginner excludes handstand from scored pool', async () => {
+test('prescription scenario uses difficulty and beginner appropriateness, not exercise skill_level', async () => {
   const exercises = [
     { id: 1, name: 'Handstand Hold', slug: 'handstand-hold', programming_kind: 'exercise', default_sets: 2, default_reps: null, default_rest_seconds: 30, est_seconds_per_set: 45, facility_id: 1, archived: false, is_published: true, skill_level: 'ADVANCED', movement_family: 'handstand' },
     { id: 2, name: 'Snap Down to Stick', slug: 'snap-down-to-stick', programming_kind: 'exercise', default_sets: 3, default_reps: 3, default_rest_seconds: 30, est_seconds_per_set: 45, facility_id: 1, archived: false, is_published: true, skill_level: 'BEGINNER', movement_family: 'jump' },
@@ -35,9 +27,8 @@ test('prescription scenario: beginner excludes handstand from scored pool', asyn
         return { rows: [{ id: 3, key: 'movement_intelligence', name: 'Movement Intelligence' }] }
       }
       if (sql.includes('FROM coaching.exercise e WHERE')) {
-        return {
-          rows: exercises.filter((e) => !e.skill_level || e.skill_level === 'BEGINNER' || e.skill_level === 'EARLY_STAGE'),
-        }
+        assert.ok(!sql.includes('e.skill_level'))
+        return { rows: exercises }
       }
       if (sql.includes('FROM coaching.exercise_tag')) return { rows: [] }
       if (sql.includes('FROM coaching.exercise_phase_profile')) {

@@ -85,7 +85,7 @@ function additionalChecks({ card, definition, relationships, calibrations }) {
   const approvedRelationships = relationships.filter((edge) => edge.review_status === 'approved')
   const approvedCalibrations = calibrations.filter((anchor) => anchor.status === 'approved')
   const requiredDifficulty = [
-    'technicalComplexity', 'supervisionDemand', 'failureConsequence',
+    'technicalComplexity', 'absoluteLoadDemand', 'supervisionDemand', 'failureConsequence',
     'impact', 'workCapacityDemand', 'baseOverallDifficulty',
   ]
   const requiredLoad = [
@@ -137,9 +137,16 @@ function additionalChecks({ card, definition, relationships, calibrations }) {
       priority: 'P1',
       status: variants.length > 0 && variants.every((variant) => (
         requiredDifficulty.every((field) => Number.isInteger(variant.difficulty?.[field]))
+        && variant.difficulty.baseOverallDifficulty === Math.max(
+          variant.difficulty.technicalComplexity,
+          variant.difficulty.absoluteLoadDemand,
+        )
       )) ? 'passed' : 'failed',
-      evidence: { requiredFields: requiredDifficulty },
-      message: 'Every variant has all controlled 1-100 difficulty dimensions.',
+      evidence: {
+        requiredFields: requiredDifficulty,
+        overallFormula: 'max(technicalComplexity, absoluteLoadDemand)',
+      },
+      message: 'Every variant has physical and technical difficulty, with overall derived from those dimensions.',
     },
     {
       id: 'CARD-LOAD-01',

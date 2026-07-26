@@ -151,7 +151,6 @@ function mapScalingRow(row) {
     label: row.label,
     age_min: row.age_min,
     age_max: row.age_max,
-    skill_level: row.skill_level,
     scale_direction: row.scale_direction,
     sets_min: row.sets_min,
     sets_max: row.sets_max,
@@ -239,7 +238,6 @@ export function buildExerciseCard(row, attached, tags = []) {
       order_slot: row.primary_order_slot ?? primary?.orderSlot ?? null,
       sport_id: row.sport_id,
       sport_name: row.sport_name,
-      skill_level: row.skill_level,
       visibility: row.visibility,
       participant_structure: row.participant_structure ?? 'individual',
     },
@@ -352,7 +350,7 @@ function resolveDifficultyProfile(row, bundle, phaseProfiles) {
   if (stored) return stored
 
   const primaryPhase = pickPrimaryPhaseProfile(phaseProfiles)
-  if (!primaryPhase && !row.skill_level && !row.movement_requirements) return null
+  if (!primaryPhase && !row.movement_requirements) return null
 
   return deriveExerciseDifficulty(
     row,
@@ -365,15 +363,20 @@ function resolveDifficultyProfile(row, bundle, phaseProfiles) {
 
 export function attachProgrammingToExercise(row, bundle, education = null) {
   const id = String(row.id)
+  const exerciseRow = { ...row }
+  delete exerciseRow.skill_level
   const phaseProfiles = bundle.phaseProfiles.get(id) ?? []
   const primaryPhase = pickPrimaryPhaseProfile(phaseProfiles)
   const scalingRaw = bundle.scalingProfiles.get(id) ?? []
   const dosageRaw = bundle.dosageProfiles.get(id) ?? []
   const why = educationToWhyResponse(education)
   const difficultyProfile = resolveDifficultyProfile(row, bundle, phaseProfiles)
+  const rawSafetyProfile = bundle.safetyProfiles.get(id) ?? null
+  const safetyProfile = rawSafetyProfile ? { ...rawSafetyProfile } : null
+  if (safetyProfile) delete safetyProfile.minimum_skill_level
 
   return {
-    ...row,
+    ...exerciseRow,
     card_summary: row.card_summary,
     coach_language: row.coach_language,
     athlete_language: row.athlete_language,
@@ -392,7 +395,7 @@ export function attachProgrammingToExercise(row, bundle, education = null) {
     primary_phase: primaryPhase,
     dosage_profiles: dosageRaw.map(mapDosageRow),
     scaling_profiles: scalingRaw.map(mapScalingRow),
-    safety_profile: bundle.safetyProfiles.get(id) ?? null,
+    safety_profile: safetyProfile,
     regimen_rule: bundle.regimenRules.get(id) ?? null,
     difficulty_profile: difficultyProfile,
     programming_kind: row.programming_kind ?? difficultyProfile?.programming_kind ?? null,
@@ -625,13 +628,13 @@ export async function saveExerciseProgramming(client, exerciseId, slug, body) {
           exercise_id, risk_level, impact_level, requires_spotting, requires_coach_supervision,
           minimum_age_recommended, minimum_skill_level, readiness_checks, stop_signs,
           common_substitutions, contraindications
-        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+        ) VALUES ($1,$2,$3,$4,$5,$6,NULL,$7,$8,$9,$10)
         ON CONFLICT (exercise_id) DO UPDATE SET
           risk_level = EXCLUDED.risk_level, impact_level = EXCLUDED.impact_level,
           requires_spotting = EXCLUDED.requires_spotting,
           requires_coach_supervision = EXCLUDED.requires_coach_supervision,
           minimum_age_recommended = EXCLUDED.minimum_age_recommended,
-          minimum_skill_level = EXCLUDED.minimum_skill_level,
+          minimum_skill_level = NULL,
           readiness_checks = EXCLUDED.readiness_checks,
           stop_signs = EXCLUDED.stop_signs,
           common_substitutions = EXCLUDED.common_substitutions,
@@ -644,7 +647,6 @@ export async function saveExerciseProgramming(client, exerciseId, slug, body) {
         Boolean(s.requires_spotting ?? s.requiresSpotting),
         s.requires_coach_supervision ?? s.requiresCoachSupervision ?? s.requires_supervision ?? 'recommended',
         s.minimum_age_recommended ?? s.minimumAgeRecommended,
-        s.minimum_skill_level ?? s.minimumSkillLevel,
         s.readiness_checks ?? s.readinessChecks ?? [],
         s.stop_signs ?? s.stopSigns ?? [],
         s.common_substitutions ?? s.commonSubstitutions ?? s.substitutions ?? [],
@@ -702,7 +704,7 @@ export async function saveExerciseProgramming(client, exerciseId, slug, body) {
             tempo_guidance, rom_guidance, complexity_guidance, impact_guidance,
             coach_notes, athlete_notes, contraindication_notes,
             requires_medical_clearance, gender_specific_notes
-          ) VALUES ($1,$2,$3,$4,$5,$6::public.skill_level,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
+          ) VALUES ($1,$2,$3,$4,$5,NULL,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)
         `,
         [
           exerciseId,
@@ -710,7 +712,6 @@ export async function saveExerciseProgramming(client, exerciseId, slug, body) {
           s.label || s.cohort_key?.replace(/_/g, ' ') || 'Baseline',
           s.age_min ?? s.ageMin ?? null,
           s.age_max ?? s.ageMax ?? null,
-          s.skill_level ?? s.skillLevel ?? null,
           s.scale_direction ?? s.scaleDirection ?? 'baseline',
           s.sets_min ?? s.setsMin ?? null,
           s.sets_max ?? s.setsMax ?? null,

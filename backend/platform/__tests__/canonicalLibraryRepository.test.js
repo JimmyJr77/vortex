@@ -52,6 +52,7 @@ test('repository groups published delivery profiles under a stable variant card'
             approved_by: 4,
             difficulty_json: {
               technicalComplexity: 30,
+              absoluteLoadDemand: 40,
               supervisionDemand: 20,
               failureConsequence: 20,
               impact: 10,

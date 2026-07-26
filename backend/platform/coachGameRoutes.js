@@ -30,6 +30,28 @@ function slugify(text) {
     .slice(0, 80)
 }
 
+function isDirectYouTubeVideo(url) {
+  return /^https:\/\/(www\.)?youtube\.com\/watch\?v=[A-Za-z0-9_-]{11}(?:&.*)?$/.test(String(url || '').trim())
+}
+
+function validateRichGameBody(body, { requireAll = false } = {}) {
+  if ((requireAll || body.video_links != null) && (
+    !Array.isArray(body.video_links)
+    || body.video_links.length === 0
+    || !isDirectYouTubeVideo(body.video_links[0]?.url)
+  )) return 'A direct YouTube gameplay video URL is required.'
+  if ((requireAll || body.age_brackets != null) && (!Array.isArray(body.age_brackets) || body.age_brackets.length === 0)) {
+    return 'Select at least one age bracket.'
+  }
+  if ((requireAll || body.training_effects != null) && (
+    !Array.isArray(body.training_effects?.primary_qualities)
+    || body.training_effects.primary_qualities.length === 0
+    || !Array.isArray(body.training_effects?.primary_muscle_groups)
+    || body.training_effects.primary_muscle_groups.length === 0
+  )) return 'Primary training qualities and muscle groups are required.'
+  return null
+}
+
 function canMutateRow(row, userId) {
   if (!row) return false
   return row.visibility !== 'private' || Number(row.created_by) === Number(userId)
@@ -61,6 +83,8 @@ function parseGameBody(body) {
     rules: body?.rules ?? null,
     safety: body?.safety ?? null,
     coaching_notes: body?.coaching_notes ?? null,
+    training_effects: body?.training_effects ?? null,
+    video_links: Array.isArray(body?.video_links) ? body.video_links : null,
     best_session_phase: body?.best_session_phase ?? null,
     compatible_phases: Array.isArray(body?.compatible_phases) ? body.compatible_phases : null,
     is_published: typeof body?.is_published === 'boolean' ? body.is_published : null,
@@ -150,7 +174,7 @@ export function registerGameRoutes(app, pool, { can, canMutateRow: sharedCanMuta
         `SELECT g.* FROM coaching.game g
          WHERE ${where.join(' AND ')}
          ORDER BY g.game_type, g.min_players, g.name
-         LIMIT 500`,
+         LIMIT 1000`,
         params,
       )
       const ids = result.rows.map((r) => Number(r.id))
@@ -186,6 +210,8 @@ export function registerGameRoutes(app, pool, { can, canMutateRow: sharedCanMuta
         rules: row.rules ?? {},
         safety: row.safety ?? {},
         coaching_notes: row.coaching_notes,
+        training_effects: row.training_effects ?? {},
+        video_links: row.video_links ?? [],
         compatible_phases: row.compatible_phases ?? [],
         supervision_level: row.supervision_level,
         competition_format: row.competition_format,
@@ -225,6 +251,8 @@ export function registerGameRoutes(app, pool, { can, canMutateRow: sharedCanMuta
     const userId = Number(req.platformAuth.user.id)
     const body = parseGameBody(req.body || {})
     if (!body.name) return bad(res, 'Game name is required.')
+    const validationError = validateRichGameBody(body, { requireAll: true })
+    if (validationError) return bad(res, validationError)
     const client = await pool.connect()
     try {
       await client.query('BEGIN')
@@ -235,14 +263,15 @@ export function registerGameRoutes(app, pool, { can, canMutateRow: sharedCanMuta
           age_brackets, age_variations, space_requirements, equipment,
           duration_typical_min, duration_typical_max, intensity_level, contact_level,
           supervision_level, rules, safety, coaching_notes,
-          best_session_phase, compatible_phases, created_by, is_published, visibility
+          best_session_phase, compatible_phases, training_effects, video_links,
+          created_by, is_published, visibility
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7,
           $8, $9, $10, $11, $12, $13, $14,
           $15, $16::jsonb, $17::jsonb, $18,
           $19, $20, $21, $22,
           $23, $24::jsonb, $25::jsonb, $26,
-          $27, $28, $29, $30, $31
+          $27, $28, $29::jsonb, $30::jsonb, $31, $32, $33
         ) RETURNING id`,
         [
           facilityId,
@@ -273,6 +302,8 @@ export function registerGameRoutes(app, pool, { can, canMutateRow: sharedCanMuta
           body.coaching_notes,
           body.best_session_phase,
           body.compatible_phases ?? [],
+          JSON.stringify(body.training_effects ?? {}),
+          JSON.stringify(body.video_links ?? []),
           userId,
           body.is_published !== false,
           body.visibility ?? 'facility',
@@ -295,6 +326,8 @@ export function registerGameRoutes(app, pool, { can, canMutateRow: sharedCanMuta
     const facilityId = req.platformAuth.user.facility_id
     const userId = Number(req.platformAuth.user.id)
     const body = parseGameBody(req.body || {})
+    const validationError = validateRichGameBody(body)
+    if (validationError) return bad(res, validationError)
     const client = await pool.connect()
     try {
       await client.query('BEGIN')
@@ -338,8 +371,10 @@ export function registerGameRoutes(app, pool, { can, canMutateRow: sharedCanMuta
           coaching_notes = $25,
           best_session_phase = $26,
           compatible_phases = COALESCE($27, compatible_phases),
-          is_published = COALESCE($28, is_published),
-          visibility = COALESCE($29, visibility),
+          training_effects = COALESCE($28::jsonb, training_effects),
+          video_links = COALESCE($29::jsonb, video_links),
+          is_published = COALESCE($30, is_published),
+          visibility = COALESCE($31, visibility),
           updated_at = now()
         WHERE id = $1`,
         [
@@ -370,6 +405,8 @@ export function registerGameRoutes(app, pool, { can, canMutateRow: sharedCanMuta
           body.coaching_notes,
           body.best_session_phase,
           body.compatible_phases,
+          body.training_effects != null ? JSON.stringify(body.training_effects) : null,
+          body.video_links != null ? JSON.stringify(body.video_links) : null,
           body.is_published,
           body.visibility,
         ],

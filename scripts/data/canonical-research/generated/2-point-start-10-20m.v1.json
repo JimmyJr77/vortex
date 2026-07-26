@@ -1,0 +1,438 @@
+{
+  "facilityId": 1,
+  "slug": "2-point-start-10-20m",
+  "researchVersion": "2026-07-25.12",
+  "assessmentSummary": {
+    "identity": "The same static staggered two-point short-acceleration identity as 2-Point Acceleration Start, with a 10-to-20-metre dosage range.",
+    "currentCardFindings": [
+      "The title embeds distance but the description does not define stance geometry, lead-side handling, start trigger, run-out, dosage, or quality stops.",
+      "Generic hip-extension, knee-drive, and trunk-projection wording is not an identity definition.",
+      "The four difficulty values omit supervision, consequence, impact, and work-capacity demand and do not distinguish it from simpler rehearsals."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "static_two_point_start",
+        "short_linear_acceleration"
+      ],
+      "jointActions": [
+        "hip_knee_ankle_extension",
+        "swing_leg_recovery",
+        "reciprocal_shoulder_flexion_extension"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal"
+      ],
+      "laterality": "staggered_start_then_alternating_sprint",
+      "intent": "high_quality_acceleration_through_10_to_20_metres"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "hamstrings",
+        "quadriceps",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "hip_flexors",
+        "intrinsic_foot",
+        "tibialis_anterior",
+        "gluteus_medius",
+        "obliques",
+        "shoulder_girdle"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 48,
+      "absoluteLoadDemand": 12,
+      "coordinationDemand": 54,
+      "supervisionDemand": 50,
+      "failureConsequence": 52,
+      "impact": 56,
+      "workCapacityDemand": 40,
+      "baseOverallDifficulty": 48
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_static_two_point_high_intent_acceleration",
+      "impactClass": "moderate_to_high_by_speed_surface_and_distance",
+      "landingContactsPerRep": "count_all_sprint_contacts_through_target_and_run_out",
+      "primaryStress": [
+        "early_acceleration_force",
+        "posterior_chain",
+        "plantar_flexors",
+        "high_speed_contacts"
+      ],
+      "fatigueSensitivity": "setup_projection_first_steps_arm_leg_timing_speed_and_run_out"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "clear_10_to_20_metre_lane",
+        "start_and_finish_marks",
+        "safe_run_out"
+      ],
+      "optionalEquipment": [
+        "cones",
+        "timing_gates",
+        "video"
+      ],
+      "environment": [
+        "dry_level_non_slip_surface",
+        "no_cross_traffic"
+      ],
+      "population": [
+        "pain_free_acceleration",
+        "stable_staggered_stance",
+        "can_decelerate_safely"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "2-6_efforts",
+      "distance": "10-20_metres",
+      "restSeconds": "90-180",
+      "intensity": "high_intent_after_rehearsal",
+      "progressWhen": "setup, projection, and split performance remain repeatable"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Set the feet",
+        "Load the front leg",
+        "Project and push back",
+        "Run through the target"
+      ],
+      "athleteInstructions": [
+        "Start from the same stagger each attempt and accelerate through the assigned 10- or 20-metre line"
+      ],
+      "commonFaults": [
+        "duplicate_identity",
+        "unstable_stance",
+        "false_step",
+        "popping_upright",
+        "stopping_at_target"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "stable_start",
+        "safe_lane",
+        "completed_warm_up"
+      ],
+      "stopRules": [
+        "pain",
+        "limp",
+        "stumble",
+        "repeated_false_step",
+        "speed_loss",
+        "unsafe_run_out"
+      ]
+    },
+    "programmingDecision": "Merge into 2-Point Acceleration Start as the same identity. Preserve the name as an alias and retain 10-to-20 metres as dosage.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T07:40:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "2-Point Start 10-20m is a acceleration & first-step output exercise for speed, sprinting, and quick-release athletes. It emphasizes hip extension, knee drive, trunk projection while keeping the session intent aligned with the Vortex phase sequence.",
+      "familyKey": "Acceleration Starts",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22233797/",
+      "sourceTitle": "The difference is in the start: impact of timing and start procedure on sprint running performance",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Start position and timing procedure affect sprint performance; start geometry must be explicit while small distance changes remain dosage.",
+        "2-Point Start 10-20m must define stance, self-initiated or cued start, walk-in or static entry, sprint intent, distance, and run-out. Five, ten, or twenty metres does not create a new identity when the two-point start is unchanged."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "The push-off and early acceleration steps form distinguishable but connected phases of sprint acceleration.",
+        "2-Point Start 10-20m belongs to static two-point short acceleration or a controlled walk-in two-point initiation variant; it is not a falling start, three-point start, block start, maximal-velocity sprint, or conditioning interval."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4689850/",
+      "sourceTitle": "Sprint Acceleration Mechanics: The Major Role of Hamstrings in Horizontal Force Production",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Sprint acceleration requires coordinated hip, knee, and ankle action, with hamstring contribution to horizontal force production.",
+        "Represent gluteal, hamstring, quadriceps, plantar-flexor, hip-flexor, foot, pelvic, trunk, and reciprocal arm-action roles without reducing the exercise to knee drive or ankle stiffness."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Early acceleration is associated with forward-directed impulse, propulsive force, and progressive projection.",
+        "Use a repeatable staggered setup, complete push from the front leg, coordinated arms, and progressive rise without forcing identical shin angles or step lengths across athletes."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22233797/",
+      "sourceTitle": "The difference is in the start: impact of timing and start procedure on sprint running performance",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Standing and lower start positions produce different timing and body-position effects and should not receive an unexplained generic score.",
+        "Exercise difficulty must directly score technical complexity, physical and absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; audience readiness remains programming context."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6407765/",
+      "sourceTitle": "Correlations between muscle-tendon parameters and acceleration ability in 20 m sprints",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Power output is highest during the first acceleration steps, so short starts require high-intent contact and recovery accounting.",
+        "2-Point Start 10-20m needs distance, intent, timed status, total high-speed contacts, start-side distribution, surface, footwear, posterior-chain and plantar-flexor stress, technical-fatigue markers, recovery, and session sprint-volume accounting."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Quality sprint work requires a suitable surface, marked start and finish, sufficient run-out, and recovery that preserves speed quality.",
+        "Require a clear dry level lane, safe separation, suitable footwear, stable staggered stance, finish mark, and run-out; timing gates and cones are optional measurement and logistics tools."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration work should prescribe distance, intensity, repetitions, sets, and recovery rather than repetitions alone.",
+        "Use 2-6 high-quality efforts over 5-20 metres with roughly 60-180 seconds recovery, or lower-intent rehearsals with shorter recovery when the card explicitly uses a walk-in learning profile."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "The start should support rapid hip extension and forward propulsion without forcing an anthropometrically inappropriate setup.",
+        "Use a small cue set: set the feet, load the front leg, project forward, push the ground backward, coordinate opposite arm and leg, accelerate through the target, and use the run-out."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Training should use qualified supervision, correct technique, manageable demands, and gradual progression.",
+        "Stop for pain, limping, repeated stumble, false step that creates collision risk, unstable setup, unsafe surface or spacing, projection or arm-leg breakdown, marked speed decline, or inability to decelerate in the run-out."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration and maximal-velocity sprinting are distinct qualities and high-quality sprint work should not be converted into dense conditioning.",
+        "2-Point Start 10-20m belongs after preparation and before fatiguing work; static high-intent starts fit output work, while walk-in and submaximal versions fit teaching or movement preparation."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "Acceleration develops progressively across successive steps rather than by immediately standing upright.",
+        "Show stance setup from both sides, lead-leg options, first three contacts, start and finish marks, run-out, a submaximal rehearsal, and the difference between a static start and a walk-in entry."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Coaches should distinguish acceleration quality from maximal velocity and conditioning.",
+        "Provide side and rear observation, stance measurements when needed, start-side balance, step and distance counts, timing method, projection, arm-leg coordination, speed-loss stops, and exact merge or variant guidance."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Speed work should be developmentally appropriate and based on movement competency.",
+        "Accessibility options include a taller or more comfortable stagger, a walk-in entry, submaximal intent, shorter distance, untimed attempts, visual start marks, extra demonstration, fewer efforts, and longer recovery."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22233797/",
+      "sourceTitle": "The difference is in the start: impact of timing and start procedure on sprint running performance",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Start position and timing procedure change the task and measured performance.",
+        "Five-to-ten yards versus ten-to-twenty metres is dosage; static versus walk-in entry, two-point versus three-point stance, external cue, blocks, and resistance require controlled variants or distinct definitions."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The existing visible candidates for 2-Point Start 10-20m remain candidate-only; current embedding, exact static or walk-in start match, complete viewing, captions, instruction, safety, reviewer identity, and approval remain separate human gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=96Idqyl7_1U",
+      "title": "2-Point Start - Exercise Drill for Speed and Sprint Training",
+      "channelName": "PitcheroGPS",
+      "sourceQuery": "existing researched two-point-start candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=FlfsCUSTQN8",
+      "title": "Two-Point Start For Max Acceleration",
+      "channelName": "The Stadium Sports",
+      "sourceQuery": "existing researched two-point-start candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=gijySBfsL-s",
+      "title": "1st Step Explosiveness: Improve Speed with 2 Point Start",
+      "channelName": "FASSTRAINING24",
+      "sourceQuery": "existing researched two-point-start candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=GzZjzBm-56k",
+      "title": "Standing Start Technique",
+      "channelName": "Simple Speed Coach",
+      "sourceQuery": "existing researched two-point-start candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "2-Point Acceleration Start",
+      "classification": "same_identity",
+      "rationale": "Only distance specificity differs.",
+      "distinguishingDimensions": {
+        "distance": "10_to_20_metres"
+      }
+    },
+    {
+      "name": "Two-Point Start to 5-10 Yard Sprint",
+      "classification": "modifier_annotation",
+      "rationale": "The shorter imperial range is dosage.",
+      "distinguishingDimensions": {
+        "distance": "5_to_10_yards"
+      }
+    },
+    {
+      "name": "Two-Point Start Walk-In",
+      "classification": "new_variant",
+      "rationale": "The moving entry changes start procedure and intent.",
+      "distinguishingDimensions": {
+        "entry": "walk_in"
+      }
+    },
+    {
+      "name": "Three-Point Start",
+      "classification": "new_variant",
+      "rationale": "Grounding one hand changes setup and projection.",
+      "distinguishingDimensions": {
+        "startPosition": "three_point"
+      }
+    },
+    {
+      "name": "Falling Start",
+      "classification": "new_variant",
+      "rationale": "A forward fall rather than a set stance initiates the effort.",
+      "distinguishingDimensions": {
+        "startPosition": "falling"
+      }
+    }
+  ]
+}

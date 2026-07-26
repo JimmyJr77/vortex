@@ -1,5 +1,5 @@
 const DIMENSIONS = new Set([
-  'baseOverallDifficulty', 'technicalComplexity', 'supervisionDemand',
+  'technicalComplexity', 'absoluteLoadDemand', 'supervisionDemand',
   'failureConsequence', 'impact', 'workCapacityDemand',
   'gripDemand', 'spinalLoading', 'eccentricStress',
   'localMuscleFatigue', 'gripFatigue', 'technicalFatigueSensitivity',

@@ -1,0 +1,37 @@
+{
+  "batchKey": "medicine-ball-throws-foundations-v1",
+  "researchVersion": "2026-07-25.19",
+  "generatedAt": "2026-07-26T01:54:40.000Z",
+  "cards": [
+    {
+      "slug": "medicine-ball-chest-pass",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "medicine-ball-scoop-toss",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "medicine-ball-rotational-scoop-toss",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "medicine-ball-shot-put-throw",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "medicine-ball-rotational-shot-put",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "batchKey": "ten-yard-sprint-collision-cluster-v1",
+  "researchVersion": "2026-07-25.15",
+  "generatedAt": "2026-07-26T09:35:00.000Z",
+  "cards": [
+    {
+      "slug": "10-yard-sprint",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "10-yard-sprint-start",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 5
+    }
+  ]
+}

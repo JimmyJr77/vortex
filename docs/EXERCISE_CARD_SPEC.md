@@ -116,13 +116,24 @@ Canonical table: **`coaching.exercise_difficulty_profile`** (migration `202`, re
 
 | Field | Scale | Meaning |
 |-------|-------|---------|
-| `technical` | 1–10 | Movement pattern complexity (not medium, regressions, or assists) |
-| `load` | 1–10 | Inherent resistance — external implement floor or relative BW / stability |
-| `overall` | 1–10 | `max(technical, load)` |
-| `recommended_age_min` / `recommended_age_max` | years | From **overall** for `exercise`; null for `skill_drill` |
+| `technical` | 1–10 | **Exercise complexity**: coordination, sequencing, control, and decision demand; never an athlete skill level |
+| `load` | 1–10 | **Physical difficulty**: inherent resistance and force demand from relative bodyweight, leverage/stability, or external load |
+| `overall` | 1–10 | `max(technical, load)`: the greater of exercise complexity and physical difficulty |
+| `recommended_age_min` / `recommended_age_max` | years | Guidance derived from **overall** for all exercise-library cards |
 | `attention_demand` | low / moderate / high | Coaching density |
 
-**`programming_kind`** on `coaching.exercise`: `exercise` (workout, age-gated) vs `skill_drill` (class/level gated).
+**`programming_kind`** on `coaching.exercise`: `exercise` (workout movement) vs
+`skill_drill` (skill-linked acquisition drill). Both use exercise-complexity,
+physical-difficulty, and derived-overall scores. `programming_kind` affects
+placement, not level. The `technical` and `load` names remain only as legacy
+storage/API compatibility names.
+
+Exercise cards never receive a skill level. The legacy
+`coaching.exercise.skill_level`, `exercise_scaling_profile.skill_level`, and
+`exercise_safety_profile.minimum_skill_level` columns are constrained to
+`NULL` by migration `298`. Competitive or developmental levels are valid only
+on dedicated `coaching.skill` cards. A workout audience’s training experience
+may tighten difficulty caps without becoming card metadata.
 
 Age-band caps for Needs Engine / workout validation: [`ageDifficultyPolicy.js`](../backend/platform/ageDifficultyPolicy.js) (e.g. ages 6–8 → max overall 5).
 

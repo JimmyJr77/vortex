@@ -1,0 +1,31 @@
+{
+  "batchKey": "prone-push-up-start-collision-cluster-v1",
+  "researchVersion": "2026-07-25.13",
+  "generatedAt": "2026-07-26T08:15:00.000Z",
+  "cards": [
+    {
+      "slug": "push-up-prone-start-sprint",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "prone-pop-up-to-sprint",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "push-up-start-10m",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "push-up-start-to-cone",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    }
+  ]
+}

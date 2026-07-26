@@ -15,7 +15,7 @@
     "ageMin": { "type": "integer", "minimum": 5, "maximum": 99 },
     "ageMax": { "type": "integer", "minimum": 5, "maximum": 99 },
     "trainingAgeMonths": { "type": "integer", "minimum": 0, "maximum": 1200 },
-    "skillLevel": { "type": "string" },
+    "trainingExperience": { "type": "string" },
     "randomSeed": { "type": "string", "minLength": 1 },
     "equipmentAvailable": { "$ref": "#/$defs/stringSet" },
     "equipmentRequired": { "$ref": "#/$defs/stringSet" },
@@ -36,13 +36,13 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["key", "label", "ageMin", "ageMax", "skillLevel", "maxDifficulty"],
+        "required": ["key", "label", "ageMin", "ageMax", "trainingExperience", "maxDifficulty"],
         "properties": {
           "key": { "type": "string", "minLength": 1 },
           "label": { "type": "string", "minLength": 1 },
           "ageMin": { "type": "integer", "minimum": 5, "maximum": 99 },
           "ageMax": { "type": "integer", "minimum": 5, "maximum": 99 },
-          "skillLevel": { "type": "string" },
+          "trainingExperience": { "type": "string" },
           "maxDifficulty": { "$ref": "#/$defs/score100" }
         }
       }

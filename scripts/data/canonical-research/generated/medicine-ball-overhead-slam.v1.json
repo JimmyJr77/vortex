@@ -1,0 +1,485 @@
+{
+  "facilityId": 1,
+  "slug": "medicine-ball-overhead-slam",
+  "researchVersion": "2026-07-25.20",
+  "assessmentSummary": {
+    "identity": "A bilateral standing medicine-ball or slam-ball movement that loads through the hips and legs, carries the ball overhead, and forcefully releases it straight down to the floor before a deliberate catch or retrieval reset.",
+    "currentCardFindings": [
+      "The current description is athlete-context prose and does not define stance, grip, ball path, floor target, rebound behavior, catch rule, mass, reset, or stop criteria.",
+      "The archived slam-ball and split-stance cards were implement and stance variants of this same straight overhead-to-floor identity.",
+      "Uniform legacy difficulty values understate the coordination of whole-body loading and redirection, overhead clearance, rebound exposure, and fatigue-dependent lumbar compensation."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "bilateral_hip_hinge",
+        "whole_body_extension",
+        "overhead_to_floor_ballistic_slam"
+      ],
+      "jointActions": [
+        "ankle_knee_hip_extension",
+        "shoulder_flexion",
+        "scapular_upward_rotation",
+        "shoulder_extension",
+        "trunk_bracing",
+        "hip_hinge"
+      ],
+      "planes": [
+        "sagittal"
+      ],
+      "laterality": "bilateral",
+      "intent": "maximal_safe_vertical_ball_acceleration_into_a_fixed_floor_target"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "quadriceps",
+        "hamstrings",
+        "latissimus_dorsi",
+        "rectus_abdominis",
+        "serratus_anterior"
+      ],
+      "secondaryMuscles": [
+        "plantar_flexors",
+        "obliques",
+        "spinal_stabilizers",
+        "deltoids",
+        "triceps_brachii",
+        "rotator_cuff",
+        "forearm_flexors"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "spine",
+        "scapulothoracic_articulation",
+        "shoulder",
+        "elbow",
+        "wrist",
+        "hand"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 44,
+      "absoluteLoadDemand": 32,
+      "coordinationDemand": 48,
+      "supervisionDemand": 52,
+      "failureConsequence": 50,
+      "impact": 22,
+      "workCapacityDemand": 45,
+      "baseOverallDifficulty": 44
+    },
+    "proposedLoadProfile": {
+      "loadingType": "external_ballistic_bilateral_overhead_to_floor",
+      "impactClass": "low_body_impact_with_ball_floor_impact_and_optional_rebound_catch",
+      "externalLoadMethod": "slam_rated_ball_mass_selected_for_fast_overhead_redirection",
+      "primaryStress": [
+        "posterior_chain",
+        "quadriceps",
+        "anterior_trunk",
+        "lats",
+        "shoulders",
+        "grip"
+      ],
+      "fatigueProfile": [
+        "slow_extension",
+        "lumbar_hyperextension",
+        "arm_only_slam",
+        "target_drift",
+        "late_retrieval_or_catch"
+      ],
+      "recoveryHours": "24-48_by_intensity_volume_and_other_throwing"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "intact_slam_rated_ball",
+        "impact_rated_floor",
+        "clear_overhead_impact_and_retrieval_zone"
+      ],
+      "optionalEquipment": [
+        "floor_target",
+        "velocity_sensor",
+        "video"
+      ],
+      "environment": [
+        "non_slip_surface",
+        "adequate_ceiling_height",
+        "no_people_in_rebound_or_retrieval_path"
+      ],
+      "population": [
+        "pain_free_overhead_range",
+        "can_hip_hinge_and_brace",
+        "can_follow_rebound_or_dead_ball_rule"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "3-5_sets_of_3-5_slams",
+      "restSeconds": "60-180",
+      "intensity": "maximal_safe_ball_speed_with_full_reset",
+      "measurement": "ball_mass_optional_velocity_target_accuracy_and_rep_time",
+      "progressWhen": "speed and target stay stable without lumbar extension, early arm pull, unsafe rebound, or delayed retrieval"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Load the hips",
+        "Get tall before the slam",
+        "Brace the ribs",
+        "Throw through the floor target",
+        "Catch only if assigned"
+      ],
+      "athleteInstructions": [
+        "Stand over the target, load through your hips, drive the ball overhead, brace, slam it straight down, then catch or retrieve it exactly as assigned before resetting"
+      ],
+      "commonFaults": [
+        "ball_not_slam_rated",
+        "ball_too_heavy",
+        "backward_lean",
+        "soft_release",
+        "target_drift",
+        "unsafe_bounce_catch",
+        "rushed_reset"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "pain_free_overhead_motion",
+        "stable_hinge",
+        "safe_grip",
+        "clear_floor_zone"
+      ],
+      "stopRules": [
+        "back_shoulder_elbow_wrist_or_hand_pain",
+        "loss_of_grip",
+        "ball_or_floor_failure",
+        "unsafe_rebound",
+        "lane_entry",
+        "two_slow_or_inaccurate_reps"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "front_and_side_demo",
+        "ball_type_badge",
+        "catch_or_retrieve_badge",
+        "floor_target_overlay"
+      ],
+      "coach": [
+        "ball_mass_guide",
+        "floor_and_ceiling_check",
+        "target_and_speed_log",
+        "rebound_exposure_budget"
+      ]
+    },
+    "programmingDecision": "Retain one standing bilateral straight overhead-slam definition. Slam-ball construction, bounce behavior, split stance, continuous cadence, and load are controlled variants or delivery annotations.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T02:15:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Medicine Ball Overhead Slam is a non-traditional strength-based explosiveness drill selected for athletes who need to express force quickly: football linemen off the line, sprinters from a start, baseball hitters and throwers, jumpers, and field/court athletes. The goal is high-output movement quality with low fatigue, not strength grinding or conditioning volume.",
+      "familyKey": "Medicine Ball / Total-Body Power",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 40,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/182/overhead-slams/",
+      "sourceTitle": "Overhead Slams",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The standing overhead slam is an overhead-to-floor ballistic action with an explicit hinge, whole-body extension, downward release, and ball-retrieval rule.",
+        "Medicine Ball Overhead Slam must define support position, start and release path, force direction, rebound behavior, catch or retrieval rule, side order, and finish rather than relying on the generic word slam."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/287/rotational-slam/",
+      "sourceTitle": "Rotational Slam",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 77,
+      "claims": [
+        "A side-directed rotational slam differs from a straight overhead slam through its deliberate twist, lateral floor target, and alternating or single-side execution.",
+        "Classify Medicine Ball Overhead Slam by support position, bilateral versus side-specific execution, overhead versus scoop start, vertical versus diagonal floor vector, rebound requirement, and static versus dynamic entry."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/19826303/",
+      "sourceTitle": "Analysis of trunk muscle activity in the side medicine-ball throw",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Medicine-ball rotational output involves trunk musculature including the external obliques, with muscle activity and ball velocity affected by the task and ball mass.",
+        "Represent the feet, ankles, knees, hips, pelvis, trunk, scapulae, shoulders, elbows, wrists, and hands actually used by the selected standing, kneeling, straight, or rotational slam."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/182/overhead-slams/",
+      "sourceTitle": "Overhead Slams",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The overhead slam uses lower-body loading and triple extension before a forceful overhead-to-floor action while trunk bracing and a hip hinge protect position.",
+        "Coach pressure from the floor through the hips and trunk into the ball, then redirect force into the assigned floor target without lumbar-dominant extension, flexion, or rotation."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Medicine-ball power exercises vary by position, task, dose, and population, so one generic category cannot represent their technical or physical demand.",
+        "Assess technical complexity, absolute physical load, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. Athlete experience is programming context, not exercise-card classification."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://www.power-systems.com/pdf/PSystems_DigitalGuide_Jan18.pdf",
+      "sourceTitle": "2018 Buyers Guide",
+      "sourcePublisher": "Power Systems",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "No-bounce slam balls and rebounding medicine balls have materially different retrieval, catch, and repeat-cadence behavior.",
+        "Medicine Ball Overhead Slam must track ball mass and rebound type, high-intent slams, catches, side balance, technical speed loss, shoulder and trunk fatigue, floor contacts, recovery between sets, and weekly ballistic-ball volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/june-2019/7306/medicine-balls-an-ace-integrated-fitness-training-reg-model-workout/",
+      "sourceTitle": "Medicine Balls: An ACE Integrated Fitness Training Model Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "Medicine balls, wall balls, dead-weight balls, and slam balls are not interchangeable for every impact task; implement construction and rebound behavior must match the exercise.",
+        "Require an intact slam-rated ball, a floor rated for repeated impact, safe overhead and rebound clearance, stable footing or knee padding, athlete separation, and no bystanders in the impact, rebound, or retrieval zone."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.acefitness.org/resources/pros/expert-articles/6941/five-exercises-to-help-your-clients-develop-power/",
+      "sourceTitle": "Five Exercises to Help Your Clients Develop Power",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 76,
+      "claims": [
+        "High-velocity medicine-ball power work is commonly delivered in low-repetition sets with enough recovery to preserve output.",
+        "For power delivery, use roughly three to five sets of three to five high-quality slams or two to five per side with 60–180 seconds between sets; stop before velocity, target accuracy, posture, catch control, or safe retrieval declines."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/182/overhead-slams/",
+      "sourceTitle": "Overhead Slams",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "The instructional sequence must identify the starting stance, grip, lower-body load, overhead path, bracing action, floor target, and rebound or retrieval behavior.",
+        "State the ball type and mass, stance, target, permitted countermovement or rotation, catch rule, reset, side order, and exact rep-quality rule before the first repetition."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Youth resistance and power training should be supervised, technically appropriate, progressively dosed, and performed with safe equipment and space.",
+        "Stop for pain, numbness, dizziness, loss of grip, unsafe rebound, floor or ball failure, lane entry, uncontrolled catch, lumbar-dominant motion, loss of balance, knee discomfort in kneeling, accuracy collapse, or repeatable output loss."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Upper-body plyometric and medicine-ball training can improve power outcomes, while transfer depends on the chosen task and population.",
+        "Place Medicine Ball Overhead Slam early in Output work after relevant access and activation. Match stance, vector, ball mass, rebound behavior, and intent to the objective; do not turn maximal slams into indiscriminate fatigue work."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/blog/3801/heavy-slam-ball-workout/",
+      "sourceTitle": "Heavy Slam Ball Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 75,
+      "claims": [
+        "Standing, kneeling, around-the-world, and side-directed slam versions need visibly different setup and movement demonstrations.",
+        "Show front, side, and floor-target views; label ball mass and rebound type; demonstrate start, load, release, finish, catch or retrieval, reset, side change, acceptable miss, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/287/rotational-slam/",
+      "sourceTitle": "Rotational Slam",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 77,
+      "claims": [
+        "Rotational slam coaching must distinguish the side-directed floor target, alternating pattern, and rebound catch from a straight bilateral overhead slam.",
+        "Provide ball-selection and floor-inspection guidance, athlete spacing, target zones, side balance, optional velocity tracking, speed-loss rules, catch counts, camera angles, regression decisions, and weekly ballistic-contact budgeting."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.acefitness.org/continuing-education/certified/june-2019/7306/medicine-balls-an-ace-integrated-fitness-training-reg-model-workout/",
+      "sourceTitle": "Medicine Balls: An ACE Integrated Fitness Training Model Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 78,
+      "claims": [
+        "Ball type, position, movement range, and delivery mode can be changed while preserving a suitable training objective.",
+        "Accessibility options include a lighter or larger soft slam-rated ball, tall-kneeling or supported stance, shorter overhead range, no catch, dead-ball retrieval, reduced rotation, pre-positioned ball, fewer repetitions, longer recovery, and verbal plus visual cues."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/blog/3801/heavy-slam-ball-workout/",
+      "sourceTitle": "Heavy Slam Ball Workout",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 75,
+      "claims": [
+        "Standing, kneeling, around-the-world, and side-directed slam patterns can be intentionally varied without treating every implement or cadence change as a new base exercise.",
+        "Treat implement, rebound behavior, stance, alternating cadence, arc size, and entry footwork as controlled variants when the force path stays the same; retain separate definitions when the start path, force vector, support position, or required reactive catch materially changes the task."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for Medicine Ball Overhead Slam remain candidate-only. Availability, embedding, exact support and force-path match, full viewing, ball type, rebound behavior, captions, cue and safety quality, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=QxYhFwMd1Ks",
+      "title": "How to Perform the Med Ball Slam",
+      "channelName": "CORE Strong Fitness",
+      "sourceQuery": "visible YouTube search: medicine ball overhead slam exercise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=k9W6g9LvXDI",
+      "title": "The Slam Ball",
+      "channelName": "CrossFit",
+      "sourceQuery": "visible YouTube search: medicine ball overhead slam exercise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=CkO1mfSBvv4",
+      "title": "How To Med Ball Slam",
+      "channelName": "Third Space London",
+      "sourceQuery": "visible YouTube search: medicine ball overhead slam exercise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=6vXHh-Lhb2o",
+      "title": "How to Do Medicine Ball Slams",
+      "channelName": "LivestrongWoman",
+      "sourceQuery": "visible YouTube search: medicine ball overhead slam exercise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=a7ZnLpLIb8s",
+      "title": "Overhead Med-Ball Slam",
+      "channelName": "Testosterone Nation",
+      "sourceQuery": "visible YouTube search: medicine ball overhead slam exercise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Slam-Ball Overhead Slam",
+      "classification": "new_variant",
+      "rationale": "A low- or no-bounce slam ball changes retrieval behavior but preserves the straight bilateral overhead-to-floor action.",
+      "distinguishingDimensions": {
+        "implement": "low_or_no_bounce_slam_ball"
+      }
+    },
+    {
+      "name": "Split-Stance Overhead Slam",
+      "classification": "new_variant",
+      "rationale": "Split stance changes base of support and bracing without changing the force path.",
+      "distinguishingDimensions": {
+        "stance": "split"
+      }
+    },
+    {
+      "name": "Continuous Rebound Overhead Slam",
+      "classification": "new_variant",
+      "rationale": "Rebound cadence adds catch exposure while preserving the base movement when the catch is optional rather than the defining objective.",
+      "distinguishingDimensions": {
+        "reboundRule": "continuous_optional_catch"
+      }
+    },
+    {
+      "name": "Tall-Kneeling Overhead Slam",
+      "classification": "new_definition",
+      "rationale": "Tall kneeling removes ankle and knee contribution and materially changes support, output, and knee-surface constraints.",
+      "distinguishingDimensions": {
+        "supportPosition": "tall_kneeling"
+      }
+    },
+    {
+      "name": "Rotational Overhead Slam",
+      "classification": "new_definition",
+      "rationale": "A side-directed floor target and transverse loading change force vector and laterality.",
+      "distinguishingDimensions": {
+        "forceVector": "rotational_side_directed"
+      }
+    }
+  ]
+}

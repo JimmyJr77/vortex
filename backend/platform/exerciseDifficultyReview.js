@@ -1,22 +1,17 @@
 /**
  * Youth athletics difficulty review — two-axis model (product rules in docs/EXERCISE_DIFFICULTY_METHODOLOGY.md).
  *
- * - **Load** (1–10): inherent resistance — external implement floor OR relative BW / stability.
- * - **Technical** (1–10): movement pattern complexity only (not medium, regressions, or assists).
- * - **Overall**: max(load, technical).
+ * - **Physical difficulty** (stored as `load`, 1–10): inherent resistance and
+ *   force demand from relative bodyweight, leverage/stability, or external load.
+ * - **Exercise complexity** (stored as `technical`, 1–10): coordination,
+ *   sequencing, control, and decision demand. It is not an athlete skill level.
+ * - **Overall**: max(physical difficulty, exercise complexity).
  */
 import { computeOverallDifficulty } from './ageDifficultyPolicy.js'
 import { classifyProgrammingKind, isSkillDrill } from './exerciseProgrammingKind.js'
 
 function clamp(n, min = 1, max = 10) {
   return Math.min(max, Math.max(min, Math.round(n)))
-}
-
-const SKILL_LEVEL_TECHNICAL = {
-  EARLY_STAGE: 3,
-  BEGINNER: 4,
-  INTERMEDIATE: 6,
-  ADVANCED: 8,
 }
 
 /** Ordered — first match wins for primary movement family. */
@@ -144,27 +139,9 @@ function scoreExerciseLoad(exercise, text) {
   return clamp(load)
 }
 
-function scoreExerciseTechnical(exercise, text) {
+function scoreExerciseTechnical(_exercise, text) {
   const family = detectPatternFamily(text)
-  let technical = family.technical
-
-  const cap = { EARLY_STAGE: 4, BEGINNER: 6, INTERMEDIATE: 8, ADVANCED: 10 }[exercise.skill_level] ?? 10
-  technical = clamp(Math.min(technical, cap))
-  return clamp(technical)
-}
-
-function scoreSkillDrillTechnical(exercise) {
-  const text = `${exercise.slug ?? ''} ${exercise.name ?? ''}`.toLowerCase()
-  let technical = SKILL_LEVEL_TECHNICAL[exercise.skill_level] ?? 5
-
-  if (/hand-placement|line drill|prep|intro|progression|regression|spotted|assisted|wall|panel|mat line|shape hold|hollow|arch hold|support hold/i.test(text)) {
-    technical -= 2
-  }
-  if (/full|complete|unassisted|without spot|competition|freestanding/i.test(text)) {
-    technical += 1
-  }
-
-  return clamp(technical, 2, 10)
+  return clamp(family.technical)
 }
 
 /** Age min from overall difficulty (max of T and L), not load alone. */
@@ -188,7 +165,6 @@ function attentionDemand(technical, load) {
 
 export function reviewExerciseDifficulty(exercise, override = null) {
   const programmingKind = classifyProgrammingKind(exercise)
-  const skillDrill = programmingKind === 'skill_drill'
 
   if (override) {
     const technical = clamp(override.technical)
@@ -198,7 +174,7 @@ export function reviewExerciseDifficulty(exercise, override = null) {
       technical,
       load,
       overall,
-      recommended_age_min: skillDrill ? null : (override.recommended_age_min ?? recommendedAgeForExercise(overall)),
+      recommended_age_min: override.recommended_age_min ?? recommendedAgeForExercise(overall),
       recommended_age_max: override.recommended_age_max ?? null,
       attention_demand: override.attention_demand ?? attentionDemand(technical, load),
       notes: override.notes ?? 'Expert-reviewed override',
@@ -208,20 +184,18 @@ export function reviewExerciseDifficulty(exercise, override = null) {
   }
 
   const text = exerciseText(exercise)
-  const load = skillDrill ? 1 : scoreExerciseLoad(exercise, text)
-  const technical = skillDrill ? scoreSkillDrillTechnical(exercise) : scoreExerciseTechnical(exercise, text)
+  const load = scoreExerciseLoad(exercise, text)
+  const technical = scoreExerciseTechnical(exercise, text)
   const overall = computeOverallDifficulty(technical, load)
 
   return {
     technical,
     load,
     overall,
-    recommended_age_min: skillDrill ? null : recommendedAgeForExercise(overall),
+    recommended_age_min: recommendedAgeForExercise(overall),
     recommended_age_max: exercise.age_max ?? null,
     attention_demand: attentionDemand(technical, load),
-    notes: skillDrill
-      ? `Skill drill — gates on class/athlete level (${exercise.skill_level ?? 'skill level'})`
-      : `Workout exercise — load ${load}/10, technical ${technical}/10`,
+    notes: `Exercise difficulty — physical ${load}/10, technical ${technical}/10`,
     source: 'reviewed',
     programming_kind: programmingKind,
   }

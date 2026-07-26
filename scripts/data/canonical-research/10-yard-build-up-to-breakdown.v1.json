@@ -1,0 +1,288 @@
+{
+  "facilityId": 1,
+  "slug": "10-yard-build-up-to-breakdown",
+  "researchVersion": "2026-07-25.1",
+  "assessmentSummary": {
+    "identity": "A linear deceleration drill in which the athlete builds velocity over approximately 10 yards, then uses planned braking steps to reduce momentum into a defined stop or exit.",
+    "currentCardFindings": [
+      "The current card has no controlled movement patterns, body regions, equipment, environment, population, load, or fatigue data.",
+      "Current difficulty values omit supervision demand, failure consequence, impact, and work-capacity demand despite the high forces and technical demands of rapid braking.",
+      "Stable-stick and reacceleration exits should be explicit variants or delivery profiles because they have different quality gates."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 62,
+      "absoluteLoadDemand": 15,
+      "coordinationDemand": 66,
+      "supervisionDemand": 64,
+      "failureConsequence": 68,
+      "impact": 72,
+      "workCapacityDemand": 52,
+      "baseOverallDifficulty": 62
+    },
+    "programmingDecision": "Use as output or movement-intelligence deceleration work after lower-speed braking competency. Control entry speed and stopping distance, require a clear deceleration zone and run-off, dose both lead limbs, and stop before braking mechanics or confidence deteriorate."
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Horizontal deceleration is the rapid reduction of horizontal momentum and is distinct from acceleration.",
+        "A build-up-to-breakdown card should define entry velocity, braking task, stopping or exit target, and distance available."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11849509/",
+      "sourceTitle": "The optimal training intervention for improving change of direction performance of adolescent team-sport athletes",
+      "sourcePublisher": "PeerJ",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Change of direction contains deceleration, braking, directional action, and reacceleration sub-actions.",
+        "This card is primarily linear locomotion and deceleration/braking; a direction-change exit is an additional variant rather than assumed identity."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Rapid deceleration requires lower-limb braking force and coordinated hip, knee, and ankle control.",
+        "Eccentric force absorption, trunk and pelvis control, and foot-ground interaction are relevant to braking performance."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Horizontal deceleration has high impact peaks and loading rates, with the largest forces occurring early in stance.",
+        "Entry speed, body mass, stopping time, stopping distance, and limb strategy materially affect braking demand."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Deceleration forces and loading rates can exceed those in initial maximal acceleration.",
+        "Difficulty cannot be represented by external load alone and should include impact, braking skill, supervision, and consequence of failure."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8761154/",
+      "sourceTitle": "Deceleration Training in Team Sports: Another Potential Vaccine for Sports-Related Injury?",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "High-intensity decelerations create meaningful braking loads that require progressive exposure and robust tissue capacity.",
+        "The card should track high-impact contacts, eccentric lower-limb stress, preferred braking limb, technical fatigue sensitivity, and recovery."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "A deceleration task needs enough approach and stopping space, a predictable non-slip surface, and clear traffic separation.",
+        "Entry speed and stopping demand must be constrained for athlete competency, limb history, surface, footwear, and fatigue."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8761154/",
+      "sourceTitle": "Deceleration Training in Team Sports: Another Potential Vaccine for Sports-Related Injury?",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Deceleration exposure should be frequent enough to develop skill and tissue tolerance but progressed rather than introduced as uncontrolled high-intensity volume.",
+        "Dose should specify approach distance, intent or entry speed, stopping zone, repetitions per limb, total high-intensity braking contacts, and rest."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9347107/",
+      "sourceTitle": "Alternatives to common approaches for training change of direction performance: a scoping review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Field-based coaching can use an early braking intent, lower body position, and a forceful but controlled transition.",
+        "The athlete should build speed to the prescribed level, brake before the target rather than at it, keep the braking base organized, then stick or exit as specified."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "High loading rates make loss of braking control a meaningful safety failure, not merely a slower repetition.",
+        "Stop criteria should include pain, limping, repeated loss of the stopping zone, uncontrolled trunk or knee collapse, slipping, collision risk, and inability to brake confidently."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11849509/",
+      "sourceTitle": "The optimal training intervention for improving change of direction performance of adolescent team-sport athletes",
+      "sourcePublisher": "PeerJ",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Change-of-direction and braking training should be specific to approach velocity, angle, and athlete population.",
+        "Linear planned deceleration should precede more complex reactive or severe-angle direction changes when competency is limited."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Movement competency and developmentally appropriate progression should precede more demanding exposure.",
+        "Athlete instructions should define the stopping target, expected speed, lead-limb plan, and successful finish in observable language."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9347107/",
+      "sourceTitle": "Alternatives to common approaches for training change of direction performance: a scoping review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "External-focus cues can alter braking and direction-change kinematics during field training.",
+        "Coaches should observe entry speed, when braking begins, step organization, posture, limb preference, stopping-zone success, and the specified exit."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "The task can be scaled through approach distance, entry speed, stopping-zone size, predictability, and exit complexity.",
+        "Lower-speed walk-in or jog-in braking is a valid competency regression and should not be mislabeled as a maximal output repetition."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11849509/",
+      "sourceTitle": "The optimal training intervention for improving change of direction performance of adolescent team-sport athletes",
+      "sourcePublisher": "PeerJ",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Deceleration, braking, direction change, and reacceleration are separable components whose demands vary with velocity and angle.",
+        "Approach distance and stopping-zone size can be modifiers, while reactive cues or direction-change exits require explicit variants or distinct definitions."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The current candidates demonstrate general deceleration concepts by title; only full visual review can determine whether any is an exact match for this 10-yard build-up and breakdown version."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=GqVqQK_j_zQ",
+      "title": "Deceleration Training For Athletes | Reduce Injuries and Improve Performance With These Exercises",
+      "channelName": "7mlc",
+      "sourceQuery": "legacy direct link; athlete deceleration training",
+      "notes": "Public oEmbed metadata retrieved 2026-07-25. General deceleration candidate; exact 10-yard build-up-to-breakdown match, full technique, captions, and safety remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=SpJX-LllC4M",
+      "title": "Deceleration Training Explained: Techniques and Drills for Athletes for Speed and Agility",
+      "channelName": "Matt Tometz",
+      "sourceQuery": "legacy direct link; athlete deceleration training",
+      "notes": "Public oEmbed metadata retrieved 2026-07-25. General technique candidate; exact 10-yard version, full demonstration, captions, and safety remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=fg8MzakFMm0",
+      "title": "Best Decelerating Exercises For Athletes | Top Exercises For Deceleration",
+      "channelName": "PowerLux Fitness",
+      "sourceQuery": "legacy direct link; athlete deceleration exercises",
+      "notes": "Public oEmbed metadata retrieved 2026-07-25. Compilation candidate that may not exactly match the card; full visual, technical, caption, and safety review remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "5-Yard Build-Up to Breakdown",
+      "classification": "modifier_annotation",
+      "rationale": "Approach distance is a dosage modifier when the prescribed entry speed, braking task, and finish remain the same.",
+      "distinguishingDimensions": {
+        "approachDistance": "5_yards",
+        "expectedEntrySpeed": "lower"
+      }
+    },
+    {
+      "name": "10-Yard Build-Up to Stick",
+      "classification": "new_variant",
+      "rationale": "A stable controlled stop has a different terminal quality gate than an immediate exit but retains the same build-up and braking identity.",
+      "distinguishingDimensions": {
+        "finish": "stable_stick",
+        "exit": "none"
+      }
+    },
+    {
+      "name": "10-Yard Build-Up, Breakdown, and Reaccelerate",
+      "classification": "new_variant",
+      "rationale": "Reacceleration adds a propulsive exit and changes dose and quality gates without removing the central planned braking task.",
+      "distinguishingDimensions": {
+        "finish": "reacceleration",
+        "exit": "linear"
+      }
+    },
+    {
+      "name": "Reactive 10-Yard Build-Up to Breakdown",
+      "classification": "new_variant",
+      "rationale": "A late external cue adds perceptual and decision demand and should not be implied by the planned baseline card.",
+      "distinguishingDimensions": {
+        "cueTiming": "reactive",
+        "decisionDemand": "high"
+      }
+    },
+    {
+      "name": "10-Yard Sprint",
+      "classification": "new_definition",
+      "rationale": "Removing the braking target changes the primary stimulus from horizontal deceleration to acceleration output.",
+      "distinguishingDimensions": {
+        "primaryTrainingStimulus": "acceleration",
+        "brakingTarget": "none"
+      }
+    }
+  ]
+}

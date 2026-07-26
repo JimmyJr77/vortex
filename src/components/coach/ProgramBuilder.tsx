@@ -3,6 +3,7 @@ import { Loader2, Plus, Save, Trash2, FolderOpen, Copy } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import type { Workout } from '../../coach/types'
+import AthleticProgramLibraryPanel from './AthleticProgramLibraryPanel'
 
 interface ProgramSession {
   title?: string
@@ -31,6 +32,7 @@ interface TrainingProgram {
 }
 
 export default function ProgramBuilder() {
+  const [mode, setMode] = useState<'library' | 'custom'>('library')
   const { taxonomy } = useTaxonomy()
   const [program, setProgram] = useState<TrainingProgram>({ title: '', weeks: [{ week_number: 1, focus: '', sessions: [] }] })
   const [list, setList] = useState<TrainingProgram[]>([])
@@ -100,8 +102,43 @@ export default function ProgramBuilder() {
   const weeks = program.weeks ?? []
   const setWeeks = (w: ProgramWeek[]) => setProgram({ ...program, weeks: w })
 
+  const modeTabs = (
+    <div className="border-b border-gray-200">
+      <nav className="flex flex-wrap gap-6">
+        <button
+          type="button"
+          onClick={() => setMode('library')}
+          className={`-mb-px border-b-2 px-1 py-2 text-sm font-semibold ${
+            mode === 'library' ? 'border-vortex-red text-vortex-red' : 'border-transparent text-gray-500 hover:text-gray-800'
+          }`}
+        >
+          Vortex Program Library
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode('custom')}
+          className={`-mb-px border-b-2 px-1 py-2 text-sm font-semibold ${
+            mode === 'custom' ? 'border-vortex-red text-vortex-red' : 'border-transparent text-gray-500 hover:text-gray-800'
+          }`}
+        >
+          Custom Program Builder
+        </button>
+      </nav>
+    </div>
+  )
+
+  if (mode === 'library') {
+    return (
+      <div className="space-y-5">
+        {modeTabs}
+        <AthleticProgramLibraryPanel />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-5">
+      {modeTabs}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Training Programs</h2>

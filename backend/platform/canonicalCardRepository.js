@@ -241,7 +241,12 @@ export async function listCanonicalCards(pool, facilityId, filters = {}) {
      WHERE d.facility_id = $1
        AND ($2::text IS NULL OR d.status = $2)
        AND ($3::text = '' OR d.canonical_name ILIKE '%' || $3 || '%'
-         OR d.slug ILIKE '%' || $3 || '%' OR d.family_key ILIKE '%' || $3 || '%')
+         OR d.display_name ILIKE '%' || $3 || '%'
+         OR d.slug ILIKE '%' || $3 || '%' OR d.family_key ILIKE '%' || $3 || '%'
+         OR EXISTS (
+           SELECT 1 FROM unnest(d.aliases) alias
+           WHERE alias ILIKE '%' || $3 || '%'
+         ))
      GROUP BY d.id
      ORDER BY d.updated_at DESC, d.canonical_name
      LIMIT 200`,

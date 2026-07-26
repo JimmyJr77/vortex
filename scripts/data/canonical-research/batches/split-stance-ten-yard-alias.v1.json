@@ -1,0 +1,349 @@
+{
+  "batchKey": "split-stance-ten-yard-alias-v1",
+  "researchVersion": "2026-07-25.16",
+  "snapshotAt": "2026-07-26T09:55:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "sprint_start_procedure_timing",
+      "claims": [
+        "Start position and procedure influence sprint performance and must be specified.",
+        "{{canonicalName}} is the same static staggered two-point short-acceleration identity as 2-Point Acceleration Start. Calling the stagger a split stance and adding a 10-yard cone does not create a new exercise."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "sprint_start_biomechanics_review",
+      "claims": [
+        "Sprint-start push-off and early acceleration are connected but distinguishable phases.",
+        "{{canonicalName}} belongs to static two-point short acceleration. A cone is a target; walking, falling, hand-supported, resisted, and externally cued starts require controlled variants."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "sprint_acceleration_hamstrings",
+      "claims": [
+        "Sprint acceleration requires coordinated hip, knee, and ankle action, including hamstring contribution to horizontal force production.",
+        "Represent gluteal, hamstring, quadriceps, hip-flexor, plantar-flexor, foot, pelvic, trunk, and reciprocal arm-action roles."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "sprint_start_biomechanics_review",
+      "claims": [
+        "Effective early acceleration is associated with forward-directed impulse and propulsive force.",
+        "Use a repeatable stagger, load the stance, project and push backward, coordinate opposite arm and leg, rise progressively, and sprint through the target without forcing universal step positions."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "sprint_start_procedure_timing",
+      "claims": [
+        "Start position influences sprint timing and body position.",
+        "Score technical complexity, absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. Athlete experience is programming context, not an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "sprint_acceleration_performance",
+      "claims": [
+        "Power output is highest during the first acceleration steps.",
+        "{{canonicalName}} must track effort count, distance, sprint contacts, start-side distribution, surface, posterior-chain and plantar-flexor stress, technical fatigue, speed loss, recovery, and total session sprint volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Quality sprint work requires a suitable surface, marked target, spacing, run-out, and recovery.",
+        "Require a clear dry level 10-yard lane, a stable staggered start, target, athlete separation, and safe run-out; cones, timing gates, and video are optional logistics or measurement tools."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Acceleration work should specify distance, intensity, repetitions, sets, and recovery.",
+        "Use two to six high-quality 10-yard efforts with roughly 60–150 seconds recovery, alternating the intended lead side where appropriate and stopping before material speed or technical loss."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "sprint_start_biomechanics_review",
+      "claims": [
+        "Start setup should support propulsion without forcing an anthropometrically inappropriate stance.",
+        "Set the stagger, load the front leg, project forward, push the ground back, coordinate the arms, sprint through the 10-yard target, and decelerate in the run-out."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Training should use appropriate supervision, correct technique, manageable demands, and gradual progression.",
+        "Stop for pain, limp, slip, stumble, unsafe spacing, lane obstruction, repeated false step, loss of projection or coordination, marked speed decline, or unsafe run-out."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Acceleration and maximal-velocity sprinting are distinct qualities.",
+        "{{canonicalName}} belongs after preparation and before fatiguing work; it is output practice, not a generic cone-agility drill or dense conditioning interval."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "world_athletics_introduction_sprinting",
+      "claims": [
+        "Acceleration develops across successive steps rather than through an immediate upright posture.",
+        "Show the stagger from both sides, lead-side options, first three contacts, 10-yard line, run-through behavior, run-out, and a standing-start regression."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Coaches should distinguish acceleration output from maximal velocity and conditioning.",
+        "Provide stance and lane checks, start-side balance, side and rear observation, first-step and split timing when used, speed-loss stops, contact totals, and exact alias and variant guidance."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_long_term_development",
+      "claims": [
+        "Speed training should be developmentally appropriate and based on movement competency.",
+        "Accessibility options include a taller stagger, standing start, submaximal intent, five-yard target, untimed efforts, visual marks, fewer efforts, extra demonstration, and longer recovery."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "sprint_start_procedure_timing",
+      "claims": [
+        "Start position and procedure change the task and measured performance.",
+        "Split stance and two-point stance are the same supported geometry here; distance and cones are dosage or logistics, while moving, falling, three-point, reaction, and resisted starts require controlled variants."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The previous generic cone, build-up, sprint-mechanics, and agility links are mismatched. Replacement two-point-start links remain candidates until availability, exact stance and distance match, complete viewing, captions, cue quality, safety, reviewer identity, and approval are confirmed."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "split-stance-10-yard-acceleration",
+      "assessmentSummary": {
+        "identity": "A static staggered two-point start followed by high-intent linear acceleration through a 10-yard target.",
+        "currentCardFindings": [
+          "The description matches 2-Point Acceleration Start and differs only by the synonyms split stance, the 10-yard dose, and cone logistics.",
+          "Calling it cone-based risks misclassification as agility even though the cone is only a start or finish marker.",
+          "All four inherited media links show unrelated cone, build-up, generic sprint-mechanics, or agility content and must be superseded.",
+          "Uniform 50-point values omit absolute load, supervision, failure consequence, impact, and work-capacity specificity."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "static_two_point_start",
+            "short_linear_acceleration"
+          ],
+          "jointActions": [
+            "hip_knee_ankle_extension",
+            "swing_leg_recovery",
+            "reciprocal_arm_action"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal",
+            "transverse_control"
+          ],
+          "laterality": "staggered_start_then_alternating_sprint",
+          "intent": "high_quality_acceleration_through_10_yards"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hip_flexors",
+            "intrinsic_foot",
+            "tibialis_anterior",
+            "gluteus_medius",
+            "obliques",
+            "shoulder_girdle"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "spine",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 48,
+          "absoluteLoadDemand": 12,
+          "coordinationDemand": 54,
+          "supervisionDemand": 50,
+          "failureConsequence": 52,
+          "impact": 56,
+          "workCapacityDemand": 40,
+          "baseOverallDifficulty": 48
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_static_two_point_high_intent_acceleration",
+          "impactClass": "moderate_to_high_by_speed_and_surface",
+          "landingContactsPerRep": "all_contacts_through_target_and_run_out",
+          "primaryStress": [
+            "early_acceleration_force",
+            "posterior_chain",
+            "plantar_flexors",
+            "high_speed_contacts"
+          ],
+          "fatigueSensitivity": "stance_projection_first_steps_arm_leg_timing_speed_and_run_out"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "clear_10_yard_lane",
+            "start_and_finish_marks",
+            "safe_run_out"
+          ],
+          "optionalEquipment": [
+            "cones",
+            "timing_gates",
+            "video"
+          ],
+          "environment": [
+            "dry_level_non_slip_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_acceleration",
+            "stable_staggered_stance",
+            "can_decelerate_safely"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-6_efforts",
+          "distance": "10_yards",
+          "restSeconds": "60-150",
+          "intensity": "high_intent_after_rehearsal",
+          "progressWhen": "stance, projection, first steps, and split performance remain repeatable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Set the stagger",
+            "Load the front leg",
+            "Project and push back",
+            "Run through the target"
+          ],
+          "athleteInstructions": [
+            "Start still from the assigned split stance and accelerate through the 10-yard line"
+          ],
+          "commonFaults": [
+            "duplicate_identity",
+            "cone_agility_misclassification",
+            "unstable_stance",
+            "false_step",
+            "popping_upright",
+            "stopping_at_target"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "stable_staggered_start",
+            "safe_lane",
+            "completed_warm_up"
+          ],
+          "stopRules": [
+            "pain",
+            "limp",
+            "slip",
+            "stumble",
+            "repeated_false_step",
+            "speed_loss",
+            "unsafe_run_out"
+          ]
+        },
+        "programmingDecision": "Merge into 2-Point Acceleration Start. Preserve Split-Stance 10-Yard Acceleration as an alias, 10 yards as dosage, and cones as optional logistics; supersede the four mismatched legacy media links."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=96Idqyl7_1U",
+          "title": "2-Point Start - Exercise Drill for Speed and Sprint Training",
+          "channelName": "PitcheroGPS",
+          "sourceQuery": "existing researched two-point-start candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=FlfsCUSTQN8",
+          "title": "Two-Point Start For Max Acceleration",
+          "channelName": "The Stadium Sports",
+          "sourceQuery": "existing researched two-point-start candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=gijySBfsL-s",
+          "title": "1st Step Explosiveness: Improve Speed with 2 Point Start",
+          "channelName": "FASSTRAINING24",
+          "sourceQuery": "existing researched two-point-start candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=GzZjzBm-56k",
+          "title": "Standing Start Technique",
+          "channelName": "Simple Speed Coach",
+          "sourceQuery": "existing researched two-point-start candidate",
+          "notes": "Adjacent standing-start candidate; exact stagger and 10-yard delivery require human review."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "2-Point Acceleration Start",
+          "classification": "same_identity",
+          "rationale": "Split stance is the same static staggered two-point setup.",
+          "distinguishingDimensions": {
+            "distance": "10_yards"
+          }
+        },
+        {
+          "name": "Two-Point Start 10–20m",
+          "classification": "modifier_annotation",
+          "rationale": "The longer metric range is dosage.",
+          "distinguishingDimensions": {
+            "distance": "10_to_20_metres"
+          }
+        },
+        {
+          "name": "Two-Point Start Walk-In",
+          "classification": "new_variant",
+          "rationale": "A moving entry changes initiation and intent.",
+          "distinguishingDimensions": {
+            "entry": "walk_in"
+          }
+        },
+        {
+          "name": "Three-Point Start",
+          "classification": "new_variant",
+          "rationale": "Grounding one hand changes support and transition.",
+          "distinguishingDimensions": {
+            "startPosition": "three_point"
+          }
+        },
+        {
+          "name": "Resisted Two-Point Start",
+          "classification": "new_variant",
+          "rationale": "External resistance changes equipment and force velocity.",
+          "distinguishingDimensions": {
+            "externalResistance": "present"
+          }
+        }
+      ]
+    }
+  ]
+}

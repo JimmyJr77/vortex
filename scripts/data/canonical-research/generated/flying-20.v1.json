@@ -1,0 +1,326 @@
+{
+  "facilityId": 1,
+  "slug": "flying-20",
+  "researchVersion": "2026-07-25.2",
+  "assessmentSummary": {
+    "identity": "A progressive run-in followed by a 20-yard or 20-meter maximal-velocity zone and a controlled run-out.",
+    "currentCardFindings": [
+      "The description recognizes greater hamstring and neural demand but the load and fatigue profiles remain empty.",
+      "The card lacks controlled taxonomy, anatomy, environment, population, and full difficulty dimensions.",
+      "The longer fly zone is best modeled as dosage within the flying-sprint identity, with a contextual profile reflecting the higher exposure."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 64,
+      "absoluteLoadDemand": 18,
+      "coordinationDemand": 70,
+      "supervisionDemand": 68,
+      "failureConsequence": 74,
+      "impact": 80,
+      "workCapacityDemand": 54,
+      "baseOverallDifficulty": 64
+    },
+    "programmingDecision": "Treat 20-yard or 20-meter fly zones as a higher-dose prescription of the flying-sprint identity. Use fewer repetitions and longer recovery than Flying 10, with explicit recent-exposure and performance-drop gates.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-25T23:45:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Athlete builds through 20–30 yards, hits near-max upright speed, then maintains all-out intent through a 20-yard fly zone. Higher hamstring and neural demand than fly 10 — use fewer reps and longer rest.",
+      "familyKey": "Max-velocity exposure",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 30,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6872694/",
+      "sourceTitle": "The Training and Development of Elite Sprint Performance: an Integration of Scientific and Best Practice Literature",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Flying sprints use a progressive run-in to reach high velocity before a short maximal-velocity zone.",
+        "Flying 20 must separate run-in distance, measured fly-zone distance, intent, and timing method from its stable exercise identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6872694/",
+      "sourceTitle": "The Training and Development of Elite Sprint Performance: an Integration of Scientific and Best Practice Literature",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Acceleration, maximal velocity, and speed endurance are related but distinct sprint-training qualities.",
+        "Flying 20 belongs to upright high-speed locomotion; dense repeated-sprint conditioning requires a separate delivery profile."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9414047/",
+      "sourceTitle": "The Influence of Weekly Sprint Volume and Maximal Velocity Exposures on Eccentric Hamstring Strength in Professional Football Players",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Maximal-velocity exposures impose meaningful eccentric hamstring demand in addition to whole-lower-limb and trunk demands.",
+        "The card should identify bilateral hip, knee, and ankle actions, posterior-chain loading, calf-foot stiffness demand, and trunk-pelvis control."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6872694/",
+      "sourceTitle": "The Training and Development of Elite Sprint Performance: an Integration of Scientific and Best Practice Literature",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Maximal running velocity depends on the interaction of step length, step rate, short contact time, force production, and coordinated upright sprint mechanics.",
+        "Coaching should preserve individual solutions and avoid forcing one universal limb position or artificially reaching for stride length."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11469994/",
+      "sourceTitle": "The Longitudinal Effects of Resisted and Assisted Sprint Training on Sprint Kinematics, Acceleration, and Maximum Velocity: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Unresisted flying, resisted, assisted, and combined sprint methods create materially different kinematic and force-velocity demands.",
+        "Exercise difficulty must score physical demand and technical complexity directly, including coordination, supervision, impact, and failure consequence; it must not use a skill-library level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9414047/",
+      "sourceTitle": "The Influence of Weekly Sprint Volume and Maximal Velocity Exposures on Eccentric Hamstring Strength in Professional Football Players",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Weekly high-speed sprint exposure can measurably affect eccentric hamstring force capacity.",
+        "Flying 20 needs explicit high-speed distance, contact, neural-intent, posterior-chain stress, performance-drop, session-recovery, and weekly-exposure tracking."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/contentassets/79174a4ecd01444198cba1c516d9703b/coach-5.4.2-the-need-for-speed-improving-sprinting-performance-in-football-players.pdf",
+      "sourceTitle": "The Need for Speed—Improving Sprinting Performance in Football Players",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Flying and wicket drills require a suitable running surface, marked zones, progressive build-in, and a clear deceleration area.",
+        "Footwear, weather, lane separation, equipment placement, timing setup, run-out distance, and coach sightline are hard delivery constraints."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6872694/",
+      "sourceTitle": "The Training and Development of Elite Sprint Performance: an Integration of Scientific and Best Practice Literature",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Run-in and fly-zone length should match the athlete's ability to reach and briefly preserve maximal velocity.",
+        "Prescribe build-in distance, fly-zone distance, total high-speed distance, repetitions, intensity, inter-repetition recovery, and a performance-drop stop rule."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.nsca.com/contentassets/79174a4ecd01444198cba1c516d9703b/coach-5.4.2-the-need-for-speed-improving-sprinting-performance-in-football-players.pdf",
+      "sourceTitle": "The Need for Speed—Improving Sprinting Performance in Football Players",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The athlete should accelerate progressively into upright high-speed mechanics rather than attack the fly zone from a cold or abrupt start.",
+        "Use a small number of observable cues: build smoothly, run tall without leaning back, strike beneath the body, keep arm action coordinated, sprint through the zone, and decelerate gradually."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9414047/",
+      "sourceTitle": "The Influence of Weekly Sprint Volume and Maximal Velocity Exposures on Eccentric Hamstring Strength in Professional Football Players",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "High-speed sprint load and recent exposure must be monitored rather than inferred from repetition count alone.",
+        "Stop for pain, hamstring or calf tightness, limping, stumble, unsafe surface or spacing, repeated overstriding, loss of upright control, or a persistent velocity or timing decline."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6872694/",
+      "sourceTitle": "The Training and Development of Elite Sprint Performance: an Integration of Scientific and Best Practice Literature",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Flying sprints are used to develop maximal velocity and should continue only while velocity and mechanics remain stable.",
+        "Flying 20 belongs early in a session after preparation and before fatigue-oriented work; rehabilitation, conditioning, and assisted-speed uses require separate contextual profiles."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "Fly-in work isolates a short maximal-velocity action zone after an acceleration zone.",
+        "Athlete-facing support should show the zone layout, define a successful rep, limit the cue count, state the run-out expectation, and explain the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/contentassets/79174a4ecd01444198cba1c516d9703b/coach-5.4.2-the-need-for-speed-improving-sprinting-performance-in-football-players.pdf",
+      "sourceTitle": "The Need for Speed—Improving Sprinting Performance in Football Players",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Coaches can use marked fly zones and timing to observe or monitor top-speed performance.",
+        "Coach support should include setup measurements, athlete-specific build-in choice, contact and posture observations, split consistency, spacing control, regression choices, and recovery decisions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Speed work should be developmentally appropriate and follow movement competency, readiness, and progressive exposure.",
+        "Intent, run-in length, fly-zone length, timing pressure, cue complexity, wicket spacing, and total exposure can be scaled without assigning the exercise a skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11469994/",
+      "sourceTitle": "The Longitudinal Effects of Resisted and Assisted Sprint Training on Sprint Kinematics, Acceleration, and Maximum Velocity: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Normal, resisted, assisted, and combined sprinting produce different training conditions and should not be collapsed into one undifferentiated card.",
+        "Fly-zone length is dosage, run-in style is usually a variant, and external assistance or resistance may require a distinct definition when it changes the primary stimulus and safety model."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct video candidates for Flying 20 were discovered from a focused YouTube search; availability, embedding, exact-version match, full-content quality, captions, and safety review remain pending human gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=jQOnXqK-cCU",
+      "title": "Return to Running Drills: Flying 20's",
+      "channelName": "Jay Kasthuri",
+      "sourceQuery": "Flying 20 sprint drill max velocity",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=66a3EE72ECc",
+      "title": "Flying 20 | Max-Velocity Speed, Upright Mechanics & Elastic Stride Timing",
+      "channelName": "VP Movement Library",
+      "sourceQuery": "Flying 20 sprint drill max velocity",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=kFLwmd0yzOU",
+      "title": "Unlock Your Top Speed: Flying Sprints Explained for Athletes and Coaches",
+      "channelName": "Matt Tometz",
+      "sourceQuery": "Flying 20 sprint drill max velocity",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=qF88X_wLGlg",
+      "title": "Flying Sprints (Flying Start) - Sprint Float | Speed Training",
+      "channelName": "Simple Speed Coach",
+      "sourceQuery": "Flying 20 sprint drill max velocity",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=a8PQfK90eL0",
+      "title": "Sprinting - Top Speed Development (Max Velocity Drill)",
+      "channelName": "Outperform",
+      "sourceQuery": "Flying 20 sprint drill max velocity",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Flying 10",
+      "classification": "modifier_annotation",
+      "rationale": "A shorter fly zone reduces high-speed dose and recovery demand without changing the movement identity.",
+      "distinguishingDimensions": {
+        "flyZone": "10_yards_or_meters"
+      }
+    },
+    {
+      "name": "Flying 30",
+      "classification": "modifier_annotation",
+      "rationale": "A 30-unit fly zone is a larger high-speed dosage choice and should not fragment the identity.",
+      "distinguishingDimensions": {
+        "flyZone": "30_yards_or_meters"
+      }
+    },
+    {
+      "name": "Timed Flying 20",
+      "classification": "modifier_annotation",
+      "rationale": "Timing gates change measurement and feedback but not the exercise.",
+      "distinguishingDimensions": {
+        "timingMethod": "electronic_gates"
+      }
+    },
+    {
+      "name": "Assisted Flying 20",
+      "classification": "new_definition",
+      "rationale": "External assistance changes velocity exposure, equipment, supervision, and safety enough to require its own definition and profiles.",
+      "distinguishingDimensions": {
+        "primaryTrainingStimulus": "assisted_overspeed",
+        "loadMethod": "external_assistance"
+      }
+    }
+  ]
+}

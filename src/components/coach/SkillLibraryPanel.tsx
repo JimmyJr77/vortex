@@ -18,9 +18,35 @@ interface FilterState {
   kind: SkillKind | ''
   evaluation: SkillEvaluationMode | ''
   level: string
+  discipline: string
+  usagLevel: string
 }
 
-const emptyFilters: FilterState = { q: '', sport: '', kind: '', evaluation: '', level: '' }
+const emptyFilters: FilterState = { q: '', sport: '', kind: '', evaluation: '', level: '', discipline: '', usagLevel: '' }
+
+const USAG_DISCIPLINES = [
+  'Acrobatic Gymnastics',
+  'Trampoline & Tumbling',
+  "Women's Artistic Gymnastics",
+  "Men's Artistic Gymnastics",
+  'Acrobatics & Tumbling',
+]
+
+const USAG_LEVELS = [
+  ...Array.from({ length: 10 }, (_, index) => `Tumbling Level ${index + 1}`),
+  'Tumbling Levels 1–2',
+  'Tumbling Levels 2–4',
+  'Tumbling Levels 3–7',
+  'Tumbling Levels 5–7',
+  'Tumbling Levels 6–7',
+  'Tumbling Open',
+  ...Array.from({ length: 5 }, (_, index) => `Youth A&T Level ${index + 1}`),
+  ...Array.from({ length: 10 }, (_, index) => `Level ${index + 1}`),
+  '11–16',
+  '12–18',
+  '13–19',
+  'Senior Elite',
+]
 
 function kindBadgeClass(kind: SkillKind) {
   return kind === 'combo' ? 'bg-purple-50 text-purple-800' : 'bg-blue-50 text-blue-800'
@@ -52,6 +78,8 @@ export default function SkillLibraryPanel() {
       if (filters.kind) params.set('kind', filters.kind)
       if (filters.evaluation) params.set('evaluation', filters.evaluation)
       if (filters.level) params.set('level', filters.level)
+      if (filters.discipline) params.set('discipline', filters.discipline)
+      if (filters.usagLevel) params.set('usag_level', filters.usagLevel)
       const data = await coachFetch<Skill[]>(`/api/coach/skills?${params.toString()}`)
       setSkills(data)
     } catch (err) {
@@ -105,7 +133,7 @@ export default function SkillLibraryPanel() {
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl p-4 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+      <div className="bg-white border border-gray-200 rounded-xl p-4 grid gap-3 md:grid-cols-2 lg:grid-cols-6">
         <div className="lg:col-span-2">
           <label className="block text-xs font-semibold text-gray-500 mb-1">Search</label>
           <div className="relative">
@@ -136,7 +164,14 @@ export default function SkillLibraryPanel() {
             <option value="repetitions">Repetitions</option>
           </select>
         </div>
-        <div className="lg:col-span-5 grid md:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 mb-1">USA Gymnastics discipline</label>
+          <select value={filters.discipline} onChange={(e) => setFilters((f) => ({ ...f, discipline: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            <option value="">All disciplines</option>
+            {USAG_DISCIPLINES.map((discipline) => <option key={discipline} value={discipline}>{discipline}</option>)}
+          </select>
+        </div>
+        <div className="lg:col-span-6 grid md:grid-cols-3 gap-3">
           <div>
             <label className="block text-xs font-semibold text-gray-500 mb-1">Skill level</label>
             <select value={filters.level} onChange={(e) => setFilters((f) => ({ ...f, level: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
@@ -145,6 +180,13 @@ export default function SkillLibraryPanel() {
               <option value="BEGINNER">Beginner</option>
               <option value="INTERMEDIATE">Intermediate</option>
               <option value="ADVANCED">Advanced</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 mb-1">Official USAG level</label>
+            <select value={filters.usagLevel} onChange={(e) => setFilters((f) => ({ ...f, usagLevel: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <option value="">Any official level</option>
+              {USAG_LEVELS.map((level) => <option key={level} value={level}>{level}</option>)}
             </select>
           </div>
           <button type="button" onClick={() => setFilters(emptyFilters)} className="self-end text-sm text-gray-500 hover:text-gray-800 underline">
@@ -184,7 +226,13 @@ export default function SkillLibraryPanel() {
                     {EVALUATION_LABELS[sk.evaluation_mode ?? 'execution']}
                   </span>
                   {sk.sport_name && <span className="text-[11px] bg-gray-100 text-gray-600 rounded px-2 py-0.5">{sk.sport_name}</span>}
+                  {sk.official_metadata?.event && <span className="text-[11px] bg-red-50 text-red-800 rounded px-2 py-0.5">{sk.official_metadata.event}</span>}
                 </div>
+                {(sk.official_metadata?.usa_gymnastics_levels?.length ?? 0) > 0 && (
+                  <p className="mt-2 text-xs font-medium text-blue-800">
+                    USAG: {(sk.official_metadata?.usa_gymnastics_levels ?? []).join(', ')}
+                  </p>
+                )}
                 {metric && <p className="text-xs text-gray-700 mt-2 font-medium">{metric}</p>}
                 {sk.exercise_name && (
                   <p className="text-xs text-gray-500 mt-1">Trains via: {sk.exercise_name}</p>

@@ -23,7 +23,7 @@ Estimated minutes vs target minutes per phase (Prepare, MI, Output, Capacity, Re
 Restore is non-empty, within budget, last in session order, and contains appropriate low-intent content (breathing, mobility, downregulation). Includes arousal-downshift suitability and bookend symmetry with Prepare.
 
 ### 4. Audience profile
-Age range, skill level, session objective, scaling cohort, and difficulty caps (`maxOverall`, `maxTechnical`, `maxLoad`, `maxComplexity`) align with the intended audience and propagate correctly from requirements into `audience_profile`, `mergeCapsMax` pool caps, and downstream scoring.
+Age range, audience training experience, session objective, scaling cohort, and difficulty caps (`maxOverall`, `maxTechnical`, `maxLoad`, `maxComplexity`) align with the intended audience and propagate correctly from requirements into `audience_profile`, `mergeCapsMax` pool caps, and downstream scoring. Exercise cards themselves do not carry levels.
 
 ### 5. Age splits
 Split definitions (labels, age bands, per-split difficulty overrides) cover the session age range without gaps; per-group exercise variants are complete, coherent, and differentiated (especially Split 2 progressions vs Split 1 scaling).
@@ -190,7 +190,7 @@ See [`NEEDS_ENGINE_CATEGORY_IMPLEMENTATION_LOOP.md`](NEEDS_ENGINE_CATEGORY_IMPLE
 | **Prescription output** | `blocks[]`, `work_mode`, `audience_profile`, `audience_splits`, `age_fit_warnings`, `split_variant_warnings`, `constraint_report`, `phase_rationales` |
 | **Block / item fields** | `phase_key`, `target_minutes`, `estimated_minutes`, `fill_pct`, `focus_targets`, `items[]`, dose fields (`sets`, `reps`, `rest_seconds`, `work_seconds`) |
 | **Per-split variants** | `per_split[]`: `split_label`, `variant_type`, `exercise_id`, `difficulty`, `difficulty_cap`, `scaling_guidance` |
-| **Exercise cards (DB)** | `coaching.exercise` (slug, name, `programming_kind`, `primary_phase_key`, `movement_family`, `skill_level`, defaults); `exercise_tag`; `exercise_phase_profile`; `exercise_difficulty_profile`; `exercise_scaling_profile` |
+| **Exercise cards (DB)** | `coaching.exercise` (slug, name, `programming_kind`, `primary_phase_key`, `movement_family`, defaults); `exercise_tag`; `exercise_phase_profile`; `exercise_difficulty_profile`; `exercise_scaling_profile` |
 | **Facet / taxonomy DB** | `coaching.tenet`, `methodology`, `phase_order_slot`, `equipment`; facet ID → key maps |
 | **Policy / code** | `SESSION_PHASE_ORDER`, `AGE_BAND_POLICIES`, `restoreSelectionPolicy`, `sustainedCapacityPolicy`, `resolveAudienceProfile`, `buildSplitProfiles` |
 | **Evaluator / golden** | `golden-prescription-scenario.json`, strict thresholds, eval history log, `prescriptionQualityChecks` |
@@ -819,14 +819,14 @@ flowchart LR
 | C4-MOP-01 | MOP | Age min/max match | `audience_profile.ageMin/Max` vs prescribe body | Exact 8 / 14 (Test 3) | `audience_profile` | yes |
 | C4-MOP-02 | MOP | Session cap overall | `caps.maxOverall` vs age band (mid 11 → band 9–12) | **6** when no capsOverride (Test 3) | `ageDifficultyPolicy.js` | yes |
 | C4-MOP-03 | MOP | Session cap technical/load | `maxTechnical`, `maxLoad` vs band table | 6 / 5 for band 9–12 | `audience_profile.caps` | yes |
-| C4-MOP-04 | MOP | Implied skill level | `impliedSkillLevel` vs prescribe `skillLevel` | Exact `INTERMEDIATE` when input set | `audience_profile` | yes |
+| C4-MOP-04 | MOP | Training experience | `trainingExperience` (or compatibility alias) vs request | Exact `INTERMEDIATE` when input set | `audience_profile` | yes |
 | C4-MOP-05 | MOP | Scaling cohort | `scalingCohort` vs age + skill matrix | `youth_intermediate` for band 9–12 | `audience_profile` | yes |
 | C4-MOP-06 | MOP | Session objective resolution | `sessionObjective` === prescribe value | `speed_priority` | `audience_profile` | yes |
 | C4-MOP-07 | MOP | Age band label | `ageBandLabel` consistent with range | Non-empty (`ages 8-14`) | `audience_profile` | yes |
 | C4-MOP-08 | MOP | Strength intent flag | `strengthIntent` vs objective | `false` for speed_priority | `audience_profile` | yes |
 | C4-MOP-09 | MOP | Primary age_fit distribution | % primaries `good` / `stretch` / `over_cap` | ≥ 85% good; 0% over_cap | `items[].age_fit` | yes |
 | C4-MOP-10 | MOP | Age-fit warning count | `len(age_fit_warnings)` | 0 (strict; Test 3: 0) | `age_fit_warnings` | yes |
-| C4-MOP-11 | MOP | Skill level filter adherence | Items with `skill_level` null or matching audience | ≥ 95% | `coaching.exercise.skill_level` | yes |
+| C4-MOP-11 | MOP | Difficulty-cap adherence | Items within audience technical/load/overall caps | ≥ 95% | `coaching.exercise_difficulty_profile` | yes |
 | C4-MOP-12 | MOP | Recommended age range overlap | Items where recommended age overlaps session 8–14 | ≥ 90% | difficulty profiles | yes |
 | C4-MOP-13 | MOP | maxComplexity cap | `caps.maxComplexity` vs age band policy | Exact (Test 3: **6** for band 9–12) | `audience_profile.caps` | yes |
 | C4-MOP-14 | MOP | capsOverride propagation | When body `capsOverride` set, all cap dimensions updated | Exact (Test 3: null → band defaults) | prescribe body + caps | yes |
@@ -853,7 +853,7 @@ flowchart LR
 
 **C4-MOP-04** — Requires: prescribe `skillLevel`; `audience_profile.impliedSkillLevel`; skill derivation rules in `resolveAudienceProfile`.
 
-**C4-MOP-05** — Requires: `audience_profile.scalingCohort`; age band + skill level → cohort matrix.
+**C4-MOP-05** — Requires: `audience_profile.scalingCohort`; age band + training experience → cohort matrix.
 
 **C4-MOP-06** — Requires: prescribe `sessionObjective`; `audience_profile.sessionObjective`.
 
@@ -865,7 +865,7 @@ flowchart LR
 
 **C4-MOP-10** — Requires: `result.age_fit_warnings[]` array; warning count.
 
-**C4-MOP-11** — Requires: each prescribed item's `exercise_id`; `coaching.exercise.skill_level`; audience `impliedSkillLevel` / prescribe `skillLevel`.
+**C4-MOP-11** — Requires: each prescribed item's `exercise_id`; `coaching.exercise_difficulty_profile`; audience difficulty caps. The check id remains `audience_skill_level_adherence` for metrics-history compatibility.
 
 **C4-MOP-12** — Requires: each item's `exercise_difficulty_profile.recommended_age_min`, `recommended_age_max`; session ageMin/ageMax.
 
@@ -1536,7 +1536,7 @@ flowchart TD
 | C10-MOP-11 | MOP | Youngest-split gate | `splitCandidateAcceptable`: youngest split fit good or stretch | 100% items with splits | `youngest_split_gate` | yes |
 | C10-MOP-12 | MOP | age_fit vs warnings consistency | `age_fit === 'good'` → no warnings for that item | 100% | `age_fit_warnings_consistency` | yes |
 | C10-MOP-13 | MOP | over_cap never selected | Primaries with `over_cap` fit | 0 | `primary_over_cap_count` | yes |
-| C10-MOP-14 | MOP | Skill level residuals | `skill_level` above INTERMEDIATE for youth | 0 | `skill_level_residuals` | yes |
+| C10-MOP-14 | MOP | Difficulty residuals | exercise technical/overall above youth audience caps | 0 | `skill_level_residuals` (legacy id) | yes |
 | C10-MOP-15 | MOP | Recommended age overlap | Session age overlaps `recommended_age_min/max` | ≥ 90% items | `audience_recommended_age_overlap` | yes |
 | C10-MOP-16 | MOP | Attention demand MI ceiling | `attention_demand ≥ 8` in MI for ageMax ≤ 14 | 0 | `mi_attention_demand_ceiling` | yes |
 | C10-MOP-17 | MOP | difficultyProximityBonus cap | Bonus uses `poolCapOverall` (10) not session cap (6) | Verified Test 3 | `pool_cap_proximity_bonus` | yes |
@@ -1585,7 +1585,7 @@ flowchart TD
 
 **C10-MOP-13** — Requires: all primaries' `age_fit`; count `over_cap`.
 
-**C10-MOP-14** — Requires: prescribed `exercise_id`; `coaching.exercise.skill_level`; audience INTERMEDIATE.
+**C10-MOP-14** — Requires: prescribed `exercise_id`; `coaching.exercise_difficulty_profile`; youth audience caps. The check id is retained for history compatibility.
 
 **C10-MOP-15** — Requires: `exercise_difficulty_profile.recommended_age_min/max`; session ageMin/ageMax.
 
@@ -2505,7 +2505,7 @@ Same legend as Categories 1–5. Categories 16–20 cover **phase role fit**, **
 | **Prescribe body** | Same audience/split/cap fields; `phasePlan`; `workMode`; `skillLevel` |
 | **Prescription output** | `blocks[]` with `phase_key`, `items[]`, `per_split[]`; `items[].age_fit`, `split_variant_warnings`, `split_fallback_used`; `audience_profile.scalingCohort`; `blocks[].fill_pct`, `estimated_minutes` |
 | **Constraint report** | `phase_fill` (pool_size, skipped_candidates, split_rejects, fill_pct); `empty_phase_reasons`; avoid sub-reports; stretch-reject telemetry (**TBD**) |
-| **Exercise cards (DB)** | `exercise.primary_phase_key`, `phase_subrole`, `programming_kind`, `skill_level`; `exercise_phase_profile` (role, impact_level); `exercise_tag` (methodology, pattern, tenet); `exercise_difficulty_profile`; `exercise_safety_profile` |
+| **Exercise cards (DB)** | `exercise.primary_phase_key`, `phase_subrole`, `programming_kind`; `exercise_phase_profile` (role, impact_level); `exercise_tag` (methodology, pattern, tenet); `exercise_difficulty_profile`; `exercise_safety_profile` |
 | **Policy / code** | `restoreSelectionPolicy`, `sustainedCapacityPolicy`, `movementFamilyPolicy`, `beginnerExclusionPolicy`, `ageDifficultyPolicy`; `NO_STRETCH_PRIMARY_PHASES`, `classifyPrimaryAgeFit`; `minItemsForPhase`/`maxItemsForPhase`; dedup sets (`usedExerciseIds`, `usedSlugStems`, `usedNamesNormalized`, `usedMovementFamilies`, `phasePatternUsed`) |
 | **Evaluator** | `no_progression_*`, `stretch_primaries_*`, `mi_no_handstand_youth`, `no_duplicate_session_slugs`, `no_empty_phases`; golden scenario replay |
 | **Human (MOE)** | Coach floor review, parent safety confidence, builder edit telemetry (**TBD**), eval history log (`NEEDS_ENGINE_QUALITY_LOOP.log`) |
@@ -2662,7 +2662,7 @@ Same legend as Categories 1–5. Categories 16–20 cover **phase role fit**, **
 | C17-MOP-15 | MOP | MI load dimension ceiling (youth) | MI primaries with `load ≥ 6` when `ageMax ≤ 14` | 0 | `youth_mi_load_ceiling` | yes |
 | C17-MOP-16 | MOP | Gymnastics exception scope | Handstand block **not** bypassed for non-gymnastics `sportKey` on youth sessions | 100% fitness sessions blocked | `youth_gymnastics_handstand_scope` | yes |
 | C17-MOP-17 | MOP | Split 1 max variant D | Max Split 1 `per_split` overall D across session | ≤ split1 cap (6 Test 3) | `split1_cap_adherence` | yes |
-| C17-MOP-18 | MOP | ADVANCED skill_level in youth Rx | Primaries with `skill_level === 'ADVANCED'` when `ageMax ≤ 14` | ≤ 2 session-wide; 0 in MI | `youth_advanced_skill_level` | yes |
+| C17-MOP-18 | MOP | High difficulty in youth Rx | Primaries with overall or technical difficulty ≥ 8 when `ageMax ≤ 14` | ≤ 2 session-wide; 0 in MI | `youth_advanced_skill_level` (legacy id) | yes |
 | C17-MOP-19 | MOP | Beginner penalty path inactive | `beginnerAppropriatenessPenalty === 0` when skillLevel INTERMEDIATE+ | 100% (Test 3) | `youth_beginner_penalty_inactive` (info) | yes |
 | C17-MOP-20 | MOP | Resilience wall-handstand exception | Wall-facing handstand holds allowed only in Resilience with documented slug allowlist | ≤ 1; 0 in MI/Prepare | `youth_resilience_wall_handstand` | yes |
 | C17-MOP-21 | MOP | High-intent minutes × youth factor | `(Output+Capacity+Resilience+Sustained)` minutes when `ageMax ≤ 12` | ≤ 85 min on 120-min template | `youth_high_intent_minutes` | yes |
@@ -2719,7 +2719,7 @@ Same legend as Categories 1–5. Categories 16–20 cover **phase role fit**, **
 
 **C17-MOP-17** — Requires: all Split 1 `per_split[].difficulty.overall`; split1 cap from `audience_splits[0].caps.maxOverall`; max D across session.
 
-**C17-MOP-18** — Requires: prescribed items; `exercise.skill_level`; `ageMax ≤ 14`; ADVANCED count; MI-phase subset.
+**C17-MOP-18** — Requires: prescribed items; exercise technical/overall difficulty; `ageMax ≤ 14`; high-difficulty count; MI-phase subset.
 
 **C17-MOP-19** — Requires: scored pool candidates; `beginnerAppropriatenessPenalty` value; `skillLevel` INTERMEDIATE+; penalty = 0 check.
 
@@ -3864,5 +3864,4 @@ flowchart TD
 4. `C24-MOP-03`, `C24-MOP-15`, `C24-MOP-05` — dose/time reconciliation check per phase in evaluator
 5. `C25-MOP-07`–`C25-MOP-08`, `C25-MOP-17`, `C25-MOP-21` — focus-target pool depth + `pool_empty` mislabel telemetry in `constraint_report`
 6. `C25-MOE-01`, `C21-MOE-06` — formal 5× PASS streak tracker in `NEEDS_ENGINE_QUALITY_LOOP.log`
-
 

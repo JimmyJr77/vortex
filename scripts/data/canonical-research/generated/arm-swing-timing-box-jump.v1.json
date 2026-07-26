@@ -1,0 +1,448 @@
+{
+  "facilityId": 1,
+  "slug": "arm-swing-timing-box-jump",
+  "researchVersion": "2026-07-25.4",
+  "assessmentSummary": {
+    "identity": "A submaximal or high-intent countermovement box jump used to coordinate the backward arm load with the countermovement and the upward arm drive with lower-body propulsion.",
+    "currentCardFindings": [
+      "The movement is a technique emphasis within a standard arm-swing box jump, not a distinct external task.",
+      "Arm timing needs an observable temporal criterion instead of generic advice to coordinate the sequence.",
+      "The 50-point score omits physical demand, supervision, collision consequence, impact, and fatigue while all controlled support fields are empty."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "countermovement",
+        "arm_swing_coordination",
+        "bilateral_vertical_jump",
+        "elevated_bilateral_land",
+        "step_down_reset"
+      ],
+      "jointActions": [
+        "shoulder_extension_to_flexion",
+        "hip_flexion_to_extension",
+        "knee_flexion_to_extension",
+        "ankle_plantarflexion",
+        "landing_flexion_control"
+      ],
+      "planes": [
+        "sagittal"
+      ],
+      "laterality": "bilateral_takeoff_bilateral_landing",
+      "intent": "coordinate_arm_and_leg_impulse_during_box_jump"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "quadriceps",
+        "gluteus_maximus",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "anterior_deltoid",
+        "latissimus_dorsi",
+        "hamstrings",
+        "trunk_stabilizers",
+        "intrinsic_foot"
+      ],
+      "joints": [
+        "shoulder",
+        "lumbopelvic_complex",
+        "hip",
+        "knee",
+        "ankle",
+        "foot"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 42,
+      "absoluteLoadDemand": 16,
+      "coordinationDemand": 54,
+      "supervisionDemand": 42,
+      "failureConsequence": 48,
+      "impact": 30,
+      "workCapacityDemand": 16,
+      "baseOverallDifficulty": 42
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_bilateral_jump_with_deliberate_arm_leg_coordination",
+      "impactClass": "low_to_moderate_at_teaching_box_height",
+      "landingContactsPerRep": 1,
+      "primaryStress": [
+        "arm_leg_timing",
+        "vertical_impulse",
+        "landing_control"
+      ],
+      "fatigueSensitivity": "arm_drive_timing_takeoff_sequence_and_edge_clearance"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "low_stable_non_slip_box"
+      ],
+      "optionalEquipment": [
+        "video_feedback",
+        "external_rhythm_cue",
+        "takeoff_line"
+      ],
+      "environment": [
+        "clear_arm_and_overhead_space",
+        "coach_side_view"
+      ],
+      "population": [
+        "owns_submaximal_box_jump",
+        "can_follow_one_timing_cue"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4",
+      "repetitions": "3-5",
+      "restSeconds": "45-90",
+      "intensity": "submaximal_until_timing_is_repeatable_then_high_intent",
+      "timingTarget": "arms finish the backward load with the lowest center-of-mass position and reverse upward before takeoff",
+      "progressWhen": "arm and leg reversals are synchronized without a pause, double dip, or late reach"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Arms back as you load",
+        "Drive arms and legs together",
+        "Finish tall",
+        "Quiet whole-foot landing"
+      ],
+      "athleteInstructions": [
+        "Let the arms load with the hips",
+        "Swing up as you drive off the floor"
+      ],
+      "commonFaults": [
+        "arms reverse too early",
+        "late arm reach after takeoff",
+        "double dip",
+        "excessive trunk swing",
+        "chasing the box"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "safe low box jump",
+        "clear arm space",
+        "stable platform"
+      ],
+      "stopRules": [
+        "timing deteriorates",
+        "toe catch",
+        "late reach causes trunk loss",
+        "pain",
+        "landing collapse",
+        "hesitation"
+      ]
+    },
+    "programmingDecision": "Consolidate with Box Jump after human identity review. Preserve arm-swing timing as a technique annotation or movement-intelligence delivery profile; natural arm swing remains the baseline.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-25T23:48:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Arm-Swing Timing Box Jump is a technical box-jump skill drill. The athlete moves at a teachable speed, coordinates the takeoff and landing sequence, and resets every rep so the pattern stays crisp. It prepares the athlete for higher-intent box jumps without turning the set into conditioning.",
+      "familyKey": "Box Jump Movement Intelligence",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 50,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 50
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "A box-jump identity must specify start condition, countermovement permission, arm use, takeoff and landing laterality, approach, platform relationship, stabilization, exit, and reset behavior.",
+        "Arm-Swing Timing Box Jump must not combine a floor-to-box jump with a depth or drop jump, repeated rebound, box jump-over, unilateral landing, seated start, approach jump, or loaded jump."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "A reset box jump is a discrete ballistic propulsion task followed by an elevated landing and deliberate stabilization; repeated reactive box contacts are a different task.",
+        "Arm-Swing Timing Box Jump belongs to bilateral vertical power and landing control, with start condition, arm use, box height, landing strategy, and reset intent encoded as controlled dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Propulsion and elevated landing are coordinated across the foot, ankle, knee, hip, pelvis, trunk, and, when permitted, the shoulder girdle.",
+        "The card should assign propulsion to the plantar flexors, quadriceps, and hip extensors; stabilization to the foot, hip, and trunk stabilizers; and arm-swing contribution to coordinated shoulder flexion without claiming one isolated prime mover."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11166134/",
+      "sourceTitle": "Does Box Height Matter? A Comparative Analysis of Box Height on Box Jump Performance in Men and Women",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "In recreationally active adults asked to jump maximally, changing box height across the studied range generally did not change most propulsive performance variables.",
+        "Box height is therefore a landing target and constraint, not a valid stand-alone measure of vertical jump height; observable quality includes maximal intent when prescribed, full-foot clearance, quiet simultaneous contact, controlled landing depth, and a stable finish."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Box-jump difficulty changes with required impulse, box collision consequence, landing-space tolerance, start condition, arm restriction, laterality, approach, external load, repetition strategy, and fatigue.",
+        "Exercise cards must score technical complexity, physical or absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly; they must not use skill-library levels."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Jump volume is counted as discrete takeoffs and landings, while height, intent, start condition, arm use, body mass, external load, and reset duration govern exposure.",
+        "Arm-Swing Timing Box Jump needs contact count, output intent, impact and eccentric stress, technical-fatigue criteria, and recovery guidance; a reset power prescription must not be converted into a conditioning interval."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11166134/",
+      "sourceTitle": "Does Box Height Matter? A Comparative Analysis of Box Height on Box Jump Performance in Men and Women",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Different box heights can be used without assuming that a higher box produces a better propulsive effort, provided the athlete can clear and land on the platform safely.",
+        "The delivery profile should require a stable non-slip platform, unobstructed takeoff and top surfaces, adequate ceiling and forward clearance, a safe step-down route, athlete-specific height selection, and coach sightlines to the feet and landing."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Power-focused plyometrics use low-repetition sets, deliberate resets, and enough recovery to preserve takeoff output and landing quality.",
+        "Prescribe sets, discrete repetitions, box-height selection rule, landing hold, step-down behavior, rest, and stop criteria; do not prescribe maximal box height as the training target."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Specific external or movement-focused feedback can improve landing mechanics, while excessive cue volume can impair learning.",
+        "Use a small cue set: choose an honest box, load and drive, clear the front edge, land quietly with the whole foot, own the top, stand, step down, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Box-jump hazards include collision with the front edge, missed or partial foot contact, unstable or shifting equipment, uncontrolled landing, and an unsafe jump-down exit.",
+        "Stop for pain, giving way, hesitation, repeated toe catch, partial-foot landing, excessive hip tuck used to chase box height, loud or asymmetrical contact, valgus or trunk collapse, loss of output, or any platform movement."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11166134/",
+      "sourceTitle": "Does Box Height Matter? A Comparative Analysis of Box Height on Box Jump Performance in Men and Women",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Box height should be selected to support the intended landing or teaching goal rather than used as a proxy for jump performance.",
+        "Arm-Swing Timing Box Jump belongs early in an output block after readiness work, or in movement intelligence when explicitly submaximal and technique-focused; low volume and full reset preserve the intended stimulus."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Athlete support should show the prescribed start, target box, landing shape, hold, stand, step-down route, and one primary cue.",
+        "The interface should explain that a higher box can reward extra hip flexion without proving a higher jump and should display a lower-box or non-box regression without shame language."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11166134/",
+      "sourceTitle": "Does Box Height Matter? A Comparative Analysis of Box Height on Box Jump Performance in Men and Women",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Coaches can change box height for teaching and landing purposes without treating box height as the propulsive outcome.",
+        "Coach support should provide side and front observation, edge-clearance and full-foot criteria, landing-depth comparison, collision-risk rules, output and contact counting, regressions, progressions, and a prohibition on jumping down during reset prescriptions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should match physical and psychosocial readiness, technical competence, supervision, and equipment scale.",
+        "Accessibility can be improved with a lower soft-surface platform, visible takeoff line, contrasting box edge, landing footprint marks, demonstrated step-down route, longer reset, or a vertical jump-to-stick regression without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/28640774/",
+      "sourceTitle": "The Difference Between Countermovement and Squat Jump Performances: A Review of Underlying Mechanisms With Practical Applications",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "A countermovement jump and a static squat jump have different start mechanics and performance characteristics, so start condition must be explicit.",
+        "Box height and landing hold are usually delivery modifiers; a static start, arm restriction, seated start, approach, unilateral landing, external load, or prior drop changes the exercise sufficiently to require a controlled variant or separate definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Arm-Swing Timing Box Jump were discovered through visible YouTube search; current availability and embedding, exact movement match, full viewing, captions, instructional quality, safety, and approval remain separate review gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=pRnUcG53Ebo",
+      "title": "Box Jump w/arm swing",
+      "channelName": "Swole Town Training",
+      "sourceQuery": "arm swing timing box jump",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=GRfbpX2X2y8",
+      "title": "Countermovement Jump to Box with Arm Swing",
+      "channelName": "Canadian Sport Institute Pacific",
+      "sourceQuery": "arm swing timing box jump",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=-EiOsazvctk",
+      "title": "Box counter movement jump with arm swing",
+      "channelName": "Mercy Sports Performance powered by EXOS",
+      "sourceQuery": "arm swing timing box jump",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=DErIvSNWN_4",
+      "title": "Box Jump With CM With Arm Swing",
+      "channelName": "Matt Fisher",
+      "sourceQuery": "arm swing timing box jump",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=JbLfJTIPrsY",
+      "title": "Arm swing on box jump",
+      "channelName": "Richard Kompf",
+      "sourceQuery": "arm swing timing box jump",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Box Jump",
+      "classification": "same_identity",
+      "rationale": "Natural arm swing and its timing belong to the baseline technique.",
+      "distinguishingDimensions": {
+        "coachingFocus": "arm_leg_timing"
+      }
+    },
+    {
+      "name": "No-Arm-Swing Box Jump",
+      "classification": "new_variant",
+      "rationale": "Fixing the arms removes rather than teaches arm contribution.",
+      "distinguishingDimensions": {
+        "armUse": "fixed"
+      }
+    },
+    {
+      "name": "Approach Box Jump with Arm Swing",
+      "classification": "new_definition",
+      "rationale": "An approach changes arm timing and penultimate mechanics.",
+      "distinguishingDimensions": {
+        "approach": "present"
+      }
+    },
+    {
+      "name": "Medicine-Ball Box Jump",
+      "classification": "new_variant",
+      "rationale": "Holding a ball constrains the arms and adds external load.",
+      "distinguishingDimensions": {
+        "externalLoad": "medicine_ball"
+      }
+    },
+    {
+      "name": "Arm-Swing Countermovement Jump",
+      "classification": "new_definition",
+      "rationale": "A floor-landing jump is the direct non-box timing task and test.",
+      "distinguishingDimensions": {
+        "landingSurface": "floor"
+      }
+    }
+  ]
+}

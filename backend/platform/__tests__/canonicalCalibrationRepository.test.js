@@ -44,6 +44,31 @@ test('calibration proposals validate anchor fields and enter independent review'
   )
 })
 
+test('calibration accepts physical difficulty but not independently derived overall difficulty', async () => {
+  const fixture = transactionalPool([
+    { rows: [{ id: 'variant-1' }] },
+    { rows: [{ version: 1 }] },
+    { rows: [{ id: 'calibration-1', status: 'review', version: 1 }] },
+  ])
+  const saved = await proposeCanonicalCalibration(fixture.pool, 7, 11, 'variant-1', {
+    dimension: 'absoluteLoadDemand',
+    proposedScore: 58,
+    anchorTier: 60,
+    rationale: 'Observed force demand aligns with the approved physical anchor.',
+  })
+  assert.equal(saved.status, 'review')
+
+  await assert.rejects(
+    proposeCanonicalCalibration(fixture.pool, 7, 11, 'variant-1', {
+      dimension: 'baseOverallDifficulty',
+      proposedScore: 60,
+      anchorTier: 60,
+      rationale: 'Overall is derived and must not be independently calibrated.',
+    }),
+    /Unknown calibration dimension/,
+  )
+})
+
 test('calibration review enforces two-person control and supersedes prior anchor', async () => {
   const selfReview = transactionalPool([
     { rows: [{ id: 'calibration-1', status: 'review', created_by: 11 }] },

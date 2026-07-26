@@ -136,6 +136,38 @@ export default function GameDetailModal({
               </LibraryTagGroup>
             )}
 
+            {game.training_effects && (
+              <div className="space-y-3 rounded-xl border border-gray-200 p-4">
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Workout connection</div>
+                <ReadOnlyField label="Primary qualities" value={game.training_effects.primary_qualities?.join(', ')} />
+                <ReadOnlyField label="Secondary qualities" value={game.training_effects.secondary_qualities?.join(', ')} />
+                <ReadOnlyField label="Energy systems" value={game.training_effects.energy_systems?.join(', ')} />
+                <ReadOnlyField label="Movement patterns" value={game.training_effects.movement_patterns?.join(', ')} />
+                <ReadOnlyField label="Primary muscle groups" value={game.training_effects.primary_muscle_groups?.join(', ')} />
+                <ReadOnlyField label="Secondary muscle groups" value={game.training_effects.secondary_muscle_groups?.join(', ')} />
+                <ReadOnlyField label="Cognitive & social" value={game.training_effects.cognitive_social?.join(', ')} />
+                <ReadOnlyField label="Workout pairing" value={game.training_effects.workout_pairing} />
+                <ReadOnlyField label="Dose notes" value={game.training_effects.dose_notes} />
+              </div>
+            )}
+
+            {(game.video_links?.length ?? 0) > 0 && (
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Gameplay videos</div>
+                {game.video_links!.map((video) => (
+                  <a
+                    key={video.url}
+                    href={video.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-vortex-red hover:bg-red-50"
+                  >
+                    {video.title}
+                  </a>
+                ))}
+              </div>
+            )}
+
             <RulesList title="Setup" items={stringifyRulesList(rules.setup)} />
             <RulesList title="How to play" items={stringifyRulesList(rules.execution_steps)} />
             <ReadOnlyField label="Scoring" value={typeof rules.scoring === 'string' ? rules.scoring : null} />

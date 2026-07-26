@@ -1,0 +1,1391 @@
+{
+  "batchKey": "180-degree-transitions-v1",
+  "researchVersion": "2026-07-25.22",
+  "snapshotAt": "2026-07-26T04:00:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [],
+  "cards": [
+    {
+      "slug": "180-jump-rebound-to-sprint-out",
+      "assessmentSummary": {
+        "identity": "A high-impact composite that is provisionally interpreted as a bilateral half-turn jump, a bilateral landing, an immediate second rebound, and a short acceleration. The legacy card does not establish whether rebound means a second flight or merely a quick transition from the first landing into the sprint, so the exact contact sequence remains quarantined.",
+        "currentCardFindings": [
+          "The title and description do not identify the takeoff, first landing, second takeoff, second landing, sprint direction, turn side, or whether the rebound is a distinct flight.",
+          "The existing three videos demonstrate pro-agility or general deceleration rather than this aerial-turn sequence and must be superseded as direct candidates.",
+          "The legacy two-second rest value is incompatible with low-volume high-output work and would convert a precision plyometric sequence into conditioning.",
+          "The legacy difficulty scores understate impact, failure consequence, coordination, supervision, and body-mass loading across the landing-to-reacceleration transition."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "bilateral_rotational_jump",
+            "reactive_rebound",
+            "linear_acceleration"
+          ],
+          "jointActions": [
+            "triple_extension",
+            "transverse_body_rotation",
+            "landing_braking",
+            "ankle_knee_hip_reextension",
+            "horizontal_acceleration"
+          ],
+          "planes": [
+            "transverse",
+            "sagittal"
+          ],
+          "laterality": "bilateral_takeoff_and_first_landing_with_turn_direction_recorded",
+          "contactSequence": "jump_half_turn__bilateral_land__immediate_bilateral_rebound__bilateral_land__sprint_out",
+          "intent": "preserve_orientation_and_contact_quality_while_linking_a_reactive_half_turn_to_acceleration"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius",
+            "hamstrings"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "adductors",
+            "peroneals",
+            "tibialis_anterior",
+            "obliques",
+            "spinal_stabilizers",
+            "hip_flexors"
+          ],
+          "joints": [
+            "ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "lumbar_spine",
+            "thoracic_spine",
+            "shoulder"
+          ],
+          "primaryActions": [
+            "propulsive_triple_extension",
+            "whole_body_half_turn",
+            "eccentric_landing_braking",
+            "reactive_reextension",
+            "acceleration_projection"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 78,
+          "absoluteLoadDemand": 74,
+          "coordinationDemand": 82,
+          "supervisionDemand": 80,
+          "failureConsequence": 80,
+          "impact": 86,
+          "workCapacityDemand": 48,
+          "baseOverallDifficulty": 78
+        },
+        "proposedLoadProfile": {
+          "loadingType": "high_rate_bodyweight_plyometric_and_acceleration",
+          "impactClass": "high",
+          "externalLoadMethod": "none_for_baseline",
+          "primaryStress": [
+            "rotational_landing_braking",
+            "ankle_knee_hip_stretch_shortening_cycle",
+            "rapid_reorientation",
+            "initial_acceleration_steps"
+          ],
+          "fatigueProfile": [
+            "slower_contact",
+            "louder_landing",
+            "under_or_over_rotation",
+            "knee_or_trunk_collapse",
+            "flat_sprint_projection",
+            "hesitation"
+          ],
+          "recoveryHours": "typically_48_to_72_before_another_high_contact_exposure_subject_to_total_session_load_and_individual_response"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "two_direction_markers",
+            "measured_clear_sprint_lane"
+          ],
+          "optionalEquipment": [
+            "low_hurdle_only_if_the_sequence_requires_it",
+            "timing_gates",
+            "video_capture"
+          ],
+          "environment": [
+            "high_traction_level_surface",
+            "clear_overhead_and_sprint_space",
+            "no_cross_traffic",
+            "adequate_lighting"
+          ],
+          "population": [
+            "pain_free_jump_and_landing",
+            "owns_bilateral_180_jump_to_stick",
+            "owns_low_amplitude_rebound",
+            "owns_short_acceleration",
+            "can_follow_turn_side_and_exit_direction"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-4_sets_of_1-3_repetitions_per_turn_direction",
+          "restSeconds": "90-180_between_sets_and_at_least_20-40_between_individual_repetitions",
+          "sprintDistance": "3-10_meters_after_the_final_landing",
+          "intensity": "high_intent_only_after_submaximal_sequence_rehearsal",
+          "measurement": "turn_direction_contact_count_landing_location_contact_quality_exit_direction_and_first_5_meter_time_if_timed",
+          "progressWhen": "the_exact_contact_sequence_is_repeatable_on_both_turn_directions_without_extra_steps_noise_or_speed_loss"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Know the turn and exit before takeoff",
+            "Rotate as one unit",
+            "Land under your center",
+            "Be quick without being loud",
+            "Project through the exit"
+          ],
+          "athleteInstructions": [
+            "Start balanced between the markers",
+            "Jump and turn one half rotation",
+            "Land on both feet in the marked area",
+            "Complete the assigned rebound without an extra shuffle",
+            "Land and accelerate through the exit cone"
+          ],
+          "commonFaults": [
+            "unclear_contact_sequence",
+            "single_leg_first_landing",
+            "over_rotation",
+            "feet_crossing",
+            "valgus_collapse",
+            "heel_whip",
+            "pause_before_rebound",
+            "false_step_before_sprint",
+            "conditioning_pace"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "bilateral_jump_to_stick",
+            "180_jump_to_stick_both_directions",
+            "low_pogo_or_rebound_control",
+            "short_acceleration",
+            "pain_free_high_impact_exposure"
+          ],
+          "qualityGates": [
+            "assigned_contact_count_is_exact",
+            "landings_are_quiet_and_balanced",
+            "knees_and_trunk_remain_controlled",
+            "turn_finishes_toward_the_exit",
+            "first_sprint_step_has_clear_projection"
+          ],
+          "stopRules": [
+            "pain_or_guarding",
+            "dizziness_or_disorientation",
+            "uncontrolled_rotation",
+            "repeated_extra_contact",
+            "loud_or_flat_landing",
+            "knee_or_trunk_collapse",
+            "slip",
+            "sprint_lane_encroachment",
+            "visible_speed_or_contact_drop"
+          ]
+        },
+        "proposedContextualProfiles": [
+          {
+            "context": "movement_intelligence_sequence_rehearsal",
+            "dose": "2-3_sets_of_1-2_submaximal_repetitions_per_direction_with_full_reset",
+            "purpose": "learn_the_contact_order_turn_and_exit_without_maximal_speed"
+          },
+          {
+            "context": "output_reactive_transition",
+            "dose": "2-4_sets_of_1-3_high_quality_repetitions_per_direction_with_full_recovery",
+            "purpose": "link_a_reactive_rotational_landing_sequence_to_short_acceleration"
+          }
+        ],
+        "proposedRelationships": {
+          "regressions": [
+            "180_jump_to_stick",
+            "180_jump_land_and_walk_out",
+            "bilateral_rebound_to_stick",
+            "falling_start_short_acceleration"
+          ],
+          "progressions": [
+            "reactive_cue_180_jump_rebound_to_sprint_out",
+            "higher_entry_velocity_only_if_a_run_in_is_explicitly_added"
+          ],
+          "substitutions": [
+            "180_jump_to_sprint_out_without_second_flight",
+            "180_degree_turn_and_reaccelerate_for_non_aerial_cod"
+          ],
+          "doNotSubstitute": [
+            "505_change_of_direction_test",
+            "pro_agility_shuttle",
+            "repeated_180_jump_conditioning"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "contact_sequence_diagram",
+            "turn_direction_arrow",
+            "exit_lane_arrow",
+            "quiet_landing_example",
+            "stop_signal"
+          ],
+          "coach": [
+            "side_and_rear_view_checklist",
+            "contact_counter",
+            "landing_zone_and_lane_layout",
+            "left_right_comparison",
+            "contact_load_log"
+          ]
+        },
+        "calibrationEvidence": {
+          "basis": "plyometric reviews, sprint-transfer evidence, current-card comparison, and direct component-video discovery",
+          "uncertainty": "No authoritative source or exact video located in this pass establishes what the legacy author meant by rebound. Difficulty and dose are conservative proposals for the more demanding two-flight interpretation.",
+          "reviewNeeded": [
+            "legacy_author_or_domain_coach_identity_adjudication",
+            "exact_contact_sequence_review",
+            "difficulty_anchor_comparison",
+            "surface_and_contact_load_review",
+            "full_video_review"
+          ]
+        },
+        "programmingDecision": "Keep the card quarantined until rebound is defined. If a second flight is intended, retain one composite card with the exact five-stage contact sequence. If no second flight is intended, rename it 180 Jump to Sprint-Out and model the immediate acceleration as the baseline; do not use pro-agility media as an exact demonstration."
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "olympic_coach_plyometric_practices",
+          "claims": [
+            "Plyometric exercise selection varies by movement direction, contact type, intensity, and intended transfer, so the exact sequence is part of exercise identity.",
+            "The current name does not establish whether rebound is a second flight. {{canonicalName}} must remain quarantined until takeoff, landing, rebound, and sprint contacts are explicit."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "horizontal_vertical_plyometric_meta_analysis",
+          "claims": [
+            "Vertically and horizontally oriented plyometric tasks are not interchangeable and show direction-specific training effects.",
+            "Classify {{canonicalName}} by rotational angle, horizontal and vertical projection, takeoff and landing laterality, number of flights, contact sequence, exit direction, and sprint distance."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "sprint_muscle_activity_review",
+          "claims": [
+            "Sprinting uses phase-dependent lower-limb muscle activity across force production, limb recovery, and ground contact.",
+            "The card must represent ankle, knee, hip, pelvis, trunk, and arm actions across both landing contacts and the acceleration exit rather than assigning the task to one muscle."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "reactive_strength_plyometric_meta_analysis",
+          "claims": [
+            "Reactive-strength tasks depend on rapid coupling of eccentric landing and concentric takeoff actions.",
+            "A pause, extra step, collapsed landing, or undefined second contact changes the proposed reactive sequence and must be logged as a failed or different repetition."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "world_athletics_plyometrics_beginners",
+          "claims": [
+            "Plyometric demand rises with movement intensity, complexity, and landing requirements and should be progressed from controlled foundations.",
+            "Assess technical complexity and physical load directly, with separate coordination, supervision, failure-consequence, impact, work-capacity, and overall scores; do not assign an athlete level to the card."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "plyometric_tendon_adaptation_meta_analysis",
+          "claims": [
+            "Plyometric training loads the muscle-tendon unit and produces adaptations that depend on exposure characteristics.",
+            "Track high-impact contacts, turn direction, sprint accelerations, landing noise, contact speed, and overlapping jump or sprint work; the legacy two-second rest is not a quality-output prescription."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "world_athletics_plyometrics_beginners",
+          "claims": [
+            "Safe plyometric progression requires appropriate foundations, surface, space, and exercise selection.",
+            "{{canonicalName}} requires a high-traction landing area, a clear sprint lane, defined markers, adequate lighting, and demonstrated control of its component jump, rebound, and sprint tasks."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "olympic_coach_plyometric_practices",
+          "claims": [
+            "High-level coaching practice organizes plyometrics by contacts, intensity, exercise type, and recovery rather than treating all jumps as one volume.",
+            "The proposed one-to-three-repetition sets and full recovery are conservative programming inferences for quality; they are not a research-validated universal dose for this exact composite."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "horizontal_vertical_plyometric_meta_analysis",
+          "claims": [
+            "Projection direction is a meaningful property of plyometric work.",
+            "Instructions must name turn direction, takeoff and landing feet, whether a second flight occurs, landing zone, exit direction, sprint distance, reset rule, and what counts as one repetition."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Training should use qualified supervision, safe environments, technically appropriate tasks, and gradual progression.",
+            "Stop for pain, guarding, dizziness, uncontrolled rotation, extra contacts, repeated collapse, loud landings, slipping, unsafe spacing, or material loss of speed."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "sprint_jump_transfer_systematic_review",
+          "claims": [
+            "Jump and sprint training transfer is direction- and task-dependent rather than automatic.",
+            "Use {{canonicalName}} only when an athlete needs the defined rotational-contact-to-acceleration transition; do not claim general speed transfer or use it as conditioning."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "world_athletics_plyometrics_beginners",
+          "claims": [
+            "Progressive plyometric instruction benefits from simple tasks and controlled landings before complex contacts.",
+            "Athlete support needs a contact-sequence animation, turn and exit arrows, a successful and failed landing example, repetition count, and a prominent stop cue."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "olympic_coach_plyometric_practices",
+          "claims": [
+            "Coaches manage plyometric exercise type, contact volume, intensity, and placement within training.",
+            "Coach support must include layout, side and rear observation, contact counting, turn-side balance, readiness prerequisites, fatigue evidence, and regression decisions."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Exercise selection and progression should match demonstrated movement control and be supervised appropriately.",
+            "Accessibility begins by separating the sequence into jump-to-stick, low rebound, and acceleration components, reducing speed and contacts, using visual floor arrows, and permitting extra reset time."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "horizontal_vertical_plyometric_meta_analysis",
+          "claims": [
+            "Changing projection direction changes the plyometric task and potential transfer.",
+            "A second flight, turn angle, takeoff or landing laterality, reactive cue, run-in, and sprint exit can change identity or variant classification; a 505 shuttle is not the same aerial sequence."
+          ]
+        },
+        {
+          "sectionKey": "media",
+          "sourceKey": "youtube_embed_help",
+          "claims": [
+            "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+            "The selected links demonstrate only components or adjacent variants. None is represented as an exact full-sequence match, and link health, captions, safety, cue quality, reviewer identity, and approval remain pending."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=WbPVF7cwxwY",
+          "title": "180 Rotational Jump: Speed and Conditioning",
+          "channelName": "Barton College Sports Performance",
+          "sourceQuery": "180 jump sprint plyometric",
+          "notes": "Component candidate for the bilateral 180-degree jump. It does not establish the required rebound-to-sprint contact sequence; exact-match review remains negative until a reviewer watches and adjudicates it."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=HPTljHyCk-E",
+          "title": "Bilateral snap down w/ 180 plyometric",
+          "channelName": "Drive Personal Training & Athletics",
+          "sourceQuery": "180 jump rebound plyometric",
+          "notes": "Adjacent rotational plyometric candidate. Contact order and sprint exit may differ from the proposed card and require full human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=tCPAlYZBmYg",
+          "title": "Broad Jump 180 Turn | Simple Speed Coach OG Drills",
+          "channelName": "Simple Speed Coach",
+          "sourceQuery": "180 jump sprint plyometric",
+          "notes": "Horizontal-projection 180-jump variant, not an asserted exact match. It helps reviewers distinguish projection and contact sequence."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=ixmsSe-gG04",
+          "title": "90 knee jump to sprint",
+          "channelName": "RONIN STRENGTH",
+          "sourceQuery": "jump to sprint transition",
+          "notes": "Adjacent ground-to-sprint transition candidate with a different start and rotation. It is included for component review only and must not be approved for the full exercise."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "180 Jump to Sprint-Out",
+          "classification": "new_definition",
+          "rationale": "If there is no distinct second flight, the primary contact sequence changes from jump-rebound-sprint to jump-land-sprint and should be named directly rather than hidden under rebound.",
+          "distinguishingDimensions": {
+            "contactSequence": "one_flight_then_acceleration",
+            "primaryTrainingStimulus": "rotational_landing_to_acceleration_transition"
+          }
+        },
+        {
+          "name": "180 Jump to Stick",
+          "classification": "new_definition",
+          "rationale": "The deliberate held landing terminates the task and removes the reactive rebound and sprint transition.",
+          "distinguishingDimensions": {
+            "terminalOutcome": "held_bilateral_landing",
+            "contacts": "one_flight"
+          }
+        },
+        {
+          "name": "Reactive-Cue 180 Jump Rebound to Sprint-Out",
+          "classification": "new_variant",
+          "rationale": "An unpredictable cue adds perception and choice while preserving the same physical sequence; it is a controlled reactive variant only after the baseline identity is resolved.",
+          "distinguishingDimensions": {
+            "cue": "unpredictable_turn_or_exit_direction",
+            "decisionDemand": "added"
+          }
+        },
+        {
+          "name": "Single-Leg 180 Jump Rebound to Sprint-Out",
+          "classification": "new_definition",
+          "rationale": "Unilateral takeoff or landing materially changes joint loading, balance demand, laterality, failure consequence, and prerequisites.",
+          "distinguishingDimensions": {
+            "laterality": "unilateral",
+            "loading": "single_leg_landing_and_reacceleration"
+          }
+        },
+        {
+          "name": "5-0-5 Change of Direction",
+          "classification": "reject",
+          "rationale": "A sprint-in 180-degree planted turn has no aerial half-turn or rebound and is a separate change-of-direction identity.",
+          "distinguishingDimensions": {
+            "entry": "linear_sprint",
+            "turn": "grounded_plant",
+            "flight": "none"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "180-degree-turn-shuttle-cut",
+      "assessmentSummary": {
+        "identity": "A planned linear approach followed by horizontal braking, a planted 180-degree turn, and reacceleration back in the opposite direction. Approach distance, turn foot, pivot strategy, timing method, and exit distance are delivery variables; a second turn or an unpredictable cue creates a different task.",
+        "currentCardFindings": [
+          "The merged Turn and Sprint source is the same base identity; its useful full-stop and loop-turn language should become delivery guidance, not a second card.",
+          "The current card omits approach and exit distances, plant-side rules, valid line contact, turn strategy, timing boundaries, and lower-speed teaching doses.",
+          "Absolute physical load is not low: reversing body-mass momentum at speed creates substantial eccentric braking and propulsive demand even without external weight.",
+          "The three legacy links are relevant candidates but require full content, exact-version, captions, and quality review."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "linear_sprint",
+            "horizontal_deceleration",
+            "planned_180_change_of_direction",
+            "reacceleration"
+          ],
+          "jointActions": [
+            "penultimate_contact_braking",
+            "hip_knee_ankle_flexion",
+            "plant_and_whole_body_rotation",
+            "horizontal_propulsion"
+          ],
+          "planes": [
+            "sagittal_with_transverse_reorientation",
+            "frontal_stabilization"
+          ],
+          "laterality": "unilateral_turn_foot_recorded_both_sides_programmed",
+          "intent": "decelerate_rotate_and_reaccelerate_through_a_planned_180_degree_direction_change"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "hamstrings",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "adductors",
+            "peroneals",
+            "tibialis_anterior",
+            "hip_rotators",
+            "obliques",
+            "spinal_stabilizers"
+          ],
+          "joints": [
+            "ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "lumbar_spine",
+            "thoracic_spine"
+          ],
+          "primaryActions": [
+            "horizontal_braking",
+            "center_of_mass_lowering",
+            "whole_body_reorientation",
+            "horizontal_reacceleration"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 68,
+          "absoluteLoadDemand": 74,
+          "coordinationDemand": 68,
+          "supervisionDemand": 74,
+          "failureConsequence": 76,
+          "impact": 72,
+          "workCapacityDemand": 48,
+          "baseOverallDifficulty": 74
+        },
+        "proposedLoadProfile": {
+          "loadingType": "high_rate_bodyweight_horizontal_braking_and_propulsion",
+          "impactClass": "high_at_fast_approach_velocity",
+          "externalLoadMethod": "none_for_baseline",
+          "primaryStress": [
+            "penultimate_and_final_contact_braking",
+            "turn_foot_force_acceptance",
+            "whole_body_rotation",
+            "first_reacceleration_contacts"
+          ],
+          "fatigueProfile": [
+            "upright_late_braking",
+            "overstriding",
+            "long_plant_contact",
+            "foot_slip",
+            "knee_or_trunk_collapse",
+            "extra_exit_step",
+            "side_asymmetry"
+          ],
+          "recoveryHours": "typically_24_to_72_based_on_entry_speed_volume_surface_and_other_sprint_or_cod_load"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "turn_line_or_cone",
+            "start_and_exit_markers",
+            "measured_clear_lane"
+          ],
+          "optionalEquipment": [
+            "timing_gates",
+            "force_plates_for_testing_only",
+            "video_capture"
+          ],
+          "environment": [
+            "high_traction_level_surface",
+            "adequate_braking_and_runoff_space",
+            "no_cross_traffic",
+            "weather_and_footwear_appropriate"
+          ],
+          "population": [
+            "pain_free_linear_acceleration_and_deceleration",
+            "owns_submaximal_180_turn_both_plant_sides",
+            "can_follow_line_and_lane_rules"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-4_sets_of_1-3_repetitions_per_plant_side",
+          "restSeconds": "60-120_between_repetitions_and_2-4_minutes_between_maximal_timed_sets",
+          "distance": "3-5_meter_approach_for_learning_then_5-15_meter_approach_only_as_entry_speed_is_intentionally_progressed",
+          "intensity": "submaximal_to_learn_then_high_intent_for_output_or_testing",
+          "measurement": "approach_distance_plant_side_valid_line_contact_turn_time_exit_time_total_time_and_technical_quality",
+          "progressWhen": "the_athlete_brakes_before_the_line_turns_without_slip_or_collapse_and_reaccelerates_cleanly_on_both_sides"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Brake before the line",
+            "Lower across the last steps",
+            "Plant and turn your whole body",
+            "Point the next step home",
+            "Push away clean"
+          ],
+          "athleteInstructions": [
+            "Accelerate toward the line at the assigned speed",
+            "Use the last steps to lower and brake",
+            "Place the assigned turn foot on the target",
+            "Turn your hips trunk and eyes toward the exit",
+            "Drive back through the finish without an extra shuffle"
+          ],
+          "commonFaults": [
+            "late_single_step_brake",
+            "upright_center_of_mass",
+            "foot_too_far_ahead",
+            "plant_slip",
+            "knee_collapse",
+            "excessive_trunk_lean",
+            "turning_only_the_feet",
+            "false_step_on_exit",
+            "crossing_the_lane"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "linear_acceleration",
+            "progressive_deceleration_to_stick",
+            "lower_speed_180_turn_both_sides",
+            "pain_free_ankle_knee_hip_and_groin"
+          ],
+          "qualityGates": [
+            "braking_begins_before_final_contact",
+            "turn_foot_hits_valid_zone",
+            "foot_does_not_slip",
+            "knee_and_trunk_remain_controlled",
+            "body_aligns_with_exit",
+            "first_exit_steps_are_clean"
+          ],
+          "stopRules": [
+            "pain_or_guarding",
+            "slip",
+            "repeated_line_overrun",
+            "plant_collapse",
+            "loss_of_balance",
+            "unsafe_lane_or_surface",
+            "visible_asymmetry_or_speed_drop",
+            "fatigue_prevents_controlled_braking"
+          ]
+        },
+        "proposedContextualProfiles": [
+          {
+            "context": "movement_intelligence_turn_mechanics",
+            "dose": "2-3_sets_of_2_repetitions_per_side_at_50-75_percent_entry_speed",
+            "purpose": "rehearse_penultimate_braking_plant_and_exit_alignment"
+          },
+          {
+            "context": "output_planned_cod",
+            "dose": "2-4_sets_of_1-3_repetitions_per_side_with_full_recovery",
+            "purpose": "express_high_quality_180_degree_braking_turning_and_reacceleration"
+          },
+          {
+            "context": "assessment_modified_505",
+            "dose": "familiarization_then_2-3_valid_timed_trials_per_side_with_2-4_minutes_recovery",
+            "purpose": "measure_a_standardized_5_meter_approach_turn_and_5_meter_exit_separately_from_training"
+          }
+        ],
+        "proposedRelationships": {
+          "regressions": [
+            "walk_in_180_turn",
+            "jog_in_180_turn_to_stick",
+            "short_approach_180_turn_and_reaccelerate"
+          ],
+          "progressions": [
+            "longer_faster_approach_180_turn",
+            "timed_modified_505",
+            "traditional_505_with_flying_approach"
+          ],
+          "substitutions": [
+            "5_yard_accel_to_decel_stick_for_braking_only",
+            "crossover_or_drop_step_turn_for_lower_braking_demand"
+          ],
+          "doNotSubstitute": [
+            "reactive_180_turn_on_cue",
+            "5_10_5_pro_agility_shuttle",
+            "180_jump_to_stick"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "overhead_lane_diagram",
+            "left_and_right_plant_examples",
+            "last_three_step_braking_animation",
+            "valid_line_contact_example",
+            "stop_signal"
+          ],
+          "coach": [
+            "approach_speed_progression",
+            "penultimate_and_final_contact_checklist",
+            "left_right_timing_and_quality_log",
+            "surface_and_lane_check",
+            "testing_protocol_badge"
+          ]
+        },
+        "calibrationEvidence": {
+          "basis": "modified-505 biomechanical research, 180-degree technique-intervention research, horizontal-deceleration review, current-card comparison, and direct candidate media",
+          "uncertainty": "No study validates a universal difficulty score or dose across ages, surfaces, approach speeds, and plant strategies. Score calibration requires comparison with other high-angle COD anchors.",
+          "reviewNeeded": [
+            "cod_coach_or_biomechanist_content_review",
+            "difficulty_anchor_comparison",
+            "youth_and_return_to_play_scope_review",
+            "full_video_review"
+          ]
+        },
+        "programmingDecision": "Retain one planned 180-degree turn-and-reaccelerate identity. The archived Turn and Sprint name becomes an alias. Modified versus traditional 505 approach, turn foot, pivot strategy, testing versus training, and exit distance are controlled variants or delivery profiles; reactive cues and multi-turn shuttles remain separate definitions."
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "mod505_turning_phase_biomechanics",
+          "claims": [
+            "The modified 505 uses a 5-meter forward sprint, one 180-degree change of direction, and a 5-meter sprint back.",
+            "This establishes the same base sequence described by the Turn / Shuttle Cut and Turn and Sprint cards; approach length and test setup do not create a second identity."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "mod505_turning_phase_biomechanics",
+          "claims": [
+            "The study separates penultimate foot contact, final turning contact, and first accelerating contact within the 180-degree turn.",
+            "Taxonomy must record planned versus reactive context, approach and exit distance, plant side, turn contact strategy, timing method, and whether the drill contains one or multiple turns."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Horizontal deceleration is a whole-body action requiring lower-limb eccentric force, neuromuscular control, and trunk and pelvis organization.",
+            "Represent ankle plantar flexors and dorsiflexors, knee extensors and flexors, hip extensors and abductors, adductors, trunk stabilizers, and their joint actions across braking and reacceleration."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "mod505_turning_phase_biomechanics",
+          "claims": [
+            "The turning phase involves distinct braking and propulsive contributions from the penultimate, final, and first accelerating contacts.",
+            "Coach the approach, multi-step braking, plant and whole-body reorientation, then exit rather than treating the final foot as the only braking contact."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "Deceleration demand depends on momentum, approach velocity, braking time and distance, and the athlete's capacity to accept force.",
+            "Assess technical complexity and physical load directly, plus coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; no athlete level belongs on the exercise card."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "horizontal_deceleration_review",
+          "claims": [
+            "High-intensity horizontal deceleration imposes substantial mechanical and neuromuscular demand that is not captured by external load alone.",
+            "Track approach speed, high-intensity decelerations, turn side, surface, plant quality, symptoms, and overlap with sprint, jump, and COD exposure."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "mod505_turning_phase_biomechanics",
+          "claims": [
+            "The research protocol uses a measured course, visual target, controlled approach, and defined turn and exit.",
+            "Require a measured clear lane, high-traction surface, valid turn zone, appropriate footwear, and sufficient braking and runoff space; entry speed must match demonstrated control."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "cod_technique_training_180",
+          "claims": [
+            "A structured technique-modification intervention changed 180-degree turning mechanics and performance over six weeks.",
+            "The proposed low-repetition, side-balanced, full-recovery session dose is a programming inference for quality and testing; it is not a universal protocol validated by the study."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "cod_technique_training_180",
+          "claims": [
+            "Efficient 180-degree turning requires reducing horizontal momentum, rotating the body, planting relative to the center of mass, and producing braking and propulsive impulse before reacceleration.",
+            "Instructions must separate the last braking steps, plant, whole-body turn, and exit and must state approach speed, side, line rule, and finish."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Training should be supervised, technically appropriate, progressively dosed, and performed in a safe environment.",
+            "Stop for pain, guarding, slipping, repeated overrun, uncontrolled knee or trunk motion, loss of balance, unsafe traffic, or fatigue that prevents braking before the turn."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "cod_technique_training_180",
+          "claims": [
+            "180-degree performance reflects the interaction of velocity, technique, braking strategy, strength, force production, and neuromuscular control.",
+            "Program lower-speed mechanics before high-speed output or standardized testing and distinguish planned COD from reactive agility."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "mod505_turning_phase_biomechanics",
+          "claims": [
+            "The task has observable approach, turn, and reacceleration phases.",
+            "Athlete support should show the overhead course, assigned plant side, last braking contacts, turn target, exit direction, valid and invalid trials, and stop signal."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "cod_technique_training_180",
+          "claims": [
+            "Technique modification can alter 180-degree kinetics, kinematics, and performance.",
+            "Coach support needs approach-speed progression, penultimate and final contact observation, plant-side comparison, timing boundaries, surface checks, and regression rules."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Exercise selection and progression should be appropriate to demonstrated technique and physical capacity.",
+            "Scale by walking or jogging, shortening the approach, enlarging the turn zone, removing timing, rehearsing each side separately, and using visual and verbal cues."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "mod505_turning_phase_biomechanics",
+          "claims": [
+            "Modified and traditional 505 protocols share a single 180-degree turn but differ in approach conditions and measurement.",
+            "Treat approach distance, plant side, and timing as variants; a reactive cue, multiple turns, aerial rotation, or terminal stick changes the task enough to require separate assessment."
+          ]
+        },
+        {
+          "sectionKey": "media",
+          "sourceKey": "youtube_embed_help",
+          "claims": [
+            "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+            "The five direct candidates returned public oEmbed metadata during discovery. Exact protocol, plant side, full content, captions, cue and safety quality, reviewer identity, and approval remain pending."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=ZCCr5xHKWB4",
+          "title": "Acceleration to 180 Turn",
+          "channelName": "Athletes Warehouse",
+          "sourceQuery": "180 degree turn sprint drill",
+          "notes": "Direct sequence candidate for human review. Approach, plant, exit distance, and complete instructional quality remain unverified."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=PYkYKWalqOA",
+          "title": "Forward Sprint - 180 Degree Turn",
+          "channelName": "Lifetime Lean",
+          "sourceQuery": "180 degree turn sprint drill",
+          "notes": "Direct sequence candidate; exact delivery profile, both-side coverage, captions, and safety instruction require full review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=kuloWSUJqu4",
+          "title": "180 Deg Turn to Sprint",
+          "channelName": "ONU Strength and Conditioning Exercise Library",
+          "sourceQuery": "180 degree turn sprint drill",
+          "notes": "Direct title candidate. No exact-version or demonstration-quality approval is inferred from title or oEmbed metadata."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=6HZOpP_l5DE",
+          "title": "180 Degree COD",
+          "channelName": "Todd Davidson P2P Coaching",
+          "sourceQuery": "legacy direct candidate",
+          "notes": "Retained legacy candidate after current oEmbed discovery; full movement, coaching, captions, and safety review remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=7FfkEtUkwQ0",
+          "title": "180 Cut Mechanics Progression",
+          "channelName": "Drach Performance",
+          "sourceQuery": "legacy direct candidate",
+          "notes": "Mechanics-progression candidate. Review must determine which approach, plant, and exit variants are demonstrated and whether the complete content is suitable."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "180-Degree Turn and Sprint",
+          "classification": "same_identity",
+          "rationale": "It contains the same planned sprint approach, braking, planted half-turn, and opposite-direction reacceleration; the source card has been archived and retained as an alias.",
+          "distinguishingDimensions": {
+            "identityDifference": "none",
+            "deliveryDifferences": [
+              "approach_distance",
+              "turn_style",
+              "terminal_stick_option"
+            ]
+          }
+        },
+        {
+          "name": "Modified 505",
+          "classification": "new_variant",
+          "rationale": "A standardized 5-meter approach, 180-degree turn, and 5-meter exit preserve the identity while fixing testing distances, line rules, timing, and trial validity.",
+          "distinguishingDimensions": {
+            "approach": "5_meters",
+            "exit": "5_meters",
+            "context": "standardized_assessment"
+          }
+        },
+        {
+          "name": "Traditional 505",
+          "classification": "new_variant",
+          "rationale": "A flying approach raises entry velocity and testing demand but retains one planned 180-degree turn and reacceleration.",
+          "distinguishingDimensions": {
+            "approach": "flying_longer_approach",
+            "entryVelocity": "higher",
+            "context": "standardized_assessment"
+          }
+        },
+        {
+          "name": "Reactive 180-Degree Turn on Cue",
+          "classification": "new_definition",
+          "rationale": "An unpredictable cue adds perception, decision, and response-time demands and is reactive agility rather than planned COD.",
+          "distinguishingDimensions": {
+            "cue": "unpredictable",
+            "decisionDemand": "direction_choice"
+          }
+        },
+        {
+          "name": "5-10-5 Pro Agility Shuttle",
+          "classification": "new_definition",
+          "rationale": "The two-turn, three-segment shuttle has a different route, contact sequence, side order, fatigue profile, and timing outcome.",
+          "distinguishingDimensions": {
+            "turnCount": 2,
+            "route": "5_10_5",
+            "contactSequence": "two_opposed_turns"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "180-turn-wall-ball-catch-and-throw",
+      "assessmentSummary": {
+        "identity": "An internally ambiguous turn, receive, and wall-ball-throw composite. The current instructions make the catch optional, do not define whether wall ball means a squat-to-overhead wall-ball shot or a medicine-ball wall throw, and do not specify the throw pattern. It cannot be made production-ready without choosing one exact sequence and implement.",
+        "currentCardFindings": [
+          "Receive or pick up contradicts Catch-and-Throw because picking up removes the reception task.",
+          "Wall ball can name an implement, a target exercise, or a squat-to-overhead shot; the card does not distinguish them.",
+          "The start-facing-away cue does not identify who delivers the ball, where the athlete turns, the catch height, whether the athlete must stabilize before throwing, or where misses travel.",
+          "A Karlsruhe Institute of Technology protocol documents a different coherent sequence: throw a ball backward to a wall, turn 180 degrees, then catch the rebound. That sequence must not be silently substituted for this catch-then-throw title.",
+          "No exact full-sequence video was located; selected links are explicitly adjacent turn/throw or turn/catch candidates."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "reactive_180_ground_turn",
+            "two_hand_ball_reception",
+            "medicine_ball_throw"
+          ],
+          "jointActions": [
+            "foot_pivot_or_step_turn",
+            "whole_body_reorientation",
+            "catch_deceleration",
+            "specified_throw_pattern"
+          ],
+          "planes": [
+            "transverse_reorientation",
+            "throw_vector_must_be_selected"
+          ],
+          "laterality": "turn_direction_recorded_bilateral_catch",
+          "intent": "perception_action_reorientation_catch_control_and_accurate_throw",
+          "identityRequirement": "select_exact_ball_implement_delivery_source_catch_rule_throw_pattern_target_and_terminal_outcome_before_publication"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteals",
+            "quadriceps",
+            "calves",
+            "obliques",
+            "pectoralis_major_or_deltoid_by_throw_pattern",
+            "triceps"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "adductors",
+            "hip_rotators",
+            "rotator_cuff",
+            "serratus_anterior",
+            "forearm_and_hand_muscles",
+            "spinal_stabilizers"
+          ],
+          "joints": [
+            "ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "thoracic_spine",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hand"
+          ],
+          "primaryActions": [
+            "grounded_half_turn",
+            "visual_reorientation",
+            "ball_deceleration",
+            "whole_body_throw"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 70,
+          "absoluteLoadDemand": 48,
+          "coordinationDemand": 78,
+          "supervisionDemand": 82,
+          "failureConsequence": 76,
+          "impact": 28,
+          "workCapacityDemand": 38,
+          "baseOverallDifficulty": 70
+        },
+        "proposedLoadProfile": {
+          "loadingType": "light_to_moderate_implement_reception_and_ballistic_throw",
+          "impactClass": "low_lower_body_with_moderate_ball_collision_risk",
+          "externalLoadMethod": "medicine_ball_mass_and_rebound_behavior_must_be_recorded",
+          "primaryStress": [
+            "rapid_reorientation",
+            "hand_and_upper_body_catch_deceleration",
+            "trunk_force_transfer",
+            "ballistic_throw"
+          ],
+          "fatigueProfile": [
+            "late_visual_pickup",
+            "rigid_or_face_level_catch",
+            "dropped_ball",
+            "poor_target_accuracy",
+            "trunk_overrotation",
+            "throw_pattern_drift"
+          ],
+          "recoveryHours": "minimal_to_48_based_on_ball_mass_throw_intent_repetition_count_and_overlapping_throwing_load"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "specified_soft_or_medicine_ball",
+            "specified_delivery_partner_or_reinforced_wall",
+            "clear_target",
+            "marked_safety_zone"
+          ],
+          "optionalEquipment": [
+            "visual_or_audio_cue",
+            "video_capture",
+            "non_rebound_slam_ball_for_a_different_variant"
+          ],
+          "environment": [
+            "wall_rated_for_ball_impact_if_used",
+            "non_slip_floor",
+            "clear_miss_and_rebound_zone",
+            "no_people_between_thrower_target_or_delivery_source"
+          ],
+          "population": [
+            "can_turn_without_dizziness",
+            "can_receive_the_selected_ball_safely",
+            "can_execute_the_selected_throw_pattern_pain_free",
+            "understands_miss_and_stop_rules"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-4_sets_of_2-5_repetitions_per_turn_direction",
+          "restSeconds": "30-90_between_sets_or_longer_for_high_intent_throws",
+          "ballLoad": "light_enough_for_consistent_two_hand_reception_and_accuracy_before_velocity_or_mass_is_increased",
+          "intensity": "moderate_for_coordination_or_high_intent_only_after_sequence_and_miss_management_are_owned",
+          "measurement": "turn_direction_delivery_quality_clean_catches_target_hits_throw_pattern_ball_mass_and_misses",
+          "progressWhen": "the_athlete_reorients_early_catches_away_from_the_face_controls_the_ball_and_hits_the_target_without_rushing"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Turn and find the ball",
+            "Show soft hands",
+            "Control before you throw",
+            "Use the named throw",
+            "Finish inside your lane"
+          ],
+          "athleteInstructions": [
+            "Start in the marked stance facing away from the delivery point",
+            "Turn in the assigned direction on the cue",
+            "Find and catch the ball with two hands at the assigned height",
+            "Stabilize according to the card rule",
+            "Use the specified throw to the marked target and reset only when the ball is controlled"
+          ],
+          "commonFaults": [
+            "catch_is_replaced_by_pickup",
+            "unknown_ball_or_throw",
+            "late_head_and_eye_turn",
+            "face_level_catch",
+            "rigid_elbows",
+            "traveling_out_of_lane",
+            "low_back_rotation",
+            "uncontrolled_rebound",
+            "throw_before_control"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_grounded_turn_both_directions",
+            "two_hand_catch_with_selected_ball",
+            "specified_throw_pattern",
+            "understands_wall_partner_and_miss_zones"
+          ],
+          "qualityGates": [
+            "ball_source_and_target_are_unambiguous",
+            "athlete_finds_ball_before_reception",
+            "catch_is_away_from_face",
+            "feet_and_trunk_are_controlled",
+            "throw_uses_named_pattern",
+            "misses_remain_in_clear_zone"
+          ],
+          "stopRules": [
+            "head_face_hand_shoulder_back_hip_knee_or_ankle_pain",
+            "dizziness",
+            "repeated_dropped_or_face_level_catch",
+            "unsafe_partner_delivery",
+            "uncontrolled_wall_rebound",
+            "miss_enters_occupied_space",
+            "throw_pattern_or_accuracy_breaks_down"
+          ]
+        },
+        "proposedContextualProfiles": [
+          {
+            "context": "movement_intelligence_reorientation_and_catch",
+            "dose": "2-3_sets_of_2-4_low_velocity_repetitions_per_turn_direction",
+            "purpose": "learn_early_visual_pickup_safe_reception_and_sequence_control"
+          },
+          {
+            "context": "output_turn_catch_and_throw",
+            "dose": "2-4_sets_of_2-3_high_quality_repetitions_per_direction_with_full_ball_retrieval_and_recovery",
+            "purpose": "link_reorientation_and_safe_reception_to_a_named_high_intent_throw"
+          }
+        ],
+        "proposedRelationships": {
+          "regressions": [
+            "turn_find_and_catch_without_throw",
+            "prepositioned_ball_180_turn_and_named_throw",
+            "quarter_turn_catch_and_throw"
+          ],
+          "progressions": [
+            "faster_partner_delivery",
+            "unpredictable_turn_direction",
+            "high_intent_throw_after_clean_catch"
+          ],
+          "substitutions": [
+            "180_turn_medicine_ball_throw_without_catch",
+            "catch_and_named_wall_throw_without_turn"
+          ],
+          "doNotSubstitute": [
+            "behind_the_legs_wall_throw_180_turn_and_catch",
+            "wall_ball_squat_to_overhead_shot_unless_that_pattern_is_explicit",
+            "180_catch_slam"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "sequence_diagram",
+            "ball_source_and_target_icons",
+            "catch_window_overlay",
+            "named_throw_animation",
+            "miss_zone_and_stop_signal"
+          ],
+          "coach": [
+            "partner_delivery_script",
+            "wall_and_rebound_check",
+            "ball_mass_and_bounce_log",
+            "turn_catch_throw_quality_checklist",
+            "lane_and_group_spacing_layout"
+          ]
+        },
+        "calibrationEvidence": {
+          "basis": "documented 180-degree wall throw-and-catch protocol, catching-perception research, medicine-ball throw research, legacy-card comparison, and component-video discovery",
+          "uncertainty": "The legacy card does not reveal the intended implement, delivery source, catch requirement, wall-ball pattern, or throw vector. Scores and dose are provisional for a light medicine-ball catch followed by one specified throw.",
+          "reviewNeeded": [
+            "identity_and_naming_adjudication",
+            "wall_ball_versus_medicine_ball_implement_review",
+            "throw_pattern_selection",
+            "facility_risk_review",
+            "difficulty_anchor_comparison",
+            "full_video_review"
+          ]
+        },
+        "programmingDecision": "Do not publish the current composite. Require a content decision among a true turn-catch-named-throw card, a turn-and-throw card without catch, a wall-ball shot after turn, or the documented throw-turn-catch sequence. Create separate definitions when the order, reception requirement, throw pattern, or terminal outcome changes; never let receive or pick up remain interchangeable."
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The Karlsruhe protocol defines a coherent but different order: throw a ball backward to a wall, turn 180 degrees, and catch the rebound.",
+            "The current catch-then-throw title and receive-or-pick-up instruction cannot be treated as that protocol or as one stable identity; order, catch requirement, implement, throw, and target require adjudication."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The documented task separates throwing, body rotation, and catching as three scored sub-elements.",
+            "Classify {{canonicalName}} by sequence order, grounded versus jumping turn, cue, delivery source, ball type and mass, catch height and requirement, throw pattern and vector, target, rebound, and terminal outcome."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "side_medicine_ball_throw_emg",
+          "claims": [
+            "Medicine-ball side throwing recruits trunk musculature as part of a whole-body ballistic action.",
+            "Represent lower-body turning, trunk force transfer, shoulder and scapular control, elbow extension, grip and reception demands according to the chosen throw rather than using generic core labels."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "ball_catching_visual_information",
+          "claims": [
+            "Catching performance depends on available visual information and ball-flight constraints.",
+            "The athlete must reorient head and eyes early enough to locate the ball, decelerate it with a safe two-hand catch, control posture, and only then execute the named throw."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "ball_catching_visual_information",
+          "claims": [
+            "Reducing advance visual information changes perception-action demands during catching.",
+            "Assess technical complexity and physical load directly and separately score coordination, supervision, failure consequence, impact, work capacity, and overall difficulty; an athlete level is not an exercise-card field."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "medicine_ball_velocity_reliability",
+          "claims": [
+            "Medicine-ball mass changes throwing velocity and must be specified when comparing or prescribing throws.",
+            "Track ball type, mass, bounce, delivery speed, catch count, throw count, target accuracy, side, symptoms, and overlap with other throwing volume."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The documented task specifies a wall, ball, marked line, target, fixed distance, and error criteria.",
+            "Any retained card must specify its own rated wall or partner, ball, delivery path, target, distance, turn and catch zone, and a clear area for misses and rebounds."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "upper_body_plyometric_meta_analysis",
+          "claims": [
+            "Upper-body plyometric interventions vary in exercise, load, repetition volume, and population.",
+            "Use low repetitions and a ball light enough for safe reception and accurate throwing; the proposed dose is a conservative programming inference, not a universal evidence-based prescription for this composite."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The documented protocol gives an exact start orientation, wall relationship, throw path, turn, catch requirement, and trial count.",
+            "The Vortex card needs equal precision but must use its chosen catch-then-throw order: cue, turn, ball source, catch window, stabilization rule, named throw, target, reset, and valid repetition."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Training should use appropriate loads, qualified supervision, safe equipment, and progressive instruction.",
+            "Stop for pain, dizziness, unsafe delivery, face-level catches, repeated drops, uncontrolled rebounds, occupied miss zones, loss of posture, or inability to use the selected throw accurately."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "ball_catching_visual_information",
+          "claims": [
+            "Catching is a perception-action task whose demand changes with visual and flight information.",
+            "Use the card for a defined reorientation and reception objective before adding throw velocity; do not treat it as generic wall-ball conditioning."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "The documented test identifies its three sub-elements and common errors.",
+            "Athlete support must show sequence order, ball source, turn arrow, catch window, target, safe miss zone, one successful rep, and the stop signal."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "ball_catching_visual_information",
+          "claims": [
+            "Ball-flight and advance visual information are controllable task constraints.",
+            "Coach support should prescribe delivery speed and predictability, ball mass and bounce, turn side, catch quality, named throw, partner communication, wall safety, and group spacing."
+          ]
+        },
+        {
+          "sectionKey": "accessibility",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Tasks should be progressed according to demonstrated technique and capacity.",
+            "Scale with a lighter or larger soft ball, visible predictable delivery, quarter turn, slower cue, catch-only or prepositioned-ball throw component, lower target, extra reset, and visual plus verbal instruction."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "kit_180_throw_catch",
+          "claims": [
+            "Changing the order of throw, rotation, and catch changes the defined task and scoring.",
+            "Turn-and-throw, turn-and-catch, throw-turn-catch, catch-and-slam, and squat-to-overhead wall-ball shot sequences require separate identity or variant decisions; picking up a ball cannot satisfy a required catch."
+          ]
+        },
+        {
+          "sectionKey": "media",
+          "sourceKey": "youtube_embed_help",
+          "claims": [
+            "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+            "The selected links are adjacent turn/throw or turn/catch demonstrations, not an asserted exact match for the unresolved current sequence. Full viewing, captions, safety, quality, reviewer identity, and approval remain pending."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=uD-ERQqcz_Y",
+          "title": "180° Turn & Throw w/ Med Ball",
+          "channelName": "EDGE Athletics",
+          "sourceQuery": "180 turn catch medicine ball wall throw",
+          "notes": "Direct turn-and-throw candidate without a confirmed preceding catch. It is adjacent evidence only until the card identity is adjudicated and the full video is reviewed."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=wu_P9YoNLPk",
+          "title": "Med Ball 180 Turn Shot Put Throws",
+          "channelName": "Travis Osborne",
+          "sourceQuery": "180 turn medicine ball wall throw",
+          "notes": "Shot-put throw variant candidate. The throw vector and absence or presence of a catch must be reviewed; no exact match is claimed."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=sMICxHYRlcQ",
+          "title": "180 Jump to Med Ball Catch w/ Partner",
+          "channelName": "Orenda Force",
+          "sourceQuery": "180 catch medicine ball throw",
+          "notes": "Turn-and-catch component with a jumping rather than grounded turn and no confirmed subsequent wall throw. It is included to adjudicate sequence and laterality, not for approval."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=jiTo7KfXKYc",
+          "title": "180 Catch Slam [Slam Ball Exercise]",
+          "channelName": "Baxter Basics Group Personal Training",
+          "sourceQuery": "180 turn catch ball drill",
+          "notes": "Catch-to-slam alternate with a different terminal throw. It must remain classified as an adjacent identity unless human review determines otherwise."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=p4NlK0bCr_I",
+          "title": "Rapid Fire Rotational Med Ball Drill - Do With A Partner or Wall!",
+          "channelName": "Catching Made Simple (Coach Bougie)",
+          "sourceQuery": "180 turn catch medicine ball wall throw",
+          "notes": "Rotational catch-and-release component for partner or wall use. The turn angle, sequence, and delivery may differ from the unresolved card."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "180-Turn Medicine-Ball Catch and Chest Pass",
+          "classification": "new_definition",
+          "rationale": "A required partner-delivered two-hand catch followed by a named two-hand chest pass creates a coherent reception-to-throw identity and removes wall-ball ambiguity.",
+          "distinguishingDimensions": {
+            "catch": "required_two_hand",
+            "throwPattern": "two_hand_chest_pass",
+            "implement": "medicine_ball"
+          }
+        },
+        {
+          "name": "180-Turn Medicine-Ball Throw",
+          "classification": "new_definition",
+          "rationale": "Turning to a prepositioned or held ball and performing a named throw removes the perception and reception task and should not retain Catch-and-Throw in its identity.",
+          "distinguishingDimensions": {
+            "catch": "none",
+            "ballStart": "held_or_prepositioned",
+            "throwPattern": "must_be_named"
+          }
+        },
+        {
+          "name": "Behind-the-Legs Wall Throw, 180 Turn and Catch",
+          "classification": "new_definition",
+          "rationale": "The documented sequence is throw first, turn second, catch third; order, throw path, rebound, and terminal outcome differ from catch then throw.",
+          "distinguishingDimensions": {
+            "sequence": "throw_turn_catch",
+            "rebound": "required_wall_return",
+            "terminalOutcome": "catch"
+          }
+        },
+        {
+          "name": "180 Catch Slam",
+          "classification": "new_definition",
+          "rationale": "A required slam has a downward terminal force vector, non-rebound implement constraints, and different spacing and reception rules from a wall throw.",
+          "distinguishingDimensions": {
+            "terminalThrow": "downward_slam",
+            "target": "floor",
+            "implement": "non_rebound_slam_ball"
+          }
+        },
+        {
+          "name": "Reactive Turn Direction",
+          "classification": "new_variant",
+          "rationale": "An unpredictable left or right cue increases perception and decision demand while preserving an adjudicated base catch-and-throw sequence.",
+          "distinguishingDimensions": {
+            "cue": "unpredictable_left_or_right",
+            "decisionDemand": "added"
+          }
+        }
+      ]
+    }
+  ]
+}

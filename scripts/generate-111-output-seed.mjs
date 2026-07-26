@@ -75,7 +75,7 @@ SELECT
   f.id,
   d.name, d.slug, d.description,
   (SELECT id FROM coaching.sport WHERE key = 'fitness'),
-  d.skill::public.skill_level,
+  NULL::public.skill_level,
   d.age_min,
   d.sets::integer, d.reps::integer, d.work::integer, d.rest::integer, d.est::integer,
   TRUE, 'facility',
@@ -89,11 +89,11 @@ sql += MOVEMENTS.map((m) => {
   const summary = `${m.focus} — high-intent Output expression while fresh.`
   const reps = m.reps ?? null
   const work = m.work ?? null
-  return `  (${sqlStr(m.name)}, ${sqlStr(m.slug)}, ${sqlStr(m.desc)}, ${sqlStr(m.skill)}, ${m.ageMin}::integer, ${m.sets}::integer, ${reps ?? 'NULL'}::integer, ${work ?? 'NULL'}::integer, ${m.rest}::integer, ${m.est}::integer, ${sqlStr(summary)}, ${sqlStr(coachLangText(m))}, ${sqlStr(athleteLangText(m))}, ${sqlStr(m.family)}, ${sqlStr(m.subrole)}, ${sqlStr(m.slot)}, ${jsonReq(m).replace('::jsonb', '')}::jsonb, ${jsonExec(m).replace('::jsonb', '')}::jsonb)`
+  return `  (${sqlStr(m.name)}, ${sqlStr(m.slug)}, ${sqlStr(m.desc)}, ${m.ageMin}::integer, ${m.sets}::integer, ${reps ?? 'NULL'}::integer, ${work ?? 'NULL'}::integer, ${m.rest}::integer, ${m.est}::integer, ${sqlStr(summary)}, ${sqlStr(coachLangText(m))}, ${sqlStr(athleteLangText(m))}, ${sqlStr(m.family)}, ${sqlStr(m.subrole)}, ${sqlStr(m.slot)}, ${jsonReq(m).replace('::jsonb', '')}::jsonb, ${jsonExec(m).replace('::jsonb', '')}::jsonb)`
 }).join(',\n')
 
 sql += `
-) AS d(name, slug, description, skill, age_min, sets, reps, work, rest, est, summary, coach_lang, athlete_lang, family, subrole, slot, req, exec)
+) AS d(name, slug, description, age_min, sets, reps, work, rest, est, summary, coach_lang, athlete_lang, family, subrole, slot, req, exec)
 CROSS JOIN public.facility f
 ON CONFLICT (facility_id, slug) DO NOTHING;
 

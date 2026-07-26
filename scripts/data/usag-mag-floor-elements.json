@@ -1,0 +1,870 @@
+{
+  "source": "https://www.gymnastics.sport/publicdir/rules/files/en_1.1%20-%20MAG%20Code%20of%20Points%202025-2028.pdf",
+  "extractedOn": "2026-07-25",
+  "elements": [
+    {
+      "slug": "usag-mag-fx-eg1-001",
+      "group": 1,
+      "number": 1,
+      "value": "A",
+      "points": 0.1,
+      "page": 28,
+      "description": "From handstand lower to L-sit or straddle L-sit (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-002",
+      "group": 1,
+      "number": 2,
+      "value": "B",
+      "points": 0.2,
+      "page": 28,
+      "description": "V-sit (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-003",
+      "group": 1,
+      "number": 3,
+      "value": "C",
+      "points": 0.3,
+      "page": 28,
+      "description": "V-sit with legs horizontal. (2 s.). (Manna)"
+    },
+    {
+      "slug": "usag-mag-fx-eg1-007",
+      "group": 1,
+      "number": 7,
+      "value": "A",
+      "points": 0.1,
+      "page": 28,
+      "description": "From stand, Swiss press to handstand (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-008",
+      "group": 1,
+      "number": 8,
+      "value": "B",
+      "points": 0.2,
+      "page": 28,
+      "description": "Piked body, straight arm or straight body, bent arm press to handstand with legs together (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-009",
+      "group": 1,
+      "number": 9,
+      "value": "C",
+      "points": 0.3,
+      "page": 28,
+      "description": "V-sit (2 s) and press to handstand (2 s.). Also final phase with straddle."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-010",
+      "group": 1,
+      "number": 10,
+      "value": "D",
+      "points": 0.4,
+      "page": 28,
+      "description": "Manna (2 s.) and press to handstand (2 s.). Also final phase with straddle."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-013",
+      "group": 1,
+      "number": 13,
+      "value": "A",
+      "points": 0.1,
+      "page": 28,
+      "description": "Rock to handstand from prone position (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-014",
+      "group": 1,
+      "number": 14,
+      "value": "B",
+      "points": 0.2,
+      "page": 28,
+      "description": "Press from split, L-sit straddle or front support (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-016",
+      "group": 1,
+      "number": 16,
+      "value": "D",
+      "points": 0.4,
+      "page": 28,
+      "description": "From Manna (2 s.), turn over (dislocation) to handstand (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-019",
+      "group": 1,
+      "number": 19,
+      "value": "A",
+      "points": 0.1,
+      "page": 28,
+      "description": "Handstand (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-020",
+      "group": 1,
+      "number": 20,
+      "value": "B",
+      "points": 0.2,
+      "page": 28,
+      "description": "Press or lower or swing to Japanese handstand (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-021",
+      "group": 1,
+      "number": 21,
+      "value": "C",
+      "points": 0.3,
+      "page": 28,
+      "description": "From split press to Japanese handstand (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-025",
+      "group": 1,
+      "number": 25,
+      "value": "A",
+      "points": 0.1,
+      "page": 29,
+      "description": "Planche, legs straddle (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-027",
+      "group": 1,
+      "number": 27,
+      "value": "C",
+      "points": 0.3,
+      "page": 29,
+      "description": "Planche (2 s.). / Swallow (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-031",
+      "group": 1,
+      "number": 31,
+      "value": "A",
+      "points": 0.1,
+      "page": 29,
+      "description": "½ or 1/1 turn in handstand or to handstand."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-032",
+      "group": 1,
+      "number": 32,
+      "value": "B",
+      "points": 0.2,
+      "page": 29,
+      "description": "From straddled planche (2 s.) press handstand (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-034",
+      "group": 1,
+      "number": 34,
+      "value": "D",
+      "points": 0.4,
+      "page": 29,
+      "description": "From Planche 2 s. press handstand (2 s.). From Swallow 2 s. press to Japanese handstand (2 s.). (Alvariño)"
+    },
+    {
+      "slug": "usag-mag-fx-eg1-037",
+      "group": 1,
+      "number": 37,
+      "value": "A",
+      "points": 0.1,
+      "page": 29,
+      "description": "From L-sit, etc., turn over backward to stand."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-044",
+      "group": 1,
+      "number": 44,
+      "value": "B",
+      "points": 0.2,
+      "page": 29,
+      "description": "Endo roll to handstand (2 s.). * **"
+    },
+    {
+      "slug": "usag-mag-fx-eg1-045",
+      "group": 1,
+      "number": 45,
+      "value": "C",
+      "points": 0.3,
+      "page": 29,
+      "description": "Endo roll piked to handstand legs together (2 s.). *"
+    },
+    {
+      "slug": "usag-mag-fx-eg1-049",
+      "group": 1,
+      "number": 49,
+      "value": "A",
+      "points": 0.1,
+      "page": 30,
+      "description": "Forward walkover."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-055",
+      "group": 1,
+      "number": 55,
+      "value": "A",
+      "points": 0.1,
+      "page": 30,
+      "description": "Cross or side split (stop required)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-061",
+      "group": 1,
+      "number": 61,
+      "value": "A",
+      "points": 0.1,
+      "page": 30,
+      "description": "Any standing scale (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-062",
+      "group": 1,
+      "number": 62,
+      "value": "B",
+      "points": 0.2,
+      "page": 30,
+      "description": "Any standing scale with 180° straddle, no hand hold (2 s.)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-067",
+      "group": 1,
+      "number": 67,
+      "value": "A",
+      "points": 0.1,
+      "page": 30,
+      "description": "Jump backward to front support."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-068",
+      "group": 1,
+      "number": 68,
+      "value": "B",
+      "points": 0.2,
+      "page": 30,
+      "description": "Jump backward with pike-stretch or with 1/1 turn to front support (Endo)"
+    },
+    {
+      "slug": "usag-mag-fx-eg1-073",
+      "group": 1,
+      "number": 73,
+      "value": "A",
+      "points": 0.1,
+      "page": 31,
+      "description": "Butterfly."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-074",
+      "group": 1,
+      "number": 74,
+      "value": "B",
+      "points": 0.2,
+      "page": 31,
+      "description": "Butterfly with 1/1 twist forward or backward (Tong Fei)"
+    },
+    {
+      "slug": "usag-mag-fx-eg1-075",
+      "group": 1,
+      "number": 75,
+      "value": "C",
+      "points": 0.3,
+      "page": 31,
+      "description": "Butterfly with 2/1 twist."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-079",
+      "group": 1,
+      "number": 79,
+      "value": "A",
+      "points": 0.1,
+      "page": 31,
+      "description": "1 circle or flair."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-080",
+      "group": 1,
+      "number": 80,
+      "value": "B",
+      "points": 0.2,
+      "page": 31,
+      "description": "Circles or flair to handstand."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-081",
+      "group": 1,
+      "number": 81,
+      "value": "C",
+      "points": 0.3,
+      "page": 31,
+      "description": "Flair or circle to handstand continue to flair or circle. (Gogoladze)"
+    },
+    {
+      "slug": "usag-mag-fx-eg1-082",
+      "group": 1,
+      "number": 82,
+      "value": "D",
+      "points": 0.4,
+      "page": 31,
+      "description": "Flair hopping with 360° turn backward thr. hdst and back to flair (2 hops)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-086",
+      "group": 1,
+      "number": 86,
+      "value": "B",
+      "points": 0.2,
+      "page": 31,
+      "description": "Lower from handstand to flair or circle."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-091",
+      "group": 1,
+      "number": 91,
+      "value": "A",
+      "points": 0.1,
+      "page": 31,
+      "description": "Flair with ½ spindle."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-092",
+      "group": 1,
+      "number": 92,
+      "value": "B",
+      "points": 0.2,
+      "page": 31,
+      "description": "Flair with 1/1 spindle (in 2 circles)."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-093",
+      "group": 1,
+      "number": 93,
+      "value": "C",
+      "points": 0.3,
+      "page": 31,
+      "description": "Flair with >270 spindle (in 2 circles) directly to handstand."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-098",
+      "group": 1,
+      "number": 98,
+      "value": "B",
+      "points": 0.2,
+      "page": 32,
+      "description": "Flair with ½ spindle to handstand."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-100",
+      "group": 1,
+      "number": 100,
+      "value": "D",
+      "points": 0.4,
+      "page": 32,
+      "description": "Flair with > 270º spindle (in 2 circles) directly to handstand and continue to circle or flair."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-103",
+      "group": 1,
+      "number": 103,
+      "value": "A",
+      "points": 0.1,
+      "page": 32,
+      "description": "Russian wendeswing with 360° or 540°."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-104",
+      "group": 1,
+      "number": 104,
+      "value": "B",
+      "points": 0.2,
+      "page": 32,
+      "description": "Russian wendeswing with 720° or 900°."
+    },
+    {
+      "slug": "usag-mag-fx-eg1-105",
+      "group": 1,
+      "number": 105,
+      "value": "C",
+      "points": 0.3,
+      "page": 32,
+      "description": "Russian wendeswing with 1080° or more. (Fedorchenko)"
+    },
+    {
+      "slug": "usag-mag-fx-eg1-109",
+      "group": 1,
+      "number": 109,
+      "value": "A",
+      "points": 0.1,
+      "page": 32,
+      "description": "Roll backward through handstand with ½ turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg1-110",
+      "group": 1,
+      "number": 110,
+      "value": "B",
+      "points": 0.2,
+      "page": 32,
+      "description": "Roll backward with hop 1/1 turn through handstand"
+    },
+    {
+      "slug": "usag-mag-fx-eg2-001",
+      "group": 2,
+      "number": 1,
+      "value": "A",
+      "points": 0.1,
+      "page": 33,
+      "description": "Forward handspring or flyspring."
+    },
+    {
+      "slug": "usag-mag-fx-eg2-004",
+      "group": 2,
+      "number": 4,
+      "value": "D",
+      "points": 0.4,
+      "page": 33,
+      "description": "Handspring salto forward tuck. (Morandi)"
+    },
+    {
+      "slug": "usag-mag-fx-eg2-007",
+      "group": 2,
+      "number": 7,
+      "value": "A",
+      "points": 0.1,
+      "page": 33,
+      "description": "Dive roll."
+    },
+    {
+      "slug": "usag-mag-fx-eg2-013",
+      "group": 2,
+      "number": 13,
+      "value": "A",
+      "points": 0.1,
+      "page": 33,
+      "description": "Salto forward tucked or piked, also with ½ turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg2-014",
+      "group": 2,
+      "number": 14,
+      "value": "B",
+      "points": 0.2,
+      "page": 33,
+      "description": "Salto forward straight, also with ½ turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg2-016",
+      "group": 2,
+      "number": 16,
+      "value": "D",
+      "points": 0.4,
+      "page": 33,
+      "description": "Double salto forward tucked, also with ½ turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg2-017",
+      "group": 2,
+      "number": 17,
+      "value": "E",
+      "points": 0.5,
+      "page": 33,
+      "description": "Double salto forward piked, also with ½ turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg2-036",
+      "group": 2,
+      "number": 36,
+      "value": "F",
+      "points": 0.6,
+      "page": 34,
+      "description": "Double salto forward tucked with 1/1 turn."
+    },
+    {
+      "slug": "usag-mag-fx-eg2-038",
+      "group": 2,
+      "number": 38,
+      "value": "B",
+      "points": 0.2,
+      "page": 34,
+      "description": "Salto forward turn or piked to front support."
+    },
+    {
+      "slug": "usag-mag-fx-eg2-042",
+      "group": 2,
+      "number": 42,
+      "value": "F",
+      "points": 0.6,
+      "page": 34,
+      "description": "Double salto forward tucked with 3/2 turn. (Zapata)"
+    },
+    {
+      "slug": "usag-mag-fx-eg2-046",
+      "group": 2,
+      "number": 46,
+      "value": "D",
+      "points": 0.4,
+      "page": 34,
+      "description": "Jump forward with ½ turn to dbl. salto backward Tuck (Deferr)"
+    },
+    {
+      "slug": "usag-mag-fx-eg2-048",
+      "group": 2,
+      "number": 48,
+      "value": "G",
+      "points": 0.7,
+      "page": 34,
+      "description": "Double salto forward piked or straight with 3/2 turn. (Zapata 2)"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-001",
+      "group": 3,
+      "number": 1,
+      "value": "A",
+      "points": 0.1,
+      "page": 35,
+      "description": "Salto backwards tucked or piked."
+    },
+    {
+      "slug": "usag-mag-fx-eg3-002",
+      "group": 3,
+      "number": 2,
+      "value": "B",
+      "points": 0.2,
+      "page": 35,
+      "description": "Salto backwards straight or Tempo salto backward"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-003",
+      "group": 3,
+      "number": 3,
+      "value": "C",
+      "points": 0.3,
+      "page": 35,
+      "description": "Double salto backward tucked."
+    },
+    {
+      "slug": "usag-mag-fx-eg3-004",
+      "group": 3,
+      "number": 4,
+      "value": "D",
+      "points": 0.4,
+      "page": 35,
+      "description": "Salto backward with 1/1 turn and salto backward (Tsukahara) Arabian jump backward to double salto fwd tucked, also with ½ turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-005",
+      "group": 3,
+      "number": 5,
+      "value": "E",
+      "points": 0.5,
+      "page": 35,
+      "description": "Double salto backward tucked with 2/1 turn or double salto bwd turn with 3/2 turn.or salto backward straight 3/2 to forward salto tucked. Also (Korosteljev)"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-006",
+      "group": 3,
+      "number": 6,
+      "value": "G",
+      "points": 0.7,
+      "page": 35,
+      "description": "Double salto backward tucked with 3/1 turn (Ri Jong Song)"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-007",
+      "group": 3,
+      "number": 7,
+      "value": "A",
+      "points": 0.1,
+      "page": 35,
+      "description": "Salto backwards tucked or piked w. ½ turn or Arabian tucked or piked."
+    },
+    {
+      "slug": "usag-mag-fx-eg3-008",
+      "group": 3,
+      "number": 8,
+      "value": "B",
+      "points": 0.2,
+      "page": 35,
+      "description": "Salto backwards straight w. ½ turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-011",
+      "group": 3,
+      "number": 11,
+      "value": "E",
+      "points": 0.5,
+      "page": 35,
+      "description": "Arabian jump backward to double salto fwd piked, also with ½ turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-012",
+      "group": 3,
+      "number": 12,
+      "value": "F",
+      "points": 0.6,
+      "page": 35,
+      "description": "Double salto backward tucked with 5/2 turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-013",
+      "group": 3,
+      "number": 13,
+      "value": "A",
+      "points": 0.1,
+      "page": 35,
+      "description": "Back handspring."
+    },
+    {
+      "slug": "usag-mag-fx-eg3-016",
+      "group": 3,
+      "number": 16,
+      "value": "D",
+      "points": 0.4,
+      "page": 35,
+      "description": "Double salto backward piked."
+    },
+    {
+      "slug": "usag-mag-fx-eg3-018",
+      "group": 3,
+      "number": 18,
+      "value": "I",
+      "points": 0.9,
+      "page": 35,
+      "description": "Triple salto backward tucked. (Liukin)"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-024",
+      "group": 3,
+      "number": 24,
+      "value": "J",
+      "points": 1.0,
+      "page": 35,
+      "description": "Triple salto backward piked. (Nagornyy)"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-029",
+      "group": 3,
+      "number": 29,
+      "value": "E",
+      "points": 0.5,
+      "page": 36,
+      "description": "Double salto backward straddled with 1/1 turn (Lou Yun)"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-030",
+      "group": 3,
+      "number": 30,
+      "value": "H",
+      "points": 0.8,
+      "page": 36,
+      "description": "Double salto backward str w 5/2 turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-031",
+      "group": 3,
+      "number": 31,
+      "value": "A",
+      "points": 0.1,
+      "page": 36,
+      "description": "Jump backward with ½ turn to roll forward"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-035",
+      "group": 3,
+      "number": 35,
+      "value": "E",
+      "points": 0.5,
+      "page": 36,
+      "description": "Salto backward straight with 1/1 t and salto bwd piked."
+    },
+    {
+      "slug": "usag-mag-fx-eg3-036",
+      "group": 3,
+      "number": 36,
+      "value": "F",
+      "points": 0.6,
+      "page": 36,
+      "description": "Salto backward straight with 2/1 t and salto bwd piked. (Kolyvanov)"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-041",
+      "group": 3,
+      "number": 41,
+      "value": "E",
+      "points": 0.5,
+      "page": 36,
+      "description": "Double salto backward straight or Double salto backward straight and with ½ turn, or Arabian Jump backward to dbl. salto forward straight (Tamayo)"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-042",
+      "group": 3,
+      "number": 42,
+      "value": "G",
+      "points": 0.7,
+      "page": 36,
+      "description": "Double salto backward straight with 3/2 turn or Arabian Jump backward to dbl. salto forward straight with 1/1 turn Also Hypolito"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-048",
+      "group": 3,
+      "number": 48,
+      "value": "F",
+      "points": 0.6,
+      "page": 36,
+      "description": "Double salto backward straight with 1/1 turn or Arabian jump backward to dbl. salto forward straight with ½ turn Also Penev"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-054",
+      "group": 3,
+      "number": 54,
+      "value": "G",
+      "points": 0.7,
+      "page": 37,
+      "description": "Double salto backward straight with 2/1 turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-060",
+      "group": 3,
+      "number": 60,
+      "value": "H",
+      "points": 0.8,
+      "page": 37,
+      "description": "Double salto backward tucked with 7/2 turn (Minami)"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-066",
+      "group": 3,
+      "number": 66,
+      "value": "I",
+      "points": 0.9,
+      "page": 37,
+      "description": "Double salto backward straight with 3/1 turn (Shirai 3)"
+    },
+    {
+      "slug": "usag-mag-fx-eg3-072",
+      "group": 3,
+      "number": 72,
+      "value": "J",
+      "points": 1.0,
+      "page": 37,
+      "description": "Double salto backward straight with 7/2 turn (Jarman)"
+    },
+    {
+      "slug": "usag-mag-fx-eg4-002",
+      "group": 4,
+      "number": 2,
+      "value": "B",
+      "points": 0.2,
+      "page": 38,
+      "description": "Salto forward tucked with 1/1 turn, also with 3/2 turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg4-003",
+      "group": 4,
+      "number": 3,
+      "value": "C",
+      "points": 0.3,
+      "page": 38,
+      "description": "Salto forward straight with 1/1 turn, also with 3/2 turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg4-004",
+      "group": 4,
+      "number": 4,
+      "value": "D",
+      "points": 0.4,
+      "page": 38,
+      "description": "Salto forward straight with 2/1 turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg4-005",
+      "group": 4,
+      "number": 5,
+      "value": "E",
+      "points": 0.5,
+      "page": 38,
+      "description": "Salto forward straight with 5/2 turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg4-006",
+      "group": 4,
+      "number": 6,
+      "value": "F",
+      "points": 0.6,
+      "page": 38,
+      "description": ". Salto forward straight with 3/1 turn (Shirai 2)"
+    },
+    {
+      "slug": "usag-mag-fx-eg4-008",
+      "group": 4,
+      "number": 8,
+      "value": "B",
+      "points": 0.2,
+      "page": 38,
+      "description": "Salto backwards straight w. 1/1 t"
+    },
+    {
+      "slug": "usag-mag-fx-eg4-009",
+      "group": 4,
+      "number": 9,
+      "value": "C",
+      "points": 0.3,
+      "page": 38,
+      "description": "Salto backward straight with 3/2 turn or 2/1 turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg4-010",
+      "group": 4,
+      "number": 10,
+      "value": "D",
+      "points": 0.4,
+      "page": 38,
+      "description": "Salto backward straight with 5/2 turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg4-011",
+      "group": 4,
+      "number": 11,
+      "value": "E",
+      "points": 0.5,
+      "page": 38,
+      "description": "Salto backward straight with 7/2 t (González)"
+    },
+    {
+      "slug": "usag-mag-fx-eg4-012",
+      "group": 4,
+      "number": 12,
+      "value": "G",
+      "points": 0.7,
+      "page": 38,
+      "description": "Salto forward straight with 7/2 turn (Goshima)"
+    },
+    {
+      "slug": "usag-mag-fx-eg4-014",
+      "group": 4,
+      "number": 14,
+      "value": "B",
+      "points": 0.2,
+      "page": 38,
+      "description": "Salto backwards tucked w. 3/2 turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg4-022",
+      "group": 4,
+      "number": 22,
+      "value": "D",
+      "points": 0.4,
+      "page": 38,
+      "description": "Salto backward straight with 3/1 turn"
+    },
+    {
+      "slug": "usag-mag-fx-eg4-024",
+      "group": 4,
+      "number": 24,
+      "value": "F",
+      "points": 0.6,
+      "page": 38,
+      "description": "Salto backward straight with 4/1 turn (Shirai / Nguyen)"
+    }
+  ]
+}

@@ -131,7 +131,7 @@ try {
         `, [facilityId])
       : { rows: [{ count: 0 }] }
     const gapRows = await pool.query(`
-      SELECT e.slug, e.name, e.skill_level, e.primary_phase_key,
+      SELECT e.slug, e.name, e.primary_phase_key,
         e.default_sets, e.default_reps, e.default_work_seconds, e.est_seconds_per_set,
         d.volume_unit, d.default_sets AS dosage_sets, d.default_reps AS dosage_reps,
         d.default_work_seconds AS dosage_work_seconds, d.default_distance,

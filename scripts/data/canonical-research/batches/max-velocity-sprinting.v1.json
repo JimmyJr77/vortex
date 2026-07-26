@@ -1,0 +1,653 @@
+{
+  "batchKey": "max-velocity-sprinting-v1",
+  "facilityId": 1,
+  "researchVersion": "2026-07-25.2",
+  "snapshotAt": "2026-07-25T23:45:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "max_velocity_training_review",
+      "claims": [
+        "Flying sprints use a progressive run-in to reach high velocity before a short maximal-velocity zone.",
+        "{{canonicalName}} must separate run-in distance, measured fly-zone distance, intent, and timing method from its stable exercise identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "max_velocity_training_review",
+      "claims": [
+        "Acceleration, maximal velocity, and speed endurance are related but distinct sprint-training qualities.",
+        "{{canonicalName}} belongs to upright high-speed locomotion; dense repeated-sprint conditioning requires a separate delivery profile."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "maximum_velocity_hamstring_load",
+      "claims": [
+        "Maximal-velocity exposures impose meaningful eccentric hamstring demand in addition to whole-lower-limb and trunk demands.",
+        "The card should identify bilateral hip, knee, and ankle actions, posterior-chain loading, calf-foot stiffness demand, and trunk-pelvis control."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "max_velocity_training_review",
+      "claims": [
+        "Maximal running velocity depends on the interaction of step length, step rate, short contact time, force production, and coordinated upright sprint mechanics.",
+        "Coaching should preserve individual solutions and avoid forcing one universal limb position or artificially reaching for stride length."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "resisted_assisted_sprint_systematic_review",
+      "claims": [
+        "Unresisted flying, resisted, assisted, and combined sprint methods create materially different kinematic and force-velocity demands.",
+        "Exercise difficulty must score physical demand and technical complexity directly, including coordination, supervision, impact, and failure consequence; it must not use a skill-library level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "maximum_velocity_hamstring_load",
+      "claims": [
+        "Weekly high-speed sprint exposure can measurably affect eccentric hamstring force capacity.",
+        "{{canonicalName}} needs explicit high-speed distance, contact, neural-intent, posterior-chain stress, performance-drop, session-recovery, and weekly-exposure tracking."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_need_for_speed",
+      "claims": [
+        "Flying and wicket drills require a suitable running surface, marked zones, progressive build-in, and a clear deceleration area.",
+        "Footwear, weather, lane separation, equipment placement, timing setup, run-out distance, and coach sightline are hard delivery constraints."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "max_velocity_training_review",
+      "claims": [
+        "Run-in and fly-zone length should match the athlete's ability to reach and briefly preserve maximal velocity.",
+        "Prescribe build-in distance, fly-zone distance, total high-speed distance, repetitions, intensity, inter-repetition recovery, and a performance-drop stop rule."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "nsca_need_for_speed",
+      "claims": [
+        "The athlete should accelerate progressively into upright high-speed mechanics rather than attack the fly zone from a cold or abrupt start.",
+        "Use a small number of observable cues: build smoothly, run tall without leaning back, strike beneath the body, keep arm action coordinated, sprint through the zone, and decelerate gradually."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "maximum_velocity_hamstring_load",
+      "claims": [
+        "High-speed sprint load and recent exposure must be monitored rather than inferred from repetition count alone.",
+        "Stop for pain, hamstring or calf tightness, limping, stumble, unsafe surface or spacing, repeated overstriding, loss of upright control, or a persistent velocity or timing decline."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "max_velocity_training_review",
+      "claims": [
+        "Flying sprints are used to develop maximal velocity and should continue only while velocity and mechanics remain stable.",
+        "{{canonicalName}} belongs early in a session after preparation and before fatigue-oriented work; rehabilitation, conditioning, and assisted-speed uses require separate contextual profiles."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "world_athletics_introduction_sprinting",
+      "claims": [
+        "Fly-in work isolates a short maximal-velocity action zone after an acceleration zone.",
+        "Athlete-facing support should show the zone layout, define a successful rep, limit the cue count, state the run-out expectation, and explain the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "nsca_need_for_speed",
+      "claims": [
+        "Coaches can use marked fly zones and timing to observe or monitor top-speed performance.",
+        "Coach support should include setup measurements, athlete-specific build-in choice, contact and posture observations, split consistency, spacing control, regression choices, and recovery decisions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_long_term_development",
+      "claims": [
+        "Speed work should be developmentally appropriate and follow movement competency, readiness, and progressive exposure.",
+        "Intent, run-in length, fly-zone length, timing pressure, cue complexity, wicket spacing, and total exposure can be scaled without assigning the exercise a skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "resisted_assisted_sprint_systematic_review",
+      "claims": [
+        "Normal, resisted, assisted, and combined sprinting produce different training conditions and should not be collapsed into one undifferentiated card.",
+        "Fly-zone length is dosage, run-in style is usually a variant, and external assistance or resistance may require a distinct definition when it changes the primary stimulus and safety model."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct video candidates for {{canonicalName}} were discovered from a focused YouTube search; availability, embedding, exact-version match, full-content quality, captions, and safety review remain pending human gates."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "flying-10",
+      "assessmentSummary": {
+        "identity": "A progressive run-in followed by a short 10-yard or 10-meter maximal-velocity zone and a controlled run-out.",
+        "currentCardFindings": [
+          "The current description captures a build-in and run-out but the controlled taxonomy, anatomy, constraints, load, and fatigue fields are empty.",
+          "Uniform low difficulty values understate the technical coordination, impact, supervision, posterior-chain load, and consequence of error at maximal velocity.",
+          "Flying 10 and Flying 10m Sprint appear to be the same identity with unit and wording differences rather than separate exercises."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 62,
+          "absoluteLoadDemand": 18,
+          "coordinationDemand": 68,
+          "supervisionDemand": 64,
+          "failureConsequence": 70,
+          "impact": 76,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 62
+        },
+        "programmingDecision": "Retain one Flying 10 identity. Store yards versus meters, run-in distance, timing method, and target intensity as dosage or delivery metadata. Program fresh with full recovery and stop when mechanics or time deteriorate."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=kFLwmd0yzOU",
+          "title": "Unlock Your Top Speed: Flying Sprints Explained for Athletes and Coaches",
+          "channelName": "Matt Tometz",
+          "sourceQuery": "Flying 10 sprint drill max velocity"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=qF88X_wLGlg",
+          "title": "Flying Sprints (Flying Start) - Sprint Float | Speed Training",
+          "channelName": "Simple Speed Coach",
+          "sourceQuery": "Flying 10 sprint drill max velocity"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=TZPHg7F3G7I",
+          "title": "Flying Sprints",
+          "channelName": "Performance Course",
+          "sourceQuery": "Flying 10 sprint drill max velocity"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=XKEVigTjbCI",
+          "title": "Flying 10 | Max-Velocity Speed, Elastic Stride & Upright Sprint Mechanics",
+          "channelName": "VP Movement Library",
+          "sourceQuery": "Flying 10 sprint drill max velocity"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=3m51-UjdoKg",
+          "title": "Sprint Training For 100m: 10m Fly In 1.1 Seconds x 2",
+          "channelName": "Athletophy",
+          "sourceQuery": "Flying 10 sprint drill max velocity"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Flying 10m Sprint",
+          "classification": "same_identity",
+          "rationale": "The 10-meter wording describes the same run-in, short maximal-velocity zone, and run-out; the unit belongs in dosage metadata.",
+          "distinguishingDimensions": {
+            "flyZone": "10_meters",
+            "measurementSystem": "metric"
+          }
+        },
+        {
+          "name": "Flying 10-Yard Sprint",
+          "classification": "same_identity",
+          "rationale": "This is the explicit imperial rendering of the current identity.",
+          "distinguishingDimensions": {
+            "flyZone": "10_yards",
+            "measurementSystem": "imperial"
+          }
+        },
+        {
+          "name": "Flying 20",
+          "classification": "modifier_annotation",
+          "rationale": "A longer fly zone changes high-speed dosage and recovery demand without changing the movement or primary training stimulus.",
+          "distinguishingDimensions": {
+            "flyZone": "20_yards_or_meters"
+          }
+        },
+        {
+          "name": "Rolling-Start Flying 10",
+          "classification": "new_variant",
+          "rationale": "A rolling or jogging approach changes how the athlete enters the build-in while preserving maximal-velocity exposure.",
+          "distinguishingDimensions": {
+            "runInStyle": "rolling_start"
+          }
+        },
+        {
+          "name": "Assisted Flying Sprint",
+          "classification": "new_definition",
+          "rationale": "External assistance changes attainable velocity, equipment, force-velocity demand, supervision, and failure consequence.",
+          "distinguishingDimensions": {
+            "primaryTrainingStimulus": "assisted_overspeed",
+            "loadMethod": "external_assistance"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "flying-10m-sprint",
+      "assessmentSummary": {
+        "identity": "A progressive run-in followed by a 10-meter maximal-velocity zone and a controlled run-out.",
+        "currentCardFindings": [
+          "The card is materially the same exercise as Flying 10 and differs primarily in naming and measurement unit.",
+          "The generic description does not define build-in distance, timing, dosage, run-out, or a quality stop rule.",
+          "Controlled taxonomy, anatomy, constraints, load, fatigue, and complete difficulty fields are empty."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 62,
+          "absoluteLoadDemand": 18,
+          "coordinationDemand": 68,
+          "supervisionDemand": 64,
+          "failureConsequence": 70,
+          "impact": 76,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 62
+        },
+        "programmingDecision": "Resolve this card to the Flying 10 canonical identity after human identity review. Preserve Flying 10m Sprint as an alias and store the metric fly-zone length in dosage."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=XKEVigTjbCI",
+          "title": "Flying 10 | Max-Velocity Speed, Elastic Stride & Upright Sprint Mechanics",
+          "channelName": "VP Movement Library",
+          "sourceQuery": "Flying 10m sprint drill max velocity"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=3m51-UjdoKg",
+          "title": "Sprint Training For 100m: 10m Fly In 1.1 Seconds x 2",
+          "channelName": "Athletophy",
+          "sourceQuery": "Flying 10m sprint drill max velocity"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=kFLwmd0yzOU",
+          "title": "Unlock Your Top Speed: Flying Sprints Explained for Athletes and Coaches",
+          "channelName": "Matt Tometz",
+          "sourceQuery": "Flying 10m sprint drill max velocity"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=qF88X_wLGlg",
+          "title": "Flying Sprints (Flying Start) - Sprint Float | Speed Training",
+          "channelName": "Simple Speed Coach",
+          "sourceQuery": "Flying 10m sprint drill max velocity"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=TZPHg7F3G7I",
+          "title": "Flying Sprints",
+          "channelName": "Performance Course",
+          "sourceQuery": "Flying 10m sprint drill max velocity"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Flying 10",
+          "classification": "same_identity",
+          "rationale": "The existing Flying 10 card describes the same exercise and should own the stable identity.",
+          "distinguishingDimensions": {
+            "flyZone": "10_yards_or_meters"
+          }
+        },
+        {
+          "name": "Flying 10 Yards",
+          "classification": "same_identity",
+          "rationale": "The unit conversion is a dosage distinction rather than a new exercise.",
+          "distinguishingDimensions": {
+            "flyZone": "10_yards",
+            "measurementSystem": "imperial"
+          }
+        },
+        {
+          "name": "Flying 20m Sprint",
+          "classification": "modifier_annotation",
+          "rationale": "The longer high-speed zone changes dose, fatigue, and recovery but not the primary movement identity.",
+          "distinguishingDimensions": {
+            "flyZone": "20_meters"
+          }
+        },
+        {
+          "name": "Wicket Run to Flying 10",
+          "classification": "new_variant",
+          "rationale": "Wickets constrain the build-in mechanics and add equipment while preserving a fly-zone exposure.",
+          "distinguishingDimensions": {
+            "runInConstraint": "wickets",
+            "equipment": [
+              "mini_hurdles"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "flying-20",
+      "assessmentSummary": {
+        "identity": "A progressive run-in followed by a 20-yard or 20-meter maximal-velocity zone and a controlled run-out.",
+        "currentCardFindings": [
+          "The description recognizes greater hamstring and neural demand but the load and fatigue profiles remain empty.",
+          "The card lacks controlled taxonomy, anatomy, environment, population, and full difficulty dimensions.",
+          "The longer fly zone is best modeled as dosage within the flying-sprint identity, with a contextual profile reflecting the higher exposure."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 64,
+          "absoluteLoadDemand": 18,
+          "coordinationDemand": 70,
+          "supervisionDemand": 68,
+          "failureConsequence": 74,
+          "impact": 80,
+          "workCapacityDemand": 54,
+          "baseOverallDifficulty": 64
+        },
+        "programmingDecision": "Treat 20-yard or 20-meter fly zones as a higher-dose prescription of the flying-sprint identity. Use fewer repetitions and longer recovery than Flying 10, with explicit recent-exposure and performance-drop gates."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=jQOnXqK-cCU",
+          "title": "Return to Running Drills: Flying 20's",
+          "channelName": "Jay Kasthuri",
+          "sourceQuery": "Flying 20 sprint drill max velocity"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=66a3EE72ECc",
+          "title": "Flying 20 | Max-Velocity Speed, Upright Mechanics & Elastic Stride Timing",
+          "channelName": "VP Movement Library",
+          "sourceQuery": "Flying 20 sprint drill max velocity"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=kFLwmd0yzOU",
+          "title": "Unlock Your Top Speed: Flying Sprints Explained for Athletes and Coaches",
+          "channelName": "Matt Tometz",
+          "sourceQuery": "Flying 20 sprint drill max velocity"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=qF88X_wLGlg",
+          "title": "Flying Sprints (Flying Start) - Sprint Float | Speed Training",
+          "channelName": "Simple Speed Coach",
+          "sourceQuery": "Flying 20 sprint drill max velocity"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=a8PQfK90eL0",
+          "title": "Sprinting - Top Speed Development (Max Velocity Drill)",
+          "channelName": "Outperform",
+          "sourceQuery": "Flying 20 sprint drill max velocity"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Flying 10",
+          "classification": "modifier_annotation",
+          "rationale": "A shorter fly zone reduces high-speed dose and recovery demand without changing the movement identity.",
+          "distinguishingDimensions": {
+            "flyZone": "10_yards_or_meters"
+          }
+        },
+        {
+          "name": "Flying 30",
+          "classification": "modifier_annotation",
+          "rationale": "A 30-unit fly zone is a larger high-speed dosage choice and should not fragment the identity.",
+          "distinguishingDimensions": {
+            "flyZone": "30_yards_or_meters"
+          }
+        },
+        {
+          "name": "Timed Flying 20",
+          "classification": "modifier_annotation",
+          "rationale": "Timing gates change measurement and feedback but not the exercise.",
+          "distinguishingDimensions": {
+            "timingMethod": "electronic_gates"
+          }
+        },
+        {
+          "name": "Assisted Flying 20",
+          "classification": "new_definition",
+          "rationale": "External assistance changes velocity exposure, equipment, supervision, and safety enough to require its own definition and profiles.",
+          "distinguishingDimensions": {
+            "primaryTrainingStimulus": "assisted_overspeed",
+            "loadMethod": "external_assistance"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "20-20-20-build-up-sprint",
+      "assessmentSummary": {
+        "identity": "A three-zone progressive run in which the athlete builds speed, increases speed, then runs fast but relaxed across equal 20-unit segments.",
+        "currentCardFindings": [
+          "The description defines the three zones but controlled taxonomy, anatomy, constraints, load, and fatigue fields are empty.",
+          "Its physical demand is understated because the 60-unit total exposure and final high-speed segment create greater work-capacity and recovery demands than a short Flying 10.",
+          "Yards versus meters and small segment-length changes belong in dosage rather than new identities."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 56,
+          "absoluteLoadDemand": 16,
+          "coordinationDemand": 60,
+          "supervisionDemand": 56,
+          "failureConsequence": 62,
+          "impact": 70,
+          "workCapacityDemand": 66,
+          "baseOverallDifficulty": 56
+        },
+        "programmingDecision": "Retain as a progressive three-zone build-up profile. Define whether the final zone is submaximal rhythm work or maximal-velocity exposure, prescribe all zone lengths and target intent, and keep a separate conditioning profile if recovery is shortened."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=TOWXgGASKbM",
+          "title": "20-20-20 Build Up Sprint",
+          "channelName": "YST Exercises",
+          "sourceQuery": "20 20 20 build up sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=IQrbQMPbTtU",
+          "title": "Build Up Strides (Running Drill)",
+          "channelName": "The Barefoot Sprinter",
+          "sourceQuery": "20 20 20 build up sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=jxc1R8N8ZgY",
+          "title": "Top Speed Training Breakdown [Use this Exact Workout]",
+          "channelName": "overtimeathletes",
+          "sourceQuery": "20 20 20 build up sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=U0JjbMMTOmw",
+          "title": "Sprinting Drills That Develop Proper Form",
+          "channelName": "Outperform",
+          "sourceQuery": "20 20 20 build up sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=3Du0OiBJz0Y",
+          "title": "Top 5 Sprint Mechanic Drills | Speed Training for Athletes",
+          "channelName": "Pierre's Elite Performance",
+          "sourceQuery": "20 20 20 build up sprint drill"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "20m-20m-20m Build-Up Sprint",
+          "classification": "same_identity",
+          "rationale": "The metric expression retains the same three-zone task; the unit is dosage metadata.",
+          "distinguishingDimensions": {
+            "zoneLengths": [
+              "20_meters",
+              "20_meters",
+              "20_meters"
+            ]
+          }
+        },
+        {
+          "name": "20yd-20yd-20yd Build-Up Sprint",
+          "classification": "same_identity",
+          "rationale": "The imperial expression is the same exercise identity.",
+          "distinguishingDimensions": {
+            "zoneLengths": [
+              "20_yards",
+              "20_yards",
+              "20_yards"
+            ]
+          }
+        },
+        {
+          "name": "30m Progressive Build-Up Sprint",
+          "classification": "modifier_annotation",
+          "rationale": "Changing total distance and zone lengths changes dosage while preserving progressive acceleration into fast relaxed running.",
+          "distinguishingDimensions": {
+            "totalDistance": "30_meters"
+          }
+        },
+        {
+          "name": "Sprint-Float-Sprint",
+          "classification": "new_variant",
+          "rationale": "A deliberate fast-float-fast sequence changes the zone-intent pattern and reacceleration demand.",
+          "distinguishingDimensions": {
+            "zoneIntent": [
+              "maximal",
+              "float",
+              "maximal"
+            ]
+          }
+        },
+        {
+          "name": "Submaximal Stride-Out",
+          "classification": "new_variant",
+          "rationale": "A continuously submaximal relaxed stride uses a different intensity constraint while retaining a progressive run format.",
+          "distinguishingDimensions": {
+            "targetIntensity": "submaximal_technical"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "wicket-run-max-velocity",
+      "assessmentSummary": {
+        "identity": "An upright sprint through athlete-spaced mini-hurdle wickets that constrain step rhythm and contact location during a max-velocity-oriented run.",
+        "currentCardFindings": [
+          "The card names front-side cycle, elastic contact, and upright posture but does not define wicket height, number, individualized spacing, run-in, run-out, or progression rules.",
+          "Controlled equipment, environment, anatomy, load, fatigue, and complete difficulty fields are empty.",
+          "Uniform 40 difficulty values substantially understate spacing judgment, coordination, equipment setup, supervision, and error consequences."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 70,
+          "absoluteLoadDemand": 16,
+          "coordinationDemand": 76,
+          "supervisionDemand": 72,
+          "failureConsequence": 66,
+          "impact": 70,
+          "workCapacityDemand": 44,
+          "baseOverallDifficulty": 70
+        },
+        "programmingDecision": "Retain a wicket-run definition because the environmental constraint and equipment materially change execution and coaching. Require individualized spacing, a progressive run-in, clear run-out, low wicket height, and immediate regression when the athlete reaches, chops, clips wickets, or loses rhythm."
+      },
+      "evidence": [
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "Mini-hurdle wickets provide external spacing cues intended to support upright posture, front-side action, and powerful knee lift.",
+            "Spacing should respond to athlete speed and stature; wickets must not be used to force reaching or an artificial universal stride length."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "Wicket runs require measured mini-hurdle placement on a safe track or turf surface.",
+            "The card needs wicket height, count, athlete-specific spacing, build-in, lane width, run-out, footwear, collision control, and coach placement."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "nsca_need_for_speed",
+          "claims": [
+            "Wicket-run volume should be prescribed as quality repetitions with complete zone and equipment setup rather than as an unspecified drill count.",
+            "Progress spacing only when the athlete clears the wickets without reaching, chopping, clipping, or losing upright rhythm."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=k7F3FejlWwc",
+          "title": "How To Run Faster with Wicket Sprints - How To Set Up Wickets",
+          "channelName": "ATHLETE.X",
+          "sourceQuery": "wicket run max velocity sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=E5IVqUexCs4",
+          "title": "Wicket Runs to improve your Maximum Velocity",
+          "channelName": "The Passion of Sprinting",
+          "sourceQuery": "wicket run max velocity sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=DMI5QNmXbAU",
+          "title": "Wicket Drill Max Velocity",
+          "channelName": "Performance Course",
+          "sourceQuery": "wicket run max velocity sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=e_5_rbqX9cQ",
+          "title": "Max Velocity Sprint Training - Wicket Drill",
+          "channelName": "Dynamic Sport Performance",
+          "sourceQuery": "wicket run max velocity sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Tl-Q-WUUBzQ",
+          "title": "Explanation of Wicket Runs",
+          "channelName": "ALTIS World",
+          "sourceQuery": "wicket run max velocity sprint drill"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Mini-Hurdle Wicket Run",
+          "classification": "same_identity",
+          "rationale": "This name makes the existing equipment constraint explicit without changing the exercise.",
+          "distinguishingDimensions": {
+            "equipment": [
+              "mini_hurdles"
+            ]
+          }
+        },
+        {
+          "name": "Wicket Run with Extended Spacing",
+          "classification": "modifier_annotation",
+          "rationale": "Spacing is individualized setup metadata and should be progressed within the card rather than creating a new identity.",
+          "distinguishingDimensions": {
+            "wicketSpacing": "athlete_specific_extended"
+          }
+        },
+        {
+          "name": "Wicket Run to Flying 10",
+          "classification": "new_variant",
+          "rationale": "Adding a timed or marked fly zone after the wickets changes the delivery structure while retaining wicket-constrained entry mechanics.",
+          "distinguishingDimensions": {
+            "finishZone": "flying_10"
+          }
+        },
+        {
+          "name": "Dribble Wicket Run",
+          "classification": "new_variant",
+          "rationale": "A dribble action through close wickets changes limb-cycle amplitude and speed while retaining the external rhythm constraint.",
+          "distinguishingDimensions": {
+            "locomotionConstraint": "dribble_cycle"
+          }
+        },
+        {
+          "name": "Assisted Wicket Sprint",
+          "classification": "new_definition",
+          "rationale": "Combining wickets with external assistance materially changes speed, equipment, supervision, and failure consequence.",
+          "distinguishingDimensions": {
+            "primaryTrainingStimulus": "assisted_overspeed",
+            "loadMethod": "external_assistance"
+          }
+        }
+      ]
+    }
+  ]
+}

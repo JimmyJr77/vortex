@@ -1,0 +1,185 @@
+-- USA Gymnastics Acrobatic Gymnastics Development Program 2025-2028.
+-- Complete Level 8 Women's Pair, Men's Pair, and Mixed Pair Balance boxes.
+
+WITH source_data (
+  slug, discipline, box_code, row_name, official_name, description, source_page
+) AS (
+  VALUES
+    ('usag-acro-l8-wp-bal-1a', 'Women''s Pair', '1A', 'Handstand', 'Low handstand hold',
+      'The top holds a low handstand on the base for three seconds.', 41),
+    ('usag-acro-l8-wp-bal-1b', 'Women''s Pair', '1B', 'Handstand', 'High handstand hold',
+      'The top holds a high handstand on the base for three seconds.', 41),
+    ('usag-acro-l8-wp-bal-1c', 'Women''s Pair', '1C', 'Handstand', 'Low arch/flag/yogi handstand',
+      'The top holds a low arch, flag, or yogi handstand for three seconds.', 41),
+    ('usag-acro-l8-wp-bal-1d', 'Women''s Pair', '1D', 'Handstand', 'Handstand on split planche',
+      'The top holds a handstand for three seconds on the base''s split-planche support.', 41),
+    ('usag-acro-l8-wp-bal-2a', 'Women''s Pair', '2A', 'Mount', 'Calf mount to high shape',
+      'A calf mount finishes in high tuck, pike, or straddle held for three seconds.', 41),
+    ('usag-acro-l8-wp-bal-2b', 'Women''s Pair', '2B', 'Mount', 'Inlocate to high tuck/pike',
+      'An inlocate finishes in high tuck or pike held for three seconds.', 41),
+    ('usag-acro-l8-wp-bal-2c', 'Women''s Pair', '2C', 'Mount', 'Inlocate to low handstand',
+      'An inlocate from tuck or pike finishes in low handstand held for three seconds.', 41),
+    ('usag-acro-l8-wp-bal-2d', 'Women''s Pair', '2D', 'Mount', 'Cart-on to low handstand',
+      'A cart-on mount finishes in low handstand held for three seconds.', 41),
+    ('usag-acro-l8-wp-bal-3a', 'Women''s Pair', '3A', 'Top Transition', 'Straddle/pike and croc transition',
+      'The top transitions between straddle or pike and croc on any rated base position; the final position holds three seconds.', 41),
+    ('usag-acro-l8-wp-bal-3b', 'Women''s Pair', '3B', 'Top Transition', 'Straddle/pike press and handstand transition',
+      'The top presses between straddle or pike and handstand on any rated base position; the final position holds three seconds.', 41),
+    ('usag-acro-l8-wp-bal-3c', 'Women''s Pair', '3C', 'Top Transition', 'Straddle/pike and arch/flag/yogi transition',
+      'The top transitions between straddle or pike and arch, flag, or yogi handstand; the final position holds three seconds.', 41),
+    ('usag-acro-l8-wp-bal-3d', 'Women''s Pair', '3D', 'Top Transition', 'Handstand and arch/flag/yogi transition',
+      'The top transitions between handstand and arch, flag, or yogi handstand; the final position holds three seconds.', 41),
+    ('usag-acro-l8-wp-bal-4a', 'Women''s Pair', '4A', 'Base Transition', 'Base transition under low handstand',
+      'The base transitions from standing to two knees or splits while the top maintains low handstand; the finish holds three seconds.', 41),
+    ('usag-acro-l8-wp-bal-4b', 'Women''s Pair', '4B', 'Base Transition', 'Base transition under high shape',
+      'The base transitions from standing to two knees or splits while the top maintains high tuck, pike, straddle, front bird, or back bird; the finish holds three seconds.', 41),
+    ('usag-acro-l8-wp-bal-4c', 'Women''s Pair', '4C', 'Base Transition', 'Base transition under 2:1 straddle/back bird',
+      'The base transitions from standing to sitting while the top maintains high 2:1 straddle or one-arm back bird; the finish holds three seconds.', 41),
+    ('usag-acro-l8-wp-bal-4d', 'Women''s Pair', '4D', 'Base Transition', 'Supine-to-candlestick base transition',
+      'The base transitions from lying on the back to candlestick while the top maintains tuck, pike, straddle, or pancake on the base''s feet; the finish holds three seconds.', 41),
+
+    ('usag-acro-l8-mp-bal-1a', 'Men''s Pair', '1A', 'Handstand', 'Low handstand hold',
+      'The top holds a low handstand on the base for three seconds.', 43),
+    ('usag-acro-l8-mp-bal-1b', 'Men''s Pair', '1B', 'Handstand', 'High handstand hold',
+      'The top holds a high handstand on the base for three seconds.', 43),
+    ('usag-acro-l8-mp-bal-1c', 'Men''s Pair', '1C', 'Handstand', 'Handstand/flag handstand on head',
+      'The top holds handstand or flag handstand on the base''s head for three seconds.', 43),
+    ('usag-acro-l8-mp-bal-1d', 'Men''s Pair', '1D', 'Handstand', 'Low 2:1 or one-arm handstand',
+      'The top holds a low 2:1 handstand or low one-arm handstand for three seconds.', 43),
+    ('usag-acro-l8-mp-bal-2a', 'Men''s Pair', '2A', 'Mount', 'Inlocate to high tuck/pike',
+      'An inlocate finishes in high tuck or pike held for three seconds.', 43),
+    ('usag-acro-l8-mp-bal-2b', 'Men''s Pair', '2B', 'Mount', 'Inlocate to low handstand',
+      'An inlocate from tuck or pike finishes in low handstand held for three seconds.', 43),
+    ('usag-acro-l8-mp-bal-2c', 'Men''s Pair', '2C', 'Mount', 'Cart-on to low handstand',
+      'A cart-on mount finishes in low handstand held for three seconds.', 43),
+    ('usag-acro-l8-mp-bal-2d', 'Men''s Pair', '2D', 'Mount', 'Cannonball to low handstand',
+      'A cannonball mount finishes in low handstand held for three seconds.', 43),
+    ('usag-acro-l8-mp-bal-3a', 'Men''s Pair', '3A', 'Top Transition', 'Straddle/pike and croc transition',
+      'The top transitions between straddle or pike and croc on any rated base position; the final position holds three seconds.', 43),
+    ('usag-acro-l8-mp-bal-3b', 'Men''s Pair', '3B', 'Top Transition', 'Straddle/pike press and handstand transition',
+      'The top presses between straddle or pike and handstand; the final position holds three seconds.', 43),
+    ('usag-acro-l8-mp-bal-3c', 'Men''s Pair', '3C', 'Top Transition', 'Straddle/pike and arch/flag/yogi transition',
+      'The top transitions between straddle or pike and arch, flag, or yogi handstand; the final position holds three seconds.', 43),
+    ('usag-acro-l8-mp-bal-3d', 'Men''s Pair', '3D', 'Top Transition', 'Handstand and arch/flag/yogi transition',
+      'The top transitions between handstand and arch, flag, or yogi handstand; the final position holds three seconds.', 43),
+    ('usag-acro-l8-mp-bal-4a', 'Men''s Pair', '4A', 'Base Transition', 'Base transition under low handstand',
+      'The base transitions from standing to two knees or splits while the top maintains low handstand; the finish holds three seconds.', 43),
+    ('usag-acro-l8-mp-bal-4b', 'Men''s Pair', '4B', 'Base Transition', 'Base transition under high shape',
+      'The base transitions from standing to two knees or splits while the top maintains high tuck, pike, straddle, front bird, or back bird; the finish holds three seconds.', 43),
+    ('usag-acro-l8-mp-bal-4c', 'Men''s Pair', '4C', 'Base Transition', 'Base transition under head handstand',
+      'The base transitions from standing to sitting while the top maintains handstand or flag handstand on the head; the finish holds three seconds.', 43),
+    ('usag-acro-l8-mp-bal-4d', 'Men''s Pair', '4D', 'Base Transition', 'Base transition under head balance',
+      'The base transitions from standing to sitting while the top maintains tuck, pike, straddle, or croc on the head; the finish holds three seconds.', 43),
+
+    ('usag-acro-l8-mxp-bal-1a', 'Mixed Pair', '1A', 'Handstand', 'Low handstand hold',
+      'The top holds a low handstand on the base for three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-1b', 'Mixed Pair', '1B', 'Handstand', 'High handstand hold',
+      'The top holds a high handstand on the base for three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-1c', 'Mixed Pair', '1C', 'Handstand', 'Low arch/flag/yogi handstand',
+      'The top holds a low arch, flag, or yogi handstand for three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-1d', 'Mixed Pair', '1D', 'Handstand', 'Low 2:1 or one-arm handstand',
+      'The top holds a low 2:1 handstand or low one-arm handstand for three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-2a', 'Mixed Pair', '2A', 'Mount', 'Toe pitch half-turn to low foot-to-hand',
+      'A 180-degree toe pitch finishes in low foot-to-hand held for three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-2b', 'Mixed Pair', '2B', 'Mount', 'Inlocate to high tuck/pike',
+      'An inlocate finishes in high tuck or pike held for three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-2c', 'Mixed Pair', '2C', 'Mount', 'Inlocate to low handstand',
+      'An inlocate from tuck or pike finishes in low handstand held for three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-2d', 'Mixed Pair', '2D', 'Mount', 'Cannonball to low handstand',
+      'A cannonball mount finishes in low handstand held for three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-3a', 'Mixed Pair', '3A', 'Top Transition', 'Straddle/pike and croc transition',
+      'The top transitions between straddle or pike and croc on any rated base position; the final position holds three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-3b', 'Mixed Pair', '3B', 'Top Transition', 'Straddle/pike press and handstand transition',
+      'The top presses between straddle or pike and handstand; the final position holds three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-3c', 'Mixed Pair', '3C', 'Top Transition', 'Straddle/pike and arch/flag/yogi transition',
+      'The top transitions between straddle or pike and arch, flag, or yogi handstand; the final position holds three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-3d', 'Mixed Pair', '3D', 'Top Transition', 'Handstand and arch/flag/yogi transition',
+      'The top transitions between handstand and arch, flag, or yogi handstand; the final position holds three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-4a', 'Mixed Pair', '4A', 'Base Transition', 'Base transition under low handstand',
+      'The base transitions from standing to two knees or splits while the top maintains low handstand; the finish holds three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-4b', 'Mixed Pair', '4B', 'Base Transition', 'Base transition under high shape',
+      'The base transitions from standing to two knees or splits while the top maintains high tuck, pike, straddle, front bird, or back bird; the finish holds three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-4c', 'Mixed Pair', '4C', 'Base Transition', 'Base transition under 2:1 straddle/back bird',
+      'The base transitions from standing to sitting while the top maintains high 2:1 straddle or one-arm back bird; the finish holds three seconds.', 45),
+    ('usag-acro-l8-mxp-bal-4d', 'Mixed Pair', '4D', 'Base Transition', 'Half-turn base transition under 2:1 balance',
+      'The base turns 180 degrees from standing to sitting while the top maintains high 2:1 straddle or one-arm back bird; the finish holds three seconds.', 45)
+),
+prepared AS (
+  SELECT d.*, jsonb_build_object(
+    'governing_body', 'USA Gymnastics',
+    'discipline', 'Acrobatic Gymnastics',
+    'event', 'Level 8 ' || d.discipline || ' Balance',
+    'program', 'Acrobatic Gymnastics Development Program 2025-2028',
+    'official_name', d.official_name,
+    'official_code', 'Level 8 ' || d.discipline || ' Balance ' || d.box_code,
+    'usa_gymnastics_levels', jsonb_build_array('Acro Level 8'),
+    'status', 'verified',
+    'last_verified', '2026-07-25',
+    'athlete_cues', jsonb_build_array(
+      'Build from stable base contact, follow the declared mount or transition without extra support, make the final top shape clear, and hold three complete seconds.',
+      'Count one-thousand-one, one-thousand-two, one-thousand-three only after the final position is motionless.'
+    ),
+    'coach_checkpoints', jsonb_build_array(
+      d.description,
+      'Check rated base position, top shape, support points, straight arms and legs, transition continuity, vertical or horizontal alignment, stillness, and the complete hold.',
+      'Pairs require one compulsory box from each of four rows plus two optional Pair Balance elements of minimum FIG value 1, for six total three-second holds.'
+    ),
+    'safety_and_readiness', jsonb_build_array(
+      'Use qualified Acro coaching, progressive height, exact hand/foot placements, and a trained spot and dismount plan.',
+      'Both partners must own the isolated start, final balance, press/transition pathway, and controlled exit before connecting the rated element.',
+      'Regress for shifting grips, compressed support, uncontrolled inversion, pain, fear, or inability to hold the final shape independently.'
+    ),
+    'common_faults', jsonb_build_array(
+      jsonb_build_object('fault', 'Missing compulsory/optional pair skill or individual element', 'deduction', '-1.0 SR each', 'cue', 'Audit all six pair skills and three individual elements.'),
+      jsonb_build_object('fault', 'All required content not performed', 'deduction', 'Additional -1.0 SR', 'cue', 'Complete every required content category.'),
+      jsonb_build_object('fault', 'Balance under three seconds', 'deduction', 'Short-hold DJ penalty', 'cue', 'Settle fully before the count.'),
+      jsonb_build_object('fault', 'Repeated box or identical hold', 'deduction', 'No requirement credit / applicable SR penalty', 'cue', 'Use distinct boxes and distinct base-plus-top holds.'),
+      jsonb_build_object('fault', 'Additional pair/group value skill', 'deduction', '-1.0 DJ once per exercise', 'cue', 'Limit content to four compulsory and two optional pair skills.'),
+      jsonb_build_object('fault', 'Technical execution fault', 'deduction', 'Per technical-fault tables', 'cue', 'Protect alignment, extension, stability, and controlled transitions.'),
+      jsonb_build_object('fault', 'No music', 'deduction', '-1.0 CJP', 'cue', 'Verify playback and backup music.'),
+      jsonb_build_object('fault', 'Balance exercise exceeds 2:30', 'deduction', '-0.3 CJP', 'cue', 'Time the exercise from first movement.')
+    ),
+    'scoring_summary', 'Level 8 has no difficulty score. Pair Balance requires four compulsory boxes, two optional FIG Pair Balance elements (minimum value 1), and three individual elements. Six total distinct three-second holds are required. Missing content is -1.0 SR each; short holds, repetition, technical, music, and time penalties apply.',
+    'video_briefs', jsonb_build_array(
+      jsonb_build_object('title', 'Teach ' || d.official_name, 'purpose', 'learning',
+        'description', 'Show base position and grips first, then the top start shape, mount or transition pathway, final line, audible hold count, and controlled exit. Include front, side, and close-up contact views.'),
+      jsonb_build_object('title', d.official_name || ' - ideal Level 8 model', 'purpose', 'model',
+        'description', 'Show full speed and slow motion with the box code. Highlight exact support, continuous transition, extension, square alignment, still three-second hold, and controlled dismount.')
+    ),
+    'next_progressions', '[]'::jsonb,
+    'sources', jsonb_build_array(jsonb_build_object(
+      'title', 'USA Gymnastics Acrobatic Gymnastics Development Program Code of Points 2025-2028',
+      'url', 'https://static.usagym.org/PDFs/Acro/Rules/devcop_2528.pdf#page=' || d.source_page,
+      'organization', 'USA Gymnastics',
+      'effective_cycle', '2025-2028',
+      'accessed_on', '2026-07-25',
+      'note', 'Official Level 8 pair Balance box and composition requirements.'
+    )),
+    'editorial_note', 'Original coaching summary. Optional and Level 9 progressions branch through the FIG Tables of Difficulty, so no single direct next element is asserted.'
+  ) AS metadata
+  FROM source_data d
+)
+INSERT INTO coaching.skill (
+  facility_id, name, slug, description, instructions, sport_id, skill_level,
+  skill_kind, evaluation_mode, execution_max_score, assistance_note,
+  is_published, visibility, official_metadata
+)
+SELECT
+  (SELECT id FROM public.facility ORDER BY id LIMIT 1),
+  'Acro L8 ' || p.discipline || ' Balance ' || p.box_code || ' - ' || p.official_name,
+  p.slug, p.description,
+  'Establish the rated base support and prescribed top start, complete the mount or transition without interruption, show the final balance clearly, hold for three seconds, and exit under control.',
+  (SELECT id FROM coaching.sport WHERE key = 'gymnastics'),
+  'ADVANCED'::public.skill_level,
+  'partner', 'execution', 10,
+  p.discipline || ' Level 8 Balance compulsory box ' || p.box_code || ' (' || p.row_name || ')',
+  TRUE, 'facility', p.metadata
+FROM prepared p
+ON CONFLICT (facility_id, slug) DO UPDATE SET
+  name = EXCLUDED.name,
+  description = EXCLUDED.description,
+  instructions = EXCLUDED.instructions,
+  skill_level = EXCLUDED.skill_level,
+  assistance_note = EXCLUDED.assistance_note,
+  official_metadata = EXCLUDED.official_metadata,
+  updated_at = NOW();

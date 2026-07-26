@@ -1,0 +1,296 @@
+{
+  "facilityId": 1,
+  "slug": "10-yard-sprint",
+  "researchVersion": "2026-07-25.1",
+  "assessmentSummary": {
+    "identity": "A maximal or near-maximal linear acceleration effort over 10 yards from a specified start, ending with a planned safe run-out.",
+    "currentCardFindings": [
+      "The current definition has no controlled movement patterns, body regions, constraints, load profile, fatigue profile, or difficulty scores.",
+      "A maximal-acceleration identity belongs primarily in output, not capacity. Repeated submaximal sprint conditioning requires a separate delivery profile with explicit intensity and density.",
+      "The current generic quality gate and 60-second rest default do not adequately protect maximal-speed quality across populations."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 48,
+      "absoluteLoadDemand": 12,
+      "coordinationDemand": 55,
+      "supervisionDemand": 52,
+      "failureConsequence": 55,
+      "impact": 58,
+      "workCapacityDemand": 42,
+      "baseOverallDifficulty": 48
+    },
+    "programmingDecision": "Use as fresh output work with full recovery and a clear run-out. Treat start type, stance, and small distance changes as variants or dosage modifiers; do not turn maximal efforts into conditioning by shortening rest."
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6407765/",
+      "sourceTitle": "Correlations between muscle-tendon parameters and acceleration ability in 20 m sprints",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Rapid acceleration in the first sprint steps is a distinct performance quality in track and team sports.",
+        "Short acceleration performance depends on producing forward acceleration rather than maintaining maximal velocity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "The sprint start, push-off, and first acceleration steps are related but biomechanically distinguishable phases.",
+        "The card should be classified as linear locomotion and acceleration output, with the selected start recorded as a variant."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4689850/",
+      "sourceTitle": "Sprint Acceleration Mechanics: The Major Role of Hamstrings in Horizontal Force Production",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Sprint acceleration involves rapid hip, knee, and ankle actions with high lower-limb force and swing demands.",
+        "Hamstring contribution is important to horizontally oriented force production during acceleration."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Higher-performing initial acceleration is associated with greater propulsive force and forward-directed impulse.",
+        "The early steps progressively increase step length while the athlete rises from a forward projection; forced universal step positions are not supported."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "The first steps require high propulsive force, rapid limb exchange, and a transition from a projected start into cyclic sprinting.",
+        "Difficulty depends on start type, intent, athlete sprint competency, surface, and available run-out rather than distance alone."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6407765/",
+      "sourceTitle": "Correlations between muscle-tendon parameters and acceleration ability in 20 m sprints",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Power output is greatest in the first steps of sprint acceleration.",
+        "The card should track high neural intent, lower-limb tissue exposure, high-speed contacts, and performance drop-off rather than external load alone."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Sprint training requires an appropriate surface, marked distance, and sufficient space beyond the timing line.",
+        "Start type, footwear, surface, athlete readiness, and coaching visibility should be controlled before maximal efforts."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration and maximal-velocity training are programmed as quality sprint exposures with recovery selected to retain speed and technique.",
+        "Sets, distance, intensity, and rest should be explicit; repetition count alone does not define the sprint dose."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "The start should support rapid hip extension and forward propulsion without prescribing one anthropometrically inappropriate stance.",
+        "Early acceleration should emphasize force directed backward into the ground, progressive projection, and an uninterrupted run through the finish."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Youth training should be supervised, technically appropriate, and progressed from manageable demands.",
+        "Stop criteria should include pain, limping, unsafe surface or run-out, repeated stumble, and observable speed or posture loss."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration work is technically and physiologically distinct from maximal-velocity sprinting.",
+        "Maximal short sprints should be placed while the athlete is fresh; a dense repeated-sprint objective must explicitly reduce intensity or become a separate conditioning profile."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "Acceleration develops incrementally across steps rather than through an instant upright sprint position.",
+        "Athlete-facing cues should focus on the task and projection while avoiding rigid promises about an identical stride pattern."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Coaches should distinguish acceleration from maximal velocity and select drills and recovery for the targeted quality.",
+        "Timing, video, or consistent split landmarks can support decisions, but technique and safe completion remain quality gates."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Speed tasks should be developmentally appropriate and built on movement competency.",
+        "Intent, distance, start complexity, footwear, and recovery can be adjusted without treating every short run as a maximal test."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Block, standing, three-point, falling, and other starts alter setup and the initial force task while retaining short acceleration as the central stimulus.",
+        "Flying sprints emphasize maximal velocity and should not be collapsed into a 10-yard acceleration identity."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Public oEmbed metadata confirms a retrievable title and embed response, but does not confirm exact exercise identity, complete technical quality, or safety."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=mATMYLiKa_0",
+      "title": "How To Run A Faster 40 Yard Dash : The First 10 Yards Breakdown",
+      "channelName": "Athletic Preparation",
+      "sourceQuery": "legacy direct link; 10 yard acceleration",
+      "notes": "Public oEmbed metadata retrieved 2026-07-25. The title covers the first 10 yards; full visual, technical, caption, and exact-version review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=d9ZC-vTABCw",
+      "title": "Winning the First 10m | How to Improve Acceleration (Part Three)",
+      "channelName": "Coach Chris Korfist (Slow Guy Speed School)",
+      "sourceQuery": "legacy direct link; 10 yard acceleration",
+      "notes": "Public oEmbed metadata retrieved 2026-07-25. Metric distance and full exact-version, technical, caption, and safety review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=00lM8-a2o3Y",
+      "title": "40 Yard Dash: Sprint Like a Pro | NFL Combine Trainer",
+      "channelName": "Bodybuilding.com",
+      "sourceQuery": "legacy direct link; 10 yard acceleration",
+      "notes": "Public oEmbed metadata retrieved 2026-07-25. Candidate may include a longer sprint context; exact 10-yard demonstration and full review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=3d8W16av094",
+      "title": "My 10 x 10 Sprint Protocol Outlined",
+      "channelName": "Derek M Hansen",
+      "sourceQuery": "legacy direct link; 10 yard sprint",
+      "notes": "Public oEmbed metadata retrieved 2026-07-25. Candidate may describe a protocol rather than one exact repetition; full visual, dosage, and exact-version review remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "10-Meter Sprint",
+      "classification": "modifier_annotation",
+      "rationale": "The small distance change is dosage and measurement metadata when the start and maximal-acceleration stimulus are otherwise identical.",
+      "distinguishingDimensions": {
+        "distance": "10_meters",
+        "measurementSystem": "metric"
+      }
+    },
+    {
+      "name": "Three-Point 10-Yard Sprint",
+      "classification": "new_variant",
+      "rationale": "The start position changes setup and initial force orientation while retaining the same short-acceleration stimulus.",
+      "distinguishingDimensions": {
+        "startPosition": "three_point"
+      }
+    },
+    {
+      "name": "Falling-Start 10-Yard Sprint",
+      "classification": "new_variant",
+      "rationale": "The falling start supplies a projection constraint and changes initiation without changing the primary acceleration identity.",
+      "distinguishingDimensions": {
+        "startPosition": "falling_start",
+        "externalCue": "forward_fall"
+      }
+    },
+    {
+      "name": "Resisted 10-Yard Sprint",
+      "classification": "new_variant",
+      "rationale": "External resistance materially changes equipment, load, and force-velocity emphasis but remains a short acceleration task.",
+      "distinguishingDimensions": {
+        "loadMethod": "external_horizontal_resistance",
+        "equipment": [
+          "sled_or_resistance_band"
+        ]
+      }
+    },
+    {
+      "name": "Flying 10-Yard Sprint",
+      "classification": "new_definition",
+      "rationale": "A flying entry targets maximal velocity after a build-up, not acceleration from a start, and needs different mechanics, space, dosage, and stop rules.",
+      "distinguishingDimensions": {
+        "primaryTrainingStimulus": "maximal_velocity",
+        "startPosition": "flying_entry"
+      }
+    }
+  ]
+}

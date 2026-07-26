@@ -1,0 +1,451 @@
+{
+  "facilityId": 1,
+  "slug": "fast-leg-cycle-drill",
+  "researchVersion": "2026-07-25.10",
+  "assessmentSummary": {
+    "identity": "A single-leg sprint-mechanics cycle in which one designated leg repeatedly completes a defined front-side recovery, downward and backward return, and ground contact while the support-side pattern remains explicitly controlled.",
+    "currentCardFindings": [
+      "The card does not state stationary versus traveling execution, support-leg behavior, number of cycles, contact sequence, side-change rule, arm action, or whether the working leg contacts every cycle.",
+      "Front-side cycle and hamstring recovery are named but no observable positions or transition criteria are supplied.",
+      "Visible candidates show several materially different fast-leg progressions, so the current identity and all media must remain quarantined."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "single_designated_leg_sprint_cycle",
+        "traveling_or_stationary_state_must_be_declared"
+      ],
+      "jointActions": [
+        "swing_hip_flexion_extension",
+        "swing_knee_flexion_extension",
+        "ankle_dorsiflexion_plantarflexion",
+        "support_leg_stance_control",
+        "reciprocal_arm_action"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal"
+      ],
+      "laterality": "unilateral_working_leg_then_repeat_other_side",
+      "intent": "repeatable_defined_leg_cycle_and_contact_sequence"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "hip_flexors",
+        "hamstrings",
+        "gluteus_maximus",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "quadriceps",
+        "tibialis_anterior",
+        "intrinsic_foot",
+        "gluteus_medius",
+        "obliques",
+        "shoulder_girdle"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 68,
+      "absoluteLoadDemand": 18,
+      "coordinationDemand": 76,
+      "supervisionDemand": 52,
+      "failureConsequence": 34,
+      "impact": 28,
+      "workCapacityDemand": 30,
+      "baseOverallDifficulty": 68
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_asymmetrical_cyclic_sprint_mechanics_drill",
+      "impactClass": "low_to_moderate_by_travel_speed_contact_pattern_and_cycles",
+      "landingContactsPerRep": "record_working_leg_cycles_contacts_and_support_leg_steps_separately",
+      "primaryStress": [
+        "swing_leg_cyclic_control",
+        "support_leg_stability",
+        "plantar_flexor_contact_load",
+        "asymmetrical_coordination"
+      ],
+      "fatigueSensitivity": "cycle_path_contact_reach_pelvic_rotation_support_pattern_posture_and_side_difference"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "clear_level_lane_or_stationary_zone",
+        "safe_finish_if_traveling"
+      ],
+      "optionalEquipment": [
+        "wall_support_for_regression",
+        "cones",
+        "video"
+      ],
+      "environment": [
+        "dry_non_slip_surface",
+        "no_cross_traffic"
+      ],
+      "population": [
+        "owns_a_march_or_comparable_cycle_rehearsal",
+        "pain_free_low_contacts",
+        "can_control_single_side_pattern"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "1-3_per_side",
+      "cyclesPerSet": "3-6_clean_cycles_or_8-15_metres_after_identity_confirmation",
+      "restSeconds": "30-90_between_sides_or_attempts",
+      "intensity": "slow_learning_to_crisp_submaximal",
+      "progressWhen": "cycle path, contact placement, support pattern, posture, and left-right quality remain repeatable"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Name the working leg",
+        "Recover through the defined path",
+        "Return beneath the hips",
+        "Keep the support pattern unchanged"
+      ],
+      "athleteInstructions": [
+        "Cycle only the assigned leg through the exact sequence while the other side maintains the prescribed support action"
+      ],
+      "commonFaults": [
+        "undefined_support_leg",
+        "bicycling_forward",
+        "reaching_contact",
+        "switching_sides_mid_rep",
+        "pelvic_rotation",
+        "turning_into_high_knee_running"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "pain_free_march_and_low_contact",
+        "understands_side_rule",
+        "safe_lane"
+      ],
+      "stopRules": [
+        "pain",
+        "limp",
+        "repeated_reaching",
+        "support_pattern_loss",
+        "balance_loss",
+        "cycle_path_breakdown",
+        "unsafe_finish"
+      ]
+    },
+    "programmingDecision": "Retain provisionally as a distinct single-leg sprint-cycle definition, but quarantine publication until stationary or traveling state, support-leg action, cycle and contact sequence, side-change rule, dose unit, and finish are resolved through human review.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T06:10:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Fast-Leg Cycle Drill is a max velocity & rhythm exercise for speed, sprinting, and quick-release athletes. It emphasizes front side cycle, hip flexion, hamstring recovery while keeping the session intent aligned with the Vortex phase sequence.",
+      "familyKey": "Sprint Drill Series",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Skipping contains two functionally different successive contacts, with distinct braking and propelling contributions, and is not interchangeable with running or a generic series of hops.",
+        "Fast-Leg Cycle Drill must define its contact sequence, travel direction, displacement, amplitude, cadence or cue sequence, laterality, object task, external spacing, and finish; rhythm, quickness, neural, and power labels alone do not establish identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Skipping is a locomotor gait with flight, single-support, and double-support phases and successive steps that partition braking and propulsion differently.",
+        "Fast-Leg Cycle Drill belongs to ordinary alternating step-hop skipping, maximal horizontal power skipping, externally spaced skipping, a defined dual-task skip, or single-leg sprint-cycle mechanics; it is not automatically A-skip, running, bounding, or a change-of-direction drill."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/36265840/",
+      "sourceTitle": "Differences in Muscle Demand and Joint Contact Forces Between Running and Skipping",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "At matched treadmill speed in a small modeling study, skipping produced greater energetic demand from uniarticular ankle plantar flexors and greater ankle contact force than running, while running produced greater knee and patellofemoral contact forces.",
+        "The card should represent intrinsic-foot, plantar-flexor, knee-extensor, hip-flexor and extensor, hamstring, frontal-plane pelvic, trunk, arm-action, and visual-manual roles in proportion to the actual skip, projection, cycle, or catch task."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Skipping and running differ in cadence, step length, ground-reaction forces, joint torques, powers, and work distribution; the first and second skipping contacts also differ from each other.",
+        "Cue the observable step-hop sequence, posture, arm-leg timing, contact placement, projection, or defined cycle without claiming that the drill reproduces sprint kinetics or that every contact is mechanically identical."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8553457/",
+      "sourceTitle": "Application of Leg, Vertical, and Joint Stiffness in Running Performance: A Literature Overview",
+      "sourcePublisher": "Journal of Healthcare Engineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Whole-limb stiffness and movement behavior change with task, speed, fatigue, maturity, and measurement method and cannot be inferred as a fixed quality from an exercise name.",
+        "Exercise difficulty must directly score technical complexity, physical and absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; athlete readiness remains programming context."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8938535/",
+      "sourceTitle": "Effects of Plyometric Training on Lower Body Muscle Architecture, Tendon Structure, Stiffness and Physical Performance: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Repeated flight contacts can provide meaningful muscle-tendon loading even without external resistance, and amplitude, surface, and contact volume change the exposure.",
+        "Fast-Leg Cycle Drill needs total and per-side contacts, distance, surface, footwear, amplitude or projection intent, cadence or cue sequence, ball mass and toss count when used, quality-loss markers, recovery, and weekly impact accounting."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Linear-speed preparation requires appropriate space, a safe finish, progressive intensity, suitable surfaces, recovery, and coaching matched to the intended movement quality.",
+        "Require a level dry non-slip lane, no cross traffic, a safe finish, suitable footwear, visible flat markers when prescribed, and a soft appropriately sized ball plus a separated partner or wall zone only for the ball-toss task."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The NSCA manual distinguishes power skips for height from power skips for distance and directs maximal distance on each distance skip with full take-off-leg extension.",
+        "Use passes, metres, total and per-side contacts, exact cadence segments, object tosses, and recovery rather than an ambiguous repetition count or a fatigue-driven interval; maximal projections require fewer contacts and fuller recovery than relaxed rhythm skips."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Because successive skipping contacts have different braking and propelling roles, instruction should preserve the defined step-hop pattern rather than force every contact to look or feel identical.",
+        "Use a small task-specific cue set: stay tall unless projection is assigned, step-hop and alternate, contact close enough to preserve balance, coordinate opposite arm and leg, project forward only for distance skips, and complete the exact cue, cone, cycle, or catch rule."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/36265840/",
+      "sourceTitle": "Differences in Muscle Demand and Joint Contact Forces Between Running and Skipping",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Lower knee contact force during skipping at one studied speed does not mean globally low tissue load; ankle contact forces and plantar-flexor demand were higher than running in the model.",
+        "Stop for foot, ankle, shin, calf, Achilles, knee, hamstring, hip, or back pain; limping; repeated stumbles; loud or lengthening contacts; balance loss; unsafe reaching; cadence or pattern loss; missed cones; dropped or misdirected balls; collision risk; or an unsafe finish."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41209369/",
+      "sourceTitle": "Development and Validation of a Running Drill Test Battery to Predict 5 m and 20 m Sprint Performance",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "A published running-drill battery found no statistically significant association between A-skip score and 5 m or 20 m sprint performance in its sample, cautioning against direct transfer promises from visually related drills.",
+        "Fast-Leg Cycle Drill should have an explicit coordination, rhythm, plyometric projection, perception-action, or sprint-cycle purpose and be placed while fresh enough to preserve that purpose; do not promise faster sprinting, improved agility, or better sport performance from the drill alone."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "The alternating step-hop gait should be demonstrated as a complete sequence because a still image or high-knee label cannot communicate its two different successive contacts.",
+        "Show side and rear views, travel direction, step-hop rhythm, contact count, amplitude, arm action, cue or cone map, ball flight and catch rule when used, finish, one regression, and a clear explanation that faster or higher is not automatically better."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23435115/",
+      "sourceTitle": "Did you see that? Dissociating advanced visual information and ball flight constrains perception and action processes during one-handed catching",
+      "sourcePublisher": "Acta Psychologica",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Catching performance depends on ball-flight information and the regulation of gaze and hand movement, so a ball-toss task adds a real perception-action demand rather than merely decorative equipment.",
+        "Provide observation positions, pass and contact counts, exact cadence segments, cone spacing and contact rule, ball mass and toss source, successful-catch definition, left-right comparison, quality stops, and a distinction between coaching observations and verified biomechanical measurement."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should match readiness, technical competence, supervision, equipment scale, and the individual's physical and psychosocial context.",
+        "Accessibility options include shorter lanes, lower amplitude, slower cadence, ordinary walking or marching before skipping, fewer contacts, larger softer balls, self-toss before partner toss, floor marks instead of cones, quieter cueing, extra demonstration, and longer recovery."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The NSCA manual defines power skips for height and power skips for distance by different outcome intents even though both retain a skipping contact pattern.",
+        "Pass length, coaching emphasis, and ordinary cadence are delivery annotations; maximal horizontal versus vertical projection, external spacing, a prescribed cadence-change sequence, object interception, stationary versus traveling cycles, and a terminal sprint can require controlled variants or distinct definitions."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Candidates for Fast-Leg Cycle Drill were discovered through visible YouTube search; availability and embedding, exact contact sequence and constraint, complete viewing, captions, instructional quality, safety, and approval remain separate review gates. Adjacent component demonstrations are explicitly quarantined and no candidate is approved by this packet."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=xiYTMBLqp8c",
+      "title": "How To Get FASTER with DRILLS | Noah Lyles",
+      "channelName": "Noah Lyles, Olympian",
+      "sourceQuery": "fast leg cycle drill sprint technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Visible chapters include fast legs, alternating fast legs, and double alternating fast legs; exact current-card variant must be isolated."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=miKRps7-HUo",
+      "title": "HOW TO: Fast Leg Drill",
+      "channelName": "Unapproved visible-search candidate",
+      "sourceQuery": "fast leg cycle drill sprint technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Direct visible-search candidate converted from Shorts to watch URL; full sequence and channel metadata require review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=0SkN6KA1GgM",
+      "title": "How to do the fast leg drill",
+      "channelName": "Unapproved visible-search candidate",
+      "sourceQuery": "fast leg cycle drill sprint technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Direct visible-search candidate; stationary versus traveling and support pattern unverified."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Wlp66ko3zJU",
+      "title": "How to do a single-leg cycling sprint drill correctly",
+      "channelName": "Unapproved visible-search candidate",
+      "sourceQuery": "fast leg cycle drill sprint technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Single-leg-cycle title match; complete viewing and exact contact-sequence review pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=BHx5mLPDMUk",
+      "title": "How Single-Leg Cycling Can Make You Faster",
+      "channelName": "Unapproved visible-search candidate",
+      "sourceQuery": "fast leg cycle drill sprint technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate may include unsupported transfer claims; identity, instruction, and safety review required."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Alternating Fast Legs",
+      "classification": "new_variant",
+      "rationale": "Alternating the working side within the sequence changes coordination and cycle-count rules.",
+      "distinguishingDimensions": {
+        "sidePattern": "alternating"
+      }
+    },
+    {
+      "name": "Double Alternating Fast Legs",
+      "classification": "new_variant",
+      "rationale": "Two cycles or contacts before switching side creates a distinct reproducible coordination pattern.",
+      "distinguishingDimensions": {
+        "sidePattern": "double_then_switch"
+      }
+    },
+    {
+      "name": "Wall-Supported Single-Leg Cycle",
+      "classification": "new_variant",
+      "rationale": "Wall support changes posture, balance demand, displacement, and force direction.",
+      "distinguishingDimensions": {
+        "support": "wall"
+      }
+    },
+    {
+      "name": "Fast Leg 1-2-3 Drill",
+      "classification": "new_definition",
+      "rationale": "A counted compound sequence has a different event structure and terminal action.",
+      "distinguishingDimensions": {
+        "movementPattern": "counted_compound_sequence"
+      }
+    },
+    {
+      "name": "High-Knee Run",
+      "classification": "new_definition",
+      "rationale": "Continuous alternating running contacts differ from a designated single-leg cycle and controlled support-side pattern.",
+      "distinguishingDimensions": {
+        "contactSequence": "continuous_alternating_run"
+      }
+    }
+  ]
+}

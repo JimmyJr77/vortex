@@ -1,0 +1,564 @@
+{
+  "facilityId": 1,
+  "slug": "shin-box-get-up",
+  "researchVersion": "2026-07-25.21",
+  "assessmentSummary": {
+    "identity": "A ground-to-stand sequence beginning in a seated shin-box or staggered 90/90 position, extending the hips into tall kneeling, moving through half kneeling, rising to standing, and reversing the sequence under control before changing sides.",
+    "currentCardFindings": [
+      "The current card stops at tall kneeling or hip extension even though the established published Shin Box Get-Up continues through half kneeling to standing; the baseline identity must be corrected and the partial hip lift retained as a regression.",
+      "The archived Flow card described the same partial sequence with continuous cadence and did not warrant a second definition.",
+      "The current 40-point values understate the full sequence's hip rotation, ground transition, kneeling, lunge, balance, reversal, and eccentric-control demands."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "ground_to_stand",
+        "seated_hip_rotation",
+        "tall_kneeling_hip_extension",
+        "half_kneeling_transition",
+        "lunge_to_stand"
+      ],
+      "jointActions": [
+        "reciprocal_hip_internal_and_external_rotation",
+        "hip_extension",
+        "knee_extension",
+        "ankle_dorsiflexion_and_plantarflexion_control",
+        "trunk_bracing"
+      ],
+      "planes": [
+        "transverse",
+        "sagittal",
+        "frontal_stabilization"
+      ],
+      "laterality": "alternating_asymmetric",
+      "intent": "controlled_ground_to_stand_transition_through_hip_rotation_and_kneeling"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "quadriceps",
+        "deep_hip_rotators",
+        "gluteus_medius_and_minimus",
+        "adductors"
+      ],
+      "secondaryMuscles": [
+        "hamstrings",
+        "calf_complex",
+        "iliopsoas",
+        "foot_intrinsics",
+        "obliques",
+        "spinal_stabilizers",
+        "shoulder_and_arm_support_muscles_when_assisted"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex",
+        "thoracic_spine",
+        "shoulder",
+        "wrist_and_hand_when_supported"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 54,
+      "absoluteLoadDemand": 30,
+      "coordinationDemand": 58,
+      "supervisionDemand": 32,
+      "failureConsequence": 32,
+      "impact": 4,
+      "workCapacityDemand": 28,
+      "baseOverallDifficulty": 54
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_multi_position_ground_to_stand_with_optional_external_load",
+      "impactClass": "very_low",
+      "externalLoadMethod": "none_for_baseline_optional_goblet_or_overhead_load_after_bodyweight_control",
+      "primaryStress": [
+        "active_hip_rotation",
+        "hip_and_knee_extension",
+        "single_leg_and_half_kneeling_stability",
+        "eccentric_floor_return",
+        "trunk_control"
+      ],
+      "fatigueProfile": [
+        "using_momentum",
+        "knee_twist",
+        "pelvic_drop",
+        "trunk_collapse",
+        "uncontrolled_floor_contact",
+        "loss_of_balance",
+        "side_asymmetry"
+      ],
+      "recoveryHours": "24-48_when_loaded_or_high_volume_otherwise_minimal_to_24"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "level_padded_non_slip_floor",
+        "clear_ground_to_stand_space"
+      ],
+      "optionalEquipment": [
+        "hand_support",
+        "knee_padding",
+        "low_box",
+        "kettlebell_or_plate_after_bodyweight_control"
+      ],
+      "environment": [
+        "no_obstacles_in_leg_sweep_or_standing_path",
+        "stable_support_if_used",
+        "coach_sightline_for_floor_return"
+      ],
+      "population": [
+        "pain_free_floor_sitting_and_kneeling",
+        "sufficient_hip_rotation_for_a_modified_shin_box",
+        "can_rise_through_half_kneeling_with_assistance_if_needed",
+        "can_control_return_to_floor"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "1-3_sets_of_2-5_full_sequences_per_side",
+      "tempo": "controlled_with_1-2_second_ownership_at_seated_tall_kneeling_half_kneeling_and_standing_positions",
+      "restSeconds": "45-120",
+      "intensity": "bodyweight_technical_control_before_load_or_speed",
+      "measurement": "full_sequences_per_side_assistance_level_load_balance_errors_and_descent_control",
+      "progressWhen": "both sides complete the full sequence without knee twist, hand support beyond the assigned level, balance loss, uncontrolled descent, or symptom increase"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Sit tall in the shin box",
+        "Press the knees down and drive the hips forward",
+        "Own tall kneeling",
+        "Bring the back leg through to half kneeling",
+        "Stand tall, then reverse every step under control"
+      ],
+      "athleteInstructions": [
+        "Start seated in a comfortable shin-box position",
+        "Rotate and lift your hips into tall kneeling",
+        "Bring the back leg forward into half kneeling",
+        "Stand through the front foot",
+        "Step back and reverse the same path slowly",
+        "Reset and perform the other side"
+      ],
+      "commonFaults": [
+        "calling_only_the_hip_lift_a_full_get_up",
+        "forcing_90_degree_knee_angles",
+        "twisting_through_the_knee",
+        "using_momentum",
+        "missing_half_kneeling_control",
+        "plopping_to_floor",
+        "unequal_side_dose",
+        "loading_before_bodyweight_control"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "comfortable_modified_shin_box",
+        "pain_free_kneeling",
+        "controlled_half_kneeling_rise",
+        "safe_floor_transfer",
+        "clear_space"
+      ],
+      "qualityGates": [
+        "each_position_is_owned",
+        "knee_tracks_without_forced_twist",
+        "standing_balance_is_controlled",
+        "return_to_floor_is_quiet",
+        "side_order_is_complete"
+      ],
+      "stopRules": [
+        "sharp_or_increasing_hip_groin_knee_ankle_back_or_wrist_pain",
+        "numbness_or_tingling",
+        "joint_catching_or_giving_way",
+        "loss_of_balance_near_obstacles",
+        "uncontrolled_floor_contact",
+        "cannot_reverse_the_sequence_safely",
+        "repeated_knee_twist_or_trunk_collapse"
+      ]
+    },
+    "proposedContextualProfiles": [
+      {
+        "context": "prepare_and_access",
+        "dose": "1-2_sets_of_2-3_bodyweight_sequences_per_side",
+        "purpose": "integrate_hip_rotation_with_a_controlled_ground_to_stand_transition"
+      },
+      {
+        "context": "control_or_capacity",
+        "dose": "2-3_sets_of_3-5_sequences_per_side_with_assistance_or_light_load_selected_by_quality",
+        "purpose": "develop_repeatable_transition_strength_balance_and_eccentric_control"
+      }
+    ],
+    "proposedRelationships": {
+      "regressions": [
+        "shin_box_hip_lift_only",
+        "hand_supported_shin_box_get_up",
+        "shin_box_to_half_kneeling_only",
+        "elevated_seat_shin_box_get_up"
+      ],
+      "progressions": [
+        "hands_free_shin_box_get_up",
+        "goblet_loaded_shin_box_get_up",
+        "shin_box_get_up_to_single_leg_knee_drive"
+      ],
+      "substitutions": [
+        "half_kneeling_get_up",
+        "supported_floor_transfer",
+        "bodyweight_turkish_get_up_segment"
+      ],
+      "doNotSubstitute": [
+        "9090_hip_switch",
+        "turkish_get_up"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "stage_by_stage_front_and_side_demo",
+        "left_right_sequence_map",
+        "assistance_badge",
+        "quiet_floor_return_cue"
+      ],
+      "coach": [
+        "floor_space_and_support_check",
+        "stage_specific_pass_fail_rubric",
+        "side_asymmetry_log",
+        "load_progression_rule",
+        "floor_transfer_safety_plan"
+      ]
+    },
+    "calibrationEvidence": {
+      "basis": "peer-reviewed six-page movement description with illustrated stages, exact-title candidate videos, and comparison of three consolidated legacy sources",
+      "uncertainty": "The published article is an instructional patient section, not a trial validating performance outcomes, dosage, or a unique difficulty score.",
+      "reviewNeeded": [
+        "qualified_coach_and_clinician_content_review",
+        "full_sequence_identity_review",
+        "difficulty_anchor_comparison",
+        "floor_transfer_accessibility_test",
+        "full_video_review"
+      ]
+    },
+    "programmingDecision": "Retain one Shin Box Get-Up definition and correct its baseline to the complete ground-to-stand sequence. The hip lift, assisted version, half-kneeling endpoint, arm positions, external load, continuous flow, and single-leg finish are controlled stages or variants. A Turkish get-up remains a separate exercise.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T02:35:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Start in a shin box position. Use hands as needed. Drive through the hips to rise into a tall kneeling or hip-extended position, then return under control and switch sides.",
+      "familyKey": "Hip integration",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 20,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published shin-box sequence explicitly distinguishes the seated 90/90 position, the side-to-side transition, the tall-kneeling hip lift, the half-kneeling transition, and the rise to standing.",
+        "Shin Box Get-Up must state whether 90/90 means a supported supine breathing position or a seated staggered hip position, then define its exact start, transition, finish, support, reach, and return rather than relying on the number alone."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The shin-box paper describes hand support, arm position, external load, tall kneeling, half kneeling, standing, and single-leg finish as regressions, stages, or progressions within a named movement sequence.",
+        "Classify Shin Box Get-Up by body orientation, support position, hip actions, transition endpoint, arm task, assistance, external load, cadence, laterality, and whether standing is required."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8725321/",
+      "sourceTitle": "Impacts of external rotators and the ischiofemoral ligament on preventing excessive internal hip rotation: a cadaveric study",
+      "sourcePublisher": "Journal of Orthopaedic Surgery and Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Hip-rotator leverage changes with hip-flexion angle; a muscle may not perform the same rotational role across upright, flexed, and deeply flexed positions.",
+        "Represent the diaphragm and rib cage for the breathing card and the hip rotators, gluteals, adductors, knee flexors, foot contacts, pelvis, and trunk stabilizers actually used by each seated or get-up variant without reducing hip rotation to one named muscle."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The documented get-up maintains an upright torso while the legs rotate between 90/90 positions, the knees press into the floor, the hips extend into tall kneeling, and the athlete transitions through half kneeling to standing.",
+        "Coach Shin Box Get-Up so the intended hip or breathing action remains primary; range, reach, or height does not count when the athlete forces the knees, collapses the trunk, substitutes lumbar motion, or loses control of the return."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Hand support, arm position, external load, and the standing or single-leg endpoint materially change coordination and physical demand.",
+        "Assess technical complexity, absolute physical load, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. These are exercise attributes; athlete experience is programming context and is not a card level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10980866/",
+      "sourceTitle": "Chronic effects of stretching on range of motion with consideration of potential moderating variables: A systematic review with meta-analysis",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Range-of-motion interventions vary substantially in technique, intensity, duration, frequency, target tissue, supervision, and population, so generic mobility labels do not determine dose or recovery.",
+        "Shin Box Get-Up must track active versus supported range, sides or breaths, assistance, external load, tempo, end-position control, symptom response, technique loss, and overlap with other hip, trunk, kneeling, or respiratory work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published sequence uses floor contact, an upright torso, optional hand support, and progressively more demanding arm, load, kneeling, standing, and balance positions.",
+        "Require a non-slip padded surface, clear transition space, stable support where assigned, and pain-free hip, knee, back, and breathing tolerance; do not force a nominal 90-degree shape when anatomy or symptoms prevent it."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10980866/",
+      "sourceTitle": "Chronic effects of stretching on range of motion with consideration of potential moderating variables: A systematic review with meta-analysis",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Research on range-of-motion training reports heterogeneous protocols and does not validate one universal dose for these exact dynamic drills.",
+        "Treat card dosage as a conservative programming inference: use low-volume controlled breaths or transitions, side-balanced exposure, enough recovery to preserve position and breathing, and progression only after repeatable pain-free control."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published get-up procedure specifies an upright torso, approximately right-angle knees, controlled rotation, knee pressure into the floor, hip extension, half-kneeling transition, standing finish, and controlled reversal.",
+        "Instructions for Shin Box Get-Up must name the exact support, limb position, allowed assistance, movement path, breath or tempo, endpoint, return, side order, and definition of a successful repetition."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise should be supervised, technically appropriate, progressively dosed, and performed with safe equipment and space for the population.",
+        "Stop Shin Box Get-Up for sharp or increasing hip, groin, knee, back, neck, or respiratory symptoms; numbness or tingling; dizziness; forced knee contact; loss of floor traction; uncontrolled descent; breath strain; or repeated compensation."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10980866/",
+      "sourceTitle": "Chronic effects of stretching on range of motion with consideration of potential moderating variables: A systematic review with meta-analysis",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Longer-term range-of-motion improvement is supported across stretching methods, but intervention effects and protocols are heterogeneous and do not prove sport transfer from a single drill.",
+        "Use Shin Box Get-Up for an observable access, control, transition, or breathing need. Reassess the movement it is intended to support and avoid promising injury prevention, structural repositioning, or automatic performance transfer."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published get-up uses sequential front, side, and angled images to distinguish the seated, tall-kneeling, half-kneeling, standing, and single-leg stages.",
+        "Athlete support should show the exact start and finish, both sides, permitted hand support, the primary cue, a successful repetition, a comfortable-range option, and the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published sequence supplies regressions and progressions based on hand support, arm position, load, standing, and single-leg balance.",
+        "Coach support should distinguish position access from active control, provide front and side observation points, side comparison, assistance and load decisions, floor and spacing checks, dosage logging, and rules for shortening or ending the sequence."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published sequence explicitly permits hands behind the body to support an upright posture and progresses by changing arm position or adding load.",
+        "Accessibility options include elevating the hips, opening the knee angles, using hands or a stable support, shortening the transition, omitting the stand, adding padding, reducing sensory load, and using visual plus plain-language cues."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The paper distinguishes the seated switch, hip lift, half-kneeling transition, standing get-up, single-leg finish, arm positions, assistance, and external loading.",
+        "Treat hand support, arm position, reach, cadence, and light load as controlled variants when the primary sequence remains; retain separate definitions when the primary joint action or training stimulus changes, such as isolated end-range lift-offs or a Turkish get-up."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct videos for Shin Box Get-Up returned healthy oEmbed player metadata on 2026-07-26. Exact support position, full sequence, safety, cue quality, captions, accessibility, and demonstration quality remain pending human review."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=4kC--Mxi1dc",
+      "title": "Shin Box Get Up",
+      "channelName": "Repattern Co (Formerly Swell Wellness)",
+      "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T02:34:46Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=DaExVJ4BREU",
+      "title": "How to: Shin Box Get Ups",
+      "channelName": "Monta Vista Family Chiropractic",
+      "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T02:34:46Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=O4u3WZK4jbo",
+      "title": "Shin Box Get Up: Hip Mobility & Stability Drill | MYo Lab Health & Wellness",
+      "channelName": "MYo Lab Health & Wellness",
+      "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T02:34:46Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=ZkXvLi8Pokc",
+      "title": "Shin Box Get-Up Exercise",
+      "channelName": "Elite Performance Institute",
+      "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T02:34:46Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=rcYBuAeK_yM",
+      "title": "Shin-Box Get Up Tutorial",
+      "channelName": "LSE Health Wellness",
+      "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T02:34:46Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Shin Box Hip Lift",
+      "classification": "new_variant",
+      "rationale": "Stopping at tall-kneeling hip extension is a partial-range regression of the full get-up sequence.",
+      "distinguishingDimensions": {
+        "endpoint": "tall_kneeling"
+      }
+    },
+    {
+      "name": "Hand-Supported Shin Box Get-Up",
+      "classification": "new_variant",
+      "rationale": "Hand support reduces active hip and trunk demand while preserving the ground-to-stand sequence.",
+      "distinguishingDimensions": {
+        "supportLevel": "hands_or_stable_support"
+      }
+    },
+    {
+      "name": "Goblet Shin Box Get-Up",
+      "classification": "new_variant",
+      "rationale": "A chest-held load increases physical and trunk demand without changing the primary sequence.",
+      "distinguishingDimensions": {
+        "externalLoad": "goblet"
+      }
+    },
+    {
+      "name": "Shin Box Get-Up to Single-Leg Knee Drive",
+      "classification": "new_variant",
+      "rationale": "The single-leg finish adds balance and hip-flexion demand after the same ground-to-stand sequence.",
+      "distinguishingDimensions": {
+        "finish": "single_leg_knee_drive"
+      }
+    },
+    {
+      "name": "Turkish Get-Up",
+      "classification": "new_definition",
+      "rationale": "The Turkish get-up uses a different rolling, arm-support, bridge, sweep, and overhead-load sequence with a distinct primary training task.",
+      "distinguishingDimensions": {
+        "movementPattern": "loaded_supine_to_stand_overhead_sequence"
+      }
+    }
+  ]
+}

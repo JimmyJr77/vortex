@@ -1,0 +1,1218 @@
+{
+  "batchKey": "jump-to-stick-foundations-v1",
+  "facilityId": 1,
+  "researchVersion": "2026-07-25.3",
+  "snapshotAt": "2026-07-25T22:59:14.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Jump identity must distinguish the starting action, projection direction, takeoff and landing laterality, external height or obstacle, rebound intent, and required stabilization.",
+        "{{canonicalName}} must not combine a paused static start, countermovement, repeated rebound, loaded jump, testing protocol, or different landing laterality under one unspecified card."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "A jump-to-stick combines ballistic propulsion with a deliberate landing and stabilization phase; repeated reactive hopping is a different programming task.",
+        "{{canonicalName}} belongs to jump power with landing control, with direction, laterality, initiation, flight action, and rebound intent encoded as controlled dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "Propulsion and force absorption are coordinated across the foot and ankle, knee, hip, pelvis, and trunk.",
+        "The card should assign task-specific roles to plantar flexors and intrinsic foot muscles, quadriceps, hamstrings, gluteals, hip stabilizers, and trunk stabilizers rather than naming one isolated muscle."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Jump demand changes with projection speed, direction, external height, body mass, and the time available to produce and absorb force.",
+        "Observable quality includes the prescribed initiation, coordinated ankle-knee-hip propulsion, intended flight path, re-extension before contact where needed, quiet whole-foot landing, knee tracking, trunk control, and ownership of the finish."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Plyometric intensity changes with speed, height, distance, body mass, external load, laterality, and movement complexity.",
+        "Exercise difficulty must score technical complexity and physical demand directly, including coordination, impact, supervision, work capacity, and consequence of error; an exercise card must not receive a skill-library level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Landing contacts, jump height or distance, approach and initiation, laterality, and external load govern mechanical exposure; high-quality power repetitions require adequate rest.",
+        "{{canonicalName}} needs contact count, intent, impact and eccentric stress, technical-fatigue sensitivity, performance-loss criteria, and recovery guidance instead of treating all jumps as conditioning repetitions."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "landing_intervention_systematic_review",
+      "claims": [
+        "Effective jump-landing interventions depend on appropriate materials, coaching knowledge, usable space, and task-specific progression.",
+        "The delivery profile should require a level non-slip surface, clear flight and landing zones, adequate ceiling height, suitable footwear, athlete spacing, coach sightline, and readiness for the prescribed landing demand."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "Landing and stabilization control should precede higher, farther, unilateral, repeated, or reactive jumping.",
+        "Prescribe low-repetition quality sets, contacts, intent, target height or distance where relevant, hold duration, rest, and progression criteria; stop before fatigue alters takeoff or landing."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Specific prescriptive feedback can improve jump-landing mechanics, while excessive cue volume can interfere with learning.",
+        "Use a small cue set tied to the identity: perform the prescribed start, project in the intended direction, land quietly, align foot-knee-hip, and hold without a touch-down, shuffle, or rebound."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "Loud contact, poor stabilization, loss of alignment, or inability to coordinate ankle, knee, and hip indicate that jump intensity or volume exceeds current control.",
+        "Stop for pain, giving way, dizziness, repeated valgus or trunk collapse, uncontrolled foot contact, failure to re-extend before landing, missed landing zone, extra steps, or loss of jump output."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "youth_landing_stabilization_best_practice",
+      "claims": [
+        "Landing stabilization and lower-body strength are recurring components of effective neuromuscular injury-prevention programs.",
+        "{{canonicalName}} belongs after preparation and before fatigued conditioning; high-intent jump work should use low volume and full enough recovery to preserve output and landing quality."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Athletes benefit from feedback tied to visible movement actions rather than abstract risk language.",
+        "Athlete support should show the start, flight, and landing shapes, define a successful repetition, identify the target and hold time, provide one primary cue, and explain the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "landing_intervention_systematic_review",
+      "claims": [
+        "Coach education and practical implementation affect whether jump-landing interventions are delivered effectively.",
+        "Coach support should provide front and side observation points, pass-fail criteria, contact counting, output-loss and asymmetry rules, progressions, regressions, equipment checks, and rules for reducing height, distance, laterality, or cue complexity."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "Beginners should establish bilateral landing and stabilization before progressing to unilateral, higher, farther, or reactive tasks.",
+        "Accessibility can be improved with visual targets, demonstrated shapes, plain-language cues, reduced height or distance, assistance, longer reset time, and reduced sensory or decision load without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Static starts, countermovements, jumps covering distance, unilateral landings, repeated contacts, obstacles, and externally loaded jumps have different intensity and programming implications.",
+        "Arm action, target distance, submaximal intent, and assistance are usually variants or modifiers; different initiation, projection, landing laterality, rebound intent, or testing purpose may require a distinct definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for {{canonicalName}} were discovered or rechecked through visible YouTube search and public oEmbed metadata; exact movement match, full-content review, captions, instructional quality, safety, and approval remain pending human review."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "squat-jump-to-stick",
+      "assessmentSummary": {
+        "identity": "A bilateral vertical jump initiated from a motionless partial-squat hold, followed by a bilateral landing in the takeoff area and a deliberate two-second stick.",
+        "currentCardFindings": [
+          "The legacy card does not specify a pause, so it overlaps the separate Countermovement Jump to Stick identity.",
+          "Its generic 40-point scoring understates impact and failure consequence while leaving supervision, impact, and work-capacity demand unscored.",
+          "Anatomy, controlled taxonomy, load, fatigue, constraints, and support fields are empty; one repetition at RPE 9 does not define start depth, pause, jump intent, landing hold, or progression."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "static_squat_start",
+            "vertical_jump",
+            "bilateral_land",
+            "brace"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "ankle_dorsiflexion_control",
+            "knee_flexion_control",
+            "hip_flexion_control"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "bilateral_takeoff_bilateral_landing",
+          "intent": "vertical_concentric_power_with_landing_control"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 40,
+          "absoluteLoadDemand": 14,
+          "coordinationDemand": 44,
+          "supervisionDemand": 38,
+          "failureConsequence": 44,
+          "impact": 46,
+          "workCapacityDemand": 18,
+          "baseOverallDifficulty": 40
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_concentric_ballistic_and_eccentric_landing",
+          "impactClass": "moderate",
+          "contactCountUnit": "bilateral_jump_landings",
+          "primaryStress": [
+            "knee_and_hip_extensor_power",
+            "plantarflexor_power",
+            "vertical_force_attenuation"
+          ],
+          "fatigueSensitivity": "jump_height_and_landing_quality_before_metabolic"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [],
+          "optionalEquipment": [
+            "jump_target",
+            "floor_target",
+            "video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "adequate_ceiling_height",
+            "clear_landing_zone"
+          ],
+          "population": [
+            "owns_bilateral_squat_and_jump_to_stick",
+            "tolerates_moderate_bilateral_landing_contacts"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-5",
+          "repetitions": "2-5",
+          "startHoldSeconds": "2-3",
+          "landingHoldSeconds": "2-3",
+          "restSeconds": "60-120",
+          "intensity": "submaximal_to_high_intent_with_no_prep_dip",
+          "progressWhen": "the athlete holds the same squat depth, jumps without a countermovement, and lands quietly in the takeoff area on every repetition"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Set the squat depth and become still",
+            "Jump straight up without dipping again",
+            "Land where you started",
+            "Absorb and freeze"
+          ],
+          "athleteInstructions": [
+            "Hold a shallow squat for two seconds",
+            "Jump straight up from the still position",
+            "Land on both feet and hold"
+          ],
+          "commonFaults": [
+            "pre-jump dip",
+            "changing start depth",
+            "forward drift",
+            "uneven takeoff",
+            "stiff or loud landing",
+            "immediate rebound"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain-free bilateral squat",
+            "mastered snap-down and basic bilateral jump landing",
+            "clear non-slip area"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "repeated pre-jump dip",
+            "loss of jump height",
+            "asymmetrical or loud landing",
+            "cannot hold the finish"
+          ]
+        },
+        "programmingDecision": "Rename to Paused Squat Jump to Stick or require a two-to-three-second static start in every profile. The separate countermovement card owns a rapid dip-and-drive; do not treat the two starts as interchangeable."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=nJ3vPGvSB20",
+          "title": "Paused squat jump and stick",
+          "channelName": "Zee Woodar",
+          "sourceQuery": "paused squat jump to stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=1BNnEMy_RyY",
+          "title": "Squat Jump - 3 Second Pause",
+          "channelName": "Speed School Performance",
+          "sourceQuery": "paused squat jump to stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Mmotk4K6pzM",
+          "title": "Paused Squat Jump",
+          "channelName": "Taylor Catrett",
+          "sourceQuery": "paused squat jump to stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=_rkPJil2bUA",
+          "title": "Paused squat Jump with stick",
+          "channelName": "Alessandro Frigerio",
+          "sourceQuery": "paused squat jump to stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=GQT_nQUUIlk",
+          "title": "Jump Squat w/ Stick (pause)",
+          "channelName": "Coach Justin PH",
+          "sourceQuery": "paused squat jump to stick"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Paused Squat Jump to Stick",
+          "classification": "same_identity",
+          "rationale": "The pause makes the intended static-start identity explicit and separates it from a countermovement jump.",
+          "distinguishingDimensions": {
+            "canonicalName": "paused_squat_jump_to_stick"
+          }
+        },
+        {
+          "name": "Countermovement Jump to Stick",
+          "classification": "new_definition",
+          "rationale": "A rapid eccentric dip before takeoff changes initiation, stretch-shortening contribution, and timing demand.",
+          "distinguishingDimensions": {
+            "initiation": "countermovement"
+          }
+        },
+        {
+          "name": "Arm-Restricted Paused Squat Jump",
+          "classification": "new_variant",
+          "rationale": "Hands-on-hips execution changes arm contribution but preserves the static bilateral vertical jump.",
+          "distinguishingDimensions": {
+            "armAction": "hands_on_hips"
+          }
+        },
+        {
+          "name": "Band-Assisted Squat Jump to Stick",
+          "classification": "new_variant",
+          "rationale": "Assistance reduces effective load and landing demand while preserving the start and projection.",
+          "distinguishingDimensions": {
+            "supportLevel": "band_assisted"
+          }
+        },
+        {
+          "name": "Repeated Jump Squats",
+          "classification": "new_definition",
+          "rationale": "Continuous rebounds remove the stick and emphasize reactive output or work capacity.",
+          "distinguishingDimensions": {
+            "reboundIntent": "continuous",
+            "primaryTrainingStimulus": "reactive_power_or_capacity"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "countermovement-jump-to-stick",
+      "assessmentSummary": {
+        "identity": "A bilateral vertical jump using one rapid self-selected countermovement and arm swing, followed by a bilateral landing in place and a deliberate two-second stick.",
+        "currentCardFindings": [
+          "The legacy description identifies dip-and-drive but does not lock out repeated bouncing, loaded execution, testing protocols, or landing laterality.",
+          "Its generic 40-point difficulty does not score impact, supervision, failure consequence, or output-related fatigue.",
+          "Controlled taxonomy, anatomy, load, fatigue, constraints, and coach/athlete support are empty."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "countermovement",
+            "vertical_jump",
+            "bilateral_land",
+            "brace"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "ankle_dorsiflexion_control",
+            "knee_flexion_control",
+            "hip_flexion_control"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "bilateral_takeoff_bilateral_landing",
+          "intent": "vertical_stretch_shortening_power_with_landing_control"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "intrinsic_foot",
+            "trunk_stabilizers",
+            "shoulder_girdle_arm_swing"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 44,
+          "absoluteLoadDemand": 16,
+          "coordinationDemand": 48,
+          "supervisionDemand": 40,
+          "failureConsequence": 46,
+          "impact": 48,
+          "workCapacityDemand": 18,
+          "baseOverallDifficulty": 44
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_stretch_shortening_ballistic_and_eccentric_landing",
+          "impactClass": "moderate",
+          "contactCountUnit": "bilateral_jump_landings",
+          "primaryStress": [
+            "knee_and_hip_extensor_power",
+            "plantarflexor_power",
+            "vertical_force_attenuation"
+          ],
+          "fatigueSensitivity": "jump_height_takeoff_timing_and_landing_quality"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [],
+          "optionalEquipment": [
+            "jump_target",
+            "force_plate_or_jump_mat_for_testing_profile",
+            "video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "adequate_ceiling_height",
+            "clear_landing_zone"
+          ],
+          "population": [
+            "owns_bilateral_jump_and_stick",
+            "can_coordinate_one_dip_and_drive_without_repeated_bounce"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-5",
+          "repetitions": "2-5",
+          "landingHoldSeconds": "2-3",
+          "restSeconds": "60-150",
+          "intensity": "submaximal_learning_or_high_intent_power",
+          "progressWhen": "one clean dip produces vertical projection and all landings remain quiet, symmetrical, and in place without output loss"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Use one quick dip",
+            "Drive the floor away and finish tall",
+            "Land where you started",
+            "Absorb and freeze"
+          ],
+          "athleteInstructions": [
+            "Dip once and jump straight up",
+            "Use your arms naturally",
+            "Land on both feet and hold for two seconds"
+          ],
+          "commonFaults": [
+            "multiple prep bounces",
+            "excessive squat depth",
+            "forward drift",
+            "uneven takeoff",
+            "stiff landing",
+            "immediate rebound"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "mastered bilateral landing and paused jump to stick",
+            "pain-free high-intent takeoff and landing",
+            "clear ceiling and floor"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "repeated prep bounce",
+            "visible jump-height loss",
+            "asymmetrical or loud landing",
+            "cannot hold the finish"
+          ]
+        },
+        "programmingDecision": "Retain as the single-repetition dip-and-drive jump-to-stick. Keep paused squat jumps, loaded jumps, repeated countermovement jumps, and formal jump testing as variants or separate contextual profiles."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=ciKy4X-WyCk",
+          "title": "Counter movement jump - Stick and land",
+          "channelName": "LSF95",
+          "sourceQuery": "countermovement jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=cGk94u-EElM",
+          "title": "Counter Movement with a stick landing",
+          "channelName": "Just 4 You Fitness",
+          "sourceQuery": "countermovement jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=gObPFKgofYE",
+          "title": "Countermovement Vertical Jump + Stick (Landing)",
+          "channelName": "Depth Training and Physiotherapy Waterloo",
+          "sourceQuery": "countermovement jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=AAGVHj0cNxM",
+          "title": "Countermovement Jumps stick landing",
+          "channelName": "Prentiss Human Performance",
+          "sourceQuery": "countermovement jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=aT0t4CExaHw",
+          "title": "Countermovement Jump With Stick",
+          "channelName": "JMTrainingSolutions",
+          "sourceQuery": "countermovement jump to stick landing"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Countermovement Vertical Jump and Stick",
+          "classification": "same_identity",
+          "rationale": "This name makes the vertical direction and stabilization requirement explicit.",
+          "distinguishingDimensions": {
+            "alias": "countermovement_vertical_jump_and_stick"
+          }
+        },
+        {
+          "name": "Paused Squat Jump to Stick",
+          "classification": "new_definition",
+          "rationale": "A motionless squat start removes the countermovement and changes takeoff mechanics.",
+          "distinguishingDimensions": {
+            "initiation": "static_paused"
+          }
+        },
+        {
+          "name": "Hands-on-Hips Countermovement Jump",
+          "classification": "new_variant",
+          "rationale": "Restricting arm swing changes coordination and output but preserves the countermovement jump.",
+          "distinguishingDimensions": {
+            "armAction": "hands_on_hips"
+          }
+        },
+        {
+          "name": "Loaded Countermovement Jump",
+          "classification": "new_variant",
+          "rationale": "External load materially changes force-velocity demand and requires a separate delivery profile.",
+          "distinguishingDimensions": {
+            "externalLoad": "prescribed"
+          }
+        },
+        {
+          "name": "Countermovement Jump Test",
+          "classification": "new_definition",
+          "rationale": "A standardized maximal measurement protocol has a testing purpose, measurement rules, and validity requirements beyond training execution.",
+          "distinguishingDimensions": {
+            "primaryPurpose": "assessment",
+            "measurementProtocol": "standardized"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "broad-jump-to-stick",
+      "assessmentSummary": {
+        "identity": "A standing bilateral countermovement jump projected forward for distance, followed by a bilateral landing and deliberate stabilization without an extra step.",
+        "currentCardFindings": [
+          "The legacy description incorrectly frames this as jump-height work even though the defining vector is horizontal distance.",
+          "The one-repetition RPE 9 profile does not distinguish training from a standardized standing broad-jump test or prescribe distance, landing zone, hold, and output-loss rules.",
+          "Generic 40-point difficulty and empty anatomy, load, fatigue, constraints, and support fields understate horizontal momentum and landing consequence."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "countermovement",
+            "horizontal_jump",
+            "bilateral_land",
+            "brace"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "ankle_dorsiflexion_control",
+            "knee_flexion_control",
+            "hip_flexion_control"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "bilateral_takeoff_bilateral_landing",
+          "intent": "horizontal_projection_power_with_braking"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "quadriceps",
+            "hamstrings",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius",
+            "hip_flexors",
+            "intrinsic_foot",
+            "trunk_stabilizers",
+            "shoulder_girdle_arm_swing"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 48,
+          "absoluteLoadDemand": 18,
+          "coordinationDemand": 52,
+          "supervisionDemand": 44,
+          "failureConsequence": 52,
+          "impact": 54,
+          "workCapacityDemand": 20,
+          "baseOverallDifficulty": 48
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_horizontal_ballistic_and_eccentric_braking",
+          "impactClass": "moderate",
+          "contactCountUnit": "horizontal_jump_landings",
+          "primaryStress": [
+            "hip_extensor_horizontal_power",
+            "knee_extensor_power",
+            "plantarflexor_power",
+            "horizontal_braking"
+          ],
+          "fatigueSensitivity": "distance_and_landing_ownership_before_metabolic"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "takeoff_line",
+            "clear_landing_zone"
+          ],
+          "optionalEquipment": [
+            "distance_markers",
+            "tape_measure_for_testing_profile",
+            "video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "three_body_lengths_clearance",
+            "clear_run_out"
+          ],
+          "population": [
+            "owns_bilateral_vertical_jump_and_forward_jump_to_stick",
+            "can_absorb_horizontal_momentum_without_extra_step"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-5",
+          "repetitions": "2-4",
+          "landingHoldSeconds": "2-3",
+          "restSeconds": "75-150",
+          "intensity": "submaximal_distance_learning_or_high_intent_power",
+          "progressWhen": "projection is symmetrical and repeated distance stays stable while every landing remains quiet and held behind the safety boundary"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Load the hips and swing the arms",
+            "Project forward, not only upward",
+            "Reach the feet forward then bring the hips over them",
+            "Land quietly and freeze"
+          ],
+          "athleteInstructions": [
+            "Start behind the line",
+            "Jump forward from two feet",
+            "Land on two feet and hold without stepping"
+          ],
+          "commonFaults": [
+            "stepping into takeoff",
+            "uneven foot departure",
+            "excessive upward-only projection",
+            "feet too far ahead of hips",
+            "hands touching down",
+            "extra recovery step"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "mastered bilateral jump and stick",
+            "pain-free horizontal jump and landing",
+            "long clear non-slip landing area"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "missed or unsafe landing zone",
+            "hands touch down",
+            "extra recovery step",
+            "repeated valgus",
+            "distance clearly drops"
+          ]
+        },
+        "programmingDecision": "Retain as horizontal projection and braking, not jump-height work. Separate the standardized standing broad-jump assessment profile from submaximal learning and high-intent training profiles."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=nmvGGDL5G3g",
+          "title": "Broad Jump stick landing",
+          "channelName": "Body Art Athletics",
+          "sourceQuery": "broad jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Fhz-s_Hqo8I",
+          "title": "Broad Jump to Stick | Build Power & Landing Control for Gymnasts",
+          "channelName": "uoasportsagility",
+          "sourceQuery": "broad jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=VzszXamvue4",
+          "title": "Broad Jump - Stick the landing",
+          "channelName": "High Performance Content for AFL Staff & Athletes",
+          "sourceQuery": "broad jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=tke3Ip83ozg",
+          "title": "Countermovement Broad Jump + Stick (Landing)",
+          "channelName": "Depth Training and Physiotherapy Waterloo",
+          "sourceQuery": "broad jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=bHT0w3KADFI",
+          "title": "Broad Jump w/stick",
+          "channelName": "Bullett Performance Training",
+          "sourceQuery": "broad jump to stick landing"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Standing Broad Jump to Stick",
+          "classification": "same_identity",
+          "rationale": "Standing broad jump is the common name for the same bilateral horizontal projection and landing task.",
+          "distinguishingDimensions": {
+            "alias": "standing_broad_jump_to_stick"
+          }
+        },
+        {
+          "name": "Submaximal Broad Jump to Target",
+          "classification": "new_variant",
+          "rationale": "A fixed reachable target reduces output demand while preserving horizontal projection and braking.",
+          "distinguishingDimensions": {
+            "intent": "submaximal",
+            "targetDistance": "prescribed"
+          }
+        },
+        {
+          "name": "Single-Leg Broad Jump to Stick",
+          "classification": "new_variant",
+          "rationale": "Unilateral takeoff or landing materially changes balance, propulsion, and tissue demand.",
+          "distinguishingDimensions": {
+            "laterality": "unilateral"
+          }
+        },
+        {
+          "name": "Repeated Broad Jumps",
+          "classification": "new_definition",
+          "rationale": "Linking contacts removes the deliberate stick and emphasizes repeated horizontal power or reactive ability.",
+          "distinguishingDimensions": {
+            "reboundIntent": "repeated",
+            "primaryTrainingStimulus": "repeated_horizontal_power"
+          }
+        },
+        {
+          "name": "Standing Broad Jump Test",
+          "classification": "new_definition",
+          "rationale": "A maximal measured assessment requires standardized takeoff-line, landing measurement, attempt, and validity rules.",
+          "distinguishingDimensions": {
+            "primaryPurpose": "assessment",
+            "measurementProtocol": "standardized_distance"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "split-squat-jump-to-stick",
+      "assessmentSummary": {
+        "identity": "A vertical jump from a split stance with the same lead leg retained through flight and a controlled landing back into the same split stance; the current card is quarantined because it also permits switching legs.",
+        "currentCardFindings": [
+          "The cue 'switch or land split' combines same-stance split-squat jumps and scissor jumps, which have different coordination and landing demands.",
+          "The generic 40-point score does not represent split-stance balance, front-leg braking, pelvis control, impact, or consequence of error.",
+          "Anatomy, load, fatigue, constraints, laterality, and support fields are empty; the current media pool must be reviewed for same-side versus switching execution."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "split_stance",
+            "vertical_jump",
+            "split_stance_land",
+            "brace"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "ankle_dorsiflexion_control",
+            "knee_flexion_control",
+            "hip_flexion_control"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "asymmetrical_bilateral_same_lead_leg",
+          "intent": "split_stance_vertical_power_with_landing_control"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "lead_leg_quadriceps",
+            "lead_leg_gluteus_maximus",
+            "bilateral_soleus_and_gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "hip_flexors",
+            "adductors",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 56,
+          "absoluteLoadDemand": 18,
+          "coordinationDemand": 62,
+          "supervisionDemand": 52,
+          "failureConsequence": 58,
+          "impact": 54,
+          "workCapacityDemand": 22,
+          "baseOverallDifficulty": 56
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_asymmetrical_bilateral_ballistic_and_eccentric_landing",
+          "impactClass": "moderate",
+          "contactCountUnit": "split_stance_landings_per_lead_side",
+          "primaryStress": [
+            "lead_leg_knee_and_hip_extensor_power",
+            "split_stance_pelvic_control",
+            "asymmetrical_landing_braking"
+          ],
+          "fatigueSensitivity": "pelvis_alignment_landing_symmetry_and_jump_height"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "split_stance_floor_marks"
+          ],
+          "optionalEquipment": [
+            "light_support",
+            "video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "adequate_ceiling_height",
+            "clear_landing_zone",
+            "coach_front_view"
+          ],
+          "population": [
+            "owns_split_squat_and_bilateral_jump_to_stick",
+            "can_land_in_split_stance_without_knee_or_pelvis_collapse"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "2-4 per lead side",
+          "landingHoldSeconds": "2-3",
+          "restSeconds": "60-120",
+          "intensity": "submaximal_to_high_intent_same_lead_leg",
+          "progressWhen": "the same lead leg is retained and both sides land on their marks with stable foot, knee, pelvis, and trunk"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Set a balanced split stance",
+            "Drive vertically without changing legs",
+            "Land back on the same marks",
+            "Own the front foot, knee, and pelvis"
+          ],
+          "athleteInstructions": [
+            "Start in a split squat",
+            "Jump straight up and keep the same leg forward",
+            "Land in the same stance and hold"
+          ],
+          "commonFaults": [
+            "unplanned leg switch",
+            "narrow tightrope stance",
+            "forward drift",
+            "front-knee collapse",
+            "pelvis rotation",
+            "rear foot loses position",
+            "immediate rebound"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain-free split squat",
+            "mastered bilateral jump and stick",
+            "stable split-stance landing on both lead sides"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "unplanned leg switch",
+            "missed floor marks",
+            "repeated knee or pelvis collapse",
+            "cannot hold the landing",
+            "side-to-side output degrades"
+          ]
+        },
+        "programmingDecision": "Quarantine until the contact sequence is fixed. Preferred base identity retains the same lead leg; create a Scissor Jump to Stick variant or definition for an intentional mid-air switch and do not permit both under one instruction."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=JSyO82TMOPc",
+          "title": "Split Squat Jump Stick Landing",
+          "channelName": "BTY Training TV",
+          "sourceQuery": "split squat jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=SmrnXZHCoi0",
+          "title": "Split Squat Jump - stick landing",
+          "channelName": "Princeton Strength",
+          "sourceQuery": "split squat jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=C9kVnxWTqEY",
+          "title": "Split Squat Jumps (Stick Landing)",
+          "channelName": "LipscombStrengthVid1",
+          "sourceQuery": "split squat jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=WTqNNZnj_ts",
+          "title": "SPLIT SQUAT JUMP - STICK LANDING.mp4",
+          "channelName": "EIUStrengthTraining",
+          "sourceQuery": "split squat jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Gk_Ss2ON9no",
+          "title": "Split Stance Vertical Jump - Stick Landing",
+          "channelName": "Depth Training and Physiotherapy Waterloo",
+          "sourceQuery": "split squat jump to stick landing"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Same-Stance Split-Squat Jump to Stick",
+          "classification": "same_identity",
+          "rationale": "This name fixes the proposed base contact sequence by retaining the same lead leg.",
+          "distinguishingDimensions": {
+            "leadLegAction": "retained"
+          }
+        },
+        {
+          "name": "Scissor Jump to Stick",
+          "classification": "new_definition",
+          "rationale": "Switching legs in flight changes coordination, landing timing, and the final stance.",
+          "distinguishingDimensions": {
+            "leadLegAction": "switch_in_flight",
+            "movementPattern": "scissor_jump"
+          }
+        },
+        {
+          "name": "Split-Stance Countermovement Jump to Bilateral Landing",
+          "classification": "new_variant",
+          "rationale": "Landing on two feet reduces split-stance braking demand but changes landing laterality.",
+          "distinguishingDimensions": {
+            "landingLaterality": "bilateral_parallel_stance"
+          }
+        },
+        {
+          "name": "Rear-Foot-Elevated Split-Squat Jump",
+          "classification": "new_variant",
+          "rationale": "Rear-foot elevation changes support, range, balance, and loading and requires separate equipment and dosage.",
+          "distinguishingDimensions": {
+            "surfaceHeight": "rear_foot_elevated"
+          }
+        },
+        {
+          "name": "Continuous Alternating Split Jumps",
+          "classification": "new_definition",
+          "rationale": "Repeated switching contacts remove the stick and emphasize reactive or conditioning demand.",
+          "distinguishingDimensions": {
+            "reboundIntent": "continuous",
+            "primaryTrainingStimulus": "reactive_power_or_capacity"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "tuck-jump-to-stick",
+      "assessmentSummary": {
+        "identity": "A single high-intent bilateral vertical jump with a deliberate knee-tuck action during flight, active leg re-extension before contact, and a bilateral landing held for two seconds.",
+        "currentCardFindings": [
+          "The legacy description identifies knee drive and re-extension but prescribes three repetitions and 20 work seconds, which risks turning a high-impact skill into a repeated fatigue drill.",
+          "The generic 40-point difficulty substantially understates flight coordination, re-extension timing, impact, supervision, and consequence of error.",
+          "Controlled anatomy, load, fatigue, constraints, and support fields are empty; repeated tuck jumps and obstacle or block variations are not separated."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "countermovement",
+            "vertical_jump",
+            "flight_tuck",
+            "re_extension",
+            "bilateral_land",
+            "brace"
+          ],
+          "jointActions": [
+            "ankle_plantarflexion",
+            "knee_extension",
+            "hip_extension",
+            "hip_flexion_in_flight",
+            "knee_flexion_in_flight",
+            "leg_re_extension",
+            "landing_flexion_control"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "bilateral_takeoff_bilateral_landing",
+          "intent": "vertical_power_and_air_position_control"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius",
+            "hip_flexors"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "abdominals",
+            "gluteus_medius",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 14,
+          "coordinationDemand": 62,
+          "supervisionDemand": 55,
+          "failureConsequence": 62,
+          "impact": 60,
+          "workCapacityDemand": 24,
+          "baseOverallDifficulty": 58
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_high_amplitude_ballistic_and_eccentric_landing",
+          "impactClass": "high",
+          "contactCountUnit": "tuck_jump_landings",
+          "primaryStress": [
+            "vertical_power",
+            "rapid_hip_flexion_and_re_extension",
+            "high_vertical_force_attenuation"
+          ],
+          "fatigueSensitivity": "flight_timing_re_extension_jump_height_and_landing_quality"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [],
+          "optionalEquipment": [
+            "visual_knee_target",
+            "video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "generous_ceiling_height",
+            "clear_landing_zone",
+            "coach_side_view"
+          ],
+          "population": [
+            "owns_high_intent_countermovement_jump_and_stick",
+            "can_re_extend_legs_before_landing",
+            "tolerates_high_bilateral_landing_contacts"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "1-3 with full reset",
+          "landingHoldSeconds": "2-3",
+          "restSeconds": "75-150",
+          "intensity": "high_intent_single_repetition",
+          "progressWhen": "the knees rise without trunk collapse, legs fully re-extend before contact, and every landing remains quiet and held"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Jump tall before you tuck",
+            "Bring knees up without folding the chest",
+            "Straighten the legs before the floor",
+            "Land quietly and freeze"
+          ],
+          "athleteInstructions": [
+            "Jump straight up",
+            "Tuck your knees in the air",
+            "Open the legs before landing",
+            "Land on both feet and hold"
+          ],
+          "commonFaults": [
+            "tucking before full takeoff",
+            "chest collapsing to knees",
+            "late or absent re-extension",
+            "feet behind the body",
+            "stiff loud landing",
+            "rushing repeated reps"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "mastered high-intent countermovement jump to stick",
+            "adequate ceiling clearance",
+            "demonstrates re-extension at submaximal height"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "head or object clearance risk",
+            "cannot re-extend before contact",
+            "landing gets louder or lower",
+            "jump height drops",
+            "rushing without reset"
+          ]
+        },
+        "programmingDecision": "Retain only as a single-repetition reset drill with active re-extension and full landing ownership. Continuous tuck jumps, work intervals, and block-drop tuck jumps require separate definitions or profiles and higher exposure controls."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=tiI6-lZQVE4",
+          "title": "Tuck Jump - Stick Landing",
+          "channelName": "Henry Bergmann",
+          "sourceQuery": "tuck jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=bQDviYUZt9E",
+          "title": "Tuck Jump Stick",
+          "channelName": "LundtG",
+          "sourceQuery": "tuck jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=dmOPF9GGUgM",
+          "title": "Tuck jump → mid landing",
+          "channelName": "Ryan Ford",
+          "sourceQuery": "tuck jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=eKWwQsYgU8c",
+          "title": "Tuck Jump Stick",
+          "channelName": "YST Exercises",
+          "sourceQuery": "tuck jump to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=SYhl-26i2Cs",
+          "title": "Tuck Jumps Stick Landing",
+          "channelName": "CaseStrength",
+          "sourceQuery": "tuck jump to stick landing"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Single Tuck Jump and Stick",
+          "classification": "same_identity",
+          "rationale": "This name makes the required single repetition, reset, and landing stabilization explicit.",
+          "distinguishingDimensions": {
+            "repetitionStructure": "single_reset"
+          }
+        },
+        {
+          "name": "Submaximal Tuck Jump to Target",
+          "classification": "new_variant",
+          "rationale": "A lower knee target reduces flight demand while preserving the tuck and re-extension sequence.",
+          "distinguishingDimensions": {
+            "tuckHeight": "submaximal_target"
+          }
+        },
+        {
+          "name": "Continuous Tuck Jumps",
+          "classification": "new_definition",
+          "rationale": "Repeated rebound contacts remove the stick and sharply increase reactive and metabolic exposure.",
+          "distinguishingDimensions": {
+            "reboundIntent": "continuous",
+            "primaryTrainingStimulus": "reactive_power_or_capacity"
+          }
+        },
+        {
+          "name": "Tuck Jump Off Block to Stick",
+          "classification": "new_variant",
+          "rationale": "External drop height increases flight and landing demand and requires stable equipment and separate dosage.",
+          "distinguishingDimensions": {
+            "surfaceHeight": "elevated_takeoff"
+          }
+        },
+        {
+          "name": "Countermovement Jump to Stick",
+          "classification": "new_variant",
+          "rationale": "Removing the in-flight tuck is the direct lower-coordination regression while retaining vertical projection and landing.",
+          "distinguishingDimensions": {
+            "flightAction": "none"
+          }
+        }
+      ]
+    }
+  ]
+}

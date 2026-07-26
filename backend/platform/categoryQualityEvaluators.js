@@ -20,6 +20,7 @@ import {
   resolveAudienceProfile,
   detectStrengthIntent,
   resolveHardDifficultyExclude,
+  classifyAgeFit,
 } from './ageDifficultyPolicy.js'
 
 import { EXTENDED_CATEGORY_REGISTRY } from './categoryEvaluatorsExtended.js'
@@ -1007,19 +1008,23 @@ export function evaluateCategory4Audience(result, expectedBody, checks, context 
   let skillTotal = 0
   for (const block of result.blocks ?? []) {
     for (const item of block.items ?? []) {
+      const difficulty = item.difficulty
+        ?? difficultyByExerciseId.get(String(item.exercise_id))
+        ?? difficultyByExerciseId.get(Number(item.exercise_id))
+      if (!difficulty) continue
       skillTotal += 1
-      const exSkill = exerciseById.get(Number(item.exercise_id))?.skill_level
-      if (exSkill == null || exSkill === '' || String(exSkill).toUpperCase() === audienceSkill) {
+      if (classifyAgeFit(difficulty, expected.caps) !== 'over_cap') {
         skillMatch += 1
       }
     }
   }
   const skillRate = skillTotal > 0 ? skillMatch / skillTotal : 1
-  info(checks, 'audience_skill_level_adherence', `Skill level match ${(skillRate * 100).toFixed(0)}% (null or ${audienceSkill})`, {
+  info(checks, 'audience_skill_level_adherence', `Difficulty-cap adherence ${(skillRate * 100).toFixed(0)}%`, {
     skillMatch,
     skillTotal,
-    audienceSkill,
+    caps: expected.caps,
     ok_band: skillRate >= 0.95,
+    legacy_check_id: true,
   })
 
   // C4-MOP-12

@@ -90,7 +90,7 @@ async function main() {
 
   const result = await pool.query(`
     SELECT DISTINCT ON (e.id)
-           e.id, e.slug, e.name, e.primary_phase_key, e.phase_subrole, e.skill_level,
+           e.id, e.slug, e.name, e.primary_phase_key, e.phase_subrole,
            e.participant_structure, e.age_min, e.age_max, e.movement_requirements,
            e.movement_family, e.load_note, e.programming_kind,
            p.technical_complexity, p.fatigue_cost, p.impact_level,

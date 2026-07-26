@@ -1,0 +1,2598 @@
+{
+  "source": "https://static.usagym.org/PDFs/gfa/at/25rp_cop.pdf#page=79",
+  "effectiveCycle": "2025-2026",
+  "extractedOn": "2026-07-25",
+  "note": "Official factual notation extracted from rendered Code pages 79-81 and normalized against the page images.",
+  "elements": [
+    {
+      "elementNumber": 1,
+      "notation": "2-2; FC; GRD-EXT; VER-VER; HSUP \"I\"",
+      "direction": "Ascending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-1"
+    },
+    {
+      "elementNumber": 4,
+      "notation": "2-2; FC; GRD-EXT; VER-VER; VER HSUP \"S\"",
+      "direction": "Ascending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-4"
+    },
+    {
+      "elementNumber": 6,
+      "notation": "2-1; FC; H-H; GRD-SHD; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-6"
+    },
+    {
+      "elementNumber": 12,
+      "notation": "2-1; FC; GRD-EXT; VER-VER; HSUP \"I\"",
+      "direction": "Ascending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-12"
+    },
+    {
+      "elementNumber": 5,
+      "notation": "1-2; FC; SHD-EXT; VER-VER; VER HSUP \"S\"",
+      "direction": "Ascending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-5"
+    },
+    {
+      "elementNumber": 7,
+      "notation": "1-1; FC; H-H; GRD-SHD; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-7"
+    },
+    {
+      "elementNumber": 11,
+      "notation": "1-1; FC; GRD-EXT; VER-VER; HSUP \"I\"",
+      "direction": "Ascending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-11"
+    },
+    {
+      "elementNumber": 8,
+      "notation": "2-1; FC; H-H; GRD-SHD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-8"
+    },
+    {
+      "elementNumber": 13,
+      "notation": "3-2; FC; GRD-EXT; VER-INV NON HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-13"
+    },
+    {
+      "elementNumber": 9,
+      "notation": "3-3; FC; GRD-SHD; VER-VER; 1 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-9"
+    },
+    {
+      "elementNumber": 2,
+      "notation": "2-2; FC; GRD-EXT; VER-VER; VER HSUP \"L\"",
+      "direction": "Ascending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-2"
+    },
+    {
+      "elementNumber": 10,
+      "notation": "3-3; FC; SHD-SHD; VER-VER; 1 FT-2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-10"
+    },
+    {
+      "elementNumber": 3,
+      "notation": "2-2; FC; EXT-EXT; VER-VER; VER HSUP \"I\"-VER HSUP \"L\"",
+      "direction": "Ascending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-3"
+    },
+    {
+      "elementNumber": 100,
+      "notation": "2-1; FC; GRD-EXT; VER-VER; VER HSUP \"L\"",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-100"
+    },
+    {
+      "elementNumber": 115,
+      "notation": "2-2; FC; H-F; GRD-SHD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-115"
+    },
+    {
+      "elementNumber": 151,
+      "notation": "2-2; R; BLW SHD-EXT; HOZ-HOZ",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-151"
+    },
+    {
+      "elementNumber": 101,
+      "notation": "1-1; FC; SHD-EXT; VER-VER; VER HSUP \"L\"",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-101"
+    },
+    {
+      "elementNumber": 152,
+      "notation": "3-2; R; EXT-EXT; HOZ-HOZ; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-152"
+    },
+    {
+      "elementNumber": 102,
+      "notation": "2-1; FC; GRD-EXT; VER-VER; VER HSUP \"L\"; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-102"
+    },
+    {
+      "elementNumber": 108,
+      "notation": "2-2; FC; GRD-EXT; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-108"
+    },
+    {
+      "elementNumber": 109,
+      "notation": "3-3; FC; GRD-EXT; VER-VER; 1 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-109"
+    },
+    {
+      "elementNumber": 153,
+      "notation": "2-2; R; H-F; GRD-SHD; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-153"
+    },
+    {
+      "elementNumber": 103,
+      "notation": "2-1; FC; GRD-EXT; VER-VER; VER HSUP \"S\"",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-103"
+    },
+    {
+      "elementNumber": 110,
+      "notation": "2-3; FC; GRD-EXT; VER-VER; 1 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-110"
+    },
+    {
+      "elementNumber": 104,
+      "notation": "1-1; FC; SHD-EXT; VER-VER; VER HSUP \"S\"",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-104"
+    },
+    {
+      "elementNumber": 111,
+      "notation": "2-2; FC; SHD-EXT; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-111"
+    },
+    {
+      "elementNumber": 105,
+      "notation": "2-1; FC; GRD-EXT; VER-VER; VER HSUP \"S\"; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-105"
+    },
+    {
+      "elementNumber": 112,
+      "notation": "2-2; FC; GRD-EXT; VER-INV NON HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-112"
+    },
+    {
+      "elementNumber": 106,
+      "notation": "2-2; FC; H-H; GRD-SHD; VER-VER; 2 FT; TWIST 360",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-106"
+    },
+    {
+      "elementNumber": 113,
+      "notation": "1-2; FC; SHD-EXT; VER-INV NON HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-113"
+    },
+    {
+      "elementNumber": 107,
+      "notation": "3-3; FC; H-F; GRD-SHD; VER-VER; 2 FT; TWIST 360",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-107"
+    },
+    {
+      "elementNumber": 114,
+      "notation": "1-1; FC; H-H; GRD-SHD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-114"
+    },
+    {
+      "elementNumber": 200,
+      "notation": "1-1; FC; GRD-EXT; VER-VER; VER HSUP \"L\"",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-200"
+    },
+    {
+      "elementNumber": 209,
+      "notation": "3-2; FC; GRD-EXT; VER-VER; 1 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-209"
+    },
+    {
+      "elementNumber": 222,
+      "notation": "2-2; FC; SHD-SHD; VER-INV 2H HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-222"
+    },
+    {
+      "elementNumber": 202,
+      "notation": "2-1; FC; GRD-EXT; VER-VER; VER HSUP \"L\"; TWIST 270",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-202"
+    },
+    {
+      "elementNumber": 211,
+      "notation": "3-3; FC; GRD-EXT; VER-VER; 1 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-211"
+    },
+    {
+      "elementNumber": 217,
+      "notation": "2-1; FC; SHD-EXT; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-217"
+    },
+    {
+      "elementNumber": 215,
+      "notation": "2-1; FC; EXT-EXT; INV NON HS-INV NON HS",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-215"
+    },
+    {
+      "elementNumber": 203,
+      "notation": "1-1; FC; GRD-EXT; VER-VER; VER HSUP \"S\"",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-203"
+    },
+    {
+      "elementNumber": 218,
+      "notation": "1-2; FC; SHD-EXT; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-218"
+    },
+    {
+      "elementNumber": 205,
+      "notation": "2-1; FC; GRD-EXT; VER-VER; VER HSUP \"S\"; TWIST 270",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-205"
+    },
+    {
+      "elementNumber": 213,
+      "notation": "1-2; FC; GRD-EXT; VER-INV NON HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-213"
+    },
+    {
+      "elementNumber": 207,
+      "notation": "1-1; FC; H-H; GRD-SHD; VER-VER; 2 FT; TWIST 360",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-207"
+    },
+    {
+      "elementNumber": 214,
+      "notation": "2-1; FC; GRD-EXT; VER-INV NON HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-214"
+    },
+    {
+      "elementNumber": 216,
+      "notation": "1-2; FC; H-F; GRD-SHD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-216"
+    },
+    {
+      "elementNumber": 219,
+      "notation": "1-1; FC; SHD-EXT; VER-INV NON HS",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-219"
+    },
+    {
+      "elementNumber": 250,
+      "notation": "1-2; R; H-F; GRD-SHD; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-250"
+    },
+    {
+      "elementNumber": 220,
+      "notation": "2-1; FC; H-F; GRD-SHD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-220"
+    },
+    {
+      "elementNumber": 221,
+      "notation": "2-2; FC; EXT-EXT; VER HSUP \"S\"-INV NON HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-221"
+    },
+    {
+      "elementNumber": 251,
+      "notation": "2-1; R; H-F; GRD-SHD; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 79,
+      "slug": "usag-at-acro-element-251"
+    },
+    {
+      "elementNumber": 300,
+      "notation": "1-1; FC; GRD-EXT; VER-VER; VER HSUP \"L\"; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-300"
+    },
+    {
+      "elementNumber": 317,
+      "notation": "1-1; FC; SHD-SHD; VER-INV 2H HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-317"
+    },
+    {
+      "elementNumber": 351,
+      "notation": "3-3; R; GRD-BLW SHD; INV-VER 2 FT; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-351"
+    },
+    {
+      "elementNumber": 301,
+      "notation": "1-1; FC; GRD-EXT; VER-VER; VER HSUP \"L\"; TWIST 270",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-301"
+    },
+    {
+      "elementNumber": 318,
+      "notation": "1-2; FC; SHD-SHD; VER-INV 2H HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-318"
+    },
+    {
+      "elementNumber": 352,
+      "notation": "3-3; R; GRD-BLW SHD; INV-VER 2 FT; INV 180; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-352"
+    },
+    {
+      "elementNumber": 319,
+      "notation": "2-1; FC; SHD-SHD; VER-INV 2H HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-319"
+    },
+    {
+      "elementNumber": 303,
+      "notation": "1-1; FC; GRD-EXT; VER-VER; VER HSUP \"S\"; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-303"
+    },
+    {
+      "elementNumber": 353,
+      "notation": "1-1; R; H-F; GRD-SHD; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-353"
+    },
+    {
+      "elementNumber": 304,
+      "notation": "1-1; FC; GRD-EXT; VER-VER; VER HSUP \"S\"; TWIST 270",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-304"
+    },
+    {
+      "elementNumber": 320,
+      "notation": "2-2; FC; SHD-EXT; VER-INV 2H HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-320"
+    },
+    {
+      "elementNumber": 354,
+      "notation": "2-1; R; GRD-SHD; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-354"
+    },
+    {
+      "elementNumber": 355,
+      "notation": "2-1; R; H-W; GRD-SHD; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-355"
+    },
+    {
+      "elementNumber": 306,
+      "notation": "2-3; FC; H-F; GRD-SHD; VER-VER; 2 FT; TWIST 360",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-306"
+    },
+    {
+      "elementNumber": 321,
+      "notation": "1-2; FC; GRD-EXT; VER-INV NON HS; INV 180; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-321"
+    },
+    {
+      "elementNumber": 356,
+      "notation": "1-2; R; H-W; GRD-SHD; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-356"
+    },
+    {
+      "elementNumber": 307,
+      "notation": "3-2; FC; H-F; GRD-SHD; VER-VER; 2 FT; TWIST 360",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-307"
+    },
+    {
+      "elementNumber": 322,
+      "notation": "2-2; FC; EXT-EXT; VER-INV NON HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-322"
+    },
+    {
+      "elementNumber": 357,
+      "notation": "2-2; R; BLW SHD-SHD; INV-VER 2 FT; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-357"
+    },
+    {
+      "elementNumber": 309,
+      "notation": "1-1; FC; H-F; GRD-SHD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-309"
+    },
+    {
+      "elementNumber": 358,
+      "notation": "2-2; R; SHD-SHD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-358"
+    },
+    {
+      "elementNumber": 323,
+      "notation": "1-2; FC; EXT-EXT; VER HSUP \"I\"-INV NON HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-323"
+    },
+    {
+      "elementNumber": 310,
+      "notation": "2-2; FC; GRD-EXT; VER-VER; 1 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-310"
+    },
+    {
+      "elementNumber": 324,
+      "notation": "1-2; FC; EXT-EXT; VER HSUP \"L\"-INV NON HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-324"
+    },
+    {
+      "elementNumber": 362,
+      "notation": "2-2; R; BLW SHD-SHD; INV-VER 2 FT; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-362"
+    },
+    {
+      "elementNumber": 311,
+      "notation": "2-3; FC; GRD-EXT; VER-VER; 1 FT FLEX",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-311"
+    },
+    {
+      "elementNumber": 312,
+      "notation": "3-2; FC; GRD-EXT; VER-VER; 1 FT FLEX",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-312"
+    },
+    {
+      "elementNumber": 363,
+      "notation": "2-3; R; EXT-EXT; VER 2 FT FD HOZ",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-363"
+    },
+    {
+      "elementNumber": 313,
+      "notation": "1-1; FC; SHD-EXT; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-313"
+    },
+    {
+      "elementNumber": 314,
+      "notation": "2-2; FC; SHD-EXT; VER-VER; 2 FT-1 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-314"
+    },
+    {
+      "elementNumber": 315,
+      "notation": "2-2; FC; EXT-EXT; VER-VER; 1 FT-2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-315"
+    },
+    {
+      "elementNumber": 316,
+      "notation": "2-2; FC; EXT-EXT; VER-VER; 2 FT-1 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-316"
+    },
+    {
+      "elementNumber": 325,
+      "notation": "1-1; FC; SHD-EXT; VER-VER; VER 2 FT-VER HSUP \"S\"; Base 1H",
+      "direction": "Ascending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-325"
+    },
+    {
+      "elementNumber": 400,
+      "notation": "2-3; FC; GRD-EXT; VER-VER; 1 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-400"
+    },
+    {
+      "elementNumber": 413,
+      "notation": "2-2; FC; SHD-EXT; INV 2H HS-INV 2H HS",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-413"
+    },
+    {
+      "elementNumber": 455,
+      "notation": "1-2; R; SHD-SHD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-455"
+    },
+    {
+      "elementNumber": 401,
+      "notation": "3-2; FC; GRD-EXT; VER-VER; 1 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-401"
+    },
+    {
+      "elementNumber": 456,
+      "notation": "2-1; R; SHD-SHD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-456"
+    },
+    {
+      "elementNumber": 402,
+      "notation": "2-2; FC; GRD-EXT; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-402"
+    },
+    {
+      "elementNumber": 414,
+      "notation": "1-2; FC; SHD-EXT; INV 2H HS-INV NON HS",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-414"
+    },
+    {
+      "elementNumber": 404,
+      "notation": "1-2; FC; GRD-EXT; VER-VER; 1 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-404"
+    },
+    {
+      "elementNumber": 457,
+      "notation": "3-3; R; GRD-EXT; VER-VER; 1 FT OR 1 FT FLEX",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-457"
+    },
+    {
+      "elementNumber": 406,
+      "notation": "1-2; FC; GRD-EXT; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-406"
+    },
+    {
+      "elementNumber": 415,
+      "notation": "1-2; FC; GRD-SHD; VER-INV 2H HS; INV 180 (INLOCATE)",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-415"
+    },
+    {
+      "elementNumber": 458,
+      "notation": "1-2; R; SHD-EXT; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-458"
+    },
+    {
+      "elementNumber": 407,
+      "notation": "1-2; FC; SHD-EXT; VER-VER; 2 FT-1 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-407"
+    },
+    {
+      "elementNumber": 416,
+      "notation": "2-1; FC; SHD-SHD; VER-INV 2H HS; INV 180 (INLOCATE)",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-416"
+    },
+    {
+      "elementNumber": 459,
+      "notation": "2-2; R; SHD-EXT; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-459"
+    },
+    {
+      "elementNumber": 408,
+      "notation": "1-2; FC; SHD-EXT; VER-VER; 1 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-408"
+    },
+    {
+      "elementNumber": 460,
+      "notation": "2-2; R; EXT-EXT; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-460"
+    },
+    {
+      "elementNumber": 417,
+      "notation": "1-1; FC; SHD-EXT; VER-VER; VER 2 FT-VER HSUP \"S\" 1H; Base 1H",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-417"
+    },
+    {
+      "elementNumber": 461,
+      "notation": "2-2; R; GRD-EXT; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-461"
+    },
+    {
+      "elementNumber": 462,
+      "notation": "2-2; R; SHD-EXT; VER-VER; 1 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-462"
+    },
+    {
+      "elementNumber": 409,
+      "notation": "1-2; FC; GRD-SHD; VER-INV 2H HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-409"
+    },
+    {
+      "elementNumber": 451,
+      "notation": "1-1; R; H-W; GRD-SHD; VER-VER; 2 FT",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-451"
+    },
+    {
+      "elementNumber": 410,
+      "notation": "1-2; FC; GRD-SHD; VER-INV 2H HS; INV 180; TWIST 90",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-410"
+    },
+    {
+      "elementNumber": 452,
+      "notation": "2-1; R; GRD-SHD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-452"
+    },
+    {
+      "elementNumber": 411,
+      "notation": "2-1; FC; GRD-SHD; VER-INV 2H HS; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-411"
+    },
+    {
+      "elementNumber": 453,
+      "notation": "1-2; R; GRD-SHD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-453"
+    },
+    {
+      "elementNumber": 412,
+      "notation": "2-1; FC; GRD-SHD; VER-INV 2H HS; INV 180; TWIST 90",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-412"
+    },
+    {
+      "elementNumber": 454,
+      "notation": "2-2; R; SHD-SHD; INV-VER 2 FT; INV 180",
+      "direction": "Ascending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-454"
+    },
+    {
+      "elementNumber": 516,
+      "notation": "1-1; FC; EXT-GRD; VER-VER; HSUP \"I\"-2 FT; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-516"
+    },
+    {
+      "elementNumber": 510,
+      "notation": "2-1; FC; EXT-SHD; VER-VER; 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-510"
+    },
+    {
+      "elementNumber": 557,
+      "notation": "1-1; R; SHD-GRD; VER-VER; 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-557"
+    },
+    {
+      "elementNumber": 517,
+      "notation": "1-1; FC; EXT-GRD; VER-VER; HSUP \"I\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-517"
+    },
+    {
+      "elementNumber": 511,
+      "notation": "2-2; FC; EXT-SHD; VER-VER; 1 FT-2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-511"
+    },
+    {
+      "elementNumber": 558,
+      "notation": "1-2; R; SHD-GRD; VER-VER; 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-558"
+    },
+    {
+      "elementNumber": 518,
+      "notation": "2-1; FC; EXT-GRD; VER-VER; HSUP \"I\"-2 FT; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-518"
+    },
+    {
+      "elementNumber": 512,
+      "notation": "2-1; FC; EXT-SHD; VER-VER; 1 FT-2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-512"
+    },
+    {
+      "elementNumber": 559,
+      "notation": "2-2; R; SHD-GRD; VER-VER; 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-559"
+    },
+    {
+      "elementNumber": 560,
+      "notation": "2-1; R; SHD-GRD; VER-VER; 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-560"
+    },
+    {
+      "elementNumber": 500,
+      "notation": "1-1; FC; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-500"
+    },
+    {
+      "elementNumber": 513,
+      "notation": "2-2; FC; EXT-GRD; INV 2H HS-VER; INV 180",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-513"
+    },
+    {
+      "elementNumber": 565,
+      "notation": "3-3; R; SHD-CRDL; VER-HOZ; 1 FT; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-565"
+    },
+    {
+      "elementNumber": 501,
+      "notation": "2-1; FC; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-501"
+    },
+    {
+      "elementNumber": 502,
+      "notation": "1-2; FC; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-502"
+    },
+    {
+      "elementNumber": 514,
+      "notation": "2-2; FC; EXT-GRD; INV NON HS-VER; INV 180; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-514"
+    },
+    {
+      "elementNumber": 561,
+      "notation": "3-1; R; EXT-GRD; VER-VER; VER 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-561"
+    },
+    {
+      "elementNumber": 519,
+      "notation": "2-1; FC; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-519"
+    },
+    {
+      "elementNumber": 515,
+      "notation": "2-2; FC; EXT-GRD; INV NON HS-VER; INV 180; TWIST 90",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-515"
+    },
+    {
+      "elementNumber": 562,
+      "notation": "2-2; R; EXT-GRD; VER-VER; 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-562"
+    },
+    {
+      "elementNumber": 503,
+      "notation": "1-1; FC; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-503"
+    },
+    {
+      "elementNumber": 563,
+      "notation": "2-2; R; EXT-GRD; INV NON HS-VER; INV 180; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-563"
+    },
+    {
+      "elementNumber": 504,
+      "notation": "1-2; FC; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-504"
+    },
+    {
+      "elementNumber": 551,
+      "notation": "1-1; R; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-551"
+    },
+    {
+      "elementNumber": 564,
+      "notation": "2-2; R; EXT-GRD; INV NON HS-VER; INV 180; TWIST 90",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-564"
+    },
+    {
+      "elementNumber": 505,
+      "notation": "2-1; FC; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-505"
+    },
+    {
+      "elementNumber": 552,
+      "notation": "1-2; R; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-552"
+    },
+    {
+      "elementNumber": 506,
+      "notation": "2-2; FC; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-506"
+    },
+    {
+      "elementNumber": 553,
+      "notation": "2-1; R; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-553"
+    },
+    {
+      "elementNumber": 520,
+      "notation": "2-1; FC; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-520"
+    },
+    {
+      "elementNumber": 566,
+      "notation": "2-1; R; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-566"
+    },
+    {
+      "elementNumber": 521,
+      "notation": "2-1; FC; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 270",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-521"
+    },
+    {
+      "elementNumber": 554,
+      "notation": "1-1; R; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-554"
+    },
+    {
+      "elementNumber": 507,
+      "notation": "3-3; FC; EXT-BLW SHD; VER-VER; VER 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-507"
+    },
+    {
+      "elementNumber": 555,
+      "notation": "1-2; R; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-555"
+    },
+    {
+      "elementNumber": 508,
+      "notation": "2-2; FC; EXT-BLW SHD; VER-VER; VER 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-508"
+    },
+    {
+      "elementNumber": 556,
+      "notation": "2-1; R; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-556"
+    },
+    {
+      "elementNumber": 509,
+      "notation": "2-2; FC; EXT-SHD; VER-VER; 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-509"
+    },
+    {
+      "elementNumber": 567,
+      "notation": "2-1; R; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "A",
+      "eventValue": 0.2,
+      "teamValue": 9.2,
+      "sourcePage": 80,
+      "slug": "usag-at-acro-element-567"
+    },
+    {
+      "elementNumber": 600,
+      "notation": "1-1; FC; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-600"
+    },
+    {
+      "elementNumber": 651,
+      "notation": "1-1; R; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-651"
+    },
+    {
+      "elementNumber": 667,
+      "notation": "2-2; R; EXT-GRD; VER-VER; 1 FT",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-667"
+    },
+    {
+      "elementNumber": 602,
+      "notation": "1-2; FC; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-602"
+    },
+    {
+      "elementNumber": 652,
+      "notation": "1-2; R; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-652"
+    },
+    {
+      "elementNumber": 675,
+      "notation": "3-3; R; EXT-BLW; VER-CRDL; 1 FT; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-675"
+    },
+    {
+      "elementNumber": 603,
+      "notation": "1-1; FC; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-603"
+    },
+    {
+      "elementNumber": 654,
+      "notation": "1-1; R; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-654"
+    },
+    {
+      "elementNumber": 668,
+      "notation": "1-1; R; SHD-GRD; INV 2H HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-668"
+    },
+    {
+      "elementNumber": 604,
+      "notation": "1-2; FC; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-604"
+    },
+    {
+      "elementNumber": 655,
+      "notation": "1-2; R; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-655"
+    },
+    {
+      "elementNumber": 669,
+      "notation": "1-2; R; SHD-GRD; INV 2H HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-669"
+    },
+    {
+      "elementNumber": 614,
+      "notation": "1-1; FC; EXT-GRD; VER-VER; VER HSUP \"S\"- VER 2 FT; Base 1H; Base TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-614"
+    },
+    {
+      "elementNumber": 657,
+      "notation": "1-1; R; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 270",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-657"
+    },
+    {
+      "elementNumber": 670,
+      "notation": "2-2; R; SHD-GRD; INV 2H HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-670"
+    },
+    {
+      "elementNumber": 615,
+      "notation": "1-1; FC; EXT-GRD; VER-VER; VER HSUP \"S\" 1H-VER 2 FT; Base 1H; Base TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-615"
+    },
+    {
+      "elementNumber": 658,
+      "notation": "1-2; R; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 270",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-658"
+    },
+    {
+      "elementNumber": 606,
+      "notation": "1-1; FC; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 270",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-606"
+    },
+    {
+      "elementNumber": 659,
+      "notation": "2-1; R; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 270",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-659"
+    },
+    {
+      "elementNumber": 671,
+      "notation": "1-1; R; EXT-GRD; INV NON HS-VER; INV 180; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-671"
+    },
+    {
+      "elementNumber": 607,
+      "notation": "1-2; FC; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 270",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-607"
+    },
+    {
+      "elementNumber": 672,
+      "notation": "2-1; R; EXT-GRD; INV NON HS-VER; INV 180; NO TWIST",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-672"
+    },
+    {
+      "elementNumber": 614,
+      "notation": "2-1; FC; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-614-2"
+    },
+    {
+      "elementNumber": 660,
+      "notation": "1-1; R; SHD-GRD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-660"
+    },
+    {
+      "elementNumber": 673,
+      "notation": "1-1; R; EXT-GRD; INV NON HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-673"
+    },
+    {
+      "elementNumber": 661,
+      "notation": "1-2; R; SHD-GRD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-661"
+    },
+    {
+      "elementNumber": 674,
+      "notation": "2-1; R; EXT-GRD; INV NON HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-674"
+    },
+    {
+      "elementNumber": 609,
+      "notation": "2-2; FC; EXT-GRD; INV 2H HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-609"
+    },
+    {
+      "elementNumber": 662,
+      "notation": "2-1; R; SHD-GRD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-662"
+    },
+    {
+      "elementNumber": 676,
+      "notation": "3-3; R; SHD-BLW; VER-CRDL; 2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-676"
+    },
+    {
+      "elementNumber": 610,
+      "notation": "1-1; FC; SHD-GRD; INV 2H HS-VER; INV 180 (INLOCATE)",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-610"
+    },
+    {
+      "elementNumber": 611,
+      "notation": "1-1; FC; SHD-GRD; INV 2H HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-611"
+    },
+    {
+      "elementNumber": 663,
+      "notation": "1-1; R; EXT-GRD; VER-VER; 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-663"
+    },
+    {
+      "elementNumber": 664,
+      "notation": "2-1; R; EXT-GRD; VER-VER; 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-664"
+    },
+    {
+      "elementNumber": 612,
+      "notation": "1-1; FC; EXT-GRD; INV NON HS-VER; INV 180; TWIST 90",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-612"
+    },
+    {
+      "elementNumber": 665,
+      "notation": "1-2; R; EXT-GRD; VER-VER; 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-665"
+    },
+    {
+      "elementNumber": 613,
+      "notation": "2-1; FC; EXT-GRD; INV NON HS-VER; INV 180; TWIST 90",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-613"
+    },
+    {
+      "elementNumber": 666,
+      "notation": "1-2; R; EXT-GRD; VER-VER; 1 FT",
+      "direction": "Descending",
+      "difficultyLetter": "B",
+      "eventValue": 0.4,
+      "teamValue": 9.4,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-666"
+    },
+    {
+      "elementNumber": 700,
+      "notation": "1-1; FC; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 270",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-700"
+    },
+    {
+      "elementNumber": 710,
+      "notation": "2-1; FC; EXT-GRD; INV 2H HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-710"
+    },
+    {
+      "elementNumber": 752,
+      "notation": "2-1; R; EXT-GRD; VER-VER; 1 FT",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-752"
+    },
+    {
+      "elementNumber": 701,
+      "notation": "1-2; FC; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 270",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-701"
+    },
+    {
+      "elementNumber": 711,
+      "notation": "1-2; FC; EXT-GRD; INV 2H HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-711"
+    },
+    {
+      "elementNumber": 753,
+      "notation": "3-3; R; EXT-BLW; VER-CRDL; 1 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-753"
+    },
+    {
+      "elementNumber": 716,
+      "notation": "2-1; FC; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-716"
+    },
+    {
+      "elementNumber": 712,
+      "notation": "2-2; FC; EXT-SHD; INV 2H HS-INV 2H HS",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-712"
+    },
+    {
+      "elementNumber": 717,
+      "notation": "2-2; FC; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-717"
+    },
+    {
+      "elementNumber": 713,
+      "notation": "2-1; FC; EXT-SHD; INV 2H HS-INV 2H HS",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-713"
+    },
+    {
+      "elementNumber": 754,
+      "notation": "2-1; R; EXT-GRD; INV NON HS-VER; FLIP 180",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-754"
+    },
+    {
+      "elementNumber": 714,
+      "notation": "1-2; FC; EXT-SHD; INV 2H HS-INV 2H HS",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-714"
+    },
+    {
+      "elementNumber": 755,
+      "notation": "1-1; R; EXT-GRD; INV NON HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-755"
+    },
+    {
+      "elementNumber": 715,
+      "notation": "1-1; FC; EXT-GRD; VER-VER; VER HSUP \"S\" 1H-VER 2 FT; Base 1H; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-715"
+    },
+    {
+      "elementNumber": 756,
+      "notation": "2-1; R; EXT-GRD; INV NON HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-756"
+    },
+    {
+      "elementNumber": 703,
+      "notation": "1-2; FC; EXT-GRD; VER-VER; VER-HSUP \"S\"; FLIP 360",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-703"
+    },
+    {
+      "elementNumber": 757,
+      "notation": "2-2; R; EXT-GRD; INV NON HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-757"
+    },
+    {
+      "elementNumber": 704,
+      "notation": "1-1; FC; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-704"
+    },
+    {
+      "elementNumber": 762,
+      "notation": "2-1; R; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 270",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-762"
+    },
+    {
+      "elementNumber": 705,
+      "notation": "1-2; FC; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-705"
+    },
+    {
+      "elementNumber": 763,
+      "notation": "2-1; R; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-763"
+    },
+    {
+      "elementNumber": 758,
+      "notation": "1-1; R; EXT-GRD; INV 2H HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-758"
+    },
+    {
+      "elementNumber": 759,
+      "notation": "2-1; R; EXT-GRD; INV 2H HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-759"
+    },
+    {
+      "elementNumber": 707,
+      "notation": "1-1; FC; SHD-BLW; INV 2H HS-CRDL; INV 90; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-707"
+    },
+    {
+      "elementNumber": 764,
+      "notation": "2-1; R; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-764"
+    },
+    {
+      "elementNumber": 760,
+      "notation": "1-2; R; EXT-GRD; INV 2H HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-760"
+    },
+    {
+      "elementNumber": 708,
+      "notation": "1-2; FC; SHD-BLW; INV 2H HS-CRDL; INV 90; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-708"
+    },
+    {
+      "elementNumber": 709,
+      "notation": "2-2; FC; SHD-BLW; INV 2H HS-CRDL; INV 90; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-709"
+    },
+    {
+      "elementNumber": 751,
+      "notation": "1-1; R; EXT-GRD; VER-VER; 1 FT",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-751"
+    },
+    {
+      "elementNumber": 761,
+      "notation": "1-1; R; EXT-GRD; HOR-VER; HOZ-FD or UP FT APART; FLIP 270",
+      "direction": "Descending",
+      "difficultyLetter": "C",
+      "eventValue": 0.6,
+      "teamValue": 9.6,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-761"
+    },
+    {
+      "elementNumber": 800,
+      "notation": "1-1; FC; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-800"
+    },
+    {
+      "elementNumber": 851,
+      "notation": "1-1; R; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 270",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-851"
+    },
+    {
+      "elementNumber": 865,
+      "notation": "2-2; R; EXT-GRD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-865"
+    },
+    {
+      "elementNumber": 801,
+      "notation": "1-2; FC; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-801"
+    },
+    {
+      "elementNumber": 852,
+      "notation": "1-2; R; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 270",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-852"
+    },
+    {
+      "elementNumber": 866,
+      "notation": "1-2; R; EXT-GRD; VER-VER; 2 FT; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-866"
+    },
+    {
+      "elementNumber": 804,
+      "notation": "1-2; FC; EXT-GRD; VER-VER; VER-HSUP \"L\" FLIP 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-804"
+    },
+    {
+      "elementNumber": 854,
+      "notation": "1-1; R; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-854"
+    },
+    {
+      "elementNumber": 867,
+      "notation": "2-3; R; EXT-BLW; VER-CRDL; 1 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-867"
+    },
+    {
+      "elementNumber": 855,
+      "notation": "1-2; R; EXT-GRD; VER-VER; HSUP \"L\"-2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-855"
+    },
+    {
+      "elementNumber": 868,
+      "notation": "3-3; R; EXT-BLW; VER-CRDL; 1 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-868"
+    },
+    {
+      "elementNumber": 805,
+      "notation": "1-2; FC; EXT-BLW SHD; VER-VER; VER 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-805"
+    },
+    {
+      "elementNumber": 806,
+      "notation": "1-2; FC; EXT-SHD; VER-VER; 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-806"
+    },
+    {
+      "elementNumber": 857,
+      "notation": "1-1; R; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-857"
+    },
+    {
+      "elementNumber": 869,
+      "notation": "1-1; R; SHD-GRD; INV 2H HS-VER; INV 180 (INLOCATE)",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-869"
+    },
+    {
+      "elementNumber": 807,
+      "notation": "1-1; FC; EXT-SHD; VER-VER; 2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-807"
+    },
+    {
+      "elementNumber": 858,
+      "notation": "1-2; R; EXT-GRD; VER-VER; HSUP \"S\"-2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-858"
+    },
+    {
+      "elementNumber": 808,
+      "notation": "1-2; FC; EXT-SHD; VER-VER; 1 FT-2 FT",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-808"
+    },
+    {
+      "elementNumber": 870,
+      "notation": "1-2; R; EXT-BLW; INV 2H HS-CRDL; INV 90; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-870"
+    },
+    {
+      "elementNumber": 860,
+      "notation": "1-1; R; SHD-GRD; VER-VER; 2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-860"
+    },
+    {
+      "elementNumber": 871,
+      "notation": "2-2; R; EXT-BLW; INV 2H HS-CRDL; INV 90; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-871"
+    },
+    {
+      "elementNumber": 809,
+      "notation": "2-1; FC; EXT-GRD; INV NON HS-VER; INV 180; TWIST 180",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-809"
+    },
+    {
+      "elementNumber": 861,
+      "notation": "1-2; R; SHD-GRD; VER-VER; 2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-861"
+    },
+    {
+      "elementNumber": 810,
+      "notation": "2-1; FC; EXT-GRD; INV NON HS-VER; INV 180; TWIST 270",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-810"
+    },
+    {
+      "elementNumber": 862,
+      "notation": "2-1; R; SHD-GRD; VER-VER; 2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-862"
+    },
+    {
+      "elementNumber": 872,
+      "notation": "1-1; R; EXT-GRD; INV NON HS-VER; INV 180; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-872"
+    },
+    {
+      "elementNumber": 863,
+      "notation": "2-2; R; SHD-GRD; VER-VER; 2 FT; FLIP 360 B (Tuck)",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-863"
+    },
+    {
+      "elementNumber": 873,
+      "notation": "2-1; R; EXT-GRD; INV NON HS-VER; INV 180; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-873"
+    },
+    {
+      "elementNumber": 811,
+      "notation": "1-1; FC; EXT-GRD; HOR-VER; HOZ-FD or UP FT APART; FLIP 270",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-811"
+    },
+    {
+      "elementNumber": 864,
+      "notation": "1-2; R; SHD-GRD; VER-VER; 2 FT; FLIP 360 B (Tuck)",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-864"
+    },
+    {
+      "elementNumber": 874,
+      "notation": "2-2; R; EXT-GRD; INV NON HS-VER; INV 180; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "D",
+      "eventValue": 0.8,
+      "teamValue": 9.8,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-874"
+    },
+    {
+      "elementNumber": 951,
+      "notation": "2-2; R; SHD-GRD; VER-VER; 2 FT; FLIP 360 B (Layout)",
+      "direction": "Descending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-951"
+    },
+    {
+      "elementNumber": 953,
+      "notation": "2-2; R; EXT-GRD; VER-VER; 2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-953"
+    },
+    {
+      "elementNumber": 956,
+      "notation": "1-2; R; EXT-GRD; VER-VER; 1 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-956"
+    },
+    {
+      "elementNumber": 952,
+      "notation": "1-2; R; SHD-GRD; VER-VER; 2 FT; FLIP 360 B (Layout)",
+      "direction": "Descending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-952"
+    },
+    {
+      "elementNumber": 954,
+      "notation": "1-2; R; EXT-GRD; VER-VER; 2 FT; TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-954"
+    },
+    {
+      "elementNumber": 957,
+      "notation": "3-3; R; EXT-BLW; VER-CRDL; 1 FT; TWIST 720",
+      "direction": "Descending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-957"
+    },
+    {
+      "elementNumber": 959,
+      "notation": "1-2; R; SHD-GRD; VER-VER; 2 FT; FLIP 360 B (Layout); TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-959"
+    },
+    {
+      "elementNumber": 955,
+      "notation": "2-2; R; EXT-GRD; VER-VER: 1 FT: TWIST 360",
+      "direction": "Descending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-955"
+    },
+    {
+      "elementNumber": 958,
+      "notation": "3-3; R; EXT-BLW; VER-CRDL; 1 FT FLEX; TWIST 720",
+      "direction": "Descending",
+      "difficultyLetter": "E",
+      "eventValue": 1,
+      "teamValue": 10,
+      "sourcePage": 81,
+      "slug": "usag-at-acro-element-958"
+    }
+  ]
+}

@@ -9,13 +9,22 @@ import {
 
 test('data-quality report exposes coverage, zero-depth phases, graph, and coach pilot rates', async () => {
   let call = 0
+  const queries = []
   const pool = {
-    async query() {
+    async query(sql) {
       call += 1
+      queries.push(sql)
       if (call === 1) return { rows: [{
         total_definitions: 100, published_definitions: 80, video_complete: 90,
         confidence_complete: 75, with_published_variant: 85,
         with_published_profile: 70, score_complete: 65,
+        research_candidate_sections_complete: 45,
+        research_sections_complete: 40,
+        research_candidate_section_count: 960,
+        research_reviewed_section_count: 800,
+        media_candidate_set_complete: 30, media_embeddable_candidate_set_complete: 25,
+        media_approved_set_complete: 20,
+        alternates_candidate_assessed: 55, alternates_reviewed: 35,
       }] }
       if (call === 2) return { rows: [
         { phase_key: 'prepare_and_access', candidate_count: 12 },
@@ -34,12 +43,28 @@ test('data-quality report exposes coverage, zero-depth phases, graph, and coach 
   const report = await buildCanonicalDataQualityReport(pool, 7)
   assert.equal(report.coverage.publicationPercent, 80)
   assert.equal(report.coverage.scoreCompletePercent, 65)
+  assert.equal(report.coverage.researchCandidateCardsCompletePercent, 45)
+  assert.equal(report.coverage.researchSectionsCompletePercent, 40)
+  assert.equal(report.coverage.researchCandidateSectionCoveragePercent, 60)
+  assert.equal(report.coverage.researchReviewedSectionCoveragePercent, 50)
+  assert.equal(report.coverage.mediaCandidateSetCompletePercent, 30)
+  assert.equal(report.coverage.mediaEmbeddableCandidateSetCompletePercent, 25)
+  assert.equal(report.coverage.mediaApprovedSetCompletePercent, 20)
+  assert.equal(report.coverage.alternatesCandidateAssessedPercent, 55)
+  assert.equal(report.coverage.alternatesReviewedPercent, 35)
   assert.equal(report.coachPilot.keepOrMinorEditPercent, 90)
   assert.equal(report.coachPilot.swapPercent, 8)
   assert.equal(report.governance.mediaReviewsDue, 5)
   assert.equal(report.governance.calibrationsInReview, 7)
   assert.equal(report.governance.approvedCalibrationAnchors, 12)
   assert.equal(report.governance.exactIdentityCollisions, 1)
+  assert.match(queries[0], /difficulty_json \? 'absoluteLoadDemand'/)
+  assert.match(queries[0], /GREATEST\(/)
+  assert.match(queries[4], /WITH identity_names AS/)
+  assert.match(queries[4], /ARRAY\[identity_definition\.canonical_name, identity_definition\.display_name\]/)
+  assert.match(queries[4], /COALESCE\(identity_definition\.aliases/)
+  assert.match(queries[4], /CROSS JOIN LATERAL unnest/)
+  assert.match(queries[4], /GROUP BY left_name\.definition_id, right_name\.definition_id/)
   assert.ok(report.zeroDepthPhases.includes('restore'))
 })
 

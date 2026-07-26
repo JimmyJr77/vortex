@@ -33,6 +33,36 @@ function phaseIndex(key) {
   return idx >= 0 ? idx : 999
 }
 
+function workoutAudience(draft = {}) {
+  return draft?.audience_json ?? draft?.audienceJson ?? draft?.audience ?? {}
+}
+
+function audienceTrainingExperience(draft = {}) {
+  const audience = workoutAudience(draft)
+  return String(
+    audience.training_experience
+      ?? audience.trainingExperience
+      ?? audience.skill_level
+      ?? audience.skillLevel
+      ?? draft.training_experience
+      ?? draft.trainingExperience
+      ?? '',
+  ).toUpperCase()
+}
+
+function isEarlyExperienceAudience(draft = {}) {
+  return ['EARLY_STAGE', 'BEGINNER'].includes(audienceTrainingExperience(draft))
+}
+
+function isYouthAudience(draft = {}) {
+  const audience = workoutAudience(draft)
+  const ageMin = Number(audience.age_min ?? audience.ageMin)
+  const ageMax = Number(audience.age_max ?? audience.ageMax)
+  if (Number.isFinite(ageMax)) return ageMax < 18
+  if (Number.isFinite(ageMin)) return ageMin < 18
+  return false
+}
+
 function itemSeconds(item) {
   const sets = Number(item.sets) || 1
   const work = Number(item.work_seconds ?? item.est_seconds_per_set) || 45
@@ -1120,7 +1150,6 @@ function analyzeOutputMaxVelocityReadiness(items, ctx) {
     dosageByExercise,
     blockMeta = [],
     outputBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -1172,10 +1201,7 @@ function analyzeOutputMaxVelocityReadiness(items, ctx) {
     }
   }
 
-  const isBeginnerAthlete = ordered.some(({ exerciseId }) => {
-    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    return level === 'EARLY_STAGE' || level === 'BEGINNER'
-  })
+  const isBeginnerAthlete = isEarlyExperienceAudience(draft)
 
   if (
     isBeginnerAthlete
@@ -1351,7 +1377,6 @@ function analyzeOutputElasticReadiness(items, ctx) {
     dosageByExercise,
     blockMeta = [],
     outputBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     skillSlugsInWorkout = new Set(),
     draft = {},
   } = ctx
@@ -1475,10 +1500,7 @@ function analyzeOutputElasticReadiness(items, ctx) {
     }
 
     if (slug === DEPTH_REBOUND_SLUG) {
-      const isBeginner = ordered.some(({ exerciseId: eid }) => {
-        const level = String(exerciseSkillLevelById.get(String(eid)) ?? '').toUpperCase()
-        return level === 'EARLY_STAGE' || level === 'BEGINNER'
-      })
+      const isBeginner = isEarlyExperienceAudience(draft)
       if (isBeginner) {
         findings.push({
           rule_key: 'output_elastic_depth_rebound_beginner',
@@ -1501,10 +1523,7 @@ function analyzeOutputElasticReadiness(items, ctx) {
     }
   }
 
-  const contactLimit = ordered.some(({ exerciseId }) => {
-    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    return level === 'EARLY_STAGE' || level === 'BEGINNER'
-  })
+  const contactLimit = isEarlyExperienceAudience(draft)
     ? ELASTIC_CONTACT_LIMIT_BEGINNER
     : ELASTIC_CONTACT_LIMIT_DEFAULT
 
@@ -1614,7 +1633,6 @@ function analyzeOutputJumpPowerReadiness(items, ctx) {
     dosageByExercise,
     blockMeta = [],
     outputBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -1804,10 +1822,7 @@ function analyzeOutputJumpPowerReadiness(items, ctx) {
     })
   }
 
-  const isYouthAthlete = ordered.some(({ exerciseId }) => {
-    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    return level === 'EARLY_STAGE' || level === 'BEGINNER'
-  })
+  const isYouthAthlete = isYouthAudience(draft)
   if (medBallItems.length > 0 && (isYouthAthlete || YOUTH_ATHLETE_PATTERN.test(watchText))) {
     findings.push({
       rule_key: 'output_jump_power_youth_med_ball_confirm',
@@ -1855,7 +1870,6 @@ function analyzeOutputDecelCodReadiness(items, ctx) {
     dosageByExercise,
     blockMeta = [],
     outputBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -1973,8 +1987,7 @@ function analyzeOutputDecelCodReadiness(items, ctx) {
   for (const { item, exerciseId, name, slug } of ordered) {
     const dosage = dosageByExercise.get(String(exerciseId))
     const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
-    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+    const isBeginner = isEarlyExperienceAudience(draft)
 
     if (slug === FIVE_YARD_DECEL_SLUG && DECEL_EXTRA_STEPS_PATTERN.test(watchText)) {
       findings.push({
@@ -2424,7 +2437,6 @@ function analyzeOutputAccelerationReadiness(items, ctx) {
     dosageByExercise,
     blockMeta = [],
     outputBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -2497,10 +2509,7 @@ function analyzeOutputAccelerationReadiness(items, ctx) {
     })
   }
 
-  const isBeginnerAthlete = ordered.some(({ exerciseId }) => {
-    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    return level === 'EARLY_STAGE' || level === 'BEGINNER'
-  })
+  const isBeginnerAthlete = isEarlyExperienceAudience(draft)
 
   if (isBeginnerAthlete && slugsInBlock.has(THREE_POINT_START_SLUG)) {
     findings.push({
@@ -2508,7 +2517,7 @@ function analyzeOutputAccelerationReadiness(items, ctx) {
       severity: 'warning',
       message: 'Three-point starts are advanced — use falling start or two-point start first for beginner athletes.',
       affected_items: ordered.filter((o) => o.slug === THREE_POINT_START_SLUG).map((o) => o.name),
-      meta: { skill_level: 'BEGINNER', slug: THREE_POINT_START_SLUG },
+      meta: { training_experience: 'BEGINNER', slug: THREE_POINT_START_SLUG },
     })
   }
 
@@ -2713,7 +2722,6 @@ function analyzeCapacitySquatReadiness(items, ctx) {
     dosageByExercise,
     blockMeta = [],
     capacityBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -2755,10 +2763,7 @@ function analyzeCapacitySquatReadiness(items, ctx) {
     })
   }
 
-  const isYouthAthlete = ordered.some(({ exerciseId }) => {
-    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    return level === 'EARLY_STAGE' || level === 'BEGINNER'
-  })
+  const isYouthAthlete = isYouthAudience(draft)
 
   if (
     (isYouthAthlete || YOUTH_ATHLETE_CAPACITY_PATTERN.test(watchText))
@@ -2788,8 +2793,7 @@ function analyzeCapacitySquatReadiness(items, ctx) {
   for (const { item, exerciseId, name, slug } of ordered) {
     const dosage = dosageByExercise.get(String(exerciseId))
     const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
-    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+    const isBeginner = isEarlyExperienceAudience(draft)
 
     if (slug === GOBLET_SQUAT_SLUG && (CAPACITY_SQUAT_KNEE_VALGUS_PATTERN.test(watchText) || CAPACITY_SQUAT_TRUNK_COLLAPSE_PATTERN.test(watchText))) {
       findings.push({
@@ -2957,7 +2961,6 @@ function analyzeCapacityHingeReadiness(items, ctx) {
     dosageByExercise,
     blockMeta = [],
     capacityBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -3020,10 +3023,7 @@ function analyzeCapacityHingeReadiness(items, ctx) {
     })
   }
 
-  const isYouthAthlete = ordered.some(({ exerciseId }) => {
-    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    return level === 'EARLY_STAGE' || level === 'BEGINNER'
-  })
+  const isYouthAthlete = isYouthAudience(draft)
 
   if (CAPACITY_HINGE_TISSUE_PAIN_PATTERN.test(watchText)) {
     findings.push({
@@ -3075,8 +3075,7 @@ function analyzeCapacityHingeReadiness(items, ctx) {
     const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
     const volume = countCapacityVolume(item, dosage)
     const rpe = itemRpe(item, dosage)
-    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+    const isBeginner = isEarlyExperienceAudience(draft)
 
     if (restSeconds > 0 && restSeconds < CAPACITY_SHORT_REST_SECONDS && volume >= 12 && rpe >= CAPACITY_MIN_RPE_STRENGTH) {
       hasHighDensity = true
@@ -3128,7 +3127,7 @@ function analyzeCapacityHingeReadiness(items, ctx) {
         severity: 'warning',
         message: `${name}: good morning is technical and spine-position sensitive. Use dowel hinge, band good morning, or RDL first.`,
         affected_items: [name],
-        meta: { slug, skill_level: 'BEGINNER' },
+        meta: { slug, training_experience: 'BEGINNER' },
       })
     }
 
@@ -3220,7 +3219,6 @@ function analyzeCapacityPushReadiness(items, ctx) {
     dosageByExercise,
     blockMeta = [],
     capacityBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -3272,10 +3270,7 @@ function analyzeCapacityPushReadiness(items, ctx) {
     })
   }
 
-  const isYouthAthlete = ordered.some(({ exerciseId }) => {
-    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    return level === 'EARLY_STAGE' || level === 'BEGINNER'
-  })
+  const isYouthAthlete = isYouthAudience(draft)
 
   if (WRIST_PAIN_PATTERN.test(watchText)) {
     findings.push({
@@ -3305,8 +3300,7 @@ function analyzeCapacityPushReadiness(items, ctx) {
     const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
     const volume = countCapacityVolume(item, dosage)
     const rpe = itemRpe(item, dosage)
-    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+    const isBeginner = isEarlyExperienceAudience(draft)
 
     if (restSeconds > 0 && restSeconds < CAPACITY_SHORT_REST_SECONDS && volume >= 12 && rpe >= CAPACITY_MIN_RPE_STRENGTH) {
       hasHighDensity = true
@@ -3497,7 +3491,6 @@ function analyzeCapacityPullReadiness(items, ctx) {
     dosageByExercise,
     blockMeta = [],
     capacityBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -3543,10 +3536,7 @@ function analyzeCapacityPullReadiness(items, ctx) {
     })
   }
 
-  const isYouthAthlete = ordered.some(({ exerciseId }) => {
-    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    return level === 'EARLY_STAGE' || level === 'BEGINNER'
-  })
+  const isYouthAthlete = isYouthAudience(draft)
 
   const hasHorizontalFoundation = [...HORIZONTAL_PULL_FOUNDATION_SLUGS].some((s) => slugsInWorkout.has(s))
 
@@ -3567,8 +3557,7 @@ function analyzeCapacityPullReadiness(items, ctx) {
     const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
     const volume = countCapacityVolume(item, dosage)
     const rpe = itemRpe(item, dosage)
-    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+    const isBeginner = isEarlyExperienceAudience(draft)
 
     if (restSeconds > 0 && restSeconds < CAPACITY_SHORT_REST_SECONDS && volume >= 12 && rpe >= CAPACITY_MIN_RPE_STRENGTH) {
       hasHighDensity = true
@@ -3832,7 +3821,6 @@ function analyzeCapacityCarryReadiness(items, ctx) {
     dosageByExercise,
     blockMeta = [],
     capacityBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -3904,10 +3892,7 @@ function analyzeCapacityCarryReadiness(items, ctx) {
     })
   }
 
-  const isYouthAthlete = ordered.some(({ exerciseId }) => {
-    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    return level === 'EARLY_STAGE' || level === 'BEGINNER'
-  })
+  const isYouthAthlete = isYouthAudience(draft)
 
   if (CAPACITY_CARRY_TISSUE_PAIN_PATTERN.test(watchText)) {
     findings.push({
@@ -3928,8 +3913,7 @@ function analyzeCapacityCarryReadiness(items, ctx) {
     const rpe = itemRpe(item, dosage)
     const workSeconds = Number(item.work_seconds ?? item.workSeconds ?? dosage?.default_work_seconds) || 0
     const totalYards = parseTotalDistanceYards(item, dosage)
-    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+    const isBeginner = isEarlyExperienceAudience(draft)
 
     if (restSeconds > 0 && restSeconds < CAPACITY_SHORT_REST_SECONDS && volume >= 12 && rpe >= CAPACITY_MIN_RPE_STRENGTH) {
       hasHighDensity = true
@@ -4009,7 +3993,7 @@ function analyzeCapacityCarryReadiness(items, ctx) {
         severity: 'warning',
         message: `${name}: use half-kneeling press, front-rack carry, or farmer carry first when overhead mobility or shoulder control is limited.`,
         affected_items: [name],
-        meta: { slug, skill_level: isBeginner ? 'BEGINNER' : undefined, symptom_flags: OVERHEAD_MOBILITY_PATTERN.test(watchText) },
+        meta: { slug, training_experience: isBeginner ? 'BEGINNER' : undefined, symptom_flags: OVERHEAD_MOBILITY_PATTERN.test(watchText) },
       })
     }
 
@@ -4118,7 +4102,6 @@ function analyzeCapacityTissueReadiness(items, ctx) {
     dosageByExercise,
     blockMeta = [],
     capacityBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -4218,18 +4201,14 @@ function analyzeCapacityTissueReadiness(items, ctx) {
     })
   }
 
-  const isYouthAthlete = ordered.some(({ exerciseId }) => {
-    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    return level === 'EARLY_STAGE' || level === 'BEGINNER'
-  })
+  const isYouthAthlete = isYouthAudience(draft)
 
   for (const { item, exerciseId, name, slug } of ordered) {
     const dosage = dosageByExercise.get(String(exerciseId))
     const sets = Number(item.sets ?? dosage?.default_sets) || 1
     const reps = Number(item.reps ?? dosage?.default_reps) || 0
     const volume = sets * (reps || 1)
-    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER' || isYouthAthlete
+    const isBeginner = isEarlyExperienceAudience(draft) || isYouthAthlete
 
     if (slug === SPANISH_SQUAT_ISO_SLUG && CAPACITY_TISSUE_SPANISH_ANCHOR_UNSAFE_PATTERN.test(watchText)) {
       findings.push({
@@ -4267,7 +4246,7 @@ function analyzeCapacityTissueReadiness(items, ctx) {
         severity: 'recommendation',
         message: `${name}: use short-lever version or adductor squeeze before long-lever Copenhagen.`,
         affected_items: [name],
-        meta: { slug, skill_level: 'BEGINNER' },
+        meta: { slug, training_experience: 'BEGINNER' },
       })
     }
 
@@ -4346,7 +4325,6 @@ function analyzeCapacityReadiness(items, ctx) {
     dosageByExercise,
     blockMeta = [],
     capacityBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -4399,10 +4377,7 @@ function analyzeCapacityReadiness(items, ctx) {
     })
   }
 
-  const isYouthAthlete = ordered.some(({ exerciseId }) => {
-    const level = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    return level === 'EARLY_STAGE' || level === 'BEGINNER'
-  })
+  const isYouthAthlete = isYouthAudience(draft)
 
   if ((isYouthAthlete || YOUTH_ATHLETE_CAPACITY_PATTERN.test(watchText)) && HEAVY_LOAD_PATTERN.test(watchText)) {
     findings.push({
@@ -4457,13 +4432,17 @@ function analyzeCapacityReadiness(items, ctx) {
       hasHighDensity = true
     }
 
-    if (slug === NORDIC_SLUG && isYouthAthlete) {
+    if (slug === NORDIC_SLUG && (isYouthAthlete || isEarlyExperienceAudience(draft))) {
       findings.push({
         rule_key: 'capacity_nordic_beginner',
         severity: 'warning',
         message: 'Nordics are high-intensity eccentric work. Regress to hamstring slider curl or assisted Nordic.',
         affected_items: [name],
-        meta: { slug, skill_level: 'BEGINNER' },
+        meta: {
+          slug,
+          audience_age_band: isYouthAthlete ? 'YOUTH' : undefined,
+          training_experience: isEarlyExperienceAudience(draft) ? 'BEGINNER' : undefined,
+        },
       })
     }
 
@@ -4473,7 +4452,7 @@ function analyzeCapacityReadiness(items, ctx) {
         severity: 'recommendation',
         message: 'Use assisted pull-up, ring row, or eccentric pull-up before full pull-up/chin-up.',
         affected_items: [name],
-        meta: { slug, skill_level: 'BEGINNER' },
+        meta: { slug, audience_age_band: 'YOUTH' },
       })
     }
 
@@ -4540,7 +4519,7 @@ function analyzeOutputReadiness(items, ctx) {
     blockMeta = [],
     outputBlockIndex = 0,
     skillSlugsInWorkout = new Set(),
-    exerciseSkillLevelById = new Map(),
+    draft = {},
     phaseKey = OUTPUT,
   } = ctx
 
@@ -4582,7 +4561,6 @@ function analyzeOutputReadiness(items, ctx) {
     const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
     const sets = Number(item.sets ?? dosage?.default_sets) || 1
     const reps = Number(item.reps ?? dosage?.default_reps) || 1
-    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
 
     if (DECEL_FOUNDATION_OUTPUT_SLUGS.has(slug)) hasDecelFoundation = true
 
@@ -4600,13 +4578,13 @@ function analyzeOutputReadiness(items, ctx) {
       })
     }
 
-    if ((skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER') && ADVANCED_PLYO_OUTPUT_SLUGS.has(slug)) {
+    if (isEarlyExperienceAudience(draft) && ADVANCED_PLYO_OUTPUT_SLUGS.has(slug)) {
       findings.push({
         rule_key: 'output_advanced_plyo_prerequisite',
         severity: 'warning',
         message: `${name}: depth drops, hurdle hops, or single-leg plyos require landing stick, squat pattern, and pain-free hopping progressions.`,
         affected_items: [name],
-        meta: { skill_level: skillLevel, slug },
+        meta: { training_experience: audienceTrainingExperience(draft), slug },
       })
     }
 
@@ -5007,7 +4985,6 @@ export async function validateWorkoutDraft(pool, draft) {
   const regimenByExercise = new Map()
   const dosageByExercise = new Map()
   const slugByExercise = new Map()
-  const exerciseSkillLevelById = new Map()
   const programmingKindByExercise = new Map()
   const difficultyByExercise = new Map()
   let tagRows = []
@@ -5039,13 +5016,12 @@ export async function validateWorkoutDraft(pool, draft) {
          FROM coaching.exercise_dosage_profile WHERE exercise_id = ANY($1::bigint[]) AND profile_name = 'Default'`,
         [exerciseIds],
       ),
-      pool.query(`SELECT id, slug, skill_level, programming_kind FROM coaching.exercise WHERE id = ANY($1::bigint[])`, [exerciseIds]),
+      pool.query(`SELECT id, slug, programming_kind FROM coaching.exercise WHERE id = ANY($1::bigint[])`, [exerciseIds]),
       pool.query(`SELECT exercise_id, technical, load, overall FROM coaching.exercise_difficulty_profile WHERE exercise_id = ANY($1::bigint[])`, [exerciseIds]).catch(() => ({ rows: [] })),
     ])
     tagRows = tags.rows
     for (const ex of exercises.rows) {
       slugByExercise.set(String(ex.id), ex.slug)
-      if (ex.skill_level) exerciseSkillLevelById.set(String(ex.id), ex.skill_level)
       if (ex.programming_kind) programmingKindByExercise.set(String(ex.id), ex.programming_kind)
     }
     for (const p of profiles.rows) {
@@ -5501,7 +5477,7 @@ export async function validateWorkoutDraft(pool, draft) {
       blockMeta,
       outputBlockIndex: i,
       skillSlugsInWorkout,
-      exerciseSkillLevelById,
+      draft,
       phaseKey: OUTPUT,
     })
     const maxVelocityFindings = analyzeOutputMaxVelocityReadiness(items, {
@@ -5509,7 +5485,6 @@ export async function validateWorkoutDraft(pool, draft) {
       dosageByExercise,
       blockMeta,
       outputBlockIndex: i,
-      exerciseSkillLevelById,
       draft,
     })
     const accelerationFindings = analyzeOutputAccelerationReadiness(items, {
@@ -5517,7 +5492,6 @@ export async function validateWorkoutDraft(pool, draft) {
       dosageByExercise,
       blockMeta,
       outputBlockIndex: i,
-      exerciseSkillLevelById,
       draft,
     })
     const elasticFindings = analyzeOutputElasticReadiness(items, {
@@ -5525,7 +5499,6 @@ export async function validateWorkoutDraft(pool, draft) {
       dosageByExercise,
       blockMeta,
       outputBlockIndex: i,
-      exerciseSkillLevelById,
       skillSlugsInWorkout,
       draft,
     })
@@ -5534,7 +5507,6 @@ export async function validateWorkoutDraft(pool, draft) {
       dosageByExercise,
       blockMeta,
       outputBlockIndex: i,
-      exerciseSkillLevelById,
       draft,
     })
     const decelCodFindings = analyzeOutputDecelCodReadiness(items, {
@@ -5542,7 +5514,6 @@ export async function validateWorkoutDraft(pool, draft) {
       dosageByExercise,
       blockMeta,
       outputBlockIndex: i,
-      exerciseSkillLevelById,
       draft,
     })
     const reactiveTumblingFindings = analyzeOutputReactiveTumblingReadiness(items, {
@@ -5661,7 +5632,6 @@ export async function validateWorkoutDraft(pool, draft) {
       dosageByExercise,
       blockMeta,
       capacityBlockIndex: i,
-      exerciseSkillLevelById,
       draft,
     })
     const squatFindings = analyzeCapacitySquatReadiness(items, {
@@ -5669,7 +5639,6 @@ export async function validateWorkoutDraft(pool, draft) {
       dosageByExercise,
       blockMeta,
       capacityBlockIndex: i,
-      exerciseSkillLevelById,
       draft,
     })
     const hingeFindings = analyzeCapacityHingeReadiness(items, {
@@ -5677,7 +5646,6 @@ export async function validateWorkoutDraft(pool, draft) {
       dosageByExercise,
       blockMeta,
       capacityBlockIndex: i,
-      exerciseSkillLevelById,
       draft,
     })
     const pushFindings = analyzeCapacityPushReadiness(items, {
@@ -5685,7 +5653,6 @@ export async function validateWorkoutDraft(pool, draft) {
       dosageByExercise,
       blockMeta,
       capacityBlockIndex: i,
-      exerciseSkillLevelById,
       draft,
     })
     const pullFindings = analyzeCapacityPullReadiness(items, {
@@ -5693,7 +5660,6 @@ export async function validateWorkoutDraft(pool, draft) {
       dosageByExercise,
       blockMeta,
       capacityBlockIndex: i,
-      exerciseSkillLevelById,
       draft,
     })
     const carryFindings = analyzeCapacityCarryReadiness(items, {
@@ -5701,7 +5667,6 @@ export async function validateWorkoutDraft(pool, draft) {
       dosageByExercise,
       blockMeta,
       capacityBlockIndex: i,
-      exerciseSkillLevelById,
       draft,
     })
     const tissueFindings = analyzeCapacityTissueReadiness(items, {
@@ -5709,7 +5674,6 @@ export async function validateWorkoutDraft(pool, draft) {
       dosageByExercise,
       blockMeta,
       capacityBlockIndex: i,
-      exerciseSkillLevelById,
       draft,
     })
     const allCapacityFindings = [...capacityFindings, ...squatFindings, ...hingeFindings, ...pushFindings, ...pullFindings, ...carryFindings, ...tissueFindings]
@@ -5810,7 +5774,6 @@ export async function validateWorkoutDraft(pool, draft) {
       dosageByExercise,
       blockMeta,
       controlBlockIndex: i,
-      exerciseSkillLevelById,
       draft,
     })
     if (controlFindings.length > 0) {
@@ -5940,11 +5903,18 @@ export async function validateWorkoutDraft(pool, draft) {
     if (!/does not exist|undefined column/i.test(String(progErr.message))) throw progErr
   }
 
-  const audience = draft?.audience_json ?? draft?.audienceJson ?? {}
+  const audience = workoutAudience(draft)
   const ageMin = audience.age_min ?? audience.ageMin
   const ageMax = audience.age_max ?? audience.ageMax
   if ((ageMin != null || ageMax != null) && exerciseIds.length > 0) {
-    const profile = resolveAudienceProfile({ ageMin, ageMax, skillLevel: audience.skill_level ?? audience.skillLevel })
+    const profile = resolveAudienceProfile({
+      ageMin,
+      ageMax,
+      skillLevel: audience.training_experience
+        ?? audience.trainingExperience
+        ?? audience.skill_level
+        ?? audience.skillLevel,
+    })
     for (const meta of blockMeta) {
       for (const item of meta.block.items ?? []) {
         const exerciseId = String(item.exercise_id ?? item.exerciseId)

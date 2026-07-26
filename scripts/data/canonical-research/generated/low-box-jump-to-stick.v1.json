@@ -1,0 +1,451 @@
+{
+  "facilityId": 1,
+  "slug": "low-box-jump-to-stick",
+  "researchVersion": "2026-07-25.4",
+  "assessmentSummary": {
+    "identity": "A bilateral countermovement jump onto a deliberately low stable box, followed by a quiet full-foot bilateral landing held for two to three seconds, a stand, and step-down reset.",
+    "currentCardFindings": [
+      "The card does not operationally define low relative to the athlete or define the required stick duration.",
+      "The same generic high-intent description and 60-point difficulty used for other box jumps contradict its intended lower collision and coordination demand.",
+      "The box height and extended hold are controlled modifiers of Box Jump rather than a clearly separate identity."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "countermovement",
+        "bilateral_vertical_jump",
+        "low_elevated_bilateral_land",
+        "extended_stick",
+        "step_down_reset"
+      ],
+      "jointActions": [
+        "ankle_plantarflexion",
+        "knee_extension",
+        "hip_extension",
+        "landing_flexion_control",
+        "isometric_stabilization"
+      ],
+      "planes": [
+        "sagittal"
+      ],
+      "laterality": "bilateral_takeoff_bilateral_landing",
+      "intent": "introductory_vertical_power_with_extended_elevated_landing_control"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "quadriceps",
+        "gluteus_maximus",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "hamstrings",
+        "gluteus_medius",
+        "hip_external_rotators",
+        "intrinsic_foot",
+        "trunk_stabilizers"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 30,
+      "absoluteLoadDemand": 14,
+      "coordinationDemand": 36,
+      "supervisionDemand": 34,
+      "failureConsequence": 36,
+      "impact": 28,
+      "workCapacityDemand": 16,
+      "baseOverallDifficulty": 30
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_bilateral_ballistic_jump_to_low_elevated_stick",
+      "impactClass": "low_to_moderate",
+      "landingContactsPerRep": 1,
+      "primaryStress": [
+        "introductory_vertical_impulse",
+        "landing_shape",
+        "stabilization"
+      ],
+      "fatigueSensitivity": "landing_noise_hold_quality_and_repeatable_takeoff"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "low_stable_non_slip_box",
+        "safe_step_down_route"
+      ],
+      "optionalEquipment": [
+        "soft_sided_box",
+        "landing_footprints",
+        "takeoff_line"
+      ],
+      "environment": [
+        "clear_low_platform_top",
+        "level_floor"
+      ],
+      "population": [
+        "owns_floor_jump_to_stick",
+        "needs_lower_edge_clearance_demand",
+        "can_step_down_safely"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4",
+      "repetitions": "3-5",
+      "landingHoldSeconds": "2-3",
+      "restSeconds": "45-90",
+      "intensity": "submaximal_to_high_intent_with_generous_clearance",
+      "progressWhen": "the athlete lands quietly with the full foot and holds without a shuffle, touch-down, or posture loss"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Easy clearance",
+        "Whole foot",
+        "Freeze",
+        "Stand and step down"
+      ],
+      "athleteInstructions": [
+        "Jump onto the low box",
+        "Land softly and hold for a full count",
+        "Stand, step down, and reset"
+      ],
+      "commonFaults": [
+        "box too high for teaching goal",
+        "toe contact",
+        "shuffle",
+        "immediate stand before hold",
+        "jumping down"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "stable floor jump-to-stick",
+        "appropriately low box",
+        "safe step-down"
+      ],
+      "stopRules": [
+        "toe catch",
+        "partial-foot landing",
+        "extra step",
+        "pain",
+        "box movement",
+        "fear or hesitation"
+      ]
+    },
+    "programmingDecision": "Treat low height and extended stick as a Box Jump delivery variant after human identity review. Preserve this packet because the dosage and difficulty adjustments are useful even if the definition is consolidated.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-25T23:48:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Low Box Jump to Stick is a high-intent box-jump power exercise. The athlete creates a crisp takeoff, lands softly on the box with full-foot control, stands tall, steps down, and fully resets. The purpose is explosive force expression with low volume and full recovery, not conditioning.",
+      "familyKey": "Box Jump Explosive Power",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 60,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 60
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "A box-jump identity must specify start condition, countermovement permission, arm use, takeoff and landing laterality, approach, platform relationship, stabilization, exit, and reset behavior.",
+        "Low Box Jump to Stick must not combine a floor-to-box jump with a depth or drop jump, repeated rebound, box jump-over, unilateral landing, seated start, approach jump, or loaded jump."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "A reset box jump is a discrete ballistic propulsion task followed by an elevated landing and deliberate stabilization; repeated reactive box contacts are a different task.",
+        "Low Box Jump to Stick belongs to bilateral vertical power and landing control, with start condition, arm use, box height, landing strategy, and reset intent encoded as controlled dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Propulsion and elevated landing are coordinated across the foot, ankle, knee, hip, pelvis, trunk, and, when permitted, the shoulder girdle.",
+        "The card should assign propulsion to the plantar flexors, quadriceps, and hip extensors; stabilization to the foot, hip, and trunk stabilizers; and arm-swing contribution to coordinated shoulder flexion without claiming one isolated prime mover."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11166134/",
+      "sourceTitle": "Does Box Height Matter? A Comparative Analysis of Box Height on Box Jump Performance in Men and Women",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "In recreationally active adults asked to jump maximally, changing box height across the studied range generally did not change most propulsive performance variables.",
+        "Box height is therefore a landing target and constraint, not a valid stand-alone measure of vertical jump height; observable quality includes maximal intent when prescribed, full-foot clearance, quiet simultaneous contact, controlled landing depth, and a stable finish."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Box-jump difficulty changes with required impulse, box collision consequence, landing-space tolerance, start condition, arm restriction, laterality, approach, external load, repetition strategy, and fatigue.",
+        "Exercise cards must score technical complexity, physical or absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly; they must not use skill-library levels."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Jump volume is counted as discrete takeoffs and landings, while height, intent, start condition, arm use, body mass, external load, and reset duration govern exposure.",
+        "Low Box Jump to Stick needs contact count, output intent, impact and eccentric stress, technical-fatigue criteria, and recovery guidance; a reset power prescription must not be converted into a conditioning interval."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11166134/",
+      "sourceTitle": "Does Box Height Matter? A Comparative Analysis of Box Height on Box Jump Performance in Men and Women",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Different box heights can be used without assuming that a higher box produces a better propulsive effort, provided the athlete can clear and land on the platform safely.",
+        "The delivery profile should require a stable non-slip platform, unobstructed takeoff and top surfaces, adequate ceiling and forward clearance, a safe step-down route, athlete-specific height selection, and coach sightlines to the feet and landing."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Power-focused plyometrics use low-repetition sets, deliberate resets, and enough recovery to preserve takeoff output and landing quality.",
+        "Prescribe sets, discrete repetitions, box-height selection rule, landing hold, step-down behavior, rest, and stop criteria; do not prescribe maximal box height as the training target."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Specific external or movement-focused feedback can improve landing mechanics, while excessive cue volume can impair learning.",
+        "Use a small cue set: choose an honest box, load and drive, clear the front edge, land quietly with the whole foot, own the top, stand, step down, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Box-jump hazards include collision with the front edge, missed or partial foot contact, unstable or shifting equipment, uncontrolled landing, and an unsafe jump-down exit.",
+        "Stop for pain, giving way, hesitation, repeated toe catch, partial-foot landing, excessive hip tuck used to chase box height, loud or asymmetrical contact, valgus or trunk collapse, loss of output, or any platform movement."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11166134/",
+      "sourceTitle": "Does Box Height Matter? A Comparative Analysis of Box Height on Box Jump Performance in Men and Women",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Box height should be selected to support the intended landing or teaching goal rather than used as a proxy for jump performance.",
+        "Low Box Jump to Stick belongs early in an output block after readiness work, or in movement intelligence when explicitly submaximal and technique-focused; low volume and full reset preserve the intended stimulus."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Athlete support should show the prescribed start, target box, landing shape, hold, stand, step-down route, and one primary cue.",
+        "The interface should explain that a higher box can reward extra hip flexion without proving a higher jump and should display a lower-box or non-box regression without shame language."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11166134/",
+      "sourceTitle": "Does Box Height Matter? A Comparative Analysis of Box Height on Box Jump Performance in Men and Women",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Coaches can change box height for teaching and landing purposes without treating box height as the propulsive outcome.",
+        "Coach support should provide side and front observation, edge-clearance and full-foot criteria, landing-depth comparison, collision-risk rules, output and contact counting, regressions, progressions, and a prohibition on jumping down during reset prescriptions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should match physical and psychosocial readiness, technical competence, supervision, and equipment scale.",
+        "Accessibility can be improved with a lower soft-surface platform, visible takeoff line, contrasting box edge, landing footprint marks, demonstrated step-down route, longer reset, or a vertical jump-to-stick regression without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/28640774/",
+      "sourceTitle": "The Difference Between Countermovement and Squat Jump Performances: A Review of Underlying Mechanisms With Practical Applications",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "A countermovement jump and a static squat jump have different start mechanics and performance characteristics, so start condition must be explicit.",
+        "Box height and landing hold are usually delivery modifiers; a static start, arm restriction, seated start, approach, unilateral landing, external load, or prior drop changes the exercise sufficiently to require a controlled variant or separate definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Low Box Jump to Stick were discovered through visible YouTube search; current availability and embedding, exact movement match, full viewing, captions, instructional quality, safety, and approval remain separate review gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=XcrLHWSibfA",
+      "title": "Box Jump to Stick",
+      "channelName": "YST Exercises",
+      "sourceQuery": "low box jump to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=qq08W9Byy50",
+      "title": "Low Box Jump Technique",
+      "channelName": "Made Possible Personal Training",
+      "sourceQuery": "low box jump to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=0SZhGyd0cS8",
+      "title": "Box Jump w/ Stick Landing",
+      "channelName": "Tier 1 Training & Rehabilitation - Northampton Personal Training and Sports Injury Clinic",
+      "sourceQuery": "low box jump to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=R7sS0PfPfHk",
+      "title": "Box Jump Basics. Stick The Landing.",
+      "channelName": "Ambitious Athletics",
+      "sourceQuery": "low box jump to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=VGi94BDfvv0",
+      "title": "Box Jump Stick",
+      "channelName": "Rowing Strength",
+      "sourceQuery": "low box jump to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Box Jump",
+      "classification": "new_variant",
+      "rationale": "Low height and a long hold are delivery constraints on the baseline.",
+      "distinguishingDimensions": {
+        "boxHeight": "low",
+        "holdSeconds": 2
+      }
+    },
+    {
+      "name": "Low Box Step-Up",
+      "classification": "new_definition",
+      "rationale": "A step-up has no flight phase.",
+      "distinguishingDimensions": {
+        "takeoff": "single_leg_step"
+      }
+    },
+    {
+      "name": "Low Box Drop to Stick",
+      "classification": "new_definition",
+      "rationale": "Starting on and stepping off the box reverses the contact sequence.",
+      "distinguishingDimensions": {
+        "startSurface": "box"
+      }
+    },
+    {
+      "name": "Low Box Jump to Single-Leg Stick",
+      "classification": "new_variant",
+      "rationale": "Unilateral landing increases balance and limb demand.",
+      "distinguishingDimensions": {
+        "landingLaterality": "unilateral"
+      }
+    },
+    {
+      "name": "Continuous Low Box Jump",
+      "classification": "new_definition",
+      "rationale": "Immediate repeated contacts remove the stick and reset.",
+      "distinguishingDimensions": {
+        "repetitionStrategy": "continuous"
+      }
+    }
+  ]
+}

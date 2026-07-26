@@ -1,0 +1,31 @@
+{
+  "batchKey": "dribble-run-progression-v1",
+  "researchVersion": "2026-07-25.8",
+  "generatedAt": "2026-07-26T03:15:00.000Z",
+  "cards": [
+    {
+      "slug": "low-dribble-run",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "high-dribble-run",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "dribble-build-to-sprint",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "wall-ankling-pogo",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    }
+  ]
+}

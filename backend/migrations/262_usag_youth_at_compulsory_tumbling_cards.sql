@@ -1,0 +1,255 @@
+-- USA Gymnastics Youth Acrobatics & Tumbling Development Program.
+-- Exact Level 1-5 compulsory tumbling heat requirements (four per level).
+-- Coaching prose is original; the linked 2025-26 Code and errata control.
+
+WITH source_data (
+  name, slug, description, instructions, level_name, heat_number,
+  athlete_cue, coach_focus, prerequisite_slug, next_name, next_slug, source_page
+) AS (
+  VALUES
+    ('A&T L1 Tumbling 1 — Pike Sit to Bridge Kickover', 'usag-at-l1-tumbling-1-pike-bridge-kickover',
+      'The Level 1 first synchronized requirement links a controlled pike sit directly to a bridge kickover.',
+      'Show the pike with extended knees and feet, place hands for a stable bridge, transfer shoulders over the hands, split the legs through inversion, and finish in a balanced lunge on the required count.',
+      'Youth A&T Level 1', 1,
+      'Long pike, strong bridge, kick one leg over, and finish the lunge.',
+      'Six athletes match shapes and tempo; look for straight knees, open shoulders, safe head position, a split kickover, and identical lunge finish.',
+      NULL, 'Back walkover to lunge', 'usag-at-l2-tumbling-1-back-walkover', 37),
+    ('A&T L1 Tumbling 2 — T Jump to Backward Roll Squat', 'usag-at-l1-tumbling-2-t-jump-back-roll',
+      'The Level 1 second synchronized requirement connects a T-arm jump to a tucked backward roll ending in squat.',
+      'Jump vertically with arms held in the agreed T position, absorb through both feet, sit close to the heels, roll over a rounded back with hands by the ears, and return to a matching squat.',
+      'Youth A&T Level 1', 2,
+      'Jump tall in a T, land together, then roll round to the same squat.',
+      'Match arm position, jump height, landing timing, hand placement, tuck shape, and final squat depth across all athletes.',
+      NULL, 'T jump to straight-arm backward roll to push-up', 'usag-at-l2-tumbling-2-t-jump-back-roll-pushup', 37),
+    ('A&T L1 Tumbling 3 — Mountain Climber Handstand Hold', 'usag-at-l1-tumbling-3-mountain-climber-handstand',
+      'The Level 1 third synchronized requirement rises from a mountain-climber entry to a handstand hold and returns to lunge.',
+      'Set the same front-leg mountain-climber position, shift shoulders over hands, drive the back leg to vertical, join and extend the legs for a visible hold, then step down through the same controlled lunge.',
+      'Youth A&T Level 1', 3,
+      'Push tall, bring the legs together at the top, freeze, then step to lunge.',
+      'Identical entry leg, straight support arms, stacked line, visible control, matched hold duration, and synchronized lunge exit.',
+      'handstand', 'Mountain climber handstand to back walkover', 'usag-at-l2-tumbling-3-handstand-back-walkover', 37),
+    ('A&T L1 Tumbling 4 — Two-step Hurdle Round-off Rebound Stick', 'usag-at-l1-tumbling-4-roundoff-rebound',
+      'The Level 1 running requirement uses exactly two steps into a hurdle, round-off, rebound, and stuck landing from the left side.',
+      'Count two approach steps, hurdle into a long lunge, place hands on line, join legs by vertical, snap feet together, rebound straight upward, and absorb to a motionless landing.',
+      'Youth A&T Level 1', 4,
+      'Two steps, hurdle long, snap together, rebound tall, and freeze.',
+      'All athletes start from the left, remain in bounds, match the two-step rhythm, travel parallel, finish feet together, and stick without extra steps.',
+      'round-off', 'Round-off back handspring rebound stick', 'usag-at-l2-tumbling-4-roundoff-bhs', 37),
+
+    ('A&T L2 Tumbling 1 — Back Walkover to Lunge', 'usag-at-l2-tumbling-1-back-walkover',
+      'The Level 2 first synchronized requirement is a backward walkover finishing in lunge.',
+      'Reach backward with the chest lifted, place straight arms, split continuously through a controlled handstand, push the shoulders open, and lower the leading foot into a matched lunge.',
+      'Youth A&T Level 2', 1,
+      'Reach back, split through handstand, and finish a long lunge.',
+      'Even tempo, open shoulders, straight arms and knees, 180-degree split intent, no hand or foot adjustment, and identical lunge direction.',
+      'usag-at-l1-tumbling-1-pike-bridge-kickover', 'Back walkover step-in to back handspring', 'usag-at-l3-tumbling-3-walkover-bhs', 45),
+    ('A&T L2 Tumbling 2 — T Jump to Straight-arm Back Roll Push-up', 'usag-at-l2-tumbling-2-t-jump-back-roll-pushup',
+      'The Level 2 second synchronized requirement connects a T-arm jump to a straight-arm backward roll ending in push-up position.',
+      'Jump with the agreed T shape, land together, sit and roll with extended arms reaching to the track, push through the shoulders, and open to a straight braced front-support line.',
+      'Youth A&T Level 2', 2,
+      'Show the T, roll with long arms, and finish one strong plank.',
+      'Synchronized jump and landing, straight-arm support, protected head, extended finish, no hip sag or pike, and no athlete arriving late.',
+      'usag-at-l1-tumbling-2-t-jump-back-roll', 'Straddle jump to straight-arm back roll push-up', 'usag-at-l3-tumbling-2-straddle-back-roll', 45),
+    ('A&T L2 Tumbling 3 — Mountain-climber Handstand to Back Walkover', 'usag-at-l2-tumbling-3-handstand-back-walkover',
+      'The Level 2 third synchronized requirement connects a mountain-climber handstand directly through a backward walkover to lunge.',
+      'Drive from the common entry leg to handstand, show vertical control, continue the leading leg backward, open the shoulders through bridge, and transfer weight to finish the prescribed lunge.',
+      'Youth A&T Level 2', 3,
+      'Hit the handstand, keep splitting, and flow through to lunge.',
+      'Recognizable handstand before continuation, straight arms and legs, uninterrupted weight transfer, shoulder flexibility, and matched finish timing.',
+      'usag-at-l1-tumbling-3-mountain-climber-handstand', 'Back walkover step-in to back handspring', 'usag-at-l3-tumbling-3-walkover-bhs', 45),
+    ('A&T L2 Tumbling 4 — Round-off Back Handspring Rebound Stick', 'usag-at-l2-tumbling-4-roundoff-bhs',
+      'The Level 2 running requirement uses a two-step hurdle into round-off, back handspring, rebound, and stick from the left side.',
+      'Preserve speed through the round-off, sit and swing immediately into a long straight-arm back handspring, snap feet together, rebound vertically, and settle to a stable landing.',
+      'Youth A&T Level 2', 4,
+      'Round off fast, jump back long, snap together, rebound, and freeze.',
+      'Left-side start, exactly two approach steps, center-line travel, no pause between skills, straight support arms, feet together, and synchronized stick.',
+      'usag-at-l1-tumbling-4-roundoff-rebound', 'Round-off two back handsprings', 'usag-at-l3-tumbling-4-roundoff-two-bhs', 45),
+
+    ('A&T L3 Tumbling 1 — Standing Back Handspring Rebound Stick', 'usag-at-l3-tumbling-1-standing-bhs',
+      'The Level 3 first synchronized requirement is a standing back handspring followed by rebound and stuck landing.',
+      'Begin from a shared set, sit with knees aligned, swing and jump backward to straight-arm support, block through shoulders, snap the feet underneath, rebound tall, and stick.',
+      'Youth A&T Level 3', 1,
+      'Sit together, jump back long, push the floor, rebound, and freeze.',
+      'Identical set and takeoff, sufficient length, straight arms, joined legs, active block, matched rebound height, and no landing movement.',
+      'back-handspring', 'Standing back tuck', 'usag-at-l4-tumbling-1-back-tuck', 53),
+    ('A&T L3 Tumbling 2 — Straddle Jump to Back Roll Push-up', 'usag-at-l3-tumbling-2-straddle-back-roll',
+      'The Level 3 second synchronized requirement connects a 90°–120° straddle jump to a straight-arm backward roll ending in push-up.',
+      'Use one agreed arm position across the group, lift into the required straddle range with straight knees, land together, roll backward through straight-arm support, and finish in a braced plank.',
+      'Youth A&T Level 3', 2,
+      'Lift the straddle, land together, roll with long arms, and finish hollow.',
+      'Same arm choreography, 90°–120° leg separation, extended knees and toes, matched landing/roll timing, and aligned push-up finish.',
+      'usag-at-l2-tumbling-2-t-jump-back-roll-pushup', 'Straddle jump 120°–150° to back handspring', 'usag-at-l4-tumbling-2-straddle-bhs', 53),
+    ('A&T L3 Tumbling 3 — Back Walkover Step-in to Back Handspring', 'usag-at-l3-tumbling-3-walkover-bhs',
+      'The Level 3 third synchronized requirement connects a back walkover step-in to back handspring, rebound, and stick.',
+      'Finish the walkover with the second foot closing quickly to the first, keep the arms lifted, sit directly into the back handspring without a pause, then rebound and settle together.',
+      'Youth A&T Level 3', 3,
+      'Walk over long, close the feet fast, keep moving into the handspring, and stick.',
+      'Straight walkover lines, clear step-in, continuous connection, back-handspring amplitude, legs together, and synchronized rebound/landing.',
+      'usag-at-l2-tumbling-1-back-walkover', 'Back handspring to back handspring', 'usag-at-l4-tumbling-3-two-bhs', 53),
+    ('A&T L3 Tumbling 4 — Round-off Two Back Handsprings', 'usag-at-l3-tumbling-4-roundoff-two-bhs',
+      'The Level 3 running requirement connects a two-step hurdle round-off to two back handsprings, rebound, and stick.',
+      'Accelerate through the round-off, keep both back handsprings long and rising with active shoulder blocks, maintain feet-together rhythm, then rebound vertically and control the landing.',
+      'Youth A&T Level 3', 4,
+      'Round off fast, two long handsprings, rebound tall, and freeze.',
+      'Left-side/two-step setup, uninterrupted three-skill rhythm, parallel travel, consistent handspring shape, center-line control, and matched stick.',
+      'usag-at-l2-tumbling-4-roundoff-bhs', 'Round-off back handspring back tuck', 'usag-at-l4-tumbling-4-roundoff-bhs-tuck', 53),
+
+    ('A&T L4 Tumbling 1 — Standing Back Tuck Stick', 'usag-at-l4-tumbling-1-back-tuck',
+      'The Level 4 first synchronized requirement is a standing back tuck ending in a stuck landing.',
+      'Use a tall two-foot set, lift the hips before closing to tuck, rotate with the head neutral, open when the feet can be spotted, and absorb without a step.',
+      'Youth A&T Level 4', 1,
+      'Set up, snap the tuck, open to see the floor, and freeze.',
+      'Simultaneous set, adequate lift, compact recognized tuck, complete rotation, upright landing posture, and identical stick timing.',
+      'usag-at-l3-tumbling-1-standing-bhs', 'Standing back tuck after straddle jump', 'usag-at-l5-tumbling-2-straddle-back-tuck', 61),
+    ('A&T L4 Tumbling 2 — Straddle Jump to Back Handspring', 'usag-at-l4-tumbling-2-straddle-bhs',
+      'The Level 4 second synchronized requirement connects a 120°–150° straddle jump to back handspring, rebound, and stick.',
+      'Use one arm position throughout the group, lift the straddle within the required range, land with the trunk ready to sit, connect immediately to a long back handspring, and finish rebound-to-stick.',
+      'Youth A&T Level 4', 2,
+      'Lift the wide straddle, land ready, jump back long, rebound, and freeze.',
+      'Same arms, 120°–150° straddle, extended knees/toes, stable jump landing, continuous handspring connection, and group synchronization.',
+      'usag-at-l3-tumbling-2-straddle-back-roll', '180° straddle jump to back tuck', 'usag-at-l5-tumbling-2-straddle-back-tuck', 61),
+    ('A&T L4 Tumbling 3 — Two Back Handsprings', 'usag-at-l4-tumbling-3-two-bhs',
+      'The Level 4 third synchronized requirement is two connected standing back handsprings followed by rebound and stick.',
+      'Use one shared standing set, lengthen the first handspring to create travel, connect through active feet into a second rising handspring, then snap to vertical rebound and land together.',
+      'Youth A&T Level 4', 3,
+      'One set, two connected long handsprings, rebound tall, and freeze.',
+      'No extra arm swing or pause, straight support, consistent direction, joined legs, accelerating rhythm, and identical landing control.',
+      'usag-at-l3-tumbling-3-walkover-bhs', 'Back handspring back tuck', 'usag-at-l5-tumbling-3-bhs-back-tuck', 61),
+    ('A&T L4 Tumbling 4 — Round-off Back Handspring Back Tuck', 'usag-at-l4-tumbling-4-roundoff-bhs-tuck',
+      'The Level 4 running requirement connects two-step hurdle round-off, back handspring, and back tuck to a stick.',
+      'Build speed through the entry, use the handspring to rise rather than dive, snap to a tall salto set, close to tuck after lift, open before landing, and hold the finish.',
+      'Youth A&T Level 4', 4,
+      'Run the entry, rise through the handspring, set the tuck up, and stick.',
+      'Left-side/two-step approach, continuous rhythm, adequate salto height, recognized tuck, complete rotation, parallel paths, and synchronized stick.',
+      'usag-at-l3-tumbling-4-roundoff-two-bhs', 'Round-off back handspring back layout', 'usag-at-l5-tumbling-4-roundoff-bhs-layout', 61),
+
+    ('A&T L5 Tumbling 1 — Standing Back Tuck Stick', 'usag-at-l5-tumbling-1-standing-back-tuck',
+      'The Level 5 first synchronized requirement repeats the standing back tuck with Level 5 execution and stick expectations.',
+      'Set vertically from balanced feet, delay the tuck until lift is visible, keep the rotation centered, open to an upright landing, and display the stick.',
+      'Youth A&T Level 5', 1,
+      'Lift before you tuck, open tall, and own the landing.',
+      'Uniform takeoff timing and height, efficient tuck, no lateral drift, complete opening, feet aligned, and a motionless group finish.',
+      'usag-at-l4-tumbling-1-back-tuck', 'Optional standing tumbling salto series', NULL, 69),
+    ('A&T L5 Tumbling 2 — 180° Straddle Jump to Back Tuck', 'usag-at-l5-tumbling-2-straddle-back-tuck',
+      'The Level 5 second synchronized requirement connects a minimum 180° straddle jump directly to a back tuck stick.',
+      'Lift both legs to a full split-width straddle with straight knees, land through active feet, use the return force for a vertical back-tuck set, then rotate, open, and stick.',
+      'Youth A&T Level 5', 2,
+      'Show the full straddle, land ready, set the tuck up, and freeze.',
+      'At least 180° straddle, identical arms, extended legs/toes, immediate but controlled salto connection, adequate lift, and synchronized stick.',
+      'usag-at-l4-tumbling-2-straddle-bhs', 'Optional jump-to-salto combination', NULL, 69),
+    ('A&T L5 Tumbling 3 — Back Handspring Back Tuck', 'usag-at-l5-tumbling-3-bhs-back-tuck',
+      'The Level 5 third synchronized requirement connects a standing back handspring directly to a back tuck stick.',
+      'Jump backward into a long handspring, block and snap feet beneath the hips, redirect the rebound upward for the tuck, then open and settle without an adjustment.',
+      'Youth A&T Level 5', 3,
+      'Long handspring, snap to a tall set, tuck fast, and stick.',
+      'Identical standing set, continuous connection, handspring amplitude, vertical salto lift, matched rotation, and no step on landing.',
+      'usag-at-l4-tumbling-3-two-bhs', 'Optional standing series with layout or twist', NULL, 69),
+    ('A&T L5 Tumbling 4 — Round-off Back Handspring Back Layout', 'usag-at-l5-tumbling-4-roundoff-bhs-layout',
+      'The Level 5 running requirement connects two-step hurdle round-off, back handspring, and back layout to a stick.',
+      'Maintain speed and center-line through round-off and handspring, finish the snap-down under the body, rise into one extended layout shape, hold that line through flight, and land upright.',
+      'Youth A&T Level 5', 4,
+      'Fast entry, rise through the handspring, stretch one long layout, and stick.',
+      'Left-side/two-step approach, uninterrupted rhythm, layout hip rise, straight or hollow body without tuck/pike, parallel travel, and synchronized landing.',
+      'usag-at-l4-tumbling-4-roundoff-bhs-tuck', 'Round-off back handspring layout with twist', 'usag-tt-back-layout-full', 69)
+),
+prepared AS (
+  SELECT d.*, jsonb_build_object(
+    'governing_body', 'USA Gymnastics',
+    'discipline', 'Acrobatics & Tumbling',
+    'event', 'Compulsory Tumbling Heat ' || d.heat_number,
+    'program', 'Youth Acrobatics & Tumbling Development Program 2025–2026',
+    'official_name', d.name,
+    'usa_gymnastics_levels', jsonb_build_array(d.level_name),
+    'status', 'verified',
+    'last_verified', '2026-07-25',
+    'athlete_cues', jsonb_build_array(d.athlete_cue, 'Match the count, direction, and finish of all five teammates.'),
+    'coach_checkpoints', jsonb_build_array(d.coach_focus, 'Six athletes perform the prescribed sequence synchronized, in bounds, facing the required direction.'),
+    'safety_and_readiness', jsonb_build_array(
+      'Every athlete must independently demonstrate each component before synchronized full-speed connection.',
+      'Use qualified coaching, progressive surfaces, and spacing that prevents athlete paths from converging.',
+      'Train visual and verbal synchronization without sacrificing safe individual technique.'
+    ),
+    'common_faults', jsonb_build_array(
+      jsonb_build_object('fault', 'Flexed foot', 'deduction', '−0.1 per occurrence', 'cue', 'Finish through the toes.'),
+      jsonb_build_object('fault', 'Bent arms or legs', 'deduction', 'Up to −0.3 per occurrence', 'cue', 'Extend every support and flight shape.'),
+      jsonb_build_object('fault', 'Leg/foot separation', 'deduction', 'Up to −0.2 per occurrence', 'cue', 'Join legs whenever the skill calls for it.'),
+      jsonb_build_object('fault', 'Under/over rotation or insufficient amplitude', 'deduction', 'Up to −0.3 per occurrence for each category', 'cue', 'Create lift and finish rotation before landing.'),
+      jsonb_build_object('fault', 'Incorrect body position or insufficient stretch', 'deduction', 'Up to −0.2 per occurrence for each category', 'cue', 'Make the required shape unmistakable.'),
+      jsonb_build_object('fault', 'Lack of continuity', 'deduction', 'Up to −0.2 per occurrence', 'cue', 'Connect on active feet without a pause.'),
+      jsonb_build_object('fault', 'Lack of synchronization', 'deduction', 'Up to −0.3 per occurrence per heat', 'cue', 'Use the shared count and match contacts.'),
+      jsonb_build_object('fault', 'Step after landing', 'deduction', '−0.1 each occurrence', 'cue', 'Finish over the feet and hold.'),
+      jsonb_build_object('fault', 'Fall', 'deduction', '−0.5 each occurrence', 'cue', 'Open on time and control the landing.'),
+      jsonb_build_object('fault', 'Out of bounds', 'deduction', '−0.1 per occurrence', 'cue', 'Set safe parallel lanes before the heat.')
+    ),
+    'scoring_summary', 'Each compulsory heat starts from 10.0. Complete omission of a special requirement is −2.0; partial completion is −1.0. An event violation such as wrong direction/spacing is −0.50. Execution deductions apply to each occurrence and synchronization may be deducted up to −0.3 per heat. A fall is −0.5. Current errata and the official Code control.',
+    'video_briefs', jsonb_build_array(
+      jsonb_build_object('title', 'Teach ' || d.name, 'purpose', 'learning',
+        'description', 'Teach each component individually, then connect two components, then rehearse in marked parallel lanes. Add the official count in pairs before combining all six athletes. Show front, side, and overhead spacing views.'),
+      jsonb_build_object('title', d.name || ' — perfect synchronized model', 'purpose', 'model',
+        'description', 'Show six athletes at full speed and in synchronized split-screen slow motion. Highlight matching takeoffs, contacts, shapes, amplitude, direction, connection rhythm, and simultaneous stuck finishes.')
+    ),
+    'next_progressions', jsonb_build_array(jsonb_build_object('name', d.next_name, 'slug', d.next_slug)),
+    'sources', jsonb_build_array(jsonb_build_object(
+      'title', 'USA Gymnastics Youth Acrobatics & Tumbling Rules & Policies / Code of Points',
+      'url', 'https://static.usagym.org/PDFs/gfa/at/25rp_cop.pdf#page=' || d.source_page,
+      'organization', 'USA Gymnastics',
+      'effective_cycle', '2025–2026',
+      'accessed_on', '2026-07-25',
+      'note', 'Compulsory tumbling requirement and deduction schedule.'
+    )),
+    'editorial_note', 'Original coaching summary; official Code, videos/count sheets, and current errata take precedence.'
+  ) AS metadata
+  FROM source_data d
+)
+INSERT INTO coaching.skill (
+  facility_id, name, slug, description, instructions, sport_id, skill_level,
+  skill_kind, evaluation_mode, execution_max_score, assistance_note,
+  is_published, visibility, official_metadata
+)
+SELECT
+  (SELECT id FROM public.facility ORDER BY id LIMIT 1),
+  p.name, p.slug, p.description, p.instructions,
+  (SELECT id FROM coaching.sport WHERE key = 'gymnastics'),
+  CASE
+    WHEN p.level_name = 'Youth A&T Level 1' THEN 'EARLY_STAGE'::public.skill_level
+    WHEN p.level_name IN ('Youth A&T Level 2', 'Youth A&T Level 3') THEN 'BEGINNER'::public.skill_level
+    ELSE 'INTERMEDIATE'::public.skill_level
+  END,
+  'combo', 'execution', 10,
+  'Six-athlete synchronized compulsory sequence',
+  TRUE, 'facility', p.metadata
+FROM prepared p
+WHERE (SELECT id FROM public.facility ORDER BY id LIMIT 1) IS NOT NULL
+ON CONFLICT (facility_id, slug) DO UPDATE SET
+  name = EXCLUDED.name,
+  description = EXCLUDED.description,
+  instructions = EXCLUDED.instructions,
+  skill_level = EXCLUDED.skill_level,
+  assistance_note = EXCLUDED.assistance_note,
+  official_metadata = EXCLUDED.official_metadata,
+  updated_at = now();
+
+INSERT INTO coaching.skill_prerequisite (skill_id, prerequisite_skill_id, note)
+SELECT child.id, parent.id, 'Direct preceding USA Gymnastics Youth A&T compulsory progression.'
+FROM (
+  VALUES
+    ('usag-at-l2-tumbling-1-back-walkover', 'usag-at-l1-tumbling-1-pike-bridge-kickover'),
+    ('usag-at-l2-tumbling-2-t-jump-back-roll-pushup', 'usag-at-l1-tumbling-2-t-jump-back-roll'),
+    ('usag-at-l2-tumbling-3-handstand-back-walkover', 'usag-at-l1-tumbling-3-mountain-climber-handstand'),
+    ('usag-at-l2-tumbling-4-roundoff-bhs', 'usag-at-l1-tumbling-4-roundoff-rebound'),
+    ('usag-at-l3-tumbling-1-standing-bhs', 'back-handspring'),
+    ('usag-at-l3-tumbling-2-straddle-back-roll', 'usag-at-l2-tumbling-2-t-jump-back-roll-pushup'),
+    ('usag-at-l3-tumbling-3-walkover-bhs', 'usag-at-l2-tumbling-1-back-walkover'),
+    ('usag-at-l3-tumbling-4-roundoff-two-bhs', 'usag-at-l2-tumbling-4-roundoff-bhs'),
+    ('usag-at-l4-tumbling-1-back-tuck', 'usag-at-l3-tumbling-1-standing-bhs'),
+    ('usag-at-l4-tumbling-2-straddle-bhs', 'usag-at-l3-tumbling-2-straddle-back-roll'),
+    ('usag-at-l4-tumbling-3-two-bhs', 'usag-at-l3-tumbling-3-walkover-bhs'),
+    ('usag-at-l4-tumbling-4-roundoff-bhs-tuck', 'usag-at-l3-tumbling-4-roundoff-two-bhs'),
+    ('usag-at-l5-tumbling-1-standing-back-tuck', 'usag-at-l4-tumbling-1-back-tuck'),
+    ('usag-at-l5-tumbling-2-straddle-back-tuck', 'usag-at-l4-tumbling-2-straddle-bhs'),
+    ('usag-at-l5-tumbling-3-bhs-back-tuck', 'usag-at-l4-tumbling-3-two-bhs'),
+    ('usag-at-l5-tumbling-4-roundoff-bhs-layout', 'usag-at-l4-tumbling-4-roundoff-bhs-tuck')
+) AS edge(child_slug, parent_slug)
+JOIN coaching.skill child ON child.slug = edge.child_slug
+JOIN coaching.skill parent ON parent.slug = edge.parent_slug AND parent.facility_id = child.facility_id
+ON CONFLICT DO NOTHING;

@@ -348,6 +348,17 @@ function GameEditor({
     scoring: typeof game?.rules?.scoring === 'string' ? game.rules.scoring : '',
     win_condition: typeof game?.rules?.win_condition === 'string' ? game.rules.win_condition : '',
     stop_signs_text: stringifyList(game?.safety?.stop_signs),
+    video_title: game?.video_links?.[0]?.title ?? '',
+    video_url: game?.video_links?.[0]?.url ?? '',
+    primary_qualities_text: (game?.training_effects?.primary_qualities ?? []).join(', '),
+    secondary_qualities_text: (game?.training_effects?.secondary_qualities ?? []).join(', '),
+    energy_systems_text: (game?.training_effects?.energy_systems ?? []).join(', '),
+    movement_patterns_text: (game?.training_effects?.movement_patterns ?? []).join(', '),
+    primary_muscles_text: (game?.training_effects?.primary_muscle_groups ?? []).join(', '),
+    secondary_muscles_text: (game?.training_effects?.secondary_muscle_groups ?? []).join(', '),
+    cognitive_social_text: (game?.training_effects?.cognitive_social ?? []).join(', '),
+    workout_pairing: game?.training_effects?.workout_pairing ?? '',
+    dose_notes: game?.training_effects?.dose_notes ?? '',
   })
   const [tenetIds, setTenetIds] = useState<number[]>(
     (game?.tags ?? []).filter((t) => t.facet_type === 'tenet').map((t) => t.facet_id),
@@ -383,6 +394,17 @@ function GameEditor({
           scoring: typeof full.rules?.scoring === 'string' ? full.rules.scoring : '',
           win_condition: typeof full.rules?.win_condition === 'string' ? full.rules.win_condition : '',
           stop_signs_text: stringifyList(full.safety?.stop_signs),
+          video_title: full.video_links?.[0]?.title ?? '',
+          video_url: full.video_links?.[0]?.url ?? '',
+          primary_qualities_text: (full.training_effects?.primary_qualities ?? []).join(', '),
+          secondary_qualities_text: (full.training_effects?.secondary_qualities ?? []).join(', '),
+          energy_systems_text: (full.training_effects?.energy_systems ?? []).join(', '),
+          movement_patterns_text: (full.training_effects?.movement_patterns ?? []).join(', '),
+          primary_muscles_text: (full.training_effects?.primary_muscle_groups ?? []).join(', '),
+          secondary_muscles_text: (full.training_effects?.secondary_muscle_groups ?? []).join(', '),
+          cognitive_social_text: (full.training_effects?.cognitive_social ?? []).join(', '),
+          workout_pairing: full.training_effects?.workout_pairing ?? '',
+          dose_notes: full.training_effects?.dose_notes ?? '',
         })
         setTenetIds((full.tags ?? []).filter((t) => t.facet_type === 'tenet').map((t) => t.facet_id))
       })
@@ -406,6 +428,12 @@ function GameEditor({
     setSaving(true)
     setError(null)
     try {
+      if (!/^https:\/\/(www\.)?youtube\.com\/watch\?v=[A-Za-z0-9_-]{11}(?:&.*)?$/.test(form.video_url.trim())) {
+        throw new Error('Add a direct YouTube gameplay link in the format https://www.youtube.com/watch?v=…')
+      }
+      if (form.age_brackets.length === 0) throw new Error('Select at least one age bracket.')
+      if (parseCommaList(form.primary_qualities_text).length === 0) throw new Error('Add at least one primary training quality.')
+      if (parseCommaList(form.primary_muscles_text).length === 0) throw new Error('Add at least one primary muscle group.')
       const body = {
         name: form.name,
         description: form.description || null,
@@ -435,6 +463,22 @@ function GameEditor({
         safety: {
           stop_signs: parseList(form.stop_signs_text),
         },
+        training_effects: {
+          primary_qualities: parseCommaList(form.primary_qualities_text),
+          secondary_qualities: parseCommaList(form.secondary_qualities_text),
+          energy_systems: parseCommaList(form.energy_systems_text),
+          movement_patterns: parseCommaList(form.movement_patterns_text),
+          primary_muscle_groups: parseCommaList(form.primary_muscles_text),
+          secondary_muscle_groups: parseCommaList(form.secondary_muscles_text),
+          cognitive_social: parseCommaList(form.cognitive_social_text),
+          workout_pairing: form.workout_pairing.trim(),
+          dose_notes: form.dose_notes.trim(),
+        },
+        video_links: [{
+          title: form.video_title.trim() || `${form.name} gameplay demonstration`,
+          url: form.video_url.trim(),
+          provider: 'YouTube',
+        }],
         tags: tenetIds.map((facet_id, i) => ({
           facet_type: 'tenet',
           facet_id,
@@ -595,6 +639,39 @@ function GameEditor({
             <span className="block font-semibold text-gray-700 mb-1">Coaching notes</span>
             <textarea value={form.coaching_notes} onChange={(e) => setForm({ ...form, coaching_notes: e.target.value })} rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
           </label>
+
+          <div className="rounded-xl border border-gray-200 p-4 space-y-3">
+            <div>
+              <h4 className="font-semibold text-gray-900">Workout connection</h4>
+              <p className="text-xs text-gray-500 mt-0.5">Comma-separate multiple values. Primary quality and primary muscles are required.</p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <EditorTextField label="Primary qualities *" value={form.primary_qualities_text} onChange={(value) => setForm({ ...form, primary_qualities_text: value })} placeholder="agility, speed" />
+              <EditorTextField label="Secondary qualities" value={form.secondary_qualities_text} onChange={(value) => setForm({ ...form, secondary_qualities_text: value })} placeholder="coordination, body control" />
+              <EditorTextField label="Energy systems" value={form.energy_systems_text} onChange={(value) => setForm({ ...form, energy_systems_text: value })} placeholder="alactic power, aerobic recovery" />
+              <EditorTextField label="Movement patterns" value={form.movement_patterns_text} onChange={(value) => setForm({ ...form, movement_patterns_text: value })} placeholder="sprint, decelerate, change direction" />
+              <EditorTextField label="Primary muscle groups *" value={form.primary_muscles_text} onChange={(value) => setForm({ ...form, primary_muscles_text: value })} placeholder="quadriceps, glutes, calves" />
+              <EditorTextField label="Secondary muscle groups" value={form.secondary_muscles_text} onChange={(value) => setForm({ ...form, secondary_muscles_text: value })} placeholder="trunk stabilizers, foot stabilizers" />
+              <EditorTextField label="Cognitive & social" value={form.cognitive_social_text} onChange={(value) => setForm({ ...form, cognitive_social_text: value })} placeholder="reaction, teamwork, spatial awareness" />
+            </div>
+            <label className="block text-sm">
+              <span className="block font-semibold text-gray-700 mb-1">Workout pairing</span>
+              <textarea value={form.workout_pairing} onChange={(e) => setForm({ ...form, workout_pairing: e.target.value })} rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Where this belongs in a session and what not to duplicate" />
+            </label>
+            <label className="block text-sm">
+              <span className="block font-semibold text-gray-700 mb-1">Dose notes</span>
+              <textarea value={form.dose_notes} onChange={(e) => setForm({ ...form, dose_notes: e.target.value })} rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Round length, recovery, quality limits" />
+            </label>
+          </div>
+
+          <div className="rounded-xl border border-gray-200 p-4 space-y-3">
+            <div>
+              <h4 className="font-semibold text-gray-900">Gameplay video *</h4>
+              <p className="text-xs text-gray-500 mt-0.5">A direct YouTube watch link is required for every game card.</p>
+            </div>
+            <EditorTextField label="Video title" value={form.video_title} onChange={(value) => setForm({ ...form, video_title: value })} placeholder={`${form.name || 'Game'} gameplay demonstration`} />
+            <EditorTextField label="YouTube URL *" value={form.video_url} onChange={(value) => setForm({ ...form, video_url: value })} placeholder="https://www.youtube.com/watch?v=…" />
+          </div>
         </div>
         <div className="flex justify-end gap-2 px-5 py-4 border-t border-gray-100 sticky bottom-0 bg-white">
           <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border border-gray-300 text-sm">Cancel</button>
@@ -614,4 +691,32 @@ function stringifyList(value: unknown): string {
 
 function parseList(text: string): string[] {
   return text.split('\n').map((s) => s.trim()).filter(Boolean)
+}
+
+function parseCommaList(text: string): string[] {
+  return text.split(',').map((s) => s.trim()).filter(Boolean)
+}
+
+function EditorTextField({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+}) {
+  return (
+    <label className="block text-sm">
+      <span className="block font-semibold text-gray-700 mb-1">{label}</span>
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        className="w-full border border-gray-300 rounded-lg px-3 py-2"
+      />
+    </label>
+  )
 }

@@ -1,0 +1,1155 @@
+{
+  "batchKey": "cossack-squat-family-v1",
+  "researchVersion": "2026-07-26.24",
+  "snapshotAt": "2026-07-26T07:15:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Exercise selection and progression require qualified supervision, technically appropriate loading, safe equipment and space, and individual readiness.",
+        "Stop {{canonicalName}} for sharp or increasing pain, guarding, loss of balance, a slipping foot or implement, forced range, repeated loss of alignment, unsafe ball rebound or lane traffic, or a material decline in the assigned movement quality."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_long_term_development",
+      "claims": [
+        "Training should be individualized and progressed from the participant's current physical, psychosocial, and training readiness rather than from a level attached to an exercise card.",
+        "Make {{canonicalName}} accessible with a shallower range, wider or narrower stance selected for control, stable hand support, reduced external load, slower rehearsal, visible side and target cues, longer reset, and a simpler prerequisite task. Record exercise complexity and physical difficulty; do not label the exercise itself beginner, intermediate, or advanced."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied links are discovery candidates only. Link and oEmbed availability may be checked automatically, but exact sequence, variant match, safety, cue quality, captions, accessibility, full content, reviewer identity, and approval require human review."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "cossack-squat",
+      "assessmentSummary": {
+        "identity": "A side-to-side frontal-plane squat in a wide stance. The athlete flexes the hip, knee, and ankle of the working side while the opposite leg remains comparatively long, then returns through the center or transfers under control to the other side. Depth, cadence, hold, reach, support, and external implement are controlled variant dimensions.",
+        "currentCardFindings": [
+          "Twelve active cards differed only by range, tempo, isometric hold, bottom-position pry, terminal pause, reach overlay, or external implement and were consolidated into this definition with source provenance preserved.",
+          "Cossack Bottom Hold / Cossack Shift Hold duplicated the selectable bottom-hold outcome and remains an archived source variant rather than a second option in workout selection.",
+          "The generic reach source does not define reach direction, and the generic loaded source does not define implement or load position; both variants remain explicitly identity-quarantined.",
+          "The prior baseline scores did not separate exercise complexity from physical difficulty and omitted supervision, failure consequence, impact, and work-capacity demand.",
+          "No media is approved. The five candidate links appear relevant by visible title and channel only; their full content and exact variant match have not been reviewed."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "wide_stance_frontal_plane_squat",
+            "lateral_weight_shift",
+            "unilateral_squat_with_contralateral_long_leg"
+          ],
+          "jointActions": [
+            "working_side_hip_flexion",
+            "working_side_knee_flexion_and_extension",
+            "working_side_ankle_dorsiflexion_and_plantarflexion",
+            "working_side_hip_abduction_and_external_rotation_control",
+            "contralateral_hip_adduction_with_long_knee",
+            "pelvic_and_trunk_stabilization"
+          ],
+          "planes": [
+            "frontal",
+            "sagittal",
+            "transverse_stabilization"
+          ],
+          "laterality": "alternating_unilateral_with_both_sides_programmed",
+          "intent": "develop_or_rehearse_controlled_frontal_plane_squat_access_strength_and_side_to_side_transfer"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "adductors",
+            "gluteus_medius_and_minimus",
+            "soleus"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gastrocnemius",
+            "tibialis_anterior",
+            "deep_hip_rotators",
+            "foot_intrinsics",
+            "obliques",
+            "spinal_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "lumbar_spine",
+            "thoracic_spine"
+          ],
+          "primaryActions": [
+            "working_side_force_acceptance",
+            "working_side_squat_ascent",
+            "contralateral_adductor_lengthening_under_control",
+            "side_to_side_center_of_mass_transfer"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 48,
+          "absoluteLoadDemand": 38,
+          "coordinationDemand": 48,
+          "supervisionDemand": 32,
+          "failureConsequence": 36,
+          "impact": 8,
+          "workCapacityDemand": 24,
+          "baseOverallDifficulty": 48
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "baseline",
+            "exerciseComplexity": 48,
+            "physicalDifficulty": 38,
+            "derivedOverallDifficulty": 48,
+            "basis": "full controlled bodyweight range with alternating unilateral loading"
+          },
+          {
+            "variantKey": "baseline-source-1386",
+            "exerciseComplexity": 48,
+            "physicalDifficulty": 38,
+            "derivedOverallDifficulty": 48,
+            "basis": "source-context duplicate of the bodyweight baseline"
+          },
+          {
+            "variantKey": "low-amplitude-shift",
+            "exerciseComplexity": 30,
+            "physicalDifficulty": 18,
+            "derivedOverallDifficulty": 30,
+            "basis": "shallower range reduces balance, mobility, and relative loading demand"
+          },
+          {
+            "variantKey": "bottom-hold",
+            "exerciseComplexity": 44,
+            "physicalDifficulty": 42,
+            "derivedOverallDifficulty": 44,
+            "basis": "isometric duration raises local demand while eliminating continuous transfer timing"
+          },
+          {
+            "variantKey": "bottom-pry",
+            "exerciseComplexity": 48,
+            "physicalDifficulty": 40,
+            "derivedOverallDifficulty": 48,
+            "basis": "small controlled bottom-position motion adds end-range control"
+          },
+          {
+            "variantKey": "shift-to-stick",
+            "exerciseComplexity": 50,
+            "physicalDifficulty": 36,
+            "derivedOverallDifficulty": 50,
+            "basis": "declared terminal balance and no-extra-contact gate add control demand"
+          },
+          {
+            "variantKey": "slow-eccentric-shift",
+            "exerciseComplexity": 48,
+            "physicalDifficulty": 44,
+            "derivedOverallDifficulty": 48,
+            "basis": "slow tempo increases time under tension and eccentric exposure"
+          },
+          {
+            "variantKey": "reach-overlay",
+            "exerciseComplexity": 46,
+            "physicalDifficulty": 30,
+            "derivedOverallDifficulty": 46,
+            "basis": "provisional only because the historical reach direction is unresolved",
+            "identityQuarantine": true
+          },
+          {
+            "variantKey": "thoracic-rotation-reach",
+            "exerciseComplexity": 54,
+            "physicalDifficulty": 34,
+            "derivedOverallDifficulty": 54,
+            "basis": "specified thoracic rotation adds multiplanar coordination"
+          },
+          {
+            "variantKey": "kettlebell-loaded",
+            "exerciseComplexity": 52,
+            "physicalDifficulty": 56,
+            "derivedOverallDifficulty": 56,
+            "basis": "external load and load-position control increase relative force and bracing demand"
+          },
+          {
+            "variantKey": "landmine-loaded",
+            "exerciseComplexity": 52,
+            "physicalDifficulty": 60,
+            "derivedOverallDifficulty": 60,
+            "basis": "external load, angled resistance, and anchor setup increase physical and logistical demand"
+          },
+          {
+            "variantKey": "loaded-unspecified-implement",
+            "scoreDeferred": true,
+            "basis": "implement, load position, and usable loading range are not defined",
+            "identityQuarantine": true
+          },
+          {
+            "variantKey": "sandbag-loaded",
+            "exerciseComplexity": 54,
+            "physicalDifficulty": 62,
+            "derivedOverallDifficulty": 62,
+            "basis": "external load plus unstable or bulky load position increases force and bracing demand"
+          }
+        ],
+        "proposedLoadProfile": {
+          "loadingType": "alternating_unilateral_bodyweight_with_optional_external_implement",
+          "impactClass": "very_low",
+          "externalLoadMethod": "none_for_baseline_and_exact_implement_required_for_loaded_variants",
+          "primaryStress": [
+            "working_side_quadriceps_and_gluteal_force",
+            "adductor_lengthening_and_force_control",
+            "ankle_dorsiflexion_and_foot_stability",
+            "frontal_plane_knee_hip_and_trunk_control",
+            "end_range_tolerance_when_deep"
+          ],
+          "fatigueProfile": [
+            "shortened_range",
+            "heel_or_foot_contact_loss",
+            "working_knee_collapse",
+            "contralateral_knee_bending",
+            "pelvic_rotation",
+            "trunk_collapse",
+            "rushed_transfer",
+            "side_to_side_asymmetry"
+          ],
+          "recoveryHours": "typically_minimal_to_24_for_low_volume_bodyweight_access_work_and_24_to_48_for_deep_loaded_or_high_volume_variants_subject_to_response"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "level_non_slip_surface",
+            "none_for_bodyweight_baseline"
+          ],
+          "optionalEquipment": [
+            "stable_hand_support",
+            "heel_wedge_when_explicitly_assigned",
+            "kettlebell",
+            "landmine_with_secure_anchor",
+            "sandbag",
+            "video_capture"
+          ],
+          "environment": [
+            "clear_lateral_space",
+            "adequate_foot_traction",
+            "no_cross_traffic",
+            "stable_support_or_anchor_when_used"
+          ],
+          "population": [
+            "pain_free_wide_stance_and_lateral_squat",
+            "can_keep_the_working_foot_in_stable_contact",
+            "can_select_a_range_without_forcing_hip_groin_knee_or_ankle",
+            "loaded_variants_require_repeatable_bodyweight_control_and_implement_familiarity"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "1-3_sets_of_3-8_controlled_repetitions_per_side_for_access_or_2-4_sets_of_3-6_per_side_for_strength_variants",
+          "holds": "10-30_seconds_per_side_or_2-5_breaths_only_when_the_exact_hold_variant_is_selected",
+          "restSeconds": "30-75_for_low_load_access_work_and_90-180_for_loaded_strength_variants",
+          "tempo": "controlled_descent_brief_ownership_of_the_assigned_depth_and_smooth_return_or_transfer",
+          "intensity": "range_and_load_must_preserve_full_foot_contact_pain_free_control_and_side_symmetry",
+          "measurement": "variant_key_load_and_position_range_repetitions_or_hold_time_per_side_support_level_symptoms_and_quality_errors",
+          "progressWhen": "both_sides_repeat_the_assigned_variant_without_forced_range_foot_loss_knee_collapse_trunk_compensation_or_symptom_increase"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Choose the stance that lets both feet stay organized",
+            "Sit into one hip",
+            "Keep the working foot connected",
+            "Let the other leg stay long without forcing it",
+            "Own the assigned depth, then push the floor away",
+            "Match the range and control on both sides"
+          ],
+          "athleteInstructions": [
+            "Take a comfortable wide stance",
+            "Shift toward one side and bend that hip, knee, and ankle",
+            "Keep the working heel and foot stable",
+            "Keep the opposite leg as long as your comfortable range allows",
+            "Pause only as assigned, then return to center or transfer smoothly",
+            "Complete the same dose on the other side"
+          ],
+          "commonFaults": [
+            "forcing_a_nominal_depth",
+            "working_heel_or_foot_lift",
+            "working_knee_collapse",
+            "contralateral_knee_forced_locked_or_bent",
+            "pelvis_spinning_away",
+            "trunk_collapse",
+            "bouncing_in_the_bottom",
+            "unequal_side_dose",
+            "using_an_unrecorded_implement_or_load_position"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_bodyweight_squat_to_self_selected_depth",
+            "pain_free_lateral_weight_shift",
+            "stable_foot_contact",
+            "controlled_return_from_each_side",
+            "implement_setup_and_handling_competence_for_loaded_variants"
+          ],
+          "qualityGates": [
+            "working_foot_remains_stable",
+            "working_knee_and_hip_track_without_collapse",
+            "range_is_self_selected_and_repeatable",
+            "trunk_and_pelvis_remain_controlled",
+            "contralateral_leg_position_is_not_forced",
+            "loaded_implement_and_anchor_remain_secure"
+          ],
+          "stopRules": [
+            "sharp_or_increasing_hip_groin_knee_ankle_or_back_pain",
+            "joint_catching_giving_way_or_neurologic_symptoms",
+            "foot_slip_or_repeated_contact_loss",
+            "repeated_knee_or_trunk_collapse",
+            "forced_end_range_or_bouncing",
+            "loss_of_balance",
+            "unsafe_implement_or_anchor",
+            "visible_side_to_side_quality_decline"
+          ]
+        },
+        "proposedContextualProfiles": [
+          {
+            "context": "prepare_and_access",
+            "variants": [
+              "low-amplitude-shift",
+              "baseline",
+              "reach-overlay",
+              "thoracic-rotation-reach"
+            ],
+            "dose": "1-2_sets_of_3-5_slow_repetitions_per_side_with_short_resets",
+            "purpose": "rehearse_or_expand_controlled_frontal_plane_access_without_fatigue"
+          },
+          {
+            "context": "resilience_and_control",
+            "variants": [
+              "bottom-hold",
+              "bottom-pry",
+              "shift-to-stick",
+              "slow-eccentric-shift"
+            ],
+            "dose": "2-3_sets_of_3-5_repetitions_or_10-30_second_holds_per_side_with_quality_preserving_rest",
+            "purpose": "develop_end_range_force_control_terminal_balance_or_slow_eccentric_tolerance"
+          },
+          {
+            "context": "capacity_strength",
+            "variants": [
+              "kettlebell-loaded",
+              "landmine-loaded",
+              "sandbag-loaded"
+            ],
+            "dose": "2-4_sets_of_3-6_repetitions_per_side_with_90-180_seconds_rest",
+            "purpose": "develop_frontal_plane_strength_after_bodyweight_control"
+          }
+        ],
+        "proposedRelationships": {
+          "regressions": [
+            "stable_support_cossack_squat",
+            "low_amplitude_cossack_shift",
+            "lateral_weight_shift_without_deep_squat"
+          ],
+          "progressions": [
+            "deeper_pain_free_cossack_squat",
+            "slow_eccentric_cossack_shift",
+            "bottom_hold",
+            "exact_implement_loaded_cossack_squat"
+          ],
+          "substitutions": [
+            "lateral_lunge_with_matched_range_and_load",
+            "supported_frontal_plane_squat"
+          ],
+          "doNotSubstitute": [
+            "cossack_shift_to_wall_ball_toss",
+            "lateral_bound_to_stick",
+            "side_lunge_throw_without_matched_release_and_reception_task"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "front_and_side_baseline_demo",
+            "working_side_highlight",
+            "range_and_support_badge",
+            "exact_variant_and_equipment_label",
+            "both_side_counter",
+            "pain_and_foot_contact_stop_message"
+          ],
+          "coach": [
+            "variant_selection_matrix",
+            "front_and_side_observation_checklist",
+            "stance_and_range_setup_guide",
+            "left_right_comparison",
+            "implement_and_anchor_check",
+            "loaded_variant_progression_rule",
+            "generic_reach_and_load_quarantine_alerts"
+          ]
+        },
+        "calibrationEvidence": {
+          "basis": "two lateral-lunge biomechanics studies, a strength-and-conditioning movement review, a systematic review of acute stretching, five visible YouTube candidates, and direct comparison of thirteen active source definitions",
+          "uncertainty": "The peer-reviewed studies evaluate lateral lunges rather than every exact Cossack squat variant. They support joint-demand and programming distinctions but do not validate a unique Cossack depth, foot orientation, dosage, transfer benefit, or difficulty score.",
+          "reviewNeeded": [
+            "qualified_strength_coach_content_review",
+            "clinician_review_of_end_range_and_symptom_language",
+            "difficulty_anchor_comparison_for_each_selectable_variant",
+            "generic_reach_direction_resolution",
+            "generic_loaded_implement_resolution",
+            "athlete_comprehension_and_accessibility_test",
+            "full_video_review"
+          ]
+        },
+        "programmingDecision": "Retain one Cossack Squat definition. Treat range, support, tempo, isometric hold, pry, terminal stick, upper-body reach, and exact external implement as controlled variants. Keep the wall-ball release/reception composite and a conventional stepping lateral lunge as separate definitions. Do not publish the generic reach or generic loaded variant until its missing identity detail is resolved."
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "side_lunge_adductor_mobility",
+          "claims": [
+            "The strength-and-conditioning review uses the side lunge as a frontal-plane exercise and mobility option while keeping the non-lunging leg straight.",
+            "The Cossack squat is treated here as a wide-stance lateral squat identity. Depth, hold, tempo, reach, support, and implement remain variants only while the same working-side squat and contralateral long-leg action remain primary."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "lateral_lunge_healthy_biomechanics",
+          "claims": [
+            "A lateral lunge produces frontal-plane knee and hip demands and larger hip and knee angles than normal walking in the studied healthy sample.",
+            "Classify {{canonicalName}} by working side, range, support, cadence, terminal hold, reach direction, exact implement, load position, and side order rather than by an athlete or class level."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "lateral_lunge_older_adult_biomechanics",
+          "claims": [
+            "In the studied older adults, lateral lunging produced substantial ankle plantar-flexor demand and greater ankle dorsiflexion measures than forward lunging, while hip and knee demand distributions differed by direction.",
+            "Represent the ankle plantar flexors, quadriceps, gluteals, adductors, hip stabilizers, foot, knee, hip, pelvis, and trunk without claiming one universal prime mover for every range and loaded variant."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "lateral_lunge_healthy_biomechanics",
+          "claims": [
+            "The studied lateral lunge produced higher lateral knee force, knee abduction moment, hip external-rotation moment, and larger hip and knee angles than walking.",
+            "These findings support explicit frontal-plane force-control and range constraints, but the study does not establish an ideal Cossack depth, stance width, foot angle, or cue."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "lateral_lunge_healthy_biomechanics",
+          "claims": [
+            "Lateral lunging materially changes lower-limb joint moments, forces, and angles relative to walking, so a low-complexity mobility label alone understates the task.",
+            "Assess exercise complexity and physical difficulty independently for every exact Cossack variant. Derive overall difficulty as their maximum; coordination, supervision, impact, fatigue, and failure consequence remain separate planning dimensions and no athlete skill level is assigned."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "lateral_lunge_older_adult_biomechanics",
+          "claims": [
+            "The lateral lunge in the studied sample loaded lower-extremity joints asymmetrically and showed direction-specific ankle, knee, and hip mechanical demands.",
+            "Track range, external load and position, repetitions or hold time per side, foot contact, symptoms, technique loss, and overlap with other adductor, squat, lunge, and ankle work. Recovery guidance is a conservative programming inference, not a finding for this exact Cossack variant."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "side_lunge_adductor_mobility",
+          "claims": [
+            "The reviewed side-lunge technique keeps the non-lunging leg straight and is selected to address hip adductor and internal-rotator mobility limitations.",
+            "Use only a pain-free range with stable foot contact and controlled knee, hip, pelvis, and trunk motion. Stable support may be added; a loaded variant requires an exact implement and secure setup."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "acute_stretching_warmup_review",
+          "claims": [
+            "Dynamic stretching in a warm-up can produce small performance and range-of-motion benefits, while protocols and immediate effects vary and long static durations can impair subsequent performance.",
+            "For access work, use a small number of controlled dynamic repetitions without fatigue. Holds and loaded strength variants require their own explicit dose and rest; no source validates one universal Cossack prescription."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "side_lunge_adductor_mobility",
+          "claims": [
+            "The side-lunge review distinguishes the bending working leg from the straight non-lunging leg.",
+            "Instructions for {{canonicalName}} must name stance, working side, comfortable range, foot-contact rule, contralateral-leg expectation, return or transfer, side order, tempo or hold, support, and exact implement when loaded."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "acute_stretching_warmup_review",
+          "claims": [
+            "Dynamic stretching is compatible with warm-up use when integrated with subsequent dynamic activity, but evidence does not establish automatic sport transfer or injury prevention from one exercise.",
+            "Use the low-amplitude or bodyweight Cossack only for an observed frontal-plane access or control need, and use loaded variants for strength only after repeatable bodyweight control. Do not promise structural correction, injury prevention, or universal performance transfer."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "nsca_youth_long_term_development",
+          "claims": [
+            "Long-term development should account for individual readiness, movement competence, psychosocial needs, and progressive exposure.",
+            "Athlete support should show both sides, the working leg, acceptable range, foot contact, exact variant and implement, a successful repetition, a supported option, and the pain or balance stop signal in plain language."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "nsca_youth_resistance_position",
+          "claims": [
+            "Qualified instruction, supervision, appropriate progression, and safe equipment are central to resistance training.",
+            "Coach support should include stance and range setup, front and side observation points, left-right comparison, exact implement and anchor checks, dose logging, quality gates, and explicit quarantine alerts for unresolved reach and load variants."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "side_lunge_adductor_mobility",
+          "claims": [
+            "The reviewed side lunge preserves a bending working leg and straight non-lunging leg but does not establish every named Cossack variation as a separate exercise.",
+            "Classify support, range, hold, tempo, reach, pry, terminal pause, and exact implement as variants when the wide-stance lateral squat action remains primary. A stepping lateral lunge and a release/reception wall-ball task remain separate definitions."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=tpczTeSkHz0",
+          "title": "How to Cossack Squat Mobility Exercise: Tutorial & Progressions",
+          "channelName": "FitnessFAQs",
+          "sourceQuery": "YouTube visible search result: Cossack squat exercise tutorial",
+          "notes": "Candidate by visible title and channel only. Exact baseline sequence, safety, cue quality, captions, and full content require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=iPZNB5GsOnM",
+          "title": "Cossack Squat Movement Demo",
+          "channelName": "The Active Life",
+          "sourceQuery": "YouTube visible search result: Cossack squat movement demo",
+          "notes": "Candidate by visible title and channel only. Exact range, side order, and demonstration quality require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=nLNqEQ4B6XI",
+          "title": "Cossack Squat | Hip Mobilization Exercise",
+          "channelName": "Dr. Carl Baird",
+          "sourceQuery": "YouTube visible search result: Cossack squat hip mobilization",
+          "notes": "Candidate by visible title and channel only. Clinical claims, exact variant, and full demonstration require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Zi_x6s6YXHo",
+          "title": "Cossack Squat Tutorial for Beginners and Athletes",
+          "channelName": "Mike | J2FIT Strength & Conditioning",
+          "sourceQuery": "YouTube visible search result: Cossack squat tutorial",
+          "notes": "Candidate title contains an audience label; that label is not exercise-card metadata. Exact content, variant match, and quality require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=usfu415_0AI",
+          "title": "Assisted Cossack Squat",
+          "channelName": "OPEX Fitness",
+          "sourceQuery": "YouTube visible search result: assisted Cossack squat",
+          "notes": "Regression candidate by visible title and channel only. Support setup, safety, exact sequence, and full content require human review."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Cossack Bottom Hold",
+          "classification": "new_variant",
+          "rationale": "Depth and isometric duration change the dose and physical demand while preserving the same Cossack squat bottom position.",
+          "distinguishingDimensions": {
+            "rangeOfMotion": "deep_self_selected",
+            "tempo": "isometric_hold"
+          }
+        },
+        {
+          "name": "Cossack Bottom Hold / Cossack Shift Hold",
+          "classification": "same_identity",
+          "rationale": "This is duplicate source wording for the selectable bottom-hold variant; the shift describes entry into the same terminal position.",
+          "distinguishingDimensions": {
+            "sourceContext": "entry_wording_only",
+            "selectableVariant": false
+          }
+        },
+        {
+          "name": "Cossack Shift with Reach",
+          "classification": "new_variant",
+          "rationale": "An upper-body reach is a controlled overlay on the same lateral squat action, but this source remains quarantined until reach direction is defined.",
+          "distinguishingDimensions": {
+            "armTask": "reach_direction_unresolved",
+            "identityQuarantine": true
+          }
+        },
+        {
+          "name": "Cossack Shift with T-Spine Reach",
+          "classification": "new_variant",
+          "rationale": "Specified thoracic rotation adds a multiplanar reach overlay while preserving the primary Cossack squat.",
+          "distinguishingDimensions": {
+            "armTask": "thoracic_rotation_reach"
+          }
+        },
+        {
+          "name": "Cossack Shift — Low Amplitude",
+          "classification": "new_variant",
+          "rationale": "Shallower range changes accessibility and physical demand without changing the movement identity.",
+          "distinguishingDimensions": {
+            "rangeOfMotion": "low_amplitude"
+          }
+        },
+        {
+          "name": "Cossack Squat Pry",
+          "classification": "new_variant",
+          "rationale": "Small controlled bottom-position motion is a mobility overlay on the same Cossack squat position.",
+          "distinguishingDimensions": {
+            "bottomPositionMovement": "controlled_pry"
+          }
+        },
+        {
+          "name": "Cossack Squat Shift to Stick",
+          "classification": "new_variant",
+          "rationale": "A declared terminal hold adds a quality gate and balance demand but preserves the same lateral squat transfer.",
+          "distinguishingDimensions": {
+            "terminalOutcome": "stick_without_extra_contact"
+          }
+        },
+        {
+          "name": "Kettlebell Cossack Squat",
+          "classification": "new_variant",
+          "rationale": "A kettlebell changes implement, load position, and physical demand while preserving the same squat identity.",
+          "distinguishingDimensions": {
+            "implement": "kettlebell"
+          }
+        },
+        {
+          "name": "Landmine Cossack Squat",
+          "classification": "new_variant",
+          "rationale": "Angled landmine resistance and anchor logistics are exact implement requirements within the same squat identity.",
+          "distinguishingDimensions": {
+            "implement": "landmine"
+          }
+        },
+        {
+          "name": "Loaded Cossack Squat",
+          "classification": "new_variant",
+          "rationale": "External load is a variant dimension, but this historical source cannot be selected or scored reliably until implement and load position are specified.",
+          "distinguishingDimensions": {
+            "implement": "unresolved",
+            "identityQuarantine": true
+          }
+        },
+        {
+          "name": "Sandbag Cossack Squat",
+          "classification": "new_variant",
+          "rationale": "A sandbag changes implement, load position, and physical demand while preserving the same squat identity.",
+          "distinguishingDimensions": {
+            "implement": "sandbag"
+          }
+        },
+        {
+          "name": "Slow Cossack Squat Shift",
+          "classification": "new_variant",
+          "rationale": "Slow cadence and eccentric emphasis change dose and fatigue without changing the primary movement.",
+          "distinguishingDimensions": {
+            "tempo": "slow_eccentric_and_transition"
+          }
+        },
+        {
+          "name": "Assisted Cossack Squat",
+          "classification": "new_variant",
+          "rationale": "Stable hand support reduces balance and active-range demand while preserving the same working-side squat action.",
+          "distinguishingDimensions": {
+            "supportLevel": "stable_hand_support"
+          }
+        },
+        {
+          "name": "Lateral Lunge",
+          "classification": "new_definition",
+          "rationale": "A conventional lateral lunge steps out and returns, changing the start position, gait transition, and force-acceptance task from the fixed wide-stance Cossack squat.",
+          "distinguishingDimensions": {
+            "movementPattern": "step_out_lateral_lunge"
+          }
+        },
+        {
+          "name": "Cossack Shift to Wall Ball Toss",
+          "classification": "new_definition",
+          "rationale": "Ball release, target interaction, rebound, and reception create a distinct composite task even though it begins with a Cossack-like shift.",
+          "distinguishingDimensions": {
+            "movementPattern": "lateral_squat_shift_to_external_object_release_and_reception"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "cossack-shift-to-wall-ball-toss",
+      "assessmentSummary": {
+        "identity": "A composite movement beginning with a shallow Cossack-like lateral squat shift, returning through center, and releasing a medicine ball toward a wall target. The historical card does not define throw direction, target height, ball path, rebound behavior, reception, reset, or whether the toss is bilateral, unilateral, overhead, underhand, or lateral, so the definition remains identity-quarantined.",
+        "currentCardFindings": [
+          "This remains separate from the Cossack squat because an external-object release and reception sequence changes the primary task, logistics, failure modes, and dosage.",
+          "The current card and source description do not resolve the exact throw protocol, so no exact video match can be approved and no production prescription may select it.",
+          "The prior difficulty score understates the combined lateral shift, return-to-center, aiming, release, rebound prediction, and potential catch demand.",
+          "The five media links are explicitly adjacent component candidates. None is claimed to demonstrate the exact unresolved Cossack-to-wall-toss sequence."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "shallow_cossack_lateral_shift",
+            "return_to_center",
+            "medicine_ball_wall_throw",
+            "rebound_reception_or_controlled_reset_unresolved"
+          ],
+          "jointActions": [
+            "lateral_hip_knee_and_ankle_flexion",
+            "lateral_to_center_force_transfer",
+            "hip_and_knee_extension",
+            "trunk_rotation_or_extension_unresolved",
+            "shoulder_flexion_or_horizontal_action_unresolved",
+            "elbow_extension",
+            "ball_release",
+            "ball_reception_unresolved"
+          ],
+          "planes": [
+            "frontal",
+            "sagittal",
+            "throw_plane_unresolved"
+          ],
+          "laterality": "side_and_throw_laterality_unresolved",
+          "intent": "coordinate_a_lateral_squat_shift_with_a_targeted_medicine_ball_release_and_safe_reception_or_reset"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "adductors",
+            "deltoids",
+            "triceps",
+            "abdominal_wall"
+          ],
+          "secondaryMuscles": [
+            "gluteus_medius_and_minimus",
+            "hamstrings",
+            "calf_complex",
+            "foot_intrinsics",
+            "pectorals",
+            "latissimus_dorsi",
+            "serratus_anterior",
+            "rotator_cuff",
+            "obliques",
+            "spinal_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "lumbar_spine",
+            "thoracic_spine",
+            "scapulothoracic_articulation",
+            "shoulder",
+            "elbow",
+            "wrist_and_hand"
+          ],
+          "primaryActions": [
+            "lateral_force_acceptance",
+            "return_to_center",
+            "whole_body_force_transfer_to_ball",
+            "aimed_release",
+            "rebound_tracking_and_reception_if_assigned"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 64,
+          "absoluteLoadDemand": 58,
+          "coordinationDemand": 68,
+          "supervisionDemand": 66,
+          "failureConsequence": 62,
+          "impact": 30,
+          "workCapacityDemand": 44,
+          "baseOverallDifficulty": 64
+        },
+        "proposedLoadProfile": {
+          "loadingType": "medicine_ball_ballistic_release_after_lateral_bodyweight_shift",
+          "impactClass": "low_lower_body_impact_with_moderate_external_object_rebound_risk",
+          "externalLoadMethod": "medicine_ball_mass_selected_for_target_velocity_control_and_safe_reception",
+          "primaryStress": [
+            "lateral_lower_body_force_acceptance",
+            "return_to_center_force_transfer",
+            "trunk_and_upper_body_ballistic_action",
+            "aiming_and_release",
+            "rebound_reception_or_retrieval"
+          ],
+          "fatigueProfile": [
+            "shallower_or_rushed_shift",
+            "loss_of_foot_contact",
+            "late_or_off_target_release",
+            "lumbar_overextension_or_uncontrolled_rotation",
+            "ball_speed_loss",
+            "unsafe_rebound_or_fumbled_catch",
+            "lane_awareness_loss"
+          ],
+          "recoveryHours": "typically_24_to_48_subject_to_ball_mass_throw_intent_total_throws_catch_demands_and_overlap_with_other_power_or_adductor_work"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "medicine_ball_with_known_mass_and_rebound_behavior",
+            "structurally_suitable_wall_or_rebound_target",
+            "visible_target",
+            "level_non_slip_surface"
+          ],
+          "optionalEquipment": [
+            "floor_side_markers",
+            "target_height_marker",
+            "no_entry_lane_markers",
+            "video_capture"
+          ],
+          "environment": [
+            "wall_approved_for_ball_impact",
+            "clear_rebound_and_retrieval_zone",
+            "no_cross_traffic",
+            "adequate_ceiling_and_side_clearance",
+            "coach_can_observe_shift_release_and_rebound"
+          ],
+          "population": [
+            "pain_free_shallow_cossack_shift",
+            "can_return_to_center_without_balance_loss",
+            "familiar_with_the_exact_medicine_ball_mass",
+            "owns_the_exact_throw_and_reception_pattern_separately",
+            "can_follow_target_lane_and_stop_signals"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "2-4_sets_of_3-5_quality_throws_per_assigned_side_only_after_identity_protocol_is_resolved",
+          "restSeconds": "20-45_between_throws_and_90-180_between_sets",
+          "intensity": "submaximal_until_shift_target_release_and_reception_are_repeatable_then_high_intent_only_with_full_quality",
+          "measurement": "side_ball_mass_throw_direction_target_height_target_hit_rebound_or_catch_outcome_extra_steps_and_quality_errors",
+          "progressWhen": "the_exact_protocol_is_resolved_and_repeated_without_foot_loss_off_target_release_unsafe_rebound_fumble_or_visible_velocity_and_posture_decline",
+          "publicationBlock": "No dose is production-authorized until a human defines throw direction, target, rebound, reception, side order, and reset."
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "The exact throw and catch protocol must be named before the set",
+            "Own the lateral shift",
+            "Return through center under control",
+            "See the target before release",
+            "Finish the throw without chasing the ball",
+            "Receive or retrieve only by the assigned rule"
+          ],
+          "athleteInstructions": [
+            "Stand in the marked wide stance with the assigned ball",
+            "Shift toward the called side to the assigned shallow depth",
+            "Return through center",
+            "Throw to the declared wall target using the declared path",
+            "Catch the rebound or let it settle exactly as instructed",
+            "Reset only when the lane is clear"
+          ],
+          "commonFaults": [
+            "inventing_a_throw_path_during_the_set",
+            "rushed_or_forced_cossack_depth",
+            "foot_contact_loss",
+            "throwing_before_center_is_recovered",
+            "uncontrolled_lumbar_extension_or_rotation",
+            "off_target_release",
+            "chasing_an_unexpected_rebound",
+            "catching_a_non_rebounding_or_excessively_heavy_ball",
+            "starting_before_the_lane_is_clear"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "bodyweight_cossack_shift_control",
+            "medicine_ball_handling_with_the_exact_ball",
+            "exact_throw_pattern_demonstrated_separately",
+            "exact_reception_or_retrieval_pattern_demonstrated_separately",
+            "target_and_lane_understood",
+            "wall_and_ball_compatibility_checked"
+          ],
+          "qualityGates": [
+            "shift_is_pain_free_and_controlled",
+            "feet_remain_stable",
+            "center_is_recovered_before_release",
+            "release_uses_the_declared_path",
+            "ball_hits_the_safe_target_zone",
+            "rebound_or_retrieval_follows_the_declared_rule",
+            "no_person_enters_the_throw_or_rebound_lane"
+          ],
+          "stopRules": [
+            "pain_or_guarding",
+            "foot_slip_or_balance_loss",
+            "off_target_or_unexpected_ball_path",
+            "unsafe_wall_or_equipment_response",
+            "fumbled_or_uncontrolled_reception",
+            "person_or_object_in_the_lane",
+            "repeated_lumbar_or_shoulder_compensation",
+            "visible_power_or_accuracy_decline",
+            "any_unresolved_protocol_question"
+          ]
+        },
+        "proposedContextualProfiles": [
+          {
+            "context": "movement_intelligence_component_rehearsal",
+            "dose": "rehearse_the_cossack_shift_and_exact_throw_reception_components_separately",
+            "purpose": "confirm_each_component_and_the_lane_before_combining",
+            "publicationBlock": true
+          },
+          {
+            "context": "output_power",
+            "dose": "2-4_sets_of_3-5_quality_throws_per_side_with_full_reset",
+            "purpose": "coordinate_lateral_to_center_force_transfer_with_targeted_ballistic_release",
+            "publicationBlock": "blocked_until_exact_identity_and_media_are_human_reviewed"
+          }
+        ],
+        "proposedRelationships": {
+          "regressions": [
+            "bodyweight_cossack_shift_without_ball",
+            "stationary_exact_wall_toss_without_lateral_shift",
+            "low_velocity_partner_or_wall_target_rehearsal_with_exact_protocol"
+          ],
+          "progressions": [
+            "higher_intent_same_protocol_with_same_ball",
+            "greater_target_precision",
+            "slightly_heavier_ball_only_if_velocity_and_reception_remain_safe"
+          ],
+          "substitutions": [
+            "cossack_shift_plus_separate_stationary_wall_toss",
+            "lateral_lunge_to_throw_only_when_the_movement_identity_is_intentionally_changed"
+          ],
+          "doNotSubstitute": [
+            "cossack_squat_without_release_task",
+            "generic_wall_ball_squat_toss",
+            "rotational_wall_toss_without_lateral_shift",
+            "partner_toss_without_wall_target"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "side_and_throw_direction_diagram",
+            "ball_mass_and_rebound_badge",
+            "target_height_and_safe_zone",
+            "catch_versus_no_catch_badge",
+            "lane_clear_indicator",
+            "successful_and_unsafe_rebound_examples",
+            "stop_signal"
+          ],
+          "coach": [
+            "identity_protocol_completion_form",
+            "wall_and_ball_compatibility_check",
+            "side_throw_target_and_reception_setup",
+            "front_oblique_and_side_observation_checklist",
+            "target_hit_and_catch_log",
+            "power_and_accuracy_stop_rule",
+            "component_video_warning"
+          ]
+        },
+        "calibrationEvidence": {
+          "basis": "ACE medicine-ball throwing and wall-ball instruction, lateral-lunge biomechanics, five adjacent component videos, and the historical source description",
+          "uncertainty": "No exact-match source or video was found for the full named composite. Throw direction, target, rebound behavior, reception, side order, and reset remain unknown, so the proposed scores and dose are provisional.",
+          "reviewNeeded": [
+            "human_identity_protocol_decision",
+            "qualified_strength_and_power_coach_review",
+            "facility_wall_and_ball_safety_review",
+            "difficulty_anchor_comparison_after_protocol_resolution",
+            "athlete_comprehension_and_lane_test",
+            "exact_match_video_search_and_full_review"
+          ]
+        },
+        "programmingDecision": "Retain the composite as a separate quarantined definition because ball release and reception change the task identity. Do not publish or prescribe it until the throw direction, target, rebound, reception, side order, reset, and exact-match media are defined and independently reviewed."
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "ace_overhead_medicine_ball_throw",
+          "claims": [
+            "ACE distinguishes a medicine-ball throw by start position, target, ball path, release, and optional wall rebound and catch.",
+            "{{canonicalName}} therefore remains distinct from a bodyweight Cossack squat, but its exact throw and reception protocol must be defined before the identity is production-usable."
+          ]
+        },
+        {
+          "sectionKey": "taxonomy",
+          "sourceKey": "ace_medicine_ball_ift_workout",
+          "claims": [
+            "Medicine-ball tasks differ by ball type, body position, throw direction, partner or wall target, catch behavior, and intended rhythm or power.",
+            "Classify {{canonicalName}} by shift side and depth, return-to-center rule, ball mass and rebound behavior, throw direction, target, release, reception or retrieval, side order, and reset."
+          ]
+        },
+        {
+          "sectionKey": "anatomy",
+          "sourceKey": "ace_overhead_medicine_ball_throw",
+          "claims": [
+            "The described overhead medicine-ball throw integrates lower-body extension, trunk bracing and force transfer, shoulder motion, elbow extension, and hand release.",
+            "The exact upper-body emphasis for this card cannot be finalized until throw direction is resolved; record lower-body lateral shift demands separately from the provisional throw and catch demands."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "lateral_lunge_healthy_biomechanics",
+          "claims": [
+            "A lateral lunge creates meaningful frontal-plane knee and hip demands, while a ballistic throw adds a separate whole-body force-transfer and external-object task.",
+            "Require controlled lateral force acceptance and return to center before release; the exact trunk, shoulder, and ball path cannot be specified from the historical card."
+          ]
+        },
+        {
+          "sectionKey": "difficulty",
+          "sourceKey": "ace_overhead_medicine_ball_throw",
+          "claims": [
+            "A medicine-ball wall throw requires target awareness, ball-mass familiarity, ballistic force transfer, and potentially rapid rebound reception.",
+            "Assess exercise complexity and physical difficulty from the exact combined task and derive overall as their maximum. Do not copy an audience or experience label from an external exercise library onto the exercise card."
+          ]
+        },
+        {
+          "sectionKey": "load_fatigue_recovery",
+          "sourceKey": "ace_medicine_ball_ift_workout",
+          "claims": [
+            "ACE medicine-ball guidance emphasizes rhythmic movement quality, appropriate ball choice, and fatigue control for wall-ball tasks.",
+            "Track ball mass and rebound type, throw direction, target, throws per side, velocity or intent, target accuracy, catches or retrievals, fumbles, technique loss, and overlap with other power, shoulder, trunk, squat, and adductor work."
+          ]
+        },
+        {
+          "sectionKey": "constraints",
+          "sourceKey": "ace_overhead_medicine_ball_throw",
+          "claims": [
+            "ACE instructs familiarizing a receiver with the ball, aiming at a known target, and using a rebounding medicine ball when repeated wall throws and catches are intended.",
+            "Require a structurally suitable wall, known ball mass and rebound behavior, visible target, clear rebound lane, stable surface, and an explicit catch-versus-retrieve rule."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "ace_overhead_medicine_ball_throw",
+          "claims": [
+            "ACE recommends a ball light enough to preserve throw velocity and describes repeated wall throws only with a ball capable of predictable rebound and catch.",
+            "Use low repetitions and full quality-preserving recovery for power intent. The exact dose remains provisional until the composite protocol and ball are defined."
+          ]
+        },
+        {
+          "sectionKey": "instructions",
+          "sourceKey": "ace_overhead_medicine_ball_throw",
+          "claims": [
+            "The ACE throw specifies stance, brace, target focus, lower-to-upper force transfer, release, and a separate repeated-wall-throw variation with rebound catch.",
+            "Instructions for {{canonicalName}} must name the lateral shift, center recovery, exact throw path, target, release, rebound or no-rebound expectation, catch or retrieval, side order, and reset."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "ace_medicine_ball_ift_workout",
+          "claims": [
+            "Medicine-ball programming can develop integrated movement and power, but task quality and fatigue control remain central.",
+            "Use this composite only when its exact lateral-to-center force-transfer and throw task serves the session objective. Separate the Cossack shift and stationary throw when combined quality or logistics are not established."
+          ]
+        },
+        {
+          "sectionKey": "athlete_support",
+          "sourceKey": "ace_overhead_medicine_ball_throw",
+          "claims": [
+            "A safe throw requires a visible target and prior familiarity with ball mass and reception expectations.",
+            "Athlete support should show side, depth, throw direction, target height, ball mass and rebound badge, catch versus retrieve rule, lane status, a successful repetition, and the stop signal."
+          ]
+        },
+        {
+          "sectionKey": "coach_support",
+          "sourceKey": "ace_medicine_ball_ift_workout",
+          "claims": [
+            "Wall-ball coaching requires appropriate equipment, space, rhythmic quality, and fatigue management.",
+            "Coach support should require protocol completion, wall and ball compatibility, lane control, target and catch setup, front and side observation, accuracy and reception logging, and a hard publication block while identity remains unresolved."
+          ]
+        },
+        {
+          "sectionKey": "alternates",
+          "sourceKey": "ace_overhead_medicine_ball_throw",
+          "claims": [
+            "Throw direction, stance, target, wall versus partner, rebound, and reception materially change medicine-ball delivery and safety.",
+            "Retain throw-direction and catch rules as controlled variants only after the same lateral-shift-to-center composite is defined. A stationary wall toss, partner toss, or stepping lateral lunge to toss is a separate definition."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=ZHp6dQyNTnA",
+          "title": "Medicine Ball Lateral Wall Ball Toss",
+          "channelName": "STRONG ATHLETE",
+          "sourceQuery": "YouTube visible search result: lateral lunge medicine ball wall toss",
+          "notes": "Adjacent lateral wall-toss component only; not asserted to include a Cossack shift or the exact unresolved sequence."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=WpsIRIJGW5o",
+          "title": "Activ8 | Med Ball Lateral Lunge to Side Toss",
+          "channelName": "Activ8",
+          "sourceQuery": "YouTube visible search result: lateral lunge medicine ball wall toss",
+          "notes": "Adjacent lateral-lunge-to-side-toss sequence; not asserted to match the fixed-stance Cossack shift, target, or reception protocol."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=G5C_rmEPVJU",
+          "title": "Side lunge/step with Med Ball underhand toss",
+          "channelName": "happilyforeverfit",
+          "sourceQuery": "YouTube visible search result: lateral lunge medicine ball wall toss",
+          "notes": "Adjacent underhand-toss component only; not asserted to match the Cossack shift, wall target, or reception protocol."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=OagZ48JldgQ",
+          "title": "Lateral lunge w/ med ball throw",
+          "channelName": "Villanova Sports Performance Training",
+          "sourceQuery": "YouTube visible search result: lateral lunge medicine ball wall toss",
+          "notes": "Adjacent lateral-lunge throw component only; exact target, ball path, rebound, and Cossack sequence require human review."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=vQ45G3IXYKs",
+          "title": "GoFit Wall Ball #3—Squat w/ Overhead Wall Toss",
+          "channelName": "GoFit Fitness",
+          "sourceQuery": "YouTube visible search result: Cossack shift wall ball toss",
+          "notes": "Adjacent squat-to-overhead-wall-toss component only; not asserted to show the lateral Cossack shift or exact unresolved protocol."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Bodyweight Cossack Shift",
+          "classification": "new_definition",
+          "rationale": "Removing ball release, target interaction, rebound, and reception leaves the separate Cossack squat identity.",
+          "distinguishingDimensions": {
+            "primaryTrainingStimulus": "frontal_plane_squat_access_and_control_without_external_object_release"
+          }
+        },
+        {
+          "name": "Lateral Lunge to Side Wall Toss",
+          "classification": "new_definition",
+          "rationale": "A step-out lateral lunge changes the start position and force-acceptance sequence from the fixed wide-stance Cossack shift.",
+          "distinguishingDimensions": {
+            "movementPattern": "step_out_lateral_lunge_to_throw"
+          }
+        },
+        {
+          "name": "Cossack Shift to Underhand Wall Toss",
+          "classification": "new_variant",
+          "rationale": "Once the base composite is resolved, an underhand path is an exact throw-trajectory variant with its own target and reception rules.",
+          "distinguishingDimensions": {
+            "throwTrajectory": "underhand"
+          }
+        },
+        {
+          "name": "Cossack Shift to Overhead Wall Toss",
+          "classification": "new_variant",
+          "rationale": "Once the base composite is resolved, an overhead path is an exact throw-trajectory variant with different shoulder, trunk, target, and rebound demands.",
+          "distinguishingDimensions": {
+            "throwTrajectory": "overhead"
+          }
+        },
+        {
+          "name": "Cossack Shift to No-Catch Dead-Ball Toss",
+          "classification": "new_variant",
+          "rationale": "A low-rebound ball and no-catch rule preserve the lateral-shift-to-wall-release composite while changing ball behavior, retrieval, and safety constraints.",
+          "distinguishingDimensions": {
+            "ballBehavior": "low_rebound",
+            "reception": "no_catch_retrieve_after_settle"
+          }
+        },
+        {
+          "name": "Cossack Shift to Partner Toss",
+          "classification": "new_definition",
+          "rationale": "Replacing the wall target with a partner changes the receiver, aiming task, return path, timing, and interpersonal safety requirements.",
+          "distinguishingDimensions": {
+            "movementPattern": "lateral_shift_to_partner_throw_and_return"
+          }
+        },
+        {
+          "name": "Standing Lateral Wall Toss",
+          "classification": "new_definition",
+          "rationale": "Removing the Cossack shift changes the primary lower-body sequence and produces a stationary lateral throw identity.",
+          "distinguishingDimensions": {
+            "movementPattern": "stationary_lateral_wall_throw"
+          }
+        }
+      ]
+    }
+  ]
+}

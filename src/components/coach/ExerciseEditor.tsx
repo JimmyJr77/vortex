@@ -196,7 +196,6 @@ export default function ExerciseEditor({
   const [subroleOverride, setSubroleOverride] = useState(false)
   const [primaryOrderSlot, setPrimaryOrderSlot] = useState(exercise?.primary_order_slot ?? '')
   const [sportId, setSportId] = useState<number | ''>(exercise?.sport_id ?? '')
-  const [skillLevel, setSkillLevel] = useState(exercise?.skill_level ?? '')
   const [visibility, setVisibility] = useState<'facility' | 'private'>(exercise?.visibility ?? 'facility')
   const [participantStructure, setParticipantStructure] = useState<ParticipantStructure>(exercise?.participant_structure ?? 'individual')
   const [programmingKind, setProgrammingKind] = useState<ProgrammingKind>(exercise?.programming_kind ?? 'exercise')
@@ -253,7 +252,6 @@ export default function ExerciseEditor({
         setPhaseSubrole((full.phase_subrole as PhaseSubrole) ?? '')
         setPrimaryOrderSlot(full.primary_order_slot ?? full.primary_phase?.orderSlot ?? '')
         setSportId(full.sport_id ?? '')
-        setSkillLevel(full.skill_level ?? '')
         setVisibility(full.visibility ?? 'facility')
         setParticipantStructure(full.participant_structure ?? 'individual')
         setProgrammingKind(full.programming_kind ?? 'exercise')
@@ -351,7 +349,6 @@ export default function ExerciseEditor({
         name,
         description: coachingExec.movement_description || null,
         sport_id: sportId || null,
-        skill_level: skillLevel || null,
         age_min: ageMin === '' ? null : Number(ageMin),
         age_max: ageMax === '' ? null : Number(ageMax),
         default_sets: dosage.default_sets || null,
@@ -393,7 +390,7 @@ export default function ExerciseEditor({
           technical: Number(difficultyProfile.technical) || 1,
           load: Number(difficultyProfile.load) || 1,
           overall: computedOverall,
-          recommended_age_min: programmingKind === 'skill_drill' ? null : (ageMin === '' ? null : Number(ageMin)),
+          recommended_age_min: ageMin === '' ? null : Number(ageMin),
           recommended_age_max: ageMax === '' ? null : Number(ageMax),
           attention_demand: difficultyProfile.attention_demand ?? 'low',
           notes: difficultyProfile.notes ?? null,
@@ -552,12 +549,6 @@ export default function ExerciseEditor({
                 <select value={sportId} onChange={(e) => setSportId(e.target.value ? Number(e.target.value) : '')} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2">
                   <option value="">Universal</option>
                   {taxonomy?.sports.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-              </label>
-              <label><span className="font-semibold text-gray-700">Skill level</span>
-                <select value={skillLevel} onChange={(e) => setSkillLevel(e.target.value)} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2">
-                  <option value="">Any</option>
-                  {['EARLY_STAGE', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED'].map((l) => <option key={l} value={l}>{l.replace(/_/g, ' ')}</option>)}
                 </select>
               </label>
               <label className="md:col-span-2"><span className="font-semibold text-gray-700">Coach language</span>
@@ -804,8 +795,10 @@ export default function ExerciseEditor({
           {tab === 'difficulty' && (
             <div className="grid gap-3 md:grid-cols-2 text-sm">
               <p className="md:col-span-2 text-xs text-gray-500">
-                <strong>Load</strong> = external weight / implement burden. <strong>Technical</strong> = movement or skill mastery.
-                Overall = max(load, technical). Workouts are age-gated by load; skill drills gate on class/athlete level only.
+                <strong>Exercise complexity</strong> = coordination, sequencing, control, and decision demand.
+                {' '}<strong>Physical difficulty</strong> = inherent resistance and force demand from bodyweight,
+                leverage, stability, or external load. Overall is the greater of the two. These are exercise
+                assessments, not athlete skill levels.
               </p>
               <label className="md:col-span-2"><span className="font-semibold text-gray-700">Library type</span>
                 <select
@@ -813,34 +806,25 @@ export default function ExerciseEditor({
                   onChange={(e) => setProgrammingKind(e.target.value as ProgrammingKind)}
                   className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2"
                 >
-                  <option value="exercise">Workout (exercise) — age-gated</option>
-                  <option value="skill_drill">Skill drill — class/level gated</option>
+                  <option value="exercise">Workout exercise</option>
+                  <option value="skill_drill">Skill-linked drill</option>
                 </select>
               </label>
-              <label><span className="font-semibold text-gray-700">Technical difficulty (1–10)</span>
+              <label><span className="font-semibold text-gray-700">Exercise complexity (1–10)</span>
                 <input type="number" min={1} max={10} value={difficultyProfile.technical ?? 3} onChange={(e) => setDifficultyProfile({ ...difficultyProfile, technical: Number(e.target.value) })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" />
               </label>
-              <label><span className="font-semibold text-gray-700">Load difficulty (1–10) — weight / implement</span>
+              <label><span className="font-semibold text-gray-700">Physical difficulty (1–10)</span>
                 <input type="number" min={1} max={10} value={difficultyProfile.load ?? 1} onChange={(e) => setDifficultyProfile({ ...difficultyProfile, load: Number(e.target.value) })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" />
               </label>
               <label><span className="font-semibold text-gray-700">Overall (computed)</span>
                 <input type="number" value={computedOverall} readOnly className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50" />
               </label>
-              {programmingKind === 'exercise' && (
-                <>
-                  <label><span className="font-semibold text-gray-700">Recommended age min</span>
-                    <input type="number" min={0} value={ageMin} onChange={(e) => setAgeMin(e.target.value ? Number(e.target.value) : '')} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" />
-                  </label>
-                  <label><span className="font-semibold text-gray-700">Recommended age max</span>
-                    <input type="number" min={0} value={ageMax} onChange={(e) => setAgeMax(e.target.value ? Number(e.target.value) : '')} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" />
-                  </label>
-                </>
-              )}
-              {programmingKind === 'skill_drill' && (
-                <p className="md:col-span-2 text-xs text-violet-700 bg-violet-50 rounded-lg px-3 py-2">
-                  Skill drills are not limited by session audience age. Match to athlete skill level / class tier instead.
-                </p>
-              )}
+              <label><span className="font-semibold text-gray-700">Recommended age min</span>
+                <input type="number" min={0} value={ageMin} onChange={(e) => setAgeMin(e.target.value ? Number(e.target.value) : '')} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" />
+              </label>
+              <label><span className="font-semibold text-gray-700">Recommended age max</span>
+                <input type="number" min={0} value={ageMax} onChange={(e) => setAgeMax(e.target.value ? Number(e.target.value) : '')} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" />
+              </label>
               <label><span className="font-semibold text-gray-700">Attention demand</span>
                 <select value={difficultyProfile.attention_demand ?? 'low'} onChange={(e) => setDifficultyProfile({ ...difficultyProfile, attention_demand: e.target.value as ExerciseDifficultyProfile['attention_demand'] })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2">
                   <option value="low">Low</option>

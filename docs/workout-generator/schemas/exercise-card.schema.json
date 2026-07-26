@@ -20,7 +20,8 @@
     "mediaConfidence": { "$ref": "#/$defs/nullableScore" },
     "difficulty": {
       "type": "object",
-      "required": ["technicalComplexity", "supervisionDemand", "failureConsequence", "impact", "baseOverallDifficulty"],
+      "description": "Exercise assessment dimensions. technicalComplexity is exercise complexity; absoluteLoadDemand is physical difficulty. baseOverallDifficulty must be derived as max(technicalComplexity, absoluteLoadDemand). These are not athlete skill levels.",
+      "required": ["technicalComplexity", "absoluteLoadDemand", "supervisionDemand", "failureConsequence", "impact", "baseOverallDifficulty"],
       "additionalProperties": { "$ref": "#/$defs/nullableScore" }
     },
     "movementPatterns": { "$ref": "#/$defs/stringSet" },

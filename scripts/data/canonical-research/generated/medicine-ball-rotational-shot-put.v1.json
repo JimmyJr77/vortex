@@ -1,0 +1,503 @@
+{
+  "facilityId": 1,
+  "slug": "medicine-ball-rotational-shot-put",
+  "researchVersion": "2026-07-25.19",
+  "assessmentSummary": {
+    "identity": "A static side-on unilateral medicine-ball push from the rear shoulder or upper chest, using a controlled rear-hip load and ground-up transverse sequence to throw into a wall or open lane, repeated on both sides.",
+    "currentCardFindings": [
+      "The current side-on description is the clearest identity but does not define static versus step entry, stance, pivot, ball position, wall angle, catch, target, ball mass, or side balance.",
+      "Nine inherited candidates mix static, step-behind, shuffle, two-hop, and generic rotational throws.",
+      "The duplicate consolidated baseline and uniform difficulty values obscure the higher unilateral coordination, side-specific loading, supervision, and failure consequence."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "static_side_on_stance",
+        "unilateral_rotational_push",
+        "hip_trunk_arm_force_transfer"
+      ],
+      "jointActions": [
+        "rear_hip_loading",
+        "foot_pivot",
+        "pelvic_rotation",
+        "thoracic_rotation",
+        "shoulder_horizontal_adduction",
+        "elbow_extension",
+        "scapular_protraction"
+      ],
+      "planes": [
+        "transverse",
+        "frontal",
+        "sagittal"
+      ],
+      "laterality": "unilateral_execution_balanced_both_sides",
+      "intent": "maximal_single_arm_ball_speed_from_sequenced_rotation_with_controlled_finish"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "gluteus_medius",
+        "adductors",
+        "obliques",
+        "pectoralis_major",
+        "triceps_brachii",
+        "serratus_anterior",
+        "anterior_deltoid"
+      ],
+      "secondaryMuscles": [
+        "hamstrings",
+        "quadriceps",
+        "plantar_flexors",
+        "deep_hip_rotators",
+        "spinal_stabilizers",
+        "latissimus_dorsi",
+        "rotator_cuff",
+        "forearm_flexors"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "pelvis",
+        "spine",
+        "scapulothoracic_articulation",
+        "shoulder",
+        "elbow",
+        "wrist",
+        "hand"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 62,
+      "absoluteLoadDemand": 32,
+      "coordinationDemand": 70,
+      "supervisionDemand": 65,
+      "failureConsequence": 64,
+      "impact": 26,
+      "workCapacityDemand": 46,
+      "baseOverallDifficulty": 62
+    },
+    "proposedLoadProfile": {
+      "loadingType": "external_ballistic_unilateral_rotational_push",
+      "impactClass": "low_to_moderate_by_pivot_entry_and_rebound",
+      "externalLoadMethod": "medicine_ball_mass_selected_for_fast_side_specific_single_arm_release",
+      "primaryStress": [
+        "rear_hip",
+        "adductors",
+        "obliques",
+        "thoracic_rotators",
+        "throwing_side_pectorals",
+        "triceps",
+        "anterior_shoulder",
+        "grip"
+      ],
+      "fatigueProfile": [
+        "arm_only_push",
+        "lumbar_dominant_twist",
+        "late_pivot",
+        "shoulder_shrug",
+        "elbow_drop",
+        "side_to_side_velocity_loss",
+        "unsafe_rebound"
+      ],
+      "recoveryHours": "24-48_by_intensity_volume_and_other_rotational_or_throwing_load"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "intact_medicine_ball",
+        "safe_wall_or_lateral_throw_lane",
+        "marked_side_on_start",
+        "clear_rebound_and_retrieval_zone"
+      ],
+      "optionalEquipment": [
+        "target_mark",
+        "radar_or_ball_sensor",
+        "video"
+      ],
+      "environment": [
+        "non_slip_surface",
+        "wall_rated_for_angled_ball_impact",
+        "no_people_in_lateral_flight_or_rebound_path"
+      ],
+      "population": [
+        "pain_free_hip_trunk_and_single_arm_rotation",
+        "can_pivot_without_knee_collapse",
+        "can_brace_and_finish_both_sides"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "3-5_sets_of_2-5_per_side",
+      "restSeconds": "75-180",
+      "intensity": "high_intent_rotational_single_arm_ball_speed",
+      "measurement": "ball_mass_velocity_distance_target_accuracy_and_side_asymmetry",
+      "progressWhen": "both sides preserve foot pressure, hip-to-trunk-to-arm sequence, shoulder position, target, and balanced finish"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Side on",
+        "Ball at the back shoulder",
+        "Load the back hip",
+        "Turn then punch",
+        "Finish over the front side"
+      ],
+      "athleteInstructions": [
+        "Stand side-on with the ball at your rear shoulder, load your back hip, rotate from the floor, push the ball through the target with one arm, and finish balanced before resetting"
+      ],
+      "commonFaults": [
+        "undefined_entry",
+        "ball_too_heavy",
+        "arm_only_throw",
+        "forced_lumbar_twist",
+        "knee_collapse",
+        "no_pivot",
+        "shoulder_shrug",
+        "elbow_drop",
+        "unsafe_rebound",
+        "one_side_only"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "pain_free_rotation_and_single_arm_push",
+        "anti_rotation_control",
+        "safe_pivot",
+        "clear_lateral_lane"
+      ],
+      "stopRules": [
+        "hip_groin_back_shoulder_elbow_or_wrist_pain",
+        "loss_of_grip",
+        "lumbar_dominant_rotation",
+        "knee_collapse",
+        "loss_of_balance",
+        "unsafe_rebound",
+        "target_or_wall_failure",
+        "two_slow_or_inaccurate_reps",
+        "large_side_asymmetry"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "rear_and_side_demo",
+        "hip_to_arm_sequence_overlay",
+        "both_side_comparison",
+        "static_entry_badge"
+      ],
+      "coach": [
+        "side_balance_log",
+        "stance_and_wall_angle_setup",
+        "velocity_or_distance_asymmetry",
+        "entry_variant_and_pivot_check"
+      ]
+    },
+    "programmingDecision": "Retain as the static side-on unilateral rotational shot-put definition. Consolidate its duplicate baseline after review; step-behind, shuffle, two-hop, drop-step, figure-eight, and hip-turn entries are controlled variants, while the forward-facing shot put remains distinct only with an explicit no-side-on-preload rule.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T01:54:40.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "The athlete stands side-on to a wall, loads the back hip, rotates through the hips and trunk, and throws the ball like a shot put.",
+      "familyKey": "Medicine ball rotational power",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 40,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Medicine-ball power assessment depends on a standardized throw task, ball mass, execution, and outcome measure.",
+        "Medicine Ball Rotational Shot Put must define stance and orientation, one- or two-hand release, ball start position, primary force direction, rotational intent, entry steps, target or free-flight lane, catch or retrieval rule, and finish."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Medicine-ball throws are commonly used as upper-body plyometric or ballistic power exercises, but training protocols and throw positions vary.",
+        "Classify Medicine Ball Rotational Shot Put by forward versus rotational force direction, bilateral versus unilateral release, chest-level versus underhand start, static versus dynamic entry, and wall, partner, or open-lane outcome."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Standing and seated medicine-ball throws are measurably different tasks, so lower-body contribution and whole-body coordination cannot be inferred from an upper-body-only label.",
+        "Represent the feet, ankles, knees, hips, pelvis, trunk, scapulae, shoulders, elbows, wrists, and hands actually used by the selected standing, kneeling, seated, or supine version."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Rotational medicine-ball power can be assessed from release velocity or throw distance when the protocol is standardized.",
+        "Coach pressure from the floor through the hips and trunk into the ball, preserve the intended forward or transverse vector, release without a lumbar-dominant twist or backward lean, and finish in a controlled stance."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Throw technique and medicine-ball mass affect performance variability and therefore change the demands of the task.",
+        "Score technical complexity, absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. Athlete experience is programming context and never an exercise-card skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41460695/",
+      "sourceTitle": "Validation of a Supine Upper-Body Power Test in Physically Active Male and Female Adults Using a Medicine Ball With Accelerometer",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Medicine-ball power performance can decline after upper-body neuromuscular fatigue.",
+        "Medicine Ball Rotational Shot Put must track ball mass and type, throws and catches per side, entry contacts, release velocity or distance when measured, target accuracy, local shoulder and trunk fatigue, technical speed loss, recovery between sets, and weekly high-intent throw volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Reliable comparison requires the same technique and ball mass.",
+        "Require an intact appropriately sized medicine ball, a clear wall or open throwing lane matched to rebound behavior, safe retrieval space, a defined target and stop command, stable footing, athlete separation, and no bystanders in the flight or rebound path."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Upper-body plyometric studies use varied doses, with lower repetition ranges generally paired with maximal effort and adequate inter-set and inter-session recovery.",
+        "For power delivery, use roughly three to five sets of two to six high-quality throws per side or bilateral set with 60–180 seconds between sets; stop before speed, distance, accuracy, posture, or safe rebound control declines."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Measurement is meaningful only when the throwing protocol stays consistent.",
+        "State the stance, ball position, hand pattern, target, permitted step or rotation, release vector, catch or retrieval action, reset, side order, and exact rep-quality rule before the first throw."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Youth resistance and power training should be supervised, technically appropriate, progressively dosed, and performed with safe equipment and space.",
+        "Stop for pain, numbness, dizziness, unsafe ball rebound, target or wall failure, lane entry, loss of grip, uncontrolled catch, lumbar-dominant rotation, shoulder or elbow compensation, loss of balance, accuracy collapse, or repeatable output loss."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Upper-body plyometric training can improve medicine-ball throwing and sport-specific throwing performance, although certainty and transfer vary by task and population.",
+        "Place Medicine Ball Rotational Shot Put early in Output work after relevant access and activation. Match stance, vector, ball mass, and intent to the objective; do not turn maximal throws into dense conditioning."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/21572350/",
+      "sourceTitle": "The seated medicine ball throw as a test of upper body power in older adults",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "A medicine-ball throw can be repeatable when position, ball mass, trials, and measurement are standardized.",
+        "Show the exact front, side, and target views; label ball mass and rebound type; demonstrate start, load, release, follow-through, retrieval or catch, reset, side change, acceptable miss, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Velocity and distance can serve as field measures when the rotational medicine-ball protocol is controlled.",
+        "Provide ball-mass selection, lane and wall inspection, side balance, release-vector observation, target zones, optional velocity or distance tracking, speed-loss rules, catch counts, camera angles, regression decisions, and weekly throw-budget guidance."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/21572350/",
+      "sourceTitle": "The seated medicine ball throw as a test of upper body power in older adults",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Seated medicine-ball throwing can provide a reliable upper-body power task when lower-body contribution is intentionally constrained.",
+        "Accessibility options include a lighter or larger soft ball, seated or tall-kneeling support, shorter target distance, partner return instead of wall rebound, no catch, reduced rotation, pre-positioned ball, fewer throws, longer recovery, verbal and visual cues, and non-maximal familiarization."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Standing versus seated position, ball mass, and throw technique materially change the measured task.",
+        "Treat stance and entry as controlled variants when release pattern and vector stay the same; create a distinct definition when bilateral versus unilateral release, forward versus rotational vector, chest versus scoop path, overhead direction, rebound catch, or terminal outcome changes."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for Medicine Ball Rotational Shot Put remain candidate-only. Availability, embedding, exact stance and release match, full viewing, ball type, target and rebound behavior, captions, cue and safety quality, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=KtzuEYn0DmY",
+      "title": "Medicine Ball Rotational Shot-Put Throw",
+      "channelName": "Simone Sports Performance",
+      "sourceQuery": "existing exact-title candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=WBUDq_5DGG0",
+      "title": "Medicine Ball Rotational Shot-Put Throw",
+      "channelName": "Simone Sports Performance",
+      "sourceQuery": "existing exact-title candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=EXV9UhUMTiY",
+      "title": "Med Ball Rotational Shotput",
+      "channelName": "Champion Physical Therapy and Performance",
+      "sourceQuery": "visible YouTube search: static side on rotational medicine ball shot put throw",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=wX4tcyR-61w",
+      "title": "Rotational Medicine Ball Shotput",
+      "channelName": "Synchronicity Health",
+      "sourceQuery": "visible YouTube search: static side on rotational medicine ball shot put throw",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=GTK8P0IOCTI",
+      "title": "CresseySportsPerformance.com: Rotational Medicine Ball Shotput",
+      "channelName": "Eric Cressey",
+      "sourceQuery": "visible YouTube search: static side on rotational medicine ball shot put throw",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Forward-Facing Medicine Ball Shot-Put Throw",
+      "classification": "new_definition",
+      "rationale": "Removing the side-on preload and emphasizing anti-rotation creates a forward unilateral push task.",
+      "distinguishingDimensions": {
+        "forceVector": "forward"
+      }
+    },
+    {
+      "name": "Static Rotational Medicine Ball Shot Put",
+      "classification": "same_identity",
+      "rationale": "Static side-on execution is the proposed baseline identity.",
+      "distinguishingDimensions": {
+        "entry": "static"
+      }
+    },
+    {
+      "name": "Step-Behind Rotational Shot Put",
+      "classification": "new_variant",
+      "rationale": "A step-behind adds approach momentum and coordination before the same release.",
+      "distinguishingDimensions": {
+        "entry": "step_behind"
+      }
+    },
+    {
+      "name": "Shuffle Rotational Shot Put",
+      "classification": "new_variant",
+      "rationale": "A shuffle changes entry footwork and momentum without changing the unilateral rotational release.",
+      "distinguishingDimensions": {
+        "entry": "shuffle"
+      }
+    },
+    {
+      "name": "Medicine Ball Rotational Scoop Toss",
+      "classification": "new_definition",
+      "rationale": "A bilateral low scoop release is distinct from a unilateral shoulder-level push.",
+      "distinguishingDimensions": {
+        "releasePattern": "bilateral_scoop"
+      }
+    }
+  ]
+}

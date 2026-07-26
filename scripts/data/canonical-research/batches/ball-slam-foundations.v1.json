@@ -1,0 +1,1387 @@
+{
+  "batchKey": "ball-slam-foundations-v1",
+  "researchVersion": "2026-07-25.20",
+  "snapshotAt": "2026-07-26T02:15:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "ace_overhead_slams",
+      "claims": [
+        "The standing overhead slam is an overhead-to-floor ballistic action with an explicit hinge, whole-body extension, downward release, and ball-retrieval rule.",
+        "{{canonicalName}} must define support position, start and release path, force direction, rebound behavior, catch or retrieval rule, side order, and finish rather than relying on the generic word slam."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "ace_rotational_slam",
+      "claims": [
+        "A side-directed rotational slam differs from a straight overhead slam through its deliberate twist, lateral floor target, and alternating or single-side execution.",
+        "Classify {{canonicalName}} by support position, bilateral versus side-specific execution, overhead versus scoop start, vertical versus diagonal floor vector, rebound requirement, and static versus dynamic entry."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "side_medicine_ball_throw_emg",
+      "claims": [
+        "Medicine-ball rotational output involves trunk musculature including the external obliques, with muscle activity and ball velocity affected by the task and ball mass.",
+        "Represent the feet, ankles, knees, hips, pelvis, trunk, scapulae, shoulders, elbows, wrists, and hands actually used by the selected standing, kneeling, straight, or rotational slam."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "ace_overhead_slams",
+      "claims": [
+        "The overhead slam uses lower-body loading and triple extension before a forceful overhead-to-floor action while trunk bracing and a hip hinge protect position.",
+        "Coach pressure from the floor through the hips and trunk into the ball, then redirect force into the assigned floor target without lumbar-dominant extension, flexion, or rotation."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "upper_body_plyometric_meta_analysis",
+      "claims": [
+        "Medicine-ball power exercises vary by position, task, dose, and population, so one generic category cannot represent their technical or physical demand.",
+        "Assess technical complexity, absolute physical load, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. Athlete experience is programming context, not exercise-card classification."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "power_systems_slam_ball_guide",
+      "claims": [
+        "No-bounce slam balls and rebounding medicine balls have materially different retrieval, catch, and repeat-cadence behavior.",
+        "{{canonicalName}} must track ball mass and rebound type, high-intent slams, catches, side balance, technical speed loss, shoulder and trunk fatigue, floor contacts, recovery between sets, and weekly ballistic-ball volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "ace_medicine_ball_ift_workout",
+      "claims": [
+        "Medicine balls, wall balls, dead-weight balls, and slam balls are not interchangeable for every impact task; implement construction and rebound behavior must match the exercise.",
+        "Require an intact slam-rated ball, a floor rated for repeated impact, safe overhead and rebound clearance, stable footing or knee padding, athlete separation, and no bystanders in the impact, rebound, or retrieval zone."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "ace_power_medicine_ball_slam",
+      "claims": [
+        "High-velocity medicine-ball power work is commonly delivered in low-repetition sets with enough recovery to preserve output.",
+        "For power delivery, use roughly three to five sets of three to five high-quality slams or two to five per side with 60–180 seconds between sets; stop before velocity, target accuracy, posture, catch control, or safe retrieval declines."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "ace_overhead_slams",
+      "claims": [
+        "The instructional sequence must identify the starting stance, grip, lower-body load, overhead path, bracing action, floor target, and rebound or retrieval behavior.",
+        "State the ball type and mass, stance, target, permitted countermovement or rotation, catch rule, reset, side order, and exact rep-quality rule before the first repetition."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Youth resistance and power training should be supervised, technically appropriate, progressively dosed, and performed with safe equipment and space.",
+        "Stop for pain, numbness, dizziness, loss of grip, unsafe rebound, floor or ball failure, lane entry, uncontrolled catch, lumbar-dominant motion, loss of balance, knee discomfort in kneeling, accuracy collapse, or repeatable output loss."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "upper_body_plyometric_meta_analysis",
+      "claims": [
+        "Upper-body plyometric and medicine-ball training can improve power outcomes, while transfer depends on the chosen task and population.",
+        "Place {{canonicalName}} early in Output work after relevant access and activation. Match stance, vector, ball mass, rebound behavior, and intent to the objective; do not turn maximal slams into indiscriminate fatigue work."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "ace_heavy_slam_ball_workout",
+      "claims": [
+        "Standing, kneeling, around-the-world, and side-directed slam versions need visibly different setup and movement demonstrations.",
+        "Show front, side, and floor-target views; label ball mass and rebound type; demonstrate start, load, release, finish, catch or retrieval, reset, side change, acceptable miss, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "ace_rotational_slam",
+      "claims": [
+        "Rotational slam coaching must distinguish the side-directed floor target, alternating pattern, and rebound catch from a straight bilateral overhead slam.",
+        "Provide ball-selection and floor-inspection guidance, athlete spacing, target zones, side balance, optional velocity tracking, speed-loss rules, catch counts, camera angles, regression decisions, and weekly ballistic-contact budgeting."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "ace_medicine_ball_ift_workout",
+      "claims": [
+        "Ball type, position, movement range, and delivery mode can be changed while preserving a suitable training objective.",
+        "Accessibility options include a lighter or larger soft slam-rated ball, tall-kneeling or supported stance, shorter overhead range, no catch, dead-ball retrieval, reduced rotation, pre-positioned ball, fewer repetitions, longer recovery, and verbal plus visual cues."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "ace_heavy_slam_ball_workout",
+      "claims": [
+        "Standing, kneeling, around-the-world, and side-directed slam patterns can be intentionally varied without treating every implement or cadence change as a new base exercise.",
+        "Treat implement, rebound behavior, stance, alternating cadence, arc size, and entry footwork as controlled variants when the force path stays the same; retain separate definitions when the start path, force vector, support position, or required reactive catch materially changes the task."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for {{canonicalName}} remain candidate-only. Availability, embedding, exact support and force-path match, full viewing, ball type, rebound behavior, captions, cue and safety quality, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "medicine-ball-overhead-slam",
+      "assessmentSummary": {
+        "identity": "A bilateral standing medicine-ball or slam-ball movement that loads through the hips and legs, carries the ball overhead, and forcefully releases it straight down to the floor before a deliberate catch or retrieval reset.",
+        "currentCardFindings": [
+          "The current description is athlete-context prose and does not define stance, grip, ball path, floor target, rebound behavior, catch rule, mass, reset, or stop criteria.",
+          "The archived slam-ball and split-stance cards were implement and stance variants of this same straight overhead-to-floor identity.",
+          "Uniform legacy difficulty values understate the coordination of whole-body loading and redirection, overhead clearance, rebound exposure, and fatigue-dependent lumbar compensation."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "bilateral_hip_hinge",
+            "whole_body_extension",
+            "overhead_to_floor_ballistic_slam"
+          ],
+          "jointActions": [
+            "ankle_knee_hip_extension",
+            "shoulder_flexion",
+            "scapular_upward_rotation",
+            "shoulder_extension",
+            "trunk_bracing",
+            "hip_hinge"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "bilateral",
+          "intent": "maximal_safe_vertical_ball_acceleration_into_a_fixed_floor_target"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "quadriceps",
+            "hamstrings",
+            "latissimus_dorsi",
+            "rectus_abdominis",
+            "serratus_anterior"
+          ],
+          "secondaryMuscles": [
+            "plantar_flexors",
+            "obliques",
+            "spinal_stabilizers",
+            "deltoids",
+            "triceps_brachii",
+            "rotator_cuff",
+            "forearm_flexors"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "spine",
+            "scapulothoracic_articulation",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hand"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 44,
+          "absoluteLoadDemand": 32,
+          "coordinationDemand": 48,
+          "supervisionDemand": 52,
+          "failureConsequence": 50,
+          "impact": 22,
+          "workCapacityDemand": 45,
+          "baseOverallDifficulty": 44
+        },
+        "proposedLoadProfile": {
+          "loadingType": "external_ballistic_bilateral_overhead_to_floor",
+          "impactClass": "low_body_impact_with_ball_floor_impact_and_optional_rebound_catch",
+          "externalLoadMethod": "slam_rated_ball_mass_selected_for_fast_overhead_redirection",
+          "primaryStress": [
+            "posterior_chain",
+            "quadriceps",
+            "anterior_trunk",
+            "lats",
+            "shoulders",
+            "grip"
+          ],
+          "fatigueProfile": [
+            "slow_extension",
+            "lumbar_hyperextension",
+            "arm_only_slam",
+            "target_drift",
+            "late_retrieval_or_catch"
+          ],
+          "recoveryHours": "24-48_by_intensity_volume_and_other_throwing"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "intact_slam_rated_ball",
+            "impact_rated_floor",
+            "clear_overhead_impact_and_retrieval_zone"
+          ],
+          "optionalEquipment": [
+            "floor_target",
+            "velocity_sensor",
+            "video"
+          ],
+          "environment": [
+            "non_slip_surface",
+            "adequate_ceiling_height",
+            "no_people_in_rebound_or_retrieval_path"
+          ],
+          "population": [
+            "pain_free_overhead_range",
+            "can_hip_hinge_and_brace",
+            "can_follow_rebound_or_dead_ball_rule"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "3-5_sets_of_3-5_slams",
+          "restSeconds": "60-180",
+          "intensity": "maximal_safe_ball_speed_with_full_reset",
+          "measurement": "ball_mass_optional_velocity_target_accuracy_and_rep_time",
+          "progressWhen": "speed and target stay stable without lumbar extension, early arm pull, unsafe rebound, or delayed retrieval"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Load the hips",
+            "Get tall before the slam",
+            "Brace the ribs",
+            "Throw through the floor target",
+            "Catch only if assigned"
+          ],
+          "athleteInstructions": [
+            "Stand over the target, load through your hips, drive the ball overhead, brace, slam it straight down, then catch or retrieve it exactly as assigned before resetting"
+          ],
+          "commonFaults": [
+            "ball_not_slam_rated",
+            "ball_too_heavy",
+            "backward_lean",
+            "soft_release",
+            "target_drift",
+            "unsafe_bounce_catch",
+            "rushed_reset"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_overhead_motion",
+            "stable_hinge",
+            "safe_grip",
+            "clear_floor_zone"
+          ],
+          "stopRules": [
+            "back_shoulder_elbow_wrist_or_hand_pain",
+            "loss_of_grip",
+            "ball_or_floor_failure",
+            "unsafe_rebound",
+            "lane_entry",
+            "two_slow_or_inaccurate_reps"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "front_and_side_demo",
+            "ball_type_badge",
+            "catch_or_retrieve_badge",
+            "floor_target_overlay"
+          ],
+          "coach": [
+            "ball_mass_guide",
+            "floor_and_ceiling_check",
+            "target_and_speed_log",
+            "rebound_exposure_budget"
+          ]
+        },
+        "programmingDecision": "Retain one standing bilateral straight overhead-slam definition. Slam-ball construction, bounce behavior, split stance, continuous cadence, and load are controlled variants or delivery annotations."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=QxYhFwMd1Ks",
+          "title": "How to Perform the Med Ball Slam",
+          "channelName": "CORE Strong Fitness",
+          "sourceQuery": "visible YouTube search: medicine ball overhead slam exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=k9W6g9LvXDI",
+          "title": "The Slam Ball",
+          "channelName": "CrossFit",
+          "sourceQuery": "visible YouTube search: medicine ball overhead slam exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=CkO1mfSBvv4",
+          "title": "How To Med Ball Slam",
+          "channelName": "Third Space London",
+          "sourceQuery": "visible YouTube search: medicine ball overhead slam exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=6vXHh-Lhb2o",
+          "title": "How to Do Medicine Ball Slams",
+          "channelName": "LivestrongWoman",
+          "sourceQuery": "visible YouTube search: medicine ball overhead slam exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=a7ZnLpLIb8s",
+          "title": "Overhead Med-Ball Slam",
+          "channelName": "Testosterone Nation",
+          "sourceQuery": "visible YouTube search: medicine ball overhead slam exercise"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Slam-Ball Overhead Slam",
+          "classification": "new_variant",
+          "rationale": "A low- or no-bounce slam ball changes retrieval behavior but preserves the straight bilateral overhead-to-floor action.",
+          "distinguishingDimensions": {
+            "implement": "low_or_no_bounce_slam_ball"
+          }
+        },
+        {
+          "name": "Split-Stance Overhead Slam",
+          "classification": "new_variant",
+          "rationale": "Split stance changes base of support and bracing without changing the force path.",
+          "distinguishingDimensions": {
+            "stance": "split"
+          }
+        },
+        {
+          "name": "Continuous Rebound Overhead Slam",
+          "classification": "new_variant",
+          "rationale": "Rebound cadence adds catch exposure while preserving the base movement when the catch is optional rather than the defining objective.",
+          "distinguishingDimensions": {
+            "reboundRule": "continuous_optional_catch"
+          }
+        },
+        {
+          "name": "Tall-Kneeling Overhead Slam",
+          "classification": "new_definition",
+          "rationale": "Tall kneeling removes ankle and knee contribution and materially changes support, output, and knee-surface constraints.",
+          "distinguishingDimensions": {
+            "supportPosition": "tall_kneeling"
+          }
+        },
+        {
+          "name": "Rotational Overhead Slam",
+          "classification": "new_definition",
+          "rationale": "A side-directed floor target and transverse loading change force vector and laterality.",
+          "distinguishingDimensions": {
+            "forceVector": "rotational_side_directed"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "tall-kneeling-overhead-medicine-ball-slam",
+      "assessmentSummary": {
+        "identity": "A bilateral tall-kneeling overhead-to-floor slam that maintains hip extension while using the trunk and shoulders to accelerate the ball downward, followed by a controlled catch or retrieval.",
+        "currentCardFindings": [
+          "The current card says lower-body compensation is limited but does not define tall-kneeling alignment, knee padding, foot position, hip extension, floor target, ball type, rebound, or reset.",
+          "The archived generic kneeling slam described the same identity; half-kneeling and catch-fed versions remain controlled variants.",
+          "Legacy difficulty does not account for reduced base of support, knee-surface tolerance, the inability to step under an errant rebound, or the temptation to collapse through the lumbar spine."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "tall_kneeling_support",
+            "overhead_to_floor_ballistic_slam",
+            "trunk_flexion_with_hip_extension_control"
+          ],
+          "jointActions": [
+            "hip_extension_isometric",
+            "shoulder_flexion",
+            "scapular_upward_rotation",
+            "shoulder_extension",
+            "trunk_bracing_and_flexion"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "bilateral",
+          "intent": "maximal_safe_downward_ball_speed_without_lower_leg_drive_or_loss_of_kneeling_position"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "rectus_abdominis",
+            "latissimus_dorsi",
+            "gluteus_maximus",
+            "serratus_anterior",
+            "deltoids"
+          ],
+          "secondaryMuscles": [
+            "obliques",
+            "spinal_stabilizers",
+            "triceps_brachii",
+            "rotator_cuff",
+            "forearm_flexors",
+            "hip_stabilizers"
+          ],
+          "joints": [
+            "knee",
+            "hip",
+            "spine",
+            "scapulothoracic_articulation",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hand"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 48,
+          "absoluteLoadDemand": 30,
+          "coordinationDemand": 52,
+          "supervisionDemand": 56,
+          "failureConsequence": 54,
+          "impact": 18,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 48
+        },
+        "proposedLoadProfile": {
+          "loadingType": "external_ballistic_tall_kneeling_overhead_to_floor",
+          "impactClass": "low_body_impact_with_knee_surface_and_ball_rebound_exposure",
+          "externalLoadMethod": "slam_rated_ball_mass_that_preserves_tall_kneeling_hip_and_trunk_control",
+          "primaryStress": [
+            "anterior_trunk",
+            "lats",
+            "shoulders",
+            "gluteals",
+            "kneeling_contact",
+            "grip"
+          ],
+          "fatigueProfile": [
+            "hip_flexion_collapse",
+            "lumbar_hyperextension",
+            "excessive_trunk_fold",
+            "target_drift",
+            "unsafe_rebound_reach"
+          ],
+          "recoveryHours": "24-48_by_intensity_volume_knee_tolerance_and_throwing_load"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "intact_slam_rated_ball",
+            "impact_rated_floor",
+            "knee_tolerant_surface_or_padding",
+            "clear_rebound_zone"
+          ],
+          "optionalEquipment": [
+            "floor_target",
+            "knee_pad",
+            "video"
+          ],
+          "environment": [
+            "non_slip_kneeling_surface",
+            "adequate_overhead_clearance",
+            "no_people_in_rebound_or_retrieval_path"
+          ],
+          "population": [
+            "pain_free_kneeling",
+            "pain_free_overhead_range",
+            "can_hold_tall_hip_extension",
+            "can_manage_ball_without_stepping"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "3-5_sets_of_3-5_slams",
+          "restSeconds": "60-180",
+          "intensity": "high_intent_downward_acceleration_with_position_preserved",
+          "measurement": "ball_mass_target_accuracy_rep_time_and_position_quality",
+          "progressWhen": "the athlete stays tall through the hips and controls the ball without knee discomfort, lumbar collapse, or rebound reach"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Knees comfortable and hips tall",
+            "Squeeze the glutes",
+            "Reach overhead without leaning back",
+            "Slam between the knees",
+            "Do not chase the bounce"
+          ],
+          "athleteInstructions": [
+            "Kneel tall on both knees, lock in your hips and ribs, reach the ball overhead, slam it to the target in front of you, then catch or retrieve only as assigned"
+          ],
+          "commonFaults": [
+            "unsupported_knees",
+            "sitting_on_heels",
+            "hip_flexion_collapse",
+            "backward_lean",
+            "target_too_far_forward",
+            "unsafe_rebound_reach"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "kneeling_tolerance",
+            "tall_hip_extension_control",
+            "pain_free_overhead_motion",
+            "safe_grip"
+          ],
+          "stopRules": [
+            "knee_hip_back_shoulder_or_hand_pain",
+            "loss_of_tall_kneeling",
+            "loss_of_grip",
+            "unsafe_rebound",
+            "ball_or_floor_failure",
+            "two_slow_or_mistargeted_reps"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "side_alignment_demo",
+            "knee_pad_prompt",
+            "hip_position_overlay",
+            "catch_or_retrieve_badge"
+          ],
+          "coach": [
+            "kneeling_surface_check",
+            "ball_mass_and_target_guide",
+            "hip_control_observation",
+            "rebound_reach_warning"
+          ]
+        },
+        "programmingDecision": "Retain one explicit tall-kneeling overhead-slam definition and keep the generic kneeling name as an alias. Treat half-kneeling, counter-movement, partner-fed catch, ball type, and rebound behavior as controlled variants."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=ixNyM6SEevo",
+          "title": "Tall Kneeling Medicine Ball Slam",
+          "channelName": "Hybrid Fitness",
+          "sourceQuery": "visible YouTube search: tall kneeling medicine ball overhead slam"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=yeE8VZhUPSE",
+          "title": "Tall Kneeling Slam Ball Slam",
+          "channelName": "Pursuit Fitness",
+          "sourceQuery": "visible YouTube search: tall kneeling medicine ball overhead slam"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=dnKL3X3ST1o",
+          "title": "Tall Kneeling Overhead Med Ball Slam",
+          "channelName": "Resilient Performance Physical Therapy",
+          "sourceQuery": "visible YouTube search: tall kneeling medicine ball overhead slam"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LhCS360FBvA",
+          "title": "Tall Kneeling Medicine Ball Slam",
+          "channelName": "Three Point Performance",
+          "sourceQuery": "visible YouTube search: tall kneeling medicine ball overhead slam"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Fifv10rZUnU",
+          "title": "Tall Kneeling Med Ball Slam",
+          "channelName": "Elite Performance Institute",
+          "sourceQuery": "visible YouTube search: tall kneeling medicine ball overhead slam"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Kneeling Slam-Ball Slam",
+          "classification": "same_identity",
+          "rationale": "The generic kneeling label describes this tall-kneeling bilateral overhead-to-floor action when no half-kneeling qualifier is present.",
+          "distinguishingDimensions": {
+            "nomenclature": "generic_kneeling"
+          }
+        },
+        {
+          "name": "Half-Kneeling Overhead Slam",
+          "classification": "new_variant",
+          "rationale": "Half kneeling adds asymmetrical support and side-specific hip control while preserving the overhead-to-floor path.",
+          "distinguishingDimensions": {
+            "supportPosition": "half_kneeling"
+          }
+        },
+        {
+          "name": "Countermovement Tall-Kneeling Slam",
+          "classification": "new_variant",
+          "rationale": "A larger preparatory trunk and shoulder countermovement changes delivery but not identity.",
+          "distinguishingDimensions": {
+            "countermovement": "amplified"
+          }
+        },
+        {
+          "name": "Partner-Fed Tall-Kneeling Catch to Slam",
+          "classification": "new_variant",
+          "rationale": "A partner feed adds catch absorption before the same slam and requires separate catch dosage.",
+          "distinguishingDimensions": {
+            "entry": "partner_overhead_feed"
+          }
+        },
+        {
+          "name": "Standing Overhead Slam",
+          "classification": "new_definition",
+          "rationale": "Standing restores ankle, knee, and hip drive and changes output, balance, and retrieval behavior.",
+          "distinguishingDimensions": {
+            "supportPosition": "standing"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "slam-ball-rotational-slam",
+      "assessmentSummary": {
+        "identity": "A standing side-directed slam that moves the ball through an overhead or large diagonal arc, rotates through the feet, hips, and trunk, and releases into a floor target beside the body before a controlled reset or alternating repetition.",
+        "currentCardFindings": [
+          "The current card names rotational power but does not define side-on versus square stance, pivot, overhead arc, floor target, alternating rule, rebound, catch, ball mass, or finish.",
+          "Archived side-to-side, overhead-to-side, rainbow, and step-behind cards were cadence, trajectory-size, implement, or entry-footwork variants of this same rotational floor-slam identity.",
+          "The empty baseline difficulty and anatomy understate transverse coordination, side-specific bracing, deceleration, ball-target risk, and the greater consequence of a rebound crossing the athlete."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "standing_rotational_load",
+            "overhead_or_diagonal_ball_arc",
+            "side_directed_floor_slam"
+          ],
+          "jointActions": [
+            "foot_pivot",
+            "hip_rotation",
+            "pelvic_rotation",
+            "thoracic_rotation",
+            "shoulder_flexion_and_extension",
+            "trunk_bracing",
+            "bilateral_release"
+          ],
+          "planes": [
+            "transverse",
+            "frontal",
+            "sagittal"
+          ],
+          "laterality": "unilateral_execution_balanced_both_sides",
+          "intent": "maximal_safe_side_directed_ball_speed_from_sequenced_ground_up_rotation"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "gluteus_medius",
+            "adductors",
+            "external_obliques",
+            "internal_obliques",
+            "latissimus_dorsi"
+          ],
+          "secondaryMuscles": [
+            "quadriceps",
+            "hamstrings",
+            "plantar_flexors",
+            "spinal_stabilizers",
+            "deltoids",
+            "serratus_anterior",
+            "rotator_cuff",
+            "forearm_flexors"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "spine",
+            "scapulothoracic_articulation",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hand"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 56,
+          "absoluteLoadDemand": 32,
+          "coordinationDemand": 62,
+          "supervisionDemand": 58,
+          "failureConsequence": 56,
+          "impact": 22,
+          "workCapacityDemand": 46,
+          "baseOverallDifficulty": 56
+        },
+        "proposedLoadProfile": {
+          "loadingType": "external_ballistic_rotational_side_directed_floor_slam",
+          "impactClass": "low_body_impact_with_transverse_deceleration_and_ball_rebound_exposure",
+          "externalLoadMethod": "slam_rated_ball_mass_that_preserves_rotation_speed_and_target_control",
+          "primaryStress": [
+            "hips",
+            "adductors",
+            "obliques",
+            "lats",
+            "shoulders",
+            "grip"
+          ],
+          "fatigueProfile": [
+            "late_hip_rotation",
+            "lumbar_twist",
+            "knee_collapse",
+            "arm_only_pull",
+            "target_drift",
+            "side_asymmetry"
+          ],
+          "recoveryHours": "24-48_by_intensity_volume_side_balance_and_other_rotational_throwing"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "intact_slam_rated_ball",
+            "impact_rated_floor",
+            "two_clear_side_target_zones"
+          ],
+          "optionalEquipment": [
+            "side_targets",
+            "velocity_sensor",
+            "video"
+          ],
+          "environment": [
+            "non_slip_surface_that_permits_safe_pivot",
+            "adequate_arc_clearance",
+            "no_people_in_side_rebound_or_retrieval_paths"
+          ],
+          "population": [
+            "pain_free_rotation",
+            "can_pivot_and_decelerate",
+            "can_control_bilateral_ball_release",
+            "can_balance_both_sides"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "3-5_sets_of_2-5_slams_per_side",
+          "restSeconds": "75-180",
+          "intensity": "high_intent_rotation_with_exact_side_target",
+          "measurement": "ball_mass_optional_velocity_target_accuracy_and_left_right_symmetry",
+          "progressWhen": "both sides retain sequencing, target accuracy, pivot control, and output without lumbar-dominant rotation"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Own the feet first",
+            "Turn the hips and ribs together",
+            "Arc over and slam beside you",
+            "Finish balanced",
+            "Reset before speed"
+          ],
+          "athleteInstructions": [
+            "Load one side, rotate from the floor through your hips and trunk, guide the ball through the assigned arc, slam beside your foot target, and reset or alternate only as assigned"
+          ],
+          "commonFaults": [
+            "fixed_feet_with_lumbar_twist",
+            "knee_valgus",
+            "ball_too_heavy",
+            "undefined_side_target",
+            "arm_only_slam",
+            "cross_body_rebound",
+            "one_sided_volume"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_trunk_rotation",
+            "pivot_control",
+            "stable_deceleration",
+            "clear_side_zones"
+          ],
+          "stopRules": [
+            "back_hip_knee_shoulder_or_hand_pain",
+            "loss_of_grip",
+            "uncontrolled_pivot",
+            "unsafe_side_rebound",
+            "lane_entry",
+            "two_asymmetric_or_mistargeted_reps"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "front_and_rear_oblique_demo",
+            "side_target_overlay",
+            "pivot_and_arc_animation",
+            "alternating_or_single_side_badge"
+          ],
+          "coach": [
+            "left_right_output_log",
+            "pivot_and_knee_observation",
+            "arc_variant_guide",
+            "rebound_crossing_warning"
+          ]
+        },
+        "programmingDecision": "Retain one rotational side-directed slam definition. Side-to-side alternation, rainbow arc, overhead-to-side nomenclature, step-behind entry, stance, and rebound behavior are controlled variants; wall rotational throws remain separate."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=2ubF0fUggSc",
+          "title": "Rotational Med Ball Slam",
+          "channelName": "John Rusin",
+          "sourceQuery": "visible YouTube search: slam ball rotational slam side to side"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=W_4eq6r00zw",
+          "title": "Standing Medicine Ball Rotational Slam",
+          "channelName": "Performance Unlimited",
+          "sourceQuery": "visible YouTube search: slam ball rotational slam side to side"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=YDVD1m5vZLQ",
+          "title": "Rotational Ball Slam",
+          "channelName": "Jenny LaBaw",
+          "sourceQuery": "visible YouTube search: slam ball rotational slam side to side"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=bxmEsIhAfCg",
+          "title": "Rotation Dead Ball Slam",
+          "channelName": "Vital Health And Performance",
+          "sourceQuery": "visible YouTube search: slam ball rotational slam side to side"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=D9LnShWpXc8",
+          "title": "Side to Side Medicine Ball Slam",
+          "channelName": "Champion Fitness",
+          "sourceQuery": "visible YouTube search: slam ball rotational slam side to side"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Side-to-Side Slam",
+          "classification": "new_variant",
+          "rationale": "Alternating sides changes cadence and side order while preserving the same rotational side-directed slam.",
+          "distinguishingDimensions": {
+            "cadence": "alternating"
+          }
+        },
+        {
+          "name": "Rainbow Slam",
+          "classification": "new_variant",
+          "rationale": "A larger overhead arc changes range and timing without changing the terminal side-directed floor target.",
+          "distinguishingDimensions": {
+            "trajectory": "large_overhead_arc"
+          }
+        },
+        {
+          "name": "Overhead-to-Side Medicine-Ball Slam",
+          "classification": "same_identity",
+          "rationale": "This name describes the defining diagonal path of the rotational slam; medicine-ball construction changes rebound rules only.",
+          "distinguishingDimensions": {
+            "nomenclature": "trajectory_description"
+          }
+        },
+        {
+          "name": "Step-Behind Rotational Slam",
+          "classification": "new_variant",
+          "rationale": "Step-behind entry adds approach momentum and deceleration but preserves rotational release and floor target.",
+          "distinguishingDimensions": {
+            "entryFootwork": "step_behind"
+          }
+        },
+        {
+          "name": "Rotational Wall Throw",
+          "classification": "new_definition",
+          "rationale": "A horizontal wall release and return path create a different vector, target, catch, and spacing problem.",
+          "distinguishingDimensions": {
+            "terminalOutcome": "wall_throw"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "slam-ball-scoop-slam",
+      "assessmentSummary": {
+        "identity": "A bilateral scoop-to-floor slam that begins with the ball low near the hips or between the legs, accelerates through a hip-led underhand scoop, and redirects the ball into a floor target without first establishing the standard overhead-slam start.",
+        "currentCardFindings": [
+          "The current description mentions hip snap and scoop path but does not define start height, hinge depth, whether the ball crosses overhead, floor target, ball rebound, catch, or finish.",
+          "The exercise name is uncommon and visible media mixes pure scoop slams, shuffle entries, scoop tosses, and slam-to-scoop combinations, so every candidate requires exact-version human review.",
+          "The empty difficulty and anatomy fail to represent the timing required to accelerate from a low position and redirect into the floor without lumbar extension or losing the ball."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "bilateral_hip_hinge",
+            "underhand_scoop_acceleration",
+            "redirected_floor_slam"
+          ],
+          "jointActions": [
+            "hip_knee_ankle_extension",
+            "trunk_bracing",
+            "shoulder_flexion",
+            "shoulder_extension_into_release",
+            "bilateral_grip_release"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "bilateral",
+          "intent": "rapid_hip_led_low_to_high_acceleration_redirected_into_a_controlled_floor_target"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "rectus_abdominis",
+            "latissimus_dorsi",
+            "deltoids"
+          ],
+          "secondaryMuscles": [
+            "plantar_flexors",
+            "obliques",
+            "spinal_stabilizers",
+            "serratus_anterior",
+            "triceps_brachii",
+            "rotator_cuff",
+            "forearm_flexors"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "spine",
+            "scapulothoracic_articulation",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hand"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 52,
+          "absoluteLoadDemand": 34,
+          "coordinationDemand": 58,
+          "supervisionDemand": 56,
+          "failureConsequence": 54,
+          "impact": 22,
+          "workCapacityDemand": 46,
+          "baseOverallDifficulty": 52
+        },
+        "proposedLoadProfile": {
+          "loadingType": "external_ballistic_bilateral_low_start_scoop_to_floor",
+          "impactClass": "low_body_impact_with_ball_floor_impact_and_redirection_error_exposure",
+          "externalLoadMethod": "slam_rated_ball_mass_that_preserves_fast_hip_led_scoop_and_controlled_redirection",
+          "primaryStress": [
+            "posterior_chain",
+            "quadriceps",
+            "anterior_trunk",
+            "lats",
+            "shoulders",
+            "grip"
+          ],
+          "fatigueProfile": [
+            "slow_hip_extension",
+            "early_arm_lift",
+            "lumbar_hyperextension",
+            "late_redirection",
+            "target_drift",
+            "loss_of_grip"
+          ],
+          "recoveryHours": "24-48_by_intensity_volume_and_other_ballistic_hinge_work"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "intact_slam_rated_ball",
+            "impact_rated_floor",
+            "clear_scoop_arc_and_floor_target_zone"
+          ],
+          "optionalEquipment": [
+            "floor_target",
+            "velocity_sensor",
+            "video"
+          ],
+          "environment": [
+            "non_slip_surface",
+            "adequate_front_and_overhead_clearance",
+            "no_people_in_rebound_or_retrieval_path"
+          ],
+          "population": [
+            "pain_free_hinge_and_overhead_range",
+            "can_sequence_hip_and_arm_drive",
+            "can_redirect_without_chasing_ball"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "3-5_sets_of_2-5_slams",
+          "restSeconds": "75-180",
+          "intensity": "high_intent_scoop_acceleration_with_precise_redirection",
+          "measurement": "ball_mass_optional_velocity_target_accuracy_and_rep_time",
+          "progressWhen": "the athlete preserves hinge-to-extension timing, clean redirection, target control, and balance without back extension"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Start low with the hips loaded",
+            "Drive the floor away",
+            "Scoop fast",
+            "Redirect into the target",
+            "Finish balanced"
+          ],
+          "athleteInstructions": [
+            "Load the ball low with a strong hinge, drive through your hips and legs, scoop the ball upward, then redirect it hard into the floor target and reset under control"
+          ],
+          "commonFaults": [
+            "undefined_start_path",
+            "squat_without_hinge",
+            "arm_only_scoop",
+            "lumbar_hyperextension",
+            "throw_instead_of_floor_slam",
+            "late_release",
+            "unsafe_rebound"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_hinge",
+            "safe_grip",
+            "overhead_and_forward_clearance",
+            "redirection_control"
+          ],
+          "stopRules": [
+            "back_hip_shoulder_elbow_wrist_or_hand_pain",
+            "loss_of_grip",
+            "uncontrolled_throw_vector",
+            "unsafe_rebound",
+            "lane_entry",
+            "two_slow_or_mistargeted_reps"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "side_path_demo",
+            "low_start_and_redirection_overlay",
+            "throw_vs_slam_comparison",
+            "catch_or_retrieve_badge"
+          ],
+          "coach": [
+            "identity_boundary_checklist",
+            "ball_mass_and_target_log",
+            "hinge_and_redirection_observation",
+            "candidate_media_review_prompt"
+          ]
+        },
+        "programmingDecision": "Retain provisionally as a distinct low-start scoop-to-floor identity, but quarantine publication until a coach confirms the exact movement boundary and at least three candidates demonstrate the same path. Treat shuffle entry as a variant; separate scoop throws and slam-to-scoop combinations."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=08eGP8fDtA4",
+          "title": "Medball scoop throws, medball slams & medball scoop slams",
+          "channelName": "Robert Donahue",
+          "sourceQuery": "visible YouTube search: exact phrase scoop slam medicine ball exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=FUxZacBK4-U",
+          "title": "MB Scoop Slam",
+          "channelName": "Mike Coval",
+          "sourceQuery": "visible YouTube search: exact phrase scoop slam medicine ball exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=oYI88Ehbwm8",
+          "title": "Demo- Medball Scoop Slam",
+          "channelName": null,
+          "sourceQuery": "visible YouTube search: exact phrase scoop slam medicine ball exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=BVt4ZEIb_qc",
+          "title": "Demo- Medball Scoop Slam + Shuffle",
+          "channelName": null,
+          "sourceQuery": "visible YouTube search: exact phrase scoop slam medicine ball exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=J9UPI2pHkm8",
+          "title": "Alt Hip Scoop OH Slam",
+          "channelName": "UCStrength",
+          "sourceQuery": "visible YouTube search: exact phrase scoop slam medicine ball exercise"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Shuffle-Entry Scoop Slam",
+          "classification": "new_variant",
+          "rationale": "Shuffle entry adds horizontal momentum before the same scoop-to-floor action.",
+          "distinguishingDimensions": {
+            "entryFootwork": "shuffle"
+          }
+        },
+        {
+          "name": "Alternating Hip Scoop Overhead Slam",
+          "classification": "new_variant",
+          "rationale": "Alternating the low start side changes laterality and cadence while retaining low-start scoop redirection.",
+          "distinguishingDimensions": {
+            "startPosition": "alternating_hip"
+          }
+        },
+        {
+          "name": "Forward Medicine-Ball Scoop Toss",
+          "classification": "new_definition",
+          "rationale": "Free-flight forward projection ends in a throw rather than a floor-directed slam.",
+          "distinguishingDimensions": {
+            "terminalOutcome": "forward_free_flight"
+          }
+        },
+        {
+          "name": "Rotational Scoop Toss",
+          "classification": "new_definition",
+          "rationale": "Side-on transverse loading and a horizontal release change vector, laterality, and target.",
+          "distinguishingDimensions": {
+            "forceVector": "rotational_horizontal"
+          }
+        },
+        {
+          "name": "Slam to Scoop Toss Combination",
+          "classification": "new_definition",
+          "rationale": "A sequential slam followed by a separate scoop toss is a compound combination, not the single scoop-to-floor action.",
+          "distinguishingDimensions": {
+            "sequence": "slam_then_scoop_toss"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "medicine-ball-rebound-slam-to-catch",
+      "assessmentSummary": {
+        "identity": "A standing overhead-to-floor medicine-ball slam in which a predictable rebound, controlled catch, and immediate or deliberately reset re-output are required parts of every repetition.",
+        "currentCardFindings": [
+          "The current description identifies absorption and re-output but does not define bounce height, ball construction, catch position, continuous versus reset cadence, floor target, mass, catch count, or speed-loss stop rule.",
+          "Unlike the base overhead slam, the rebound catch is not optional delivery detail; it is the defining eccentric-reception and timing demand.",
+          "Uniform legacy difficulty understates visual tracking, hand and shoulder catch exposure, rebound unpredictability, repeated trunk timing, and the consequence of a missed or deflected catch."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "bilateral_overhead_slam",
+            "ball_rebound_tracking",
+            "bilateral_catch_absorption",
+            "reactive_reoutput"
+          ],
+          "jointActions": [
+            "ankle_knee_hip_extension",
+            "shoulder_flexion_and_extension",
+            "trunk_bracing",
+            "elbow_flexion_on_catch",
+            "scapular_control",
+            "hip_hinge"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "bilateral",
+          "intent": "repeat_high_quality_slam_rebound_catch_cycles_with_safe_absorption_and_stable_output"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "quadriceps",
+            "latissimus_dorsi",
+            "rectus_abdominis",
+            "serratus_anterior",
+            "forearm_flexors"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "plantar_flexors",
+            "obliques",
+            "spinal_stabilizers",
+            "deltoids",
+            "biceps_brachii",
+            "triceps_brachii",
+            "rotator_cuff"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "spine",
+            "scapulothoracic_articulation",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hand"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 62,
+          "absoluteLoadDemand": 30,
+          "coordinationDemand": 70,
+          "supervisionDemand": 68,
+          "failureConsequence": 68,
+          "impact": 24,
+          "workCapacityDemand": 54,
+          "baseOverallDifficulty": 62
+        },
+        "proposedLoadProfile": {
+          "loadingType": "external_ballistic_overhead_slam_with_rebound_catch_and_reoutput",
+          "impactClass": "low_body_impact_with_repeated_ball_catch_and_floor_rebound_exposure",
+          "externalLoadMethod": "rebounding_medicine_ball_mass_and_construction_selected_for_predictable_catch_height",
+          "primaryStress": [
+            "posterior_chain",
+            "anterior_trunk",
+            "lats",
+            "shoulders",
+            "elbows",
+            "wrists",
+            "hands"
+          ],
+          "fatigueProfile": [
+            "lower_rebound",
+            "late_hands",
+            "rigid_catch",
+            "lumbar_extension",
+            "slow_reoutput",
+            "target_drift",
+            "grip_fatigue"
+          ],
+          "recoveryHours": "24-48_by_intensity_catch_count_volume_and_other_throwing"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "intact_predictably_rebounding_medicine_ball",
+            "impact_rated_level_floor",
+            "clear_rebound_and_miss_zone"
+          ],
+          "optionalEquipment": [
+            "floor_target",
+            "catch_height_marker",
+            "velocity_sensor",
+            "video"
+          ],
+          "environment": [
+            "non_slip_surface",
+            "adequate_ceiling_and_rebound_clearance",
+            "no_people_in_miss_or_deflection_path"
+          ],
+          "population": [
+            "pain_free_overhead_and_catch_motion",
+            "can_track_and_absorb_the_ball",
+            "can_abort_a_bad_rebound_without_chasing"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "3-5_sets_of_3-5_slam_catch_cycles",
+          "restSeconds": "75-180",
+          "intensity": "high_but_repeatable_output_with_predictable_catch",
+          "measurement": "ball_mass_catch_count_rebound_height_optional_velocity_target_accuracy_and_speed_loss",
+          "progressWhen": "rebound height, catch position, output, and target stay repeatable with no hand chase, rigid catch, or trunk collapse"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Use the approved rebound ball",
+            "Slam the target",
+            "See the ball early",
+            "Give with the catch",
+            "Abort a bad bounce"
+          ],
+          "athleteInstructions": [
+            "Slam the ball straight into the target, track its rebound, catch softly in front of you, and re-slam or reset exactly as assigned; step away instead of chasing a bad bounce"
+          ],
+          "commonFaults": [
+            "wrong_ball_type",
+            "unpredictable_bounce",
+            "late_visual_pickup",
+            "locked_elbow_catch",
+            "catch_too_close_to_face",
+            "chasing_deflection",
+            "conditioning_speed_over_quality"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "predictable_ball_rebound",
+            "pain_free_catch",
+            "visual_tracking",
+            "safe_abort_response"
+          ],
+          "stopRules": [
+            "face_head_neck_shoulder_elbow_wrist_hand_or_back_pain",
+            "unpredictable_rebound",
+            "missed_or_rigid_catch",
+            "loss_of_grip",
+            "ball_or_floor_failure",
+            "two_slow_or_mistargeted_cycles"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "slow_motion_slam_rebound_catch_demo",
+            "approved_ball_badge",
+            "catch_window_overlay",
+            "bad_bounce_abort_animation"
+          ],
+          "coach": [
+            "rebound_ball_inspection",
+            "catch_count_and_miss_log",
+            "rebound_height_and_speed_loss_rule",
+            "face_and_hand_safety_positioning"
+          ]
+        },
+        "programmingDecision": "Retain as a distinct reactive definition because rebound catch and re-output are mandatory. Do not substitute a dead-ball slam or optional retrieval version without changing the training objective and dose."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=KGazAz00jxk",
+          "title": "Med Ball Slam w/ Catch on Bounce",
+          "channelName": null,
+          "sourceQuery": "visible YouTube search: medicine ball rebound slam catch exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=RHa7MHXDLPA",
+          "title": "Ball Slam (Catch Off Bounce)",
+          "channelName": "FutbolerFit HQ",
+          "sourceQuery": "visible YouTube search: slam catch on bounce medicine ball"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=K7OanK8eyo0",
+          "title": "MB Catch Slam",
+          "channelName": "infinitiperformance",
+          "sourceQuery": "visible YouTube search: slam catch on bounce medicine ball"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=zInYCbNxZ9o",
+          "title": "B.O. Ball Catch/Slam Sequence",
+          "channelName": null,
+          "sourceQuery": "visible YouTube search: slam catch on bounce medicine ball"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Y34nEztrI80",
+          "title": "MB OH Catch Slam",
+          "channelName": "Astros Strength",
+          "sourceQuery": "visible YouTube search: slam catch on bounce medicine ball"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Continuous Rebound Slam to Catch",
+          "classification": "new_variant",
+          "rationale": "Immediate re-slam changes cadence and fatigue while preserving the mandatory rebound catch identity.",
+          "distinguishingDimensions": {
+            "cadence": "continuous"
+          }
+        },
+        {
+          "name": "Reset Rebound Slam to Catch",
+          "classification": "new_variant",
+          "rationale": "A deliberate pause after each catch preserves the same reception task with lower timing pressure.",
+          "distinguishingDimensions": {
+            "cadence": "full_reset"
+          }
+        },
+        {
+          "name": "Partner-Fed Overhead Catch to Slam",
+          "classification": "new_variant",
+          "rationale": "A partner feed changes the source of the catch but preserves overhead reception followed by a floor slam; catch exposure must be dosed separately.",
+          "distinguishingDimensions": {
+            "feedSource": "partner"
+          }
+        },
+        {
+          "name": "Tall-Kneeling Catch to Slam",
+          "classification": "new_variant",
+          "rationale": "Tall kneeling changes support and removes stepping options while preserving the catch-to-slam sequence.",
+          "distinguishingDimensions": {
+            "supportPosition": "tall_kneeling"
+          }
+        },
+        {
+          "name": "Dead-Ball Overhead Slam",
+          "classification": "new_definition",
+          "rationale": "A no-bounce ball removes the required catch and reactive re-output that define this card.",
+          "distinguishingDimensions": {
+            "reboundRule": "none"
+          }
+        }
+      ]
+    }
+  ]
+}

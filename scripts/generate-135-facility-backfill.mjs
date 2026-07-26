@@ -38,7 +38,7 @@ INSERT INTO coaching.exercise (
 )
 SELECT
   f.id,
-  src.name, src.slug, src.description, src.instructions, src.sport_id, src.skill_level, src.age_min, src.age_max,
+  src.name, src.slug, src.description, src.instructions, src.sport_id, NULL::public.skill_level, src.age_min, src.age_max,
   src.default_sets, src.default_reps, src.default_work_seconds, src.default_rest_seconds, src.tempo, src.load_note,
   src.est_seconds_per_set, src.is_published, src.visibility, FALSE,
   src.card_summary, src.coach_language, src.athlete_language, src.programming_logic, src.why_publish_ready, src.scalable_variables,
@@ -162,7 +162,7 @@ INSERT INTO coaching.exercise_safety_profile (
 )
 SELECT
   p.tgt_id, s.risk_level, s.impact_level, s.requires_spotting, s.requires_coach_supervision,
-  s.minimum_age_recommended, s.minimum_skill_level, s.minimum_prerequisite_notes,
+  s.minimum_age_recommended, NULL::public.skill_level, s.minimum_prerequisite_notes,
   s.readiness_checks, s.stop_signs, s.common_substitutions
 FROM pairs p
 JOIN coaching.exercise_safety_profile s ON s.exercise_id = p.src_id
@@ -172,7 +172,7 @@ ON CONFLICT (exercise_id) DO UPDATE SET
   requires_spotting = EXCLUDED.requires_spotting,
   requires_coach_supervision = EXCLUDED.requires_coach_supervision,
   minimum_age_recommended = EXCLUDED.minimum_age_recommended,
-  minimum_skill_level = EXCLUDED.minimum_skill_level,
+  minimum_skill_level = NULL,
   minimum_prerequisite_notes = EXCLUDED.minimum_prerequisite_notes,
   readiness_checks = EXCLUDED.readiness_checks,
   stop_signs = EXCLUDED.stop_signs,
@@ -230,7 +230,7 @@ INSERT INTO coaching.exercise_scaling_profile (
   scale_direction, load_guidance, complexity_guidance, coach_notes, cohort_key
 )
 SELECT
-  p.tgt_id, s.label, s.age_min, s.age_max, s.skill_level, s.training_age_min_months, s.training_age_max_months,
+  p.tgt_id, s.label, s.age_min, s.age_max, NULL::public.skill_level, s.training_age_min_months, s.training_age_max_months,
   s.scale_direction, s.load_guidance, s.complexity_guidance, s.coach_notes, s.cohort_key
 FROM pairs p
 JOIN coaching.exercise_scaling_profile s ON s.exercise_id = p.src_id

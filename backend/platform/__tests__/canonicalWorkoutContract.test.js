@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import {
   assertCanonicalPhaseOrder,
   convertLegacyScore,
+  deriveOverallDifficulty,
   normalizeWorkoutIntent,
   score100,
   validateExerciseCard,
@@ -26,6 +27,12 @@ test('legacy conversion preserves provenance and queues review', () => {
   assert.equal(convertLegacyScore(0, 10, 'negligible').value, 1)
 })
 
+test('overall exercise difficulty is derived from technical and physical difficulty', () => {
+  assert.equal(deriveOverallDifficulty(30, 45), 45)
+  assert.equal(deriveOverallDifficulty(70, 45), 70)
+  assert.throws(() => deriveOverallDifficulty(null, 45), /technicalComplexity is required/)
+})
+
 test('intent normalization rejects contradictions and preserves deterministic seed', () => {
   const intent = normalizeWorkoutIntent({
     durationMinutes: 60,
@@ -38,6 +45,8 @@ test('intent normalization rejects contradictions and preserves deterministic se
   })
   assert.equal(intent.randomSeed, 'golden-1')
   assert.equal(intent.maxDifficulty, 60)
+  assert.equal(intent.trainingExperience, 'beginner')
+  assert.equal(Object.hasOwn(intent, 'skillLevel'), false)
   assert.throws(() => normalizeWorkoutIntent({
     durationMinutes: 60, athleteCount: 1, coachCount: 1, ageMin: 10, ageMax: 8,
   }), /ageMin/)
@@ -67,4 +76,65 @@ test('publication gate rejects incomplete production cards', () => {
   assert.equal(result.valid, false)
   assert.ok(result.errors.some((error) => error.includes('approved demonstration video')))
   assert.ok(result.errors.some((error) => error.includes('confidence')))
+  assert.ok(result.errors.some((error) => error.includes('difficulty.absoluteLoadDemand')))
+})
+
+test('exercise cards reject skill-level metadata and retain difficulty as the assessment model', () => {
+  const result = validateExerciseCard({
+    id: 'push-up',
+    slug: 'push-up',
+    canonicalName: 'Push-Up',
+    cardVersion: 1,
+    schemaVersion: '1.0.0',
+    status: 'review',
+    familyId: 'push-up',
+    deliveryProfiles: [{ id: 'controlled-strength', phaseKey: 'capacity' }],
+    difficulty: {
+      technicalComplexity: 30,
+      absoluteLoadDemand: 35,
+      baseOverallDifficulty: 35,
+    },
+    scaling: { minimumSkillLevel: 'beginner' },
+  })
+  assert.equal(result.valid, false)
+  assert.ok(result.errors.some((error) => error.includes('scaling.minimumSkillLevel')))
+})
+
+test('exercise cards reject an independently inflated overall difficulty', () => {
+  const result = validateExerciseCard({
+    id: 'push-up',
+    slug: 'push-up',
+    canonicalName: 'Push-Up',
+    cardVersion: 1,
+    schemaVersion: '1.0.0',
+    status: 'review',
+    familyId: 'push-up',
+    deliveryProfiles: [{ id: 'controlled-strength', phaseKey: 'capacity' }],
+    difficulty: {
+      technicalComplexity: 30,
+      absoluteLoadDemand: 35,
+      baseOverallDifficulty: 60,
+    },
+  })
+  assert.equal(result.valid, false)
+  assert.ok(result.errors.some((error) => error.includes('must equal the greater')))
+})
+
+test('exercise cards cannot retain an overall score without both core dimensions', () => {
+  const result = validateExerciseCard({
+    id: 'push-up',
+    slug: 'push-up',
+    canonicalName: 'Push-Up',
+    cardVersion: 1,
+    schemaVersion: '1.0.0',
+    status: 'review',
+    familyId: 'push-up',
+    deliveryProfiles: [{ id: 'controlled-strength', phaseKey: 'capacity' }],
+    difficulty: {
+      technicalComplexity: 30,
+      baseOverallDifficulty: 30,
+    },
+  })
+  assert.equal(result.valid, false)
+  assert.ok(result.errors.some((error) => error.includes('requires both')))
 })

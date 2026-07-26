@@ -1,0 +1,443 @@
+{
+  "facilityId": 1,
+  "slug": "light-visual-cue-sprint-start",
+  "researchVersion": "2026-07-25.17",
+  "assessmentSummary": {
+    "identity": "A visual-cue sprint-start variant that must be defined as either one light-to-one prepared sprint or a multiple-choice visual direction task.",
+    "currentCardFindings": [
+      "The title permits a simple flash go-signal while the description says selects the correct answer, which implies multiple cue-response mappings.",
+      "The card does not define light location, color meaning, response options, cue timing, start stance, direction, distance, false-start rule, finish, or run-out.",
+      "No direct legacy media exist, and visible candidates show visual-reaction components rather than a confirmed exact start."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "visual_reaction_start",
+        "short_acceleration_or_reactive_direction_choice"
+      ],
+      "jointActions": [
+        "visual_detection_to_hip_knee_ankle_extension",
+        "swing_leg_recovery",
+        "reciprocal_arm_action",
+        "braking_and_reorientation_if_directional"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal",
+        "transverse_control"
+      ],
+      "laterality": "cue_mapping_specific",
+      "intent": "accurate_visual_response_then_fast_controlled_movement"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "hamstrings",
+        "quadriceps",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "extraocular_and_head_orientation",
+        "hip_flexors",
+        "intrinsic_foot",
+        "gluteus_medius",
+        "adductors",
+        "obliques",
+        "shoulder_girdle"
+      ],
+      "joints": [
+        "cervical_spine",
+        "spine",
+        "hip",
+        "knee",
+        "ankle",
+        "foot",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 60,
+      "absoluteLoadDemand": 12,
+      "coordinationDemand": 70,
+      "supervisionDemand": 66,
+      "failureConsequence": 62,
+      "impact": 56,
+      "workCapacityDemand": 44,
+      "baseOverallDifficulty": 60
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_visual_reaction_to_acceleration_or_direction_choice",
+      "impactClass": "moderate_to_high_by_speed_and_direction",
+      "landingContactsPerRep": "all_acceleration_braking_direction_and_run_out_contacts",
+      "primaryStress": [
+        "visual_attention_and_choice",
+        "early_acceleration_force",
+        "braking_if_directional",
+        "posterior_chain",
+        "plantar_flexors"
+      ],
+      "fatigueSensitivity": "visual_detection_guessing_decision_accuracy_start_quality_direction_control_and_speed"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "visible_high_contrast_cue",
+        "defined_response_map",
+        "clear_lane_or_direction_grid",
+        "safe_run_outs"
+      ],
+      "optionalEquipment": [
+        "reaction_lights",
+        "colored_cones",
+        "timing_system",
+        "video"
+      ],
+      "environment": [
+        "controlled_glare_and_sightline",
+        "dry_level_surface",
+        "no_cross_traffic"
+      ],
+      "population": [
+        "can_access_visual_cue_or_equivalent",
+        "understands_response_mapping",
+        "pain_free_acceleration_and_braking"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "2-6_trials_per_response_choice",
+      "distance": "5-15_metres_or_defined_direction_grid",
+      "restSeconds": "60-180",
+      "intensity": "fast_but_accuracy_first",
+      "progressWhen": "response accuracy, reaction validity, movement quality, and speed remain repeatable"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Define every light mapping",
+        "Wait without guessing",
+        "Move only to the true cue",
+        "Finish through the safe target"
+      ],
+      "athleteInstructions": [
+        "Watch the assigned cue source, wait for the real signal, and execute only its mapped sprint response"
+      ],
+      "commonFaults": [
+        "undefined_mapping",
+        "looking_at_wrong_source",
+        "guessing",
+        "wrong_direction",
+        "unsafe_turn",
+        "stopping_at_target"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "visual_access_confirmed",
+        "mapping_rehearsed",
+        "safe_grid_and_run_out"
+      ],
+      "stopRules": [
+        "pain",
+        "visual_discomfort",
+        "cue_ambiguity",
+        "repeated_guessing",
+        "wrong_lane",
+        "stumble",
+        "unsafe_brake_or_run_out"
+      ]
+    },
+    "programmingDecision": "Retain as a quarantined visual-cue family variant. Human review must choose simple go reaction or multiple-choice direction; if directional choice remains, publish it under reactive agility rather than a simple sprint-start card.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T10:25:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "The athlete waits for a live cue (light flash or visual signal), selects the correct answer, performs the movement response, and resets before the next rep. The rep counts only when the athlete reacts to the real stimulus rather than guessing early.",
+      "familyKey": "Simple Cue Response & Start Reaction",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17127583/",
+      "sourceTitle": "Sprint starts and the minimum auditory reaction time",
+      "sourcePublisher": "Journal of Sports Sciences",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "An auditory sprint start includes a measurable interval between an unpredictable go-signal and force or movement onset.",
+        "Light / Visual Cue Sprint Start must define cue modality, cue meaning, waiting interval, allowed response choices, start stance, false-start rule, direction, sprint distance, finish, and run-out. Simple go reaction and directional choice reaction are not interchangeable."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5465987/",
+      "sourceTitle": "Are Change of Direction Speed and Reactive Agility Useful for Determining the Optimal Field Position for Young Soccer Players?",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "A visually cued reactive task differs from a pre-planned task because the athlete must identify an unpredictable illuminated target before selecting the direction.",
+        "Light / Visual Cue Sprint Start belongs either to a simple externally cued sprint-start variant or to reactive agility with perceptual decision and direction selection; the exact cue-response mapping determines which."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4689850/",
+      "sourceTitle": "Sprint Acceleration Mechanics: The Major Role of Hamstrings in Horizontal Force Production",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Sprint acceleration requires coordinated hip, knee, and ankle action, including hamstring contribution to horizontal force production.",
+        "Represent visual or auditory processing and head-eye orientation as task demands, then gluteal, hamstring, quadriceps, hip-flexor, plantar-flexor, foot, trunk, and reciprocal arm roles; add braking and lateral control for directional choices."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Early sprint acceleration is associated with forward-directed impulse, propulsive force, and progressive projection.",
+        "The prepared response should preserve a repeatable start and first steps. Directional-choice responses additionally require head-eye pickup, safe reorientation, braking or turning mechanics, and a clear target path."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/17127583/",
+      "sourceTitle": "Sprint starts and the minimum auditory reaction time",
+      "sourcePublisher": "Journal of Sports Sciences",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Auditory reaction time includes neural and neuromuscular components in addition to physical sprint-start execution.",
+        "Score technical complexity, absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly; athlete experience is programming context and never an exercise-card skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6407765/",
+      "sourceTitle": "Correlations between muscle-tendon parameters and acceleration ability in 20 m sprints",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Power output is highest during the first acceleration steps.",
+        "Light / Visual Cue Sprint Start must track attempts, accepted versus anticipated responses, decision errors, distance, sprint and braking contacts, stance and direction distribution, surface, posterior-chain and plantar-flexor stress, technical or perceptual fatigue, recovery, and total session volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Quality sprint work requires a suitable surface, target, spacing, run-out, and recovery.",
+        "Require a clear dry lane or direction grid, unobstructed sight or hearing, consistent non-startling cue delivery, athlete separation, safe targets and run-outs, and any light, whistle, cone, or timing equipment specified by the variant."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration work should prescribe distance, intensity, repetitions, sets, and recovery.",
+        "Use two to six quality reactions per cue or direction with randomized waits and roughly 60–180 seconds recovery for high-intent sprint starts; directional tasks must balance choices and record correct responses separately from movement time."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5465987/",
+      "sourceTitle": "Are Change of Direction Speed and Reactive Agility Useful for Determining the Optimal Field Position for Young Soccer Players?",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "Reactive trials require the athlete to identify the presented target rather than execute a known direction.",
+        "Set the stance, focus on the defined cue source, wait without guessing, execute only the mapped response, accelerate through the target, and use the assigned deceleration or run-out path."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Training should use appropriate supervision, correct technique, manageable demands, and gradual progression.",
+        "Stop for pain, startle or distress, missed or ambiguous cue, repeated anticipation, slip, stumble, lane conflict, unsafe turn or brake, marked decision or speed decline, or inability to complete the run-out safely."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration and maximal-velocity sprinting are distinct qualities, and high-quality sprint work should not become dense conditioning.",
+        "Light / Visual Cue Sprint Start belongs after preparation and before fatigue. Program simple reaction before multiple-choice direction tasks, and separate reaction accuracy from sprint or agility output when reviewing performance."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "Acceleration develops across successive steps rather than through immediate upright running.",
+        "Show the exact stance, cue device and location, allowed mappings, one accepted and one false-start example, all target directions, finish and run-out paths, and a pre-planned regression."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5465987/",
+      "sourceTitle": "Are Change of Direction Speed and Reactive Agility Useful for Determining the Optimal Field Position for Young Soccer Players?",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "Reactive assessment separates the unplanned visual-target condition from the same pre-planned movement path.",
+        "Provide a randomized cue schedule, cue and movement timestamps when measured, response accuracy, anticipation and no-response rules, stance and direction balance, lane control, technique and speed stops, and exact simple-versus-choice classification."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Speed training should be developmentally appropriate and based on movement competency.",
+        "Accessibility options include a comfortable stance, one cue modality, one known response, longer wait window, submaximal intent, shorter distance, high-contrast visual target, non-startling sound, demonstration, fewer choices, fewer reps, and longer recovery."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5465987/",
+      "sourceTitle": "Are Change of Direction Speed and Reactive Agility Useful for Determining the Optimal Field Position for Young Soccer Players?",
+      "sourcePublisher": "Journal of Sports Science and Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 78,
+      "claims": [
+        "Pre-planned and reactive direction tasks use similar paths but differ in whether the target direction is known.",
+        "Whistle, clap, and verbal go can be aliases of one simple auditory signal; changing cue modality is a variant, while adding multiple response choices, a live opponent, a ball, or a required direction change may require a distinct definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for Light / Visual Cue Sprint Start remain candidate-only. Availability, embedding, exact stance, cue, choice count, direction and finish match, full viewing, captions, cue and safety quality, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=tNZP61DUGlY",
+      "title": "How To Use Start By Light Feature",
+      "channelName": "FITLIGHT",
+      "sourceQuery": "visible YouTube search: FITLIGHT sprint start visual cue",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Cue-device component; exact sprint stance, distance, and response mapping require review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=b23i9MRqjf8",
+      "title": "Sprinting Technique | Faster Starts - Acceleration & Reaction Time",
+      "channelName": "Outperform",
+      "sourceQuery": "visible YouTube search: visual cue sprint start reaction drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Sprint-start and reaction candidate; exact visual-light procedure requires review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=edfjTEu7O4I",
+      "title": "Speed & Agility: Auditory & Visual Reaction Time- Cone Drill",
+      "channelName": "Relentless Athletics",
+      "sourceQuery": "visible YouTube search: visual cue sprint start reaction drill",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Visual-reaction component; exact simple start versus directional choice requires review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=57lgl9JFtIw",
+      "title": "Color Call Sprint | Reaction Speed, First-Step Acceleration & Game-Speed Decision Making",
+      "channelName": "YouTube candidate",
+      "sourceQuery": "visible YouTube search: FITLIGHT sprint start visual cue",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Color-choice sprint candidate; exact light implementation and full demonstration require review."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Auditory Start Sprint",
+      "classification": "new_variant",
+      "rationale": "Changing cue modality alters sensory processing and access.",
+      "distinguishingDimensions": {
+        "cueModality": "auditory"
+      }
+    },
+    {
+      "name": "Single-Light Forward Sprint",
+      "classification": "new_variant",
+      "rationale": "One light maps to one prepared response.",
+      "distinguishingDimensions": {
+        "responseChoices": 1
+      }
+    },
+    {
+      "name": "Color-Choice Direction Sprint",
+      "classification": "new_definition",
+      "rationale": "Multiple colors mapped to directions add choice and reorientation.",
+      "distinguishingDimensions": {
+        "responseChoices": "multiple_directions"
+      }
+    },
+    {
+      "name": "Partner Point Reactive Sprint",
+      "classification": "new_definition",
+      "rationale": "A live human point is a different visual stimulus and directional task.",
+      "distinguishingDimensions": {
+        "cueSource": "live_partner"
+      }
+    },
+    {
+      "name": "Pre-Planned Direction Sprint",
+      "classification": "new_definition",
+      "rationale": "Knowing the direction removes reaction and choice demands.",
+      "distinguishingDimensions": {
+        "cuePredictability": "preplanned"
+      }
+    }
+  ]
+}

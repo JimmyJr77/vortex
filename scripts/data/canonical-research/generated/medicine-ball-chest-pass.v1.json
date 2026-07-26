@@ -1,0 +1,487 @@
+{
+  "facilityId": 1,
+  "slug": "medicine-ball-chest-pass",
+  "researchVersion": "2026-07-25.19",
+  "assessmentSummary": {
+    "identity": "A static standing bilateral chest-level medicine-ball pass projected forward to a wall or partner, followed by a controlled catch or retrieval and full reset.",
+    "currentCardFindings": [
+      "The current card describes horizontal upper-body power but does not define stance, hand position, permitted countermovement, target, rebound, catch, distance, ball mass, or reset.",
+      "The consolidated baseline variants repeat the same identity with conflicting Output and Capacity doses rather than controlled delivery profiles.",
+      "Uniform legacy difficulty values understate ball-rebound supervision, catch exposure, load-dependent release changes, and the distinction between standing, seated, kneeling, stepping, and reactive versions."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "bilateral_horizontal_push",
+        "ballistic_chest_pass",
+        "static_stance_power"
+      ],
+      "jointActions": [
+        "scapular_protraction",
+        "shoulder_horizontal_adduction",
+        "elbow_extension",
+        "trunk_bracing",
+        "lower_body_counterpressure"
+      ],
+      "planes": [
+        "sagittal",
+        "transverse"
+      ],
+      "laterality": "bilateral",
+      "intent": "maximal_forward_ball_speed_with_stable_trunk_and_safe_reset"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "pectoralis_major",
+        "triceps_brachii",
+        "serratus_anterior",
+        "anterior_deltoid",
+        "rectus_abdominis",
+        "obliques"
+      ],
+      "secondaryMuscles": [
+        "rotator_cuff",
+        "middle_trapezius",
+        "lower_trapezius",
+        "spinal_stabilizers",
+        "gluteals",
+        "quadriceps",
+        "forearm_flexors"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "spine",
+        "scapulothoracic_articulation",
+        "shoulder",
+        "elbow",
+        "wrist",
+        "hand"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 38,
+      "absoluteLoadDemand": 24,
+      "coordinationDemand": 44,
+      "supervisionDemand": 48,
+      "failureConsequence": 45,
+      "impact": 15,
+      "workCapacityDemand": 38,
+      "baseOverallDifficulty": 38
+    },
+    "proposedLoadProfile": {
+      "loadingType": "external_ballistic_bilateral_horizontal_push",
+      "impactClass": "low_body_impact_with_rebound_and_catch_exposure",
+      "externalLoadMethod": "medicine_ball_mass_selected_for_fast_repeatable_release",
+      "primaryStress": [
+        "pectorals",
+        "triceps",
+        "anterior_shoulder",
+        "scapular_protractors",
+        "anterior_trunk",
+        "hands_if_catching"
+      ],
+      "fatigueProfile": [
+        "upper_body_power_loss",
+        "ribs_flare_or_backward_lean",
+        "slow_release",
+        "target_drift",
+        "late_or_rigid_catch"
+      ],
+      "recoveryHours": "24-48_by_intensity_volume_and_other_throwing"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "intact_medicine_ball",
+        "safe_wall_partner_or_open_target",
+        "clear_rebound_and_retrieval_zone"
+      ],
+      "optionalEquipment": [
+        "target_mark",
+        "radar_or_ball_sensor",
+        "video"
+      ],
+      "environment": [
+        "non_slip_surface",
+        "wall_rated_for_ball_impact",
+        "no_people_in_throw_or_rebound_path"
+      ],
+      "population": [
+        "pain_free_horizontal_push",
+        "can_control_trunk_and_ball",
+        "supervised_if_rebound_or_catch_is_used"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "3-5_sets_of_3-6_bilateral_throws",
+      "restSeconds": "60-180",
+      "intensity": "maximal_safe_ball_speed_with_full_reset",
+      "measurement": "ball_mass_release_velocity_distance_or_target_accuracy",
+      "progressWhen": "release speed and target stay stable without backward lean, rib flare, unsafe rebound, or catch error"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Ball at the chest",
+        "Brace before the throw",
+        "Punch through the target",
+        "Own the rebound or let it drop",
+        "Reset fully"
+      ],
+      "athleteInstructions": [
+        "Face the target, hold the ball at your chest, brace, drive both hands forward fast, then catch only if assigned and reset before the next rep"
+      ],
+      "commonFaults": [
+        "undefined_stance",
+        "ball_too_heavy",
+        "backward_lean",
+        "rib_flare",
+        "uneven_release",
+        "slow_repetition",
+        "unsafe_catch",
+        "chasing_rebound"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "pain_free_push",
+        "safe_grip",
+        "brace_control",
+        "clear_rebound_path"
+      ],
+      "stopRules": [
+        "shoulder_elbow_wrist_or_back_pain",
+        "loss_of_grip",
+        "wall_or_target_failure",
+        "unsafe_rebound",
+        "catch_error",
+        "two_slow_or_inaccurate_reps",
+        "lane_entry"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "front_and_side_demo",
+        "ball_mass_label",
+        "catch_or_no_catch_badge",
+        "target_and_reset_animation"
+      ],
+      "coach": [
+        "ball_selection_guide",
+        "wall_and_partner_spacing",
+        "release_velocity_or_distance_log",
+        "catch_count_and_speed_loss_budget"
+      ]
+    },
+    "programmingDecision": "Retain one standing bilateral forward chest-pass definition. Merge duplicate baseline variants after human review; express seated, kneeling, stepping, partner, wall, catch, and load choices as controlled variants or delivery annotations.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T01:54:40.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Perform Medicine Ball Chest Pass with a medicine ball to train horizontal upper-body power, trunk stiffness, and fast chest-to-hand force transfer. The load, distance, partner input, and volume should preserve the card's phase intent.",
+      "familyKey": "Horizontal med-ball power",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 40,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Medicine-ball power assessment depends on a standardized throw task, ball mass, execution, and outcome measure.",
+        "Medicine Ball Chest Pass must define stance and orientation, one- or two-hand release, ball start position, primary force direction, rotational intent, entry steps, target or free-flight lane, catch or retrieval rule, and finish."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Medicine-ball throws are commonly used as upper-body plyometric or ballistic power exercises, but training protocols and throw positions vary.",
+        "Classify Medicine Ball Chest Pass by forward versus rotational force direction, bilateral versus unilateral release, chest-level versus underhand start, static versus dynamic entry, and wall, partner, or open-lane outcome."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Standing and seated medicine-ball throws are measurably different tasks, so lower-body contribution and whole-body coordination cannot be inferred from an upper-body-only label.",
+        "Represent the feet, ankles, knees, hips, pelvis, trunk, scapulae, shoulders, elbows, wrists, and hands actually used by the selected standing, kneeling, seated, or supine version."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Rotational medicine-ball power can be assessed from release velocity or throw distance when the protocol is standardized.",
+        "Coach pressure from the floor through the hips and trunk into the ball, preserve the intended forward or transverse vector, release without a lumbar-dominant twist or backward lean, and finish in a controlled stance."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Throw technique and medicine-ball mass affect performance variability and therefore change the demands of the task.",
+        "Score technical complexity, absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. Athlete experience is programming context and never an exercise-card skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41460695/",
+      "sourceTitle": "Validation of a Supine Upper-Body Power Test in Physically Active Male and Female Adults Using a Medicine Ball With Accelerometer",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Medicine-ball power performance can decline after upper-body neuromuscular fatigue.",
+        "Medicine Ball Chest Pass must track ball mass and type, throws and catches per side, entry contacts, release velocity or distance when measured, target accuracy, local shoulder and trunk fatigue, technical speed loss, recovery between sets, and weekly high-intent throw volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Reliable comparison requires the same technique and ball mass.",
+        "Require an intact appropriately sized medicine ball, a clear wall or open throwing lane matched to rebound behavior, safe retrieval space, a defined target and stop command, stable footing, athlete separation, and no bystanders in the flight or rebound path."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Upper-body plyometric studies use varied doses, with lower repetition ranges generally paired with maximal effort and adequate inter-set and inter-session recovery.",
+        "For power delivery, use roughly three to five sets of two to six high-quality throws per side or bilateral set with 60–180 seconds between sets; stop before speed, distance, accuracy, posture, or safe rebound control declines."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Measurement is meaningful only when the throwing protocol stays consistent.",
+        "State the stance, ball position, hand pattern, target, permitted step or rotation, release vector, catch or retrieval action, reset, side order, and exact rep-quality rule before the first throw."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Youth resistance and power training should be supervised, technically appropriate, progressively dosed, and performed with safe equipment and space.",
+        "Stop for pain, numbness, dizziness, unsafe ball rebound, target or wall failure, lane entry, loss of grip, uncontrolled catch, lumbar-dominant rotation, shoulder or elbow compensation, loss of balance, accuracy collapse, or repeatable output loss."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37833510/",
+      "sourceTitle": "Effects of Upper-Body Plyometric Training on Physical Fitness in Healthy Youth and Young Adult Participants: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Upper-body plyometric training can improve medicine-ball throwing and sport-specific throwing performance, although certainty and transfer vary by task and population.",
+        "Place Medicine Ball Chest Pass early in Output work after relevant access and activation. Match stance, vector, ball mass, and intent to the objective; do not turn maximal throws into dense conditioning."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/21572350/",
+      "sourceTitle": "The seated medicine ball throw as a test of upper body power in older adults",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "A medicine-ball throw can be repeatable when position, ball mass, trials, and measurement are standardized.",
+        "Show the exact front, side, and target views; label ball mass and rebound type; demonstrate start, load, release, follow-through, retrieval or catch, reset, side change, acceptable miss, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/39589937/",
+      "sourceTitle": "Criterion Validity and Reliability of a New Medicine Ball Rotational Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Velocity and distance can serve as field measures when the rotational medicine-ball protocol is controlled.",
+        "Provide ball-mass selection, lane and wall inspection, side balance, release-vector observation, target zones, optional velocity or distance tracking, speed-loss rules, catch counts, camera angles, regression decisions, and weekly throw-budget guidance."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/21572350/",
+      "sourceTitle": "The seated medicine ball throw as a test of upper body power in older adults",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Seated medicine-ball throwing can provide a reliable upper-body power task when lower-body contribution is intentionally constrained.",
+        "Accessibility options include a lighter or larger soft ball, seated or tall-kneeling support, shorter target distance, partner return instead of wall rebound, no catch, reduced rotation, pre-positioned ball, fewer throws, longer recovery, verbal and visual cues, and non-maximal familiarization."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of seated and standing throwing velocity using differently weighted medicine balls",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Standing versus seated position, ball mass, and throw technique materially change the measured task.",
+        "Treat stance and entry as controlled variants when release pattern and vector stay the same; create a distinct definition when bilateral versus unilateral release, forward versus rotational vector, chest versus scoop path, overhead direction, rebound catch, or terminal outcome changes."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for Medicine Ball Chest Pass remain candidate-only. Availability, embedding, exact stance and release match, full viewing, ball type, target and rebound behavior, captions, cue and safety quality, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=G0pQoSxb-Ao",
+      "title": "Medicine Ball Chest Pass",
+      "channelName": "Testosterone Nation",
+      "sourceQuery": "existing exact-title candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Jo2on0-YBPM",
+      "title": "How to Do a Med Ball Chest Pass",
+      "channelName": "Jon Hodgkinson Golf Fitness",
+      "sourceQuery": "existing exact-title candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=e-zHTwXA8mE",
+      "title": "Standing Medicine Ball Chest Pass - Viking Strength Systems",
+      "channelName": "Viking Strength Systems",
+      "sourceQuery": "existing exact-title candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=hWDOISqFzfQ",
+      "title": "Plyometric exercise- Medicine ball chest pass",
+      "channelName": "Human Kinetics",
+      "sourceQuery": "existing exact-title candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=pJ8amgzbZMM",
+      "title": "Standing Chest Pass Medicine Ball",
+      "channelName": "YST Exercises",
+      "sourceQuery": "existing exact-title candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Seated Medicine Ball Chest Pass",
+      "classification": "new_variant",
+      "rationale": "Seating removes lower-body contribution while preserving the bilateral chest-level forward release.",
+      "distinguishingDimensions": {
+        "supportPosition": "seated"
+      }
+    },
+    {
+      "name": "Tall-Kneeling Medicine Ball Chest Pass",
+      "classification": "new_variant",
+      "rationale": "Tall kneeling changes base of support and hip contribution without changing the release identity.",
+      "distinguishingDimensions": {
+        "supportPosition": "tall_kneeling"
+      }
+    },
+    {
+      "name": "Supine Medicine Ball Chest Throw",
+      "classification": "new_variant",
+      "rationale": "Supine support constrains trunk and lower body but preserves a bilateral chest push.",
+      "distinguishingDimensions": {
+        "supportPosition": "supine"
+      }
+    },
+    {
+      "name": "Reactive Rebound Chest Pass",
+      "classification": "new_variant",
+      "rationale": "A required rebound catch and immediate rethrow adds eccentric absorption and timing.",
+      "distinguishingDimensions": {
+        "catchRule": "reactive_rethrow"
+      }
+    },
+    {
+      "name": "Rotational Medicine Ball Chest Pass",
+      "classification": "new_definition",
+      "rationale": "Deliberate transverse loading and release changes the force vector and laterality.",
+      "distinguishingDimensions": {
+        "forceVector": "rotational"
+      }
+    }
+  ]
+}

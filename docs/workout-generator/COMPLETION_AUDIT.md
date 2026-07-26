@@ -1,6 +1,6 @@
 # Canonical workout generator completion audit
 
-Audit date: 2026-07-25
+Audit date: 2026-07-26
 
 ## Outcome
 
@@ -73,16 +73,19 @@ rollout plan.
   is capped, production-authority fields are rejected, prompts are not retained,
   and drafts remain unsaved until a human explicitly saves and reviews them.
 - The calibration workspace supports reviewed 20/40/60/80 score anchors with
-  independent approval and supersession history. Migration 245 stores the
-  audit trail without mutating published cards.
+  independent approval and supersession history. Technical complexity and
+  physical difficulty are calibrated independently; overall difficulty is
+  derived as their maximum and cannot receive a new independent calibration.
+  Migrations 245 and 304 store the audit trail without mutating published
+  cards.
 - Deterministic selection projects cumulative grip, local-muscle, spinal,
   eccentric, impact, and technical-sensitivity costs before accepting a
   candidate. Final validation and reviewed swaps independently enforce the same
   budgets. See `CALIBRATION_AND_FATIGUE.md`.
 - Migration 246 and the canonical library audit produce and persist a named
   automated test packet for every migrated exercise. The measured baseline is
-  1,673/1,673 migrated cards, all honestly quarantined and none published. See
-  `LIBRARY_AUDIT.md`.
+  1,673/1,673 legacy sources mapped into 1,555 canonical definitions, all
+  honestly quarantined and none published. See `LIBRARY_AUDIT.md`.
 - Generated workouts include distinct coach and athlete projections. The coach
   projection retains logistics, budgets, quality gates, substitutions, and
   coaching detail; the athlete projection contains concise execution and stop
@@ -95,25 +98,58 @@ rollout plan.
 
 ## Verification
 
-On 2026-07-25:
+On 2026-07-26:
 
-- 505 platform Node tests passed, including all 25 named golden scenarios,
+- 762 platform Node tests ran: 742 passed, 20 integration-environment tests
+  skipped intentionally, and none failed. This includes all 25 named golden
+  scenarios and the governance, graph-swap, AI-quarantine, anatomy/load,
+  difficulty-model, and telemetry suites,
 - a 7,000-card deterministic generation test completed in under the five-second
   release ceiling,
 - the complete migration chain passed on disposable PostgreSQL,
-- all 1,673 migrated cards were audited and quarantined pending human review,
+- all 1,673 legacy exercise sources were audited through their 1,555 active
+  canonical definitions, and every active definition remains quarantined
+  pending human review,
 - the production reference card passed a real repository save/load round trip
   while its missing-media publication gate remained active,
-- 83 redundant definitions were consolidated into canonical identities while
+- 118 redundant definitions were consolidated into canonical identities while
   preserving 1,673 source variants, 1,717 delivery profiles, and all legacy
-  source mappings; direct identity collisions are now zero,
-  governance, graph-swap, AI-quarantine, anatomy/load, and telemetry suites.
+  source mappings; direct identity collisions are now zero.
 - Focused ESLint passed for the canonical backend, route, and coach UI files.
 - `npm run build` completed successfully.
-- The complete migration sequence through migration 246 and every add-on was
-  applied from a blank disposable PostgreSQL 15 database, then rerun
-  successfully to prove idempotence.
+- The complete migration sequence through migration 308 and every add-on was
+  applied successfully from a blank disposable PostgreSQL 15 database.
+  Migrations 304 and 305 were also applied through the normal runner and
+  directly rerun; the final migration-305 rerun performed zero inserts and zero
+  updates. Migration 306 was applied in both the fresh-chain rehearsal and the
+  working audit database, then directly rerun idempotently in the latter. An
+  isolated clone with a synthetic human-reviewed duplicate record proved that
+  migration 306 aborts before reassignment or archival instead of overriding
+  review history.
+- Migration 307 was applied through the normal runner on both the fresh-chain
+  rehearsal and working review databases, then directly rerun twice
+  idempotently in the rehearsal. An isolated clone with a synthetic
+  human-reviewed Cossack record proved that it aborts before any reassignment or
+  archival. The temporary clone was removed after the guard test.
+- Migration 308 was applied through the normal runner in the working review
+  database and to the fresh-chain rehearsal, then directly rerun twice
+  idempotently. An isolated clone with a synthetic approved calibration proved
+  that it aborts before reassigning or archiving adductor rock-back records. The
+  temporary clone was removed after the guard test.
+- Migration 305 used traceable legacy difficulty profiles to populate physical
+  difficulty for 287 previously incomplete variants and mechanically derived
+  overall difficulty for every supported variant. The resulting coverage is
+  1,661/1,673 variants with consistent technical, physical, and derived-overall
+  scores. The 12 variants with no source assessment remain in `review` with
+  explicit quarantine provenance; no score approval or publication was
+  created. The migration fails closed rather than changing a published variant,
+  current approved card review, or approved score record.
 - Deterministic repeat tests use deep equality with the same seed.
+- All 205 canonical-research JSON artifacts pass the exercise-difficulty
+  invariant. The normalization tool corrected 278 historical candidate-summary
+  overall scores across 164 files so overall now equals the greater of
+  technical complexity and physical or absolute-load demand; non-core
+  dimensions remain separately available to planning.
 - Golden quality evaluation is at least 90/100 with safety and logistics at
   100/100.
 
@@ -121,7 +157,8 @@ On 2026-07-25:
 
 These are deployment and evidence gates, not code-completion claims:
 
-1. Apply migrations 240 through 248 in a non-production environment.
+1. Apply the complete migration sequence through migration 308 in a
+   non-production environment.
 2. Run the full library audit; review anatomy, constraints, scores, media,
    relationships, and calibration evidence card by card.
 3. Publish a versioned library release only from cards whose stored packet

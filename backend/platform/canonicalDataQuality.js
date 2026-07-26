@@ -32,10 +32,21 @@ export async function buildCanonicalDataQualityReport(pool, facilityId) {
           COUNT(DISTINCT d.id) FILTER (WHERE p.status = 'published')::int AS with_published_profile,
           COUNT(DISTINCT d.id) FILTER (WHERE
             v.difficulty_json ? 'technicalComplexity'
+            AND v.difficulty_json ? 'absoluteLoadDemand'
             AND v.difficulty_json ? 'supervisionDemand'
             AND v.difficulty_json ? 'failureConsequence'
             AND v.difficulty_json ? 'impact'
             AND v.difficulty_json ? 'baseOverallDifficulty'
+            AND CASE
+              WHEN jsonb_typeof(v.difficulty_json->'baseOverallDifficulty') = 'number'
+                AND jsonb_typeof(v.difficulty_json->'technicalComplexity') = 'number'
+                AND jsonb_typeof(v.difficulty_json->'absoluteLoadDemand') = 'number'
+              THEN (v.difficulty_json->>'baseOverallDifficulty')::numeric = GREATEST(
+                (v.difficulty_json->>'technicalComplexity')::numeric,
+                (v.difficulty_json->>'absoluteLoadDemand')::numeric
+              )
+              ELSE FALSE
+            END
           )::int AS score_complete,
           COUNT(DISTINCT d.id) FILTER (WHERE
             jsonb_array_length(COALESCE(d.anatomy_json->'joints', '[]'::jsonb)) > 0
@@ -65,11 +76,80 @@ export async function buildCanonicalDataQualityReport(pool, facilityId) {
             AND p.dose_scaling_json != '{}'::jsonb
             AND p.measurement_json != '{}'::jsonb
             AND p.support_prompts_json != '{}'::jsonb
-          )::int AS operational_profile_complete
+          )::int AS operational_profile_complete,
+          COUNT(DISTINCT d.id) FILTER (WHERE (
+            SELECT COUNT(DISTINCT e.section_key)
+            FROM coaching.exercise_section_evidence_v1 e
+            WHERE e.definition_id=d.id
+              AND e.reviewed_card_version=d.card_version
+              AND e.review_status IN ('candidate','reviewed')
+          ) = 16)::int AS research_candidate_sections_complete,
+          COUNT(DISTINCT d.id) FILTER (WHERE (
+            SELECT COUNT(DISTINCT e.section_key)
+            FROM coaching.exercise_section_evidence_v1 e
+            WHERE e.definition_id=d.id
+              AND e.reviewed_card_version=d.card_version
+              AND e.review_status='reviewed'
+          ) = 16)::int AS research_sections_complete,
+          (
+            SELECT COUNT(DISTINCT (e.definition_id, e.section_key))::int
+            FROM coaching.exercise_section_evidence_v1 e
+            JOIN coaching.exercise_definition_v1 evidence_definition
+              ON evidence_definition.id=e.definition_id
+            WHERE evidence_definition.facility_id=$1
+              AND evidence_definition.status!='archived'
+              AND e.reviewed_card_version=evidence_definition.card_version
+              AND e.review_status IN ('candidate','reviewed')
+          ) AS research_candidate_section_count,
+          (
+            SELECT COUNT(DISTINCT (e.definition_id, e.section_key))::int
+            FROM coaching.exercise_section_evidence_v1 e
+            JOIN coaching.exercise_definition_v1 evidence_definition
+              ON evidence_definition.id=e.definition_id
+            WHERE evidence_definition.facility_id=$1
+              AND evidence_definition.status!='archived'
+              AND e.reviewed_card_version=evidence_definition.card_version
+              AND e.review_status='reviewed'
+          ) AS research_reviewed_section_count,
+          COUNT(DISTINCT d.id) FILTER (WHERE (
+            SELECT COUNT(DISTINCT m.video_id)
+            FROM coaching.exercise_media_candidate_v1 m
+            WHERE m.definition_id=d.id
+              AND m.reviewed_card_version=d.card_version
+              AND m.review_status IN ('candidate','shortlisted','approved')
+          ) BETWEEN 3 AND 5)::int AS media_candidate_set_complete,
+          COUNT(DISTINCT d.id) FILTER (WHERE (
+            SELECT COUNT(DISTINCT m.video_id)
+            FROM coaching.exercise_media_candidate_v1 m
+            WHERE m.definition_id=d.id
+              AND m.reviewed_card_version=d.card_version
+              AND m.review_status IN ('candidate','shortlisted','approved')
+              AND m.link_status='healthy'
+              AND m.embedding_allowed IS TRUE
+          ) BETWEEN 3 AND 5)::int AS media_embeddable_candidate_set_complete,
+          COUNT(DISTINCT d.id) FILTER (WHERE (
+            SELECT COUNT(DISTINCT m.video_id)
+            FROM coaching.exercise_media_candidate_v1 m
+            WHERE m.definition_id=d.id
+              AND m.reviewed_card_version=d.card_version
+              AND m.review_status='approved'
+          ) BETWEEN 3 AND 5)::int AS media_approved_set_complete,
+          COUNT(DISTINCT d.id) FILTER (WHERE EXISTS (
+            SELECT 1 FROM coaching.exercise_alternate_assessment_v1 a
+            WHERE a.definition_id=d.id
+              AND a.reviewed_card_version=d.card_version
+              AND a.review_status IN ('candidate','reviewed','approved')
+          ))::int AS alternates_candidate_assessed,
+          COUNT(DISTINCT d.id) FILTER (WHERE EXISTS (
+            SELECT 1 FROM coaching.exercise_alternate_assessment_v1 a
+            WHERE a.definition_id=d.id
+              AND a.reviewed_card_version=d.card_version
+              AND a.review_status IN ('reviewed','approved')
+          ))::int AS alternates_reviewed
         FROM coaching.exercise_definition_v1 d
         LEFT JOIN coaching.exercise_variant_v1 v ON v.definition_id = d.id
         LEFT JOIN coaching.exercise_delivery_profile_v1 p ON p.variant_id = v.id
-        WHERE d.facility_id = $1
+        WHERE d.facility_id = $1 AND d.status != 'archived'
       `,
       [facilityId],
     ),
@@ -134,17 +214,32 @@ export async function buildCanonicalDataQualityReport(pool, facilityId) {
             WHERE c.facility_id=$1 AND c.status='approved'
           ) AS approved_calibration_anchors,
           (
+            WITH identity_names AS (
+              SELECT DISTINCT
+                identity_definition.id AS definition_id,
+                btrim(regexp_replace(lower(identity_name.value), '[^a-z0-9]+', ' ', 'g'))
+                  AS normalized_name
+              FROM coaching.exercise_definition_v1 identity_definition
+              CROSS JOIN LATERAL unnest(
+                ARRAY[identity_definition.canonical_name, identity_definition.display_name]
+                || COALESCE(identity_definition.aliases, '{}'::text[])
+              ) AS identity_name(value)
+              WHERE identity_definition.facility_id=$1
+                AND identity_definition.status!='archived'
+                AND NULLIF(
+                  btrim(regexp_replace(lower(identity_name.value), '[^a-z0-9]+', ' ', 'g')),
+                  ''
+                ) IS NOT NULL
+            )
             SELECT COUNT(*)::int
-            FROM coaching.exercise_definition_v1 a
-            JOIN coaching.exercise_definition_v1 b
-              ON a.facility_id=b.facility_id AND a.id < b.id
-            WHERE a.facility_id=$1
-              AND a.status != 'archived' AND b.status != 'archived'
-              AND (
-                lower(a.canonical_name)=lower(b.canonical_name)
-                OR lower(a.display_name)=lower(b.display_name)
-                OR a.aliases && b.aliases
-              )
+            FROM (
+              SELECT left_name.definition_id, right_name.definition_id
+              FROM identity_names left_name
+              JOIN identity_names right_name
+                ON right_name.normalized_name=left_name.normalized_name
+                AND right_name.definition_id>left_name.definition_id
+              GROUP BY left_name.definition_id, right_name.definition_id
+            ) exact_pairs
           ) AS exact_identity_collisions
         FROM coaching.exercise_definition_v1 d
         LEFT JOIN coaching.exercise_media_review_v1 mr ON mr.definition_id=d.id
@@ -178,6 +273,25 @@ export async function buildCanonicalDataQualityReport(pool, facilityId) {
       fatigueProfileCompletePercent: percent(coverage.fatigue_profile_complete, total),
       supportCompletePercent: percent(coverage.support_complete, total),
       operationalProfileCompletePercent: percent(coverage.operational_profile_complete, total),
+      researchCandidateCardsCompletePercent: percent(coverage.research_candidate_sections_complete, total),
+      researchSectionsCompletePercent: percent(coverage.research_sections_complete, total),
+      researchCandidateSectionCoveragePercent: percent(
+        coverage.research_candidate_section_count,
+        total * 16,
+      ),
+      researchReviewedSectionCoveragePercent: percent(
+        coverage.research_reviewed_section_count,
+        total * 16,
+      ),
+      mediaCandidateSetCompletePercent: percent(coverage.media_candidate_set_complete, total),
+      mediaEmbeddableCandidateSetCompletePercent: percent(
+        coverage.media_embeddable_candidate_set_complete,
+        total,
+      ),
+      mediaApprovedSetCompletePercent: percent(coverage.media_approved_set_complete, total),
+      alternatesCandidateAssessedPercent: percent(coverage.alternates_candidate_assessed, total),
+      alternatesAssessedPercent: percent(coverage.alternates_candidate_assessed, total),
+      alternatesReviewedPercent: percent(coverage.alternates_reviewed, total),
       confidenceCompletePercent: percent(coverage.confidence_complete, total),
       approvedVideoPercent: percent(coverage.video_complete, total),
       publishedVariantPercent: percent(coverage.with_published_variant, total),

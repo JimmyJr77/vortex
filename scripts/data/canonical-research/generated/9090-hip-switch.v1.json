@@ -1,0 +1,541 @@
+{
+  "facilityId": 1,
+  "slug": "9090-hip-switch",
+  "researchVersion": "2026-07-25.21",
+  "assessmentSummary": {
+    "identity": "A seated bilateral hip-rotation transition from one staggered 90/90 or shin-box position through center to the opposite side, performed with controlled reciprocal internal and external rotation and optional hand support.",
+    "currentCardFindings": [
+      "The base card already describes the main transition but does not define seat height, knee-angle tolerance, foot movement, permitted trunk rotation, side counting, tempo, or a measurable quality gate.",
+      "The archived Shin Box Switch is an exact naming duplicate, and the archived Hip Switch with Reach is an upper-body overlay of the same primary hip action.",
+      "Uniform legacy difficulty values understate the coordination of reciprocal hip rotation but overstate neither impact nor physical load; muscle naming must account for changing hip-rotator roles in flexion."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "seated_hip_rotation_transition",
+        "ground_based_mobility",
+        "trunk_control"
+      ],
+      "jointActions": [
+        "reciprocal_hip_internal_rotation",
+        "reciprocal_hip_external_rotation",
+        "knee_flexion_hold",
+        "pelvic_rotation_control"
+      ],
+      "planes": [
+        "transverse"
+      ],
+      "laterality": "bilateral_reciprocal",
+      "intent": "active_pain_free_hip_rotation_transition_with_repeatable_seated_control"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "deep_hip_rotators",
+        "gluteus_medius_and_minimus",
+        "tensor_fasciae_latae",
+        "adductors"
+      ],
+      "secondaryMuscles": [
+        "gluteus_maximus",
+        "iliopsoas",
+        "hamstrings",
+        "quadriceps",
+        "obliques",
+        "spinal_stabilizers"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle",
+        "lumbopelvic_complex",
+        "thoracic_spine"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 34,
+      "absoluteLoadDemand": 10,
+      "coordinationDemand": 36,
+      "supervisionDemand": 20,
+      "failureConsequence": 16,
+      "impact": 1,
+      "workCapacityDemand": 12,
+      "baseOverallDifficulty": 34
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_active_range_reciprocal_hip_rotation",
+      "impactClass": "none",
+      "externalLoadMethod": "none_for_baseline",
+      "primaryStress": [
+        "active_hip_rotation",
+        "hip_capsule_tolerance",
+        "low_level_trunk_control"
+      ],
+      "fatigueProfile": [
+        "range_loss",
+        "momentum",
+        "pelvic_roll",
+        "lumbar_slump",
+        "forced_knee_contact",
+        "increasing_hand_pressure"
+      ],
+      "recoveryHours": "minimal_to_24_by_range_volume_and_symptom_response"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "level_floor"
+      ],
+      "optionalEquipment": [
+        "mat",
+        "seat_elevation",
+        "hand_support",
+        "visual_knee_targets"
+      ],
+      "environment": [
+        "non_slip_surface",
+        "clear_space_for_both_knees_and_feet",
+        "no_hard_obstruction_near_knees"
+      ],
+      "population": [
+        "pain_free_seated_hip_rotation",
+        "tolerates_knee_flexion",
+        "can_sit_with_or_without_support"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "1-3_sets_of_4-8_controlled_transitions_per_side",
+      "tempo": "approximately_2-4_seconds_between_sides_with_optional_1-2_second_pause",
+      "restSeconds": "20-60_or_as_needed",
+      "intensity": "active_comfortable_range_without_forcing_end_position",
+      "measurement": "transitions_per_side_support_level_range_symmetry_and_compensation_count",
+      "progressWhen": "both sides remain smooth and pain free with stable foot contact, no forced knee pressure, and no momentum or lumbar collapse"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Sit as tall as your hips allow",
+        "Use your hands before you use momentum",
+        "Let one hip turn in as the other turns out",
+        "Keep the feet quiet",
+        "Own each side"
+      ],
+      "athleteInstructions": [
+        "Sit with your knees bent and feet wider than your hips",
+        "Use your hands behind you if needed",
+        "Let both knees move slowly to one side",
+        "Pause in the shin-box position",
+        "Lift and rotate through center to the other side without forcing your knees down"
+      ],
+      "commonFaults": [
+        "feet_too_close",
+        "feet_sliding_or_lifting_unintentionally",
+        "throwing_knees_with_momentum",
+        "heavy_lumbar_slump",
+        "forced_knee_contact",
+        "hip_or_groin_pinch",
+        "asymmetric_side_count"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "comfortable_seated_position",
+        "pain_free_knee_flexion",
+        "pain_free_available_hip_rotation",
+        "stable_floor"
+      ],
+      "qualityGates": [
+        "transition_is_controlled",
+        "range_is_self_selected",
+        "no_knee_is_forced_to_floor",
+        "trunk_compensation_does_not_increase",
+        "both_sides_are_dosed"
+      ],
+      "stopRules": [
+        "sharp_or_increasing_hip_groin_knee_or_back_pain",
+        "numbness_or_tingling",
+        "joint_catching_or_giving_way",
+        "forced_knee_pressure",
+        "repeated_loss_of_control",
+        "range_declines_across_reps"
+      ]
+    },
+    "proposedContextualProfiles": [
+      {
+        "context": "prepare_and_access",
+        "dose": "1-2_sets_of_4-6_transitions_per_side",
+        "purpose": "rehearse_active_hip_rotation_before_squat_lunge_cut_kick_or_ground_transition_work"
+      },
+      {
+        "context": "movement_control",
+        "dose": "2-3_sets_of_3-5_slow_transitions_per_side_with_reduced_support",
+        "purpose": "develop_repeatable_active_range_and_trunk_control"
+      }
+    ],
+    "proposedRelationships": {
+      "regressions": [
+        "elevated_seat_9090_switch",
+        "hand_supported_9090_switch",
+        "single_side_supported_9090_position"
+      ],
+      "progressions": [
+        "hands_free_9090_switch",
+        "9090_switch_with_reach",
+        "9090_switch_to_hip_lift"
+      ],
+      "substitutions": [
+        "supported_seated_windshield_wipers",
+        "supine_hip_rotation_wipers"
+      ],
+      "doNotSubstitute": [
+        "9090_hip_lift_off",
+        "shin_box_get_up_to_stand"
+      ]
+    },
+    "proposedSupport": {
+      "athlete": [
+        "front_and_overhead_demo",
+        "left_right_side_counter",
+        "support_level_badge",
+        "comfortable_range_overlay"
+      ],
+      "coach": [
+        "seat_height_and_hand_support_guide",
+        "foot_and_knee_observation",
+        "side_symmetry_log",
+        "pinch_and_pain_decision_tree"
+      ]
+    },
+    "calibrationEvidence": {
+      "basis": "published shin-box sequence, hip-flexion rotator biomechanics, exact-title candidate videos, and direct comparison of four consolidated legacy sources",
+      "uncertainty": "No trial validates a unique difficulty score, ideal knee angle, or sport-performance benefit for this exact dynamic transition.",
+      "reviewNeeded": [
+        "qualified_coach_and_clinician_content_review",
+        "difficulty_anchor_comparison",
+        "side_specific_accessibility_test",
+        "full_video_review"
+      ]
+    },
+    "programmingDecision": "Retain one 90/90 Hip Switch definition with Shin Box Switch as an alias. Hand support, seat elevation, arm position, reach direction, cadence, and comfortable knee angle are controlled variants or annotations. Isolated end-range lift-offs and a full get-up remain different exercises.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T02:35:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Sit with knees bent and feet wider than hips. Drop both knees to one side into a 90/90 position. Sit tall, optionally hinge toward the front shin, then rotate both knees to the other side.",
+      "familyKey": "Hip rotation",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 20,
+        "technicalComplexity": 20,
+        "baseOverallDifficulty": 20
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published shin-box sequence explicitly distinguishes the seated 90/90 position, the side-to-side transition, the tall-kneeling hip lift, the half-kneeling transition, and the rise to standing.",
+        "90/90 Hip Switch must state whether 90/90 means a supported supine breathing position or a seated staggered hip position, then define its exact start, transition, finish, support, reach, and return rather than relying on the number alone."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The shin-box paper describes hand support, arm position, external load, tall kneeling, half kneeling, standing, and single-leg finish as regressions, stages, or progressions within a named movement sequence.",
+        "Classify 90/90 Hip Switch by body orientation, support position, hip actions, transition endpoint, arm task, assistance, external load, cadence, laterality, and whether standing is required."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8725321/",
+      "sourceTitle": "Impacts of external rotators and the ischiofemoral ligament on preventing excessive internal hip rotation: a cadaveric study",
+      "sourcePublisher": "Journal of Orthopaedic Surgery and Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 80,
+      "claims": [
+        "Hip-rotator leverage changes with hip-flexion angle; a muscle may not perform the same rotational role across upright, flexed, and deeply flexed positions.",
+        "Represent the diaphragm and rib cage for the breathing card and the hip rotators, gluteals, adductors, knee flexors, foot contacts, pelvis, and trunk stabilizers actually used by each seated or get-up variant without reducing hip rotation to one named muscle."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The documented get-up maintains an upright torso while the legs rotate between 90/90 positions, the knees press into the floor, the hips extend into tall kneeling, and the athlete transitions through half kneeling to standing.",
+        "Coach 90/90 Hip Switch so the intended hip or breathing action remains primary; range, reach, or height does not count when the athlete forces the knees, collapses the trunk, substitutes lumbar motion, or loses control of the return."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Hand support, arm position, external load, and the standing or single-leg endpoint materially change coordination and physical demand.",
+        "Assess technical complexity, absolute physical load, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. These are exercise attributes; athlete experience is programming context and is not a card level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10980866/",
+      "sourceTitle": "Chronic effects of stretching on range of motion with consideration of potential moderating variables: A systematic review with meta-analysis",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Range-of-motion interventions vary substantially in technique, intensity, duration, frequency, target tissue, supervision, and population, so generic mobility labels do not determine dose or recovery.",
+        "90/90 Hip Switch must track active versus supported range, sides or breaths, assistance, external load, tempo, end-position control, symptom response, technique loss, and overlap with other hip, trunk, kneeling, or respiratory work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published sequence uses floor contact, an upright torso, optional hand support, and progressively more demanding arm, load, kneeling, standing, and balance positions.",
+        "Require a non-slip padded surface, clear transition space, stable support where assigned, and pain-free hip, knee, back, and breathing tolerance; do not force a nominal 90-degree shape when anatomy or symptoms prevent it."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10980866/",
+      "sourceTitle": "Chronic effects of stretching on range of motion with consideration of potential moderating variables: A systematic review with meta-analysis",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Research on range-of-motion training reports heterogeneous protocols and does not validate one universal dose for these exact dynamic drills.",
+        "Treat card dosage as a conservative programming inference: use low-volume controlled breaths or transitions, side-balanced exposure, enough recovery to preserve position and breathing, and progression only after repeatable pain-free control."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published get-up procedure specifies an upright torso, approximately right-angle knees, controlled rotation, knee pressure into the floor, hip extension, half-kneeling transition, standing finish, and controlled reversal.",
+        "Instructions for 90/90 Hip Switch must name the exact support, limb position, allowed assistance, movement path, breath or tempo, endpoint, return, side order, and definition of a successful repetition."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise should be supervised, technically appropriate, progressively dosed, and performed with safe equipment and space for the population.",
+        "Stop 90/90 Hip Switch for sharp or increasing hip, groin, knee, back, neck, or respiratory symptoms; numbness or tingling; dizziness; forced knee contact; loss of floor traction; uncontrolled descent; breath strain; or repeated compensation."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10980866/",
+      "sourceTitle": "Chronic effects of stretching on range of motion with consideration of potential moderating variables: A systematic review with meta-analysis",
+      "sourcePublisher": "Journal of Sport and Health Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Longer-term range-of-motion improvement is supported across stretching methods, but intervention effects and protocols are heterogeneous and do not prove sport transfer from a single drill.",
+        "Use 90/90 Hip Switch for an observable access, control, transition, or breathing need. Reassess the movement it is intended to support and avoid promising injury prevention, structural repositioning, or automatic performance transfer."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published get-up uses sequential front, side, and angled images to distinguish the seated, tall-kneeling, half-kneeling, standing, and single-leg stages.",
+        "Athlete support should show the exact start and finish, both sides, permitted hand support, the primary cue, a successful repetition, a comfortable-range option, and the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published sequence supplies regressions and progressions based on hand support, arm position, load, standing, and single-leg balance.",
+        "Coach support should distinguish position access from active control, provide front and side observation points, side comparison, assistance and load decisions, floor and spacing checks, dosage logging, and rules for shortening or ending the sequence."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The published sequence explicitly permits hands behind the body to support an upright posture and progresses by changing arm position or adding load.",
+        "Accessibility options include elevating the hips, opening the knee angles, using hands or a stable support, shortening the transition, omitting the stand, adding padding, reducing sensory load, and using visual plus plain-language cues."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://firstprinciplesofmovement.com/wp-content/uploads/2020/09/The-shin-box-get-up.pdf",
+      "sourceTitle": "The shin box get-up",
+      "sourcePublisher": "Journal of Bodywork & Movement Therapies",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The paper distinguishes the seated switch, hip lift, half-kneeling transition, standing get-up, single-leg finish, arm positions, assistance, and external loading.",
+        "Treat hand support, arm position, reach, cadence, and light load as controlled variants when the primary sequence remains; retain separate definitions when the primary joint action or training stimulus changes, such as isolated end-range lift-offs or a Turkish get-up."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct videos for 90/90 Hip Switch returned healthy oEmbed player metadata on 2026-07-26. Exact support position, full sequence, safety, cue quality, captions, accessibility, and demonstration quality remain pending human review."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=CuLyss7FkFc",
+      "title": "Shin Box Switch",
+      "channelName": "Men's Health",
+      "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T02:34:46Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=RvXGc3dScJA",
+      "title": "Improve Hip Mobility and Strength with Shin Box Exercise",
+      "channelName": "Detroit Medical Center",
+      "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T02:34:46Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=f_7qIPxw6nE",
+      "title": "How To Do 90 90 Hip Rotations",
+      "channelName": "PureGym",
+      "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T02:34:46Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=m51AZSXMvEA",
+      "title": "90 90 Hip Switch",
+      "channelName": "The Active Life",
+      "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T02:34:46Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=qq_Z7sAmVrA",
+      "title": "90/90 Hip Switch (Improve Hip Health & Mobility)",
+      "channelName": "Simone Sports Performance",
+      "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T02:34:46Z"
+      },
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Shin Box Switch",
+      "classification": "same_identity",
+      "rationale": "Shin box and 90/90 are alternate names for the same seated reciprocal hip-rotation transition.",
+      "distinguishingDimensions": {
+        "nomenclature": "shin_box"
+      }
+    },
+    {
+      "name": "Hand-Supported 90/90 Hip Switch",
+      "classification": "new_variant",
+      "rationale": "Hand support reduces trunk and active-range demand while preserving the hip-switch action.",
+      "distinguishingDimensions": {
+        "supportLevel": "hands_behind_body"
+      }
+    },
+    {
+      "name": "90/90 Hip Switch with Reach",
+      "classification": "new_variant",
+      "rationale": "An arm reach adds thoracic and scapular motion but preserves the same seated bilateral hip transition.",
+      "distinguishingDimensions": {
+        "armTask": "directional_reach"
+      }
+    },
+    {
+      "name": "90/90 Hip Lift-Off",
+      "classification": "new_definition",
+      "rationale": "Lifting one ankle or knee from a fixed 90/90 position changes the primary stimulus to isolated active end-range rotational strength.",
+      "distinguishingDimensions": {
+        "primaryTrainingStimulus": "active_end_range_hip_rotation_strength"
+      }
+    },
+    {
+      "name": "90/90 Forward Fold Hold",
+      "classification": "new_definition",
+      "rationale": "Holding a unilateral forward hinge over the front shin is a static end-range exposure, not a side-to-side transition.",
+      "distinguishingDimensions": {
+        "primaryJointAction": "static_front_hip_external_rotation_with_hip_hinge"
+      }
+    }
+  ]
+}

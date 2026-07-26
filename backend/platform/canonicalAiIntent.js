@@ -89,7 +89,10 @@ export function validatedAiInterpretationToIntent(aiOutput, deterministicDefault
       ageMin: athlete.ageMin ?? deterministicDefaults.ageMin,
       ageMax: athlete.ageMax ?? deterministicDefaults.ageMax,
       trainingAgeMonths: athlete.trainingAgeMonths ?? deterministicDefaults.trainingAgeMonths,
-      skillLevel: athlete.skillLevel ?? deterministicDefaults.skillLevel,
+      trainingExperience: athlete.trainingExperience
+        ?? athlete.skillLevel
+        ?? deterministicDefaults.trainingExperience
+        ?? deterministicDefaults.skillLevel,
       equipmentAvailable: facility.equipmentAvailable ?? deterministicDefaults.equipmentAvailable,
       equipmentQuantities: facility.equipmentQuantities ?? deterministicDefaults.equipmentQuantities,
       equipmentRequired: hard.equipmentRequired,

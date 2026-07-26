@@ -1,4 +1,7 @@
-import { convertLegacyScore } from './canonicalWorkoutContract.js'
+import {
+  convertLegacyScore,
+  deriveOverallDifficulty,
+} from './canonicalWorkoutContract.js'
 
 const PHASE_ALIASES = Object.freeze({
   prepare_access: 'prepare_and_access',
@@ -35,6 +38,8 @@ export function legacyExerciseBundleToCanonical(bundle) {
   const profiles = bundle.phaseProfiles ?? bundle.phase_profiles ?? []
   const dosageProfiles = bundle.dosageProfiles ?? bundle.dosage_profiles ?? []
   const mediaUrl = exercise.video_url ?? exercise.media_library?.approved_video_url ?? null
+  const technicalComplexity = legacyScore(difficulty.technical, 10)
+  const absoluteLoadDemand = legacyScore(difficulty.load, 10)
 
   return {
     id: String(exercise.id),
@@ -72,14 +77,16 @@ export function legacyExerciseBundleToCanonical(bundle) {
       athleteCompatibility: 40,
     },
     difficulty: {
-      technicalComplexity: legacyScore(difficulty.technical, 10),
-      absoluteLoadDemand: legacyScore(difficulty.load, 10),
+      technicalComplexity,
+      absoluteLoadDemand,
       coordinationDemand: legacyScore(difficulty.complexity, 10),
       impact: legacyScore(exercise.movement_requirements?.impact_level, 5, 'negligible'),
       supervisionDemand: safety.supervision_level === 'high' ? 80 : safety.supervision_level === 'moderate' ? 50 : 20,
       failureConsequence: safety.spotter_required ? 80 : 30,
       workCapacityDemand: null,
-      baseOverallDifficulty: legacyScore(difficulty.overall, 10),
+      baseOverallDifficulty: technicalComplexity == null || absoluteLoadDemand == null
+        ? null
+        : deriveOverallDifficulty(technicalComplexity, absoluteLoadDemand),
     },
     media: {
       approvedVideoUrl: mediaUrl,

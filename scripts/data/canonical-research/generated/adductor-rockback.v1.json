@@ -1,0 +1,647 @@
+{
+  "facilityId": 1,
+  "slug": "adductor-rockback",
+  "researchVersion": "2026-07-26.25",
+  "assessmentSummary": {
+    "identity": "A low-load unilateral hip-mobility drill performed from quadruped with one knee supported and the opposite leg extended laterally. The athlete keeps the pelvis and lumbar spine controlled while moving the hips backward and forward through a comfortable range. Foot orientation, support height, range, cadence, reach overlay, thoracic-rotation overlay, and an explicitly defined half-kneeling setup are controlled variant dimensions.",
+    "currentCardFindings": [
+      "Four active cards described the same adductor rock-back family under three family labels. They were consolidated into one definition while retaining four legacy source mappings and one variant per source.",
+      "The base source provides a usable quadruped setup, but its phrase 'foot flat or sole down depending on comfort' should be represented as a foot-orientation modifier rather than two exercises.",
+      "The generic 'with reach' source does not define reach direction and remains identity-quarantined. It is not silently treated as thoracic rotation.",
+      "The explicit T-spine reach source defines a thoracic-rotation overlay and remains a separate selectable variant within the same exercise identity.",
+      "The historical half-kneeling kicking-context source does not define hand support, exact leg path, or external load. It remains identity-quarantined even though half-kneeling start position is a valid variant dimension.",
+      "The existing baseline difficulty values understate the setup and pelvis-control requirement for some athletes, while the source-specific reach and half-kneeling values cannot be accepted without separating exercise complexity from physical difficulty.",
+      "Eight earlier legacy media links remain preserved as superseded candidates. The five current links were selected by public title/channel metadata and successful oEmbed response only; no media is exact-match approved."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "quadruped_unilateral_adductor_rockback",
+        "controlled_hip_hinge_rock",
+        "unilateral_hip_abduction_position"
+      ],
+      "jointActions": [
+        "extended_side_hip_abduction_held",
+        "bilateral_hip_flexion_and_extension_during_rock",
+        "support_side_hip_flexion_with_external_rotation_tolerance",
+        "pelvic_position_control",
+        "lumbar_spine_stabilization",
+        "thoracic_rotation_only_when_the_exact_reach_variant_is_assigned"
+      ],
+      "planes": [
+        "frontal_setup",
+        "sagittal_rocking",
+        "transverse_stabilization",
+        "transverse_motion_for_thoracic_rotation_variant"
+      ],
+      "laterality": "unilateral_with_both_sides_programmed",
+      "intent": "rehearse_pain_free_adductor_length_tolerance_and_hip_flexion_access_without_meaningful_fatigue"
+    },
+    "proposedAnatomy": {
+      "primaryMusclesAndTissues": [
+        "adductor_magnus",
+        "adductor_longus",
+        "adductor_brevis",
+        "gracilis",
+        "pectineus",
+        "medial_thigh_and_groin_tissues"
+      ],
+      "secondaryMusclesAndTissues": [
+        "hamstrings",
+        "gluteus_maximus",
+        "gluteus_medius_and_minimus",
+        "deep_hip_rotators",
+        "abdominal_wall",
+        "spinal_stabilizers",
+        "serratus_anterior_and_shoulder_girdle_for_floor_support"
+      ],
+      "joints": [
+        "hip",
+        "pelvis",
+        "lumbar_spine",
+        "thoracic_spine",
+        "knee",
+        "shoulder",
+        "elbow",
+        "wrist"
+      ],
+      "primaryActions": [
+        "controlled_hip_flexion_with_the_extended_leg_abducted",
+        "adductor_lengthening_tolerance",
+        "pelvis_over_femur_motion_without_forced_lumbar_flexion_or_extension",
+        "return_to_the_start_position_under_control"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 26,
+      "absoluteLoadDemand": 12,
+      "coordinationDemand": 24,
+      "supervisionDemand": 18,
+      "failureConsequence": 18,
+      "impact": 1,
+      "workCapacityDemand": 8,
+      "baseOverallDifficulty": 26
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "baseline",
+        "exerciseComplexity": 26,
+        "physicalDifficulty": 12,
+        "derivedOverallDifficulty": 26,
+        "basis": "low-load floor-supported drill with unilateral setup, pelvis control, and self-selected range"
+      },
+      {
+        "variantKey": "reach-overlay-unresolved",
+        "scoreDeferred": true,
+        "basis": "reach direction, arm path, timing, and desired trunk motion are not defined",
+        "identityQuarantine": true
+      },
+      {
+        "variantKey": "thoracic-rotation-reach",
+        "exerciseComplexity": 38,
+        "physicalDifficulty": 14,
+        "derivedOverallDifficulty": 38,
+        "basis": "specified thoracic rotation adds arm timing and multiplanar trunk-pelvis dissociation while external loading stays low"
+      },
+      {
+        "variantKey": "half-kneeling-kicking-access",
+        "scoreDeferred": true,
+        "basis": "hand support, working-leg path, load, direction of rock, and terminal position are unresolved",
+        "identityQuarantine": true
+      },
+      {
+        "variantKey": "elevated-hand-support",
+        "exerciseComplexity": 20,
+        "physicalDifficulty": 10,
+        "derivedOverallDifficulty": 20,
+        "basis": "stable elevated support reduces floor-transfer, wrist, shoulder, and trunk-support demand"
+      }
+    ],
+    "proposedLoadProfile": {
+      "loadingType": "low_load_bodyweight_mobility_with_upper_body_support",
+      "impactClass": "none",
+      "externalLoadMethod": "none_for_baseline",
+      "primaryStress": [
+        "adductor_length_tolerance",
+        "hip_flexion_range",
+        "support_side_hip_position",
+        "pelvic_and_lumbar_control",
+        "wrist_and_shoulder_support_tolerance"
+      ],
+      "fatigueProfile": [
+        "reduced_range",
+        "pelvis_rotation",
+        "lumbar_rounding_or_arching",
+        "extended_knee_bending",
+        "shoulder_collapse",
+        "breath_holding",
+        "rushed_repetitions",
+        "side_to_side_asymmetry"
+      ],
+      "recoveryHours": "typically_negligible_for_brief_low_intensity_access_work_but_symptoms_and_total_adductor_loading_govern_repeat_exposure"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "level_non_slip_floor",
+        "none_for_baseline"
+      ],
+      "optionalEquipment": [
+        "exercise_mat",
+        "knee_pad",
+        "stable_elevated_hand_support",
+        "visual_side_marker",
+        "video_capture"
+      ],
+      "environment": [
+        "clear_space_for_one_leg_to_extend_laterally",
+        "stable_non_slip_support_contacts",
+        "no_cross_traffic",
+        "clean_floor_or_mat"
+      ],
+      "population": [
+        "can_transition_to_and_from_the_floor_or_has_an_elevated_or_standing_substitute",
+        "can_tolerate_kneeling_and_upper_body_support_or_has_appropriate_padding_and_support",
+        "can_select_a_range_without_sharp_groin_pain_or_hip_pinching",
+        "current_adductor_injury_or_persistent_groin_pain_requires_individual_clinical_guidance"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "1-2_sets_of_5-10_slow_controlled_repetitions_per_side_for_warm_up_or_movement_access",
+      "holds": "optional_1-3_relaxed_breaths_at_a_comfortable_end_position_only_when_a_hold_is_explicitly_assigned",
+      "restSeconds": "transition_time_or_15-45_seconds_between_sides_is_usually_sufficient_for_low_load_access_work",
+      "tempo": "smooth_rock_back_brief_position_ownership_and_controlled_return_without_bouncing",
+      "intensity": "mild_to_moderate_stretch_sensation_without_pain_pinching_guarding_or_breath_holding",
+      "measurement": "variant_key_side_order_repetitions_or_breaths_range_support_height_foot_orientation_symptoms_and_quality_errors",
+      "progressWhen": "both_sides_repeat_the_assigned_range_without_pelvic_rotation_lumbar_compensation_sharp_symptoms_or_loss_of_support"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Pad the support knee and give the straight leg room",
+        "Hands stay connected to the floor or assigned support",
+        "Keep the pelvis quiet and the back long",
+        "Send the hips back, not the chest down",
+        "Use the first clear inner-thigh tension, not a forced end range",
+        "Match the range and breathing on both sides"
+      ],
+      "athleteInstructions": [
+        "Start on hands and knees",
+        "Slide one leg straight out to the side",
+        "Choose the assigned foot position and keep it stable",
+        "Keep your back and pelvis controlled as you move your hips backward",
+        "Stop at comfortable inner-thigh tension, then return smoothly",
+        "Complete the same controlled dose on the other side"
+      ],
+      "commonFaults": [
+        "rounding_or_arching_the_low_back_to_create_more_range",
+        "rotating_the_pelvis_open",
+        "dropping_the_chest_instead_of_moving_the_hips_back",
+        "forcing_the_extended_leg_or_foot_position",
+        "bending_the_extended_knee_when_a_straight_leg_is_assigned",
+        "collapsing_into_the_shoulders_or_wrists",
+        "bouncing_or_rushing",
+        "continuing_through_groin_pain_or_hip_pinching"
+      ],
+      "qualityGate": "A repetition passes only when support contacts remain stable, the pelvis and lumbar spine stay within the assigned position, the hips move backward and forward smoothly, the extended leg follows the declared variant, breathing continues, and no sharp symptom appears.",
+      "stopRules": [
+        "sharp_or_increasing_groin_hip_knee_wrist_shoulder_or_back_pain",
+        "hip_pinching_guarding_numbness_or_tingling",
+        "support_contact_slips_or_floor_space_becomes_unsafe",
+        "pelvis_or_spine_compensation_persists_after_one_regression_or_cue",
+        "range_or_control_materially_worsens_across_repetitions"
+      ]
+    },
+    "proposedProgramming": {
+      "primaryPhase": "prepare_and_access",
+      "roles": [
+        "hip_and_adductor_access",
+        "low_fatigue_movement_preparation",
+        "position_assessment_and_rehearsal"
+      ],
+      "appropriateBefore": [
+        "lateral_lunge_and_cossack_patterns",
+        "squat_or_hinge_training_when_adductor_access_is_a_demonstrated_need",
+        "cutting_kicking_skating_or_tumbling_preparation_after_general_temperature_raise"
+      ],
+      "avoidAs": [
+        "a_standalone_claim_of_injury_prevention",
+        "a_replacement_for_progressive_adductor_strengthening",
+        "a_forced_flexibility_test",
+        "a_fatigue_or_conditioning_station"
+      ],
+      "pairingAndSubstitution": [
+        "pair_with_subsequent_dynamic_rehearsal_that_uses_the_new_range",
+        "use_standing_adductor_shift_when_floor_access_or_wrist_support_is_the_primary_constraint",
+        "use_a_strength_exercise_when_the_goal_is_adductor_force_capacity_rather_than_mobility_access"
+      ]
+    },
+    "athleteSupport": {
+      "display": [
+        "working_side_and_side_order",
+        "foot_orientation",
+        "support_height_and_knee_padding",
+        "range_target",
+        "repetition_or_breath_count",
+        "successful_rep_example",
+        "pain_and_pinching_stop_badge"
+      ],
+      "plainLanguagePrompt": "One leg out, keep your back long, move your hips back until you feel comfortable inner-thigh tension, then return smoothly.",
+      "feedbackPrompt": "Did you feel comfortable inner-thigh tension without groin pain, hip pinching, or your back changing shape?"
+    },
+    "coachSupport": {
+      "observation": [
+        "confirm_exact_variant_and_side_order_before_start",
+        "view_from_front_or_rear_for_pelvis_rotation_and_leg_path",
+        "view_from_side_for_hip_rock_and_lumbar_compensation",
+        "compare_range_symptoms_and_control_between_sides",
+        "log_support_height_foot_orientation_range_and_stop_reason"
+      ],
+      "operations": [
+        "provide_clean_padding_and_clear_lateral_space",
+        "offer_an_elevated_or_standing_option_before_floor_setup_becomes_a_barrier",
+        "do_not_select_unresolved_reach_or_half_kneeling_variants",
+        "preserve_low_fatigue_intent_and_transition_to_the_next_dynamic_task"
+      ],
+      "reviewFlags": [
+        "generic_reach_direction_unresolved",
+        "half_kneeling_support_leg_path_and_load_unresolved",
+        "all_section_claims_and_scores_are_candidate_only",
+        "all_media_exact_match_and_quality_reviews_pending"
+      ]
+    },
+    "provenanceAndConfidence": {
+      "identityConfidence": 84,
+      "contentConfidence": 76,
+      "difficultyConfidence": 66,
+      "mediaConfidence": 44,
+      "calibrationStatus": "candidate_unanchored",
+      "limitations": [
+        "No study was located that directly measures the biomechanics, dose response, or injury effect of this exact adductor rock-back.",
+        "Exercise-specific setup and cue sources are expert instruction rather than controlled trials.",
+        "Systematic stretching evidence does not validate a unique adductor benefit, universal prescription, or injury-prevention claim for this drill.",
+        "Generic reach and historical half-kneeling source details remain unresolved.",
+        "No candidate media has completed exact-match, full-content, cue-quality, accessibility, or human approval review."
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T15:30:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Start on hands and knees. Extend one leg out to the side with the foot flat or sole down depending on comfort. Keep the back relatively flat and rock hips backward until a stretch is felt in the inner thigh.",
+      "familyKey": "Hip mobility",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 20,
+        "technicalComplexity": 20,
+        "baseOverallDifficulty": 20
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression require qualified supervision, technically appropriate loading, safe equipment and space, and individual readiness.",
+        "Stop Adductor Rockback for sharp or increasing groin, hip, knee, wrist, shoulder, or back pain; pinching, guarding, numbness, or tingling; a slipping support contact; forced range; breath holding; or repeated loss of the assigned pelvis and spine position."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Training should be individualized and progressed from the participant's current physical, psychosocial, and training readiness rather than from a level attached to an exercise card.",
+        "Make Adductor Rockback accessible with knee padding, hands on a stable elevated surface, a shorter leg reach, a smaller rock-back range, slower rehearsal, visible side cues, longer setup time, or a standing adductor-shift substitute when floor access is the limiting constraint. Record exercise complexity and physical difficulty; do not label the exercise itself beginner, intermediate, or advanced."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied links are discovery candidates only. YouTube oEmbed responded for all five on the snapshot date, but exact sequence, variant match, safety, cue quality, captions, accessibility, full content, reviewer identity, and approval require human review."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://themovementfix.com/how-to-stretch-your-adductors-with-the-adductor-rock-back/",
+      "sourceTitle": "How to Stretch Your Adductors with the Adductor Rock Back",
+      "sourcePublisher": "The Movement Fix",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "The exercise-specific source sets the drill on one supported knee with both hands forward and the opposite leg extended laterally, then moves the hips backward while the lumbar position remains controlled.",
+        "Treat that quadruped unilateral rock-back as the canonical identity. Foot orientation, range, support, cadence, and a declared reach remain variants only while the same hip-rocking task remains primary."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://library.theprehabguys.com/vimeo-video/quadruped-dynamic-long-adductor-stretch/",
+      "sourceTitle": "Adductor Rock Back",
+      "sourcePublisher": "[P]rehab",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "The exercise source describes hands-and-knees support, one straight leg placed laterally, a neutral pelvic and low-back position, and a backward hip shift.",
+        "Classify Adductor Rockback by side, straight-versus-bent extended knee, foot orientation, support height, range, tempo or hold, and exact reach direction rather than by an athlete or class skill level."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.ncbi.nlm.nih.gov/books/NBK534775/",
+      "sourceTitle": "Anatomy, Bony Pelvis and Lower Limb: Medial Thigh Muscles",
+      "sourcePublisher": "NCBI Bookshelf / StatPearls",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "The medial-thigh anatomy reference identifies the adductor longus, brevis, magnus, gracilis, and pectineus and describes the group as central to hip adduction and lower-extremity function.",
+        "Represent the medial-thigh adductors and gracilis as the primary target tissues, with hip, pelvis, knee, and trunk position explicitly modeled; the exact tissue emphasis changes with hip, knee, and foot orientation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://themovementfix.com/how-to-stretch-your-adductors-with-the-adductor-rock-back/",
+      "sourceTitle": "How to Stretch Your Adductors with the Adductor Rock Back",
+      "sourcePublisher": "The Movement Fix",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "The exercise source moves the pelvis backward into greater hip flexion while the laterally extended leg remains organized and the lower back stays controlled.",
+        "The cue to move the hips back rather than drop the chest is an exercise-specific coaching model, not direct laboratory evidence. Do not claim an ideal depth, foot angle, pelvic orientation, or tissue-specific adaptation for every athlete."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://library.theprehabguys.com/vimeo-video/quadruped-dynamic-long-adductor-stretch/",
+      "sourceTitle": "Adductor Rock Back",
+      "sourcePublisher": "[P]rehab",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "The setup is externally unloaded and supported by the hands and one knee, but it still requires unilateral setup, stable support contacts, controlled pelvis and spine, and self-selected range.",
+        "Assess exercise complexity separately from physical difficulty and derive overall as their maximum. Floor transfer, kneeling, wrist and shoulder support, coordination, supervision, failure consequence, and symptoms remain separate planning dimensions; no athlete skill level belongs on the exercise card."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10569248/",
+      "sourceTitle": "Current Clinical Concepts: Exercise and Load Management of Adductor Strains, Adductor Ruptures, and Long-Standing Adductor-Related Groin Pain",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Adductor load management should account for tissue irritability, symptoms during and after exercise, strength and performance, and total sport-specific exposure rather than a single exercise name.",
+        "For Adductor Rockback, track side, range, repetitions or hold time, symptom response, support demand, and overlap with kicking, cutting, skating, sprinting, lateral strength, and adductor-loading work. Low-load recovery guidance is a conservative programming inference, not a measured result for this drill."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://library.theprehabguys.com/vimeo-video/quadruped-dynamic-long-adductor-stretch/",
+      "sourceTitle": "Adductor Rock Back",
+      "sourcePublisher": "[P]rehab",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "The exercise-specific source requires hands-and-knees support, a laterally extended straight leg, a comfortable backward shift, and a relatively flat low back without excessive arching or bending.",
+        "Require stable floor and hand contacts, lateral leg space, tolerable kneeling and upper-body support, and a pain-free self-selected range. Use padding, elevated hands, shorter range, or a standing substitute when floor access or support tolerance limits quality."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/37962709/",
+      "sourceTitle": "Acute Effects of Various Stretching Techniques on Range of Motion: A Systematic Review with Meta-Analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 92,
+      "claims": [
+        "Across 47 eligible studies, an acute stretching bout produced a small overall range-of-motion effect, while technique, intensity, trained state, and duration did not explain the effect and the hip-adductor test subgroup did not show a significant change.",
+        "Use a small, quality-preserving dose for movement preparation and reassess the athlete's response. No source validates one universal repetition count, hold duration, or acute adductor-range benefit for this exact exercise."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://themovementfix.com/how-to-stretch-your-adductors-with-the-adductor-rock-back/",
+      "sourceTitle": "How to Stretch Your Adductors with the Adductor Rock Back",
+      "sourcePublisher": "The Movement Fix",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "The exercise source specifies a padded support knee, hands forward, one laterally extended leg, a neutral lower back, and a backward hip movement without dropping the chest.",
+        "Instructions for Adductor Rockback must name the side, support surface, extended-knee expectation, foot orientation, comfortable range, pelvis and spine constraint, tempo or hold, return, and side order."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/26642915/",
+      "sourceTitle": "Acute effects of muscle stretching on physical performance, range of motion, and injury incidence in healthy active individuals: a systematic review",
+      "sourcePublisher": "Applied Physiology, Nutrition, and Metabolism",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Dynamic stretching can be included within a warm-up followed by additional dynamic activity, but effect sizes are small to moderate and evidence does not support universal injury-prevention claims.",
+        "Use Adductor Rockback for an observed adductor or hip-flexion access need, keep it low fatigue, and follow it with task-relevant movement. Do not substitute it for progressive adductor strength and sport-specific load capacity."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Long-term development should account for individual readiness, movement competence, psychosocial needs, and progressive exposure.",
+        "Athlete support should show the working side, hand and knee support, foot orientation, acceptable range, a successful repetition, a floor-access alternative, and the groin-pain or hip-pinch stop signal in plain language."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Qualified instruction, supervision, appropriate progression, and safe equipment are central to exercise participation.",
+        "Coach support should include floor and padding setup, front and side observation points, left-right comparison, exact variant declaration, symptom and range logging, a standing substitute, and hard quarantine alerts for unresolved reach and half-kneeling variants."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.catalystathletics.com/exercise/754/Half-Kneeling-Adductor-Rock/",
+      "sourceTitle": "Half-Kneeling Adductor Rock",
+      "sourcePublisher": "Catalyst Athletics",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 70,
+      "claims": [
+        "The half-kneeling instruction uses a distinct knee-and-foot configuration, optional external implement against the trunk, a rock toward the up leg, and a controlled return.",
+        "A fully specified half-kneeling setup can remain a start-position and implement variant of the adductor rock family. The historical Vortex half-kneeling source remains quarantined because it does not define those dimensions. Frog rock-backs, stepping lateral lunges, and direct adductor-strength tasks remain separate definitions."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=Vr0Us9LPGRg",
+      "title": "How to Stretch Your Adductors with the Adductor Rock Back",
+      "channelName": "The Movement Fix",
+      "sourceQuery": "Public YouTube search: adductor rockback exercise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "YouTube oEmbed returned video metadata on 2026-07-26. Candidate by public title/channel only; exact baseline sequence, claims, cue quality, accessibility, and full content require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=yF8o6I6aSZg",
+      "title": "Adductor Quadruped Rockback - Hip Mobility Drill",
+      "channelName": "Mike Reinold",
+      "sourceQuery": "Public YouTube search: adductor rockback exercise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "YouTube oEmbed returned video metadata on 2026-07-26. Candidate by public title/channel only; exact foot position, range, safety, captions, and demonstration quality require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=zfO4HhPUxDw",
+      "title": "Adductor Rock Backs are the Ultimate Groin Stretch",
+      "channelName": "[P]rehab",
+      "sourceQuery": "Public YouTube search: adductor rockback exercise",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "YouTube oEmbed returned video metadata on 2026-07-26. The superlative in the source title is not adopted as a Vortex claim; exact sequence and full demonstration require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Gf2eQUxG2HM",
+      "title": "Adductor Rockback w/ Reach Thru T-Spine Rotation",
+      "channelName": "Fitness At Achieve Wellness",
+      "sourceQuery": "Public YouTube search: adductor rockback with reach thoracic rotation",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "YouTube oEmbed returned video metadata on 2026-07-26. Thoracic-rotation variant candidate only; exact direction, pelvis control, cue quality, and full content require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=OH1uIXf0y-w",
+      "title": "Adductor Rock Back w Thoracic Rotation",
+      "channelName": "MamasteFit",
+      "sourceQuery": "Public YouTube search: adductor rockback with reach thoracic rotation",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "YouTube oEmbed returned video metadata on 2026-07-26. Thoracic-rotation variant candidate only; population context is not inferred from the channel name and full content requires human review."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Adductor Rockback with Foot Flat",
+      "classification": "modifier_annotation",
+      "rationale": "Foot orientation changes the local position and perceived stretch without changing the quadruped unilateral hip-rocking identity.",
+      "distinguishingDimensions": {
+        "footOrientation": "foot_flat"
+      }
+    },
+    {
+      "name": "Adductor Rockback with Toes Up",
+      "classification": "modifier_annotation",
+      "rationale": "Rotating the foot so the toes face upward is an explicit foot-orientation modifier, not a new movement identity.",
+      "distinguishingDimensions": {
+        "footOrientation": "heel_supported_toes_up"
+      }
+    },
+    {
+      "name": "Supported Adductor Rockback",
+      "classification": "new_variant",
+      "rationale": "Stable elevated hand support changes floor-transfer, wrist, shoulder, trunk-support, and accessible-range demands while preserving the same lateral leg position and hip rock.",
+      "distinguishingDimensions": {
+        "supportLevel": "stable_elevated_hands"
+      }
+    },
+    {
+      "name": "Adductor Rockback with Reach",
+      "classification": "new_variant",
+      "rationale": "An upper-body reach is a controlled overlay on the same rock-back, but the historical source remains quarantined until reach direction, arm path, timing, and desired trunk motion are defined.",
+      "distinguishingDimensions": {
+        "armTask": "reach_direction_unresolved",
+        "identityQuarantine": true
+      }
+    },
+    {
+      "name": "Adductor Rock-Back with T-Spine Reach",
+      "classification": "new_variant",
+      "rationale": "Specified thoracic rotation adds a multiplanar reach overlay while preserving the primary quadruped adductor rock-back.",
+      "distinguishingDimensions": {
+        "armTask": "thoracic_rotation_reach",
+        "pelvisConstraint": "quiet"
+      }
+    },
+    {
+      "name": "Half-Kneeling Adductor Rockback",
+      "classification": "new_variant",
+      "rationale": "Half-kneeling changes start position and support while retaining an adductor-focused rocking task. The historical source remains quarantined until leg path, hand support, load, and direction are specified.",
+      "distinguishingDimensions": {
+        "startPosition": "half_kneeling",
+        "supportAndLoad": "unresolved",
+        "identityQuarantine": true
+      }
+    },
+    {
+      "name": "Loaded Half-Kneeling Adductor Rock",
+      "classification": "new_variant",
+      "rationale": "A declared kettlebell or dumbbell against the trunk changes implement, loading, physical difficulty, and dosage while preserving the specified half-kneeling rock.",
+      "distinguishingDimensions": {
+        "startPosition": "half_kneeling",
+        "implement": "kettlebell_or_dumbbell_against_trunk"
+      }
+    },
+    {
+      "name": "Frog Rockback",
+      "classification": "new_definition",
+      "rationale": "A bilateral bent-knee wide-base setup changes laterality, knee position, hip orientation, and the primary movement from the unilateral straight-leg rock-back.",
+      "distinguishingDimensions": {
+        "movementPattern": "bilateral_bent_knee_adductor_rockback"
+      }
+    },
+    {
+      "name": "Lateral Lunge Shift",
+      "classification": "new_definition",
+      "rationale": "A standing loaded-leg lateral shift changes support, force acceptance, balance, joint loading, and the primary movement from a floor-supported mobility rock.",
+      "distinguishingDimensions": {
+        "movementPattern": "standing_lateral_lunge_shift"
+      }
+    },
+    {
+      "name": "Copenhagen Adduction Exercise",
+      "classification": "new_definition",
+      "rationale": "The Copenhagen exercise is a direct adductor-strength task with different support, leverage, force production, fatigue, and progression requirements.",
+      "distinguishingDimensions": {
+        "primaryTrainingStimulus": "adductor_strength_and_capacity"
+      }
+    },
+    {
+      "name": "Standing Adductor Shift",
+      "classification": "new_definition",
+      "rationale": "The standing substitute removes floor and upper-body support and changes balance and lower-extremity loading enough to require its own definition.",
+      "distinguishingDimensions": {
+        "movementPattern": "standing_wide_stance_adductor_shift"
+      }
+    }
+  ]
+}

@@ -1,0 +1,2486 @@
+{
+  "batchKey": "reactive-depth-drop-jumps-v1",
+  "facilityId": 1,
+  "researchVersion": "2026-07-25.5",
+  "snapshotAt": "2026-07-25T23:58:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "drop_jump_technique_rsi_study",
+      "claims": [
+        "A platform step-off identity must specify whether the first ground contact ends in a held landing or an immediate rebound, and a rebound must specify bounce versus countermovement strategy, direction, contact-time intent, final landing, and reset.",
+        "{{canonicalName}} must not combine landing-only depth drops, short-contact bounce drop jumps, deeper countermovement depth jumps, horizontal or lateral rebounds, repeated contacts, box-to-box sequences, or unilateral contacts."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "reactive_strength_plyometric_meta_analysis",
+      "claims": [
+        "Reactive strength describes producing a powerful concentric action immediately after an impact-induced eccentric action within the stretch-shortening cycle.",
+        "{{canonicalName}} belongs to either landing absorption or reactive vertical power; platform height, ground-contact strategy, rebound direction, laterality, and final stabilization must remain controlled dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Step-off landing and rebound coordinate the foot and ankle, knee, hip, pelvis, and trunk under rapid eccentric loading.",
+        "The card should assign plantar-flexor complex and intrinsic-foot roles, quadriceps and hip-extensor braking and propulsion, hamstring and frontal-plane hip stabilization, and trunk control without claiming one isolated tissue absorbs the drop."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "drop_jump_technique_rsi_study",
+      "claims": [
+        "Bounce drop jumps produced shorter contact times but lower rebound height than countermovement drop jumps in the studied youth basketball players.",
+        "Observable technique must therefore match intent: a bounce strategy limits flexion and prioritizes short contact, while a countermovement strategy allows greater center-of-mass displacement and prioritizes rebound height without pausing."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "drop_jump_training_methodology_review",
+      "claims": [
+        "Drop height alone is not an adequate intensity determinant; ground reaction force, power output, jump height, strategy, and individual readiness also matter.",
+        "Exercise difficulty must score technical and physical demand, coordination, supervision, consequence of error, impact, work-capacity demand, and overall difficulty directly; exercise cards must not use skill-library levels."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "drop_jump_training_methodology_review",
+      "claims": [
+        "Drop-jump exposure depends on platform height, body mass, contact strategy, ground reaction force, output, surface, contacts, and recovery rather than platform height alone.",
+        "{{canonicalName}} needs drop and landing contacts, impact and eccentric stress, target contact or rebound metric, technical-fatigue criteria, inter-repetition reset, and recovery guidance."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "landing_intervention_systematic_review",
+      "claims": [
+        "Landing interventions depend on suitable materials, coaching knowledge, usable space, and task-specific progression.",
+        "The delivery profile should require a stable non-slip platform, unobstructed step-off edge, level landing surface, safe return route, adequate ceiling and spacing, athlete-specific drop height, and coach sightlines to both lower limbs."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "drop_jump_training_methodology_review",
+      "claims": [
+        "Drop-jump programming requires explicit volume, intensity, recovery, surface, height-selection, and individualization criteria.",
+        "Prescribe discrete repetitions, platform-height rule, contact strategy, target contact or rebound outcome, final landing, inter-repetition reset, set rest, and stop threshold; do not use conditioning-style work intervals."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Specific feedback can improve landing mechanics, while excessive cue volume can interfere with learning.",
+        "Use a small strategy-specific cue set: step off without jumping up, meet the floor evenly, either absorb and own the landing or reverse immediately, finish tall in the prescribed direction, and control the final landing."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Depth and drop jumps impose advanced eccentric and reactive demands and require progression from lower-intensity landing and jumping tasks.",
+        "Stop for pain, giving way, apprehension, platform instability, asymmetrical contact, loud or collapsed landing, valgus, heel whip, trunk loss, unintended pause, missed strategy, slower contact, lower rebound, or uncontrolled final landing."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "reactive_strength_plyometric_meta_analysis",
+      "claims": [
+        "Plyometric jump training can improve reactive strength, but effects and readiness differ across populations and training contexts.",
+        "{{canonicalName}} belongs early in a fresh output block after the athlete owns landing absorption and lower-intensity rebounds; dose and height should be individualized and volume should end before contact or output quality declines."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Athlete support should show the platform, step-off direction, first contact, intended flexion strategy, rebound vector, final landing, and the one metric that defines success.",
+        "The interface should distinguish 'fast off the floor' from 'jump as high as possible' and explain that a higher platform is not automatically a better or harder prescription."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "drop_jump_training_methodology_review",
+      "claims": [
+        "Coach support should individualize drop height and record contacts, surface, technique, output, and recovery rather than relying on a generic height progression.",
+        "Provide front and side observation, bounce-versus-countermovement criteria, contact-time and rebound-height options, left-right comparison, height-reduction rules, regressions, progressions, and final-landing gates."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Plyometric selection and progression should match physical and psychosocial readiness, technical competence, supervision, and equipment scale.",
+        "Accessibility can be improved with a lower step, landing-only depth drop, assisted step-down, visual landing marks, quieter environment, longer reset, or floor rebound regression without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "drop_jump_technique_rsi_study",
+      "claims": [
+        "Bounce and countermovement drop-jump techniques produce materially different contact-time and rebound-height outcomes.",
+        "Platform height and submaximal intent are delivery modifiers; changing landing-only versus rebound intent, bounce versus countermovement strategy, rebound vector, laterality, obstacle sequence, or repeated contacts requires a controlled variant or distinct definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for {{canonicalName}} were discovered through visible YouTube search; availability, embedding, exact contact sequence and strategy, complete viewing, captions, instructional quality, safety, and approval remain separate review gates."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "depth-drop-to-athletic-stick",
+      "assessmentSummary": {
+        "identity": "A bilateral step-off from a low platform to a bilateral floor landing that is absorbed and held for two to three seconds with no rebound.",
+        "currentCardFindings": [
+          "The title and description describe landing absorption, but the athlete instruction incorrectly uses generic box-jump language.",
+          "The output profile conflicts with a landing-only control task; movement intelligence or resilience is the more defensible primary context.",
+          "The card duplicates Low Box Drop to Stick and lacks controlled height selection, anatomy, impact, supervision, fatigue, constraints, and support."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "platform_step_off",
+            "bilateral_depth_landing",
+            "eccentric_absorption",
+            "extended_stick"
+          ],
+          "jointActions": [
+            "ankle_dorsiflexion_control",
+            "knee_flexion_control",
+            "hip_flexion_control",
+            "trunk_bracing"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "bilateral_landing",
+          "intent": "landing_absorption_and_stabilization_without_rebound"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gastrocnemius",
+            "gluteus_medius",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 34,
+          "absoluteLoadDemand": 18,
+          "coordinationDemand": 38,
+          "supervisionDemand": 44,
+          "failureConsequence": 50,
+          "impact": 48,
+          "workCapacityDemand": 14,
+          "baseOverallDifficulty": 34
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_drop_landing_eccentric_absorption",
+          "impactClass": "moderate_and_height_dependent",
+          "landingContactsPerRep": 1,
+          "primaryStress": [
+            "eccentric_force_attenuation",
+            "landing_alignment",
+            "postural_stabilization"
+          ],
+          "fatigueSensitivity": "landing_noise_depth_symmetry_and_hold_quality"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "low_stable_non_slip_platform",
+            "level_non_slip_landing_surface"
+          ],
+          "optionalEquipment": [
+            "landing_footprints",
+            "soft_sided_platform",
+            "video_feedback"
+          ],
+          "environment": [
+            "clear_step_off_edge",
+            "clear_landing_and_return_route",
+            "coach_front_and_side_view"
+          ],
+          "population": [
+            "owns_snap_down_and_floor_jump_to_stick",
+            "pain_free_step_off",
+            "no_apprehension_at_selected_height"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "2-5",
+          "landingHoldSeconds": "2-3",
+          "restSeconds": "45-90",
+          "intensity": "lowest_height_that_creates_a_teachable_landing_exposure",
+          "progressWhen": "all landings are simultaneous, quiet, aligned, and held without shuffle or posture loss"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Step off, do not jump up",
+            "Meet the floor evenly",
+            "Absorb through hips, knees, and ankles",
+            "Freeze"
+          ],
+          "athleteInstructions": [
+            "Step from the box and land on both feet",
+            "Land quietly and hold before standing"
+          ],
+          "commonFaults": [
+            "jumping from the platform",
+            "one foot contacts first",
+            "stiff or collapsed landing",
+            "valgus",
+            "extra step",
+            "automatic rebound"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "stable platform and surface",
+            "controlled floor landing",
+            "confidence at selected height"
+          ],
+          "stopRules": [
+            "pain",
+            "giving way",
+            "apprehension",
+            "asymmetrical contact",
+            "loud landing",
+            "valgus or trunk collapse",
+            "extra step",
+            "platform movement"
+          ]
+        },
+        "programmingDecision": "Consolidate with Low Box Drop to Stick after human identity review. Preserve Athletic Stick as an alias or posture annotation; the stable identity is a bilateral landing-only depth drop."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=iOUvj2nv4Q4",
+          "title": "Depth Jump to Stick",
+          "channelName": "The Active Life",
+          "sourceQuery": "depth drop to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=drLJzzzhepE",
+          "title": "Depth Drop-Stick",
+          "channelName": "ken whittier",
+          "sourceQuery": "depth drop to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=GZLyZCqF8BQ",
+          "title": "Depth Drop - Olympic Weightlifting Exercise Library",
+          "channelName": "Catalyst Athletics",
+          "sourceQuery": "depth drop to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=SdEp_Icrd6s",
+          "title": "Depth Drop w Stick Landing",
+          "channelName": "Zach Dechant",
+          "sourceQuery": "depth drop to stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=PE6PS3NLxpE",
+          "title": "How To: DEPTH DROP & STICK",
+          "channelName": "Peak Human Performance",
+          "sourceQuery": "depth drop to stick landing"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Low Box Drop to Stick",
+          "classification": "same_identity",
+          "rationale": "Both cards describe the same low bilateral step-off landing and hold.",
+          "distinguishingDimensions": {
+            "canonicalSurvivor": "low_box_drop_to_stick"
+          }
+        },
+        {
+          "name": "Single-Leg Depth Drop to Stick",
+          "classification": "new_variant",
+          "rationale": "Unilateral landing materially changes impact and stabilization demand.",
+          "distinguishingDimensions": {
+            "landingLaterality": "unilateral"
+          }
+        },
+        {
+          "name": "Depth Drop to Lateral Stick",
+          "classification": "new_definition",
+          "rationale": "Lateral displacement or orientation changes the flight path and landing task.",
+          "distinguishingDimensions": {
+            "projection": "lateral"
+          }
+        },
+        {
+          "name": "Drop Jump",
+          "classification": "new_definition",
+          "rationale": "An immediate rebound replaces the held landing.",
+          "distinguishingDimensions": {
+            "reboundIntent": "immediate"
+          }
+        },
+        {
+          "name": "High Altitude Drop to Stick",
+          "classification": "new_variant",
+          "rationale": "A materially higher drop raises impact, readiness, and supervision requirements.",
+          "distinguishingDimensions": {
+            "dropHeight": "advanced"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "drop-jump",
+      "assessmentSummary": {
+        "identity": "A bilateral step-off from an individualized low platform into a short-contact bounce strategy, immediate maximal vertical rebound, and controlled bilateral final landing.",
+        "currentCardFindings": [
+          "The card correctly describes a short-contact vertical rebound but provides no platform-height rule, contact-time target, final landing, or readiness criteria.",
+          "The 10-point absolute-load value and 50-point generic difficulty omit high impact, supervision, and consequence of error.",
+          "The active Drop Jump Reactive and several depth-drop rebound cards describe the same contact sequence and strategy."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "platform_step_off",
+            "bilateral_bounce_drop_jump",
+            "short_ground_contact",
+            "vertical_rebound",
+            "final_bilateral_land"
+          ],
+          "jointActions": [
+            "rapid_ankle_dorsiflexion_to_plantarflexion",
+            "limited_knee_flexion_to_extension",
+            "limited_hip_flexion_to_extension",
+            "landing_absorption"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "bilateral_contact_bilateral_final_landing",
+          "intent": "maximize_rebound_height_relative_to_short_ground_contact"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "soleus",
+            "gastrocnemius",
+            "quadriceps",
+            "gluteus_maximus"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 26,
+          "coordinationDemand": 62,
+          "supervisionDemand": 66,
+          "failureConsequence": 70,
+          "impact": 70,
+          "workCapacityDemand": 20,
+          "baseOverallDifficulty": 58
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_high_rate_eccentric_to_concentric_bilateral_drop_jump",
+          "impactClass": "high_and_height_dependent",
+          "landingContactsPerRep": 2,
+          "primaryStress": [
+            "rapid_eccentric_loading",
+            "reactive_strength",
+            "vertical_stiffness",
+            "final_landing_control"
+          ],
+          "fatigueSensitivity": "ground_contact_time_rebound_height_alignment_and_final_landing"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "stable_non_slip_platform",
+            "level_reactive_surface",
+            "clear_final_landing_zone"
+          ],
+          "optionalEquipment": [
+            "contact_mat_or_force_plate",
+            "jump_height_device",
+            "video_feedback"
+          ],
+          "environment": [
+            "adequate_ceiling",
+            "clear_step_off_and_landing_space",
+            "coach_front_and_side_view"
+          ],
+          "population": [
+            "owns_depth_drop_stick",
+            "owns_low_level_rebounds",
+            "adequate_lower_limb_strength_and_stiffness",
+            "no_pain_or_apprehension"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-5",
+          "repetitions": "2-4",
+          "interRepResetSeconds": "10-30",
+          "restSeconds": "90-240",
+          "intensity": "maximal_rebound_intent_from_individualized_low_height",
+          "qualityMetric": "reactive_strength_index_or_paired_contact_time_and_rebound_height",
+          "progressWhen": "contact and rebound metrics remain inside the preset quality band with aligned contacts and controlled final landings"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Step off",
+            "Meet the floor stiff but not locked",
+            "Bounce tall",
+            "Own the final landing"
+          ],
+          "athleteInstructions": [
+            "Step from the box without jumping",
+            "Spend as little useful time on the floor as possible and rebound straight up",
+            "Land the rebound under control"
+          ],
+          "commonFaults": [
+            "jumping from box",
+            "deep countermovement",
+            "pause",
+            "loud or asymmetrical contact",
+            "heel collapse",
+            "low rebound",
+            "uncontrolled final landing"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "clean depth-drop stick",
+            "repeatable low hurdle or pogo rebound",
+            "stable platform and surface",
+            "individualized height"
+          ],
+          "stopRules": [
+            "pain or apprehension",
+            "asymmetrical contact",
+            "valgus or trunk collapse",
+            "contact slows outside target",
+            "rebound drops",
+            "final landing uncontrolled",
+            "platform movement"
+          ]
+        },
+        "programmingDecision": "Use Drop Jump as the stable short-contact bounce identity. Consolidate Drop Jump Reactive and the low-box or depth-drop vertical rebound duplicates after human review; keep countermovement Depth Jump as a distinct strategy variant."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=3JY0pxIPaC4",
+          "title": "How To Drop Jumps",
+          "channelName": "Third Space London",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LrZuW-sJPBo",
+          "title": "Drop Jump",
+          "channelName": "Champion Physical Therapy and Performance",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=jxlYrvBsQ7c",
+          "title": "How To Video: Drop Jump",
+          "channelName": "Hawkin Dynamics",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=nOASsaLMuQU",
+          "title": "Drop Jump - Exercise Demo",
+          "channelName": "Strength Coach Nause",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=gxg_wLu91Vg",
+          "title": "Drop Jump - Exercise Demo",
+          "channelName": "irl․coach",
+          "sourceQuery": "drop jump exercise demonstration"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Drop Jump Reactive",
+          "classification": "same_identity",
+          "rationale": "Reactive is inherent to the short-contact drop-jump identity.",
+          "distinguishingDimensions": {
+            "canonicalSurvivor": "drop_jump"
+          }
+        },
+        {
+          "name": "Countermovement Depth Jump",
+          "classification": "new_variant",
+          "rationale": "A deeper countermovement prioritizes rebound height and lengthens contact.",
+          "distinguishingDimensions": {
+            "contactStrategy": "countermovement"
+          }
+        },
+        {
+          "name": "Depth Drop to Stick",
+          "classification": "new_definition",
+          "rationale": "A held first landing removes the rebound.",
+          "distinguishingDimensions": {
+            "reboundIntent": "none"
+          }
+        },
+        {
+          "name": "Drop Jump to Broad Rebound",
+          "classification": "new_definition",
+          "rationale": "Horizontal rebound changes projection and braking.",
+          "distinguishingDimensions": {
+            "reboundDirection": "horizontal"
+          }
+        },
+        {
+          "name": "Repeated Drop Jumps",
+          "classification": "new_definition",
+          "rationale": "Multiple rebounds change contact count, fatigue, and logistics.",
+          "distinguishingDimensions": {
+            "reboundCount": "multiple"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "drop-jump-reactive",
+      "assessmentSummary": {
+        "identity": "A low-platform bilateral step-off followed by a short-contact vertical bounce rebound and controlled final bilateral landing.",
+        "currentCardFindings": [
+          "Reactive adds no identity information beyond the existing Drop Jump definition.",
+          "The description is generic and does not specify platform height, contact strategy, final landing, or measurable quality target.",
+          "The 50-point difficulty omits the high impact, supervision, and failure consequence of an advanced reactive jump."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "platform_step_off",
+            "bilateral_bounce_drop_jump",
+            "short_ground_contact",
+            "vertical_rebound",
+            "final_bilateral_land"
+          ],
+          "jointActions": [
+            "rapid_ankle_dorsiflexion_to_plantarflexion",
+            "limited_knee_flexion_to_extension",
+            "limited_hip_flexion_to_extension",
+            "landing_absorption"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "bilateral_contact_bilateral_final_landing",
+          "intent": "short_contact_vertical_reactive_strength"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "soleus",
+            "gastrocnemius",
+            "quadriceps",
+            "gluteus_maximus"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 26,
+          "coordinationDemand": 62,
+          "supervisionDemand": 66,
+          "failureConsequence": 70,
+          "impact": 70,
+          "workCapacityDemand": 20,
+          "baseOverallDifficulty": 58
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_high_rate_bilateral_drop_jump",
+          "impactClass": "high_and_height_dependent",
+          "landingContactsPerRep": 2,
+          "primaryStress": [
+            "reactive_strength",
+            "vertical_stiffness",
+            "rapid_force_reversal",
+            "final_landing"
+          ],
+          "fatigueSensitivity": "contact_time_rebound_height_posture_and_final_control"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "stable_low_platform",
+            "level_reactive_surface"
+          ],
+          "optionalEquipment": [
+            "contact_mat_or_force_plate",
+            "video_feedback"
+          ],
+          "environment": [
+            "clear_step_off_and_landing_zone",
+            "adequate_ceiling",
+            "close_supervision"
+          ],
+          "population": [
+            "owns_landing_and_low_level_rebound_progressions",
+            "no_pain_or_apprehension"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-5",
+          "repetitions": "2-4",
+          "interRepResetSeconds": "10-30",
+          "restSeconds": "90-240",
+          "intensity": "maximal_rebound_intent",
+          "qualityMetric": "contact_time_plus_rebound_height_or_RSI",
+          "progressWhen": "short contact and rebound output remain repeatable without landing-quality loss"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Step off",
+            "Fast off the floor",
+            "Rebound tall",
+            "Stick the finish"
+          ],
+          "athleteInstructions": [
+            "Do not jump from the box",
+            "Reverse upward immediately after contact",
+            "Control the last landing"
+          ],
+          "commonFaults": [
+            "deep dip",
+            "pause",
+            "flat or loud contact",
+            "asymmetry",
+            "low rebound",
+            "racing repetitions"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "clean depth-drop stick",
+            "repeatable pogos",
+            "individualized low height"
+          ],
+          "stopRules": [
+            "pain",
+            "apprehension",
+            "contact slowing",
+            "rebound loss",
+            "alignment loss",
+            "uncontrolled final landing"
+          ]
+        },
+        "programmingDecision": "Consolidate into Drop Jump after human identity review. Reactive becomes a taxonomy and intent property rather than a duplicate active card."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=3JY0pxIPaC4",
+          "title": "How To Drop Jumps",
+          "channelName": "Third Space London",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LrZuW-sJPBo",
+          "title": "Drop Jump",
+          "channelName": "Champion Physical Therapy and Performance",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=jxlYrvBsQ7c",
+          "title": "How To Video: Drop Jump",
+          "channelName": "Hawkin Dynamics",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=nOASsaLMuQU",
+          "title": "Drop Jump - Exercise Demo",
+          "channelName": "Strength Coach Nause",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=gxg_wLu91Vg",
+          "title": "Drop Jump - Exercise Demo",
+          "channelName": "irl․coach",
+          "sourceQuery": "drop jump exercise demonstration"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Drop Jump",
+          "classification": "same_identity",
+          "rationale": "The baseline Drop Jump is already a reactive short-contact rebound.",
+          "distinguishingDimensions": {
+            "canonicalSurvivor": "drop_jump"
+          }
+        },
+        {
+          "name": "Low Box Drop Jump",
+          "classification": "modifier_annotation",
+          "rationale": "Low height is the normal introductory delivery constraint.",
+          "distinguishingDimensions": {
+            "dropHeight": "low"
+          }
+        },
+        {
+          "name": "Countermovement Depth Jump",
+          "classification": "new_variant",
+          "rationale": "A deeper rebound strategy changes the contact-height tradeoff.",
+          "distinguishingDimensions": {
+            "contactStrategy": "countermovement"
+          }
+        },
+        {
+          "name": "Drop Jump to Sprint",
+          "classification": "new_definition",
+          "rationale": "Sprint-out changes projection and adds acceleration contacts.",
+          "distinguishingDimensions": {
+            "exit": "sprint"
+          }
+        },
+        {
+          "name": "Loaded Drop Jump",
+          "classification": "reject",
+          "rationale": "External load materially increases impact and should not be inferred as a routine alternate.",
+          "distinguishingDimensions": {
+            "externalLoad": "present"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "depth-drop-to-rebound",
+      "assessmentSummary": {
+        "identity": "A low-platform bilateral step-off, immediate short-contact vertical rebound, and controlled final bilateral landing.",
+        "currentCardFindings": [
+          "The description explicitly matches Drop Jump despite using the landing-only term Depth Drop.",
+          "The title does not state vertical direction, contact strategy, or final landing, while the athlete instruction does.",
+          "The 40-point difficulty and 10-point load value understate impact, supervision, consequence, and reactive demand."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "platform_step_off",
+            "bilateral_bounce_drop_jump",
+            "short_ground_contact",
+            "vertical_rebound",
+            "final_bilateral_land"
+          ],
+          "jointActions": [
+            "rapid_ankle_dorsiflexion_to_plantarflexion",
+            "limited_knee_flexion_to_extension",
+            "limited_hip_flexion_to_extension",
+            "landing_absorption"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "bilateral_contact_bilateral_final_landing",
+          "intent": "short_contact_vertical_rebound"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "soleus",
+            "gastrocnemius",
+            "quadriceps",
+            "gluteus_maximus"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 56,
+          "absoluteLoadDemand": 24,
+          "coordinationDemand": 60,
+          "supervisionDemand": 64,
+          "failureConsequence": 68,
+          "impact": 68,
+          "workCapacityDemand": 20,
+          "baseOverallDifficulty": 56
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_reactive_drop_jump",
+          "impactClass": "high_and_height_dependent",
+          "landingContactsPerRep": 2,
+          "primaryStress": [
+            "rapid_eccentric_loading",
+            "reactive_rebound",
+            "final_landing_control"
+          ],
+          "fatigueSensitivity": "contact_time_rebound_height_alignment_and_finish"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "stable_low_platform",
+            "level_landing_surface"
+          ],
+          "optionalEquipment": [
+            "contact_timer",
+            "jump_height_measurement"
+          ],
+          "environment": [
+            "clear_vertical_and_landing_space",
+            "close_supervision"
+          ],
+          "population": [
+            "owns_depth_drop_stick_and_low_rebounds",
+            "no_pain_or_fear"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "2-4",
+          "interRepResetSeconds": "10-30",
+          "restSeconds": "90-180",
+          "intensity": "maximal_clean_rebound_from_low_height",
+          "qualityMetric": "contact_time_and_rebound_height",
+          "progressWhen": "each rebound stays fast, vertical, aligned, and ends in a controlled landing"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Step off",
+            "Quick ground",
+            "Rebound straight up",
+            "Stick the last landing"
+          ],
+          "athleteInstructions": [
+            "Drop from the low box, rebound immediately, and control the final landing"
+          ],
+          "commonFaults": [
+            "jumping off box",
+            "deep dip",
+            "pause",
+            "forward travel",
+            "loud contact",
+            "missed final stick"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "landing-only depth drop",
+            "low-level bounce competency",
+            "safe low height"
+          ],
+          "stopRules": [
+            "pain",
+            "fear",
+            "slow contact",
+            "rebound loss",
+            "valgus or trunk collapse",
+            "uncontrolled finish"
+          ]
+        },
+        "programmingDecision": "Consolidate into Drop Jump after human identity review. The legacy Depth Drop label is misleading because the described task rebounds immediately."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=3JY0pxIPaC4",
+          "title": "How To Drop Jumps",
+          "channelName": "Third Space London",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LrZuW-sJPBo",
+          "title": "Drop Jump",
+          "channelName": "Champion Physical Therapy and Performance",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=jxlYrvBsQ7c",
+          "title": "How To Video: Drop Jump",
+          "channelName": "Hawkin Dynamics",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=nOASsaLMuQU",
+          "title": "Drop Jump - Exercise Demo",
+          "channelName": "Strength Coach Nause",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=gxg_wLu91Vg",
+          "title": "Drop Jump - Exercise Demo",
+          "channelName": "irl․coach",
+          "sourceQuery": "drop jump exercise demonstration"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Drop Jump",
+          "classification": "same_identity",
+          "rationale": "The described step-off, immediate vertical rebound, and finish are a Drop Jump.",
+          "distinguishingDimensions": {
+            "canonicalSurvivor": "drop_jump"
+          }
+        },
+        {
+          "name": "Depth Drop to Stick",
+          "classification": "new_definition",
+          "rationale": "Landing-only intent has no rebound.",
+          "distinguishingDimensions": {
+            "reboundIntent": "none"
+          }
+        },
+        {
+          "name": "Depth Drop to Horizontal Rebound",
+          "classification": "new_definition",
+          "rationale": "Horizontal output changes projection.",
+          "distinguishingDimensions": {
+            "reboundDirection": "horizontal"
+          }
+        },
+        {
+          "name": "Countermovement Depth Jump",
+          "classification": "new_variant",
+          "rationale": "A deeper strategy prioritizes height over minimum contact.",
+          "distinguishingDimensions": {
+            "contactStrategy": "countermovement"
+          }
+        },
+        {
+          "name": "Single-Leg Drop Jump",
+          "classification": "new_definition",
+          "rationale": "Unilateral contact materially changes force and control.",
+          "distinguishingDimensions": {
+            "contactLaterality": "unilateral"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "depth-drop-to-vertical-rebound",
+      "assessmentSummary": {
+        "identity": "A bilateral low-platform step-off into an immediate short-contact vertical rebound and controlled final landing.",
+        "currentCardFindings": [
+          "The task is explicitly vertical and immediate, matching Drop Jump.",
+          "The generated description and cue do not define platform height, final landing, contact metric, or readiness.",
+          "The 40-point difficulty and 10-point load value omit high impact, supervision, and failure consequence."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "platform_step_off",
+            "bilateral_bounce_drop_jump",
+            "short_ground_contact",
+            "vertical_rebound",
+            "final_bilateral_land"
+          ],
+          "jointActions": [
+            "rapid_ankle_dorsiflexion_to_plantarflexion",
+            "limited_knee_flexion_to_extension",
+            "limited_hip_flexion_to_extension",
+            "landing_absorption"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "bilateral_contact_bilateral_final_landing",
+          "intent": "short_contact_vertical_reactive_strength"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "soleus",
+            "gastrocnemius",
+            "quadriceps",
+            "gluteus_maximus"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 26,
+          "coordinationDemand": 62,
+          "supervisionDemand": 66,
+          "failureConsequence": 70,
+          "impact": 70,
+          "workCapacityDemand": 20,
+          "baseOverallDifficulty": 58
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_vertical_drop_jump",
+          "impactClass": "high_and_height_dependent",
+          "landingContactsPerRep": 2,
+          "primaryStress": [
+            "reactive_strength",
+            "vertical_stiffness",
+            "rapid_force_reversal",
+            "final_landing"
+          ],
+          "fatigueSensitivity": "contact_time_rebound_height_alignment_and_finish"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "stable_low_platform",
+            "level_reactive_surface"
+          ],
+          "optionalEquipment": [
+            "contact_mat",
+            "jump_height_device",
+            "video_feedback"
+          ],
+          "environment": [
+            "adequate_ceiling",
+            "clear_landing_zone",
+            "close_supervision"
+          ],
+          "population": [
+            "owns_depth_drop_stick_and_low_rebounds",
+            "no_pain_or_apprehension"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-5",
+          "repetitions": "1-4",
+          "interRepResetSeconds": "15-30",
+          "restSeconds": "90-240",
+          "intensity": "maximal_rebound_intent",
+          "qualityMetric": "contact_time_plus_rebound_height_or_RSI",
+          "progressWhen": "metrics and alignment remain repeatable across the prescribed height"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Step, don't jump",
+            "Quick contact",
+            "Rebound tall",
+            "Own the finish"
+          ],
+          "athleteInstructions": [
+            "Step from the box and reverse straight upward as soon as both feet meet the floor"
+          ],
+          "commonFaults": [
+            "jumping from box",
+            "pause",
+            "deep dip",
+            "forward drift",
+            "loud contact",
+            "poor final landing"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "clean landing-only depth drop",
+            "low-level bounce competency",
+            "individualized low height"
+          ],
+          "stopRules": [
+            "pain",
+            "fear",
+            "contact slows",
+            "rebound drops",
+            "alignment loss",
+            "uncontrolled final landing"
+          ]
+        },
+        "programmingDecision": "Consolidate into Drop Jump after human identity review. Preserve Vertical Rebound as a directional annotation because vertical is the proposed baseline."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=3JY0pxIPaC4",
+          "title": "How To Drop Jumps",
+          "channelName": "Third Space London",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LrZuW-sJPBo",
+          "title": "Drop Jump",
+          "channelName": "Champion Physical Therapy and Performance",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=jxlYrvBsQ7c",
+          "title": "How To Video: Drop Jump",
+          "channelName": "Hawkin Dynamics",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=nOASsaLMuQU",
+          "title": "Drop Jump - Exercise Demo",
+          "channelName": "Strength Coach Nause",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=gxg_wLu91Vg",
+          "title": "Drop Jump - Exercise Demo",
+          "channelName": "irl․coach",
+          "sourceQuery": "drop jump exercise demonstration"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Drop Jump",
+          "classification": "same_identity",
+          "rationale": "Vertical is the baseline rebound direction.",
+          "distinguishingDimensions": {
+            "reboundDirection": "vertical"
+          }
+        },
+        {
+          "name": "Depth Drop to Rebound",
+          "classification": "same_identity",
+          "rationale": "Its instructions define the same immediate vertical rebound.",
+          "distinguishingDimensions": {
+            "alias": "depth_drop_to_rebound"
+          }
+        },
+        {
+          "name": "Horizontal Drop Jump",
+          "classification": "new_definition",
+          "rationale": "Horizontal rebound changes projection and landing.",
+          "distinguishingDimensions": {
+            "reboundDirection": "horizontal"
+          }
+        },
+        {
+          "name": "Countermovement Depth Jump",
+          "classification": "new_variant",
+          "rationale": "A deeper contact strategy changes the contact-height tradeoff.",
+          "distinguishingDimensions": {
+            "contactStrategy": "countermovement"
+          }
+        },
+        {
+          "name": "Drop Jump to Box",
+          "classification": "new_definition",
+          "rationale": "An elevated final landing adds a second obstacle and collision risk.",
+          "distinguishingDimensions": {
+            "finalLandingSurface": "box"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "low-box-drop-to-vertical-rebound",
+      "assessmentSummary": {
+        "identity": "A short-contact bilateral vertical Drop Jump performed from an explicitly low platform and finished with a controlled bilateral landing.",
+        "currentCardFindings": [
+          "Low platform is an appropriate delivery constraint but does not create a new movement identity.",
+          "The description calls the task neural-focused while omitting actual contact-time, rebound, impact, and final-landing measures.",
+          "The generic 50-point score and 10-point load value understate impact and supervision."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "low_platform_step_off",
+            "bilateral_bounce_drop_jump",
+            "short_ground_contact",
+            "vertical_rebound",
+            "final_bilateral_land"
+          ],
+          "jointActions": [
+            "rapid_ankle_dorsiflexion_to_plantarflexion",
+            "limited_knee_flexion_to_extension",
+            "limited_hip_flexion_to_extension",
+            "landing_absorption"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "bilateral_contact_bilateral_final_landing",
+          "intent": "introductory_short_contact_vertical_rebound"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "soleus",
+            "gastrocnemius",
+            "quadriceps",
+            "gluteus_maximus"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 52,
+          "absoluteLoadDemand": 20,
+          "coordinationDemand": 56,
+          "supervisionDemand": 58,
+          "failureConsequence": 62,
+          "impact": 58,
+          "workCapacityDemand": 18,
+          "baseOverallDifficulty": 52
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_low_height_bilateral_drop_jump",
+          "impactClass": "moderate_to_high",
+          "landingContactsPerRep": 2,
+          "primaryStress": [
+            "introductory_reactive_strength",
+            "vertical_stiffness",
+            "landing_control"
+          ],
+          "fatigueSensitivity": "contact_speed_rebound_height_alignment_and_finish"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "very_low_stable_platform",
+            "level_reactive_surface"
+          ],
+          "optionalEquipment": [
+            "contact_timer",
+            "video_feedback"
+          ],
+          "environment": [
+            "clear_vertical_and_final_landing_zone",
+            "close_supervision"
+          ],
+          "population": [
+            "owns_depth_drop_stick",
+            "owns_pogo_rebounds",
+            "needs_low_drop_height"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "2-4",
+          "interRepResetSeconds": "15-30",
+          "restSeconds": "75-180",
+          "intensity": "maximal_clean_rebound_from_very_low_height",
+          "qualityMetric": "contact_time_and_rebound_height",
+          "progressWhen": "the athlete preserves short contact, vertical projection, and final control before any height increase"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Low box",
+            "Step off",
+            "Quick up",
+            "Stick the finish"
+          ],
+          "athleteInstructions": [
+            "Use the low box, rebound straight up immediately, and land the rebound under control"
+          ],
+          "commonFaults": [
+            "box too high",
+            "deep dip",
+            "pause",
+            "loud contact",
+            "forward drift",
+            "rushed next rep"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "landing-only depth drop",
+            "repeatable pogos",
+            "safe low platform"
+          ],
+          "stopRules": [
+            "pain",
+            "fear",
+            "slow or loud contact",
+            "rebound drop",
+            "alignment loss",
+            "poor final landing"
+          ]
+        },
+        "programmingDecision": "Treat as the introductory low-height delivery profile of Drop Jump, not a distinct definition. Consolidation requires human identity review."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=3JY0pxIPaC4",
+          "title": "How To Drop Jumps",
+          "channelName": "Third Space London",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LrZuW-sJPBo",
+          "title": "Drop Jump",
+          "channelName": "Champion Physical Therapy and Performance",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=jxlYrvBsQ7c",
+          "title": "How To Video: Drop Jump",
+          "channelName": "Hawkin Dynamics",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=nOASsaLMuQU",
+          "title": "Drop Jump - Exercise Demo",
+          "channelName": "Strength Coach Nause",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=gxg_wLu91Vg",
+          "title": "Drop Jump - Exercise Demo",
+          "channelName": "irl․coach",
+          "sourceQuery": "drop jump exercise demonstration"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Drop Jump",
+          "classification": "new_variant",
+          "rationale": "Low height is an introductory modifier of the baseline.",
+          "distinguishingDimensions": {
+            "dropHeight": "very_low"
+          }
+        },
+        {
+          "name": "Low Box Drop to Stick",
+          "classification": "new_definition",
+          "rationale": "The regression absorbs and holds instead of rebounding.",
+          "distinguishingDimensions": {
+            "reboundIntent": "none"
+          }
+        },
+        {
+          "name": "Low Box Drop to Horizontal Rebound",
+          "classification": "new_definition",
+          "rationale": "Horizontal output changes projection.",
+          "distinguishingDimensions": {
+            "reboundDirection": "horizontal"
+          }
+        },
+        {
+          "name": "Low Box Single-Leg Drop Jump",
+          "classification": "new_definition",
+          "rationale": "Unilateral contact materially changes load.",
+          "distinguishingDimensions": {
+            "contactLaterality": "unilateral"
+          }
+        },
+        {
+          "name": "Repeated Low Box Drop Jumps",
+          "classification": "new_definition",
+          "rationale": "Multiple contacts change volume and fatigue.",
+          "distinguishingDimensions": {
+            "reboundCount": "multiple"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "low-box-drop-to-quarter-squat-rebound",
+      "assessmentSummary": {
+        "identity": "A low-platform bilateral Drop Jump using a shallow quarter-squat bounce strategy, immediate vertical rebound, and controlled final bilateral landing.",
+        "currentCardFindings": [
+          "Quarter-squat specifies the bounce strategy but the card never defines observable depth or a contact-time target.",
+          "The claim that this is categorically level-3 high impact is not a controlled exercise difficulty score and must not become an exercise skill level.",
+          "The 40 absolute-load score and generic 50 overall score do not separate impact, consequence, supervision, and coordination."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "low_platform_step_off",
+            "bilateral_bounce_drop_jump",
+            "shallow_contact",
+            "vertical_rebound",
+            "final_bilateral_land"
+          ],
+          "jointActions": [
+            "rapid_ankle_dorsiflexion_to_plantarflexion",
+            "shallow_knee_flexion_to_extension",
+            "shallow_hip_flexion_to_extension",
+            "landing_absorption"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "bilateral_contact_bilateral_final_landing",
+          "intent": "shallow_short_contact_vertical_rebound"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "soleus",
+            "gastrocnemius",
+            "quadriceps",
+            "gluteus_maximus"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 54,
+          "absoluteLoadDemand": 22,
+          "coordinationDemand": 58,
+          "supervisionDemand": 60,
+          "failureConsequence": 64,
+          "impact": 60,
+          "workCapacityDemand": 18,
+          "baseOverallDifficulty": 54
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_low_height_shallow_bounce_drop_jump",
+          "impactClass": "moderate_to_high",
+          "landingContactsPerRep": 2,
+          "primaryStress": [
+            "rapid_eccentric_loading",
+            "shallow_reactive_strategy",
+            "vertical_rebound",
+            "final_landing"
+          ],
+          "fatigueSensitivity": "contact_depth_time_rebound_height_and_alignment"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "very_low_stable_platform",
+            "level_reactive_surface"
+          ],
+          "optionalEquipment": [
+            "side_video",
+            "contact_mat"
+          ],
+          "environment": [
+            "coach_side_view",
+            "clear_vertical_and_landing_space"
+          ],
+          "population": [
+            "owns_depth_drop_stick_and_low_rebounds",
+            "can_use_shallow_strategy_without_locking"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "2-4",
+          "interRepResetSeconds": "15-30",
+          "restSeconds": "90-180",
+          "intensity": "high_intent_from_low_height",
+          "qualityMetric": "contact_time_rebound_height_and_observed_shallow_flexion",
+          "progressWhen": "the athlete keeps a short, shallow, aligned contact and controlled final landing"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Step off",
+            "Shallow and springy",
+            "Rebound tall",
+            "Land the last jump"
+          ],
+          "athleteInstructions": [
+            "Use a quick quarter-squat on contact, rebound immediately, and control the finish"
+          ],
+          "commonFaults": [
+            "locked knees",
+            "deep countermovement",
+            "pause",
+            "loud contact",
+            "heel collapse",
+            "low rebound"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "low-platform landing",
+            "pogo rebound competency",
+            "adequate ankle-knee-hip alignment"
+          ],
+          "stopRules": [
+            "pain",
+            "locked or collapsed contact",
+            "deep strategy drift",
+            "contact slowing",
+            "rebound loss",
+            "poor final landing"
+          ]
+        },
+        "programmingDecision": "Treat quarter-squat as a bounce-strategy annotation within the low-height Drop Jump profile. Do not retain a duplicate definition solely for landing-depth wording."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=3JY0pxIPaC4",
+          "title": "How To Drop Jumps",
+          "channelName": "Third Space London",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LrZuW-sJPBo",
+          "title": "Drop Jump",
+          "channelName": "Champion Physical Therapy and Performance",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=jxlYrvBsQ7c",
+          "title": "How To Video: Drop Jump",
+          "channelName": "Hawkin Dynamics",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=nOASsaLMuQU",
+          "title": "Drop Jump - Exercise Demo",
+          "channelName": "Strength Coach Nause",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=gxg_wLu91Vg",
+          "title": "Drop Jump - Exercise Demo",
+          "channelName": "irl․coach",
+          "sourceQuery": "drop jump exercise demonstration"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Low Box Drop Jump",
+          "classification": "modifier_annotation",
+          "rationale": "Quarter-squat depth specifies the bounce strategy of the same low drop jump.",
+          "distinguishingDimensions": {
+            "contactStrategy": "shallow_bounce"
+          }
+        },
+        {
+          "name": "Countermovement Depth Jump",
+          "classification": "new_variant",
+          "rationale": "Deeper flexion and longer contact prioritize rebound height.",
+          "distinguishingDimensions": {
+            "contactStrategy": "countermovement"
+          }
+        },
+        {
+          "name": "Low Box Drop to Stick",
+          "classification": "new_definition",
+          "rationale": "A held first landing has no rebound.",
+          "distinguishingDimensions": {
+            "reboundIntent": "none"
+          }
+        },
+        {
+          "name": "Ankle-Dominant Drop Jump",
+          "classification": "modifier_annotation",
+          "rationale": "Ankle emphasis is a coaching strategy, not a separate identity, when contact sequence is unchanged.",
+          "distinguishingDimensions": {
+            "emphasis": "ankle_stiffness"
+          }
+        },
+        {
+          "name": "Loaded Quarter-Squat Drop Jump",
+          "classification": "reject",
+          "rationale": "External loading materially raises risk and should not be inferred as a routine alternate.",
+          "distinguishingDimensions": {
+            "externalLoad": "present"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "low-box-rebound-jump",
+      "assessmentSummary": {
+        "identity": "A very-low-platform bilateral step-off into one immediate vertical bounce rebound followed by a controlled bilateral landing.",
+        "currentCardFindings": [
+          "The description says step or hop down, which creates incompatible platform-exit mechanics; the canonical version must be a step-off.",
+          "Five repetitions and a work-time field invite reactive quality to become conditioning.",
+          "Very low height is a delivery modifier of Drop Jump rather than a separate identity."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "very_low_platform_step_off",
+            "bilateral_bounce_drop_jump",
+            "vertical_rebound",
+            "final_bilateral_land"
+          ],
+          "jointActions": [
+            "rapid_ankle_dorsiflexion_to_plantarflexion",
+            "limited_knee_flexion_to_extension",
+            "limited_hip_flexion_to_extension",
+            "landing_absorption"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "bilateral_contact_bilateral_final_landing",
+          "intent": "introductory_single_reactive_rebound"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "soleus",
+            "gastrocnemius",
+            "quadriceps",
+            "gluteus_maximus"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 50,
+          "absoluteLoadDemand": 18,
+          "coordinationDemand": 54,
+          "supervisionDemand": 56,
+          "failureConsequence": 60,
+          "impact": 54,
+          "workCapacityDemand": 18,
+          "baseOverallDifficulty": 50
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_very_low_height_single_drop_jump",
+          "impactClass": "moderate",
+          "landingContactsPerRep": 2,
+          "primaryStress": [
+            "introductory_reactive_contact",
+            "vertical_rebound",
+            "final_landing"
+          ],
+          "fatigueSensitivity": "contact_speed_rebound_quality_and_reset_discipline"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "very_low_stable_step_or_pad",
+            "level_reactive_surface"
+          ],
+          "optionalEquipment": [
+            "contact_timer",
+            "landing_marks"
+          ],
+          "environment": [
+            "clear_vertical_and_landing_zone",
+            "coach_close_view"
+          ],
+          "population": [
+            "owns_depth_drop_stick_and_pogos",
+            "ready_for_single_drop_rebound"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "2-4",
+          "interRepResetSeconds": "15-30",
+          "restSeconds": "75-180",
+          "intensity": "high_quality_single_rebound",
+          "qualityMetric": "fast_contact_vertical_rebound_and_controlled_finish",
+          "progressWhen": "every rep is discrete, fast, aligned, and controlled before raising the platform"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Step off the low pad",
+            "Bounce once",
+            "Rebound tall",
+            "Stick"
+          ],
+          "athleteInstructions": [
+            "Step down, rebound immediately one time, and control the landing"
+          ],
+          "commonFaults": [
+            "hopping from platform",
+            "multiple rebounds",
+            "rushing resets",
+            "deep contact",
+            "loud landing"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "controlled depth-drop landing",
+            "pogo control",
+            "very low stable step"
+          ],
+          "stopRules": [
+            "pain",
+            "fear",
+            "hop-off exit",
+            "multiple unintended contacts",
+            "slow contact",
+            "poor finish"
+          ]
+        },
+        "programmingDecision": "Consolidate as the very-low-height introductory delivery profile of Drop Jump. Require a step-off and one rebound; repeated or hop-off tasks are separate."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=3JY0pxIPaC4",
+          "title": "How To Drop Jumps",
+          "channelName": "Third Space London",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LrZuW-sJPBo",
+          "title": "Drop Jump",
+          "channelName": "Champion Physical Therapy and Performance",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=jxlYrvBsQ7c",
+          "title": "How To Video: Drop Jump",
+          "channelName": "Hawkin Dynamics",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=nOASsaLMuQU",
+          "title": "Drop Jump - Exercise Demo",
+          "channelName": "Strength Coach Nause",
+          "sourceQuery": "drop jump exercise demonstration"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=gxg_wLu91Vg",
+          "title": "Drop Jump - Exercise Demo",
+          "channelName": "irl․coach",
+          "sourceQuery": "drop jump exercise demonstration"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Drop Jump",
+          "classification": "new_variant",
+          "rationale": "Very low platform height is an introductory modifier.",
+          "distinguishingDimensions": {
+            "dropHeight": "very_low"
+          }
+        },
+        {
+          "name": "Platform Hop to Rebound",
+          "classification": "new_definition",
+          "rationale": "Actively hopping from the platform changes initial velocity.",
+          "distinguishingDimensions": {
+            "platformExit": "hop"
+          }
+        },
+        {
+          "name": "Repeated Rebound Jumps",
+          "classification": "new_definition",
+          "rationale": "Multiple ground contacts change volume and fatigue.",
+          "distinguishingDimensions": {
+            "reboundCount": "multiple"
+          }
+        },
+        {
+          "name": "Depth Drop to Stick",
+          "classification": "new_definition",
+          "rationale": "Landing-only intent removes the rebound.",
+          "distinguishingDimensions": {
+            "reboundIntent": "none"
+          }
+        },
+        {
+          "name": "Single-Leg Low Box Rebound",
+          "classification": "new_definition",
+          "rationale": "Unilateral contact materially changes loading.",
+          "distinguishingDimensions": {
+            "contactLaterality": "unilateral"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "depth-jump",
+      "assessmentSummary": {
+        "identity": "A bilateral platform step-off followed by a controlled countermovement ground contact that immediately reverses into a maximal vertical jump, then a controlled bilateral final landing.",
+        "currentCardFindings": [
+          "The card allows either vertical or target output and requests minimal contact, making identity and strategy ambiguous.",
+          "A capacity profile conflicts with low-volume high-intensity reactive output.",
+          "The card has no difficulty model despite high impact, supervision, and failure consequence."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "platform_step_off",
+            "bilateral_countermovement_depth_jump",
+            "vertical_rebound",
+            "final_bilateral_land"
+          ],
+          "jointActions": [
+            "ankle_dorsiflexion_to_plantarflexion",
+            "knee_flexion_to_extension",
+            "hip_flexion_to_extension",
+            "landing_absorption"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "bilateral_contact_bilateral_final_landing",
+          "intent": "maximize_vertical_rebound_height_with_controlled_countermovement"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 28,
+          "coordinationDemand": 60,
+          "supervisionDemand": 66,
+          "failureConsequence": 70,
+          "impact": 72,
+          "workCapacityDemand": 20,
+          "baseOverallDifficulty": 58
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_high_impact_countermovement_depth_jump",
+          "impactClass": "high_and_height_dependent",
+          "landingContactsPerRep": 2,
+          "primaryStress": [
+            "eccentric_absorption",
+            "countermovement_reversal",
+            "maximal_vertical_impulse",
+            "final_landing"
+          ],
+          "fatigueSensitivity": "contact_strategy_rebound_height_alignment_and_final_landing"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "stable_non_slip_platform",
+            "level_jump_surface"
+          ],
+          "optionalEquipment": [
+            "jump_height_device",
+            "force_plate",
+            "video_feedback"
+          ],
+          "environment": [
+            "adequate_ceiling",
+            "clear_landing_zone",
+            "close_supervision"
+          ],
+          "population": [
+            "owns_depth_drop_stick_and_drop_jump",
+            "adequate_eccentric_strength",
+            "no_pain_or_apprehension"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-5",
+          "repetitions": "1-4",
+          "interRepResetSeconds": "15-30",
+          "restSeconds": "120-300",
+          "intensity": "maximal_rebound_height_from_individualized_drop_height",
+          "qualityMetric": "rebound_height_with_contact_time_and_strategy_recorded",
+          "progressWhen": "rebound height is stable, contact has no pause, and alignment and final landing remain controlled"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Step off",
+            "Absorb and reverse",
+            "Jump as high as possible",
+            "Own the final landing"
+          ],
+          "athleteInstructions": [
+            "Step from the box, use one smooth countermovement on contact, jump straight up maximally, and land under control"
+          ],
+          "commonFaults": [
+            "jumping from box",
+            "pause at bottom",
+            "strategy changes toward shallow bounce",
+            "excessive collapse",
+            "forward travel",
+            "uncontrolled final landing"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "controlled depth drop",
+            "clean low-height drop jump",
+            "adequate strength and confidence"
+          ],
+          "stopRules": [
+            "pain",
+            "fear",
+            "pause",
+            "excessive collapse",
+            "rebound-height loss",
+            "alignment loss",
+            "uncontrolled final landing"
+          ]
+        },
+        "programmingDecision": "Use Depth Jump as the stable countermovement strategy identity that prioritizes rebound height. Consolidate Depth Jump to Rebound and Depth Jump to Vertical Jump into it after human review; remove the capacity profile."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=AzPJZHOmGEg",
+          "title": "Max Effort Plyometrics: Depth Jumps",
+          "channelName": "Wil Fleming",
+          "sourceQuery": "depth jump vertical jump exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=GeN0S3XCZnM",
+          "title": "Depth Jump | Olympic Weightlifting Exercise Library",
+          "channelName": "Catalyst Athletics",
+          "sourceQuery": "depth jump vertical jump exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=DxzbXy0lC6Y",
+          "title": "How To Depth Jumps",
+          "channelName": "Third Space London",
+          "sourceQuery": "depth jump vertical jump exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Phf_HO1w9BA",
+          "title": "Long Jump 101: Drop Jumps Vs Depth Jumps",
+          "channelName": "Jumpers Junction",
+          "sourceQuery": "depth jump vertical jump exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=dGQRsuI_-ag",
+          "title": "Depth Jump to Vertical Jump",
+          "channelName": "YST Exercises",
+          "sourceQuery": "depth jump vertical jump exercise"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Depth Jump to Vertical Jump",
+          "classification": "same_identity",
+          "rationale": "Vertical maximal rebound is the proposed baseline output.",
+          "distinguishingDimensions": {
+            "reboundDirection": "vertical"
+          }
+        },
+        {
+          "name": "Depth Jump to Rebound",
+          "classification": "same_identity",
+          "rationale": "Rebound is inherent to the depth-jump contact sequence.",
+          "distinguishingDimensions": {
+            "alias": "depth_jump_to_rebound"
+          }
+        },
+        {
+          "name": "Bounce Drop Jump",
+          "classification": "new_variant",
+          "rationale": "A shallow short-contact strategy prioritizes RSI rather than rebound height.",
+          "distinguishingDimensions": {
+            "contactStrategy": "bounce"
+          }
+        },
+        {
+          "name": "Depth Jump to Broad Jump",
+          "classification": "new_definition",
+          "rationale": "Horizontal projection changes output and final landing.",
+          "distinguishingDimensions": {
+            "reboundDirection": "horizontal"
+          }
+        },
+        {
+          "name": "Depth Jump to Box",
+          "classification": "new_definition",
+          "rationale": "A second box adds obstacle clearance and collision risk.",
+          "distinguishingDimensions": {
+            "finalLandingSurface": "box"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "depth-jump-to-rebound",
+      "assessmentSummary": {
+        "identity": "A bilateral platform step-off, immediate countermovement contact, maximal vertical rebound, and controlled bilateral final landing.",
+        "currentCardFindings": [
+          "The title repeats rebound, which is already inherent to a depth jump.",
+          "The cue 'fast off the floor' conflicts with the unspecified contact strategy and may collapse the distinction from Drop Jump.",
+          "The 50-point score and 10-point load value omit high impact, supervision, and consequence."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "platform_step_off",
+            "bilateral_countermovement_depth_jump",
+            "vertical_rebound",
+            "final_bilateral_land"
+          ],
+          "jointActions": [
+            "ankle_dorsiflexion_to_plantarflexion",
+            "knee_flexion_to_extension",
+            "hip_flexion_to_extension",
+            "landing_absorption"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "bilateral_contact_bilateral_final_landing",
+          "intent": "maximize_vertical_rebound_height_with_continuous_countermovement"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 28,
+          "coordinationDemand": 60,
+          "supervisionDemand": 66,
+          "failureConsequence": 70,
+          "impact": 72,
+          "workCapacityDemand": 20,
+          "baseOverallDifficulty": 58
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_countermovement_depth_jump",
+          "impactClass": "high_and_height_dependent",
+          "landingContactsPerRep": 2,
+          "primaryStress": [
+            "eccentric_absorption",
+            "countermovement_reversal",
+            "vertical_power",
+            "final_landing"
+          ],
+          "fatigueSensitivity": "rebound_height_contact_strategy_and_landing_control"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "stable_platform",
+            "level_jump_surface"
+          ],
+          "optionalEquipment": [
+            "jump_height_device",
+            "contact_timer"
+          ],
+          "environment": [
+            "adequate_ceiling",
+            "clear_landing_zone",
+            "close_supervision"
+          ],
+          "population": [
+            "owns_depth_drop_and_drop_jump_progressions",
+            "adequate_eccentric_strength"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-5",
+          "repetitions": "1-4",
+          "interRepResetSeconds": "15-30",
+          "restSeconds": "120-300",
+          "intensity": "maximal_rebound_height",
+          "qualityMetric": "rebound_height_with_contact_strategy_recorded",
+          "progressWhen": "rebound output and continuous countermovement remain stable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Step off",
+            "Absorb then reverse without pausing",
+            "Jump tall",
+            "Stick the finish"
+          ],
+          "athleteInstructions": [
+            "Use one smooth countermovement after landing and jump straight up as high as possible"
+          ],
+          "commonFaults": [
+            "pause",
+            "shallow strategy drift",
+            "excessive collapse",
+            "forward travel",
+            "rushed reset"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "controlled depth drop",
+            "repeatable drop jump",
+            "adequate strength and confidence"
+          ],
+          "stopRules": [
+            "pain",
+            "apprehension",
+            "pause",
+            "collapse",
+            "rebound loss",
+            "alignment or final-landing loss"
+          ]
+        },
+        "programmingDecision": "Consolidate into Depth Jump after human identity review. Rebound is inherent and should not create a duplicate card."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=AzPJZHOmGEg",
+          "title": "Max Effort Plyometrics: Depth Jumps",
+          "channelName": "Wil Fleming",
+          "sourceQuery": "depth jump vertical jump exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=GeN0S3XCZnM",
+          "title": "Depth Jump | Olympic Weightlifting Exercise Library",
+          "channelName": "Catalyst Athletics",
+          "sourceQuery": "depth jump vertical jump exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=DxzbXy0lC6Y",
+          "title": "How To Depth Jumps",
+          "channelName": "Third Space London",
+          "sourceQuery": "depth jump vertical jump exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Phf_HO1w9BA",
+          "title": "Long Jump 101: Drop Jumps Vs Depth Jumps",
+          "channelName": "Jumpers Junction",
+          "sourceQuery": "depth jump vertical jump exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=dGQRsuI_-ag",
+          "title": "Depth Jump to Vertical Jump",
+          "channelName": "YST Exercises",
+          "sourceQuery": "depth jump vertical jump exercise"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Depth Jump",
+          "classification": "same_identity",
+          "rationale": "A depth jump already includes the rebound.",
+          "distinguishingDimensions": {
+            "canonicalSurvivor": "depth_jump"
+          }
+        },
+        {
+          "name": "Depth Jump to Vertical Jump",
+          "classification": "same_identity",
+          "rationale": "Vertical is the proposed baseline rebound direction.",
+          "distinguishingDimensions": {
+            "reboundDirection": "vertical"
+          }
+        },
+        {
+          "name": "Bounce Drop Jump",
+          "classification": "new_variant",
+          "rationale": "Short-contact bounce technique changes the strategy.",
+          "distinguishingDimensions": {
+            "contactStrategy": "bounce"
+          }
+        },
+        {
+          "name": "Depth Jump to Broad Rebound",
+          "classification": "new_definition",
+          "rationale": "Horizontal direction changes projection.",
+          "distinguishingDimensions": {
+            "reboundDirection": "horizontal"
+          }
+        },
+        {
+          "name": "Single-Leg Depth Jump",
+          "classification": "new_definition",
+          "rationale": "Unilateral ground contact materially changes loading.",
+          "distinguishingDimensions": {
+            "contactLaterality": "unilateral"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "depth-jump-to-vertical-jump",
+      "assessmentSummary": {
+        "identity": "A bilateral platform step-off into a continuous countermovement ground contact and maximal vertical rebound, followed by a controlled bilateral final landing.",
+        "currentCardFindings": [
+          "Vertical Jump states the proposed baseline direction and does not distinguish this from Depth Jump.",
+          "The description contains generic sport examples instead of contact strategy, drop height, final landing, or measurable outcome.",
+          "The 50-point score and 10-point load value understate the advanced physical and supervisory demands."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "platform_step_off",
+            "bilateral_countermovement_depth_jump",
+            "maximal_vertical_rebound",
+            "final_bilateral_land"
+          ],
+          "jointActions": [
+            "ankle_dorsiflexion_to_plantarflexion",
+            "knee_flexion_to_extension",
+            "hip_flexion_to_extension",
+            "landing_absorption"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "bilateral_contact_bilateral_final_landing",
+          "intent": "maximal_vertical_rebound_height"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 28,
+          "coordinationDemand": 60,
+          "supervisionDemand": 66,
+          "failureConsequence": 70,
+          "impact": 72,
+          "workCapacityDemand": 20,
+          "baseOverallDifficulty": 58
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_countermovement_depth_jump_to_vertical_rebound",
+          "impactClass": "high_and_height_dependent",
+          "landingContactsPerRep": 2,
+          "primaryStress": [
+            "eccentric_absorption",
+            "vertical_impulse",
+            "countermovement_reversal",
+            "final_landing"
+          ],
+          "fatigueSensitivity": "rebound_height_contact_strategy_alignment_and_finish"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "stable_platform",
+            "level_jump_surface"
+          ],
+          "optionalEquipment": [
+            "jump_height_device",
+            "contact_timer",
+            "video_feedback"
+          ],
+          "environment": [
+            "adequate_ceiling",
+            "clear_final_landing_zone",
+            "close_supervision"
+          ],
+          "population": [
+            "owns_depth_drop_and_drop_jump_progressions",
+            "adequate_eccentric_strength",
+            "no_pain_or_fear"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-5",
+          "repetitions": "1-4",
+          "interRepResetSeconds": "15-30",
+          "restSeconds": "120-300",
+          "intensity": "maximal_vertical_rebound",
+          "qualityMetric": "rebound_height_with_contact_time_and_strategy",
+          "progressWhen": "rebound height and continuous contact strategy remain stable with a controlled final landing"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Step off",
+            "Absorb and reverse",
+            "Jump straight up",
+            "Land the rebound"
+          ],
+          "athleteInstructions": [
+            "Step down, use one smooth countermovement, jump maximally upward, and control the landing"
+          ],
+          "commonFaults": [
+            "pause",
+            "horizontal drift",
+            "strategy changes",
+            "excessive collapse",
+            "output loss",
+            "poor finish"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "clean depth drop",
+            "clean drop jump",
+            "adequate strength and confidence"
+          ],
+          "stopRules": [
+            "pain",
+            "fear",
+            "pause",
+            "collapse",
+            "rebound drop",
+            "alignment loss",
+            "uncontrolled final landing"
+          ]
+        },
+        "programmingDecision": "Consolidate into Depth Jump after human identity review. Vertical rebound is the baseline direction; horizontal, lateral, or box-to-box outputs require separate definitions."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=AzPJZHOmGEg",
+          "title": "Max Effort Plyometrics: Depth Jumps",
+          "channelName": "Wil Fleming",
+          "sourceQuery": "depth jump vertical jump exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=GeN0S3XCZnM",
+          "title": "Depth Jump | Olympic Weightlifting Exercise Library",
+          "channelName": "Catalyst Athletics",
+          "sourceQuery": "depth jump vertical jump exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=DxzbXy0lC6Y",
+          "title": "How To Depth Jumps",
+          "channelName": "Third Space London",
+          "sourceQuery": "depth jump vertical jump exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Phf_HO1w9BA",
+          "title": "Long Jump 101: Drop Jumps Vs Depth Jumps",
+          "channelName": "Jumpers Junction",
+          "sourceQuery": "depth jump vertical jump exercise"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=dGQRsuI_-ag",
+          "title": "Depth Jump to Vertical Jump",
+          "channelName": "YST Exercises",
+          "sourceQuery": "depth jump vertical jump exercise"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Depth Jump",
+          "classification": "same_identity",
+          "rationale": "Maximal vertical rebound is the baseline.",
+          "distinguishingDimensions": {
+            "canonicalSurvivor": "depth_jump"
+          }
+        },
+        {
+          "name": "Depth Jump to Rebound",
+          "classification": "same_identity",
+          "rationale": "Rebound is inherent to the identity.",
+          "distinguishingDimensions": {
+            "alias": "depth_jump_to_rebound"
+          }
+        },
+        {
+          "name": "Bounce Drop Jump",
+          "classification": "new_variant",
+          "rationale": "A short-contact strategy trades some height for faster contact.",
+          "distinguishingDimensions": {
+            "contactStrategy": "bounce"
+          }
+        },
+        {
+          "name": "Depth Jump to Broad Jump",
+          "classification": "new_definition",
+          "rationale": "Horizontal direction changes output.",
+          "distinguishingDimensions": {
+            "reboundDirection": "horizontal"
+          }
+        },
+        {
+          "name": "Depth Jump to Sprint",
+          "classification": "new_definition",
+          "rationale": "Acceleration exit adds horizontal contacts.",
+          "distinguishingDimensions": {
+            "exit": "sprint"
+          }
+        }
+      ]
+    }
+  ]
+}

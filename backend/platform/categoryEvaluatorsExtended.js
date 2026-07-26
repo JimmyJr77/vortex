@@ -65,8 +65,6 @@ const NO_STRETCH_PRIMARY_PHASES = new Set([
   'resilience',
 ])
 const STRETCH_ALLOWED_PHASES = new Set(['sustained_capacity', 'restore'])
-const SKILL_RANK = { EARLY_STAGE: 0, BEGINNER: 1, INTERMEDIATE: 2, ADVANCED: 3, ELITE: 4 }
-
 function fail(checks, id, message, detail = null) {
   checks.push({ id, ok: false, severity: 'P1', message, detail })
 }
@@ -2644,7 +2642,6 @@ export function evaluateCategory10AgeFit(result, expectedBody, checks, context =
     : buildSplitProfilesFromBody(expectedBody)
   const poolCaps = mergeCapsMax(sessionCaps, ...splitProfiles.map((s) => s.caps))
   const sessionAgeMax = Number(expectedBody.ageMax ?? expectedBody.age_max ?? profile.ageMax ?? 120)
-  const audienceSkill = String(expectedBody.skillLevel ?? expectedBody.skill_level ?? profile.impliedSkillLevel ?? 'INTERMEDIATE').toUpperCase()
   const expectedProfile = resolveAudienceProfile({
     ageMin: expectedBody.ageMin ?? expectedBody.age_min,
     ageMax: expectedBody.ageMax ?? expectedBody.age_max,
@@ -2855,23 +2852,24 @@ export function evaluateCategory10AgeFit(result, expectedBody, checks, context =
 
   let skillResiduals = 0
   let skillChecked = 0
-  const audienceRank = SKILL_RANK[audienceSkill] ?? SKILL_RANK.INTERMEDIATE
   if (sessionAgeMax <= 17) {
     for (const block of result.blocks ?? []) {
       for (const item of block.items ?? []) {
-        const exSkill = String(exerciseById.get(Number(item.exercise_id))?.skill_level ?? '').toUpperCase()
-        if (!exSkill || !(exSkill in SKILL_RANK)) continue
+        const difficulty = item.difficulty
+          ?? difficultyByExerciseId.get(String(item.exercise_id))
+          ?? difficultyByExerciseId.get(Number(item.exercise_id))
+        if (!difficulty) continue
         skillChecked += 1
-        if (SKILL_RANK[exSkill] > audienceRank) skillResiduals += 1
+        if (classifyAgeFit(difficulty, expectedProfile.caps) === 'over_cap') skillResiduals += 1
       }
     }
   }
   if (skillChecked > 0 && skillResiduals > 0) {
-    fail(checks, 'skill_level_residuals', `${skillResiduals}/${skillChecked} exercises exceed audience skill ${audienceSkill}`)
+    fail(checks, 'skill_level_residuals', `${skillResiduals}/${skillChecked} exercises exceed audience difficulty caps`)
   } else if (skillChecked > 0) {
-    pass(checks, 'skill_level_residuals', `No skill_level above ${audienceSkill} for youth session`)
+    pass(checks, 'skill_level_residuals', 'No exercise difficulty exceeds audience caps')
   } else if (sessionAgeMax <= 17) {
-    pass(checks, 'skill_level_residuals', 'Skill level residuals N/A — no tagged exercises')
+    pass(checks, 'skill_level_residuals', 'Difficulty residuals N/A — no difficulty profiles')
   }
 
   ensureCheck(checks, 'audience_recommended_age_overlap', () => {
@@ -6599,15 +6597,15 @@ export function evaluateCategory17Youth(result, expectedBody, checks, context = 
     pass(checks, 'split1_cap_adherence', 'Split 1 cap adherence N/A — single split')
   }
 
-  // C17-MOP-18 — youth_advanced_skill_level
+  // C17-MOP-18 — retained check ID; evaluates high exercise difficulty.
   if (!findCheck(checks, 'youth_advanced_skill_level')) {
     let advancedTotal = 0
     let advancedMi = 0
     if (sessMax <= YOUTH_SESSION_AGE_MAX) {
       for (const block of result.blocks ?? []) {
         for (const item of block.items ?? []) {
-          const exSkill = String(exerciseById.get(Number(item.exercise_id))?.skill_level ?? '').toUpperCase()
-          if (exSkill === 'ADVANCED') {
+          const difficulty = difficultyForItem(item, difficultyByExerciseId)
+          if (Number(difficulty?.overall ?? 0) >= 8 || Number(difficulty?.technical ?? 0) >= 8) {
             advancedTotal += 1
             if (block.phase_key === 'movement_intelligence') advancedMi += 1
           }
@@ -6615,11 +6613,11 @@ export function evaluateCategory17Youth(result, expectedBody, checks, context = 
       }
     }
     if (sessMax <= YOUTH_SESSION_AGE_MAX && (advancedMi > 0 || advancedTotal > 2)) {
-      fail(checks, 'youth_advanced_skill_level', `ADVANCED: ${advancedTotal} session-wide, ${advancedMi} in MI (max 2 / 0 MI)`)
+      fail(checks, 'youth_advanced_skill_level', `High difficulty: ${advancedTotal} session-wide, ${advancedMi} in MI (max 2 / 0 MI)`)
     } else if (sessMax <= YOUTH_SESSION_AGE_MAX) {
-      pass(checks, 'youth_advanced_skill_level', `ADVANCED count ${advancedTotal} (MI ${advancedMi})`)
+      pass(checks, 'youth_advanced_skill_level', `High-difficulty count ${advancedTotal} (MI ${advancedMi})`)
     } else {
-      pass(checks, 'youth_advanced_skill_level', 'ADVANCED skill check N/A')
+      pass(checks, 'youth_advanced_skill_level', 'High-difficulty youth check N/A')
     }
   }
 

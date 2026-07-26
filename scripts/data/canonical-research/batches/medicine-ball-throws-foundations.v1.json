@@ -1,0 +1,1417 @@
+{
+  "batchKey": "medicine-ball-throws-foundations-v1",
+  "researchVersion": "2026-07-25.19",
+  "snapshotAt": "2026-07-26T01:54:40.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "medicine_ball_rotational_power_validity",
+      "claims": [
+        "Medicine-ball power assessment depends on a standardized throw task, ball mass, execution, and outcome measure.",
+        "{{canonicalName}} must define stance and orientation, one- or two-hand release, ball start position, primary force direction, rotational intent, entry steps, target or free-flight lane, catch or retrieval rule, and finish."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "upper_body_plyometric_meta_analysis",
+      "claims": [
+        "Medicine-ball throws are commonly used as upper-body plyometric or ballistic power exercises, but training protocols and throw positions vary.",
+        "Classify {{canonicalName}} by forward versus rotational force direction, bilateral versus unilateral release, chest-level versus underhand start, static versus dynamic entry, and wall, partner, or open-lane outcome."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "medicine_ball_velocity_reliability",
+      "claims": [
+        "Standing and seated medicine-ball throws are measurably different tasks, so lower-body contribution and whole-body coordination cannot be inferred from an upper-body-only label.",
+        "Represent the feet, ankles, knees, hips, pelvis, trunk, scapulae, shoulders, elbows, wrists, and hands actually used by the selected standing, kneeling, seated, or supine version."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "medicine_ball_rotational_power_validity",
+      "claims": [
+        "Rotational medicine-ball power can be assessed from release velocity or throw distance when the protocol is standardized.",
+        "Coach pressure from the floor through the hips and trunk into the ball, preserve the intended forward or transverse vector, release without a lumbar-dominant twist or backward lean, and finish in a controlled stance."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "medicine_ball_velocity_reliability",
+      "claims": [
+        "Throw technique and medicine-ball mass affect performance variability and therefore change the demands of the task.",
+        "Score technical complexity, absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. Athlete experience is programming context and never an exercise-card skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "medicine_ball_power_fatigue",
+      "claims": [
+        "Medicine-ball power performance can decline after upper-body neuromuscular fatigue.",
+        "{{canonicalName}} must track ball mass and type, throws and catches per side, entry contacts, release velocity or distance when measured, target accuracy, local shoulder and trunk fatigue, technical speed loss, recovery between sets, and weekly high-intent throw volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "medicine_ball_velocity_reliability",
+      "claims": [
+        "Reliable comparison requires the same technique and ball mass.",
+        "Require an intact appropriately sized medicine ball, a clear wall or open throwing lane matched to rebound behavior, safe retrieval space, a defined target and stop command, stable footing, athlete separation, and no bystanders in the flight or rebound path."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "upper_body_plyometric_meta_analysis",
+      "claims": [
+        "Upper-body plyometric studies use varied doses, with lower repetition ranges generally paired with maximal effort and adequate inter-set and inter-session recovery.",
+        "For power delivery, use roughly three to five sets of two to six high-quality throws per side or bilateral set with 60–180 seconds between sets; stop before speed, distance, accuracy, posture, or safe rebound control declines."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "medicine_ball_rotational_power_validity",
+      "claims": [
+        "Measurement is meaningful only when the throwing protocol stays consistent.",
+        "State the stance, ball position, hand pattern, target, permitted step or rotation, release vector, catch or retrieval action, reset, side order, and exact rep-quality rule before the first throw."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Youth resistance and power training should be supervised, technically appropriate, progressively dosed, and performed with safe equipment and space.",
+        "Stop for pain, numbness, dizziness, unsafe ball rebound, target or wall failure, lane entry, loss of grip, uncontrolled catch, lumbar-dominant rotation, shoulder or elbow compensation, loss of balance, accuracy collapse, or repeatable output loss."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "upper_body_plyometric_meta_analysis",
+      "claims": [
+        "Upper-body plyometric training can improve medicine-ball throwing and sport-specific throwing performance, although certainty and transfer vary by task and population.",
+        "Place {{canonicalName}} early in Output work after relevant access and activation. Match stance, vector, ball mass, and intent to the objective; do not turn maximal throws into dense conditioning."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "seated_medicine_ball_power_reliability",
+      "claims": [
+        "A medicine-ball throw can be repeatable when position, ball mass, trials, and measurement are standardized.",
+        "Show the exact front, side, and target views; label ball mass and rebound type; demonstrate start, load, release, follow-through, retrieval or catch, reset, side change, acceptable miss, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "medicine_ball_rotational_power_validity",
+      "claims": [
+        "Velocity and distance can serve as field measures when the rotational medicine-ball protocol is controlled.",
+        "Provide ball-mass selection, lane and wall inspection, side balance, release-vector observation, target zones, optional velocity or distance tracking, speed-loss rules, catch counts, camera angles, regression decisions, and weekly throw-budget guidance."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "seated_medicine_ball_power_reliability",
+      "claims": [
+        "Seated medicine-ball throwing can provide a reliable upper-body power task when lower-body contribution is intentionally constrained.",
+        "Accessibility options include a lighter or larger soft ball, seated or tall-kneeling support, shorter target distance, partner return instead of wall rebound, no catch, reduced rotation, pre-positioned ball, fewer throws, longer recovery, verbal and visual cues, and non-maximal familiarization."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "medicine_ball_velocity_reliability",
+      "claims": [
+        "Standing versus seated position, ball mass, and throw technique materially change the measured task.",
+        "Treat stance and entry as controlled variants when release pattern and vector stay the same; create a distinct definition when bilateral versus unilateral release, forward versus rotational vector, chest versus scoop path, overhead direction, rebound catch, or terminal outcome changes."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for {{canonicalName}} remain candidate-only. Availability, embedding, exact stance and release match, full viewing, ball type, target and rebound behavior, captions, cue and safety quality, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "medicine-ball-chest-pass",
+      "assessmentSummary": {
+        "identity": "A static standing bilateral chest-level medicine-ball pass projected forward to a wall or partner, followed by a controlled catch or retrieval and full reset.",
+        "currentCardFindings": [
+          "The current card describes horizontal upper-body power but does not define stance, hand position, permitted countermovement, target, rebound, catch, distance, ball mass, or reset.",
+          "The consolidated baseline variants repeat the same identity with conflicting Output and Capacity doses rather than controlled delivery profiles.",
+          "Uniform legacy difficulty values understate ball-rebound supervision, catch exposure, load-dependent release changes, and the distinction between standing, seated, kneeling, stepping, and reactive versions."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "bilateral_horizontal_push",
+            "ballistic_chest_pass",
+            "static_stance_power"
+          ],
+          "jointActions": [
+            "scapular_protraction",
+            "shoulder_horizontal_adduction",
+            "elbow_extension",
+            "trunk_bracing",
+            "lower_body_counterpressure"
+          ],
+          "planes": [
+            "sagittal",
+            "transverse"
+          ],
+          "laterality": "bilateral",
+          "intent": "maximal_forward_ball_speed_with_stable_trunk_and_safe_reset"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "pectoralis_major",
+            "triceps_brachii",
+            "serratus_anterior",
+            "anterior_deltoid",
+            "rectus_abdominis",
+            "obliques"
+          ],
+          "secondaryMuscles": [
+            "rotator_cuff",
+            "middle_trapezius",
+            "lower_trapezius",
+            "spinal_stabilizers",
+            "gluteals",
+            "quadriceps",
+            "forearm_flexors"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "spine",
+            "scapulothoracic_articulation",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hand"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 38,
+          "absoluteLoadDemand": 24,
+          "coordinationDemand": 44,
+          "supervisionDemand": 48,
+          "failureConsequence": 45,
+          "impact": 15,
+          "workCapacityDemand": 38,
+          "baseOverallDifficulty": 38
+        },
+        "proposedLoadProfile": {
+          "loadingType": "external_ballistic_bilateral_horizontal_push",
+          "impactClass": "low_body_impact_with_rebound_and_catch_exposure",
+          "externalLoadMethod": "medicine_ball_mass_selected_for_fast_repeatable_release",
+          "primaryStress": [
+            "pectorals",
+            "triceps",
+            "anterior_shoulder",
+            "scapular_protractors",
+            "anterior_trunk",
+            "hands_if_catching"
+          ],
+          "fatigueProfile": [
+            "upper_body_power_loss",
+            "ribs_flare_or_backward_lean",
+            "slow_release",
+            "target_drift",
+            "late_or_rigid_catch"
+          ],
+          "recoveryHours": "24-48_by_intensity_volume_and_other_throwing"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "intact_medicine_ball",
+            "safe_wall_partner_or_open_target",
+            "clear_rebound_and_retrieval_zone"
+          ],
+          "optionalEquipment": [
+            "target_mark",
+            "radar_or_ball_sensor",
+            "video"
+          ],
+          "environment": [
+            "non_slip_surface",
+            "wall_rated_for_ball_impact",
+            "no_people_in_throw_or_rebound_path"
+          ],
+          "population": [
+            "pain_free_horizontal_push",
+            "can_control_trunk_and_ball",
+            "supervised_if_rebound_or_catch_is_used"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "3-5_sets_of_3-6_bilateral_throws",
+          "restSeconds": "60-180",
+          "intensity": "maximal_safe_ball_speed_with_full_reset",
+          "measurement": "ball_mass_release_velocity_distance_or_target_accuracy",
+          "progressWhen": "release speed and target stay stable without backward lean, rib flare, unsafe rebound, or catch error"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Ball at the chest",
+            "Brace before the throw",
+            "Punch through the target",
+            "Own the rebound or let it drop",
+            "Reset fully"
+          ],
+          "athleteInstructions": [
+            "Face the target, hold the ball at your chest, brace, drive both hands forward fast, then catch only if assigned and reset before the next rep"
+          ],
+          "commonFaults": [
+            "undefined_stance",
+            "ball_too_heavy",
+            "backward_lean",
+            "rib_flare",
+            "uneven_release",
+            "slow_repetition",
+            "unsafe_catch",
+            "chasing_rebound"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_push",
+            "safe_grip",
+            "brace_control",
+            "clear_rebound_path"
+          ],
+          "stopRules": [
+            "shoulder_elbow_wrist_or_back_pain",
+            "loss_of_grip",
+            "wall_or_target_failure",
+            "unsafe_rebound",
+            "catch_error",
+            "two_slow_or_inaccurate_reps",
+            "lane_entry"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "front_and_side_demo",
+            "ball_mass_label",
+            "catch_or_no_catch_badge",
+            "target_and_reset_animation"
+          ],
+          "coach": [
+            "ball_selection_guide",
+            "wall_and_partner_spacing",
+            "release_velocity_or_distance_log",
+            "catch_count_and_speed_loss_budget"
+          ]
+        },
+        "programmingDecision": "Retain one standing bilateral forward chest-pass definition. Merge duplicate baseline variants after human review; express seated, kneeling, stepping, partner, wall, catch, and load choices as controlled variants or delivery annotations."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=G0pQoSxb-Ao",
+          "title": "Medicine Ball Chest Pass",
+          "channelName": "Testosterone Nation",
+          "sourceQuery": "existing exact-title candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Jo2on0-YBPM",
+          "title": "How to Do a Med Ball Chest Pass",
+          "channelName": "Jon Hodgkinson Golf Fitness",
+          "sourceQuery": "existing exact-title candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=e-zHTwXA8mE",
+          "title": "Standing Medicine Ball Chest Pass - Viking Strength Systems",
+          "channelName": "Viking Strength Systems",
+          "sourceQuery": "existing exact-title candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=hWDOISqFzfQ",
+          "title": "Plyometric exercise- Medicine ball chest pass",
+          "channelName": "Human Kinetics",
+          "sourceQuery": "existing exact-title candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=pJ8amgzbZMM",
+          "title": "Standing Chest Pass Medicine Ball",
+          "channelName": "YST Exercises",
+          "sourceQuery": "existing exact-title candidate"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Seated Medicine Ball Chest Pass",
+          "classification": "new_variant",
+          "rationale": "Seating removes lower-body contribution while preserving the bilateral chest-level forward release.",
+          "distinguishingDimensions": {
+            "supportPosition": "seated"
+          }
+        },
+        {
+          "name": "Tall-Kneeling Medicine Ball Chest Pass",
+          "classification": "new_variant",
+          "rationale": "Tall kneeling changes base of support and hip contribution without changing the release identity.",
+          "distinguishingDimensions": {
+            "supportPosition": "tall_kneeling"
+          }
+        },
+        {
+          "name": "Supine Medicine Ball Chest Throw",
+          "classification": "new_variant",
+          "rationale": "Supine support constrains trunk and lower body but preserves a bilateral chest push.",
+          "distinguishingDimensions": {
+            "supportPosition": "supine"
+          }
+        },
+        {
+          "name": "Reactive Rebound Chest Pass",
+          "classification": "new_variant",
+          "rationale": "A required rebound catch and immediate rethrow adds eccentric absorption and timing.",
+          "distinguishingDimensions": {
+            "catchRule": "reactive_rethrow"
+          }
+        },
+        {
+          "name": "Rotational Medicine Ball Chest Pass",
+          "classification": "new_definition",
+          "rationale": "Deliberate transverse loading and release changes the force vector and laterality.",
+          "distinguishingDimensions": {
+            "forceVector": "rotational"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "medicine-ball-scoop-toss",
+      "assessmentSummary": {
+        "identity": "A front-facing bilateral underhand medicine-ball throw using a controlled hip hinge and whole-body extension to project the ball forward for distance into a clear lane.",
+        "currentCardFindings": [
+          "The current name and description do not distinguish forward, vertical, reverse, rotational, wall, or free-flight scoop-toss paths.",
+          "One inherited media candidate is explicitly rotational and another is half-kneeling, so the legacy set does not prove one exact baseline.",
+          "The merged source variants repeat the baseline and mix distance-jump transfer with a generic quick-release label instead of specifying the forward projection identity."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "bilateral_hip_hinge",
+            "whole_body_extension",
+            "forward_underhand_ballistic_throw"
+          ],
+          "jointActions": [
+            "hip_knee_ankle_extension",
+            "trunk_bracing",
+            "shoulder_flexion",
+            "elbow_extension_near_release",
+            "bilateral_grip_release"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "bilateral",
+          "intent": "maximal_safe_forward_projection_with_clean_release_and_balanced_finish"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "hamstrings",
+            "quadriceps",
+            "soleus",
+            "gastrocnemius",
+            "rectus_abdominis",
+            "latissimus_dorsi",
+            "anterior_deltoid"
+          ],
+          "secondaryMuscles": [
+            "spinal_stabilizers",
+            "obliques",
+            "serratus_anterior",
+            "triceps_brachii",
+            "forearm_flexors",
+            "intrinsic_foot"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "spine",
+            "scapulothoracic_articulation",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hand"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 50,
+          "absoluteLoadDemand": 28,
+          "coordinationDemand": 56,
+          "supervisionDemand": 58,
+          "failureConsequence": 54,
+          "impact": 24,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 50
+        },
+        "proposedLoadProfile": {
+          "loadingType": "external_ballistic_bilateral_forward_projection",
+          "impactClass": "low_to_moderate_by_jump_and_finish_rule",
+          "externalLoadMethod": "medicine_ball_mass_selected_for_fast_projection_without_arm_only_compensation",
+          "primaryStress": [
+            "posterior_chain",
+            "quadriceps",
+            "plantar_flexors",
+            "anterior_trunk",
+            "shoulders",
+            "grip"
+          ],
+          "fatigueProfile": [
+            "slow_hip_extension",
+            "early_arm_lift",
+            "lumbar_hyperextension",
+            "short_or_high_release",
+            "stumble_after_release"
+          ],
+          "recoveryHours": "24-48_by_intensity_volume_and_lower_body_power_load"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "intact_medicine_ball",
+            "marked_forward_throw_lane",
+            "safe_landing_and_retrieval_space"
+          ],
+          "optionalEquipment": [
+            "distance_tape",
+            "release_line",
+            "radar_or_ball_sensor",
+            "video"
+          ],
+          "environment": [
+            "non_slip_surface",
+            "adequate_ceiling_and_forward_clearance",
+            "no_people_in_throw_or_retrieval_path"
+          ],
+          "population": [
+            "pain_free_hip_hinge_and_overhand_finish",
+            "can_release_without_chasing_ball",
+            "can_balance_after_maximal_extension"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "3-5_sets_of_2-5_throws",
+          "restSeconds": "75-180",
+          "intensity": "high_intent_forward_projection",
+          "measurement": "ball_mass_distance_release_velocity_and_foul_line",
+          "progressWhen": "distance or velocity is repeatable with hip-led extension, clean release, and controlled finish"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Face the lane",
+            "Load the hips",
+            "Drive the floor away",
+            "Throw forward through the ball",
+            "Finish balanced"
+          ],
+          "athleteInstructions": [
+            "Face forward, hinge with the ball between your legs or low in front, extend through your hips and legs, release the ball forward, and stay behind the line under control"
+          ],
+          "commonFaults": [
+            "undefined_throw_vector",
+            "ball_too_heavy",
+            "squat_without_hinge",
+            "arm_only_throw",
+            "lumbar_hyperextension",
+            "vertical_instead_of_forward_release",
+            "line_foul",
+            "chasing_ball"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_hinge",
+            "overhead_and_forward_release_clearance",
+            "safe_grip",
+            "clear_lane"
+          ],
+          "stopRules": [
+            "back_shoulder_elbow_or_wrist_pain",
+            "loss_of_grip",
+            "lane_entry",
+            "ceiling_or_target_conflict",
+            "stumble_or_fall",
+            "two_slow_or_short_reps",
+            "unsafe_retrieval"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "front_and_side_demo",
+            "forward_vector_overlay",
+            "release_line_and_retrieval_map"
+          ],
+          "coach": [
+            "ball_mass_and_distance_log",
+            "foul_and_finish_rules",
+            "projection_angle_review",
+            "weekly_high_intent_throw_budget"
+          ]
+        },
+        "programmingDecision": "Retain only as the front-facing forward scoop-toss definition and rename the display label to Forward Medicine Ball Scoop Toss after review. Move rotational, vertical, reverse, kneeling, and dynamic-entry demonstrations to their own definitions or controlled variants."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=wPEYsRVChNE",
+          "title": "Medicine Ball Forward Scoop Toss for Distance",
+          "channelName": "Simone Sports Performance",
+          "sourceQuery": "visible YouTube search: standing forward medicine ball scoop toss distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=UmLEPjElr4s",
+          "title": "How To: Med Ball Forward Scoop Toss",
+          "channelName": "RAWR Strength",
+          "sourceQuery": "visible YouTube search: standing forward medicine ball scoop toss distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=npqgpBmI0ys",
+          "title": "Medicine Ball Scoop Toss for Distance",
+          "channelName": "Simone Sports Performance",
+          "sourceQuery": "existing exact forward-distance candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=GaUjwlJYWtw",
+          "title": "Forward Facing MB Scoop Toss",
+          "channelName": "Champion Physical Therapy and Performance",
+          "sourceQuery": "visible YouTube search: standing forward medicine ball scoop toss distance"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=aAeQkR2uDmo",
+          "title": "Med Ball Forward Scoop Throw",
+          "channelName": "Jordan Foley",
+          "sourceQuery": "visible YouTube search: standing forward medicine ball scoop toss distance"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Rotational Medicine Ball Scoop Toss",
+          "classification": "new_definition",
+          "rationale": "Side-on transverse loading and lateral release create a different vector and side-specific task.",
+          "distinguishingDimensions": {
+            "forceVector": "rotational"
+          }
+        },
+        {
+          "name": "Vertical Medicine Ball Scoop Toss",
+          "classification": "new_definition",
+          "rationale": "An upward release changes trajectory, space, catch risk, and outcome.",
+          "distinguishingDimensions": {
+            "forceVector": "vertical"
+          }
+        },
+        {
+          "name": "Reverse Overhead Medicine Ball Toss",
+          "classification": "new_definition",
+          "rationale": "Backward overhead projection changes direction, release path, visibility, and space.",
+          "distinguishingDimensions": {
+            "forceVector": "backward_overhead"
+          }
+        },
+        {
+          "name": "Half-Kneeling Forward Scoop Toss",
+          "classification": "new_variant",
+          "rationale": "Kneeling constrains lower-body extension while preserving the bilateral forward scoop path.",
+          "distinguishingDimensions": {
+            "supportPosition": "half_kneeling"
+          }
+        },
+        {
+          "name": "Forward Scoop Toss for Distance",
+          "classification": "modifier_annotation",
+          "rationale": "Distance measurement is the baseline outcome metric rather than a new exercise.",
+          "distinguishingDimensions": {
+            "measurement": "distance"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "medicine-ball-rotational-scoop-toss",
+      "assessmentSummary": {
+        "identity": "A static side-on bilateral medicine-ball throw that loads the ball near the back hip and uses sequenced hip and trunk rotation to release low and laterally into a wall or open lane.",
+        "currentCardFindings": [
+          "The current description identifies a side-on back-hip load but does not lock stance width, permitted pivot, release height, wall angle, target, catch rule, side balance, ball mass, or dynamic entry.",
+          "The kicking-specific consolidated source is a programming context, not a new exercise identity.",
+          "Legacy media includes forward-facing and facing-the-wall variants that may change the loading angle and must not silently define the static side-on baseline."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "static_side_on_stance",
+            "bilateral_rotational_scoop",
+            "hip_trunk_force_transfer"
+          ],
+          "jointActions": [
+            "rear_hip_loading",
+            "foot_pivot",
+            "pelvic_rotation",
+            "thoracic_rotation",
+            "shoulder_horizontal_sweep",
+            "bilateral_release"
+          ],
+          "planes": [
+            "transverse",
+            "frontal",
+            "sagittal"
+          ],
+          "laterality": "unilateral_execution_balanced_both_sides",
+          "intent": "maximal_lateral_ball_speed_from_ground_up_rotation_with_controlled_finish"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "gluteus_medius",
+            "adductors",
+            "obliques",
+            "latissimus_dorsi",
+            "pectoralis_major",
+            "serratus_anterior"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "quadriceps",
+            "plantar_flexors",
+            "deep_hip_rotators",
+            "spinal_stabilizers",
+            "deltoids",
+            "rotator_cuff",
+            "forearm_flexors"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "spine",
+            "scapulothoracic_articulation",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hand"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 28,
+          "coordinationDemand": 64,
+          "supervisionDemand": 62,
+          "failureConsequence": 60,
+          "impact": 24,
+          "workCapacityDemand": 44,
+          "baseOverallDifficulty": 58
+        },
+        "proposedLoadProfile": {
+          "loadingType": "external_ballistic_bilateral_rotational_throw",
+          "impactClass": "low_to_moderate_by_pivot_entry_and_rebound",
+          "externalLoadMethod": "medicine_ball_mass_selected_for_fast_side_specific_release",
+          "primaryStress": [
+            "rear_hip",
+            "adductors",
+            "obliques",
+            "thoracic_rotators",
+            "shoulder_girdle",
+            "grip"
+          ],
+          "fatigueProfile": [
+            "arm_only_release",
+            "lumbar_dominant_twist",
+            "late_pivot",
+            "target_drift",
+            "side_to_side_velocity_loss",
+            "unsafe_rebound"
+          ],
+          "recoveryHours": "24-48_by_intensity_volume_and_other_rotational_throwing"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "intact_medicine_ball",
+            "safe_wall_or_lateral_throw_lane",
+            "marked_side_on_start",
+            "clear_rebound_and_retrieval_zone"
+          ],
+          "optionalEquipment": [
+            "target_mark",
+            "radar_or_ball_sensor",
+            "video"
+          ],
+          "environment": [
+            "non_slip_surface",
+            "wall_rated_for_angled_ball_impact",
+            "no_people_in_lateral_flight_or_rebound_path"
+          ],
+          "population": [
+            "pain_free_hip_and_trunk_rotation",
+            "can_pivot_without_knee_collapse",
+            "can_brace_and_finish_both_sides"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "3-5_sets_of_2-5_per_side",
+          "restSeconds": "75-180_between_sets_and_adequate_side_reset",
+          "intensity": "high_intent_rotational_ball_speed",
+          "measurement": "ball_mass_velocity_distance_target_accuracy_and_side_asymmetry",
+          "progressWhen": "both sides preserve foot pressure, pelvis-to-trunk sequencing, low-side release, target, and balanced finish"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Side on",
+            "Load the back hip",
+            "Turn from the floor",
+            "Sweep through the target",
+            "Finish tall and balanced"
+          ],
+          "athleteInstructions": [
+            "Stand side-on with the ball at your back hip, load without collapsing, rotate from your feet and hips, throw through the target with both hands, and reset before changing sides"
+          ],
+          "commonFaults": [
+            "undefined_stance",
+            "ball_too_heavy",
+            "arms_only",
+            "forced_lumbar_twist",
+            "knee_collapse",
+            "no_pivot",
+            "high_chest_pass_release",
+            "unsafe_rebound",
+            "one_side_only"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_rotation",
+            "anti_rotation_control",
+            "safe_pivot",
+            "clear_lateral_lane"
+          ],
+          "stopRules": [
+            "hip_groin_back_shoulder_elbow_or_wrist_pain",
+            "loss_of_grip",
+            "lumbar_dominant_rotation",
+            "knee_collapse",
+            "loss_of_balance",
+            "unsafe_rebound",
+            "target_or_wall_failure",
+            "two_slow_or_inaccurate_reps"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "rear_and_side_demo",
+            "hip_to_ball_sequence_overlay",
+            "both_side_comparison",
+            "rebound_path_map"
+          ],
+          "coach": [
+            "side_balance_log",
+            "stance_and_wall_angle_setup",
+            "velocity_or_distance_asymmetry",
+            "pivot_and_lumbar_compensation_check"
+          ]
+        },
+        "programmingDecision": "Retain as the static side-on bilateral rotational scoop definition. Treat sport transfer as profile metadata; step-behind, drop-step, shuffle, through-swing, kneeling, and facing-wall entries are controlled variants."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=3TSv1SaUpOA",
+          "title": "SimoneBaseballPerformance.org - Medicine Ball Rotational Scoop Toss",
+          "channelName": "Simone Sports Performance",
+          "sourceQuery": "existing exact-title candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LIQVEVwjAqU",
+          "title": "Rotational Medicine Ball Scoop Toss",
+          "channelName": "Synchronicity Health",
+          "sourceQuery": "visible YouTube search: medicine ball rotational scoop toss"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=xmQfXggU2mU",
+          "title": "Med Ball Rotational Scoop",
+          "channelName": "Champion Physical Therapy and Performance",
+          "sourceQuery": "visible YouTube search: medicine ball rotational scoop toss"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=V2MTAlOxXVU",
+          "title": "Alan teaches the rotational scoop toss. Get more throwing power from your hips",
+          "channelName": "Melissa Witmer",
+          "sourceQuery": "visible YouTube search: medicine ball rotational scoop toss"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=mxf1D3NtxMo",
+          "title": "CresseyMedBall.com: Rotational Medicine Ball Scoop Toss",
+          "channelName": "Eric Cressey",
+          "sourceQuery": "existing candidate reassigned from the ambiguous generic scoop card"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Forward Medicine Ball Scoop Toss",
+          "classification": "new_definition",
+          "rationale": "Front-facing sagittal projection is not the same task as side-on transverse rotation.",
+          "distinguishingDimensions": {
+            "forceVector": "forward"
+          }
+        },
+        {
+          "name": "Half-Kneeling Rotational Scoop Toss",
+          "classification": "new_variant",
+          "rationale": "Kneeling constrains lower-body contribution while preserving bilateral rotational release.",
+          "distinguishingDimensions": {
+            "supportPosition": "half_kneeling"
+          }
+        },
+        {
+          "name": "Step-Behind Rotational Scoop Toss",
+          "classification": "new_variant",
+          "rationale": "A step-behind adds approach momentum and footwork before the same release.",
+          "distinguishingDimensions": {
+            "entry": "step_behind"
+          }
+        },
+        {
+          "name": "Drop-Step Rotational Scoop Toss",
+          "classification": "new_variant",
+          "rationale": "A drop step adds reorientation and momentum without changing the release identity.",
+          "distinguishingDimensions": {
+            "entry": "drop_step"
+          }
+        },
+        {
+          "name": "Medicine Ball Rotational Shot-Put Throw",
+          "classification": "new_definition",
+          "rationale": "The single-arm shoulder-level push differs from a bilateral low scoop release.",
+          "distinguishingDimensions": {
+            "releasePattern": "unilateral_shot_put"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "medicine-ball-shot-put-throw",
+      "assessmentSummary": {
+        "identity": "A forward-facing unilateral medicine-ball push from the shoulder or upper chest into a wall or open lane, performed without a deliberate side-on hip preload and repeated on both arms.",
+        "currentCardFindings": [
+          "The current name overlaps Rotational Shot Put even though its description is less specific and its media includes a forward-facing demonstration.",
+          "Without an explicit forward-facing orientation, the card is a duplicate label rather than a distinct exercise.",
+          "The current values do not account for unilateral load, arm asymmetry, rebound supervision, stance choice, or the technical difference between a forward push and a side-on rotational throw."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "forward_facing_unilateral_push",
+            "ballistic_shot_put_release",
+            "anti_rotation_bracing"
+          ],
+          "jointActions": [
+            "shoulder_horizontal_adduction",
+            "elbow_extension",
+            "scapular_protraction",
+            "trunk_bracing",
+            "lower_body_counterpressure"
+          ],
+          "planes": [
+            "sagittal",
+            "transverse"
+          ],
+          "laterality": "unilateral_execution_balanced_both_arms",
+          "intent": "maximal_forward_single_arm_ball_speed_without_side_on_rotational_preload"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "pectoralis_major",
+            "triceps_brachii",
+            "serratus_anterior",
+            "anterior_deltoid",
+            "obliques",
+            "rectus_abdominis"
+          ],
+          "secondaryMuscles": [
+            "rotator_cuff",
+            "trapezius",
+            "latissimus_dorsi",
+            "spinal_stabilizers",
+            "gluteals",
+            "quadriceps",
+            "forearm_flexors"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "spine",
+            "scapulothoracic_articulation",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hand"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 52,
+          "absoluteLoadDemand": 30,
+          "coordinationDemand": 60,
+          "supervisionDemand": 60,
+          "failureConsequence": 58,
+          "impact": 20,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 52
+        },
+        "proposedLoadProfile": {
+          "loadingType": "external_ballistic_unilateral_forward_push",
+          "impactClass": "low_body_impact_with_rebound_and_unilateral_shoulder_exposure",
+          "externalLoadMethod": "medicine_ball_mass_selected_for_fast_pain_free_single_arm_release",
+          "primaryStress": [
+            "throwing_side_pectorals",
+            "triceps",
+            "anterior_shoulder",
+            "scapular_protractors",
+            "anti_rotation_trunk",
+            "grip"
+          ],
+          "fatigueProfile": [
+            "side_to_side_velocity_loss",
+            "trunk_rotation_leak",
+            "shoulder_shrug",
+            "elbow_drop",
+            "target_drift",
+            "late_catch"
+          ],
+          "recoveryHours": "24-48_by_intensity_volume_and_other_pressing_or_throwing"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "intact_medicine_ball",
+            "safe_wall_partner_or_open_target",
+            "marked_forward_facing_start",
+            "clear_rebound_and_retrieval_zone"
+          ],
+          "optionalEquipment": [
+            "target_mark",
+            "radar_or_ball_sensor",
+            "video"
+          ],
+          "environment": [
+            "non_slip_surface",
+            "wall_rated_for_ball_impact",
+            "no_people_in_throw_or_rebound_path"
+          ],
+          "population": [
+            "pain_free_single_arm_push",
+            "can_resist_unplanned_trunk_rotation",
+            "can_control_ball_and_finish_both_sides"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "3-5_sets_of_2-5_per_arm",
+          "restSeconds": "75-180",
+          "intensity": "high_intent_forward_single_arm_release",
+          "measurement": "ball_mass_velocity_distance_target_accuracy_and_arm_asymmetry",
+          "progressWhen": "both arms preserve forward orientation, shoulder position, target, ball speed, and controlled finish"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Face the wall",
+            "Ball at one shoulder",
+            "Brace against rotation",
+            "Push through the target",
+            "Match both arms"
+          ],
+          "athleteInstructions": [
+            "Face forward with the ball at one shoulder, brace your trunk, drive the ball straight ahead with one arm, finish under control, and repeat the assigned reps on the other arm"
+          ],
+          "commonFaults": [
+            "undefined_orientation",
+            "ball_too_heavy",
+            "side_on_preload",
+            "excess_trunk_rotation",
+            "shoulder_shrug",
+            "elbow_drop",
+            "one_side_only",
+            "unsafe_rebound"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_single_arm_push",
+            "anti_rotation_control",
+            "safe_grip",
+            "clear_forward_lane"
+          ],
+          "stopRules": [
+            "shoulder_elbow_wrist_or_back_pain",
+            "loss_of_grip",
+            "excess_unplanned_rotation",
+            "loss_of_balance",
+            "unsafe_rebound",
+            "target_or_wall_failure",
+            "two_slow_or_inaccurate_reps",
+            "large_side_asymmetry"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "front_and_side_demo",
+            "forward_facing_badge",
+            "arm_side_counter",
+            "catch_or_no_catch_badge"
+          ],
+          "coach": [
+            "arm_asymmetry_log",
+            "orientation_and_stance_check",
+            "ball_mass_selection",
+            "velocity_or_distance_speed_loss_rule"
+          ]
+        },
+        "programmingDecision": "Retain only if renamed Forward-Facing Medicine Ball Shot-Put Throw and the no-side-on-preload rule is enforced. Otherwise it duplicates Rotational Shot Put. Half-kneeling, stepping, alternating, wall, partner, and catch rules remain controlled variants."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=nkV229R_BWM",
+          "title": "Forward Facing Medicine Ball Shot-Put Throw",
+          "channelName": "Simone Sports Performance",
+          "sourceQuery": "existing exact forward-facing candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=1Lbp8Svu_Bo",
+          "title": "Medicine Ball Forward Facing Shot Put Throw",
+          "channelName": "Simone Sports Performance",
+          "sourceQuery": "visible YouTube search: forward facing medicine ball shot put throw"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=5eQaPG4arVo",
+          "title": "Med Ball Shot Put Throw - Facing Wall",
+          "channelName": "Athletic Prospects",
+          "sourceQuery": "visible YouTube search: forward facing medicine ball shot put throw"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=sA8GwX_XRfU",
+          "title": "Forward Medicine Ball Shot Put - Exercise Demo",
+          "channelName": "irl.coach",
+          "sourceQuery": "visible YouTube search: forward facing medicine ball shot put throw"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=-v9bvtXJqMc",
+          "title": "Med Ball Forward Facing Shot Put Throw",
+          "channelName": "Evelyn Calado",
+          "sourceQuery": "visible YouTube search: forward facing medicine ball shot put throw"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Medicine Ball Rotational Shot Put",
+          "classification": "new_definition",
+          "rationale": "A side-on hip preload and transverse sequence create a distinct rotational task.",
+          "distinguishingDimensions": {
+            "forceVector": "rotational"
+          }
+        },
+        {
+          "name": "Half-Kneeling Forward Shot Put",
+          "classification": "new_variant",
+          "rationale": "Kneeling constrains lower-body contribution while preserving forward unilateral release.",
+          "distinguishingDimensions": {
+            "supportPosition": "half_kneeling"
+          }
+        },
+        {
+          "name": "Forward-Facing Step-Back Shot Put",
+          "classification": "new_variant",
+          "rationale": "A step-back adds momentum and footwork before the same forward release.",
+          "distinguishingDimensions": {
+            "entry": "step_back"
+          }
+        },
+        {
+          "name": "Alternating Medicine Ball Shot Put",
+          "classification": "new_variant",
+          "rationale": "Alternating arms changes sequence and density but not the unilateral forward release identity.",
+          "distinguishingDimensions": {
+            "sideOrder": "alternating"
+          }
+        },
+        {
+          "name": "Medicine Ball Chest Pass",
+          "classification": "new_definition",
+          "rationale": "A bilateral chest pass distributes the release across both arms and removes unilateral asymmetry.",
+          "distinguishingDimensions": {
+            "releasePattern": "bilateral_chest_pass"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "medicine-ball-rotational-shot-put",
+      "assessmentSummary": {
+        "identity": "A static side-on unilateral medicine-ball push from the rear shoulder or upper chest, using a controlled rear-hip load and ground-up transverse sequence to throw into a wall or open lane, repeated on both sides.",
+        "currentCardFindings": [
+          "The current side-on description is the clearest identity but does not define static versus step entry, stance, pivot, ball position, wall angle, catch, target, ball mass, or side balance.",
+          "Nine inherited candidates mix static, step-behind, shuffle, two-hop, and generic rotational throws.",
+          "The duplicate consolidated baseline and uniform difficulty values obscure the higher unilateral coordination, side-specific loading, supervision, and failure consequence."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "static_side_on_stance",
+            "unilateral_rotational_push",
+            "hip_trunk_arm_force_transfer"
+          ],
+          "jointActions": [
+            "rear_hip_loading",
+            "foot_pivot",
+            "pelvic_rotation",
+            "thoracic_rotation",
+            "shoulder_horizontal_adduction",
+            "elbow_extension",
+            "scapular_protraction"
+          ],
+          "planes": [
+            "transverse",
+            "frontal",
+            "sagittal"
+          ],
+          "laterality": "unilateral_execution_balanced_both_sides",
+          "intent": "maximal_single_arm_ball_speed_from_sequenced_rotation_with_controlled_finish"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "gluteus_medius",
+            "adductors",
+            "obliques",
+            "pectoralis_major",
+            "triceps_brachii",
+            "serratus_anterior",
+            "anterior_deltoid"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "quadriceps",
+            "plantar_flexors",
+            "deep_hip_rotators",
+            "spinal_stabilizers",
+            "latissimus_dorsi",
+            "rotator_cuff",
+            "forearm_flexors"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "pelvis",
+            "spine",
+            "scapulothoracic_articulation",
+            "shoulder",
+            "elbow",
+            "wrist",
+            "hand"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 62,
+          "absoluteLoadDemand": 32,
+          "coordinationDemand": 70,
+          "supervisionDemand": 65,
+          "failureConsequence": 64,
+          "impact": 26,
+          "workCapacityDemand": 46,
+          "baseOverallDifficulty": 62
+        },
+        "proposedLoadProfile": {
+          "loadingType": "external_ballistic_unilateral_rotational_push",
+          "impactClass": "low_to_moderate_by_pivot_entry_and_rebound",
+          "externalLoadMethod": "medicine_ball_mass_selected_for_fast_side_specific_single_arm_release",
+          "primaryStress": [
+            "rear_hip",
+            "adductors",
+            "obliques",
+            "thoracic_rotators",
+            "throwing_side_pectorals",
+            "triceps",
+            "anterior_shoulder",
+            "grip"
+          ],
+          "fatigueProfile": [
+            "arm_only_push",
+            "lumbar_dominant_twist",
+            "late_pivot",
+            "shoulder_shrug",
+            "elbow_drop",
+            "side_to_side_velocity_loss",
+            "unsafe_rebound"
+          ],
+          "recoveryHours": "24-48_by_intensity_volume_and_other_rotational_or_throwing_load"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "intact_medicine_ball",
+            "safe_wall_or_lateral_throw_lane",
+            "marked_side_on_start",
+            "clear_rebound_and_retrieval_zone"
+          ],
+          "optionalEquipment": [
+            "target_mark",
+            "radar_or_ball_sensor",
+            "video"
+          ],
+          "environment": [
+            "non_slip_surface",
+            "wall_rated_for_angled_ball_impact",
+            "no_people_in_lateral_flight_or_rebound_path"
+          ],
+          "population": [
+            "pain_free_hip_trunk_and_single_arm_rotation",
+            "can_pivot_without_knee_collapse",
+            "can_brace_and_finish_both_sides"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "3-5_sets_of_2-5_per_side",
+          "restSeconds": "75-180",
+          "intensity": "high_intent_rotational_single_arm_ball_speed",
+          "measurement": "ball_mass_velocity_distance_target_accuracy_and_side_asymmetry",
+          "progressWhen": "both sides preserve foot pressure, hip-to-trunk-to-arm sequence, shoulder position, target, and balanced finish"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Side on",
+            "Ball at the back shoulder",
+            "Load the back hip",
+            "Turn then punch",
+            "Finish over the front side"
+          ],
+          "athleteInstructions": [
+            "Stand side-on with the ball at your rear shoulder, load your back hip, rotate from the floor, push the ball through the target with one arm, and finish balanced before resetting"
+          ],
+          "commonFaults": [
+            "undefined_entry",
+            "ball_too_heavy",
+            "arm_only_throw",
+            "forced_lumbar_twist",
+            "knee_collapse",
+            "no_pivot",
+            "shoulder_shrug",
+            "elbow_drop",
+            "unsafe_rebound",
+            "one_side_only"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_rotation_and_single_arm_push",
+            "anti_rotation_control",
+            "safe_pivot",
+            "clear_lateral_lane"
+          ],
+          "stopRules": [
+            "hip_groin_back_shoulder_elbow_or_wrist_pain",
+            "loss_of_grip",
+            "lumbar_dominant_rotation",
+            "knee_collapse",
+            "loss_of_balance",
+            "unsafe_rebound",
+            "target_or_wall_failure",
+            "two_slow_or_inaccurate_reps",
+            "large_side_asymmetry"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "rear_and_side_demo",
+            "hip_to_arm_sequence_overlay",
+            "both_side_comparison",
+            "static_entry_badge"
+          ],
+          "coach": [
+            "side_balance_log",
+            "stance_and_wall_angle_setup",
+            "velocity_or_distance_asymmetry",
+            "entry_variant_and_pivot_check"
+          ]
+        },
+        "programmingDecision": "Retain as the static side-on unilateral rotational shot-put definition. Consolidate its duplicate baseline after review; step-behind, shuffle, two-hop, drop-step, figure-eight, and hip-turn entries are controlled variants, while the forward-facing shot put remains distinct only with an explicit no-side-on-preload rule."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=KtzuEYn0DmY",
+          "title": "Medicine Ball Rotational Shot-Put Throw",
+          "channelName": "Simone Sports Performance",
+          "sourceQuery": "existing exact-title candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=WBUDq_5DGG0",
+          "title": "Medicine Ball Rotational Shot-Put Throw",
+          "channelName": "Simone Sports Performance",
+          "sourceQuery": "existing exact-title candidate"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=EXV9UhUMTiY",
+          "title": "Med Ball Rotational Shotput",
+          "channelName": "Champion Physical Therapy and Performance",
+          "sourceQuery": "visible YouTube search: static side on rotational medicine ball shot put throw"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=wX4tcyR-61w",
+          "title": "Rotational Medicine Ball Shotput",
+          "channelName": "Synchronicity Health",
+          "sourceQuery": "visible YouTube search: static side on rotational medicine ball shot put throw"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=GTK8P0IOCTI",
+          "title": "CresseySportsPerformance.com: Rotational Medicine Ball Shotput",
+          "channelName": "Eric Cressey",
+          "sourceQuery": "visible YouTube search: static side on rotational medicine ball shot put throw"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Forward-Facing Medicine Ball Shot-Put Throw",
+          "classification": "new_definition",
+          "rationale": "Removing the side-on preload and emphasizing anti-rotation creates a forward unilateral push task.",
+          "distinguishingDimensions": {
+            "forceVector": "forward"
+          }
+        },
+        {
+          "name": "Static Rotational Medicine Ball Shot Put",
+          "classification": "same_identity",
+          "rationale": "Static side-on execution is the proposed baseline identity.",
+          "distinguishingDimensions": {
+            "entry": "static"
+          }
+        },
+        {
+          "name": "Step-Behind Rotational Shot Put",
+          "classification": "new_variant",
+          "rationale": "A step-behind adds approach momentum and coordination before the same release.",
+          "distinguishingDimensions": {
+            "entry": "step_behind"
+          }
+        },
+        {
+          "name": "Shuffle Rotational Shot Put",
+          "classification": "new_variant",
+          "rationale": "A shuffle changes entry footwork and momentum without changing the unilateral rotational release.",
+          "distinguishingDimensions": {
+            "entry": "shuffle"
+          }
+        },
+        {
+          "name": "Medicine Ball Rotational Scoop Toss",
+          "classification": "new_definition",
+          "rationale": "A bilateral low scoop release is distinct from a unilateral shoulder-level push.",
+          "distinguishingDimensions": {
+            "releasePattern": "bilateral_scoop"
+          }
+        }
+      ]
+    }
+  ]
+}

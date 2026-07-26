@@ -1,0 +1,450 @@
+{
+  "facilityId": 1,
+  "slug": "single-leg-snap-down-stick",
+  "researchVersion": "2026-07-25.3",
+  "assessmentSummary": {
+    "identity": "A unilateral non-jump landing-position drill: rapidly lower from tall single-leg stance into a controlled single-leg athletic position and hold without hopping or touching the free foot down.",
+    "currentCardFindings": [
+      "The stable movement is a unilateral snap-down and stick, not a cut, sprint stop, or reacceleration drill as implied by generic legacy copy.",
+      "The task creates no intentional flight phase; it trains rapid position acquisition, single-leg balance, and eccentric control before hopping progressions.",
+      "Controlled taxonomy, anatomy, load, fatigue, environment, and population fields are empty, and the legacy media pool includes bilateral and snap-down-to-jump mismatches."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "single_leg_drop",
+        "single_leg_land",
+        "brace"
+      ],
+      "jointActions": [
+        "ankle_dorsiflexion_control",
+        "knee_flexion_control",
+        "hip_flexion_control",
+        "hip_abduction_control"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal"
+      ],
+      "laterality": "unilateral",
+      "intent": "single_leg_landing_position_acquisition"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "quadriceps",
+        "gluteus_maximus",
+        "gluteus_medius",
+        "soleus"
+      ],
+      "secondaryMuscles": [
+        "hamstrings",
+        "gastrocnemius",
+        "hip_external_rotators",
+        "adductors",
+        "intrinsic_foot",
+        "trunk_stabilizers"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 52,
+      "absoluteLoadDemand": 12,
+      "coordinationDemand": 60,
+      "supervisionDemand": 50,
+      "failureConsequence": 55,
+      "impact": 34,
+      "workCapacityDemand": 18,
+      "baseOverallDifficulty": 52
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_unilateral_non_flight_eccentric",
+      "impactClass": "low",
+      "contactCountUnit": "controlled_single_leg_drops_per_side",
+      "primaryStress": [
+        "single_leg_knee_extensor_eccentric",
+        "hip_abductor_control",
+        "ankle_foot_stabilization",
+        "pelvic_and_trunk_control"
+      ],
+      "fatigueSensitivity": "balance_alignment_and_hold_before_metabolic"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "wall_or_dowel_support",
+        "floor_target",
+        "video_feedback"
+      ],
+      "environment": [
+        "level_non_slip_surface",
+        "one_body_length_clearance",
+        "coach_front_view"
+      ],
+      "population": [
+        "pain_free_single_leg_stance",
+        "can_control_a_shallow_single_leg_squat",
+        "can_hold_finish_for_2_seconds"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4",
+      "repetitions": "3-5 per side",
+      "holdSeconds": "2-3",
+      "restSeconds": "45-75",
+      "intensity": "submaximal_non_jump_position_quality",
+      "progressWhen": "every repetition reaches the same depth with stable foot, knee, pelvis, and trunk and no free-foot touch"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Reach tall on one leg",
+        "Snap into the landing shape without leaving the floor",
+        "Keep the knee over the middle toes",
+        "Freeze the pelvis and free foot"
+      ],
+      "athleteInstructions": [
+        "Balance tall on one leg",
+        "Drop quickly into a small single-leg squat",
+        "Hold for two seconds without hopping"
+      ],
+      "commonFaults": [
+        "jumping before landing",
+        "free-foot touch-down",
+        "heel or arch collapse",
+        "knee valgus",
+        "pelvis drop",
+        "trunk rotation",
+        "rebound"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "pain-free 10-second single-leg stance",
+        "controlled shallow single-leg squat",
+        "clear non-slip floor"
+      ],
+      "stopRules": [
+        "pain or giving way",
+        "repeated knee or arch collapse",
+        "uncontrolled trunk rotation",
+        "free-foot touch-down",
+        "cannot hold the finish"
+      ]
+    },
+    "programmingDecision": "Retain as the unilateral non-flight snap-down card and remove cutting or reacceleration language. Treat support and cueing as variants, the bilateral snap-down as a regression, and any snap-down followed by a jump or bound as a separate definition.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-25T22:50:01.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Single-Leg Snap-Down Stick is a braking and landing foundations drill. The athlete uses clear start, plant, stop, or exit targets to rehearse single-leg force absorption and knee-foot alignment, emphasizing low hips, clean foot placement, aligned braking, and an immediate reacceleration or stable stick depending on the drill intent.",
+      "familyKey": "Landing & Braking Control",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 40,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Landing-control exercises must distinguish a non-jump drop, a jump or hop with flight, an elevated drop, and a run-to-stop because approach momentum and drop height change the task.",
+        "Single-Leg Snap-Down Stick must encode takeoff, landing laterality, direction, approach speed, external height, rebound intent, and required hold as identity, variant, or dosage dimensions."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Landing and horizontal deceleration both train force attenuation, but horizontal stopping additionally requires braking impulse to reduce whole-body momentum.",
+        "Single-Leg Snap-Down Stick belongs to landing and braking control; reactive rebounding, maximal jumping, change of direction, and conditioning are separate programming intents."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Force absorption is shared across the foot and ankle, knee, and hip rather than isolated to one joint.",
+        "The card should identify plantar flexors and intrinsic foot muscles, quadriceps, hamstrings, gluteals, hip abductors and external rotators, and trunk stabilizers with task-specific primary and secondary roles."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Effective braking coordinates lower-limb flexion, centre-of-mass control, foot placement, and force direction to attenuate and apply braking force.",
+        "Observable quality includes quiet controlled contact, whole-foot pressure, coordinated ankle-knee-hip flexion, knee tracking, stable pelvis and trunk, and ownership of the final position without extra steps."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Plyometric and landing intensity changes with speed, external height, body mass, external load, and task complexity.",
+        "Exercise difficulty must score technical complexity and physical demand directly, including coordination, impact, supervision, work capacity, and consequence of error; it must not use a skill-library level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Horizontal deceleration creates high impact peaks, loading rates, and eccentric muscle demand; rapid or repeated exposures can contribute to muscle damage and need volume management.",
+        "Single-Leg Snap-Down Stick needs contact count, approach speed or drop height, laterality, eccentric braking demand, joint and tissue stress, performance-loss criteria, and recovery guidance rather than repetition count alone."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Landing interventions depend on appropriate materials, coaching knowledge, usable space, and task-specific progression.",
+        "The delivery profile should require a level non-slip surface, clear landing and run-out zones, stable equipment where applicable, suitable footwear, spacing, coach sightline, and a population-specific readiness screen."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Landing quality and force absorption should be learned before higher-speed, higher-height, repeated, or reactive plyometric work.",
+        "Prescribe low-repetition quality sets, landing contacts per side, approach speed or height, hold duration, rest, cue complexity, and progression criteria; stop before fatigue changes mechanics."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Prescriptive instructions and feedback can improve landing mechanics, while excessive or poorly targeted information can interfere with learning.",
+        "Use a small cue set: land quietly, share force through ankle-knee-hip flexion, keep knee over the middle toes, control pelvis and trunk, and hold the finish without a touch-down or extra step."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Loud contact, poor stabilization, loss of alignment, or inability to use the ankle, knee, and hip together indicate that intensity or volume exceeds current control.",
+        "Stop for pain, giving way, dizziness, repeated valgus or trunk collapse, uncontrolled foot contact, extra steps, loss of the required hold, unsafe surface or spacing, or persistent left-right asymmetry."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6592422/",
+      "sourceTitle": "Evidence-Based Best-Practice Guidelines for Preventing Anterior Cruciate Ligament Injuries in Young Female Athletes: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "The American Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Landing stabilization and lower-body strength are recurring components of effective neuromuscular injury-prevention programs.",
+        "Single-Leg Snap-Down Stick belongs after general preparation and before high-intensity jumping, sprinting, or change-of-direction work; rehabilitation and return-to-sport assessment require separate clinical context."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Athletes benefit from specific feedback tied to observable landing actions rather than abstract risk language.",
+        "Athlete support should show the start and finish positions, state the landing target and hold time, define a successful repetition, provide one primary cue, and explain the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Coach education and practical implementation affect whether landing interventions can be delivered effectively.",
+        "Coach support should provide front and side observation points, pass-fail criteria, contact counting, left-right comparison, regressions, progressions, equipment checks, and rules for reducing speed, height, distance, or laterality."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Beginners should establish landing and stabilization control before progressing from bilateral to unilateral, longer, faster, or shock-loading tasks.",
+        "Accessibility can be improved with visual floor targets, demonstrated start and finish shapes, plain-language cues, reduced amplitude, external support, longer holds, and reduced sensory or decision load without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "In-place landings, jumps covering distance, repeated hops, and elevated or externally loaded tasks have different intensity and programming implications.",
+        "Direction, laterality, support, cueing, and low amplitude are usually variants; rebound intent, approach momentum, external height, or a change to testing or return-to-sport purpose may require a distinct definition or contextual profile."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Single-Leg Snap-Down Stick were discovered or rechecked through visible YouTube search and public oEmbed metadata; full viewing, exact-version match, captions, instructional quality, safety, and approval remain pending human review."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=9IozgcS3qxs",
+      "title": "Single Leg Snap Downs",
+      "channelName": "The Active Life",
+      "sourceQuery": "single leg snap down to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=rToRfrL5duo",
+      "title": "Snapdown to Single Leg Stick",
+      "channelName": "Humber College High Performance (HPC)",
+      "sourceQuery": "single leg snap down to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=K17VNWkEEV8",
+      "title": "Single leg snap down",
+      "channelName": "AXIS Training & Performance",
+      "sourceQuery": "single leg snap down to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=LTB0bir3vxM",
+      "title": "Single Leg Snap Down",
+      "channelName": "Athletes' Potential",
+      "sourceQuery": "single leg snap down to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Ds1VGQFc30Q",
+      "title": "Single Leg Snap Down",
+      "channelName": "Littauer Strength Training",
+      "sourceQuery": "single leg snap down to stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Single-Leg Drop Squat to Stick",
+      "classification": "same_identity",
+      "rationale": "This describes the same unilateral non-flight rapid lowering and stabilization task.",
+      "distinguishingDimensions": {
+        "alias": "single_leg_drop_squat_to_stick"
+      }
+    },
+    {
+      "name": "Supported Single-Leg Snap-Down",
+      "classification": "new_variant",
+      "rationale": "Light external support reduces balance demand while preserving unilateral position acquisition.",
+      "distinguishingDimensions": {
+        "supportLevel": "assisted"
+      }
+    },
+    {
+      "name": "Reactive-Cue Single-Leg Snap-Down",
+      "classification": "new_variant",
+      "rationale": "An external visual or auditory start cue changes decision demand but not the landing pattern.",
+      "distinguishingDimensions": {
+        "cueType": "reactive_external"
+      }
+    },
+    {
+      "name": "Bilateral Snap-Down to Stick",
+      "classification": "new_variant",
+      "rationale": "Two-leg support is the lower-balance regression with the same non-flight rapid landing-position intent.",
+      "distinguishingDimensions": {
+        "laterality": "bilateral"
+      }
+    },
+    {
+      "name": "Single-Leg Snap-Down to Jump or Bound",
+      "classification": "new_definition",
+      "rationale": "Adding a takeoff after the snap-down changes the primary stimulus to explosive or reactive force production.",
+      "distinguishingDimensions": {
+        "primaryTrainingStimulus": "power",
+        "takeoffAfterSnapDown": true
+      }
+    }
+  ]
+}

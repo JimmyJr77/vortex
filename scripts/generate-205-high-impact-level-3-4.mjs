@@ -550,14 +550,6 @@ function slotRows() {
   return [...seen.values()]
 }
 
-function skillForCard(card) {
-  const risk = card.safety?.riskLevel ?? card.safety?.risk_level ?? 2
-  const impact = card.safety?.impactLevel ?? card.safety?.impact_level ?? 2
-  if (risk >= 4 || impact >= 4) return 'ADVANCED'
-  if (risk >= 3 || impact >= 3) return 'INTERMEDIATE'
-  return 'BEGINNER'
-}
-
 function difficultyForCard(card) {
   const impact = card.safety?.impactLevel ?? card.safety?.impact_level ?? 3
   const risk = card.safety?.riskLevel ?? card.safety?.risk_level ?? 3
@@ -704,7 +696,7 @@ SELECT
   f.id,
   d.name, d.slug, d.description,
   (SELECT id FROM coaching.sport WHERE key = 'fitness'),
-  d.skill::public.skill_level,
+  NULL::public.skill_level,
   d.age_min,
   d.sets, d.reps, d.work, d.rest, d.est,
   TRUE, 'facility', d.participant,
@@ -715,12 +707,11 @@ FROM (VALUES\n`
 
   seedSql += INSERT_CARDS.map((card) => {
     const d = parseDosage(card)
-    const skill = skillForCard(card)
-    return `  (${sqlStr(card.name)}, ${sqlStr(card.slug)}, ${sqlStr(card.description)}, ${sqlStr(skill)}, 8, ${sqlInt(d.default_sets)}, ${sqlInt(d.default_reps)}, ${sqlInt(d.default_work_seconds)}, ${sqlInt(d.default_rest_seconds)}, ${sqlInt(d.est_seconds_per_set)}, ${sqlStr(participantStructure(card))}, ${sqlStr(card.cardSummary)}, ${sqlStr(card.coachLanguage)}, ${sqlStr(card.athleteLanguage)}, ${sqlStr(card.family)}, ${sqlStr(card.primaryPhaseKey)}, ${sqlStr(card.subrole)}, ${sqlStr(card.slot)}, ${jsonb(normalizeMovementRequirements(card)).replace('::jsonb', '')}::jsonb, ${jsonb(normalizeCoachingExecution(card)).replace('::jsonb', '')}::jsonb)`
+    return `  (${sqlStr(card.name)}, ${sqlStr(card.slug)}, ${sqlStr(card.description)}, 8, ${sqlInt(d.default_sets)}, ${sqlInt(d.default_reps)}, ${sqlInt(d.default_work_seconds)}, ${sqlInt(d.default_rest_seconds)}, ${sqlInt(d.est_seconds_per_set)}, ${sqlStr(participantStructure(card))}, ${sqlStr(card.cardSummary)}, ${sqlStr(card.coachLanguage)}, ${sqlStr(card.athleteLanguage)}, ${sqlStr(card.family)}, ${sqlStr(card.primaryPhaseKey)}, ${sqlStr(card.subrole)}, ${sqlStr(card.slot)}, ${jsonb(normalizeMovementRequirements(card)).replace('::jsonb', '')}::jsonb, ${jsonb(normalizeCoachingExecution(card)).replace('::jsonb', '')}::jsonb)`
   }).join(',\n')
 
   seedSql += `
-) AS d(name, slug, description, skill, age_min, sets, reps, work, rest, est, participant, summary, coach_lang, athlete_lang, family, phase_key, subrole, slot, req, exec)
+) AS d(name, slug, description, age_min, sets, reps, work, rest, est, participant, summary, coach_lang, athlete_lang, family, phase_key, subrole, slot, req, exec)
 CROSS JOIN public.facility f
 ON CONFLICT (facility_id, slug) DO NOTHING;
 

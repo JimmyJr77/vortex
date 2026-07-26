@@ -220,7 +220,7 @@ SELECT
   f.id,
   d.name, d.slug, d.description,
   (SELECT id FROM coaching.sport WHERE key = 'fitness'),
-  d.skill::public.skill_level,
+  NULL::public.skill_level,
   d.age_min,
   d.sets, d.reps, d.work, d.rest, d.est,
   TRUE, 'facility',
@@ -233,12 +233,11 @@ seedSql += CARDS.map((card) => {
   const d = card.dosage ?? {}
   const reps = d.default_reps ?? null
   const work = d.default_work_seconds ?? null
-  const skill = card.primaryPhaseKey === 'output' ? 'INTERMEDIATE' : 'BEGINNER'
-  return `  (${sqlStr(card.name)}, ${sqlStr(card.slug)}, ${sqlStr(card.description)}, ${sqlStr(skill)}, 8, ${sqlInt(d.default_sets ?? 2)}, ${sqlInt(reps)}, ${sqlInt(work)}, ${sqlInt(d.default_rest_seconds ?? 30)}, ${sqlInt(d.est_seconds_per_set ?? 40)}, ${sqlStr(card.cardSummary)}, ${sqlStr(card.coachLanguage)}, ${sqlStr(card.athleteLanguage)}, ${sqlStr(card.family)}, ${sqlStr(card.primaryPhaseKey)}, ${sqlStr(card.subrole)}, ${sqlStr(card.slot)}, ${jsonb(seedReq(card)).replace('::jsonb', '')}::jsonb, ${jsonb(seedExec(card)).replace('::jsonb', '')}::jsonb)`
+  return `  (${sqlStr(card.name)}, ${sqlStr(card.slug)}, ${sqlStr(card.description)}, 8, ${sqlInt(d.default_sets ?? 2)}, ${sqlInt(reps)}, ${sqlInt(work)}, ${sqlInt(d.default_rest_seconds ?? 30)}, ${sqlInt(d.est_seconds_per_set ?? 40)}, ${sqlStr(card.cardSummary)}, ${sqlStr(card.coachLanguage)}, ${sqlStr(card.athleteLanguage)}, ${sqlStr(card.family)}, ${sqlStr(card.primaryPhaseKey)}, ${sqlStr(card.subrole)}, ${sqlStr(card.slot)}, ${jsonb(seedReq(card)).replace('::jsonb', '')}::jsonb, ${jsonb(seedExec(card)).replace('::jsonb', '')}::jsonb)`
 }).join(',\n')
 
 seedSql += `
-) AS d(name, slug, description, skill, age_min, sets, reps, work, rest, est, summary, coach_lang, athlete_lang, family, phase_key, subrole, slot, req, exec)
+) AS d(name, slug, description, age_min, sets, reps, work, rest, est, summary, coach_lang, athlete_lang, family, phase_key, subrole, slot, req, exec)
 CROSS JOIN public.facility f
 ON CONFLICT (facility_id, slug) DO NOTHING;
 

@@ -1,0 +1,452 @@
+{
+  "facilityId": 1,
+  "slug": "power-skip-for-distance",
+  "researchVersion": "2026-07-25.10",
+  "assessmentSummary": {
+    "identity": "Alternating high-intent step-hop skips that maximize safe horizontal displacement on each projection, with coordinated reciprocal arms, complete take-off-leg extension, and controlled landing on the take-off leg before alternating.",
+    "currentCardFindings": [
+      "Two active variants carry conflicting doses and one has no difficulty profile, so the baseline programming unit is unresolved.",
+      "The description does not define the step-hop sequence, total versus per-side contacts, safe finish, maximal versus submaximal intent, or quality stops.",
+      "The current difficulty greatly understates impact, physical output, supervision, and consequences for a maximal horizontal plyometric."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "alternating_power_skip_for_distance",
+        "horizontal_repeated_step_hop_projection"
+      ],
+      "jointActions": [
+        "hip_knee_ankle_extension",
+        "swing_leg_hip_flexion",
+        "landing_hip_knee_ankle_flexion",
+        "contralateral_arm_drive"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal"
+      ],
+      "laterality": "alternating_unilateral_takeoff_and_landing",
+      "intent": "maximal_safe_horizontal_projection_per_skip"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "hamstrings",
+        "quadriceps",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "hip_flexors",
+        "intrinsic_foot",
+        "tibialis_anterior",
+        "gluteus_medius",
+        "obliques",
+        "shoulder_girdle"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 58,
+      "absoluteLoadDemand": 42,
+      "coordinationDemand": 62,
+      "supervisionDemand": 48,
+      "failureConsequence": 52,
+      "impact": 57,
+      "workCapacityDemand": 38,
+      "baseOverallDifficulty": 58
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_alternating_high_intent_horizontal_plyometric",
+      "impactClass": "moderate_to_high_by_projection_speed_surface_and_contacts",
+      "landingContactsPerRep": "one_takeoff_leg_landing_per_skip; count_total_and_per_side",
+      "primaryStress": [
+        "horizontal_propulsion",
+        "unilateral_landing",
+        "plantar_flexor_and_achilles_load",
+        "hip_extensor_output"
+      ],
+      "fatigueSensitivity": "distance_drop_landing_noise_reaching_pelvic_control_arm_timing_and_asymmetry"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "clear_level_15_to_30_metre_lane",
+        "long_safe_finish_zone"
+      ],
+      "optionalEquipment": [
+        "start_finish_cones",
+        "tape_measure",
+        "video"
+      ],
+      "environment": [
+        "dry_non_slip_forgiving_surface",
+        "no_cross_traffic",
+        "adequate_ceiling"
+      ],
+      "population": [
+        "pain_free_single_leg_hop_and_land",
+        "owns_submaximal_skip",
+        "can_decelerate_safely"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4",
+      "contactsPerSet": "3-6_per_side_or_10-20_metres",
+      "restSeconds": "90-180",
+      "intensity": "high_intent_with_submaximal_learning_entry",
+      "progressWhen": "distance and landing quality stay repeatable without reaching, noise, asymmetry, or loss of posture"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Project forward, not straight up",
+        "Finish the take-off leg",
+        "Drive opposite arm and knee",
+        "Land and continue under control"
+      ],
+      "athleteInstructions": [
+        "Cover safe horizontal distance on every skip while keeping each landing controlled and symmetric"
+      ],
+      "commonFaults": [
+        "confusing_with_power_skip_for_height",
+        "turning_into_bounds",
+        "reaching_foot_forward",
+        "collapsing_landing",
+        "chasing_distance_after_quality_loss",
+        "ambiguous_contact_count"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "pain_free_single_leg_landing",
+        "adequate_lane",
+        "progressive_warm_up"
+      ],
+      "stopRules": [
+        "pain",
+        "limp",
+        "uncontrolled_landing",
+        "loud_contacts",
+        "distance_drop_over_10_percent",
+        "reaching",
+        "asymmetry",
+        "unsafe_finish"
+      ]
+    },
+    "programmingDecision": "Retain as a distinct horizontal power-skip identity. Consolidate the two baseline variants into one contact-based dose after human review, keep height skips separate, and replace unsupported direct sprint-transfer claims with an explicit horizontal plyometric purpose.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T06:10:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "The athlete skips forward with longer, powerful projections while keeping posture tall and foot strikes controlled.",
+      "familyKey": "Sprint plyometric power",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Skipping contains two functionally different successive contacts, with distinct braking and propelling contributions, and is not interchangeable with running or a generic series of hops.",
+        "Power Skip for Distance must define its contact sequence, travel direction, displacement, amplitude, cadence or cue sequence, laterality, object task, external spacing, and finish; rhythm, quickness, neural, and power labels alone do not establish identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Skipping is a locomotor gait with flight, single-support, and double-support phases and successive steps that partition braking and propulsion differently.",
+        "Power Skip for Distance belongs to ordinary alternating step-hop skipping, maximal horizontal power skipping, externally spaced skipping, a defined dual-task skip, or single-leg sprint-cycle mechanics; it is not automatically A-skip, running, bounding, or a change-of-direction drill."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/36265840/",
+      "sourceTitle": "Differences in Muscle Demand and Joint Contact Forces Between Running and Skipping",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "At matched treadmill speed in a small modeling study, skipping produced greater energetic demand from uniarticular ankle plantar flexors and greater ankle contact force than running, while running produced greater knee and patellofemoral contact forces.",
+        "The card should represent intrinsic-foot, plantar-flexor, knee-extensor, hip-flexor and extensor, hamstring, frontal-plane pelvic, trunk, arm-action, and visual-manual roles in proportion to the actual skip, projection, cycle, or catch task."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Skipping and running differ in cadence, step length, ground-reaction forces, joint torques, powers, and work distribution; the first and second skipping contacts also differ from each other.",
+        "Cue the observable step-hop sequence, posture, arm-leg timing, contact placement, projection, or defined cycle without claiming that the drill reproduces sprint kinetics or that every contact is mechanically identical."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8553457/",
+      "sourceTitle": "Application of Leg, Vertical, and Joint Stiffness in Running Performance: A Literature Overview",
+      "sourcePublisher": "Journal of Healthcare Engineering",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Whole-limb stiffness and movement behavior change with task, speed, fatigue, maturity, and measurement method and cannot be inferred as a fixed quality from an exercise name.",
+        "Exercise difficulty must directly score technical complexity, physical and absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; athlete readiness remains programming context."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8938535/",
+      "sourceTitle": "Effects of Plyometric Training on Lower Body Muscle Architecture, Tendon Structure, Stiffness and Physical Performance: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Repeated flight contacts can provide meaningful muscle-tendon loading even without external resistance, and amplitude, surface, and contact volume change the exposure.",
+        "Power Skip for Distance needs total and per-side contacts, distance, surface, footwear, amplitude or projection intent, cadence or cue sequence, ball mass and toss count when used, quality-loss markers, recovery, and weekly impact accounting."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Linear-speed preparation requires appropriate space, a safe finish, progressive intensity, suitable surfaces, recovery, and coaching matched to the intended movement quality.",
+        "Require a level dry non-slip lane, no cross traffic, a safe finish, suitable footwear, visible flat markers when prescribed, and a soft appropriately sized ball plus a separated partner or wall zone only for the ball-toss task."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The NSCA manual distinguishes power skips for height from power skips for distance and directs maximal distance on each distance skip with full take-off-leg extension.",
+        "Use passes, metres, total and per-side contacts, exact cadence segments, object tosses, and recovery rather than an ambiguous repetition count or a fatigue-driven interval; maximal projections require fewer contacts and fuller recovery than relaxed rhythm skips."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Because successive skipping contacts have different braking and propelling roles, instruction should preserve the defined step-hop pattern rather than force every contact to look or feel identical.",
+        "Use a small task-specific cue set: stay tall unless projection is assigned, step-hop and alternate, contact close enough to preserve balance, coordinate opposite arm and leg, project forward only for distance skips, and complete the exact cue, cone, cycle, or catch rule."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/36265840/",
+      "sourceTitle": "Differences in Muscle Demand and Joint Contact Forces Between Running and Skipping",
+      "sourcePublisher": "Journal of Applied Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Lower knee contact force during skipping at one studied speed does not mean globally low tissue load; ankle contact forces and plantar-flexor demand were higher than running in the model.",
+        "Stop for foot, ankle, shin, calf, Achilles, knee, hamstring, hip, or back pain; limping; repeated stumbles; loud or lengthening contacts; balance loss; unsafe reaching; cadence or pattern loss; missed cones; dropped or misdirected balls; collision risk; or an unsafe finish."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41209369/",
+      "sourceTitle": "Development and Validation of a Running Drill Test Battery to Predict 5 m and 20 m Sprint Performance",
+      "sourcePublisher": "International Journal of Exercise Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "A published running-drill battery found no statistically significant association between A-skip score and 5 m or 20 m sprint performance in its sample, cautioning against direct transfer promises from visually related drills.",
+        "Power Skip for Distance should have an explicit coordination, rhythm, plyometric projection, perception-action, or sprint-cycle purpose and be placed while fresh enough to preserve that purpose; do not promise faster sprinting, improved agility, or better sport performance from the drill alone."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/29074289/",
+      "sourceTitle": "Gait biomechanics of skipping are substantially different than those of running",
+      "sourcePublisher": "Journal of Biomechanics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "The alternating step-hop gait should be demonstrated as a complete sequence because a still image or high-knee label cannot communicate its two different successive contacts.",
+        "Show side and rear views, travel direction, step-hop rhythm, contact count, amplitude, arm action, cue or cone map, ball flight and catch rule when used, finish, one regression, and a clear explanation that faster or higher is not automatically better."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/23435115/",
+      "sourceTitle": "Did you see that? Dissociating advanced visual information and ball flight constrains perception and action processes during one-handed catching",
+      "sourcePublisher": "Acta Psychologica",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Catching performance depends on ball-flight information and the regulation of gaze and hand movement, so a ball-toss task adds a real perception-action demand rather than merely decorative equipment.",
+        "Provide observation positions, pass and contact counts, exact cadence segments, cone spacing and contact rule, ball mass and toss source, successful-catch definition, left-right comparison, quality stops, and a distinction between coaching observations and verified biomechanical measurement."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection and progression should match readiness, technical competence, supervision, equipment scale, and the individual's physical and psychosocial context.",
+        "Accessibility options include shorter lanes, lower amplitude, slower cadence, ordinary walking or marching before skipping, fewer contacts, larger softer balls, self-toss before partner toss, floor marks instead of cones, quieter cueing, extra demonstration, and longer recovery."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The NSCA manual defines power skips for height and power skips for distance by different outcome intents even though both retain a skipping contact pattern.",
+        "Pass length, coaching emphasis, and ordinary cadence are delivery annotations; maximal horizontal versus vertical projection, external spacing, a prescribed cadence-change sequence, object interception, stationary versus traveling cycles, and a terminal sprint can require controlled variants or distinct definitions."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Candidates for Power Skip for Distance were discovered through visible YouTube search; availability and embedding, exact contact sequence and constraint, complete viewing, captions, instructional quality, safety, and approval remain separate review gates. Adjacent component demonstrations are explicitly quarantined and no candidate is approved by this packet."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=um2R-OEz0-Q",
+      "title": "Skips For Distance",
+      "channelName": "Parabolic Performance and Rehab",
+      "sourceQuery": "power skips for distance exercise technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Direct visible-search candidate; full exact-sequence and safety review pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=TQAuoQR2xao",
+      "title": "Power Skips - Height or Distance",
+      "channelName": "Golf Performance Training",
+      "sourceQuery": "power skips for distance exercise technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Contains multiple intents; distance segment must be isolated and reviewed."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=M7ZiLBOQgYM",
+      "title": "Power Skip for Distance",
+      "channelName": "Simone Sports Performance",
+      "sourceQuery": "power skips for distance exercise technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Direct title match; not yet fully viewed or approved."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=DdkM2bYxz3w",
+      "title": "Power Skips Distance",
+      "channelName": "OTA Coaching",
+      "sourceQuery": "power skips for distance exercise technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Direct title match; complete movement and instructional-quality review pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=U0wlYfc00AE",
+      "title": "Power Skips for Distance",
+      "channelName": "Performance Course",
+      "sourceQuery": "power skips for distance exercise technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Direct visible-search candidate; no approval or external exact-match claim."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Power Skip for Height",
+      "classification": "new_definition",
+      "rationale": "Maximal vertical rather than horizontal projection changes output intent and execution criteria.",
+      "distinguishingDimensions": {
+        "projectionIntent": "vertical"
+      }
+    },
+    {
+      "name": "Submaximal Power Skip for Distance",
+      "classification": "modifier_annotation",
+      "rationale": "Lower intent is a learning dosage that preserves horizontal step-hop identity.",
+      "distinguishingDimensions": {
+        "intensity": "submaximal_learning"
+      }
+    },
+    {
+      "name": "Loaded Power Skip for Distance",
+      "classification": "new_variant",
+      "rationale": "External load changes arm use, landing demand, and force direction.",
+      "distinguishingDimensions": {
+        "externalLoad": "present"
+      }
+    },
+    {
+      "name": "Alternating Bound for Distance",
+      "classification": "new_definition",
+      "rationale": "Bounding uses alternating single contacts rather than landing on the take-off leg in a step-hop skip.",
+      "distinguishingDimensions": {
+        "contactSequence": "alternating_single_contacts"
+      }
+    },
+    {
+      "name": "Ordinary Skipping Rhythm Drill",
+      "classification": "new_definition",
+      "rationale": "Relaxed submaximal skipping does not maximize horizontal displacement.",
+      "distinguishingDimensions": {
+        "primaryIntent": "rhythm_not_projection"
+      }
+    }
+  ]
+}

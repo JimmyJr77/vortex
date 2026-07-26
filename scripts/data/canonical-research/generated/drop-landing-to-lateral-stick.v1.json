@@ -1,0 +1,454 @@
+{
+  "facilityId": 1,
+  "slug": "drop-landing-to-lateral-stick",
+  "researchVersion": "2026-07-25.3",
+  "assessmentSummary": {
+    "identity": "An elevated mixed-vector landing drill intended to combine a controlled box step-off with a lateral displacement and a non-reactive final stick; the exact sequence remains quarantined because the legacy card does not state whether the lateral motion occurs during the drop or after an initial landing.",
+    "currentCardFindings": [
+      "The legacy card conflates drop absorption, lateral ownership, and immediate reacceleration, which are different stimuli and should not share one definition.",
+      "The title can mean either a lateral box drop directly to the ground or a vertical depth drop followed by a lateral bound; the card does not specify the takeoff, intermediate contact, or landing laterality.",
+      "The controlled fields are empty and the current media pool contains both interpretations, so publication must wait for an identity decision."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "drop",
+        "lateral_displacement",
+        "land",
+        "brace"
+      ],
+      "jointActions": [
+        "ankle_dorsiflexion_control",
+        "knee_flexion_control",
+        "hip_flexion_control",
+        "hip_abduction_control"
+      ],
+      "planes": [
+        "frontal",
+        "sagittal"
+      ],
+      "laterality": "bilateral_takeoff_and_bilateral_landing_proposed",
+      "intent": "mixed_vector_force_absorption"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "quadriceps",
+        "gluteus_maximus",
+        "gluteus_medius",
+        "soleus"
+      ],
+      "secondaryMuscles": [
+        "hamstrings",
+        "gastrocnemius",
+        "hip_external_rotators",
+        "adductors",
+        "intrinsic_foot",
+        "trunk_stabilizers"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 54,
+      "absoluteLoadDemand": 18,
+      "coordinationDemand": 58,
+      "supervisionDemand": 55,
+      "failureConsequence": 60,
+      "impact": 58,
+      "workCapacityDemand": 22,
+      "baseOverallDifficulty": 54
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_elevated_mixed_vector_eccentric",
+      "impactClass": "moderate",
+      "contactCountUnit": "elevated_landing_contacts",
+      "primaryStress": [
+        "vertical_force_attenuation",
+        "lateral_hip_control",
+        "knee_extensor_eccentric",
+        "ankle_foot_stabilization"
+      ],
+      "fatigueSensitivity": "landing_alignment_and_hold_before_metabolic"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "stable_low_box",
+        "lateral_landing_target"
+      ],
+      "optionalEquipment": [
+        "spotter",
+        "video_feedback"
+      ],
+      "environment": [
+        "level_non_slip_surface",
+        "secured_box",
+        "clear_lateral_landing_zone",
+        "coach_front_and_side_sightline"
+      ],
+      "population": [
+        "owns_low_box_bilateral_drop_landing",
+        "owns_low_amplitude_lateral_jump_to_stick"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4",
+      "repetitions": "2-4 per direction",
+      "holdSeconds": "2-3",
+      "restSeconds": "60-120",
+      "intensity": "low_box_and_submaximal_lateral_distance",
+      "progressWhen": "the sequence is explicitly defined and every contact is quiet, aligned, and stable with no rebound or extra step"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Step off; do not jump from the box",
+        "Move only as far laterally as you can own",
+        "Share the landing through ankle, knee, and hip",
+        "Stick the final position"
+      ],
+      "athleteInstructions": [
+        "Use the prescribed drop-and-lateral sequence",
+        "Land quietly on the target",
+        "Hold for two seconds without another jump"
+      ],
+      "commonFaults": [
+        "jumping up from the box",
+        "unplanned intermediate contact",
+        "unclear landing laterality",
+        "stiff or loud landing",
+        "knee collapse",
+        "immediate rebound"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "mastered low-box drop to stick",
+        "mastered lateral jump or bound to stick at the prescribed laterality",
+        "stable box and clear landing zone"
+      ],
+      "stopRules": [
+        "pain or giving way",
+        "box movement",
+        "missed landing zone",
+        "unplanned contact sequence",
+        "repeated valgus or trunk collapse",
+        "cannot hold the final landing"
+      ]
+    },
+    "programmingDecision": "Quarantine this card pending human identity adjudication. Preferred resolution: define a bilateral lateral box drop directly to a bilateral stick as the base card; represent depth-drop-to-lateral-bound as a separate higher-demand variant or definition, and exclude immediate reacceleration from both.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-25T22:50:01.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Drop Landing to Lateral Stick is a braking and landing foundations drill. The athlete uses clear start, plant, stop, or exit targets to rehearse drop absorption with lateral ownership, emphasizing low hips, clean foot placement, aligned braking, and an immediate reacceleration or stable stick depending on the drill intent.",
+      "familyKey": "Landing & Braking Control",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 20,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Landing-control exercises must distinguish a non-jump drop, a jump or hop with flight, an elevated drop, and a run-to-stop because approach momentum and drop height change the task.",
+        "Drop Landing to Lateral Stick must encode takeoff, landing laterality, direction, approach speed, external height, rebound intent, and required hold as identity, variant, or dosage dimensions."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Landing and horizontal deceleration both train force attenuation, but horizontal stopping additionally requires braking impulse to reduce whole-body momentum.",
+        "Drop Landing to Lateral Stick belongs to landing and braking control; reactive rebounding, maximal jumping, change of direction, and conditioning are separate programming intents."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Force absorption is shared across the foot and ankle, knee, and hip rather than isolated to one joint.",
+        "The card should identify plantar flexors and intrinsic foot muscles, quadriceps, hamstrings, gluteals, hip abductors and external rotators, and trunk stabilizers with task-specific primary and secondary roles."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Effective braking coordinates lower-limb flexion, centre-of-mass control, foot placement, and force direction to attenuate and apply braking force.",
+        "Observable quality includes quiet controlled contact, whole-foot pressure, coordinated ankle-knee-hip flexion, knee tracking, stable pelvis and trunk, and ownership of the final position without extra steps."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Plyometric and landing intensity changes with speed, external height, body mass, external load, and task complexity.",
+        "Exercise difficulty must score technical complexity and physical demand directly, including coordination, impact, supervision, work capacity, and consequence of error; it must not use a skill-library level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9474351/",
+      "sourceTitle": "Biomechanical and Neuromuscular Performance Requirements of Horizontal Deceleration: A Review with Implications for Random Intermittent Multi-Directional Sports",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Horizontal deceleration creates high impact peaks, loading rates, and eccentric muscle demand; rapid or repeated exposures can contribute to muscle damage and need volume management.",
+        "Drop Landing to Lateral Stick needs contact count, approach speed or drop height, laterality, eccentric braking demand, joint and tissue stress, performance-loss criteria, and recovery guidance rather than repetition count alone."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Landing interventions depend on appropriate materials, coaching knowledge, usable space, and task-specific progression.",
+        "The delivery profile should require a level non-slip surface, clear landing and run-out zones, stable equipment where applicable, suitable footwear, spacing, coach sightline, and a population-specific readiness screen."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Landing quality and force absorption should be learned before higher-speed, higher-height, repeated, or reactive plyometric work.",
+        "Prescribe low-repetition quality sets, landing contacts per side, approach speed or height, hold duration, rest, cue complexity, and progression criteria; stop before fatigue changes mechanics."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Prescriptive instructions and feedback can improve landing mechanics, while excessive or poorly targeted information can interfere with learning.",
+        "Use a small cue set: land quietly, share force through ankle-knee-hip flexion, keep knee over the middle toes, control pelvis and trunk, and hold the finish without a touch-down or extra step."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Loud contact, poor stabilization, loss of alignment, or inability to use the ankle, knee, and hip together indicate that intensity or volume exceeds current control.",
+        "Stop for pain, giving way, dizziness, repeated valgus or trunk collapse, uncontrolled foot contact, extra steps, loss of the required hold, unsafe surface or spacing, or persistent left-right asymmetry."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6592422/",
+      "sourceTitle": "Evidence-Based Best-Practice Guidelines for Preventing Anterior Cruciate Ligament Injuries in Young Female Athletes: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "The American Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Landing stabilization and lower-body strength are recurring components of effective neuromuscular injury-prevention programs.",
+        "Drop Landing to Lateral Stick belongs after general preparation and before high-intensity jumping, sprinting, or change-of-direction work; rehabilitation and return-to-sport assessment require separate clinical context."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Athletes benefit from specific feedback tied to observable landing actions rather than abstract risk language.",
+        "Athlete support should show the start and finish positions, state the landing target and hold time, define a successful repetition, provide one primary cue, and explain the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Coach education and practical implementation affect whether landing interventions can be delivered effectively.",
+        "Coach support should provide front and side observation points, pass-fail criteria, contact counting, left-right comparison, regressions, progressions, equipment checks, and rules for reducing speed, height, distance, or laterality."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Beginners should establish landing and stabilization control before progressing from bilateral to unilateral, longer, faster, or shock-loading tasks.",
+        "Accessibility can be improved with visual floor targets, demonstrated start and finish shapes, plain-language cues, reduced amplitude, external support, longer holds, and reduced sensory or decision load without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "In-place landings, jumps covering distance, repeated hops, and elevated or externally loaded tasks have different intensity and programming implications.",
+        "Direction, laterality, support, cueing, and low amplitude are usually variants; rebound intent, approach momentum, external height, or a change to testing or return-to-sport purpose may require a distinct definition or contextual profile."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Drop Landing to Lateral Stick were discovered or rechecked through visible YouTube search and public oEmbed metadata; full viewing, exact-version match, captions, instructional quality, safety, and approval remain pending human review."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=ThtfodsXjY8",
+      "title": "DL Lateral Box Drop and Stick",
+      "channelName": "Sean Reader",
+      "sourceQuery": "box drop landing to lateral stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=tn8050zrQVQ",
+      "title": "Lateral Box Drop Landing",
+      "channelName": "Michael Robinson",
+      "sourceQuery": "box drop landing to lateral stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=PT24a4z19Gc",
+      "title": "Plyometrics: Mixed Vector- Depth Drop to Lateral Stick",
+      "channelName": "Jordi Taylor",
+      "sourceQuery": "box drop landing to lateral stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=wRjOw8hGKfg",
+      "title": "Lateral box drop (Long Response Stick)",
+      "channelName": "SPIRE Performance",
+      "sourceQuery": "box drop landing to lateral stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=W0_3S0fgbj8",
+      "title": "Depth Drop to Lateral Bound and Stick",
+      "channelName": "Haverford Pitchers",
+      "sourceQuery": "box drop landing to lateral stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Double-Leg Lateral Box Drop and Stick",
+      "classification": "same_identity",
+      "rationale": "This is the clearest proposed base identity: step laterally from a low box and absorb the landing on two feet without rebound.",
+      "distinguishingDimensions": {
+        "contactSequence": "box_step_off_to_bilateral_lateral_stick"
+      }
+    },
+    {
+      "name": "Single-Leg Lateral Box Drop and Stick",
+      "classification": "new_variant",
+      "rationale": "Unilateral landing materially increases balance, hip-control, and impact demand.",
+      "distinguishingDimensions": {
+        "landingLaterality": "unilateral"
+      }
+    },
+    {
+      "name": "Depth Drop to Lateral Bound and Stick",
+      "classification": "new_definition",
+      "rationale": "An initial ground contact followed by a lateral bound adds a second takeoff and changes the contact sequence and primary stimulus.",
+      "distinguishingDimensions": {
+        "contactSequence": "drop_land_bound_land",
+        "primaryTrainingStimulus": "mixed_vector_power_and_braking"
+      }
+    },
+    {
+      "name": "Low Box Drop to Vertical Stick",
+      "classification": "new_variant",
+      "rationale": "Removing the lateral displacement is a lower-complexity vertical force-absorption regression.",
+      "distinguishingDimensions": {
+        "direction": "vertical"
+      }
+    },
+    {
+      "name": "Reactive Drop to Lateral Rebound",
+      "classification": "new_definition",
+      "rationale": "Minimizing ground contact and rebounding immediately changes the task from stabilization to reactive plyometric performance.",
+      "distinguishingDimensions": {
+        "reboundIntent": "immediate",
+        "primaryTrainingStimulus": "reactive_strength"
+      }
+    }
+  ]
+}

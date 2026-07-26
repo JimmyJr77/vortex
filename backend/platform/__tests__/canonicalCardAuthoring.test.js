@@ -31,6 +31,23 @@ test('normalization deduplicates controlled lists and canonicalizes slug', () =>
   assert.deepEqual(normalized.aliases, ['Incline press-up'])
 })
 
+test('normalization derives overall from exercise complexity and physical difficulty', () => {
+  const card = publishableCard()
+  card.variants[0].difficulty.technicalComplexity = 42
+  card.variants[0].difficulty.absoluteLoadDemand = 67
+  card.variants[0].difficulty.baseOverallDifficulty = 99
+  const normalized = normalizeCanonicalCardDraft(card)
+  assert.equal(normalized.variants[0].difficulty.baseOverallDifficulty, 67)
+})
+
+test('normalization clears legacy overall when a core difficulty dimension is missing', () => {
+  const card = publishableCard()
+  delete card.variants[0].difficulty.absoluteLoadDemand
+  card.variants[0].difficulty.baseOverallDifficulty = 72
+  const normalized = normalizeCanonicalCardDraft(card)
+  assert.equal(normalized.variants[0].difficulty.baseOverallDifficulty, null)
+})
+
 test('draft validation protects database-required authoring fields', () => {
   const invalid = validateCanonicalCardDraft({
     slug: '',
@@ -75,6 +92,21 @@ test('publication readiness requires reviewed exact-match healthy media', () => 
   })
   assert.equal(ready.ready, true)
   assert.deepEqual(ready.issues, [])
+})
+
+test('publication readiness requires physical difficulty on every variant', () => {
+  const card = publishableCard()
+  delete card.variants[0].difficulty.absoluteLoadDemand
+  const result = evaluateCanonicalCardReadiness(card, {
+    mediaReview: {
+      url: card.approvedVideoUrl,
+      linkStatus: 'healthy',
+      exactVariantMatch: true,
+      demonstrationQualityScore: 90,
+    },
+  })
+  assert.equal(result.ready, false)
+  assert.ok(result.issues.some((issue) => issue.path.endsWith('absoluteLoadDemand')))
 })
 
 test('publication readiness reports contextual profile omissions by path', () => {

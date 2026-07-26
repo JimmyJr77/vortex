@@ -30,7 +30,7 @@ Full prerequisite → build → assessment matrix (2026-07-09). Scoped to Catego
 | C10-MOP-11 | Youngest-split gate | youngest split caps, primaries | yes | `youngest_split_gate` | yes |
 | C10-MOP-12 | age_fit vs warnings consistency | items + warnings | yes | `age_fit_warnings_consistency` | yes |
 | C10-MOP-13 | over_cap never selected | primaries `age_fit` | yes | `primary_over_cap_count` | yes |
-| C10-MOP-14 | Skill level residuals | `exercise.skill_level`, youth session | yes | `skill_level_residuals` | yes |
+| C10-MOP-14 | Difficulty residuals (legacy check id) | exercise difficulty vs youth audience caps | yes | `skill_level_residuals` | yes |
 | C10-MOP-15 | Recommended age overlap | `recommended_age_min/max` | yes | `audience_recommended_age_overlap` | yes |
 | C10-MOP-16 | Attention demand MI ceiling | MI items, `attention_demand` | yes | `mi_attention_demand_ceiling` | yes |
 | C10-MOP-17 | difficultyProximityBonus cap | poolCap vs session cap replay | yes | `pool_cap_proximity_bonus` | yes |

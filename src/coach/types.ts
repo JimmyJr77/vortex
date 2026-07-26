@@ -158,7 +158,6 @@ export interface ExerciseMovementIdentity {
   order_slot?: string | null
   sport_id?: number | null
   sport_name?: string | null
-  skill_level?: string | null
   visibility?: 'facility' | 'private'
   participant_structure?: ParticipantStructure
 }
@@ -237,6 +236,7 @@ export interface ExerciseCard {
   }
   pairing_logic: ExercisePairingLogic
   safety_profile: ExerciseCardSafety | null
+  difficulty_profile: ExerciseDifficultyProfile | null
   media_and_document_library: ExerciseMediaLibrary & { media?: ExerciseMedia[] }
 }
 
@@ -278,7 +278,6 @@ export interface ExerciseScalingProfile {
   label: string
   age_min?: number | null
   age_max?: number | null
-  skill_level?: string | null
   scale_direction?: 'regression' | 'baseline' | 'progression' | null
   load_guidance?: string | null
   complexity_guidance?: string | null
@@ -300,7 +299,6 @@ export interface ExerciseSafetyProfile {
   requires_spotting?: boolean
   requires_coach_supervision?: string
   minimum_age_recommended?: number | null
-  minimum_skill_level?: string | null
   readiness_checks?: string[]
   stop_signs?: string[]
   common_substitutions?: string[]
@@ -355,6 +353,57 @@ export interface SkillPrerequisiteRow {
 export type SkillKind = 'skill' | 'combo'
 export type SkillEvaluationMode = 'execution' | 'duration' | 'repetitions'
 
+export interface SkillSource {
+  title: string
+  url: string
+  organization?: string
+  effective_cycle?: string
+  accessed_on?: string
+  note?: string
+}
+
+export interface SkillDeduction {
+  fault: string
+  deduction?: string
+  cue?: string
+  scope?: string
+}
+
+export interface SkillVideoBrief {
+  title: string
+  purpose: 'learning' | 'model'
+  description: string
+  camera_views?: string[]
+  key_moments?: string[]
+}
+
+export interface SkillOfficialMetadata {
+  governing_body?: string
+  discipline?: string
+  event?: string
+  program?: string
+  official_name?: string
+  aliases?: string[]
+  usa_gymnastics_levels?: string[]
+  value_part?: string
+  difficulty_value?: string
+  element_code?: string
+  official_code?: string
+  official_notation?: string
+  notation?: Record<string, string | number | null | undefined>
+  status?: 'verified' | 'needs-review' | 'general-coaching'
+  last_verified?: string
+  athlete_cues?: string[]
+  coach_checkpoints?: string[]
+  safety_and_readiness?: string[]
+  common_faults?: SkillDeduction[]
+  scoring_summary?: string
+  video_briefs?: SkillVideoBrief[]
+  next_progressions?: Array<{ name: string; slug?: string; note?: string }>
+  sources?: SkillSource[]
+  editorial_note?: string
+}
+
 export interface Skill {
   id: number
   name: string
@@ -381,6 +430,7 @@ export interface Skill {
   visibility?: 'facility' | 'private'
   components?: SkillComponentRow[]
   prerequisites?: SkillPrerequisiteRow[]
+  official_metadata?: SkillOfficialMetadata
 }
 
 export interface Exercise {
@@ -391,7 +441,6 @@ export interface Exercise {
   instructions?: string | null
   sport_id?: number | null
   sport_name?: string | null
-  skill_level?: string | null
   age_min?: number | null
   age_max?: number | null
   default_sets?: number | null
@@ -511,6 +560,8 @@ export interface WorkoutSessionFormat {
 export interface WorkoutAudience {
   age_min?: number | null
   age_max?: number | null
+  training_experience?: string | null
+  /** @deprecated Legacy saved-workout alias; exercise cards do not have levels. */
   skill_level?: string | null
   sport_id?: number | null
   equipment_ids?: number[]
@@ -769,6 +820,8 @@ export interface PrescriptionAudienceProfile {
     maxComplexity: number
   }
   scalingCohort?: string
+  trainingExperience?: string | null
+  /** @deprecated Compatibility alias for older API responses. */
   impliedSkillLevel?: string | null
   ageBandLabel?: string
   strengthIntent?: boolean
@@ -978,6 +1031,18 @@ export interface Game {
   rules?: Record<string, unknown>
   safety?: Record<string, unknown>
   coaching_notes?: string | null
+  training_effects?: {
+    primary_qualities?: string[]
+    secondary_qualities?: string[]
+    energy_systems?: string[]
+    movement_patterns?: string[]
+    primary_muscle_groups?: string[]
+    secondary_muscle_groups?: string[]
+    cognitive_social?: string[]
+    workout_pairing?: string
+    dose_notes?: string
+  }
+  video_links?: Array<{ title: string; url: string; provider?: string }>
   best_session_phase?: string | null
   compatible_phases?: string[]
   migrated_from_exercise?: boolean

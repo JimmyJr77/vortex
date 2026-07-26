@@ -54,7 +54,7 @@ async function main() {
   }
 
   const exercises = await pool.query(`
-    SELECT e.id, e.slug, e.name, e.skill_level, e.age_min, e.age_max, e.participant_structure,
+    SELECT e.id, e.slug, e.name, e.age_min, e.age_max, e.participant_structure,
            e.movement_requirements
     FROM coaching.exercise e
     WHERE e.archived = FALSE

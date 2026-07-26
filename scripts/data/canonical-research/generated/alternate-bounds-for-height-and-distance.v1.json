@@ -1,0 +1,448 @@
+{
+  "facilityId": 1,
+  "slug": "alternate-bounds-for-height-and-distance",
+  "researchVersion": "2026-07-25.6",
+  "assessmentSummary": {
+    "identity": "Continuous alternating left-right bounds using a deliberately blended vertical and horizontal projection target.",
+    "currentCardFindings": [
+      "The card's two-second rest is physiologically and operationally incompatible with maximal high-impact multi-contact output.",
+      "The card calls itself level four instead of describing exercise difficulty and lacks anatomy, load, fatigue, constraints, support, and measurement profiles.",
+      "Height plus distance is a mixed delivery emphasis of Alternating Bounds, not a stable new contact identity."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "alternating_unilateral_bound",
+        "blended_vertical_horizontal_projection",
+        "multi_contact_plyometric"
+      ],
+      "jointActions": [
+        "ankle_plantarflexion",
+        "knee_extension",
+        "hip_extension",
+        "contralateral_hip_flexion",
+        "trunk_stabilization"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal"
+      ],
+      "laterality": "alternating_left_right",
+      "intent": "maximize_blended_projection_without_sacrificing_contact_quality"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "hamstrings",
+        "quadriceps",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "gluteus_medius",
+        "hip_flexors",
+        "intrinsic_foot",
+        "obliques"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 75,
+      "absoluteLoadDemand": 34,
+      "coordinationDemand": 80,
+      "supervisionDemand": 62,
+      "failureConsequence": 68,
+      "impact": 77,
+      "workCapacityDemand": 45,
+      "baseOverallDifficulty": 75
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_blended_projection_alternating_bound",
+      "impactClass": "high",
+      "landingContactsPerRep": "4-8_total_contacts",
+      "primaryStress": [
+        "blended_horizontal_vertical_impulse",
+        "unilateral_absorption",
+        "ankle_tendon_load"
+      ],
+      "fatigueSensitivity": "projection_tradeoff_contact_position_alignment_and_output"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "long_clear_lane",
+        "safe_finish_zone"
+      ],
+      "optionalEquipment": [
+        "height_and_distance_targets",
+        "contact_markers",
+        "video"
+      ],
+      "environment": [
+        "adequate_ceiling",
+        "level_forgiving_surface",
+        "no_cross_traffic"
+      ],
+      "population": [
+        "owns_horizontal_and_vertical_bound_variants",
+        "pain_free_high_intent_unilateral_contacts"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4",
+      "attemptsPerSet": "1-3",
+      "contactsPerAttempt": "4-8_total",
+      "restSeconds": "150-300",
+      "intensity": "maximal_blended_projection_with_quality",
+      "progressWhen": "both projection components remain repeatable without longer contact or poorer alignment"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Drive up and forward",
+        "Exchange arm and knee",
+        "Contact under the hips",
+        "Keep every bound the same shape"
+      ],
+      "athleteInstructions": [
+        "Cover ground while keeping visible lift",
+        "Take full recovery before the next lane"
+      ],
+      "commonFaults": [
+        "chasing distance only",
+        "jumping vertically in place",
+        "overreach",
+        "pelvic drop",
+        "rushed recovery"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "competent horizontal and vertical bounds",
+        "pain_free unilateral plyometrics",
+        "safe lane"
+      ],
+      "stopRules": [
+        "pain",
+        "projection_or_height_drop",
+        "alignment_loss",
+        "contact_time_increase",
+        "uncontrolled_finish"
+      ]
+    },
+    "programmingDecision": "Convert to a blended-projection delivery profile of Alternating Bounds. Replace the two-second rest with full recovery and remove level language.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T00:30:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Perform Alternate Bounds for Height and Distance as a low-volume, high-quality plyometric or reactive-output exposure. The exercise targets larger alternating bounds that blend vertical stiffness and horizontal travel. The coach should cap volume, demand clean landings, and stop the set before contact quality fades.",
+      "familyKey": "High-Impact Level 3-4 Plyometric / Reactive Output",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 50,
+        "coordinationDemand": 60,
+        "technicalComplexity": 60,
+        "baseOverallDifficulty": 60
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10407309/",
+      "sourceTitle": "Plyometric Training Practices of Brazilian Olympic Sprint and Jump Coaches: Toward a Deeper Understanding of Their Choices and Insights",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Bounding is a multi-jump exercise commonly performed in alternate-leg, same-leg, or double-leg modes, usually with horizontal projection as a defining intent.",
+        "Alternate Bounds for Height and Distance must state contact sequence, takeoff and landing laterality, projection bias, continuity, number of contacts, terminal action, surface gradient, and reset; labels such as rhythm, distance, or height alone do not establish a new identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028155/",
+      "sourceTitle": "Relationship and Training Effects of Horizontal Multi-Step Jumps on Sprint Performance: A Systematic Review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Horizontal multi-step jumps combine forward-directed force production with repeated unilateral contacts under temporal constraints.",
+        "Alternate Bounds for Height and Distance belongs to multi-contact plyometric output; alternate-leg and repeated same-leg contacts are controlled identities, while distance, height, rhythm, contact count, and measurement method are controlled variants or delivery dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Bounding coordinates rapid force production and absorption across the foot, ankle, knee, hip, pelvis, and trunk on repeated unilateral contacts.",
+        "The card should assign plantar-flexor and intrinsic-foot stiffness, knee-extensor and hip-extensor propulsion and braking, hamstring swing and stance roles, frontal-plane hip stabilization, arm action, and lumbopelvic control without reducing the task to one muscle."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32897526/",
+      "sourceTitle": "Effects of Vertically and Horizontally Orientated Plyometric Training on Physical Performance: A Meta-analytical Comparison",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Horizontally oriented plyometric training has direction-specific advantages for horizontal performance, while vertical and horizontal tasks should not be treated as mechanically interchangeable.",
+        "Observable execution must match the card: project the center of mass, strike beneath or only slightly ahead of it, resist braking and collapse, coordinate opposite arm and leg, and preserve the selected horizontal, vertical, or blended bias."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028155/",
+      "sourceTitle": "Relationship and Training Effects of Horizontal Multi-Step Jumps on Sprint Performance: A Systematic Review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Multi-step horizontal jumps require forward force production, short contact constraints, repeated unilateral organization, and preservation of velocity across contacts.",
+        "Exercise difficulty must score technical complexity, physical and absolute-load demand, coordination, supervision, consequence of error, impact, work-capacity demand, and overall difficulty directly; projection distance or an athlete label is not an exercise difficulty score."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10692103/",
+      "sourceTitle": "Maximizing plyometric training for adolescents: a meta-analysis of ground contact frequency and overall intervention time on jumping ability",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Plyometric exposure is meaningfully affected by total ground contacts and accumulated intervention volume, so contacts must be counted rather than hidden inside generic repetitions or work intervals.",
+        "Alternate Bounds for Height and Distance needs per-leg and total contacts, surface, projection intent, approach, terminal landing, technical-fatigue thresholds, inter-attempt recovery, between-set recovery, and weekly high-impact accounting."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "High-intensity plyometrics require progressive preparation, adequate strength and landing control, safe equipment and surfaces, and sufficient recovery.",
+        "The delivery profile should require a long unobstructed lane, level or explicitly graded non-slip surface, suitable footwear, visible finish and run-out zones, safe athlete spacing, and coach sightlines to both frontal and sagittal mechanics."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10692103/",
+      "sourceTitle": "Maximizing plyometric training for adolescents: a meta-analysis of ground contact frequency and overall intervention time on jumping ability",
+      "sourcePublisher": "BMC Sports Science, Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Ground-contact volume is a programming variable and should be interpreted with intervention duration, task intensity, maturity, training history, and outcome rather than copied as a universal dose.",
+        "Prescribe attempts or lanes, contacts per attempt and per leg, distance or contact cap, projection intent, terminal action, full walk-back or timed recovery, and a quality stop; do not prescribe two-second recovery for maximal multi-contact bounds."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10407309/",
+      "sourceTitle": "Plyometric Training Practices of Brazilian Olympic Sprint and Jump Coaches: Toward a Deeper Understanding of Their Choices and Insights",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Sprint and jump coaches use bounding to develop horizontally directed force and acceleration-related qualities, with execution differentiated by alternate, single, or double contacts.",
+        "Use a small cue set: tall but directionally projected posture, drive through the ground, exchange opposite arm and knee, contact under the hips, keep the pelvis level, and finish with the prescribed stick or run-out."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Advanced unilateral plyometrics require technical readiness, conservative progression, appropriate supervision, and discontinuation when quality or safety deteriorates.",
+        "Stop for pain, giving way, apprehension, repeated valgus or pelvic drop, foot collapse, reaching and braking, loud contacts, loss of rhythm, unintended contact pattern, decreasing distance or velocity, unsafe lane encroachment, or an uncontrolled final landing."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13028155/",
+      "sourceTitle": "Relationship and Training Effects of Horizontal Multi-Step Jumps on Sprint Performance: A Systematic Review",
+      "sourcePublisher": "Sports Medicine - Open",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 90,
+      "claims": [
+        "Horizontal multi-step jump performance and training can relate to sprint outcomes, but transfer depends on task, population, program, and measurement context.",
+        "Alternate Bounds for Height and Distance belongs early in a fresh output block after landing, hopping, and lower-amplitude bounding readiness; use it to train or measure a named quality, not as conditioning volume."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Athlete support should show the exact left-right or same-leg contact pattern, the intended projection angle, arm timing, contact zone, finish, recovery, and what makes a repetition count.",
+        "Use lane markers and one outcome cue, explain the difference between rhythm and maximal-distance attempts, and show how to reduce amplitude without changing the contact sequence."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10407309/",
+      "sourceTitle": "Plyometric Training Practices of Brazilian Olympic Sprint and Jump Coaches: Toward a Deeper Understanding of Their Choices and Insights",
+      "sourcePublisher": "Sports",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 83,
+      "claims": [
+        "Coach support should distinguish alternate, same-leg, and double-leg bounding and select orientation according to the intended performance transfer.",
+        "Provide front and side observation, per-leg contact counts, contact-sequence diagrams, projection and braking criteria, side-to-side comparison, lane and surface setup, workload accounting, regressions, progressions, and terminal-landing rules."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Plyometric selection and progression should match physical and psychosocial readiness, technical competence, supervision, and equipment scale.",
+        "Accessibility can be improved with shorter lanes, lower amplitude, bound-and-stick contacts, visual footprints, external rhythm marks, fewer contacts, longer recovery, quieter settings, or supported single-leg landings while still assessing the exercise through its difficulty dimensions."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/32897526/",
+      "sourceTitle": "Effects of Vertically and Horizontally Orientated Plyometric Training on Physical Performance: A Meta-analytical Comparison",
+      "sourcePublisher": "Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Horizontal and vertical plyometric orientations create meaningfully different directional demands and adaptations.",
+        "Contact pattern and surface gradient require a distinct definition or variant; height, distance, rhythm, contact count, approach length, terminal stick, and measurement intent normally belong in variant or delivery profiles unless they change the actual contact sequence."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for Alternate Bounds for Height and Distance were discovered through visible YouTube search; current availability and embedding, exact contact pattern and projection match, complete viewing, captions, instructional quality, safety, and approval remain separate review gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=aIo6y6_gZ1Y",
+      "title": "Plyometrics- Power Bounds (Height/Distance)",
+      "channelName": "Got Em Fit",
+      "sourceQuery": "alternating bounds height distance",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=usu2fmGFiis",
+      "title": "F.S Library - Alternating bounds for height",
+      "channelName": "Fortitude Strength",
+      "sourceQuery": "alternating bounds height distance",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=NgclB0lb5DA",
+      "title": "BOUNDING DRILLS - ALTERNATE BOUND FOR DISTANCE",
+      "channelName": "Trackwired",
+      "sourceQuery": "alternating bounds height distance",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=xGnPlvCXgdE",
+      "title": "Vertical Alternating Bounds",
+      "channelName": "FIT | STRENGTH Performance",
+      "sourceQuery": "alternating bounds height distance",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=b3124L0KK3Q",
+      "title": "BOUNDING: Bounding Routine Alternate Leg Bounds",
+      "channelName": "Trackwired",
+      "sourceQuery": "alternating bounds height distance",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Alternating Bounds",
+      "classification": "same_identity",
+      "rationale": "Blended projection retains the base alternating contact sequence.",
+      "distinguishingDimensions": {
+        "deliveryIntent": "blended_projection"
+      }
+    },
+    {
+      "name": "Alternating Bounds for Height",
+      "classification": "new_variant",
+      "rationale": "Vertical-dominant intent is a controlled projection variant.",
+      "distinguishingDimensions": {
+        "projectionBias": "vertical"
+      }
+    },
+    {
+      "name": "Alternating Bounds for Distance",
+      "classification": "new_variant",
+      "rationale": "Horizontal-dominant intent is a controlled projection variant.",
+      "distinguishingDimensions": {
+        "projectionBias": "horizontal"
+      }
+    },
+    {
+      "name": "Single-Leg Power Bounds",
+      "classification": "new_definition",
+      "rationale": "Same-leg repeated contacts change loading and identity.",
+      "distinguishingDimensions": {
+        "contactSequence": "same_leg_repeated"
+      }
+    },
+    {
+      "name": "Weighted Blended Bounds",
+      "classification": "new_variant",
+      "rationale": "External load materially changes flight and contact demands.",
+      "distinguishingDimensions": {
+        "externalLoad": "weighted"
+      }
+    }
+  ]
+}

@@ -1,0 +1,345 @@
+{
+  "facilityId": 1,
+  "slug": "falling-start-10m",
+  "researchVersion": "2026-07-25.1",
+  "assessmentSummary": {
+    "identity": "A short acceleration initiated by a controlled forward fall from standing, followed by a forceful first step and continued acceleration through 10 m.",
+    "currentCardFindings": [
+      "The card lacks controlled taxonomy, constraints, load, fatigue, and complete difficulty scoring.",
+      "The forward-fall constraint adds balance, timing, and failure-consequence demands that are not represented by uniform 40 scores.",
+      "Several existing falling-start names appear semantically identical or differ only by 10 m versus 10 yards."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 52,
+      "absoluteLoadDemand": 12,
+      "coordinationDemand": 58,
+      "supervisionDemand": 54,
+      "failureConsequence": 58,
+      "impact": 56,
+      "workCapacityDemand": 40,
+      "baseOverallDifficulty": 52
+    },
+    "programmingDecision": "Treat the forward fall as a start variant and 10 m as dosage. Require a controlled whole-body fall, timely recovery step, clear lane, and full run-out; regress to a two-point start if the athlete reaches or stumbles.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-25T21:30:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Falling Start 10m is a acceleration & first-step output exercise for speed, sprinting, and quick-release athletes. It emphasizes forward lean projection, hip extension, ankle stiffness while keeping the session intent aligned with the Vortex phase sequence.",
+      "familyKey": "Acceleration Starts",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22233797/",
+      "sourceTitle": "The difference is in the start: impact of timing and start procedure on sprint running performance",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Start position and timing trigger materially affect measured sprint-start performance.",
+        "Falling Start 10m must record its start constraint separately from sprint distance and timing method."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "The start, push-off, and first acceleration steps are related but distinguishable parts of short sprint acceleration.",
+        "Falling Start 10m belongs to linear locomotion and acceleration output; stance, cue, and distance remain controlled variant dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4689850/",
+      "sourceTitle": "Sprint Acceleration Mechanics: The Major Role of Hamstrings in Horizontal Force Production",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Sprint acceleration requires rapid lower-limb force production and coordinated hip, knee, and ankle action.",
+        "Hamstring function contributes to horizontally oriented force production during acceleration."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Early acceleration performance is associated with forward-directed impulse, propulsive force, and progressive projection through the first steps.",
+        "One universal setup or forced first-step geometry is not appropriate across different bodies and start constraints."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22233797/",
+      "sourceTitle": "The difference is in the start: impact of timing and start procedure on sprint running performance",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Standing, three-point, and block starts produce different timing and body-position effects.",
+        "Difficulty scoring must include start complexity, coordination, supervision, impact, and failure consequence rather than treating all unloaded starts as difficulty 40."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6407765/",
+      "sourceTitle": "Correlations between muscle-tendon parameters and acceleration ability in 20 m sprints",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Power output is highest during the first steps of sprint acceleration.",
+        "The card should track neural intent, high-speed lower-limb contacts, local posterior-chain stress, technical fatigue sensitivity, and performance recovery."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Quality sprint work needs a suitable surface, marked start and finish, sufficient run-out, and recovery that preserves the intended speed quality.",
+        "Start setup, footwear, lane separation, athlete readiness, and coach sightline are relevant constraints for Falling Start 10m."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration sessions should prescribe distance, intensity, repetitions, sets, and recovery rather than repetitions alone.",
+        "Recovery and total volume should preserve fast, technically consistent efforts instead of converting start work into conditioning."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "The setup should support rapid hip extension and forward propulsion without forcing an anthropometrically inappropriate position.",
+        "Athletes should project, push the ground backward, coordinate arm action, accelerate through the target, and use the planned run-out."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Youth training should use qualified supervision, correct technique, manageable demands, and gradual progression.",
+        "Stop for pain, limping, repeated stumble, unsafe spacing or surface, loss of posture, or visible speed decline that does not recover with rest."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration and maximal-velocity sprinting are distinct training qualities.",
+        "Falling Start 10m should be placed fresh in output or skill work; dense submaximal conditioning requires a separate delivery profile."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "Acceleration develops incrementally across successive steps rather than by immediately standing upright.",
+        "Athlete-facing support should use one or two task cues, define a successful start and finish, and avoid prescribing identical stride shapes to every athlete."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Coaches should distinguish the target acceleration quality from maximal velocity and conditioning.",
+        "Observation should include setup consistency, projection, force direction, arm-leg coordination, split performance where available, and safe completion."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Speed work should be developmentally appropriate and based on movement competency.",
+        "Distance, intent, start complexity, cue complexity, rest, and timing pressure can be scaled while retaining a short-acceleration learning objective."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22233797/",
+      "sourceTitle": "The difference is in the start: impact of timing and start procedure on sprint running performance",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Start position and timing procedure change the task and measured performance.",
+        "Stance and cue changes should usually be modeled as variants; small distance changes are dosage annotations, while a flying start changes the primary stimulus to maximal velocity."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The candidates for Falling Start 10m returned current oEmbed player responses, but exact-version, full-content, caption, safety, and demonstration-quality review remain human gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=MgXvvuMyFfc",
+      "title": "Falling Start Speed Drill  Improve Acceleration | Speed Development for Young Athletes",
+      "channelName": "Developing Young Athletes Network",
+      "sourceQuery": "legacy direct-link candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-25T21:49:16.741499+00:00"
+      },
+      "notes": "Imported from legacy exercise 325 media_library.clinical_or_sport_science_references; availability, embedding, exact-version match, and demonstration quality remain pending.\nYouTube oEmbed metadata and an embed-player response were verified at 2026-07-25T21:49:16Z; exact exercise/version and demonstration-quality review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=O_N0AHMoGFA",
+      "title": "Speed Training Exercises:  \"Falling Starts\" to Run Faster",
+      "channelName": "synergyfitnessteam",
+      "sourceQuery": "legacy direct-link candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-25T21:49:16.741499+00:00"
+      },
+      "notes": "Imported from legacy exercise 325 media_library.clinical_or_sport_science_references; availability, embedding, exact-version match, and demonstration quality remain pending.\nYouTube oEmbed metadata and an embed-player response were verified at 2026-07-25T21:49:16Z; exact exercise/version and demonstration-quality review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=pYZ-4SoZNE8",
+      "title": "Speed Training | Falling Start - Fast, Easy, Fast | How To Run Faster",
+      "channelName": "ONEighty Athletics",
+      "sourceQuery": "legacy direct-link candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-25T21:49:16.741499+00:00"
+      },
+      "notes": "Imported from legacy exercise 325 media_library.clinical_or_sport_science_references; availability, embedding, exact-version match, and demonstration quality remain pending.\nYouTube oEmbed metadata and an embed-player response were verified at 2026-07-25T21:49:16Z; exact exercise/version and demonstration-quality review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=xxomffu3dTQ",
+      "title": "Falling Start Sprint",
+      "channelName": "Andrew Sacks",
+      "sourceQuery": "legacy direct-link candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-25T21:49:16.741499+00:00"
+      },
+      "notes": "Imported from legacy exercise 325 media_library.clinical_or_sport_science_references; availability, embedding, exact-version match, and demonstration quality remain pending.\nYouTube oEmbed metadata and an embed-player response were verified at 2026-07-25T21:49:16Z; exact exercise/version and demonstration-quality review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=xzJ96zkv3TI",
+      "title": "Falling Starts",
+      "channelName": "Nick Brattain",
+      "sourceQuery": "legacy direct-link candidate",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-25T21:49:16.741499+00:00"
+      },
+      "notes": "Imported from legacy exercise 325 media_library.clinical_or_sport_science_references; availability, embedding, exact-version match, and demonstration quality remain pending.\nYouTube oEmbed metadata and an embed-player response were verified at 2026-07-25T21:49:16Z; exact exercise/version and demonstration-quality review remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Falling Start Sprint",
+      "classification": "same_identity",
+      "rationale": "The unspecified-distance name describes the same controlled-fall acceleration task and should resolve to one identity with distance in dosage.",
+      "distinguishingDimensions": {
+        "distance": "unspecified"
+      }
+    },
+    {
+      "name": "Falling Start to 10 Meters",
+      "classification": "same_identity",
+      "rationale": "This is a spelling-level expression of the exact same start constraint and distance.",
+      "distinguishingDimensions": {
+        "distance": "10_meters"
+      }
+    },
+    {
+      "name": "Falling Start to 10 Yards",
+      "classification": "modifier_annotation",
+      "rationale": "The small distance and unit change is dosage metadata when execution and intent remain unchanged.",
+      "distinguishingDimensions": {
+        "distance": "10_yards",
+        "measurementSystem": "imperial"
+      }
+    },
+    {
+      "name": "Band-Resisted Falling Start",
+      "classification": "new_variant",
+      "rationale": "External resistance changes equipment and force-velocity demand while retaining the falling-start constraint.",
+      "distinguishingDimensions": {
+        "loadMethod": "band_resisted",
+        "equipment": [
+          "resistance_band",
+          "partner_or_anchor"
+        ]
+      }
+    }
+  ]
+}

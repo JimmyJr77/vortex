@@ -214,7 +214,7 @@ async function loadPrescriptionContext(pool, result) {
 
   const [exercises, tags, equipment, methodology, phaseProfileMap, difficultyByExerciseId, scalingProfileByExerciseId, progressionGraphEdges, tenetKeyById, safetyProfileByExerciseId, sportRows, intentKeyById, phaseOrderSlotKeysByPhase] = await Promise.all([
     pool.query(
-      `SELECT id, slug, name, movement_family, primary_phase_key, phase_subrole, primary_order_slot, skill_level, sport_id, programming_kind
+      `SELECT id, slug, name, movement_family, primary_phase_key, phase_subrole, primary_order_slot, sport_id, programming_kind
        FROM coaching.exercise WHERE id = ANY($1::bigint[])`,
       [exerciseIds],
     ),

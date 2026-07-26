@@ -1,0 +1,441 @@
+{
+  "facilityId": 1,
+  "slug": "10-yard-sprint-start",
+  "researchVersion": "2026-07-25.15",
+  "assessmentSummary": {
+    "identity": "The same start-agnostic maximal or near-maximal 10-yard acceleration identity as 10-Yard Sprint.",
+    "currentCardFindings": [
+      "Adding start to the title does not identify whether the athlete stands, staggers, uses hand support, falls, reacts, or uses resistance.",
+      "The description discusses neural output and running volume but does not define the exercise procedure.",
+      "Its generic difficulty values omit start-specific complexity, supervision, failure consequence, impact, and work-capacity demand."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "short_linear_acceleration"
+      ],
+      "jointActions": [
+        "hip_knee_ankle_extension",
+        "swing_leg_recovery",
+        "reciprocal_arm_action"
+      ],
+      "planes": [
+        "sagittal",
+        "frontal",
+        "transverse_control"
+      ],
+      "laterality": "start_variant_specific_then_alternating",
+      "intent": "maximal_or_near_maximal_acceleration_through_10_yards"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "gluteus_maximus",
+        "hamstrings",
+        "quadriceps",
+        "soleus",
+        "gastrocnemius"
+      ],
+      "secondaryMuscles": [
+        "hip_flexors",
+        "intrinsic_foot",
+        "tibialis_anterior",
+        "gluteus_medius",
+        "obliques",
+        "shoulder_girdle"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "spine",
+        "shoulder"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 48,
+      "absoluteLoadDemand": 12,
+      "coordinationDemand": 55,
+      "supervisionDemand": 52,
+      "failureConsequence": 55,
+      "impact": 58,
+      "workCapacityDemand": 42,
+      "baseOverallDifficulty": 48
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_high_intent_short_acceleration",
+      "impactClass": "moderate_to_high_by_speed_surface_and_start",
+      "landingContactsPerRep": "all_contacts_through_target_and_run_out",
+      "primaryStress": [
+        "early_acceleration_force",
+        "posterior_chain",
+        "plantar_flexors",
+        "high_speed_contacts"
+      ],
+      "fatigueSensitivity": "start_quality_projection_first_steps_speed_and_run_out"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "clear_10_yard_lane",
+        "start_and_finish_marks",
+        "safe_run_out"
+      ],
+      "optionalEquipment": [
+        "cones",
+        "timing_gates",
+        "video",
+        "start_variant_specific_equipment"
+      ],
+      "environment": [
+        "dry_level_non_slip_surface",
+        "no_cross_traffic"
+      ],
+      "population": [
+        "pain_free_acceleration",
+        "can_execute_selected_start",
+        "can_decelerate_safely"
+      ]
+    },
+    "proposedDosage": {
+      "setsAndReps": "2-6_efforts",
+      "distance": "10_yards",
+      "restSeconds": "60-180",
+      "intensity": "maximal_or_near_maximal_after_rehearsal",
+      "progressWhen": "start, split, technique, and finish remain repeatable"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Choose the exact start",
+        "Project and push back",
+        "Sprint through 10 yards",
+        "Use the run-out"
+      ],
+      "athleteInstructions": [
+        "Use the assigned start and sprint through the 10-yard target before easing down"
+      ],
+      "commonFaults": [
+        "duplicate_identity",
+        "undefined_start",
+        "false_step",
+        "popping_upright",
+        "stopping_at_target",
+        "insufficient_recovery"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "selected_start_competency",
+        "safe_lane",
+        "completed_warm_up"
+      ],
+      "stopRules": [
+        "pain",
+        "limp",
+        "slip",
+        "stumble",
+        "repeated_false_step",
+        "speed_loss",
+        "unsafe_run_out"
+      ]
+    },
+    "programmingDecision": "Merge into 10-Yard Sprint. Preserve this name as an alias; require the workout generator to select and render an explicit start variant.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T09:35:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Short acceleration exposure builds nervous-system output and leg drive without excessive running volume.",
+      "familyKey": "Acceleration exposure",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 10,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6407765/",
+      "sourceTitle": "Correlations between muscle-tendon parameters and acceleration ability in 20 m sprints",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Rapid acceleration during the first sprint steps is a distinct performance quality.",
+        "10-Yard Sprint Start is a maximal or near-maximal linear acceleration effort through a 10-yard target from an explicitly selected start, followed by a safe run-out. Adding the word start does not create a second exercise."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "The start, push-off, and first acceleration steps are related but distinguishable phases.",
+        "10-Yard Sprint Start belongs to short linear acceleration output. Standing, two-point, three-point, falling, prone, resisted, and externally cued starts are controlled variants; a flying entry is maximal-velocity work."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4689850/",
+      "sourceTitle": "Sprint Acceleration Mechanics: The Major Role of Hamstrings in Horizontal Force Production",
+      "sourcePublisher": "Frontiers in Physiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Sprint acceleration involves rapid hip, knee, and ankle actions, including hamstring contribution to horizontal force production.",
+        "Represent gluteal, hamstring, quadriceps, hip-flexor, plantar-flexor, foot, pelvic, trunk, and reciprocal shoulder and arm roles, with start-specific upper-body demands added by the selected variant."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Higher-performing initial acceleration is associated with propulsive force and forward-directed impulse.",
+        "Project from the selected start, push the ground backward, coordinate the arms and legs, rise progressively, sprint through the target, and avoid prescribing one universal shin angle or step length."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22233797/",
+      "sourceTitle": "The difference is in the start: impact of timing and start procedure on sprint running performance",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Start procedure and body position influence sprint timing and performance.",
+        "Score technical complexity, absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. Athlete experience is programming context, not an exercise-card skill level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6407765/",
+      "sourceTitle": "Correlations between muscle-tendon parameters and acceleration ability in 20 m sprints",
+      "sourcePublisher": "PLOS ONE",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Power output is highest during the first acceleration steps.",
+        "10-Yard Sprint Start must track effort count, distance, high-speed contacts, start variant and side, surface, posterior-chain and plantar-flexor stress, technical fatigue, speed loss, recovery, and total session sprint volume."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Sprint work requires an appropriate surface, marked distance, sufficient run-out, spacing, and recovery.",
+        "Require a clear dry level 10-yard lane, suitable footwear, a visible target, athlete separation, and a safe run-out; require any equipment and readiness specific to the selected start variant."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration work should specify distance, intensity, repetitions, sets, and recovery.",
+        "Use two to six quality 10-yard efforts with roughly 60–180 seconds recovery according to start complexity and measured speed; a dense repeated-sprint objective requires a separate submaximal conditioning profile."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "A start should support rapid propulsion without forcing an anthropometrically inappropriate setup.",
+        "Name the exact start, hold the required stillness, project and push back, coordinate the first steps, sprint through the 10-yard line, and decelerate only in the run-out."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Training should use appropriate supervision, correct technique, manageable demands, and gradual progression.",
+        "Stop for pain, limp, slip, stumble, lane obstruction, unsafe spacing, repeated false step, loss of posture or coordination, marked speed decline, or inability to complete the run-out safely."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Acceleration and maximal-velocity sprinting are distinct training qualities.",
+        "10-Yard Sprint Start belongs after preparation and before fatiguing work. Use full recovery for output; do not silently convert the card to conditioning by shortening rest."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=a0cae133-1056-4b89-9f93-16d87fd3bbd4.pdf&urlslug=introduction-to-sprinting",
+      "sourceTitle": "Introduction to Sprinting",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 78,
+      "claims": [
+        "Acceleration develops across successive steps rather than through an immediate upright posture.",
+        "Show the selected start from both sides, first three contacts, the 10-yard line, the instruction to run through it, the run-out, and an appropriate simpler start regression."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-5.4.pdf",
+      "sourceTitle": "Developing Linear Speed",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Coaches should distinguish acceleration output from maximal velocity and conditioning.",
+        "Provide start-variant selection, side distribution, lane and run-out checks, side and rear observation, split timing when used, speed-loss stops, session contact totals, and exact identity and substitution rules."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Speed training should be developmentally appropriate and based on movement competency.",
+        "Accessibility options include a standing or comfortable two-point start, submaximal intent, five-yard target, untimed attempts, visual marks, fewer efforts, extra demonstration, and longer recovery."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
+      "sourceTitle": "Biomechanical Performance Factors in the Track and Field Sprint Start: A Systematic Review",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Different start positions alter the initial force task while retaining short acceleration as the central stimulus.",
+        "Ten yards versus ten metres is dosage; standing, two-point, three-point, falling, prone, resisted, and reaction starts require variants, while flying sprints require a distinct maximal-velocity definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Visible links for 10-Yard Sprint Start remain candidate-only. Availability, embedding, exact 10-yard and start-variant match, complete viewing, captions, cue and safety quality, reviewer identity, and approval are separate gates."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=mATMYLiKa_0",
+      "title": "How To Run A Faster 40 Yard Dash : The First 10 Yards Breakdown",
+      "channelName": "Athletic Preparation",
+      "sourceQuery": "existing 10-yard acceleration candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "First-10-yard candidate; exact prescribed start and full review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=d9ZC-vTABCw",
+      "title": "Winning the First 10m | How to Improve Acceleration (Part Three)",
+      "channelName": "Coach Chris Korfist (Slow Guy Speed School)",
+      "sourceQuery": "existing 10-yard acceleration candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Metric adjacent-distance candidate; exact 10-yard and start-variant match remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=00lM8-a2o3Y",
+      "title": "40 Yard Dash: Sprint Like a Pro | NFL Combine Trainer",
+      "channelName": "Bodybuilding.com",
+      "sourceQuery": "existing 10-yard acceleration candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Longer-sprint context; exact 10-yard segment and full review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=3d8W16av094",
+      "title": "My 10 x 10 Sprint Protocol Outlined",
+      "channelName": "Derek M Hansen",
+      "sourceQuery": "existing 10-yard acceleration candidate",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "May describe a protocol rather than one exact effort; dosage and movement review remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "10-Yard Sprint",
+      "classification": "same_identity",
+      "rationale": "The title and undefined procedure describe the same card.",
+      "distinguishingDimensions": {
+        "nameOnly": "omits_start"
+      }
+    },
+    {
+      "name": "Standing 10-Yard Sprint",
+      "classification": "new_variant",
+      "rationale": "Standing specifies the previously undefined start.",
+      "distinguishingDimensions": {
+        "startPosition": "standing"
+      }
+    },
+    {
+      "name": "Two-Point 10-Yard Sprint",
+      "classification": "new_variant",
+      "rationale": "A staggered two-point stance constrains initiation.",
+      "distinguishingDimensions": {
+        "startPosition": "two_point"
+      }
+    },
+    {
+      "name": "Falling-Start 10-Yard Sprint",
+      "classification": "new_variant",
+      "rationale": "A controlled fall changes the initiation constraint.",
+      "distinguishingDimensions": {
+        "startPosition": "falling"
+      }
+    },
+    {
+      "name": "Flying 10-Yard Sprint",
+      "classification": "new_definition",
+      "rationale": "A flying entry is a maximal-velocity rather than short-acceleration task.",
+      "distinguishingDimensions": {
+        "primaryStimulus": "maximal_velocity"
+      }
+    }
+  ]
+}

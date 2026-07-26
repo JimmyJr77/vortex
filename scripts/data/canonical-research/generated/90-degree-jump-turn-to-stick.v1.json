@@ -1,0 +1,454 @@
+{
+  "facilityId": 1,
+  "slug": "90-degree-jump-turn-to-stick",
+  "researchVersion": "2026-07-25.3",
+  "assessmentSummary": {
+    "identity": "A bilateral in-place vertical jump with a 90-degree turn in flight, bilateral landing on a perpendicular orientation target, and a deliberate two-second stick.",
+    "currentCardFindings": [
+      "The current card gives the turn angle but not takeoff and landing laterality, in-place projection, direction balance, or hold duration.",
+      "The separate 90-Degree Hop to Stick card uses generic rotational copy and is likely the same identity unless hop is explicitly unilateral.",
+      "Absolute-load demand 40 is inconsistent with bodyweight jumping while impact, supervision, failure consequence, anatomy, load, and fatigue are missing."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "countermovement",
+        "vertical_jump",
+        "quarter_turn",
+        "bilateral_land",
+        "brace"
+      ],
+      "jointActions": [
+        "ankle_plantarflexion",
+        "knee_extension",
+        "hip_extension",
+        "whole_body_rotation",
+        "landing_flexion_control"
+      ],
+      "planes": [
+        "sagittal",
+        "transverse"
+      ],
+      "laterality": "bilateral_takeoff_bilateral_landing",
+      "intent": "quarter_turn_air_orientation_and_landing_control"
+    },
+    "proposedAnatomy": {
+      "primaryMuscles": [
+        "quadriceps",
+        "gluteus_maximus",
+        "soleus",
+        "gastrocnemius",
+        "obliques"
+      ],
+      "secondaryMuscles": [
+        "hamstrings",
+        "gluteus_medius",
+        "hip_external_rotators",
+        "intrinsic_foot",
+        "trunk_stabilizers"
+      ],
+      "joints": [
+        "foot",
+        "ankle",
+        "knee",
+        "hip",
+        "lumbopelvic_complex",
+        "thoracic_spine"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 48,
+      "absoluteLoadDemand": 14,
+      "coordinationDemand": 54,
+      "supervisionDemand": 44,
+      "failureConsequence": 50,
+      "impact": 48,
+      "workCapacityDemand": 18,
+      "baseOverallDifficulty": 48
+    },
+    "proposedLoadProfile": {
+      "loadingType": "bodyweight_bilateral_rotational_ballistic_and_eccentric_landing",
+      "impactClass": "moderate",
+      "contactCountUnit": "quarter_turn_landings_per_direction",
+      "primaryStress": [
+        "vertical_power",
+        "air_orientation",
+        "rotational_braking",
+        "bilateral_force_attenuation"
+      ],
+      "fatigueSensitivity": "turn_accuracy_and_landing_quality"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "perpendicular_floor_orientation_marks"
+      ],
+      "optionalEquipment": [
+        "visual_spot_target",
+        "video_feedback"
+      ],
+      "environment": [
+        "level_non_slip_surface",
+        "adequate_ceiling_height",
+        "clear_360_degree_zone"
+      ],
+      "population": [
+        "owns_bilateral_jump_to_stick",
+        "can_follow_left_and_right_turn targets",
+        "no_motion_triggered_dizziness"
+      ]
+    },
+    "proposedDosage": {
+      "sets": "2-4",
+      "repetitions": "3-5 per direction",
+      "landingHoldSeconds": "2-3",
+      "restSeconds": "45-90",
+      "intensity": "submaximal_height_with_exact_quarter_turn",
+      "progressWhen": "both directions land on the perpendicular marks quietly and in place without a shuffle"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Jump up before turning",
+        "Turn the body together",
+        "Find the side wall",
+        "Land on both feet and freeze"
+      ],
+      "athleteInstructions": [
+        "Jump from two feet",
+        "Turn one quarter in the air",
+        "Land on two feet facing the side and hold"
+      ],
+      "commonFaults": [
+        "horizontal drift",
+        "under- or over-rotation",
+        "feet contact at different times",
+        "knee collapse",
+        "extra step",
+        "continuous turning"
+      ]
+    },
+    "proposedSafety": {
+      "readiness": [
+        "mastered bilateral vertical jump and stick",
+        "pain-free rotation both directions",
+        "clear non-slip zone"
+      ],
+      "stopRules": [
+        "pain or giving way",
+        "dizziness",
+        "repeated missed target",
+        "asymmetrical landing",
+        "extra step",
+        "loss of confidence"
+      ]
+    },
+    "programmingDecision": "Retain as the stable bilateral quarter-turn card. Consolidate 90-Degree Hop to Stick into it unless human review proves a distinct unilateral hop contact sequence.",
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-25T23:07:20.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Perform 90-Degree Jump Turn to Stick as a low-volume, high-quality plyometric or reactive-output exposure. The exercise targets quarter-turn airtime orientation and landing control. The coach should cap volume, demand clean landings, and stop the set before contact quality fades.",
+      "familyKey": "High-Impact Level 3-4 Plyometric / Reactive Output",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 40,
+        "coordinationDemand": 50,
+        "technicalComplexity": 50,
+        "baseOverallDifficulty": 50
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Rotational jump identity must specify takeoff and landing laterality, turn angle and direction, projection vector, contact sequence, external height, rebound intent, and required stabilization.",
+        "90-Degree Jump Turn to Stick must not combine bilateral jump turns, unilateral rotational bounds, multi-contact sequences, broad jumps, or repeated reactive turns under one generic rotational label."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "A jump-to-stick combines ballistic propulsion with a deliberate landing and stabilization phase; repeated reactive hopping is a different task.",
+        "90-Degree Jump Turn to Stick belongs to rotational jump or bound power with landing control, with direction, laterality, projection, contact sequence, and rebound intent encoded as controlled dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Propulsion and force absorption are coordinated across the foot and ankle, knee, hip, pelvis, and trunk.",
+        "The card should assign task-specific roles to plantar flexors, intrinsic foot muscles, quadriceps, hamstrings, gluteals, hip stabilizers, obliques, and trunk stabilizers without treating lumbar rotation as the primary driver."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Plyometric demand changes with projection speed, direction, external height, body mass, and time available to produce and absorb force.",
+        "Observable quality includes the prescribed takeoff, whole-body turn led by foot-hip-trunk coordination, visual orientation before contact, intended flight path, quiet landing, knee tracking, stable pelvis and trunk, and ownership of the finish."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Plyometric intensity changes with speed, height, distance, body mass, laterality, external load, and movement complexity.",
+        "Exercise difficulty must score technical and physical demand directly, including spatial coordination, impact, supervision, work capacity, and consequence of error; exercise cards must not use skill-library levels."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Landing contacts, jump height or distance, turn angle, laterality, contact sequence, and external load govern mechanical exposure; power repetitions require adequate rest.",
+        "90-Degree Jump Turn to Stick needs contact count per side and direction, output intent, impact and eccentric stress, spatial and technical-fatigue criteria, and recovery guidance rather than conditioning-style work time."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Effective jump-landing interventions depend on appropriate materials, coaching knowledge, usable space, and task-specific progression.",
+        "The delivery profile should require a level non-slip surface, clear flight and landing zones in every turn direction, adequate ceiling height, athlete spacing, coach sightline, and readiness for rotational orientation and landing."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Bilateral landing and stabilization should precede unilateral, larger-angle, farther, multi-contact, or reactive jumping.",
+        "Prescribe low-repetition sets, contacts per direction, turn angle, projection target, hold time, rest, and progression criteria; stop before fatigue alters orientation or landing."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Specific prescriptive feedback can improve landing mechanics, while excessive cue volume can interfere with learning.",
+        "Use a small cue set: load through the prescribed stance, turn the body as one coordinated unit, find the landing before contact, land quietly, and hold without a touch-down, shuffle, or rebound."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Loud contact, poor stabilization, loss of alignment, or inability to coordinate ankle, knee, and hip indicate excessive jump intensity or volume.",
+        "Stop for pain, giving way, dizziness, disorientation, repeated valgus or trunk collapse, forced lumbar twisting, missed turn angle, uncontrolled foot contact, extra steps, or loss of output."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6592422/",
+      "sourceTitle": "Evidence-Based Best-Practice Guidelines for Preventing Anterior Cruciate Ligament Injuries in Young Female Athletes: A Systematic Review and Meta-analysis",
+      "sourcePublisher": "The American Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 91,
+      "claims": [
+        "Landing stabilization and lower-body strength are recurring components of effective neuromuscular injury-prevention programs.",
+        "90-Degree Jump Turn to Stick belongs after linear and lateral landing foundations and before fatigued multidirectional work; use low volume and sufficient recovery to preserve spatial and landing quality."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6208302/",
+      "sourceTitle": "The Use of Augmented Information for Reducing Anterior Cruciate Ligament Injury Risk During Jump Landings: A Systematic Review",
+      "sourcePublisher": "Journal of Athletic Training",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Athletes benefit from feedback tied to visible movement actions rather than abstract risk language.",
+        "Athlete support should show start and finish orientations, turn direction and angle, foot contact sequence, landing target and hold time, one primary cue, and the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10254820/",
+      "sourceTitle": "Training interventions to reduce the risk of injury to the lower extremity joints during landing movements in adult athletes: a systematic review and meta-analysis",
+      "sourcePublisher": "BMJ Open Sport & Exercise Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 89,
+      "claims": [
+        "Coach education and practical implementation affect whether jump-landing interventions are delivered effectively.",
+        "Coach support should provide front, side, and finish-angle observation, pass-fail criteria, contact counting, left-right comparison, regressions, progressions, and rules for reducing angle, distance, laterality, or contact count."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://worldathletics.org/download/downloadnsa?filename=8c33cc0b-ba23-4d3d-9dbe-168e10d5fcfb.pdf&urlslug=plyometrics-for-beginners-basic-considerati",
+      "sourceTitle": "Plyometrics for Beginners: Basic Considerations",
+      "sourcePublisher": "World Athletics",
+      "sourceKind": "governing_body",
+      "evidenceQuality": 76,
+      "claims": [
+        "Beginners should establish bilateral landing and stabilization before progressing to unilateral, higher, farther, or reactive tasks.",
+        "Accessibility can be improved with start and finish floor arrows, visual targets, demonstrated orientations, reduced turn angle or distance, assistance, longer reset time, and reduced sensory demand without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.nsca.com/contentassets/116c55d64e1343d2b264e05aaf158a91/basics_of_strength_and_conditioning_manual.pdf",
+      "sourceTitle": "Basics of Strength and Conditioning Manual",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Different turn angles, projection directions, laterality, landing stance, repeated contacts, obstacles, and external load have different intensity and programming implications.",
+        "Turn direction, small angle adjustments, and submaximal targets are usually variants; a different takeoff or landing laterality, projection vector, contact sequence, rebound intent, or testing purpose may require a distinct definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for 90-Degree Jump Turn to Stick were discovered or rechecked through visible YouTube search and public oEmbed metadata; exact movement match, full viewing, captions, instructional quality, safety, and approval remain pending human review."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=Q38H9arCGtU",
+      "title": "90 Degree Jump + Stick",
+      "channelName": "Macalester Strength & Conditioning",
+      "sourceQuery": "90 degree jump and stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=cqwy0-74LA0",
+      "title": "90’ Rotational jump, stick",
+      "channelName": "Rick Gannon, M.S. CSCS",
+      "sourceQuery": "90 degree jump and stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=M3mt-4ODmUk",
+      "title": "Jump w/90 degrees Rotation & Stick",
+      "channelName": "Thomas Scarr",
+      "sourceQuery": "90 degree jump and stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=VZ_0JbuAUHs",
+      "title": "90 Degree Jump Stick",
+      "channelName": "ForFitness and Athletics",
+      "sourceQuery": "90 degree jump and stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Dh2xEBucIn8",
+      "title": "90 Degree Jump + Stick",
+      "channelName": "Joe Aratari",
+      "sourceQuery": "90 degree jump and stick",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate discovered for human review; availability, embedding, exact-version match, content, accessibility, and demonstration quality remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "90-Degree Hop to Stick",
+      "classification": "same_identity",
+      "rationale": "The current hop card does not define a unilateral contact sequence and otherwise describes the same quarter-turn task.",
+      "distinguishingDimensions": {
+        "aliasPendingLateralityReview": true
+      }
+    },
+    {
+      "name": "45-Degree Jump Turn to Stick",
+      "classification": "new_variant",
+      "rationale": "A smaller turn angle reduces spatial demand.",
+      "distinguishingDimensions": {
+        "turnAngleDegrees": 45
+      }
+    },
+    {
+      "name": "180-Degree Jump to Stick",
+      "classification": "new_variant",
+      "rationale": "A half turn is the direct higher-coordination progression.",
+      "distinguishingDimensions": {
+        "turnAngleDegrees": 180
+      }
+    },
+    {
+      "name": "90-Degree Jump to Single-Leg Stick",
+      "classification": "new_variant",
+      "rationale": "Unilateral landing materially changes balance and impact.",
+      "distinguishingDimensions": {
+        "landingLaterality": "unilateral"
+      }
+    },
+    {
+      "name": "Continuous 90-Degree Jump Turns",
+      "classification": "new_definition",
+      "rationale": "Repeated rebounds remove the hold and emphasize reactive output or conditioning.",
+      "distinguishingDimensions": {
+        "reboundIntent": "continuous"
+      }
+    }
+  ]
+}

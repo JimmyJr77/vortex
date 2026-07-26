@@ -1,8 +1,10 @@
 /**
  * Classify library items as workouts (exercise) vs skill-acquisition drills (skill_drill).
  *
- * Exercises are age-gated by load/technical difficulty in programming.
- * Skill drills gate on athlete/class skill level — not session audience age.
+ * Every exercise and linked drill is assessed by physical difficulty and
+ * exercise complexity.
+ * Athlete/class levels belong to coaching.skill cards; exercise prerequisites
+ * are represented through readiness and progression relationships instead.
  *
  * Rules: docs/EXERCISE_DIFFICULTY_METHODOLOGY.md §2, §7
  */

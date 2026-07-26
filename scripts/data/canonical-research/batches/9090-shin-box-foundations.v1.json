@@ -1,0 +1,1149 @@
+{
+  "batchKey": "9090-shin-box-foundations-v1",
+  "researchVersion": "2026-07-25.21",
+  "snapshotAt": "2026-07-26T02:35:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "shin_box_get_up_jbmt",
+      "claims": [
+        "The published shin-box sequence explicitly distinguishes the seated 90/90 position, the side-to-side transition, the tall-kneeling hip lift, the half-kneeling transition, and the rise to standing.",
+        "{{canonicalName}} must state whether 90/90 means a supported supine breathing position or a seated staggered hip position, then define its exact start, transition, finish, support, reach, and return rather than relying on the number alone."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "shin_box_get_up_jbmt",
+      "claims": [
+        "The shin-box paper describes hand support, arm position, external load, tall kneeling, half kneeling, standing, and single-leg finish as regressions, stages, or progressions within a named movement sequence.",
+        "Classify {{canonicalName}} by body orientation, support position, hip actions, transition endpoint, arm task, assistance, external load, cadence, laterality, and whether standing is required."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "hip_external_rotator_flexion_biomechanics",
+      "claims": [
+        "Hip-rotator leverage changes with hip-flexion angle; a muscle may not perform the same rotational role across upright, flexed, and deeply flexed positions.",
+        "Represent the diaphragm and rib cage for the breathing card and the hip rotators, gluteals, adductors, knee flexors, foot contacts, pelvis, and trunk stabilizers actually used by each seated or get-up variant without reducing hip rotation to one named muscle."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "shin_box_get_up_jbmt",
+      "claims": [
+        "The documented get-up maintains an upright torso while the legs rotate between 90/90 positions, the knees press into the floor, the hips extend into tall kneeling, and the athlete transitions through half kneeling to standing.",
+        "Coach {{canonicalName}} so the intended hip or breathing action remains primary; range, reach, or height does not count when the athlete forces the knees, collapses the trunk, substitutes lumbar motion, or loses control of the return."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "shin_box_get_up_jbmt",
+      "claims": [
+        "Hand support, arm position, external load, and the standing or single-leg endpoint materially change coordination and physical demand.",
+        "Assess technical complexity, absolute physical load, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty directly. These are exercise attributes; athlete experience is programming context and is not a card level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "stretching_rom_meta_analysis",
+      "claims": [
+        "Range-of-motion interventions vary substantially in technique, intensity, duration, frequency, target tissue, supervision, and population, so generic mobility labels do not determine dose or recovery.",
+        "{{canonicalName}} must track active versus supported range, sides or breaths, assistance, external load, tempo, end-position control, symptom response, technique loss, and overlap with other hip, trunk, kneeling, or respiratory work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "shin_box_get_up_jbmt",
+      "claims": [
+        "The published sequence uses floor contact, an upright torso, optional hand support, and progressively more demanding arm, load, kneeling, standing, and balance positions.",
+        "Require a non-slip padded surface, clear transition space, stable support where assigned, and pain-free hip, knee, back, and breathing tolerance; do not force a nominal 90-degree shape when anatomy or symptoms prevent it."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "stretching_rom_meta_analysis",
+      "claims": [
+        "Research on range-of-motion training reports heterogeneous protocols and does not validate one universal dose for these exact dynamic drills.",
+        "Treat card dosage as a conservative programming inference: use low-volume controlled breaths or transitions, side-balanced exposure, enough recovery to preserve position and breathing, and progression only after repeatable pain-free control."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "shin_box_get_up_jbmt",
+      "claims": [
+        "The published get-up procedure specifies an upright torso, approximately right-angle knees, controlled rotation, knee pressure into the floor, hip extension, half-kneeling transition, standing finish, and controlled reversal.",
+        "Instructions for {{canonicalName}} must name the exact support, limb position, allowed assistance, movement path, breath or tempo, endpoint, return, side order, and definition of a successful repetition."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Exercise should be supervised, technically appropriate, progressively dosed, and performed with safe equipment and space for the population.",
+        "Stop {{canonicalName}} for sharp or increasing hip, groin, knee, back, neck, or respiratory symptoms; numbness or tingling; dizziness; forced knee contact; loss of floor traction; uncontrolled descent; breath strain; or repeated compensation."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "stretching_rom_meta_analysis",
+      "claims": [
+        "Longer-term range-of-motion improvement is supported across stretching methods, but intervention effects and protocols are heterogeneous and do not prove sport transfer from a single drill.",
+        "Use {{canonicalName}} for an observable access, control, transition, or breathing need. Reassess the movement it is intended to support and avoid promising injury prevention, structural repositioning, or automatic performance transfer."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "shin_box_get_up_jbmt",
+      "claims": [
+        "The published get-up uses sequential front, side, and angled images to distinguish the seated, tall-kneeling, half-kneeling, standing, and single-leg stages.",
+        "Athlete support should show the exact start and finish, both sides, permitted hand support, the primary cue, a successful repetition, a comfortable-range option, and the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "shin_box_get_up_jbmt",
+      "claims": [
+        "The published sequence supplies regressions and progressions based on hand support, arm position, load, standing, and single-leg balance.",
+        "Coach support should distinguish position access from active control, provide front and side observation points, side comparison, assistance and load decisions, floor and spacing checks, dosage logging, and rules for shortening or ending the sequence."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "shin_box_get_up_jbmt",
+      "claims": [
+        "The published sequence explicitly permits hands behind the body to support an upright posture and progresses by changing arm position or adding load.",
+        "Accessibility options include elevating the hips, opening the knee angles, using hands or a stable support, shortening the transition, omitting the stand, adding padding, reducing sensory load, and using visual plus plain-language cues."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "shin_box_get_up_jbmt",
+      "claims": [
+        "The paper distinguishes the seated switch, hip lift, half-kneeling transition, standing get-up, single-leg finish, arm positions, assistance, and external loading.",
+        "Treat hand support, arm position, reach, cadence, and light load as controlled variants when the primary sequence remains; retain separate definitions when the primary joint action or training stimulus changes, such as isolated end-range lift-offs or a Turkish get-up."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct videos for {{canonicalName}} returned healthy oEmbed player metadata on 2026-07-26. Exact support position, full sequence, safety, cue quality, captions, accessibility, and demonstration quality remain pending human review."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "9090-breathing-with-reach",
+      "assessmentSummary": {
+        "identity": "A supported supine breathing drill with hips and knees near 90 degrees, feet on a wall or calves on a stable support, and a gentle bilateral reach during a slow exhale while the rib cage and pelvis remain comfortably organized.",
+        "currentCardFindings": [
+          "The existing card describes the supine support and reach clearly but overstates a universal rib-down or pelvic-position outcome and does not define support stability, breath duration, permitted effort, dizziness rules, or dosage boundaries.",
+          "The archived Hip Reset card described the same supported 90/90 breathing action; hip reset is an intended context, not a separate movement identity.",
+          "The legacy 20-point difficulty obscures the very low physical load and the modest respiratory, rib-cage, pelvic, and reaching coordination required."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "supine_supported_breathing",
+            "bilateral_reach",
+            "low_intensity_trunk_control"
+          ],
+          "jointActions": [
+            "diaphragmatic_inhalation",
+            "controlled_exhalation",
+            "rib_cage_expansion_and_recoil",
+            "scapular_protraction",
+            "shoulder_flexion_hold",
+            "hip_and_knee_flexion_support"
+          ],
+          "planes": [
+            "multi_planar_rib_cage_expansion",
+            "sagittal_support_position"
+          ],
+          "laterality": "bilateral",
+          "intent": "slow_supported_breathing_with_low_effort_rib_pelvis_and_reach_coordination"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "diaphragm",
+            "intercostals",
+            "abdominal_wall"
+          ],
+          "secondaryMuscles": [
+            "pelvic_floor",
+            "serratus_anterior",
+            "obliques",
+            "transversus_abdominis",
+            "hamstrings_if_feet_are_actively_anchored"
+          ],
+          "joints": [
+            "rib_cage",
+            "thoracic_spine",
+            "lumbopelvic_complex",
+            "scapulothoracic_articulation",
+            "shoulder",
+            "hip",
+            "knee"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 22,
+          "absoluteLoadDemand": 4,
+          "coordinationDemand": 24,
+          "supervisionDemand": 14,
+          "failureConsequence": 8,
+          "impact": 1,
+          "workCapacityDemand": 5,
+          "baseOverallDifficulty": 22
+        },
+        "proposedLoadProfile": {
+          "loadingType": "supported_bodyweight_respiratory_motor_control",
+          "impactClass": "none",
+          "externalLoadMethod": "none",
+          "primaryStress": [
+            "respiratory_coordination",
+            "low_level_abdominal_and_reach_control"
+          ],
+          "fatigueProfile": [
+            "neck_or_jaw_tension",
+            "shoulder_shrug",
+            "rib_flare",
+            "forced_exhale",
+            "hamstring_cramp",
+            "air_hunger_or_dizziness"
+          ],
+          "recoveryHours": "minimal_when_low_effort_and_symptom_free"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "stable_wall_bench_or_box_for_leg_support"
+          ],
+          "optionalEquipment": [
+            "mat",
+            "head_support",
+            "small_ball_between_knees",
+            "visual_breath_timer"
+          ],
+          "environment": [
+            "quiet_space",
+            "stable_non_slip_support",
+            "comfortable_temperature"
+          ],
+          "population": [
+            "can_lie_supine_and_breathe_without_distress",
+            "pain_free_supported_hip_and_knee_flexion",
+            "can_reach_without_shoulder_symptoms"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndBreaths": "1-3_sets_of_3-6_slow_breaths",
+          "breathTiming": "comfortable_nasal_inhale_then_approximately_4-8_second_unforced_exhale",
+          "restSeconds": "as_needed_for_normal_comfortable_breathing",
+          "intensity": "low_effort_without_maximal_inhalation_exhalation_or_breath_hold",
+          "measurement": "breaths_completed_reach_position_symptoms_and_visible_neck_or_rib_compensation",
+          "progressWhen": "breathing stays calm and repeatable without strain, dizziness, shoulder shrug, back discomfort, or support movement"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Let the support carry your legs",
+            "Reach long without shrugging",
+            "Breathe in quietly and low",
+            "Exhale slowly without crunching",
+            "Stop before strain"
+          ],
+          "athleteInstructions": [
+            "Lie on your back with your legs fully supported near 90/90",
+            "Reach your hands toward the ceiling",
+            "Breathe in gently through your nose",
+            "Exhale slowly while reaching a little longer",
+            "Pause only if comfortable, then let the next inhale arrive"
+          ],
+          "commonFaults": [
+            "unstable_support",
+            "hard_heel_drive",
+            "neck_or_jaw_tension",
+            "shoulder_shrug",
+            "forceful_abdominal_crunch",
+            "maximal_breath_hold",
+            "repeated_dizziness"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "comfortable_supine_position",
+            "stable_leg_support",
+            "normal_resting_breathing",
+            "pain_free_reach"
+          ],
+          "qualityGates": [
+            "support_does_not_move",
+            "breath_remains_unforced",
+            "neck_and_jaw_stay_relaxed",
+            "reach_does_not_create_pain_or_shrug"
+          ],
+          "stopRules": [
+            "dizziness_or_faintness",
+            "chest_pain",
+            "unusual_shortness_of_breath",
+            "panic_or_air_hunger",
+            "new_neurologic_symptoms",
+            "neck_back_hip_or_shoulder_pain",
+            "repeated_hamstring_cramp"
+          ]
+        },
+        "proposedContextualProfiles": [
+          {
+            "context": "prepare_and_access",
+            "dose": "1-2_sets_of_3-4_breaths",
+            "purpose": "rehearse_low_effort_breathing_and_trunk_position_before_training"
+          },
+          {
+            "context": "restore",
+            "dose": "1-3_sets_of_4-6_breaths",
+            "purpose": "support_a_gradual_return_to_comfortable_breathing_after_training"
+          }
+        ],
+        "proposedRelationships": {
+          "regressions": [
+            "supine_diaphragmatic_breathing_without_reach",
+            "head_supported_9090_breathing"
+          ],
+          "progressions": [
+            "9090_breathing_with_alternating_reach",
+            "dead_bug_breathing_with_controlled_limb_motion"
+          ],
+          "substitutions": [
+            "hook_lying_diaphragmatic_breathing",
+            "side_lying_supported_breathing"
+          ],
+          "doNotSubstitute": [
+            "loaded_dead_bug",
+            "maximal_respiratory_muscle_training"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "side_view_setup",
+            "support_height_badge",
+            "breath_timing_animation",
+            "dizziness_stop_message"
+          ],
+          "coach": [
+            "support_stability_check",
+            "neck_and_shoulder_observation",
+            "breath_strain_check",
+            "context_specific_dose"
+          ]
+        },
+        "calibrationEvidence": {
+          "basis": "VA diaphragmatic-breathing instruction, slow-breathing systematic review, exact-title candidate videos, and current-card comparison",
+          "uncertainty": "No trial establishes a unique difficulty score, sport-transfer effect, or universal pelvic-position outcome for this exact supported reach variant.",
+          "reviewNeeded": [
+            "respiratory_clinician_or_qualified_coach_content_review",
+            "difficulty_anchor_comparison",
+            "athlete_comprehension_test",
+            "full_video_review"
+          ]
+        },
+        "programmingDecision": "Retain one supported supine 90/90 breathing-with-reach definition. Hip reset, feet-on-wall versus calves-on-bench support, reach angle, and non-loaded breath cadence are variants or contextual annotations; avoid structural-reset and automatic-recovery claims."
+      },
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "va_diaphragmatic_breathing",
+          "claims": [
+            "VA guidance defines diaphragmatic breathing as a supported lying or seated exercise using a slow nasal inhale and longer controlled exhale.",
+            "{{canonicalName}} adds the explicit supported 90/90 leg position and gentle reach; the card must not treat a claimed hip reset as a second identity."
+          ]
+        },
+        {
+          "sectionKey": "biomechanics",
+          "sourceKey": "va_diaphragmatic_breathing",
+          "claims": [
+            "Diaphragmatic breathing uses abdominal excursion with comparatively quiet upper-chest accessory-muscle activity.",
+            "The reach should remain low effort and free of shrugging or crunching while the stable leg support prevents balance demand from obscuring breathing."
+          ]
+        },
+        {
+          "sectionKey": "dosage",
+          "sourceKey": "va_diaphragmatic_breathing",
+          "claims": [
+            "VA instruction uses a slow inhale and a longer exhale, then progresses practice position as control improves.",
+            "For a workout card, use a shorter conservative dose of three to six comfortable breaths per set; this is a programming inference, not a clinical prescription."
+          ]
+        },
+        {
+          "sectionKey": "safety_stop_rules",
+          "sourceKey": "slow_breathing_systematic_review",
+          "claims": [
+            "Slow-breathing research includes varied protocols and proposed autonomic effects, while mechanisms and generalization remain uncertain.",
+            "Do not force breath depth, duration, or retention. Stop for dizziness, faintness, chest pain, unusual shortness of breath, panic, neurologic symptoms, or musculoskeletal pain."
+          ]
+        },
+        {
+          "sectionKey": "programming",
+          "sourceKey": "slow_breathing_systematic_review",
+          "claims": [
+            "Slow breathing can influence cardiorespiratory and autonomic measures, but protocols and mechanisms vary.",
+            "Use the card as low-intensity breathing practice or a transition to comfortable post-session breathing; do not promise nervous-system reset, structural repositioning, recovery acceleration, or sport-performance transfer."
+          ]
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=GZ6X2M6gRvQ",
+          "title": "90/90 Breathing with Reach",
+          "channelName": "Premier Rehab Patient Exercise Library",
+          "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T02:34:46Z"
+          }
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=O-cf22YQzAg",
+          "title": "90/90 Breathing with Reach",
+          "channelName": "Erica Friedman Wellness",
+          "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T02:34:46Z"
+          }
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=QN77knnBw8o",
+          "title": "Supine 90/90 reach with breathing",
+          "channelName": "Stark Performance",
+          "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T02:34:46Z"
+          }
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=yFGJI00OZ8k",
+          "title": "90/90 Breathing With Reach",
+          "channelName": "Stronger Strides",
+          "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T02:34:46Z"
+          }
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "90/90 Breathing without Reach",
+          "classification": "new_variant",
+          "rationale": "Removing the reach lowers scapular and abdominal coordination while preserving supported supine breathing.",
+          "distinguishingDimensions": {
+            "armTask": "resting"
+          }
+        },
+        {
+          "name": "Feet-on-Wall 90/90 Breathing",
+          "classification": "new_variant",
+          "rationale": "Wall support permits active foot pressure but preserves the same body position and breathing task.",
+          "distinguishingDimensions": {
+            "legSupport": "feet_on_wall"
+          }
+        },
+        {
+          "name": "Calves-on-Bench 90/90 Breathing",
+          "classification": "new_variant",
+          "rationale": "Bench support reduces the need for active foot pressure while preserving the same breathing and reach identity.",
+          "distinguishingDimensions": {
+            "legSupport": "calves_on_bench"
+          }
+        },
+        {
+          "name": "90/90 Hip Lift with Reach",
+          "classification": "new_definition",
+          "rationale": "Actively lifting or posteriorly tilting the pelvis with a heel drive adds a distinct hamstring-dominant hip-lift action rather than a support annotation.",
+          "distinguishingDimensions": {
+            "primaryJointAction": "active_hip_lift_and_pelvic_tilt"
+          }
+        },
+        {
+          "name": "Dead Bug Breathing",
+          "classification": "new_definition",
+          "rationale": "Adding unsupported alternating limb motion changes the primary task to dynamic trunk control under a longer lever.",
+          "distinguishingDimensions": {
+            "primaryTrainingStimulus": "dynamic_anti_extension_control"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "9090-hip-switch",
+      "assessmentSummary": {
+        "identity": "A seated bilateral hip-rotation transition from one staggered 90/90 or shin-box position through center to the opposite side, performed with controlled reciprocal internal and external rotation and optional hand support.",
+        "currentCardFindings": [
+          "The base card already describes the main transition but does not define seat height, knee-angle tolerance, foot movement, permitted trunk rotation, side counting, tempo, or a measurable quality gate.",
+          "The archived Shin Box Switch is an exact naming duplicate, and the archived Hip Switch with Reach is an upper-body overlay of the same primary hip action.",
+          "Uniform legacy difficulty values understate the coordination of reciprocal hip rotation but overstate neither impact nor physical load; muscle naming must account for changing hip-rotator roles in flexion."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "seated_hip_rotation_transition",
+            "ground_based_mobility",
+            "trunk_control"
+          ],
+          "jointActions": [
+            "reciprocal_hip_internal_rotation",
+            "reciprocal_hip_external_rotation",
+            "knee_flexion_hold",
+            "pelvic_rotation_control"
+          ],
+          "planes": [
+            "transverse"
+          ],
+          "laterality": "bilateral_reciprocal",
+          "intent": "active_pain_free_hip_rotation_transition_with_repeatable_seated_control"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "deep_hip_rotators",
+            "gluteus_medius_and_minimus",
+            "tensor_fasciae_latae",
+            "adductors"
+          ],
+          "secondaryMuscles": [
+            "gluteus_maximus",
+            "iliopsoas",
+            "hamstrings",
+            "quadriceps",
+            "obliques",
+            "spinal_stabilizers"
+          ],
+          "joints": [
+            "hip",
+            "knee",
+            "ankle",
+            "lumbopelvic_complex",
+            "thoracic_spine"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 34,
+          "absoluteLoadDemand": 10,
+          "coordinationDemand": 36,
+          "supervisionDemand": 20,
+          "failureConsequence": 16,
+          "impact": 1,
+          "workCapacityDemand": 12,
+          "baseOverallDifficulty": 34
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_active_range_reciprocal_hip_rotation",
+          "impactClass": "none",
+          "externalLoadMethod": "none_for_baseline",
+          "primaryStress": [
+            "active_hip_rotation",
+            "hip_capsule_tolerance",
+            "low_level_trunk_control"
+          ],
+          "fatigueProfile": [
+            "range_loss",
+            "momentum",
+            "pelvic_roll",
+            "lumbar_slump",
+            "forced_knee_contact",
+            "increasing_hand_pressure"
+          ],
+          "recoveryHours": "minimal_to_24_by_range_volume_and_symptom_response"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "level_floor"
+          ],
+          "optionalEquipment": [
+            "mat",
+            "seat_elevation",
+            "hand_support",
+            "visual_knee_targets"
+          ],
+          "environment": [
+            "non_slip_surface",
+            "clear_space_for_both_knees_and_feet",
+            "no_hard_obstruction_near_knees"
+          ],
+          "population": [
+            "pain_free_seated_hip_rotation",
+            "tolerates_knee_flexion",
+            "can_sit_with_or_without_support"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "1-3_sets_of_4-8_controlled_transitions_per_side",
+          "tempo": "approximately_2-4_seconds_between_sides_with_optional_1-2_second_pause",
+          "restSeconds": "20-60_or_as_needed",
+          "intensity": "active_comfortable_range_without_forcing_end_position",
+          "measurement": "transitions_per_side_support_level_range_symmetry_and_compensation_count",
+          "progressWhen": "both sides remain smooth and pain free with stable foot contact, no forced knee pressure, and no momentum or lumbar collapse"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Sit as tall as your hips allow",
+            "Use your hands before you use momentum",
+            "Let one hip turn in as the other turns out",
+            "Keep the feet quiet",
+            "Own each side"
+          ],
+          "athleteInstructions": [
+            "Sit with your knees bent and feet wider than your hips",
+            "Use your hands behind you if needed",
+            "Let both knees move slowly to one side",
+            "Pause in the shin-box position",
+            "Lift and rotate through center to the other side without forcing your knees down"
+          ],
+          "commonFaults": [
+            "feet_too_close",
+            "feet_sliding_or_lifting_unintentionally",
+            "throwing_knees_with_momentum",
+            "heavy_lumbar_slump",
+            "forced_knee_contact",
+            "hip_or_groin_pinch",
+            "asymmetric_side_count"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "comfortable_seated_position",
+            "pain_free_knee_flexion",
+            "pain_free_available_hip_rotation",
+            "stable_floor"
+          ],
+          "qualityGates": [
+            "transition_is_controlled",
+            "range_is_self_selected",
+            "no_knee_is_forced_to_floor",
+            "trunk_compensation_does_not_increase",
+            "both_sides_are_dosed"
+          ],
+          "stopRules": [
+            "sharp_or_increasing_hip_groin_knee_or_back_pain",
+            "numbness_or_tingling",
+            "joint_catching_or_giving_way",
+            "forced_knee_pressure",
+            "repeated_loss_of_control",
+            "range_declines_across_reps"
+          ]
+        },
+        "proposedContextualProfiles": [
+          {
+            "context": "prepare_and_access",
+            "dose": "1-2_sets_of_4-6_transitions_per_side",
+            "purpose": "rehearse_active_hip_rotation_before_squat_lunge_cut_kick_or_ground_transition_work"
+          },
+          {
+            "context": "movement_control",
+            "dose": "2-3_sets_of_3-5_slow_transitions_per_side_with_reduced_support",
+            "purpose": "develop_repeatable_active_range_and_trunk_control"
+          }
+        ],
+        "proposedRelationships": {
+          "regressions": [
+            "elevated_seat_9090_switch",
+            "hand_supported_9090_switch",
+            "single_side_supported_9090_position"
+          ],
+          "progressions": [
+            "hands_free_9090_switch",
+            "9090_switch_with_reach",
+            "9090_switch_to_hip_lift"
+          ],
+          "substitutions": [
+            "supported_seated_windshield_wipers",
+            "supine_hip_rotation_wipers"
+          ],
+          "doNotSubstitute": [
+            "9090_hip_lift_off",
+            "shin_box_get_up_to_stand"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "front_and_overhead_demo",
+            "left_right_side_counter",
+            "support_level_badge",
+            "comfortable_range_overlay"
+          ],
+          "coach": [
+            "seat_height_and_hand_support_guide",
+            "foot_and_knee_observation",
+            "side_symmetry_log",
+            "pinch_and_pain_decision_tree"
+          ]
+        },
+        "calibrationEvidence": {
+          "basis": "published shin-box sequence, hip-flexion rotator biomechanics, exact-title candidate videos, and direct comparison of four consolidated legacy sources",
+          "uncertainty": "No trial validates a unique difficulty score, ideal knee angle, or sport-performance benefit for this exact dynamic transition.",
+          "reviewNeeded": [
+            "qualified_coach_and_clinician_content_review",
+            "difficulty_anchor_comparison",
+            "side_specific_accessibility_test",
+            "full_video_review"
+          ]
+        },
+        "programmingDecision": "Retain one 90/90 Hip Switch definition with Shin Box Switch as an alias. Hand support, seat elevation, arm position, reach direction, cadence, and comfortable knee angle are controlled variants or annotations. Isolated end-range lift-offs and a full get-up remain different exercises."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=CuLyss7FkFc",
+          "title": "Shin Box Switch",
+          "channelName": "Men's Health",
+          "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T02:34:46Z"
+          }
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=RvXGc3dScJA",
+          "title": "Improve Hip Mobility and Strength with Shin Box Exercise",
+          "channelName": "Detroit Medical Center",
+          "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T02:34:46Z"
+          }
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=f_7qIPxw6nE",
+          "title": "How To Do 90 90 Hip Rotations",
+          "channelName": "PureGym",
+          "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T02:34:46Z"
+          }
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=m51AZSXMvEA",
+          "title": "90 90 Hip Switch",
+          "channelName": "The Active Life",
+          "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T02:34:46Z"
+          }
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=qq_Z7sAmVrA",
+          "title": "90/90 Hip Switch (Improve Hip Health & Mobility)",
+          "channelName": "Simone Sports Performance",
+          "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T02:34:46Z"
+          }
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Shin Box Switch",
+          "classification": "same_identity",
+          "rationale": "Shin box and 90/90 are alternate names for the same seated reciprocal hip-rotation transition.",
+          "distinguishingDimensions": {
+            "nomenclature": "shin_box"
+          }
+        },
+        {
+          "name": "Hand-Supported 90/90 Hip Switch",
+          "classification": "new_variant",
+          "rationale": "Hand support reduces trunk and active-range demand while preserving the hip-switch action.",
+          "distinguishingDimensions": {
+            "supportLevel": "hands_behind_body"
+          }
+        },
+        {
+          "name": "90/90 Hip Switch with Reach",
+          "classification": "new_variant",
+          "rationale": "An arm reach adds thoracic and scapular motion but preserves the same seated bilateral hip transition.",
+          "distinguishingDimensions": {
+            "armTask": "directional_reach"
+          }
+        },
+        {
+          "name": "90/90 Hip Lift-Off",
+          "classification": "new_definition",
+          "rationale": "Lifting one ankle or knee from a fixed 90/90 position changes the primary stimulus to isolated active end-range rotational strength.",
+          "distinguishingDimensions": {
+            "primaryTrainingStimulus": "active_end_range_hip_rotation_strength"
+          }
+        },
+        {
+          "name": "90/90 Forward Fold Hold",
+          "classification": "new_definition",
+          "rationale": "Holding a unilateral forward hinge over the front shin is a static end-range exposure, not a side-to-side transition.",
+          "distinguishingDimensions": {
+            "primaryJointAction": "static_front_hip_external_rotation_with_hip_hinge"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "shin-box-get-up",
+      "assessmentSummary": {
+        "identity": "A ground-to-stand sequence beginning in a seated shin-box or staggered 90/90 position, extending the hips into tall kneeling, moving through half kneeling, rising to standing, and reversing the sequence under control before changing sides.",
+        "currentCardFindings": [
+          "The current card stops at tall kneeling or hip extension even though the established published Shin Box Get-Up continues through half kneeling to standing; the baseline identity must be corrected and the partial hip lift retained as a regression.",
+          "The archived Flow card described the same partial sequence with continuous cadence and did not warrant a second definition.",
+          "The current 40-point values understate the full sequence's hip rotation, ground transition, kneeling, lunge, balance, reversal, and eccentric-control demands."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "ground_to_stand",
+            "seated_hip_rotation",
+            "tall_kneeling_hip_extension",
+            "half_kneeling_transition",
+            "lunge_to_stand"
+          ],
+          "jointActions": [
+            "reciprocal_hip_internal_and_external_rotation",
+            "hip_extension",
+            "knee_extension",
+            "ankle_dorsiflexion_and_plantarflexion_control",
+            "trunk_bracing"
+          ],
+          "planes": [
+            "transverse",
+            "sagittal",
+            "frontal_stabilization"
+          ],
+          "laterality": "alternating_asymmetric",
+          "intent": "controlled_ground_to_stand_transition_through_hip_rotation_and_kneeling"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "gluteus_maximus",
+            "quadriceps",
+            "deep_hip_rotators",
+            "gluteus_medius_and_minimus",
+            "adductors"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "calf_complex",
+            "iliopsoas",
+            "foot_intrinsics",
+            "obliques",
+            "spinal_stabilizers",
+            "shoulder_and_arm_support_muscles_when_assisted"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "thoracic_spine",
+            "shoulder",
+            "wrist_and_hand_when_supported"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 54,
+          "absoluteLoadDemand": 30,
+          "coordinationDemand": 58,
+          "supervisionDemand": 32,
+          "failureConsequence": 32,
+          "impact": 4,
+          "workCapacityDemand": 28,
+          "baseOverallDifficulty": 54
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_multi_position_ground_to_stand_with_optional_external_load",
+          "impactClass": "very_low",
+          "externalLoadMethod": "none_for_baseline_optional_goblet_or_overhead_load_after_bodyweight_control",
+          "primaryStress": [
+            "active_hip_rotation",
+            "hip_and_knee_extension",
+            "single_leg_and_half_kneeling_stability",
+            "eccentric_floor_return",
+            "trunk_control"
+          ],
+          "fatigueProfile": [
+            "using_momentum",
+            "knee_twist",
+            "pelvic_drop",
+            "trunk_collapse",
+            "uncontrolled_floor_contact",
+            "loss_of_balance",
+            "side_asymmetry"
+          ],
+          "recoveryHours": "24-48_when_loaded_or_high_volume_otherwise_minimal_to_24"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "level_padded_non_slip_floor",
+            "clear_ground_to_stand_space"
+          ],
+          "optionalEquipment": [
+            "hand_support",
+            "knee_padding",
+            "low_box",
+            "kettlebell_or_plate_after_bodyweight_control"
+          ],
+          "environment": [
+            "no_obstacles_in_leg_sweep_or_standing_path",
+            "stable_support_if_used",
+            "coach_sightline_for_floor_return"
+          ],
+          "population": [
+            "pain_free_floor_sitting_and_kneeling",
+            "sufficient_hip_rotation_for_a_modified_shin_box",
+            "can_rise_through_half_kneeling_with_assistance_if_needed",
+            "can_control_return_to_floor"
+          ]
+        },
+        "proposedDosage": {
+          "setsAndReps": "1-3_sets_of_2-5_full_sequences_per_side",
+          "tempo": "controlled_with_1-2_second_ownership_at_seated_tall_kneeling_half_kneeling_and_standing_positions",
+          "restSeconds": "45-120",
+          "intensity": "bodyweight_technical_control_before_load_or_speed",
+          "measurement": "full_sequences_per_side_assistance_level_load_balance_errors_and_descent_control",
+          "progressWhen": "both sides complete the full sequence without knee twist, hand support beyond the assigned level, balance loss, uncontrolled descent, or symptom increase"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Sit tall in the shin box",
+            "Press the knees down and drive the hips forward",
+            "Own tall kneeling",
+            "Bring the back leg through to half kneeling",
+            "Stand tall, then reverse every step under control"
+          ],
+          "athleteInstructions": [
+            "Start seated in a comfortable shin-box position",
+            "Rotate and lift your hips into tall kneeling",
+            "Bring the back leg forward into half kneeling",
+            "Stand through the front foot",
+            "Step back and reverse the same path slowly",
+            "Reset and perform the other side"
+          ],
+          "commonFaults": [
+            "calling_only_the_hip_lift_a_full_get_up",
+            "forcing_90_degree_knee_angles",
+            "twisting_through_the_knee",
+            "using_momentum",
+            "missing_half_kneeling_control",
+            "plopping_to_floor",
+            "unequal_side_dose",
+            "loading_before_bodyweight_control"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "comfortable_modified_shin_box",
+            "pain_free_kneeling",
+            "controlled_half_kneeling_rise",
+            "safe_floor_transfer",
+            "clear_space"
+          ],
+          "qualityGates": [
+            "each_position_is_owned",
+            "knee_tracks_without_forced_twist",
+            "standing_balance_is_controlled",
+            "return_to_floor_is_quiet",
+            "side_order_is_complete"
+          ],
+          "stopRules": [
+            "sharp_or_increasing_hip_groin_knee_ankle_back_or_wrist_pain",
+            "numbness_or_tingling",
+            "joint_catching_or_giving_way",
+            "loss_of_balance_near_obstacles",
+            "uncontrolled_floor_contact",
+            "cannot_reverse_the_sequence_safely",
+            "repeated_knee_twist_or_trunk_collapse"
+          ]
+        },
+        "proposedContextualProfiles": [
+          {
+            "context": "prepare_and_access",
+            "dose": "1-2_sets_of_2-3_bodyweight_sequences_per_side",
+            "purpose": "integrate_hip_rotation_with_a_controlled_ground_to_stand_transition"
+          },
+          {
+            "context": "control_or_capacity",
+            "dose": "2-3_sets_of_3-5_sequences_per_side_with_assistance_or_light_load_selected_by_quality",
+            "purpose": "develop_repeatable_transition_strength_balance_and_eccentric_control"
+          }
+        ],
+        "proposedRelationships": {
+          "regressions": [
+            "shin_box_hip_lift_only",
+            "hand_supported_shin_box_get_up",
+            "shin_box_to_half_kneeling_only",
+            "elevated_seat_shin_box_get_up"
+          ],
+          "progressions": [
+            "hands_free_shin_box_get_up",
+            "goblet_loaded_shin_box_get_up",
+            "shin_box_get_up_to_single_leg_knee_drive"
+          ],
+          "substitutions": [
+            "half_kneeling_get_up",
+            "supported_floor_transfer",
+            "bodyweight_turkish_get_up_segment"
+          ],
+          "doNotSubstitute": [
+            "9090_hip_switch",
+            "turkish_get_up"
+          ]
+        },
+        "proposedSupport": {
+          "athlete": [
+            "stage_by_stage_front_and_side_demo",
+            "left_right_sequence_map",
+            "assistance_badge",
+            "quiet_floor_return_cue"
+          ],
+          "coach": [
+            "floor_space_and_support_check",
+            "stage_specific_pass_fail_rubric",
+            "side_asymmetry_log",
+            "load_progression_rule",
+            "floor_transfer_safety_plan"
+          ]
+        },
+        "calibrationEvidence": {
+          "basis": "peer-reviewed six-page movement description with illustrated stages, exact-title candidate videos, and comparison of three consolidated legacy sources",
+          "uncertainty": "The published article is an instructional patient section, not a trial validating performance outcomes, dosage, or a unique difficulty score.",
+          "reviewNeeded": [
+            "qualified_coach_and_clinician_content_review",
+            "full_sequence_identity_review",
+            "difficulty_anchor_comparison",
+            "floor_transfer_accessibility_test",
+            "full_video_review"
+          ]
+        },
+        "programmingDecision": "Retain one Shin Box Get-Up definition and correct its baseline to the complete ground-to-stand sequence. The hip lift, assisted version, half-kneeling endpoint, arm positions, external load, continuous flow, and single-leg finish are controlled stages or variants. A Turkish get-up remains a separate exercise."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=4kC--Mxi1dc",
+          "title": "Shin Box Get Up",
+          "channelName": "Repattern Co (Formerly Swell Wellness)",
+          "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T02:34:46Z"
+          }
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=DaExVJ4BREU",
+          "title": "How to: Shin Box Get Ups",
+          "channelName": "Monta Vista Family Chiropractic",
+          "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T02:34:46Z"
+          }
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=O4u3WZK4jbo",
+          "title": "Shin Box Get Up: Hip Mobility & Stability Drill | MYo Lab Health & Wellness",
+          "channelName": "MYo Lab Health & Wellness",
+          "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T02:34:46Z"
+          }
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=ZkXvLi8Pokc",
+          "title": "Shin Box Get-Up Exercise",
+          "channelName": "Elite Performance Institute",
+          "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T02:34:46Z"
+          }
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=rcYBuAeK_yM",
+          "title": "Shin-Box Get Up Tutorial",
+          "channelName": "LSE Health Wellness",
+          "sourceQuery": "legacy direct candidate rechecked by YouTube oEmbed",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-26T02:34:46Z"
+          }
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Shin Box Hip Lift",
+          "classification": "new_variant",
+          "rationale": "Stopping at tall-kneeling hip extension is a partial-range regression of the full get-up sequence.",
+          "distinguishingDimensions": {
+            "endpoint": "tall_kneeling"
+          }
+        },
+        {
+          "name": "Hand-Supported Shin Box Get-Up",
+          "classification": "new_variant",
+          "rationale": "Hand support reduces active hip and trunk demand while preserving the ground-to-stand sequence.",
+          "distinguishingDimensions": {
+            "supportLevel": "hands_or_stable_support"
+          }
+        },
+        {
+          "name": "Goblet Shin Box Get-Up",
+          "classification": "new_variant",
+          "rationale": "A chest-held load increases physical and trunk demand without changing the primary sequence.",
+          "distinguishingDimensions": {
+            "externalLoad": "goblet"
+          }
+        },
+        {
+          "name": "Shin Box Get-Up to Single-Leg Knee Drive",
+          "classification": "new_variant",
+          "rationale": "The single-leg finish adds balance and hip-flexion demand after the same ground-to-stand sequence.",
+          "distinguishingDimensions": {
+            "finish": "single_leg_knee_drive"
+          }
+        },
+        {
+          "name": "Turkish Get-Up",
+          "classification": "new_definition",
+          "rationale": "The Turkish get-up uses a different rolling, arm-support, bridge, sweep, and overhead-load sequence with a distinct primary training task.",
+          "distinguishingDimensions": {
+            "movementPattern": "loaded_supine_to_stand_overhead_sequence"
+          }
+        }
+      ]
+    }
+  ]
+}

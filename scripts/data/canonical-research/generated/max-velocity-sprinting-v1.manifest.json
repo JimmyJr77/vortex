@@ -1,0 +1,37 @@
+{
+  "batchKey": "max-velocity-sprinting-v1",
+  "researchVersion": "2026-07-25.2",
+  "generatedAt": "2026-07-25T23:45:00.000Z",
+  "cards": [
+    {
+      "slug": "flying-10",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "flying-10m-sprint",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 4
+    },
+    {
+      "slug": "flying-20",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 4
+    },
+    {
+      "slug": "20-20-20-build-up-sprint",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    },
+    {
+      "slug": "wicket-run-max-velocity",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 5
+    }
+  ]
+}

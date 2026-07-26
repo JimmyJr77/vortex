@@ -3,6 +3,27 @@
  * Imported by workoutValidation.js
  */
 
+function workoutAudience(draft = {}) {
+  return draft?.audience_json ?? draft?.audienceJson ?? draft?.audience ?? {}
+}
+
+function audienceTrainingExperience(draft = {}) {
+  const audience = workoutAudience(draft)
+  return String(
+    audience.training_experience
+      ?? audience.trainingExperience
+      ?? audience.skill_level
+      ?? audience.skillLevel
+      ?? draft.training_experience
+      ?? draft.trainingExperience
+      ?? '',
+  ).toUpperCase()
+}
+
+function isEarlyExperienceAudience(draft = {}) {
+  return ['EARLY_STAGE', 'BEGINNER'].includes(audienceTrainingExperience(draft))
+}
+
 export const CONTROL_RESILIENCE_SLUGS = new Set([
   'drop-squat-to-stick', 'snap-down-to-stick-control-version', 'low-box-step-off-to-stick',
   'forward-hop-to-stick-low-amplitude', 'lateral-hop-to-stick-low-amplitude', 'single-leg-hop-to-stick-low-amplitude',
@@ -617,7 +638,6 @@ export function analyzeControlTrunkReadiness(items, ctx) {
   const {
     slugByExercise,
     dosageByExercise = new Map(),
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -641,8 +661,7 @@ export function analyzeControlTrunkReadiness(items, ctx) {
     const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
     const volume = countVolume(item, dosage)
     const rpe = itemRpe(item, dosage)
-    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+    const isBeginner = isEarlyExperienceAudience(draft)
 
     if (slug === DEAD_BUG_SLUG && CONTROL_TRUNK_LUMBAR_ARCH_PATTERN.test(watchText)) {
       findings.push({
@@ -690,7 +709,7 @@ export function analyzeControlTrunkReadiness(items, ctx) {
         severity: 'warning',
         message: `${name}: long-lever plank requires standard plank competency. Regress to standard or incline plank.`,
         affected_items: [name],
-        meta: { slug, skill_level: isBeginner ? 'BEGINNER' : undefined, symptom_flags: true },
+        meta: { slug, training_experience: isBeginner ? 'BEGINNER' : undefined, symptom_flags: true },
       })
     }
 
@@ -805,7 +824,6 @@ export function analyzeControlSlowEccentricReadiness(items, ctx) {
     dosageByExercise = new Map(),
     blockMeta = [],
     controlBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -846,8 +864,7 @@ export function analyzeControlSlowEccentricReadiness(items, ctx) {
     const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
     const volume = countVolume(item, dosage)
     const rpe = itemRpe(item, dosage)
-    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+    const isBeginner = isEarlyExperienceAudience(draft)
 
     if (slug === SPLIT_SQUAT_ECC_SLUG && CONTROL_KNEE_VALGUS_PATTERN.test(watchText)) {
       findings.push({
@@ -966,7 +983,7 @@ export function analyzeControlSlowEccentricReadiness(items, ctx) {
         severity: 'warning',
         message: `${name}: require secure anchor, partial range, and supervision before Nordic lean for beginner athletes.`,
         affected_items: [name],
-        meta: { slug, skill_level: 'BEGINNER' },
+        meta: { slug, training_experience: 'BEGINNER' },
       })
     }
 
@@ -1031,7 +1048,6 @@ export function analyzeControlHandSupportReadiness(items, ctx) {
     dosageByExercise = new Map(),
     blockMeta = [],
     controlBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -1083,8 +1099,7 @@ export function analyzeControlHandSupportReadiness(items, ctx) {
     const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
     const volume = countVolume(item, dosage)
     const rpe = itemRpe(item, dosage)
-    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+    const isBeginner = isEarlyExperienceAudience(draft)
 
     if (slug === SCAPULAR_PUSHUP_SLUG && CONTROL_HS_ELBOW_BEND_PATTERN.test(watchText)) {
       findings.push({
@@ -1164,7 +1179,7 @@ export function analyzeControlHandSupportReadiness(items, ctx) {
         severity: 'warning',
         message: `${name}: require wrist tolerance, scapular control, safe exit, and supervision — use wall body-line or incline plank first when prerequisites are limited.`,
         affected_items: [name],
-        meta: { slug, skill_level: isBeginner ? 'BEGINNER' : undefined },
+        meta: { slug, training_experience: isBeginner ? 'BEGINNER' : undefined },
       })
     }
 
@@ -1188,7 +1203,7 @@ export function analyzeControlHandSupportReadiness(items, ctx) {
           ? `${name}: end descent when collapse or rush appears. Regress to wall line hold or partial walk.`
           : `${name}: use wall body-line drill, incline plank, or partial wall walk before full wall-walk negative for beginners.`,
         affected_items: [name],
-        meta: { slug, skill_level: isBeginner ? 'BEGINNER' : undefined, symptom_flags: CONTROL_HS_WALL_WALK_COLLAPSE_PATTERN.test(watchText) },
+        meta: { slug, training_experience: isBeginner ? 'BEGINNER' : undefined, symptom_flags: CONTROL_HS_WALL_WALK_COLLAPSE_PATTERN.test(watchText) },
       })
     }
 
@@ -1244,7 +1259,6 @@ export function analyzeControlResilienceReadiness(items, ctx) {
     dosageByExercise,
     blockMeta = [],
     controlBlockIndex = 0,
-    exerciseSkillLevelById = new Map(),
     draft = {},
   } = ctx
 
@@ -1308,8 +1322,7 @@ export function analyzeControlResilienceReadiness(items, ctx) {
     const restSeconds = Number(item.rest_seconds ?? item.restSeconds ?? dosage?.default_rest_seconds) || 0
     const volume = countVolume(item, dosage)
     const rpe = itemRpe(item, dosage)
-    const skillLevel = String(exerciseSkillLevelById.get(String(exerciseId)) ?? '').toUpperCase()
-    const isBeginner = skillLevel === 'EARLY_STAGE' || skillLevel === 'BEGINNER'
+    const isBeginner = isEarlyExperienceAudience(draft)
 
     if (restSeconds > 0 && restSeconds < CONTROL_SHORT_REST_SECONDS && volume >= 12 && rpe >= CONTROL_MIN_RPE_STRENGTH) {
       hasHighDensity = true
@@ -1337,7 +1350,7 @@ export function analyzeControlResilienceReadiness(items, ctx) {
         severity: 'warning',
         message: `${name}: require coach supervision and low perturbation intensity for beginner athletes.`,
         affected_items: [name],
-        meta: { slug, skill_level: 'BEGINNER' },
+        meta: { slug, training_experience: 'BEGINNER' },
       })
     }
 
@@ -1379,7 +1392,7 @@ export function analyzeControlResilienceReadiness(items, ctx) {
         severity: 'warning',
         message: `${name}: require wrist tolerance, scapular control, safe exit, and supervision — use wall body-line or incline plank first when prerequisites are limited.`,
         affected_items: [name],
-        meta: { slug, skill_level: isBeginner ? 'BEGINNER' : undefined },
+        meta: { slug, training_experience: isBeginner ? 'BEGINNER' : undefined },
       })
     }
 
@@ -1390,7 +1403,7 @@ export function analyzeControlResilienceReadiness(items, ctx) {
         severity: 'warning',
         message: `${name}: use wall body-line drill, incline plank, or partial wall walk before full wall-walk negative for beginners.`,
         affected_items: [name],
-        meta: { slug, skill_level: 'BEGINNER' },
+        meta: { slug, training_experience: 'BEGINNER' },
       })
     }
 

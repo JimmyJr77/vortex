@@ -16,8 +16,8 @@ export function isBeginnerExcludedSlug(slug, name = '') {
   return BEGINNER_EXCLUDED_SLUG_PATTERNS.some((re) => re.test(text))
 }
 
-export function beginnerAppropriatenessPenalty(exercise, profile, requestedLevel, sportKey = null) {
-  if (!requestedLevel || String(requestedLevel).toUpperCase() !== 'BEGINNER') return 0
+export function beginnerAppropriatenessPenalty(exercise, profile, trainingExperience, sportKey = null) {
+  if (!trainingExperience || String(trainingExperience).toUpperCase() !== 'BEGINNER') return 0
   if (sportKey && /gymnastics/i.test(sportKey) && /handstand/i.test(`${exercise.slug ?? ''} ${exercise.name ?? ''}`)) {
     return 0
   }

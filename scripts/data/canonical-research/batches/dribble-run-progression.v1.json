@@ -1,0 +1,966 @@
+{
+  "batchKey": "dribble-run-progression-v1",
+  "researchVersion": "2026-07-25.8",
+  "snapshotAt": "2026-07-26T03:15:00.000Z",
+  "facilityId": 1,
+  "sourceRegistry": "../source-registry.v1.json",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "world_athletics_ankling_drill",
+      "claims": [
+        "World Athletics presents ankling and progressively larger knee actions as distinct drill constraints that are learned before cadence increases.",
+        "{{canonicalName}} must state the cyclic recovery height, contact sequence, displacement, cadence, arm action, approach, transition, sprint segment, and deceleration; low, high, build, bleed, and run are not interchangeable labels."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "max_velocity_training_review",
+      "claims": [
+        "Maximal sprint performance involves interacting spatiotemporal, segment-configuration, segment-velocity, and front- and back-side variables rather than one isolated technical feature.",
+        "{{canonicalName}} belongs to a traveling alternating dribble family, a controlled recovery-height variant, a supported repeated-contact family, or a compound drill-to-sprint transition; it is not itself a maximal sprint."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "sprint_ankle_plantar_flexor_review",
+      "claims": [
+        "The ankle and plantar-flexor muscle-tendon units contribute differently across sprint phases, with soleus and gastrocnemius supporting and accelerating the center of mass and transferring energy at high speed.",
+        "The card should include intrinsic-foot, soleus, gastrocnemius, tibialis-anterior, hamstring, quadriceps, hip-flexor and extensor, pelvic-stabilizer, trunk, and arm-action roles in proportion to recovery height and running speed."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "top_speed_angular_kinematics",
+      "claims": [
+        "Top-speed sprinting depends on coordinated lower-extremity angular behavior, and observed strategies differ between populations and sporting demands.",
+        "A dribble drill can constrain foot-path size, cadence, and contact placement, but its appearance cannot prove sprint force, joint stiffness, or transfer; observable quality should focus on compact cycling, contact close to the projected center of mass, posture, relaxation, and smooth transition."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "running_stiffness_literature_overview",
+      "claims": [
+        "Mechanical stiffness varies with task, velocity, maturity, fatigue, and measurement method and should not be inferred as a fixed property from drill appearance.",
+        "Exercise difficulty must directly score technical complexity, physical and absolute-load demand, coordination, supervision, failure consequence, impact, work-capacity demand, and overall difficulty; audience experience remains programming context."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "sprint_ankle_plantar_flexor_review",
+      "claims": [
+        "Plantar-flexor and ankle demands change as a sprint progresses from start through acceleration to maximal velocity.",
+        "{{canonicalName}} needs pass length, total steps or contacts, cycle height, cadence or speed intent, sprint metres when present, surface, footwear, weekly high-speed exposure, technical-fatigue thresholds, and between-attempt recovery."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_developing_linear_speed",
+      "claims": [
+        "Linear-speed work requires suitable space, clear start and finish zones, progressive intensity, adequate recovery, and coaching that preserves the session's speed intent.",
+        "Require a level, dry, non-slip lane; clear entry, finish, and deceleration zones; safe athlete spacing; suitable footwear; an immovable support only for supported variants; and readiness for the highest speed actually prescribed."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "world_athletics_ankling_drill",
+      "claims": [
+        "World Athletics gives two passes over 10 to 20 metres as an example for progressive sprint drills and directs athletes to learn the movement before increasing cadence.",
+        "Use passes, metres, contact counts, cycle height, target intensity, and full recovery rather than a generic work interval; transition drills must separately prescribe drill, sprint, and deceleration distances."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "max_velocity_swing_pull_kinematics",
+      "claims": [
+        "Small horizontal foot distance from the center of mass at contact, active foot velocity before contact, and coordinated hip motion may help minimize braking during maximal sprinting.",
+        "Use a small observable cue set: make a compact circle, recover to the assigned height, step close beneath the hips, stay stacked and relaxed, keep the arms coordinated, increase cadence without reaching, and blend rather than lunge into a sprint."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "max_velocity_training_review",
+      "claims": [
+        "Sprint power demand rises steeply with velocity, so drill-to-sprint transitions should be treated as high-speed exposures rather than low-load warm-up repetitions.",
+        "Stop for foot, shin, calf, Achilles, hamstring, knee, hip, or back pain; a limp; repeated reaching or locked-knee braking; loud or lengthening contacts; cadence or speed loss; rising tension; unsafe support movement; an abrupt transition; or inadequate deceleration space."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "sprint_jump_transfer_systematic_review",
+      "claims": [
+        "Training transfer depends on the relationship between the practiced task, performance outcome, population, dose, and intervention rather than similarity of one visible feature.",
+        "{{canonicalName}} belongs after general preparation and before maximal sprinting: use low and high dribbles for a named coordination constraint, and use dribble-to-sprint only as a fresh high-speed exposure when the athlete already owns both segments."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "world_athletics_ankling_drill",
+      "claims": [
+        "Athlete support should show the movement first at learning cadence and then at the prescribed speed.",
+        "Show side and rear views, the ankle-, shin-, or knee-height recovery target, contact zone, lane and finish, arm rhythm, transition, deceleration, and a lower-cadence option; explain that fast feet do not justify longer reaches or forced foot strike."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "top_speed_angular_kinematics",
+      "claims": [
+        "Sprint kinematics can differ across athlete populations, so one visual template should not be treated as universal proof of efficiency.",
+        "Provide side and rear observation, exact cycle-height definitions, pass and contact counts, optional video or timing, left-right comparison, relaxation and posture checks, lane setup, recovery, progression criteria, and a clear distinction between a drill cue and measured sprint biomechanics."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Exercise selection and progression should match readiness, technical competence, supervision, equipment scale, and the individual's physical and psychosocial context.",
+        "Accessibility options include slower cadence, shorter lanes, lower recovery height, walking cycles, flat contact targets, a stable support, fewer contacts, longer recovery, quieter instruction, and removing the sprint transition while keeping difficulty dimensions explicit."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "max_velocity_training_review",
+      "claims": [
+        "Sprint performance emerges from interacting mechanics and cannot be reduced to one preferred recovery height or cue.",
+        "Ankle-, shin-, calf-, and knee-height dribbles are controlled recovery-height variants of one cyclic pattern; cadence, lane length, and arm constraint are delivery annotations; a terminal sprint or a materially different supported contact sequence requires a distinct variant or definition."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for {{canonicalName}} were discovered through visible YouTube search; current availability and embedding, exact cycle height and contact sequence, complete viewing, captions, instructional quality, safety, and approval remain separate review gates, and no candidate is approved by this packet."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "low-dribble-run",
+      "assessmentSummary": {
+        "identity": "Traveling alternating low dribbles using a compact circular foot path around ankle-to-lower-shin height, short contacts close to the hips, coordinated arms, and submaximal cadence over a defined lane.",
+        "currentCardFindings": [
+          "The card does not define whether low means ankle or shin height, so exact execution and progression cannot be reproduced.",
+          "The generic difficulty of 40 understates coordination while the absolute-load value of 10 ignores repetitive foot, calf, and Achilles loading.",
+          "Twenty seconds can become conditioning and should be replaced with a pass, distance, optional contact cap, and a technical stop."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "traveling_alternating_low_dribble",
+            "cyclic_sprint_mechanics"
+          ],
+          "jointActions": [
+            "ankle_dorsiflexion_and_plantarflexion",
+            "small_hip_flexion_extension",
+            "small_knee_flexion_extension",
+            "contralateral_arm_swing"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_left_right",
+          "intent": "compact_ankle_to_lower_shin_recovery_with_short_repeatable_contacts"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "soleus",
+            "gastrocnemius",
+            "tibialis_anterior",
+            "intrinsic_foot"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "hip_flexors",
+            "gluteus_maximus",
+            "quadriceps",
+            "gluteus_medius",
+            "obliques"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 48,
+          "absoluteLoadDemand": 20,
+          "coordinationDemand": 56,
+          "supervisionDemand": 38,
+          "failureConsequence": 30,
+          "impact": 28,
+          "workCapacityDemand": 25,
+          "baseOverallDifficulty": 48
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_traveling_alternating_low_cycle_locomotion",
+          "impactClass": "low_to_moderate_by_cadence_surface_and_contacts",
+          "landingContactsPerRep": "record_pass_distance_and_optional_total_contacts",
+          "primaryStress": [
+            "foot_loading",
+            "plantar_flexor_cyclic_force",
+            "compact_limb_recovery",
+            "coordination"
+          ],
+          "fatigueSensitivity": "cycle_height_reach_contact_sound_posture_cadence_and_relaxation"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "10_to_20_metre_clear_lane",
+            "safe_finish_zone"
+          ],
+          "optionalEquipment": [
+            "height_reference",
+            "cones",
+            "video",
+            "cadence_feedback"
+          ],
+          "environment": [
+            "level_dry_non_slip_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "pain_free_walking_and_calf_raise",
+            "owns_basic_ankling",
+            "can_keep_steps_compact"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4_passes",
+          "distancePerPass": "10-20_metres_or_6-12_seconds",
+          "restSeconds": "walk_back_or_30-75",
+          "intensity": "learning_to_crisp_submaximal_cadence",
+          "progressWhen": "the assigned cycle height, compact contact, posture, and relaxation remain repeatable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Small circle",
+            "Recover only to the assigned low height",
+            "Step close beneath the hips",
+            "Stay tall and relaxed"
+          ],
+          "athleteInstructions": [
+            "Cycle each foot in a small low circle and move forward without making the steps longer"
+          ],
+          "commonFaults": [
+            "undefined_cycle_height",
+            "casting_the_foot",
+            "high_knee_substitution",
+            "loud_contacts",
+            "upper_body_bounce",
+            "racing"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain_free_ankling",
+            "safe_lane",
+            "can_stop_on_command"
+          ],
+          "stopRules": [
+            "pain",
+            "limp",
+            "repeated_reaching",
+            "loud_contacts",
+            "cycle_height_loss",
+            "posture_or_cadence_break"
+          ]
+        },
+        "programmingDecision": "Retain as the low-recovery-height variant in a Dribble Run family. Define an exact ankle-to-lower-shin recovery band, replace time-only volume with passes and distance, and avoid claiming that the drill independently changes sprint technique."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=DHv8Q-55TRY",
+          "title": "Sprint Drills: Dribbling - Ankle Dribble, Calf Dribble, Knee Dribble",
+          "channelName": "ATHLETE.X",
+          "sourceQuery": "low dribble run sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=3aIbzELHo8E",
+          "title": "Improve Your Sprinting Technique and Mechanics with the Dribbles Series",
+          "channelName": "Matt Tometz",
+          "sourceQuery": "low dribble run sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=m9IjQFYE-uI",
+          "title": "Dribbles with Chidi Enyia",
+          "channelName": "ALTIS World",
+          "sourceQuery": "low dribble run sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=HUq6u5ceHo0",
+          "title": "How To Sprint: Ankle Dribbles (Error & Correction)",
+          "channelName": "Les Spellman",
+          "sourceQuery": "low dribble run sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=jmGox3HQvZw",
+          "title": "Sprint Drills - Ankle Dribble - Cody Bidlow",
+          "channelName": "ATHLETE.X",
+          "sourceQuery": "low dribble run sprint drill"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Ankle Dribble",
+          "classification": "same_identity",
+          "rationale": "Use as the preferred searchable alias when recovery circles around ankle height.",
+          "distinguishingDimensions": {
+            "cycleHeight": "ankle"
+          }
+        },
+        {
+          "name": "Shin Dribble",
+          "classification": "new_variant",
+          "rationale": "A shin-height recovery is a controlled amplitude progression.",
+          "distinguishingDimensions": {
+            "cycleHeight": "shin"
+          }
+        },
+        {
+          "name": "High Dribble Run",
+          "classification": "new_variant",
+          "rationale": "Knee-height recovery materially increases hip motion and coordination demand while retaining the cyclic pattern.",
+          "distinguishingDimensions": {
+            "cycleHeight": "knee"
+          }
+        },
+        {
+          "name": "Low Dribble with Hands on Hips",
+          "classification": "modifier_annotation",
+          "rationale": "Removing arm swing is an arm-action constraint on the same foot cycle.",
+          "distinguishingDimensions": {
+            "armAction": "hands_on_hips"
+          }
+        },
+        {
+          "name": "Dribble Build to Sprint",
+          "classification": "new_definition",
+          "rationale": "A terminal free-sprint segment adds speed exposure, transition mechanics, and deceleration logistics.",
+          "distinguishingDimensions": {
+            "terminalAction": "sprint"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "high-dribble-run",
+      "assessmentSummary": {
+        "identity": "Traveling alternating high dribbles using a compact circular foot path that recovers toward knee height, short contacts close to the hips, coordinated arms, and controlled upright rhythm over a defined lane.",
+        "currentCardFindings": [
+          "The card says higher than low dribble but does not define the recovery landmark, making the identity dependent on another incomplete card.",
+          "The generic difficulty and load values understate the larger hip excursion, balance, cadence, and repeated-contact demand.",
+          "A 25-second interval is likely to shift the drill toward fatigue and should become short passes with a visible quality stop."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "traveling_alternating_high_dribble",
+            "cyclic_sprint_mechanics"
+          ],
+          "jointActions": [
+            "hip_flexion_extension",
+            "knee_flexion_extension",
+            "ankle_dorsiflexion_and_plantarflexion",
+            "contralateral_arm_swing"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_left_right",
+          "intent": "compact_knee_height_recovery_with_short_repeatable_contacts"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "hip_flexors",
+            "hamstrings",
+            "soleus",
+            "gastrocnemius",
+            "tibialis_anterior"
+          ],
+          "secondaryMuscles": [
+            "gluteus_maximus",
+            "quadriceps",
+            "intrinsic_foot",
+            "gluteus_medius",
+            "obliques",
+            "shoulder_girdle"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 58,
+          "absoluteLoadDemand": 24,
+          "coordinationDemand": 66,
+          "supervisionDemand": 44,
+          "failureConsequence": 35,
+          "impact": 34,
+          "workCapacityDemand": 30,
+          "baseOverallDifficulty": 58
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_traveling_alternating_knee_height_cycle_locomotion",
+          "impactClass": "moderate_by_cadence_surface_and_contacts",
+          "landingContactsPerRep": "record_pass_distance_and_optional_total_contacts",
+          "primaryStress": [
+            "hip_flexor_cyclic_work",
+            "hamstring_limb_recovery",
+            "plantar_flexor_loading",
+            "single_support_coordination"
+          ],
+          "fatigueSensitivity": "cycle_height_reach_contact_sound_pelvic_position_cadence_and_relaxation"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "15_to_25_metre_clear_lane",
+            "safe_finish_zone"
+          ],
+          "optionalEquipment": [
+            "knee_height_reference",
+            "cones",
+            "video",
+            "cadence_feedback"
+          ],
+          "environment": [
+            "level_dry_non_slip_surface",
+            "no_cross_traffic"
+          ],
+          "population": [
+            "owns_low_dribble",
+            "pain_free_fast_locomotion",
+            "can_control_knee_height_cycle_without_reaching"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4_passes",
+          "distancePerPass": "10-20_metres_or_6-12_seconds",
+          "restSeconds": "45-90_or_walk_back",
+          "intensity": "submaximal_to_crisp_high_cadence",
+          "progressWhen": "recovery reaches the assigned height without leaning back, reaching, or losing relaxation"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Compact circle to knee height",
+            "Step down close to the hips",
+            "Keep the pelvis stacked",
+            "Fast and relaxed"
+          ],
+          "athleteInstructions": [
+            "Cycle each thigh higher while keeping the foot path compact and the contact close beneath you"
+          ],
+          "commonFaults": [
+            "high_knee_march_substitution",
+            "casting_the_foot",
+            "backward_lean",
+            "pelvic_tuck",
+            "loud_contacts",
+            "tension"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "owns_low_dribble",
+            "pain_free_fast_running",
+            "safe_lane"
+          ],
+          "stopRules": [
+            "pain",
+            "limp",
+            "repeated_reaching",
+            "leaning_back",
+            "contact_noise",
+            "cycle_height_or_cadence_drop"
+          ]
+        },
+        "programmingDecision": "Retain as the knee-height variant in the Dribble Run family, not as a universal model of upright sprinting. Define the recovery landmark and cap passes before the larger cycle turns into reaching or fatigue."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=DHv8Q-55TRY",
+          "title": "Sprint Drills: Dribbling - Ankle Dribble, Calf Dribble, Knee Dribble",
+          "channelName": "ATHLETE.X",
+          "sourceQuery": "high dribble run sprint drill knee dribble"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=hed1-9RePqg",
+          "title": "Dribbles - Ankle/Shin/Knee (ASK Running)",
+          "channelName": "Brendan Hoyer",
+          "sourceQuery": "high dribble run sprint drill knee dribble"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=y00yX5c-jUo",
+          "title": "Dribble run (knee-high)",
+          "channelName": "Ryan Ford",
+          "sourceQuery": "high dribble run sprint drill knee dribble"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LP2ZPHMaCjc",
+          "title": "Sprint Drills - Knee Dribble - Cody Bidlow",
+          "channelName": "ATHLETE.X",
+          "sourceQuery": "high dribble run sprint drill knee dribble"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=IIEKHZnJD5M",
+          "title": "Dribble Series",
+          "channelName": "Brendan Thompson -- Speed & Physical Therapy",
+          "sourceQuery": "high dribble run sprint drill knee dribble"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Knee Dribble",
+          "classification": "same_identity",
+          "rationale": "This is the clearer name when recovery is explicitly knee height.",
+          "distinguishingDimensions": {
+            "cycleHeight": "knee"
+          }
+        },
+        {
+          "name": "Low Dribble Run",
+          "classification": "new_variant",
+          "rationale": "Ankle-to-shin recovery is a lower-amplitude variant.",
+          "distinguishingDimensions": {
+            "cycleHeight": "ankle_to_shin"
+          }
+        },
+        {
+          "name": "Calf Dribble",
+          "classification": "new_variant",
+          "rationale": "Calf-height recovery provides an intermediate amplitude.",
+          "distinguishingDimensions": {
+            "cycleHeight": "calf"
+          }
+        },
+        {
+          "name": "High Dribble with Hands on Hips",
+          "classification": "modifier_annotation",
+          "rationale": "Removing arm swing changes the coordination constraint but not the foot-cycle identity.",
+          "distinguishingDimensions": {
+            "armAction": "hands_on_hips"
+          }
+        },
+        {
+          "name": "High Dribble Bleed to Sprint",
+          "classification": "new_definition",
+          "rationale": "A free-sprint transition adds high-speed exposure and distinct logistics.",
+          "distinguishingDimensions": {
+            "terminalAction": "sprint"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "dribble-build-to-sprint",
+      "assessmentSummary": {
+        "identity": "A compound drill-to-sprint transition that begins with a defined low-to-high or fixed-height dribble segment, progressively increases cadence and displacement, blends into free upright sprinting, and ends with controlled deceleration.",
+        "currentCardFindings": [
+          "The current phrase 'begin with low-to-high dribble rhythm' leaves the recovery-height sequence, segment distances, and transition threshold undefined.",
+          "Six seconds and one repetition do not record dribble contacts, sprint distance, peak-speed exposure, or deceleration demand.",
+          "The difficulty value of 40 materially understates a compound near-maximal sprint exposure."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "dribble_progression",
+            "transition_to_upright_sprint",
+            "controlled_deceleration"
+          ],
+          "jointActions": [
+            "progressive_hip_and_knee_cycle",
+            "ankle_dorsiflexion_and_plantarflexion",
+            "sprint_ground_contact",
+            "contralateral_arm_swing"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "alternating_left_right",
+          "intent": "smoothly_increase_cycle_height_and_velocity_into_free_sprinting_without_reach"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "hamstrings",
+            "gluteus_maximus",
+            "hip_flexors",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "quadriceps",
+            "tibialis_anterior",
+            "intrinsic_foot",
+            "gluteus_medius",
+            "obliques",
+            "shoulder_girdle"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 75,
+          "absoluteLoadDemand": 36,
+          "coordinationDemand": 80,
+          "supervisionDemand": 65,
+          "failureConsequence": 65,
+          "impact": 62,
+          "workCapacityDemand": 42,
+          "baseOverallDifficulty": 75
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_compound_dribble_progression_to_high_speed_sprint",
+          "impactClass": "high_by_terminal_speed_and_total_contacts",
+          "landingContactsPerRep": "record_dribble_contacts_sprint_steps_total_metres_and_high_speed_metres",
+          "primaryStress": [
+            "hamstring_high_speed_load",
+            "plantar_flexor_loading",
+            "hip_cycle_velocity",
+            "neural_speed_demand",
+            "deceleration"
+          ],
+          "fatigueSensitivity": "transition_reach_contact_sound_tension_speed_posture_and_shutdown_quality"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "30_to_50_metre_clear_lane",
+            "marked_dribble_transition_sprint_and_deceleration_zones"
+          ],
+          "optionalEquipment": [
+            "cones",
+            "timing_gates",
+            "video"
+          ],
+          "environment": [
+            "level_dry_high_grip_surface",
+            "no_cross_traffic",
+            "suitable_footwear"
+          ],
+          "population": [
+            "owns_low_and_high_dribbles",
+            "recent_pain_free_fast_sprinting",
+            "can_decelerate_safely"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "attemptsPerSet": "1-2",
+          "segmentDose": "10-20_metres_dribble_progression_then_10-20_metres_free_sprint_plus_15-25_metres_deceleration",
+          "restSeconds": "180-300_between_near_maximal_attempts",
+          "progressWhen": "the transition is continuous, contact stays close, speed and relaxation repeat, and the shutdown is controlled"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Build the circle gradually",
+            "Let cadence and travel increase together",
+            "Blend into the sprint",
+            "Do not reach",
+            "Run through and shut down gradually"
+          ],
+          "athleteInstructions": [
+            "Start with the assigned dribble, let the cycle grow smoothly into a fast relaxed sprint, and use the full deceleration zone"
+          ],
+          "commonFaults": [
+            "undefined_entry_pattern",
+            "abrupt_transition",
+            "overstriding",
+            "premature_maximal_effort",
+            "upper_body_tension",
+            "short_shutdown"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "owns_entry_dribble",
+            "recent_fast_sprint_exposure",
+            "full_clear_lane",
+            "safe_deceleration"
+          ],
+          "stopRules": [
+            "pain",
+            "limp",
+            "protective_mechanics",
+            "abrupt_or_stumbling_transition",
+            "speed_or_relaxation_drop",
+            "unsafe_shutdown"
+          ]
+        },
+        "programmingDecision": "Retain as a distinct compound definition and add Dribble Bleed to Sprint as an alias. Require one named entry pattern, explicit segment distances, target speed, high-speed exposure accounting, full recovery, and a marked deceleration zone."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=Rg4YE2CaiL8",
+          "title": "Dribble bleed to sprint",
+          "channelName": "Ethan Printy",
+          "sourceQuery": "dribble bleed into sprint track drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=xaoo0tjiwaI",
+          "title": "Dribble Bleed to Sprint",
+          "channelName": "nemet35",
+          "sourceQuery": "dribble bleed into sprint track drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=mVblhCw8roU",
+          "title": "Dribble Bleed-Sprint",
+          "channelName": "Paul Walshe",
+          "sourceQuery": "dribble bleed into sprint track drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=iYxXaFKqVpc",
+          "title": "Dribble Into Sprint",
+          "channelName": "Tinsley Performance",
+          "sourceQuery": "dribble bleed into sprint track drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=h6dhMAHh-P8",
+          "title": "How We Use Dribble Bleeds To Get Faster… Try This Drill Now!",
+          "channelName": "Les Spellman",
+          "sourceQuery": "dribble bleed into sprint track drill"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Dribble Bleed to Sprint",
+          "classification": "same_identity",
+          "rationale": "Bleed describes the gradual transition already required by this definition.",
+          "distinguishingDimensions": {
+            "transitionStyle": "gradual"
+          }
+        },
+        {
+          "name": "Low Dribble to Sprint",
+          "classification": "new_variant",
+          "rationale": "A fixed low entry changes the transition demand and target speed build.",
+          "distinguishingDimensions": {
+            "entryPattern": "low_dribble"
+          }
+        },
+        {
+          "name": "High Dribble to Sprint",
+          "classification": "new_variant",
+          "rationale": "A knee-height entry starts closer to the free sprint cycle.",
+          "distinguishingDimensions": {
+            "entryPattern": "high_dribble"
+          }
+        },
+        {
+          "name": "Low-to-High Dribble Progression without Sprint",
+          "classification": "new_definition",
+          "rationale": "Removing free sprinting materially reduces speed exposure and logistics.",
+          "distinguishingDimensions": {
+            "terminalAction": "dribble_run_out"
+          }
+        },
+        {
+          "name": "Timed Dribble Bleed Fly",
+          "classification": "new_variant",
+          "rationale": "A measured fly zone adds testing intent, timing equipment, and higher-speed accountability.",
+          "distinguishingDimensions": {
+            "terminalAction": "timed_fly"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "wall-ankling-pogo",
+      "assessmentSummary": {
+        "identity": "Unresolved wall-supported repeated-contact drill whose body angle, support force, bilateral or unilateral takeoff and landing, alternating or same-leg sequence, cadence, amplitude, and displacement are not defined by the current card.",
+        "currentCardFindings": [
+          "The description contains broken generated grammar and incorrectly frames the drill as a direct jump-height exercise.",
+          "The name combines ankling and pogo without specifying whether the athlete alternates contacts, repeats on one leg, or hops bilaterally.",
+          "Two sets of three repetitions and five seconds conflict as dose units, while the generic jump instructions do not describe wall setup or exact contacts."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "unresolved_wall_supported_repeated_contact"
+          ],
+          "jointActions": [
+            "unresolved_pending_contact_sequence"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "unresolved",
+          "intent": "unresolved_between_supported_single_leg_pogo_alternating_stride_pogo_and_wall_ankling"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "unresolved_pending_identity"
+          ],
+          "secondaryMuscles": [
+            "unresolved_pending_identity"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex",
+            "shoulder",
+            "wrist"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 46,
+          "absoluteLoadDemand": 24,
+          "coordinationDemand": 52,
+          "supervisionDemand": 50,
+          "failureConsequence": 40,
+          "impact": 38,
+          "workCapacityDemand": 25,
+          "baseOverallDifficulty": 46
+        },
+        "proposedLoadProfile": {
+          "loadingType": "unresolved_bodyweight_wall_supported_repeated_contact",
+          "impactClass": "unresolved_low_to_moderate",
+          "landingContactsPerRep": "must_be_defined_before_use",
+          "primaryStress": [
+            "foot_and_ankle_cyclic_load",
+            "upper_body_support",
+            "postural_control"
+          ],
+          "fatigueSensitivity": "cannot_be_calibrated_until_body_angle_laterality_and_contact_sequence_are_resolved"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "immovable_non_slip_wall_or_rack",
+            "human_identity_review",
+            "safe_footing"
+          ],
+          "optionalEquipment": [
+            "video"
+          ],
+          "environment": [
+            "quarantined_from_generation"
+          ],
+          "population": [
+            "none_until_identity_is_resolved"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "not_prescribable",
+          "contactsPerSet": "not_prescribable",
+          "restSeconds": "not_prescribable",
+          "intensity": "not_prescribable",
+          "progressWhen": "body angle, hand position, support force, laterality, contact sequence, amplitude, and cadence are approved"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Do not coach from the current card",
+            "Select one exact supported contact pattern first"
+          ],
+          "athleteInstructions": [
+            "Use an exact demonstrated supported pogo or wall sprint drill instead"
+          ],
+          "commonFaults": [
+            "undefined_laterality",
+            "undefined_body_angle",
+            "mixing_ankling_and_pogo",
+            "unstable_wall",
+            "generic_jump_template"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "human_identity_adjudication",
+            "verified_immovable_support"
+          ],
+          "stopRules": [
+            "do_not_generate_or_prescribe"
+          ]
+        },
+        "programmingDecision": "Quarantine. If contacts repeat on one leg, author Wall-Supported Single-Leg Pogo; if they alternate in place, author Wall-Supported Alternating Stride Pogo; if there is no flight, merge the useful support constraint into a wall ankling or march variant."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=uLagcbggFjs",
+          "title": "Wall Drill SL Pogo",
+          "channelName": "Kinetic | Sports Physical Therapy | Delafield, WI",
+          "sourceQuery": "wall ankling pogo sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=esHx4r6hFzQ",
+          "title": "Wall Stride Pogos",
+          "channelName": "Unapproved visible-search candidate",
+          "sourceQuery": "wall ankling pogo sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=tnwd7N6-bl0",
+          "title": "Uni-lateral Ankling (Pogos)",
+          "channelName": "Elite Performance “Elite” Co.",
+          "sourceQuery": "wall ankling pogo sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=uoEykHhldnQ",
+          "title": "Alternate Pogos (Ankling) Run Drill",
+          "channelName": "oli.physio",
+          "sourceQuery": "wall ankling pogo sprint drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=LetpJhFP7GE",
+          "title": "Pogos & Ankling",
+          "channelName": "Bespoke Conditioning",
+          "sourceQuery": "wall ankling pogo sprint drill"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Wall-Supported Single-Leg Pogo",
+          "classification": "reject",
+          "rationale": "Do not create until human review confirms repeated same-leg contacts and exact body angle.",
+          "distinguishingDimensions": {
+            "contactSequence": "same_leg_repeated"
+          }
+        },
+        {
+          "name": "Wall-Supported Alternating Stride Pogo",
+          "classification": "reject",
+          "rationale": "Do not create until human review confirms alternating flight contacts and exact support setup.",
+          "distinguishingDimensions": {
+            "contactSequence": "alternating"
+          }
+        },
+        {
+          "name": "Wall Ankling without Flight",
+          "classification": "reject",
+          "rationale": "Do not merge until human review confirms a no-flight ankle-loading pattern.",
+          "distinguishingDimensions": {
+            "contactSequence": "no_flight"
+          }
+        },
+        {
+          "name": "Free Single-Leg Pogo",
+          "classification": "new_definition",
+          "rationale": "Removing wall support materially increases balance and postural demand.",
+          "distinguishingDimensions": {
+            "support": "none"
+          }
+        },
+        {
+          "name": "Wall Drill March",
+          "classification": "new_definition",
+          "rationale": "A deliberate supported march has no repeated flight and a different contact sequence.",
+          "distinguishingDimensions": {
+            "contactSequence": "march"
+          }
+        }
+      ]
+    }
+  ]
+}

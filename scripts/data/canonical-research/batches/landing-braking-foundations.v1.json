@@ -1,0 +1,1184 @@
+{
+  "batchKey": "landing-braking-foundations-v1",
+  "facilityId": 1,
+  "researchVersion": "2026-07-25.3",
+  "snapshotAt": "2026-07-25T22:38:27.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Landing-control exercises must distinguish a non-jump drop, a jump or hop with flight, an elevated drop, and a run-to-stop because approach momentum and drop height change the task.",
+        "{{canonicalName}} must encode takeoff, landing laterality, direction, approach speed, external height, rebound intent, and required hold as identity, variant, or dosage dimensions."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "horizontal_deceleration_review",
+      "claims": [
+        "Landing and horizontal deceleration both train force attenuation, but horizontal stopping additionally requires braking impulse to reduce whole-body momentum.",
+        "{{canonicalName}} belongs to landing and braking control; reactive rebounding, maximal jumping, change of direction, and conditioning are separate programming intents."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "Force absorption is shared across the foot and ankle, knee, and hip rather than isolated to one joint.",
+        "The card should identify plantar flexors and intrinsic foot muscles, quadriceps, hamstrings, gluteals, hip abductors and external rotators, and trunk stabilizers with task-specific primary and secondary roles."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "horizontal_deceleration_review",
+      "claims": [
+        "Effective braking coordinates lower-limb flexion, centre-of-mass control, foot placement, and force direction to attenuate and apply braking force.",
+        "Observable quality includes quiet controlled contact, whole-foot pressure, coordinated ankle-knee-hip flexion, knee tracking, stable pelvis and trunk, and ownership of the final position without extra steps."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Plyometric and landing intensity changes with speed, external height, body mass, external load, and task complexity.",
+        "Exercise difficulty must score technical complexity and physical demand directly, including coordination, impact, supervision, work capacity, and consequence of error; it must not use a skill-library level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "horizontal_deceleration_review",
+      "claims": [
+        "Horizontal deceleration creates high impact peaks, loading rates, and eccentric muscle demand; rapid or repeated exposures can contribute to muscle damage and need volume management.",
+        "{{canonicalName}} needs contact count, approach speed or drop height, laterality, eccentric braking demand, joint and tissue stress, performance-loss criteria, and recovery guidance rather than repetition count alone."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "landing_intervention_systematic_review",
+      "claims": [
+        "Landing interventions depend on appropriate materials, coaching knowledge, usable space, and task-specific progression.",
+        "The delivery profile should require a level non-slip surface, clear landing and run-out zones, stable equipment where applicable, suitable footwear, spacing, coach sightline, and a population-specific readiness screen."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "Landing quality and force absorption should be learned before higher-speed, higher-height, repeated, or reactive plyometric work.",
+        "Prescribe low-repetition quality sets, landing contacts per side, approach speed or height, hold duration, rest, cue complexity, and progression criteria; stop before fatigue changes mechanics."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Prescriptive instructions and feedback can improve landing mechanics, while excessive or poorly targeted information can interfere with learning.",
+        "Use a small cue set: land quietly, share force through ankle-knee-hip flexion, keep knee over the middle toes, control pelvis and trunk, and hold the finish without a touch-down or extra step."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "Loud contact, poor stabilization, loss of alignment, or inability to use the ankle, knee, and hip together indicate that intensity or volume exceeds current control.",
+        "Stop for pain, giving way, dizziness, repeated valgus or trunk collapse, uncontrolled foot contact, extra steps, loss of the required hold, unsafe surface or spacing, or persistent left-right asymmetry."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "youth_landing_stabilization_best_practice",
+      "claims": [
+        "Landing stabilization and lower-body strength are recurring components of effective neuromuscular injury-prevention programs.",
+        "{{canonicalName}} belongs after general preparation and before high-intensity jumping, sprinting, or change-of-direction work; rehabilitation and return-to-sport assessment require separate clinical context."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Athletes benefit from specific feedback tied to observable landing actions rather than abstract risk language.",
+        "Athlete support should show the start and finish positions, state the landing target and hold time, define a successful repetition, provide one primary cue, and explain the stop signal."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "landing_intervention_systematic_review",
+      "claims": [
+        "Coach education and practical implementation affect whether landing interventions can be delivered effectively.",
+        "Coach support should provide front and side observation points, pass-fail criteria, contact counting, left-right comparison, regressions, progressions, equipment checks, and rules for reducing speed, height, distance, or laterality."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "world_athletics_plyometrics_beginners",
+      "claims": [
+        "Beginners should establish landing and stabilization control before progressing from bilateral to unilateral, longer, faster, or shock-loading tasks.",
+        "Accessibility can be improved with visual floor targets, demonstrated start and finish shapes, plain-language cues, reduced amplitude, external support, longer holds, and reduced sensory or decision load without assigning an exercise skill level."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "nsca_basics_strength_conditioning",
+      "claims": [
+        "In-place landings, jumps covering distance, repeated hops, and elevated or externally loaded tasks have different intensity and programming implications.",
+        "Direction, laterality, support, cueing, and low amplitude are usually variants; rebound intent, approach momentum, external height, or a change to testing or return-to-sport purpose may require a distinct definition or contextual profile."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The direct candidates for {{canonicalName}} were discovered or rechecked through visible YouTube search and public oEmbed metadata; full viewing, exact-version match, captions, instructional quality, safety, and approval remain pending human review."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "drop-squat-to-stick",
+      "assessmentSummary": {
+        "identity": "A bilateral non-jump landing-pattern drill: from tall stance, rapidly lower into an athletic squat and hold the finish without rebound.",
+        "currentCardFindings": [
+          "The description identifies the rapid drop and two-second hold, but the controlled taxonomy, anatomy, equipment, environment, population, load, and fatigue fields are empty.",
+          "The existing 40-point technical, coordination, and overall values do not distinguish the low physical demand from the moderate timing and position-control demand.",
+          "This card and Snap-Down to Stick appear to share one stable identity; the overhead reach and forceful arm snap are likely a variant or coaching modifier."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "squat",
+            "land",
+            "brace"
+          ],
+          "jointActions": [
+            "ankle_dorsiflexion_control",
+            "knee_flexion_control",
+            "hip_flexion_control"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "bilateral",
+          "intent": "landing_position_acquisition"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gastrocnemius",
+            "gluteus_medius",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 28,
+          "absoluteLoadDemand": 8,
+          "coordinationDemand": 32,
+          "supervisionDemand": 24,
+          "failureConsequence": 26,
+          "impact": 16,
+          "workCapacityDemand": 10,
+          "baseOverallDifficulty": 28
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_eccentric",
+          "impactClass": "very_low",
+          "contactCountUnit": "controlled_landings",
+          "primaryStress": [
+            "knee_extensor_eccentric",
+            "hip_extensor_eccentric",
+            "ankle_foot_stabilization"
+          ],
+          "fatigueSensitivity": "technique_before_metabolic"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [],
+          "optionalEquipment": [
+            "floor_target",
+            "mirror_or_video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "one_body_length_clearance"
+          ],
+          "population": [
+            "independent_pain_free_squat",
+            "can_hold_athletic_stance_for_2_seconds"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "3-6",
+          "holdSeconds": "2-3",
+          "restSeconds": "30-60",
+          "intensity": "submaximal_position_quality",
+          "progressWhen": "all repetitions are quiet, aligned, and stable without heel lift or extra movement"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Reach tall, then arrive quietly",
+            "Share the bend through ankles, knees, and hips",
+            "Knees track over middle toes",
+            "Freeze the finish"
+          ],
+          "athleteInstructions": [
+            "Start tall",
+            "Drop into your landing shape",
+            "Land quietly and hold for two seconds"
+          ],
+          "commonFaults": [
+            "jumping before the drop",
+            "heels lifting",
+            "knees collapsing inward",
+            "chest collapsing",
+            "rebounding or shifting after arrival"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain-free bodyweight squat",
+            "stable bilateral stance",
+            "clear non-slip floor"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "repeated valgus or heel lift",
+            "loud uncontrolled contact",
+            "cannot hold the finish"
+          ]
+        },
+        "programmingDecision": "Retain as the lowest-impact bilateral landing-position regression pending identity review. Resolve overlap with Snap-Down to Stick before publication; preserve arm action as a variant or annotation rather than duplicate card metadata."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=iSjDSX8_UUI",
+          "title": "Drop Squat to Stick",
+          "channelName": "TD Athletes Edge",
+          "sourceQuery": "drop squat to stick landing drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=1Cl6rmR-K38",
+          "title": "Drop Squat to Stick",
+          "channelName": "Garrett McLaughlin",
+          "sourceQuery": "drop squat to stick landing drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=msxxAgSaEz4",
+          "title": "Matthew Ibrahim | Drop Squat to Stick",
+          "channelName": "Matthew Ibrahim",
+          "sourceQuery": "drop squat to stick landing drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Q3TieXAaSFk",
+          "title": "Matthew Ibrahim | Drop Squat to Stick",
+          "channelName": "Matthew Ibrahim",
+          "sourceQuery": "drop squat to stick landing drill"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Snap-Down to Stick",
+          "classification": "same_identity",
+          "rationale": "Both drills rapidly transition from tall stance into the same bilateral landing position and hold; overhead arm action is a variant or cue, not a new primary movement.",
+          "distinguishingDimensions": {
+            "armAction": "overhead_reach_then_forceful_snap"
+          }
+        },
+        {
+          "name": "Supported Drop Squat to Stick",
+          "classification": "new_variant",
+          "rationale": "Light external support reduces balance demand while preserving the non-jump bilateral landing pattern.",
+          "distinguishingDimensions": {
+            "supportLevel": "light_external_support"
+          }
+        },
+        {
+          "name": "Single-Leg Drop Squat to Stick",
+          "classification": "new_variant",
+          "rationale": "Unilateral stance materially increases frontal-plane and balance demand while retaining a non-jump rapid landing shape.",
+          "distinguishingDimensions": {
+            "laterality": "unilateral"
+          }
+        },
+        {
+          "name": "Drop Squat to Vertical Jump",
+          "classification": "new_definition",
+          "rationale": "Adding an immediate maximal takeoff changes the primary stimulus from landing-position acquisition to explosive force production.",
+          "distinguishingDimensions": {
+            "primaryTrainingStimulus": "vertical_power",
+            "reboundIntent": "immediate_takeoff"
+          }
+        },
+        {
+          "name": "Low Box Drop to Stick",
+          "classification": "new_variant",
+          "rationale": "External height increases gravitational landing load and equipment constraints but preserves the force-attenuation pattern.",
+          "distinguishingDimensions": {
+            "surfaceHeight": "low_box",
+            "startPosition": "elevated_step_off"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "snap-down-to-stick-control-version",
+      "assessmentSummary": {
+        "identity": "A bilateral snap-down landing-control drill using a tall or overhead start, forceful arm action, rapid triple flexion, and a stable no-rebound finish.",
+        "currentCardFindings": [
+          "The current description correctly prohibits rebound but does not define stance width, hold criterion, dosage, readiness, or progression.",
+          "Controlled taxonomy, anatomy, constraints, load, fatigue, and population fields are empty.",
+          "The card likely duplicates Drop Squat to Stick at the stable identity level and should not remain a separate published definition without evidence that arm action changes the primary stimulus."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "squat",
+            "land",
+            "brace"
+          ],
+          "jointActions": [
+            "ankle_dorsiflexion_control",
+            "knee_flexion_control",
+            "hip_flexion_control",
+            "shoulder_extension"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "bilateral",
+          "intent": "rapid_landing_position_acquisition"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gastrocnemius",
+            "gluteus_medius",
+            "latissimus_dorsi",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "shoulder",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 35,
+          "absoluteLoadDemand": 9,
+          "coordinationDemand": 40,
+          "supervisionDemand": 28,
+          "failureConsequence": 32,
+          "impact": 22,
+          "workCapacityDemand": 12,
+          "baseOverallDifficulty": 35
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_rapid_eccentric",
+          "impactClass": "low",
+          "contactCountUnit": "snap_down_landings",
+          "primaryStress": [
+            "rapid_knee_extensor_eccentric",
+            "hip_extensor_eccentric",
+            "ankle_foot_stabilization"
+          ],
+          "fatigueSensitivity": "coordination_and_landing_quality"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [],
+          "optionalEquipment": [
+            "floor_target",
+            "video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "overhead_clearance",
+            "one_body_length_clearance"
+          ],
+          "population": [
+            "owns_drop_squat_position",
+            "pain_free_bilateral_landing"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "3-5",
+          "holdSeconds": "2-3",
+          "restSeconds": "30-60",
+          "intensity": "fast_arrival_not_maximal_fatigue",
+          "progressWhen": "arm action, lower-limb flexion, alignment, quiet contact, and hold remain repeatable"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Reach tall",
+            "Snap the arms and hips into the landing shape",
+            "Land quietly with knees tracking",
+            "Stick—do not bounce"
+          ],
+          "athleteInstructions": [
+            "Start tall with arms up",
+            "Snap down into your landing",
+            "Freeze for two seconds"
+          ],
+          "commonFaults": [
+            "leaving the ground before arrival",
+            "feet too wide or narrow",
+            "stiff upright landing",
+            "knee valgus",
+            "rebound or extra foot movement"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "stable drop squat",
+            "pain-free ankle-knee-hip flexion",
+            "adequate overhead clearance"
+          ],
+          "stopRules": [
+            "pain",
+            "repeated uncontrolled foot strike",
+            "valgus or trunk collapse",
+            "cannot separate stick from rebound"
+          ]
+        },
+        "programmingDecision": "Quarantine as a likely Drop Squat to Stick identity duplicate. If retained after human review, model the overhead start and forceful arm snap as a named variant under one bilateral non-jump landing definition."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=1IDRgtr4u6g",
+          "title": "Drop Downs (Snap Down) for Jump Landing & Injury Prevention",
+          "channelName": "Simple Speed Coach",
+          "sourceQuery": "snap down to stick landing mechanics"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=6HFB64kFeNk",
+          "title": "Snap Down + Depth Drop Landing Mechanics Tutorial",
+          "channelName": "Chris Pearson",
+          "sourceQuery": "snap down to stick landing mechanics"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=sP61VPQxpTs",
+          "title": "Snapdown - THIRSTgym.com",
+          "channelName": "Brandon Smitley",
+          "sourceQuery": "snap down to stick landing mechanics"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=vQqmduv_de8",
+          "title": "Snapdown to Jump and Stick",
+          "channelName": "The Active Life",
+          "sourceQuery": "snap down to stick landing mechanics"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=x1nBhDLUUi0",
+          "title": "Snap Down",
+          "channelName": "PLT4M",
+          "sourceQuery": "snap down to stick landing mechanics"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Drop Squat to Stick",
+          "classification": "same_identity",
+          "rationale": "The stable movement is the same rapid bilateral non-jump arrival and hold; the snap-down name emphasizes arm action.",
+          "distinguishingDimensions": {
+            "armAction": "neutral_or_self_selected"
+          }
+        },
+        {
+          "name": "Single-Leg Snap-Down Stick",
+          "classification": "new_variant",
+          "rationale": "Single-leg arrival increases balance, frontal-plane control, and consequence of error while preserving the rapid non-jump landing intent.",
+          "distinguishingDimensions": {
+            "laterality": "unilateral"
+          }
+        },
+        {
+          "name": "Reactive-Cue Snap-Down",
+          "classification": "new_variant",
+          "rationale": "An external visual or auditory go cue adds perception and reaction demand without changing the movement.",
+          "distinguishingDimensions": {
+            "cueMode": "external_reactive"
+          }
+        },
+        {
+          "name": "Snap-Down to Jump",
+          "classification": "new_definition",
+          "rationale": "Immediate takeoff changes the stimulus to explosive reversal and must not inherit a no-rebound control profile.",
+          "distinguishingDimensions": {
+            "primaryTrainingStimulus": "explosive_reversal",
+            "reboundIntent": "immediate_takeoff"
+          }
+        },
+        {
+          "name": "Loaded Snap-Down",
+          "classification": "new_variant",
+          "rationale": "A light external load changes physical demand and equipment but retains the same rapid force-attenuation movement.",
+          "distinguishingDimensions": {
+            "implement": "light_external_load",
+            "loadPosition": "vest_or_goblet"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "forward-hop-to-stick-low-amplitude",
+      "assessmentSummary": {
+        "identity": "A low-amplitude bilateral forward jump with two-foot takeoff and landing, coordinated force absorption, and a stable hold.",
+        "currentCardFindings": [
+          "The current description specifies a two-foot landing, so the word hop is biomechanically ambiguous and should become an alias to a clearer Forward Jump to Stick name.",
+          "The card lacks controlled taxonomy, anatomy, constraints, physical-load, fatigue, dosage, and population detail.",
+          "Existing coarse difficulty values understate how distance, obstacle height, speed, and rebound intent can turn the same-looking drill into a materially harder task."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "jump",
+            "land",
+            "brace"
+          ],
+          "jointActions": [
+            "hip_knee_ankle_extension",
+            "ankle_dorsiflexion_control",
+            "knee_flexion_control",
+            "hip_flexion_control"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "bilateral",
+          "intent": "horizontal_landing_control"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 38,
+          "absoluteLoadDemand": 12,
+          "coordinationDemand": 42,
+          "supervisionDemand": 34,
+          "failureConsequence": 38,
+          "impact": 36,
+          "workCapacityDemand": 16,
+          "baseOverallDifficulty": 38
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_bilateral_horizontal_jump_landing",
+          "impactClass": "low_to_moderate",
+          "contactCountUnit": "jump_landings",
+          "primaryStress": [
+            "lower_limb_takeoff",
+            "horizontal_braking",
+            "ankle_knee_hip_eccentric_attenuation"
+          ],
+          "fatigueSensitivity": "distance_and_landing_quality"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [],
+          "optionalEquipment": [
+            "floor_takeoff_line",
+            "landing_target",
+            "low_hurdle"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "clear_forward_and_lateral_space"
+          ],
+          "population": [
+            "owns_bilateral_drop_squat",
+            "pain_free_jump_and_landing",
+            "can_hold_bilateral_landing"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "3-5",
+          "distance": "athlete-specific low amplitude that preserves alignment",
+          "holdSeconds": "2-3",
+          "restSeconds": "45-75",
+          "progressWhen": "takeoff is balanced and every landing is quiet, aligned, target-accurate, and held"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Jump forward only as far as you can own",
+            "Land on both feet quietly",
+            "Bend through ankles, knees, and hips",
+            "Stick the target"
+          ],
+          "athleteInstructions": [
+            "Use two feet to jump forward",
+            "Land on two feet",
+            "Freeze for two seconds"
+          ],
+          "commonFaults": [
+            "one-foot takeoff or landing",
+            "distance chasing",
+            "stiff landing",
+            "knee valgus",
+            "feet crossing or extra steps",
+            "immediate rebound"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "stable bilateral drop squat",
+            "pain-free low jump",
+            "clear landing zone"
+          ],
+          "stopRules": [
+            "pain",
+            "slip or collision risk",
+            "repeated asymmetrical landing",
+            "cannot hold target",
+            "landing gets louder or stiffer"
+          ]
+        },
+        "programmingDecision": "Retain the bilateral definition but propose the canonical display name Low-Amplitude Forward Jump to Stick. Keep the current hop wording as an alias only, because hop convention commonly implies single-leg takeoff or landing."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=Hm6k0KFAF-I",
+          "title": "Forward Jump and Stick",
+          "channelName": "Matt Kadolph Strength and Conditioning",
+          "sourceQuery": "bilateral forward jump and stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=0UC7KLWLKNQ",
+          "title": "Bilateral Jump and Stick",
+          "channelName": "Jon Herting",
+          "sourceQuery": "bilateral forward jump and stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=aFXymdtDiSY",
+          "title": "Forward Jump Stick Landing Lukasz Lojas",
+          "channelName": "Lukasz Lojas",
+          "sourceQuery": "bilateral forward jump and stick landing"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=0a8HYmdg8XE",
+          "title": "Forward Jump and Stick (Hurdles)",
+          "channelName": "Hockey Training Exercise Demonstrations",
+          "sourceQuery": "bilateral forward jump and stick landing"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Low-Amplitude Forward Jump to Stick",
+          "classification": "same_identity",
+          "rationale": "This name accurately describes the existing two-foot takeoff and two-foot landing without the single-leg implication of hop.",
+          "distinguishingDimensions": {
+            "terminology": "biomechanically_explicit"
+          }
+        },
+        {
+          "name": "Broad Jump to Stick",
+          "classification": "modifier_annotation",
+          "rationale": "Increasing horizontal distance changes intensity and failure consequence; it remains the same pattern until maximal-distance intent becomes the primary stimulus.",
+          "distinguishingDimensions": {
+            "distanceIntent": "moderate_to_maximal"
+          }
+        },
+        {
+          "name": "Hurdle Forward Jump to Stick",
+          "classification": "new_variant",
+          "rationale": "An obstacle changes takeoff trajectory, equipment, visual demand, and consequence of clipping while preserving bilateral landing control.",
+          "distinguishingDimensions": {
+            "implement": "low_hurdle",
+            "trajectoryConstraint": "clear_obstacle"
+          }
+        },
+        {
+          "name": "Single-Leg Forward Hop to Stick",
+          "classification": "new_variant",
+          "rationale": "Single-leg takeoff and landing materially increase unilateral balance and frontal-plane demand.",
+          "distinguishingDimensions": {
+            "laterality": "unilateral"
+          }
+        },
+        {
+          "name": "Repeated Forward Bounds",
+          "classification": "new_definition",
+          "rationale": "Continuous rebound removes the stabilization hold and changes the primary stimulus to elastic/reactive output.",
+          "distinguishingDimensions": {
+            "primaryTrainingStimulus": "reactive_horizontal_power",
+            "reboundIntent": "continuous"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "single-leg-hop-to-stick-low-amplitude",
+      "assessmentSummary": {
+        "identity": "A low-amplitude unilateral forward hop with same-leg takeoff and landing, controlled force attenuation, and no free-foot touch-down during the hold.",
+        "currentCardFindings": [
+          "The current description clearly identifies same-leg landing and the free-foot constraint but omits direction dosage, hold time, readiness prerequisites, and left-right comparison.",
+          "Controlled taxonomy, anatomy, constraints, load, fatigue, equipment, environment, and population fields are empty.",
+          "The current 40-point overall score underestimates unilateral coordination, pelvic control, supervision, asymmetry, and consequence of an unstable landing."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "hop",
+            "land",
+            "single_leg_balance",
+            "brace"
+          ],
+          "jointActions": [
+            "unilateral_hip_knee_ankle_extension",
+            "ankle_dorsiflexion_control",
+            "knee_flexion_control",
+            "hip_flexion_control",
+            "hip_abduction_external_rotation_control"
+          ],
+          "planes": [
+            "sagittal",
+            "frontal"
+          ],
+          "laterality": "unilateral_same_leg",
+          "intent": "unilateral_horizontal_landing_control"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "gluteus_medius",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "hip_external_rotators",
+            "peroneals",
+            "tibialis_posterior",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 55,
+          "absoluteLoadDemand": 16,
+          "coordinationDemand": 62,
+          "supervisionDemand": 48,
+          "failureConsequence": 54,
+          "impact": 44,
+          "workCapacityDemand": 20,
+          "baseOverallDifficulty": 55
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_unilateral_horizontal_hop_landing",
+          "impactClass": "moderate_per_limb",
+          "contactCountUnit": "landings_per_side",
+          "primaryStress": [
+            "unilateral_knee_hip_eccentric",
+            "ankle_foot_stabilization",
+            "frontal_plane_hip_control"
+          ],
+          "fatigueSensitivity": "asymmetry_and_stability"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [],
+          "optionalEquipment": [
+            "floor_target",
+            "support_rail_for_regression",
+            "video_feedback"
+          ],
+          "environment": [
+            "level_non_slip_surface",
+            "clear_forward_and_lateral_space"
+          ],
+          "population": [
+            "pain_free_single_leg_squat",
+            "ten_second_single_leg_balance",
+            "owns_bilateral_forward_jump_to_stick"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitionsPerSide": "2-5",
+          "distance": "very short athlete-specific amplitude",
+          "holdSeconds": "2-3",
+          "restSeconds": "45-90",
+          "progressWhen": "both sides are quiet and stable with aligned knee-foot-pelvis control and no free-foot touch"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Hop only as far as you can own",
+            "Land on the same leg",
+            "Keep knee over middle toes and pelvis level",
+            "Freeze without tapping the other foot"
+          ],
+          "athleteInstructions": [
+            "Hop forward on one leg",
+            "Land on that same leg",
+            "Stay quiet and hold"
+          ],
+          "commonFaults": [
+            "free-foot touch-down",
+            "knee valgus",
+            "hip drop or trunk sway",
+            "heel or arch collapse",
+            "distance chasing",
+            "multiple stabilization hops"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "bilateral jump-to-stick mastery",
+            "pain-free single-leg squat",
+            "stable ten-second single-leg balance"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "repeated free-foot touch",
+            "valgus or pelvic collapse",
+            "large left-right quality difference",
+            "cannot hold the finish"
+          ]
+        },
+        "programmingDecision": "Retain as a unilateral variant in the landing-control graph. It should follow bilateral landing ownership and should not be confused with maximal hop testing or repeated reactive hopping."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=_TQ1_LN63Ew",
+          "title": "How To: Single Leg Hop & Stick",
+          "channelName": "RAWR Strength",
+          "sourceQuery": "single leg forward hop and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=3_QHB0B9JyU",
+          "title": "Single leg hop and stick",
+          "channelName": "GameTime Sports & Training",
+          "sourceQuery": "single leg forward hop and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=fR4ShpYhR74",
+          "title": "Single-leg Forward Hop and Stick",
+          "channelName": "RYPT",
+          "sourceQuery": "single leg forward hop and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=CYb0YKAKtIA",
+          "title": "Single-Leg Forward Hop & Stick",
+          "channelName": "Alex Bunt",
+          "sourceQuery": "single leg forward hop and stick"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=3TCxCldZUuU",
+          "title": "1 leg forward hop to stick",
+          "channelName": "GPC Performance",
+          "sourceQuery": "single leg forward hop and stick"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Supported Single-Leg Hop to Stick",
+          "classification": "new_variant",
+          "rationale": "Light hand support reduces balance consequence while preserving same-leg takeoff and landing.",
+          "distinguishingDimensions": {
+            "supportLevel": "light_external_support"
+          }
+        },
+        {
+          "name": "Single-Leg Lateral Hop to Stick",
+          "classification": "new_variant",
+          "rationale": "Lateral direction changes frontal-plane force orientation and hip-control demand while preserving unilateral stabilization.",
+          "distinguishingDimensions": {
+            "direction": "lateral"
+          }
+        },
+        {
+          "name": "Single-Leg Crossover Hop to Stick",
+          "classification": "new_variant",
+          "rationale": "Cross-body travel adds transverse and frontal-plane control and should require prior linear and lateral ownership.",
+          "distinguishingDimensions": {
+            "direction": "crossover_diagonal",
+            "planes": [
+              "frontal",
+              "transverse"
+            ]
+          }
+        },
+        {
+          "name": "Single-Leg Hop for Distance Test",
+          "classification": "new_definition",
+          "rationale": "A maximal standardized performance or return-to-sport test has a different purpose, protocol, interpretation, and clinical governance model.",
+          "distinguishingDimensions": {
+            "primaryTrainingStimulus": "assessment",
+            "distanceIntent": "maximal",
+            "context": "return_to_sport_test"
+          }
+        },
+        {
+          "name": "Repeated Single-Leg Hops",
+          "classification": "new_definition",
+          "rationale": "Continuous contacts remove the stabilization hold and shift the stimulus to reactive stiffness, rhythm, and repeated-impact tolerance.",
+          "distinguishingDimensions": {
+            "primaryTrainingStimulus": "reactive_unilateral_elasticity",
+            "reboundIntent": "continuous"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "jog-to-stick-linear-deceleration",
+      "assessmentSummary": {
+        "identity": "A submaximal linear run-to-stop drill in which the athlete initiates braking before a marked zone, uses multiple controlled steps, and owns a final athletic stance.",
+        "currentCardFindings": [
+          "The current description captures short braking steps and a two-second stick but omits approach distance, target speed, stopping distance, contact count, run-out safety, and performance stop rules.",
+          "Controlled taxonomy, anatomy, constraints, load, fatigue, equipment, environment, and population fields are empty.",
+          "The existing difficulty record substantially understates the eccentric, impact, momentum-management, supervision, and failure-consequence demands that rise with approach speed and body mass."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "locomote",
+            "decelerate",
+            "land",
+            "brace"
+          ],
+          "jointActions": [
+            "cyclic_hip_knee_ankle_action",
+            "braking_ankle_dorsiflexion_control",
+            "knee_flexion_control",
+            "hip_flexion_control"
+          ],
+          "planes": [
+            "sagittal"
+          ],
+          "laterality": "alternating_bilateral",
+          "intent": "linear_horizontal_braking_control"
+        },
+        "proposedAnatomy": {
+          "primaryMuscles": [
+            "quadriceps",
+            "gluteus_maximus",
+            "soleus",
+            "gastrocnemius"
+          ],
+          "secondaryMuscles": [
+            "hamstrings",
+            "gluteus_medius",
+            "hip_external_rotators",
+            "intrinsic_foot",
+            "trunk_stabilizers"
+          ],
+          "joints": [
+            "foot",
+            "ankle",
+            "knee",
+            "hip",
+            "lumbopelvic_complex"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 52,
+          "absoluteLoadDemand": 20,
+          "coordinationDemand": 56,
+          "supervisionDemand": 48,
+          "failureConsequence": 58,
+          "impact": 52,
+          "workCapacityDemand": 28,
+          "baseOverallDifficulty": 52
+        },
+        "proposedLoadProfile": {
+          "loadingType": "bodyweight_horizontal_deceleration",
+          "impactClass": "moderate_at_submaximal_approach",
+          "contactCountUnit": "braking_steps",
+          "primaryStress": [
+            "high_rate_eccentric_knee_extensor",
+            "hip_extensor_braking",
+            "ankle_foot_impact_attenuation"
+          ],
+          "fatigueSensitivity": "approach_speed_and_braking_quality"
+        },
+        "proposedConstraints": {
+          "requiredEquipment": [
+            "two_or_more_cones_or_floor_markers"
+          ],
+          "optionalEquipment": [
+            "timing_or_radar_device",
+            "video_feedback"
+          ],
+          "environment": [
+            "level_high-traction_surface",
+            "marked_approach_brake_and_safety_zones",
+            "no_cross_traffic",
+            "adequate_ceiling_or_outdoor_clearance"
+          ],
+          "population": [
+            "pain_free_jog",
+            "owns_bilateral_landing_stance",
+            "can_follow_start_and_stop_zone instructions"
+          ]
+        },
+        "proposedDosage": {
+          "sets": "2-4",
+          "repetitions": "2-4",
+          "approachDistance": "5-10 meters initially",
+          "approachIntensity": "50-70 percent initially",
+          "stoppingDistance": "individualized and progressively reduced only with quality",
+          "holdSeconds": "2",
+          "restSeconds": "60-120",
+          "progressWhen": "athlete initiates braking on time, uses controlled steps, finishes behind the stop line, and holds an aligned stance"
+        },
+        "proposedInstructions": {
+          "coachCues": [
+            "Build to an easy jog",
+            "Start braking before the cone",
+            "Use short controlled steps and lower smoothly",
+            "Finish balanced—do not reach for one hard stop"
+          ],
+          "athleteInstructions": [
+            "Jog to the braking zone",
+            "Take short steps to slow down",
+            "Stop under control and hold"
+          ],
+          "commonFaults": [
+            "late braking",
+            "one long reaching stop step",
+            "upright stiff posture",
+            "knee collapse",
+            "cross-over steps",
+            "running through the safety zone",
+            "turning before fully stopped"
+          ]
+        },
+        "proposedSafety": {
+          "readiness": [
+            "pain-free jogging",
+            "bilateral landing-control competency",
+            "clear marked lane"
+          ],
+          "stopRules": [
+            "pain or giving way",
+            "slip or collision risk",
+            "cannot stop inside the zone",
+            "repeated hard heel strike or valgus",
+            "stumble or uncontrolled extra steps",
+            "mechanics worsen as speed rises"
+          ]
+        },
+        "programmingDecision": "Retain as the entry linear horizontal-deceleration definition. Treat approach speed, distance, braking-zone length, cue type, and stopping target as dosage or delivery variables; do not silently progress it to maximal sprint deceleration."
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=wc7eHL9z6FM",
+          "title": "Deceleration Drills - ORS Strength and Conditioning",
+          "channelName": "Orthopaedic Rehab Specialists - Physical Therapy",
+          "sourceQuery": "jog to stick linear deceleration drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=sdgPBkKNO4Y",
+          "title": "Sprint To Stick - THIRSTgym.com",
+          "channelName": "Brandon Smitley",
+          "sourceQuery": "jog to stick linear deceleration drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=-iFV89aqmYI",
+          "title": "3 Deceleration Exercises for ACL Injury Reduction - Rehab 2 Perform",
+          "channelName": "Rehab 2 Perform",
+          "sourceQuery": "jog to stick linear deceleration drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=GqVqQK_j_zQ",
+          "title": "Deceleration Training For Athletes | Reduce Injuries and Improve Performance With These Exercises",
+          "channelName": "7mlc",
+          "sourceQuery": "jog to stick linear deceleration drill"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=fg8MzakFMm0",
+          "title": "Best Decelerating Exercises For Athletes | Top Exercises For Deceleration",
+          "channelName": "PowerLux Fitness",
+          "sourceQuery": "jog to stick linear deceleration drill"
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Walk-to-Stick",
+          "classification": "new_variant",
+          "rationale": "Walking lowers approach momentum and impact while preserving the sequence of early braking and controlled final stance.",
+          "distinguishingDimensions": {
+            "approachSpeed": "walk"
+          }
+        },
+        {
+          "name": "Sprint-to-Stick",
+          "classification": "modifier_annotation",
+          "rationale": "Increasing approach speed scales force, stopping distance, supervision, and recovery; maximal sprint deceleration requires a separate high-intensity delivery profile.",
+          "distinguishingDimensions": {
+            "approachSpeed": "high_to_maximal",
+            "recoveryClass": "high_intensity"
+          }
+        },
+        {
+          "name": "Auditory-Cue Jog-to-Stick",
+          "classification": "new_variant",
+          "rationale": "An unpredictable stop cue adds perception and decision timing while preserving linear braking.",
+          "distinguishingDimensions": {
+            "cueMode": "auditory_reactive",
+            "predictability": "unplanned"
+          }
+        },
+        {
+          "name": "Lateral Shuffle-to-Stick",
+          "classification": "new_variant",
+          "rationale": "Lateral travel changes force orientation and frontal-plane mechanics without adding reacceleration.",
+          "distinguishingDimensions": {
+            "direction": "lateral",
+            "locomotion": "shuffle"
+          }
+        },
+        {
+          "name": "Decelerate and 45-Degree Cut",
+          "classification": "new_definition",
+          "rationale": "Adding redirection and reacceleration changes the movement objective, force orientation, and technical and safety model.",
+          "distinguishingDimensions": {
+            "primaryTrainingStimulus": "change_of_direction",
+            "exitDirection": "45_degrees",
+            "reacceleration": true
+          }
+        }
+      ]
+    }
+  ]
+}
