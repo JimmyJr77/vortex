@@ -13,6 +13,8 @@
 -- metadata is not full-video viewing or approval. No publication, media,
 -- graph, or calibration approval is created. IDEMPOTENT and fail-closed.
 
+BEGIN;
+
 DO $$
 DECLARE
   migration_key CONSTANT TEXT :=
@@ -1035,3 +1037,626 @@ DO UPDATE SET
   measurement_json = EXCLUDED.measurement_json,
   support_prompts_json = EXCLUDED.support_prompts_json,
   updated_at = now();
+
+UPDATE coaching.exercise_section_evidence_v1 evidence
+SET review_status = 'superseded',
+    reviewer_user_id = NULL,
+    reviewed_at = NULL,
+    updated_at = now()
+FROM coaching.exercise_definition_v1 definition
+WHERE definition.id = evidence.definition_id
+  AND definition.facility_id = 1
+  AND definition.slug IN (
+    'quadruped-thread-the-needle',
+    'single-leg-balance-hold-tripod-foot',
+    'split-squat-isometric-hold'
+  )
+  AND evidence.reviewed_card_version <> 2
+  AND evidence.review_status = 'candidate';
+
+INSERT INTO coaching.exercise_section_evidence_v1 (
+  definition_id,
+  reviewed_card_version,
+  section_key,
+  source_url,
+  source_title,
+  source_publisher,
+  source_kind,
+  claims_json,
+  evidence_quality,
+  review_status,
+  reviewer_user_id,
+  reviewed_at
+)
+SELECT
+  definition.id,
+  2,
+  claim.key,
+  CASE
+    WHEN claim.key = 'media' THEN
+      'https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en'
+    WHEN claim.key IN (
+      'anatomy',
+      'biomechanics',
+      'difficulty',
+      'load_fatigue_recovery',
+      'programming'
+    ) THEN seed.secondary_source ->> 'url'
+    ELSE seed.primary_source ->> 'url'
+  END,
+  CASE
+    WHEN claim.key = 'media' THEN 'Embed videos and playlists'
+    WHEN claim.key IN (
+      'anatomy',
+      'biomechanics',
+      'difficulty',
+      'load_fatigue_recovery',
+      'programming'
+    ) THEN seed.secondary_source ->> 'title'
+    ELSE seed.primary_source ->> 'title'
+  END,
+  CASE
+    WHEN claim.key = 'media' THEN 'YouTube Help'
+    WHEN claim.key IN (
+      'anatomy',
+      'biomechanics',
+      'difficulty',
+      'load_fatigue_recovery',
+      'programming'
+    ) THEN seed.secondary_source ->> 'publisher'
+    ELSE seed.primary_source ->> 'publisher'
+  END,
+  CASE
+    WHEN claim.key = 'media' THEN 'manufacturer_instruction'
+    WHEN claim.key IN (
+      'anatomy',
+      'biomechanics',
+      'difficulty',
+      'load_fatigue_recovery',
+      'programming'
+    ) THEN seed.secondary_source ->> 'kind'
+    ELSE seed.primary_source ->> 'kind'
+  END,
+  claim.value,
+  CASE
+    WHEN claim.key = 'media' THEN 82
+    WHEN claim.key IN (
+      'anatomy',
+      'biomechanics',
+      'difficulty',
+      'load_fatigue_recovery',
+      'programming'
+    ) THEN (seed.secondary_source ->> 'quality')::SMALLINT
+    ELSE (seed.primary_source ->> 'quality')::SMALLINT
+  END,
+  'candidate',
+  NULL,
+  NULL
+FROM static_card_seed seed
+JOIN coaching.exercise_definition_v1 definition
+  ON definition.facility_id = 1
+ AND definition.slug = seed.slug
+CROSS JOIN LATERAL jsonb_each(seed.evidence_claims) claim
+ON CONFLICT (
+  definition_id,
+  reviewed_card_version,
+  section_key,
+  source_url
+)
+DO UPDATE SET
+  source_title = EXCLUDED.source_title,
+  source_publisher = EXCLUDED.source_publisher,
+  source_kind = EXCLUDED.source_kind,
+  claims_json = EXCLUDED.claims_json,
+  evidence_quality = EXCLUDED.evidence_quality,
+  review_status = 'candidate',
+  reviewer_user_id = NULL,
+  reviewed_at = NULL,
+  updated_at = now();
+
+UPDATE coaching.exercise_media_candidate_v1 media
+SET review_status = 'superseded',
+    reviewer_user_id = NULL,
+    reviewed_at = NULL,
+    updated_at = now()
+FROM coaching.exercise_definition_v1 definition
+WHERE definition.id = media.definition_id
+  AND definition.facility_id = 1
+  AND definition.slug IN (
+    'quadruped-thread-the-needle',
+    'single-leg-balance-hold-tripod-foot',
+    'split-squat-isometric-hold'
+  )
+  AND media.reviewed_card_version <> 2
+  AND media.review_status = 'candidate';
+
+CREATE TEMP TABLE static_media_seed (
+  slug TEXT NOT NULL,
+  video_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  channel_name TEXT NOT NULL,
+  source_query TEXT NOT NULL,
+  PRIMARY KEY (slug, video_id)
+) ON COMMIT DROP;
+
+INSERT INTO static_media_seed VALUES
+  ('quadruped-thread-the-needle','4EPsl0epycc','Quadruped Thread the Needle Thoracic Rotation','Restore Physical Therapy, LLC','quadruped thread the needle thoracic rotation'),
+  ('quadruped-thread-the-needle','Cn43k8-7iik','Thoracic Quadruped Thread the Needle','Physical Therapy First','quadruped thread the needle thoracic rotation'),
+  ('quadruped-thread-the-needle','Q4fKfxG33sY','Quadruped Thread The Needle','Tactical Athlete Performance & Physical Therapy','quadruped thread the needle'),
+  ('quadruped-thread-the-needle','7VQU2-yFZME','Quadruped Thread the Needle','Theory of Motion Exercise Library','quadruped thread the needle'),
+  ('single-leg-balance-hold-tripod-foot','cOjBPzFz32E','FOOT TRIPOD EXERCISES   OBTAIN BALANCE AND STABILITY','Jason Hughes','single leg foot tripod balance hold'),
+  ('single-leg-balance-hold-tripod-foot','vKonzLCxWrg','Single Leg Balance','Ramage Performance Therapy','single leg balance foot tripod'),
+  ('single-leg-balance-hold-tripod-foot','vr2yG84vnnA','How to Perform the Short Foot Exercise Progressing to Single Leg Balance | Exercise Tutorial','Dr. Karen Thomas ','short foot single leg balance'),
+  ('single-leg-balance-hold-tripod-foot','XhiffPgvEJ4','Single Leg Balance in Short Foot Position','Dr. Michael Cortese - The Runner Guy','single leg balance short foot position'),
+  ('split-squat-isometric-hold','9-E7YW2WAlM','Resilient Performance - Split Squat Isometric Hold','Resilient Performance Physical Therapy','split squat isometric hold'),
+  ('split-squat-isometric-hold','FvrSfS9cQ9w','How To: Split Squat Iso Hold','Live Lean TV Daily Exercises','split squat iso hold'),
+  ('split-squat-isometric-hold','nRCANP7XsHE','How To Do Split Squat Isometric Hold | Invictus Fitness','CrossFit Invictus','split squat isometric hold'),
+  ('split-squat-isometric-hold','OgAuRVSPd5c','Split Squat Isometric Hold','Calvin Dietz','split squat isometric hold');
+
+INSERT INTO coaching.exercise_media_candidate_v1 (
+  definition_id,
+  variant_id,
+  reviewed_card_version,
+  url,
+  embed_url,
+  video_id,
+  title,
+  channel_name,
+  language_code,
+  captions_available,
+  embedding_allowed,
+  exact_variant_match,
+  demonstration_quality_score,
+  link_status,
+  review_status,
+  discovery_method,
+  source_query,
+  reviewer_user_id,
+  reviewed_at,
+  next_review_at,
+  notes
+)
+SELECT
+  definition.id,
+  NULL,
+  2,
+  'https://www.youtube.com/watch?v=' || media.video_id,
+  'https://www.youtube-nocookie.com/embed/' || media.video_id,
+  media.video_id,
+  media.title,
+  media.channel_name,
+  'en',
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  'healthy',
+  'candidate',
+  'manual_research',
+  media.source_query,
+  NULL,
+  NULL,
+  NULL,
+  'YouTube oEmbed metadata returned successfully on 2026-07-26. Embed playback permission, the full demonstration, exact variant matching, cue and safety quality, captions, accessibility, reviewer identity, and approval remain unverified and require human review.'
+FROM static_media_seed media
+JOIN coaching.exercise_definition_v1 definition
+  ON definition.facility_id = 1
+ AND definition.slug = media.slug
+ON CONFLICT (
+  definition_id,
+  reviewed_card_version,
+  video_id
+)
+DO UPDATE SET
+  url = EXCLUDED.url,
+  embed_url = EXCLUDED.embed_url,
+  title = EXCLUDED.title,
+  channel_name = EXCLUDED.channel_name,
+  language_code = EXCLUDED.language_code,
+  captions_available = NULL,
+  embedding_allowed = NULL,
+  exact_variant_match = NULL,
+  demonstration_quality_score = NULL,
+  link_status = 'healthy',
+  review_status = 'candidate',
+  discovery_method = 'manual_research',
+  source_query = EXCLUDED.source_query,
+  reviewer_user_id = NULL,
+  reviewed_at = NULL,
+  next_review_at = NULL,
+  notes = EXCLUDED.notes,
+  updated_at = now();
+
+UPDATE coaching.exercise_alternate_assessment_v1 alternate
+SET review_status = 'superseded',
+    reviewer_user_id = NULL,
+    reviewed_at = NULL,
+    updated_at = now()
+FROM coaching.exercise_definition_v1 definition
+WHERE definition.id = alternate.definition_id
+  AND definition.facility_id = 1
+  AND definition.slug IN (
+    'quadruped-thread-the-needle',
+    'single-leg-balance-hold-tripod-foot',
+    'split-squat-isometric-hold'
+  )
+  AND alternate.reviewed_card_version <> 2
+  AND alternate.review_status = 'candidate';
+
+CREATE TEMP TABLE static_alternate_seed (
+  slug TEXT NOT NULL,
+  alternate_name TEXT NOT NULL,
+  classification TEXT NOT NULL,
+  rationale TEXT NOT NULL,
+  dimensions JSONB NOT NULL,
+  PRIMARY KEY (slug, alternate_name)
+) ON COMMIT DROP;
+
+INSERT INTO static_alternate_seed VALUES
+  ('quadruped-thread-the-needle','Quadruped Thread-the-Needle Rotation','same_identity','The word rotation names the existing open phase and does not add an action.','{"nameOnly":true}'::JSONB),
+  ('quadruped-thread-the-needle','Quadruped Thread-the-Needle Reach','same_identity','Reach names the existing under-body phase and does not add an action.','{"nameOnly":true}'::JSONB),
+  ('quadruped-thread-the-needle','Heel-Sit Thread-the-Needle','new_variant','A comfortable heel-sit constrains pelvis and lumbar contribution while retaining the reach-under then open action.','{"hipPosition":"heel_sit","action":"thread_then_open"}'::JSONB),
+  ('quadruped-thread-the-needle','Short-Range Thread-the-Needle','modifier_annotation','A shorter pain-free range changes dose and access but not support or action.','{"range":"shorter_owned_range"}'::JSONB),
+  ('quadruped-thread-the-needle','Side-Lying Open Book','new_definition','Side-lying support and no under-body thread materially change setup and movement path.','{"supportBase":"side_lying","action":"open_rotation_without_thread"}'::JSONB),
+  ('quadruped-thread-the-needle','Quadruped Hand-Behind-Head Rotation','new_definition','Hand-behind-head open-and-close rotation omits the defining palm-up thread-under path.','{"handPosition":"behind_head","action":"open_close_rotation"}'::JSONB),
+  ('quadruped-thread-the-needle','Loaded or Ballistic Thread-the-Needle','new_definition','External load or ballistic intent materially changes loading, speed, failure consequence, and instruction.','{"externalLoad":true,"intent":"ballistic_or_loaded"}'::JSONB),
+  ('single-leg-balance-hold-tripod-foot','Single-Leg Tripod Balance','same_identity','Naming order does not change the static single-leg tripod hold.','{"nameOnly":true}'::JSONB),
+  ('single-leg-balance-hold-tripod-foot','Supported Eyes-Open Tripod Hold','new_variant','Stable hand support reduces balance complexity while preserving the static tripod hold.','{"support":"stable_hand","vision":"eyes_open"}'::JSONB),
+  ('single-leg-balance-hold-tripod-foot','Unsupported Eyes-Open Tripod Hold','new_variant','Removing hand support raises balance complexity without changing the static action.','{"support":"none_used","vision":"eyes_open"}'::JSONB),
+  ('single-leg-balance-hold-tripod-foot','Unsupported Eyes-Closed Tripod Hold','new_variant','Removing visual input materially raises sensory and supervision demand while preserving the static stance action.','{"support":"available_not_used","vision":"eyes_closed","supervision":"close"}'::JSONB),
+  ('single-leg-balance-hold-tripod-foot','Barefoot or Shoe-On Tripod Hold','modifier_annotation','Footwear must be declared and may alter sensory input and traction, but does not itself change the exercise identity.','{"footwear":"declared"}'::JSONB),
+  ('single-leg-balance-hold-tripod-foot','Single-Leg Balance Reach Clock','new_definition','A reaching limb adds dynamic center-of-mass movement and directional targets.','{"action":"multidirectional_reach"}'::JSONB),
+  ('single-leg-balance-hold-tripod-foot','Single-Leg Balance on Unstable Surface','new_definition','An unstable surface materially changes environment, mechanics, fall risk, and supervision.','{"surface":"unstable"}'::JSONB),
+  ('single-leg-balance-hold-tripod-foot','Loaded or Perturbed Single-Leg Hold','new_definition','External load or perturbation changes loading, force predictability, and failure consequence.','{"externalLoadOrPerturbation":true}'::JSONB),
+  ('split-squat-isometric-hold','Split Squat Iso Hold','same_identity','Iso is an abbreviation of isometric and adds no action.','{"nameOnly":true}'::JSONB),
+  ('split-squat-isometric-hold','Supported Bodyweight Split Squat Hold','new_variant','Stable hand support lowers balance complexity while preserving the static split-squat position.','{"support":"stable_hand","load":"bodyweight"}'::JSONB),
+  ('split-squat-isometric-hold','Unsupported Bodyweight Split Squat Hold','new_variant','Removing hand support raises postural demand while preserving the static split-squat position.','{"support":"none_used","load":"bodyweight"}'::JSONB),
+  ('split-squat-isometric-hold','Goblet-Loaded Split Squat Hold','new_variant','A goblet load raises physical demand while preserving the static split-squat position and exact load contract.','{"support":"none_used","load":"dumbbell_goblet"}'::JSONB),
+  ('split-squat-isometric-hold','Split Squat Hold Depth or Duration Change','modifier_annotation','A recorded depth, stance, torso angle, or hold-time change modifies dose without automatically adding an identity.','{"modifiers":["stance","depth","torso","hold_duration"]}'::JSONB),
+  ('split-squat-isometric-hold','Rear-Foot-Elevated Split Squat Isometric','new_definition','Rear-foot elevation materially changes support, joint mechanics, balance, and load distribution.','{"rearFoot":"elevated"}'::JSONB),
+  ('split-squat-isometric-hold','Dynamic Split Squat','new_definition','Repeated descent and ascent replace the static hold with dynamic joint motion and eccentric-concentric loading.','{"action":"dynamic_repetitions"}'::JSONB),
+  ('split-squat-isometric-hold','Perturbed or Partner-Resisted Split Squat Hold','new_definition','External perturbation or partner force adds unpredictable or directional loading and supervision.','{"forceSource":"partner_or_perturbation"}'::JSONB);
+
+INSERT INTO coaching.exercise_alternate_assessment_v1 (
+  definition_id,
+  reviewed_card_version,
+  alternate_name,
+  classification,
+  rationale,
+  distinguishing_dimensions,
+  proposed_card_json,
+  review_status,
+  reviewer_user_id,
+  reviewed_at
+)
+SELECT
+  definition.id,
+  2,
+  alternate.alternate_name,
+  alternate.classification,
+  alternate.rationale,
+  alternate.dimensions,
+  CASE
+    WHEN alternate.classification = 'new_definition' THEN
+      jsonb_build_object(
+        'status', 'proposal_only',
+        'humanReviewRequired', TRUE,
+        'sourceCard', alternate.slug
+      )
+    ELSE NULL
+  END,
+  'candidate',
+  NULL,
+  NULL
+FROM static_alternate_seed alternate
+JOIN coaching.exercise_definition_v1 definition
+  ON definition.facility_id = 1
+ AND definition.slug = alternate.slug
+ON CONFLICT (
+  definition_id,
+  reviewed_card_version,
+  alternate_name
+)
+DO UPDATE SET
+  classification = EXCLUDED.classification,
+  rationale = EXCLUDED.rationale,
+  distinguishing_dimensions = EXCLUDED.distinguishing_dimensions,
+  proposed_card_json = EXCLUDED.proposed_card_json,
+  review_status = 'candidate',
+  reviewer_user_id = NULL,
+  reviewed_at = NULL,
+  updated_at = now();
+
+CREATE TEMP TABLE static_edge_seed (
+  slug TEXT NOT NULL,
+  from_key TEXT NOT NULL,
+  to_key TEXT NOT NULL,
+  relationship TEXT NOT NULL,
+  similarity_score SMALLINT NOT NULL,
+  dimensions TEXT[] NOT NULL,
+  reason TEXT NOT NULL,
+  conditions_json JSONB NOT NULL,
+  PRIMARY KEY (slug, from_key, to_key, relationship)
+) ON COMMIT DROP;
+
+INSERT INTO static_edge_seed VALUES
+  ('quadruped-thread-the-needle','quadruped-thread-and-open','heel-sit-thread-and-open','progression',82,ARRAY['position','complexity','range']::TEXT[],'A comfortable heel-sit can constrain pelvic contribution and adds position demand while preserving the thread-under then open action.','{"requires":["comfortable_heel_sit","repeatable_standard_thread_and_open","pain_free_contacts"],"notAutomatic":true}'::JSONB),
+  ('quadruped-thread-the-needle','heel-sit-thread-and-open','quadruped-thread-and-open','regression',94,ARRAY['position','complexity']::TEXT[],'Returning the hips over the knees reduces hip and knee flexion constraints while preserving the defining arm path.','{"useWhen":["heel_sit_discomfort","pelvic_shift","range_or_breath_worsens"]}'::JSONB),
+  ('single-leg-balance-hold-tripod-foot','supported-eyes-open','unsupported-eyes-open','progression',90,ARRAY['stability','complexity']::TEXT[],'Removing hand support raises balance complexity while preserving the eyes-open static tripod hold.','{"requires":["repeatable_supported_hold","safe_touch_down","clear_fall_space"]}'::JSONB),
+  ('single-leg-balance-hold-tripod-foot','unsupported-eyes-open','supported-eyes-open','regression',96,ARRAY['stability','complexity']::TEXT[],'Adding stable hand support preserves the tripod and posture objective while reducing balance and fall demand.','{"useWhen":["unsafe_sway","repeated_touch_down","alignment_change","fall_risk_uncertain"]}'::JSONB),
+  ('single-leg-balance-hold-tripod-foot','unsupported-eyes-open','unsupported-eyes-closed','progression',74,ARRAY['sensory_input','complexity','supervision']::TEXT[],'Removing vision adds a sensory constraint and much greater supervision demand without adding external load or movement.','{"requires":["repeatable_unsupported_eyes_open","no_current_dizziness","close_supervision","immediate_support"],"notAutomatic":true}'::JSONB),
+  ('single-leg-balance-hold-tripod-foot','unsupported-eyes-closed','unsupported-eyes-open','regression',98,ARRAY['sensory_input','complexity','safety']::TEXT[],'Opening the eyes restores visual input and is the first regression for sway, uncertainty, or safety concerns.','{"useWhen":["any_safety_uncertainty","sway_increases","coach_intervention","fatigue"]}'::JSONB),
+  ('split-squat-isometric-hold','supported-bodyweight-mid-range','unsupported-bodyweight-mid-range','progression',90,ARRAY['stability','complexity']::TEXT[],'Removing hand support raises postural and balance demand while preserving bodyweight, stance, depth, and static action.','{"requires":["repeatable_supported_quality_time","safe_unsupported_exit"]}'::JSONB),
+  ('split-squat-isometric-hold','unsupported-bodyweight-mid-range','supported-bodyweight-mid-range','regression',96,ARRAY['stability','complexity','safety']::TEXT[],'Adding stable hand support reduces balance demand while preserving the split-stance isometric objective.','{"useWhen":["balance_limits_position","depth_or_knee_drift","exit_uncertain"]}'::JSONB),
+  ('split-squat-isometric-hold','unsupported-bodyweight-mid-range','goblet-loaded-mid-range','progression',82,ARRAY['load','physical_difficulty','failure_consequence']::TEXT[],'A goblet load raises external load, trunk and grip demand, and set-down consequence while preserving the static split-squat position.','{"requires":["repeatable_bodyweight_hold","safe_goblet_pickup_and_set_down","technical_reserve"],"notAutomatic":true}'::JSONB),
+  ('split-squat-isometric-hold','goblet-loaded-mid-range','unsupported-bodyweight-mid-range','regression',98,ARRAY['load','physical_difficulty','safety']::TEXT[],'Removing the goblet load preserves stance and depth while reducing physical demand and load-handling consequence.','{"useWhen":["load_or_depth_drift","grip_or_breath_fatigue","set_down_uncertain"]}'::JSONB);
+
+INSERT INTO coaching.exercise_relationship_v1 (
+  from_variant_id,
+  to_variant_id,
+  relationship,
+  similarity_score,
+  dimensions,
+  reason,
+  conditions_json,
+  review_status,
+  created_by,
+  reviewed_by,
+  reviewed_at
+)
+SELECT
+  from_variant.id,
+  to_variant.id,
+  edge.relationship,
+  edge.similarity_score,
+  edge.dimensions,
+  edge.reason,
+  edge.conditions_json,
+  'review',
+  NULL,
+  NULL,
+  NULL
+FROM static_edge_seed edge
+JOIN coaching.exercise_definition_v1 definition
+  ON definition.facility_id = 1
+ AND definition.slug = edge.slug
+JOIN coaching.exercise_variant_v1 from_variant
+  ON from_variant.definition_id = definition.id
+ AND from_variant.variant_key = edge.from_key
+JOIN coaching.exercise_variant_v1 to_variant
+  ON to_variant.definition_id = definition.id
+ AND to_variant.variant_key = edge.to_key
+ON CONFLICT (
+  from_variant_id,
+  to_variant_id,
+  relationship
+)
+DO UPDATE SET
+  similarity_score = EXCLUDED.similarity_score,
+  dimensions = EXCLUDED.dimensions,
+  reason = EXCLUDED.reason,
+  conditions_json = EXCLUDED.conditions_json,
+  review_status = 'review',
+  created_by = NULL,
+  reviewed_by = NULL,
+  reviewed_at = NULL,
+  updated_at = now();
+
+CREATE TEMP TABLE static_substitution_seed (
+  source_slug TEXT NOT NULL,
+  source_variant_key TEXT NOT NULL,
+  target_slug TEXT NOT NULL,
+  similarity_score SMALLINT NOT NULL,
+  dimensions TEXT[] NOT NULL,
+  reason TEXT NOT NULL,
+  conditions_json JSONB NOT NULL,
+  PRIMARY KEY (source_slug, source_variant_key, target_slug)
+) ON COMMIT DROP;
+
+INSERT INTO static_substitution_seed VALUES
+  ('quadruped-thread-the-needle','quadruped-thread-and-open','side-lying-open-book',72,ARRAY['support','movement_path','accessibility']::TEXT[],'Side-Lying Open Book can preserve a low-load thoracic-rotation purpose when quadruped wrist, knee, or support-shoulder loading is not appropriate, but it does not reproduce the thread-under path or closed-chain support.','{"useWhen":["quadruped_support_not_appropriate","side_lying_is_comfortable"],"notEquivalentFor":["closed_chain_shoulder_support","thread_under_path"]}'::JSONB),
+  ('single-leg-balance-hold-tripod-foot','supported-eyes-open','tandem-line-balance-hold',68,ARRAY['base_of_support','laterality','accessibility']::TEXT[],'Tandem stance can preserve a narrow-base static balance purpose when single-leg loading or fall demand is not appropriate, but it does not reproduce single-leg tripod loading.','{"useWhen":["single_leg_load_not_tolerated","fall_demand_requires_reduction"],"notEquivalentFor":["single_leg_loading","unilateral_hip_control"]}'::JSONB),
+  ('split-squat-isometric-hold','supported-bodyweight-mid-range','wall-sit',66,ARRAY['stance','laterality','support','accessibility']::TEXT[],'A Wall Sit can preserve a static knee-extensor capacity purpose when split stance balance is not appropriate, but it changes stance, support, hip and knee mechanics, and unilateral bias.','{"useWhen":["split_stance_balance_not_appropriate","bilateral_supported_isometric_is_acceptable"],"notEquivalentFor":["split_stance_control","front_leg_bias"]}'::JSONB);
+
+INSERT INTO coaching.exercise_relationship_v1 (
+  from_variant_id,
+  to_variant_id,
+  relationship,
+  similarity_score,
+  dimensions,
+  reason,
+  conditions_json,
+  review_status,
+  created_by,
+  reviewed_by,
+  reviewed_at
+)
+SELECT
+  source_variant.id,
+  target_variant.id,
+  'lateral_substitution',
+  substitution.similarity_score,
+  substitution.dimensions,
+  substitution.reason,
+  substitution.conditions_json,
+  'review',
+  NULL,
+  NULL,
+  NULL
+FROM static_substitution_seed substitution
+JOIN coaching.exercise_definition_v1 source_definition
+  ON source_definition.facility_id = 1
+ AND source_definition.slug = substitution.source_slug
+JOIN coaching.exercise_variant_v1 source_variant
+  ON source_variant.definition_id = source_definition.id
+ AND source_variant.variant_key = substitution.source_variant_key
+JOIN LATERAL (
+  SELECT variant.id
+  FROM coaching.exercise_definition_v1 definition
+  JOIN coaching.exercise_variant_v1 variant
+    ON variant.definition_id = definition.id
+  WHERE definition.facility_id = 1
+    AND definition.slug = substitution.target_slug
+    AND definition.status <> 'archived'
+    AND variant.status <> 'archived'
+  ORDER BY
+    CASE variant.variant_key WHEN 'baseline' THEN 1 ELSE 2 END,
+    variant.variant_key
+  LIMIT 1
+) target_variant ON TRUE
+ON CONFLICT (
+  from_variant_id,
+  to_variant_id,
+  relationship
+)
+DO UPDATE SET
+  similarity_score = EXCLUDED.similarity_score,
+  dimensions = EXCLUDED.dimensions,
+  reason = EXCLUDED.reason,
+  conditions_json = EXCLUDED.conditions_json,
+  review_status = 'review',
+  created_by = NULL,
+  reviewed_by = NULL,
+  reviewed_at = NULL,
+  updated_at = now();
+
+INSERT INTO coaching.exercise_score_calibration_v1 (
+  facility_id,
+  variant_id,
+  dimension,
+  proposed_score,
+  anchor_tier,
+  rationale,
+  status,
+  version,
+  created_by,
+  reviewed_by,
+  review_notes,
+  reviewed_at
+)
+SELECT
+  1,
+  variant.id,
+  calibration.dimension,
+  calibration.score,
+  CASE
+    WHEN calibration.score < 30 THEN 20
+    WHEN calibration.score < 50 THEN 40
+    WHEN calibration.score < 70 THEN 60
+    ELSE 80
+  END,
+  calibration.rationale,
+  'review',
+  1,
+  NULL,
+  NULL,
+  'Independent calibration review is required; this migration does not approve the proposed exercise score.',
+  NULL
+FROM coaching.exercise_definition_v1 definition
+JOIN coaching.exercise_variant_v1 variant
+  ON variant.definition_id = definition.id
+CROSS JOIN LATERAL (
+  VALUES
+    (
+      'technicalComplexity',
+      (variant.difficulty_json ->> 'technicalComplexity')::SMALLINT,
+      CASE definition.slug
+        WHEN 'quadruped-thread-the-needle' THEN
+          'Proposed from support-arm control, reach-under and reversal sequencing, pelvic constraint, owned range, tempo, and side symmetry.'
+        WHEN 'single-leg-balance-hold-tripod-foot' THEN
+          'Proposed from hand support, visual input, single-leg postural control, touch-down strategy, and supervision requirements.'
+        ELSE
+          'Proposed from split-stance setup, hand support, depth and trunk control, load handling, breathing, and safe exit.'
+      END
+    ),
+    (
+      'absoluteLoadDemand',
+      (variant.difficulty_json ->> 'absoluteLoadDemand')::SMALLINT,
+      CASE definition.slug
+        WHEN 'quadruped-thread-the-needle' THEN
+          'Proposed from bodyweight through one upper limb and both knees, moving-arm range, contact tolerance, and low local fatigue.'
+        WHEN 'single-leg-balance-hold-tripod-foot' THEN
+          'Proposed from single-limb bodyweight, hold duration, local foot calf and hip demand, with no external load or impact.'
+        ELSE
+          'Proposed from bodyweight or goblet load, front-leg bias, stance and depth, hold duration, local lower-body fatigue, and load handling.'
+      END
+    ),
+    (
+      'technicalFatigueSensitivity',
+      (variant.fatigue_profile_json ->>
+        'technicalFatigueSensitivity')::SMALLINT,
+      CASE definition.slug
+        WHEN 'quadruped-thread-the-needle' THEN
+          'Proposed from support collapse, pelvic rotation, forced range, momentum, breath holding, and worsening side control.'
+        WHEN 'single-leg-balance-hold-tripod-foot' THEN
+          'Proposed from toe clawing, knee and pelvis drift, touch-downs, unsafe sway, uncontrolled steps, and sensory constraint.'
+        ELSE
+          'Proposed from depth drift, foot or knee change, torso rotation, breath holding, load drift, and unsafe exit or set-down.'
+      END
+    )
+) calibration(dimension, score, rationale)
+WHERE definition.facility_id = 1
+  AND definition.slug IN (
+    'quadruped-thread-the-needle',
+    'single-leg-balance-hold-tripod-foot',
+    'split-squat-isometric-hold'
+  )
+  AND variant.status <> 'archived'
+ON CONFLICT (
+  facility_id,
+  variant_id,
+  dimension,
+  version
+)
+DO UPDATE SET
+  proposed_score = EXCLUDED.proposed_score,
+  anchor_tier = EXCLUDED.anchor_tier,
+  rationale = EXCLUDED.rationale,
+  status = 'review',
+  created_by = NULL,
+  reviewed_by = NULL,
+  review_notes = EXCLUDED.review_notes,
+  reviewed_at = NULL,
+  updated_at = now();
+
+UPDATE coaching.exercise_card_test_packet_v1 packet
+SET status = 'quarantined',
+    blocking_issues_json = jsonb_build_array(
+      jsonb_build_object(
+        'code', 'media_human_review_required',
+        'message',
+          'Four candidate links have current YouTube oEmbed metadata but require embed-playback, full-video exact-match, cue, safety, caption, and accessibility review.'
+      ),
+      jsonb_build_object(
+        'code', 'evidence_human_review_required',
+        'message',
+          'Candidate section evidence and the limits of applying related research to the exact exercise variants require human review.'
+      ),
+      jsonb_build_object(
+        'code', 'graph_human_review_required',
+        'message',
+          'Progression, regression, and conditional substitution proposals require coach approval.'
+      ),
+      jsonb_build_object(
+        'code', 'calibration_human_review_required',
+        'message',
+          'Complexity, physical-difficulty, and technical-fatigue proposals require independent calibration.'
+      ),
+      jsonb_build_object(
+        'code', 'publication_approval_required',
+        'message',
+          'The completed candidate card remains in review and requires current two-person publication approval.'
+      )
+    ),
+    human_review_required = TRUE,
+    checked_at = now()
+FROM coaching.exercise_definition_v1 definition
+WHERE definition.id = packet.definition_id
+  AND definition.facility_id = 1
+  AND definition.slug IN (
+    'quadruped-thread-the-needle',
+    'single-leg-balance-hold-tripod-foot',
+    'split-squat-isometric-hold'
+  );
+
+COMMIT;
