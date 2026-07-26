@@ -1,0 +1,729 @@
+{
+  "facilityId": 1,
+  "slug": "dead-hang",
+  "researchVersion": "2026-07-26.26",
+  "assessmentSummary": {
+    "identity": "A straight-elbow, bilateral grip suspension from a secure bar or stable rings in which the assigned shoulder-girdle position is passive rather than intentionally held in scapular depression. Grip, overhead position, trunk control, assistance, and safe exit remain active responsibilities. A breathing focus, capacity focus, maximum-time test, and warm-up exposure are delivery profiles, not new exercise identities.",
+    "currentCardFindings": [
+      "The former Dead Hang Breathing Reset card was too narrow: quiet breathing is a contextual delivery profile on Dead Hang.",
+      "The historical Dead Hang / Active Hang source combined passive and active scapular modes and could not remain selectable. Its source-specific variant is archived and identity-quarantined.",
+      "Dead Hang, Active Hang, and Scapular Pull-Up are distinct because passive isometric position, active isometric position, and repeated scapular motion change actions, demands, cues, stop rules, dose, and substitutions.",
+      "The current restore profile was retained but rewritten as a short submaximal nasal-breathing option; it must not imply healing, spinal decompression, injury prevention, or a universal therapeutic effect.",
+      "Bodyweight hanging can create substantial relative grip and shoulder-position demand even though coordination is low. Physical difficulty therefore exceeds exercise complexity.",
+      "No athlete or class skill level belongs on the exercise card. Workout-audience experience may govern assistance, dose, supervision, and difficulty caps outside the card.",
+      "Five media links are candidate discoveries only. No exact-match decision, safety review, caption review, reviewer identity, or approval has been recorded."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "vertical_suspension",
+        "straight_arm_passive_hang",
+        "bilateral_grip_isometric"
+      ],
+      "jointActions": [
+        "finger_and_wrist_flexion_isometric",
+        "elbow_extension_held",
+        "overhead_glenohumeral_position_held",
+        "scapular_elevation_and_upward_rotation_allowed_by_protocol",
+        "trunk_position_control"
+      ],
+      "planes": [
+        "frontal_and_scapular_plane_overhead_position",
+        "multiplanar_isometric_stabilization"
+      ],
+      "laterality": "bilateral_baseline",
+      "intent": "passive_position_hang_exposure_or_grip_capacity_with_submaximal_control"
+    },
+    "proposedAnatomy": {
+      "primaryMusclesAndTissues": [
+        "finger_flexors",
+        "wrist_flexors",
+        "forearm_connective_tissues",
+        "glenohumeral_capsule_and_surrounding_shoulders_tissues_under_traction",
+        "shoulder_stabilizers_at_low_active_demand"
+      ],
+      "secondaryMusclesAndTissues": [
+        "latissimus_dorsi",
+        "rotator_cuff",
+        "trapezius",
+        "serratus_anterior",
+        "abdominal_wall",
+        "spinal_stabilizers"
+      ],
+      "joints": [
+        "interphalangeal_and_metacarpophalangeal_joints",
+        "wrist",
+        "elbow",
+        "glenohumeral_joint",
+        "acromioclavicular_and_sternoclavicular_joints",
+        "scapulothoracic_articulation",
+        "thoracic_and_lumbar_spine"
+      ],
+      "primaryActions": [
+        "maintain_secure_grip",
+        "hold_straight_elbows_without_forced_locking",
+        "tolerate_assigned_passive_overhead_shoulder_position",
+        "limit_swing",
+        "execute_controlled_step_down"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 18,
+      "absoluteLoadDemand": 52,
+      "coordinationDemand": 20,
+      "supervisionDemand": 35,
+      "failureConsequence": 50,
+      "impact": 1,
+      "workCapacityDemand": 55,
+      "baseOverallDifficulty": 52
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "baseline",
+        "exerciseComplexity": 18,
+        "physicalDifficulty": 52,
+        "derivedOverallDifficulty": 52,
+        "basis": "simple static task but full relative bodyweight is borne by the grip and overhead shoulder position"
+      },
+      {
+        "variantKey": "foot-assisted",
+        "exerciseComplexity": 18,
+        "physicalDifficulty": 28,
+        "derivedOverallDifficulty": 28,
+        "basis": "stable foot support preserves the passive hanging pattern while meaningfully unloading the hands and shoulders"
+      },
+      {
+        "variantKey": "band-assisted",
+        "exerciseComplexity": 22,
+        "physicalDifficulty": 34,
+        "derivedOverallDifficulty": 34,
+        "basis": "band assistance reduces relative bodyweight while adding band-entry, exit, and recoil logistics"
+      },
+      {
+        "variantKey": "weighted",
+        "exerciseComplexity": 22,
+        "physicalDifficulty": 74,
+        "derivedOverallDifficulty": 74,
+        "basis": "external load increases grip and traction demand and requires load attachment and safer dismount controls"
+      },
+      {
+        "variantKey": "single-arm",
+        "exerciseComplexity": 30,
+        "physicalDifficulty": 84,
+        "derivedOverallDifficulty": 84,
+        "basis": "one hand bears the suspension load and adds asymmetric trunk, grip, shoulder, and exit demands"
+      }
+    ],
+    "proposedLoadProfile": {
+      "loadingType": "relative_bodyweight_isometric_suspension",
+      "impactClass": "none_except_uncontrolled_drop_or_dismount",
+      "externalLoadMethod": "bodyweight_baseline_with_foot_or_band_assistance_and_weighted_progression_as_declared",
+      "primaryStress": [
+        "grip_isometric",
+        "passive_overhead_position_tolerance",
+        "straight_arm_hang_tolerance",
+        "safe_dismount"
+      ],
+      "fatigueProfile": [
+        "finger_opening_or_grip_slip",
+        "unplanned_elbow_flexion",
+        "body_swing",
+        "shoulder_symptoms",
+        "breath_strain",
+        "unsafe_step_down"
+      ],
+      "recoveryHours": "dose_and_context_dependent; brief submaximal access work may need little recovery, while long, repeated, weighted, or small-edge hangs create meaningful grip and shoulder loading that must be counted with climbing, pull-ups, carries, and bar work"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "rated_secure_pull_up_bar_or_stable_rings"
+      ],
+      "optionalEquipment": [
+        "stable_foot_assistance_box",
+        "assistance_band",
+        "landing_mat",
+        "timer",
+        "chalk_only_if_facility_policy_allows"
+      ],
+      "environment": [
+        "bar_height_allows_safe_mount_and_step_down",
+        "full_body_clearance",
+        "non_slip_surface",
+        "no_cross_traffic",
+        "anchor_and_rack_checked_before_use"
+      ],
+      "population": [
+        "can_grasp_the_assigned_implement_or_has_an_appropriate_substitute",
+        "can_tolerate_the_assigned_passive_overhead_position",
+        "can_keep_elbows_straight_without_forced_locking",
+        "can_exit_without_dropping_or_has_direct_assistance",
+        "current_instability_or_unassessed_shoulder_elbow_wrist_hand_or_neurologic_symptoms_require_individual_clinical_guidance"
+      ]
+    },
+    "proposedDosage": {
+      "restoreProfile": "1-2_sets_of_5-15_seconds_with_foot_assistance_as_needed_and_30-60_seconds_between_exposures",
+      "capacityProfile": "2-4_sets_of_10-30_submaximal_seconds_with_60-120_seconds_rest_when_grip_capacity_is_the_goal",
+      "maximumTest": "separate_test_profile_only_after_familiarization_safe_exit_and_explicit_test_rationale; never inferred from an ordinary hold",
+      "tempo": "quiet_mount_still_hold_and_controlled_step_down",
+      "intensity": "stop_with_clear_grip_and_position_reserve; no routine failure",
+      "measurement": "implement_grip_assistance_hold_seconds_sets_rest_symptoms_grip_quality_swing_and_exit_quality",
+      "progressWhen": "all assigned holds remain symptom-free still and repeatable with secure grip and controlled exit; reduce assistance or add time before adding external load"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Check the anchor and the step-down before the athlete leaves the floor",
+        "Name the mode: passive dead hang, not active hang",
+        "Use a full secure grip and straight elbows",
+        "Let the shoulders take the assigned passive position without forcing end range",
+        "Keep the body quiet",
+        "Step down while the grip is still secure"
+      ],
+      "athleteInstructions": [
+        "Grip the bar securely with both hands",
+        "Use the box or assistance exactly as assigned",
+        "Keep your arms straight",
+        "Let your shoulders settle into the comfortable passive position",
+        "Stay still and breathe",
+        "Step down before your hands slip or anything hurts, pinches, tingles, or feels unstable"
+      ],
+      "commonFaults": [
+        "performing_an_active_hang_when_passive_mode_was_assigned",
+        "forcing_a_deeper_overhead_position",
+        "bending_elbows",
+        "swinging_or_kicking",
+        "holding_to_grip_failure",
+        "jumping_down_from_excessive_height"
+      ]
+    },
+    "qualityAndStopRules": {
+      "qualityGate": [
+        "anchor_and_clearance_confirmed",
+        "secure_grip",
+        "straight_elbows",
+        "assigned_passive_shoulder_position_tolerated",
+        "minimal_swing",
+        "calm_breathing",
+        "controlled_step_down"
+      ],
+      "stopRules": [
+        "pain_pinching_or_instability",
+        "numbness_or_tingling",
+        "dizziness_or_breath_distress",
+        "grip_opening_or_slipping",
+        "unplanned_elbow_flexion",
+        "uncontrolled_swing",
+        "unsafe_dismount"
+      ],
+      "claimsNotAllowed": [
+        "guaranteed_spinal_decompression",
+        "heals_the_shoulder",
+        "prevents_injury",
+        "universally_therapeutic",
+        "safe_to_failure_for_every_population"
+      ]
+    },
+    "programmingDecision": {
+      "bestFit": [
+        "brief_overhead_position_exposure",
+        "submaximal_grip_capacity",
+        "restore_context_with_foot_assistance_and_calm_breathing",
+        "assessment_only_when_a_formal_protocol_is_defined"
+      ],
+      "avoidWhen": [
+        "grip_fatigue_would_compromise_later_climbing_ninja_bar_or_heavy_pulling",
+        "passive_overhead_position_is_symptomatic_or_unassessed",
+        "safe_mount_and_dismount_are_not_available",
+        "the_session_goal_requires_active_scapular_strength_or_dynamic_scapular_control_instead"
+      ],
+      "fatigueBudget": "count hold time and assistance-adjusted exposure toward grip, forearm, shoulder, and vertical-pull budgets",
+      "logistics": "one athlete per safe hanging station unless the equipment is explicitly rated and spaced for more; include mount, assistance setup, hold, dismount, and station turnover in duration",
+      "substitutionRule": "substitute an assisted dead hang or a supported overhead-position task for the same passive-position intent; do not substitute Active Hang or Scapular Pull-Up without changing the planned action and difficulty"
+    },
+    "relationshipCandidates": {
+      "regressions": [
+        "foot_assisted_dead_hang",
+        "lower_bar_supported_dead_hang",
+        "shorter_submaximal_dead_hang"
+      ],
+      "progressions": [
+        "longer_submaximal_dead_hang",
+        "weighted_dead_hang",
+        "single_arm_dead_hang_only_after_specific_readiness_review"
+      ],
+      "distinctExercises": [
+        "active_hang",
+        "scapular_pull_up",
+        "flexed_arm_hang",
+        "pull_up",
+        "hangboard_edge_hang"
+      ],
+      "relationshipReviewState": "candidate_only_no_edge_is_approved"
+    },
+    "athleteSupport": {
+      "display": [
+        "passive_mode_badge",
+        "implement_and_grip",
+        "assistance_method",
+        "hold_seconds_and_sets",
+        "step_down_route",
+        "successful_hold_example",
+        "pain_tingling_grip_slip_and_dismount_stop_badges"
+      ],
+      "plainLanguagePrompt": "Hang with straight arms and relaxed shoulders, stay still, and step down before your hands slip.",
+      "feedbackPrompt": "Could you keep a secure grip and comfortable shoulders, then step down in control?"
+    },
+    "coachSupport": {
+      "observation": [
+        "confirm_passive_mode_before_start",
+        "inspect_anchor_bar_height_clearance_and_step_down",
+        "view_hands_elbows_shoulders_trunk_and_swing",
+        "watch_for_guarding_asymmetry_and_neurologic_symptoms",
+        "stop_before_grip_or_exit_quality_declines"
+      ],
+      "operations": [
+        "pre_stage_boxes_and_bands_without_recoil_or_trip_hazards",
+        "record_true_station_capacity_and_turnover_time",
+        "avoid_pre_fatiguing_grip_before_high_consequence_bar_work",
+        "offer_non_hanging_substitute_when_grip_or_overhead_access_is_the_constraint"
+      ],
+      "reviewFlags": [
+        "all_section_claims_scores_and_relationships_are_candidate_only",
+        "historical_compound_source_201_remains_identity_quarantined",
+        "all_media_exact_match_full_content_caption_and_quality_reviews_pending",
+        "no_clinical_or_decompression_claim_is_approved"
+      ]
+    },
+    "provenanceAndConfidence": {
+      "identityConfidence": 92,
+      "contentConfidence": 78,
+      "difficultyConfidence": 72,
+      "mediaConfidence": 40,
+      "calibrationStatus": "candidate_unanchored",
+      "limitations": [
+        "Pull-up kinematics research is adjacent evidence and does not directly measure a passive dead hang.",
+        "Hangboard trials involve trained climbers and small edges, so their loads and dosing cannot be transferred directly to a general bar hang.",
+        "No source establishes a universal therapeutic, decompression, injury-prevention, or recovery effect.",
+        "Individual shoulder response to passive overhead hanging varies and is not inferred from age or training experience.",
+        "No candidate media has completed exact-match, full-content, cue-quality, accessibility, or human approval review."
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T20:00:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Hang from a secure bar or stable rings with straight elbows while allowing the shoulders to remain in the assigned passive position. Maintain a secure grip and controlled body, then step down before grip, symptoms, or dismount quality changes.",
+      "familyKey": "Straight-arm hanging and scapular control",
+      "movementPatterns": [
+        "vertical_suspension",
+        "straight_arm_passive_hang",
+        "grip_isometric"
+      ],
+      "bodyRegions": [
+        "hands_and_forearms",
+        "shoulder_girdle",
+        "upper_back",
+        "trunk"
+      ],
+      "requiredEquipment": [
+        "pull_up_bar_or_stable_rings"
+      ],
+      "optionalEquipment": [
+        "stable_foot_assistance_box",
+        "assistance_band",
+        "landing_mat"
+      ],
+      "environment": {
+        "anchor": "rated_stable_and_height_appropriate",
+        "surface": "non_slip_with_no_cross_traffic",
+        "clearance": "full_body_and_safe_step_down",
+        "supervision": "direct_when_dismount_or_symptom_monitoring_is_uncertain"
+      },
+      "population": {
+        "readiness": [
+          "can_grasp_the_assigned_implement",
+          "can_tolerate_the_assigned_overhead_passive_position",
+          "can_keep_elbows_straight_without_forced_locking",
+          "can_step_down_or_receive_assistance_safely"
+        ],
+        "contraindicationFlags": [
+          "current_shoulder_instability_or_unassessed_overhead_pain",
+          "elbow_wrist_or_hand_pain",
+          "numbness_or_tingling",
+          "uncontrolled_grip_loss",
+          "unsafe_dismount"
+        ]
+      },
+      "difficulty": {
+        "absoluteLoadDemand": 52,
+        "coordinationDemand": 20,
+        "technicalComplexity": 18,
+        "baseOverallDifficulty": 52
+      },
+      "loadProfile": {
+        "impactClass": "none",
+        "loadingType": "relative_bodyweight_isometric_suspension",
+        "primaryStress": [
+          "grip",
+          "passive_overhead_shoulder_position_tolerance",
+          "straight_arm_hang_tolerance"
+        ]
+      },
+      "fatigueProfile": {
+        "qualityLoss": [
+          "grip_slips",
+          "elbows_bend",
+          "body_swings",
+          "symptoms_appear",
+          "dismount_becomes_uncontrolled"
+        ],
+        "localFatigue": [
+          "finger_and_forearm_fatigue"
+        ],
+        "recoveryDriver": "grip_and_shoulder_response_plus_total_pulling_volume"
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection requires qualified instruction, appropriate progression, safe equipment and space, and individual physical and psychosocial readiness.",
+        "Before Dead Hang, verify the bar, rings, rack, anchor, clearance, assistance, landing surface, and step-down. Stop for pain or pinching; instability; numbness or tingling; dizziness; a slipping grip; uncontrolled swinging; elbow-position loss; repeated shoulder-position loss; breath distress; or an unsafe dismount."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Training should be individualized and progressed from current readiness and movement competence rather than from a level assigned to an exercise.",
+        "Scale Dead Hang with a lower bar, stable foot contact, a box, an appropriate assistance band, shorter submaximal efforts, longer rest, plain-language cues, a visible stop signal, and direct supervision. Record exercise complexity and physical difficulty; do not label the exercise card beginner, intermediate, advanced, or elite."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied videos are discovery candidates only. Public title and channel metadata were observed, but availability, embed response, exact exercise and variant match, full sequence, cue quality, safety, captions, accessibility, reviewer identity, and approval remain pending until the separate verification step and human review."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.crossfit.com/essentials/crossfit-bar-hanging",
+      "sourceTitle": "Is Hanging from a Bar Worth Your Time? A CrossFit Reality Check",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 70,
+      "claims": [
+        "The professional instruction distinguishes a passive hang, in which the shoulders relax upward, from an active-shoulder hang, in which the shoulders are drawn away from the ears.",
+        "Use passive scapular mode as the Dead Hang identity. Treat breathing, warm-up use, grip emphasis, and hold duration as delivery choices rather than separate cards."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.crossfit.com/essentials/crossfit-bar-hanging",
+      "sourceTitle": "Is Hanging from a Bar Worth Your Time? A CrossFit Reality Check",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 70,
+      "claims": [
+        "Hanging position must state shoulder mode because passive and active approaches are not interchangeable.",
+        "Classify Dead Hang by passive scapular mode, straight elbows, grip and implement, assistance, hold intent, external load, and safe exit. Exercise complexity and physical difficulty replace any audience-level label."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.acefitness.org/blog/3516/muscles-that-move-the-scapulae/",
+      "sourceTitle": "Muscles that Move the Scapulae",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "The anatomy reference distinguishes scapular elevation, depression, retraction, protraction, and rotation and identifies muscles contributing to those actions.",
+        "A passive hang permits scapular elevation rather than requiring active depression. Grip tissues and the whole shoulder complex remain relevant; do not describe the position as muscle-free or structurally uniform across athletes."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4916995/",
+      "sourceTitle": "Scapula kinematics of pull-up techniques: Avoiding impingement risk with training changes",
+      "sourcePublisher": "Journal of Science and Medicine in Sport",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Pull-up technique changes scapulothoracic, glenohumeral, and humerothoracic kinematics, and the study reports meaningful inter-technique differences in elevated-arm positions.",
+        "This adjacent pull-up study supports explicit grip and shoulder-mode specification, but it did not test passive dead hangs and cannot establish an ideal universal scapular position or injury effect for Dead Hang."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6458579/",
+      "sourceTitle": "Comparison of the Effects of Three Hangboard Strength and Endurance Training Programs on Grip Endurance in Sport Climbers",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Dead-hang loading is commonly manipulated through hold size, added weight, hanging duration, repetition pattern, and recovery, and it can create substantial finger-flexor endurance demands.",
+        "A general bar Dead Hang has low exercise complexity but moderate-to-high relative physical difficulty for many athletes. Derive overall difficulty as the maximum of complexity and physical demand; keep grip fatigue, supervision, failure consequence, and shoulder tolerance separate."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6458579/",
+      "sourceTitle": "Comparison of the Effects of Three Hangboard Strength and Endurance Training Programs on Grip Endurance in Sport Climbers",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "In trained climbers, repeated and maximal dead-hang protocols changed grip-endurance outcomes, showing that hang time, rest, edge, and loading materially alter the training dose.",
+        "For Dead Hang, record implement and grip, assistance or added load, seconds per hold, total time, rest, grip loss, shoulder response, and overlap with climbing, pull-ups, carries, and bar work. Do not import small-edge climber protocols as universal bar-hang prescriptions."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Safe resistance training requires appropriate equipment, qualified supervision, technique instruction, and progression matched to readiness.",
+        "Require a rated anchor, safe bar height, full clearance, secure grip, tolerable passive overhead position, and controlled dismount. Foot assistance is a first-line load adjustment, not a failure."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6458579/",
+      "sourceTitle": "Comparison of the Effects of Three Hangboard Strength and Endurance Training Programs on Grip Endurance in Sport Climbers",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "The climber study used distinct maximal and intermittent protocols and generous recovery, illustrating that a hang dose is incomplete without load, time, repetitions, and rest.",
+        "Use short submaximal general-population candidate doses and progress from assistance to time before added load. The proposed ranges are conservative programming judgments, not direct prescriptions from the trained-climber study."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.crossfit.com/essentials/crossfit-bar-hanging",
+      "sourceTitle": "Is Hanging from a Bar Worth Your Time? A CrossFit Reality Check",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 70,
+      "claims": [
+        "The professional source says hanging technique should change with the purpose and explicitly differentiates passive from active shoulders.",
+        "Instructions for Dead Hang must say passive mode, secure grip, straight elbows, assistance, still body, hold endpoint, and step-down. Do not cue active shoulder depression on a passive-hang card."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.crossfit.com/essentials/crossfit-bar-hanging",
+      "sourceTitle": "Is Hanging from a Bar Worth Your Time? A CrossFit Reality Check",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 70,
+      "claims": [
+        "The professional source presents hanging as a possible warm-up, grip, or position exposure and cautions that dedicated hanging may add little when similar pulling volume is already high.",
+        "Select Dead Hang only for a declared passive-position or grip purpose, count it toward cumulative grip and shoulder load, and avoid fatigue before high-consequence bar, climbing, or ninja work."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Long-term development should account for individual readiness, movement competence, psychosocial needs, and progressive exposure.",
+        "Athlete support should show passive mode, assistance, hold time, safe step-down, an acceptable repetition, and pain, tingling, slipping-grip, or dizziness stop signals in plain language."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Qualified instruction, close supervision, safe equipment, and gradual progression are core requirements.",
+        "Coach support should include anchor and clearance checks, true station capacity, assistance setup, grip and shoulder observation, total hang-time logging, fatigue-order warnings, and hard quarantine of the historical passive-or-active source."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.crossfit.com/essentials/crossfit-bar-hanging",
+      "sourceTitle": "Is Hanging from a Bar Worth Your Time? A CrossFit Reality Check",
+      "sourcePublisher": "CrossFit",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 70,
+      "claims": [
+        "Passive and active hanging positions serve different stated purposes, while grip demands may remain meaningful in either.",
+        "Foot and band assistance, grip, implement, duration, and added load can be controlled variants or delivery annotations. Active Hang, Scapular Pull-Up, flexed-arm hang, pull-up, and small-edge hangboard work remain separate definitions."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=0Bx_Ap7-EwU",
+      "title": "Dead Hang",
+      "channelName": "OPEX Fitness",
+      "sourceQuery": "Public YouTube search: dead hang exercise demo CrossFit",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by exact public title only. Passive shoulder mode, grip, setup, safe exit, full sequence, cue quality, and accessibility require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=2vspW4N4BMs",
+      "title": "Dead Hang | Proper Form Tutorial for Grip & Shoulder Health",
+      "channelName": "FIT.nl",
+      "sourceQuery": "Public YouTube search: dead hang exercise technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public title/channel only. The title's health framing is not adopted as a Vortex claim; exact passive mode and full content require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=0HBhuaD_S7M",
+      "title": "Beginner Dead Hang Tutorial",
+      "channelName": "Maximus Pump",
+      "sourceQuery": "Public YouTube search: dead hang exercise technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. The external title is retained as provenance and does not assign a level to the exercise card; exact mode, safety, and full content require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=AH8YrGT9s1s",
+      "title": "How to: Dead Hangs",
+      "channelName": "Body Smart Training",
+      "sourceQuery": "Public YouTube search: dead hang exercise demo CrossFit",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public title/channel only; passive scapular mode, setup, grip, dose, claims, captions, and demonstration quality require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=EmQVeAF_CJ0",
+      "title": "Dead Hang",
+      "channelName": "Morris Brossette",
+      "sourceQuery": "Public YouTube search: dead hang exercise demo CrossFit",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by exact public title only; full sequence, passive shoulder position, safe mount and dismount, cue quality, and accessibility require human review."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Foot-Assisted Dead Hang",
+      "classification": "new_variant",
+      "rationale": "Stable foot contact unloads the grip and shoulders while preserving passive scapular mode, straight elbows, and the suspension task.",
+      "distinguishingDimensions": {
+        "assistance": "stable_foot_contact",
+        "scapularMode": "passive"
+      }
+    },
+    {
+      "name": "Band-Assisted Dead Hang",
+      "classification": "new_variant",
+      "rationale": "Band assistance reduces relative load but adds entry, recoil, and exit logistics that must be explicit.",
+      "distinguishingDimensions": {
+        "assistance": "band",
+        "bandEntryAndExit": "declared"
+      }
+    },
+    {
+      "name": "Ring Dead Hang",
+      "classification": "new_variant",
+      "rationale": "Freely rotating rings preserve passive hanging but change grip orientation and equipment stability.",
+      "distinguishingDimensions": {
+        "implement": "stable_rings",
+        "gripOrientation": "self_selected_or_declared"
+      }
+    },
+    {
+      "name": "Weighted Dead Hang",
+      "classification": "new_variant",
+      "rationale": "Added load materially increases grip and shoulder-position demand and changes attachment, dose, recovery, and dismount requirements.",
+      "distinguishingDimensions": {
+        "externalLoad": "added_weight",
+        "loadAttachment": "declared"
+      }
+    },
+    {
+      "name": "Single-Arm Dead Hang",
+      "classification": "new_variant",
+      "rationale": "One-arm suspension retains passive mode but changes laterality, load per limb, trunk control, and failure consequence enough to require a scored variant.",
+      "distinguishingDimensions": {
+        "laterality": "unilateral",
+        "assistance": "declared"
+      }
+    },
+    {
+      "name": "Maximum-Time Dead Hang Test",
+      "classification": "modifier_annotation",
+      "rationale": "Testing to a standardized endpoint changes intent, termination rules, recovery, and reporting but not the passive hanging movement identity.",
+      "distinguishingDimensions": {
+        "deliveryProfile": "maximum_duration_test",
+        "routineTrainingDefault": false
+      }
+    },
+    {
+      "name": "Dead Hang with Nasal Breathing",
+      "classification": "modifier_annotation",
+      "rationale": "Breathing focus and short restore dose are contextual delivery annotations on Dead Hang.",
+      "distinguishingDimensions": {
+        "deliveryProfile": "restore_nasal_breathing"
+      }
+    },
+    {
+      "name": "Active Hang",
+      "classification": "new_definition",
+      "rationale": "Intentionally holding the shoulders away from the ears adds an active scapular isometric and changes anatomy, difficulty, cues, fatigue, and purpose.",
+      "distinguishingDimensions": {
+        "scapularMode": "active_isometric"
+      }
+    },
+    {
+      "name": "Scapular Pull-Up",
+      "classification": "new_definition",
+      "rationale": "Repeated scapular depression and controlled return create a dynamic straight-arm task rather than a passive hold.",
+      "distinguishingDimensions": {
+        "scapularMode": "dynamic_repetition"
+      }
+    },
+    {
+      "name": "Flexed-Arm Hang",
+      "classification": "new_definition",
+      "rationale": "Elbow flexion and top-position pulling isometric substantially change joint actions, physical demand, fatigue, and failure mode.",
+      "distinguishingDimensions": {
+        "elbowAction": "flexion_isometric",
+        "bodyPosition": "top_pull_position"
+      }
+    },
+    {
+      "name": "Hangboard Edge Hang",
+      "classification": "new_definition",
+      "rationale": "Small-edge finger loading, grip type, edge depth, and climbing-specific dose create a distinct high-finger-load task.",
+      "distinguishingDimensions": {
+        "implement": "hangboard_edge",
+        "edgeDepthAndGripType": "required"
+      }
+    }
+  ]
+}

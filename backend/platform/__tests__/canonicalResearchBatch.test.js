@@ -180,3 +180,80 @@ test('adductor rock-back family packet preserves unresolved variants and human m
       && !Object.hasOwn(candidate, 'reviewedAt')
   )))
 })
+
+test('hang family batch keeps passive, active, and dynamic scapular identities distinct', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches/hang-scapular-control-family.v1.json'),
+    'utf8',
+  ))
+  const expectedDifficulty = new Map([
+    ['dead-hang', [18, 52, 52]],
+    ['active-hang', [28, 58, 58]],
+    ['scapular-pull-up', [38, 62, 62]],
+  ])
+
+  assert.equal(batch.cards.length, 3)
+  for (const cardSpec of batch.cards) {
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: cardSpec.slug === 'dead-hang'
+          ? 'Dead Hang'
+          : cardSpec.slug === 'active-hang'
+            ? 'Active Hang'
+            : 'Scapular Pull-Up',
+        familyKey: 'Straight-arm hanging and scapular control',
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: 1,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, 5)
+    assert.equal(result.packet.alternateAssessments.length, 11)
+    const [technical, physical, overall] = expectedDifficulty.get(cardSpec.slug)
+    assert.equal(result.packet.assessmentSummary.proposedDifficulty.technicalComplexity, technical)
+    assert.equal(result.packet.assessmentSummary.proposedDifficulty.absoluteLoadDemand, physical)
+    assert.equal(result.packet.assessmentSummary.proposedDifficulty.baseOverallDifficulty, overall)
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'unverified'
+        && candidate.embeddingAllowed === false
+        && candidate.externalVerification === null
+    )))
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+  }
+
+  const dead = batch.cards.find((card) => card.slug === 'dead-hang')
+  const active = batch.cards.find((card) => card.slug === 'active-hang')
+  const scapular = batch.cards.find((card) => card.slug === 'scapular-pull-up')
+  assert.match(dead.assessmentSummary.identity, /passive/i)
+  assert.match(active.assessmentSummary.identity, /isometric/i)
+  assert.match(scapular.assessmentSummary.identity, /dynamic/i)
+  assert.ok(dead.alternateAssessments.some((alternate) => (
+    alternate.name === 'Active Hang' && alternate.classification === 'new_definition'
+  )))
+  assert.ok(active.alternateAssessments.some((alternate) => (
+    alternate.name === 'Dead Hang' && alternate.classification === 'new_definition'
+  )))
+  assert.ok(scapular.alternateAssessments.some((alternate) => (
+    alternate.name === 'Active Hang' && alternate.classification === 'new_definition'
+  )))
+})

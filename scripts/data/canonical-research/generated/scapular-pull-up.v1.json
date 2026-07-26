@@ -1,0 +1,738 @@
+{
+  "facilityId": 1,
+  "slug": "scapular-pull-up",
+  "researchVersion": "2026-07-26.26",
+  "assessmentSummary": {
+    "identity": "A dynamic straight-elbow hanging exercise in which the athlete moves through a small, controlled scapular range: from the assigned elevated or passive start, the shoulders move down to raise the body slightly, then return under control without elbow flexion or swing. The repeated scapular action distinguishes it from both Dead Hang and Active Hang.",
+    "currentCardFindings": [
+      "The existing source correctly defines a small body lift created through scapular motion with straight elbows and a controlled return.",
+      "The card is not a partial pull-up and should stop when elbow flexion appears.",
+      "The bottom position must be assigned and tolerated rather than described as a universally safe forced passive end range.",
+      "The top is a controlled scapular-depression position, not maximal aggressive retraction or a chest-to-bar attempt.",
+      "Physical difficulty exceeds exercise complexity because each repetition moves relative bodyweight through the shoulder girdle while grip remains isometric.",
+      "Exercise complexity and physical difficulty are the only core difficulty axes. Coordination, supervision, failure consequence, grip fatigue, and audience readiness remain separate.",
+      "Five media links are candidate discoveries only. No exact-match decision, safety review, caption review, reviewer identity, or approval has been recorded."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "vertical_suspension",
+        "straight_arm_scapular_pull",
+        "bilateral_grip_isometric"
+      ],
+      "jointActions": [
+        "finger_and_wrist_flexion_isometric",
+        "elbow_extension_held",
+        "scapular_depression_concentric",
+        "scapular_elevation_or_return_eccentric",
+        "overhead_glenohumeral_position_control",
+        "trunk_position_control"
+      ],
+      "planes": [
+        "frontal_and_scapular_plane_overhead_position",
+        "multiplanar_scapular_motion_and_stabilization"
+      ],
+      "laterality": "bilateral_baseline",
+      "intent": "dynamic_straight_arm_scapular_strength_and_control"
+    },
+    "proposedAnatomy": {
+      "primaryMusclesAndTissues": [
+        "finger_and_wrist_flexors",
+        "latissimus_dorsi",
+        "lower_trapezius",
+        "pectoralis_minor",
+        "scapular_stabilizers"
+      ],
+      "secondaryMusclesAndTissues": [
+        "rotator_cuff",
+        "serratus_anterior",
+        "rhomboids",
+        "triceps_for_straight_elbow_position",
+        "abdominal_wall",
+        "spinal_stabilizers"
+      ],
+      "joints": [
+        "hand_and_wrist",
+        "elbow",
+        "glenohumeral_joint",
+        "acromioclavicular_and_sternoclavicular_joints",
+        "scapulothoracic_articulation",
+        "thoracic_and_lumbar_spine"
+      ],
+      "primaryActions": [
+        "maintain_secure_grip",
+        "hold_straight_elbows",
+        "move_from_assigned_start_to_scapular_depression",
+        "return_the_scapulae_under_control",
+        "limit_swing_and_trunk_compensation",
+        "execute_controlled_step_down"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 38,
+      "absoluteLoadDemand": 62,
+      "coordinationDemand": 42,
+      "supervisionDemand": 40,
+      "failureConsequence": 55,
+      "impact": 1,
+      "workCapacityDemand": 60,
+      "baseOverallDifficulty": 62
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "baseline",
+        "exerciseComplexity": 38,
+        "physicalDifficulty": 62,
+        "derivedOverallDifficulty": 62,
+        "basis": "requires isolating repeated scapular motion under full relative grip load while preventing elbow flexion and swing"
+      },
+      {
+        "variantKey": "foot-assisted",
+        "exerciseComplexity": 38,
+        "physicalDifficulty": 36,
+        "derivedOverallDifficulty": 38,
+        "basis": "stable foot assistance reduces relative bodyweight but retains the same scapular timing and elbow-control solution"
+      },
+      {
+        "variantKey": "band-assisted",
+        "exerciseComplexity": 42,
+        "physicalDifficulty": 42,
+        "derivedOverallDifficulty": 42,
+        "basis": "band assistance unloads the pull but adds setup, recoil, and changing assistance through the small range"
+      },
+      {
+        "variantKey": "ring",
+        "exerciseComplexity": 38,
+        "physicalDifficulty": 68,
+        "derivedOverallDifficulty": 68,
+        "basis": "rings add stability and grip-orientation demand while preserving the same dynamic scapular action"
+      },
+      {
+        "variantKey": "single-arm",
+        "exerciseComplexity": 50,
+        "physicalDifficulty": 92,
+        "derivedOverallDifficulty": 92,
+        "basis": "unilateral suspension and dynamic scapular motion sharply increase limb load, asymmetric trunk control, and failure consequence"
+      }
+    ],
+    "proposedLoadProfile": {
+      "loadingType": "relative_bodyweight_dynamic_scapular_pull",
+      "impactClass": "none_except_uncontrolled_drop_or_dismount",
+      "externalLoadMethod": "bodyweight_baseline_with_foot_or_band_assistance_and_weighted_or_unilateral_progressions_only_when_declared",
+      "primaryStress": [
+        "grip_isometric",
+        "scapular_depression_strength",
+        "controlled_scapular_return",
+        "overhead_shoulder_control",
+        "straight_arm_position",
+        "trunk_control"
+      ],
+      "fatigueProfile": [
+        "elbow_bend",
+        "range_shrinks",
+        "return_drops_or_bounces",
+        "body_swing_or_rib_flare",
+        "finger_opening_or_grip_slip",
+        "breath_holding",
+        "unsafe_step_down"
+      ],
+      "recoveryHours": "dose_and_context_dependent; count repetitions and assistance-adjusted exposure with pull-ups, climbing, rope work, rings, carries, and other grip or scapular-depression loading"
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "rated_secure_pull_up_bar_or_stable_rings"
+      ],
+      "optionalEquipment": [
+        "stable_foot_assistance_box",
+        "assistance_band",
+        "landing_mat",
+        "video_feedback",
+        "repetition_counter"
+      ],
+      "environment": [
+        "bar_height_allows_safe_mount_and_step_down",
+        "full_body_clearance",
+        "non_slip_surface",
+        "no_cross_traffic",
+        "anchor_and_rack_checked_before_use"
+      ],
+      "population": [
+        "can_grasp_the_assigned_implement_or_has_an_appropriate_substitute",
+        "can_tolerate_the_assigned_overhead_start_and_end_positions",
+        "can_keep_elbows_straight_while_moving_the_scapulae",
+        "can_limit_swing_and_control_the_return",
+        "can_exit_without_dropping_or_has_direct_assistance"
+      ]
+    },
+    "proposedDosage": {
+      "positionPractice": "2-4_sets_of_3-6_slow_repetitions_with_60-90_seconds_rest_and_foot_assistance_as_needed",
+      "strengthControl": "2-4_sets_of_5-8_repetitions_with_60-120_seconds_rest_while_range_and_return_remain_repeatable",
+      "tempo": "one_to_two_seconds_downward_scapular_action_brief_control_then_one_to_two_seconds_return_without_drop",
+      "intensity": "submaximal_repetitions_stopping_with_1-3_clean_repetitions_in_reserve",
+      "measurement": "implement_grip_assistance_repetitions_sets_rest_range_top_pause_return_control_elbow_bend_swing_symptoms_and_exit_quality",
+      "progressWhen": "the same small range and controlled return repeat without elbow flexion pain swing or grip loss; add repetitions or reduce assistance before adding load"
+    },
+    "proposedInstructions": {
+      "coachCues": [
+        "Check the anchor and step-down first",
+        "Start from the assigned comfortable bottom",
+        "Keep the elbows straight",
+        "Move the shoulders down to lift the body a little",
+        "Return through the shoulder blades without dropping",
+        "Stop when the arms bend or the body swings"
+      ],
+      "athleteInstructions": [
+        "Grip the bar securely and keep your arms straight",
+        "Start from the shoulder position your coach assigned",
+        "Pull your shoulders a little away from your ears so your body rises slightly",
+        "Lower back slowly through your shoulders",
+        "Do not bend your elbows or kick",
+        "Step down before your grip or control changes"
+      ],
+      "commonFaults": [
+        "bending_elbows_into_a_partial_pull_up",
+        "forcing_an_extreme_bottom_position",
+        "aggressive_maximal_retraction",
+        "using_kip_or_leg_swing",
+        "dropping_into_the_return",
+        "chasing_range_after_quality_stops",
+        "holding_to_grip_failure"
+      ]
+    },
+    "qualityAndStopRules": {
+      "qualityGate": [
+        "secure_grip",
+        "straight_elbows",
+        "visible_small_scapular_motion",
+        "repeatable_top_and_bottom_positions",
+        "controlled_return",
+        "stable_trunk_and_minimal_swing",
+        "controlled_step_down"
+      ],
+      "stopRules": [
+        "pain_pinching_or_instability",
+        "numbness_or_tingling",
+        "dizziness_or_breath_distress",
+        "grip_opening_or_slipping",
+        "elbow_flexion",
+        "range_or_return_control_deteriorates",
+        "uncontrolled_swing_or_exit"
+      ],
+      "claimsNotAllowed": [
+        "guaranteed_shoulder_stability",
+        "injury_prevention",
+        "required_prerequisite_for_every_pull_up",
+        "maximum_retraction_is_universally_ideal",
+        "safe_to_failure_for_every_population"
+      ]
+    },
+    "programmingDecision": {
+      "bestFit": [
+        "dynamic_scapular_control_practice",
+        "pulling_preparation_when_grip_fatigue_is_controlled",
+        "straight_arm_scapular_strength_accessory",
+        "readiness_observation_before_full_pull_up_or_bar_sequences"
+      ],
+      "avoidWhen": [
+        "grip_or_scapular_fatigue_would_compromise_later_high_consequence_bar_work",
+        "either_assigned_shoulder_position_is_symptomatic",
+        "the_athlete_cannot_prevent_elbow_flexion_or_swing_even_with_assistance",
+        "safe_mount_and_dismount_are_not_available",
+        "the_goal_is_a_passive_or_active_isometric_hold"
+      ],
+      "fatigueBudget": "count repetitions and assistance-adjusted exposure toward grip, forearm, scapular-depressor, shoulder, and vertical-pull budgets",
+      "logistics": "include bar allocation, assistance setup, demonstration of the small range, set time, dismount, coaching correction, and turnover in duration",
+      "substitutionRule": "use foot-assisted Scapular Pull-Up or supported straight-arm scapular depression and return for the same dynamic intent; Dead Hang and Active Hang change the task to isometric"
+    },
+    "relationshipCandidates": {
+      "regressions": [
+        "foot_assisted_scapular_pull_up",
+        "band_assisted_scapular_pull_up",
+        "supported_straight_arm_scapular_pulldown"
+      ],
+      "progressions": [
+        "more_repeatable_repetitions",
+        "top_pause_scapular_pull_up",
+        "ring_scapular_pull_up",
+        "weighted_scapular_pull_up",
+        "single_arm_scapular_pull_up_only_after_specific_readiness_review"
+      ],
+      "distinctExercises": [
+        "dead_hang",
+        "active_hang",
+        "pull_up",
+        "flexed_arm_hang",
+        "scapular_inverted_row"
+      ],
+      "relationshipReviewState": "candidate_only_no_edge_is_approved"
+    },
+    "athleteSupport": {
+      "display": [
+        "dynamic_mode_badge",
+        "start_top_and_return_frames",
+        "straight_elbow_overlay",
+        "implement_and_assistance",
+        "repetitions_sets_and_tempo",
+        "step_down_route",
+        "pain_tingling_elbow_bend_swing_grip_slip_and_dismount_stop_badges"
+      ],
+      "plainLanguagePrompt": "Keep your arms straight, move only through your shoulders, rise a little, and lower slowly.",
+      "feedbackPrompt": "Could you see or feel a small shoulder-blade movement without bending your elbows or swinging?"
+    },
+    "coachSupport": {
+      "observation": [
+        "confirm_dynamic_scapular_repetition_mode_before_start",
+        "inspect_anchor_bar_height_clearance_assistance_and_step_down",
+        "view_hands_elbows_scapular_motion_ribs_trunk_and_swing",
+        "compare_first_and_last_repetition_range_and_return_speed",
+        "stop_before_elbow_flexion_grip_failure_or_uncontrolled_return"
+      ],
+      "operations": [
+        "pre_stage_boxes_and_bands_safely",
+        "use_a_clear_demonstration_of_the_small_range",
+        "record_station_capacity_and_turnover_time",
+        "place_before_high_fatigue_pulling_when_used_for_motor_control",
+        "offer_supported_dynamic_scapular_substitute_when_hanging_access_is_the_constraint"
+      ],
+      "reviewFlags": [
+        "all_section_claims_scores_and_relationships_are_candidate_only",
+        "bottom_and_top_positions_require_individual_tolerance_and_human_review",
+        "all_media_exact_match_full_content_caption_and_quality_reviews_pending",
+        "no_skill_library_level_is_assigned_to_this_exercise"
+      ]
+    },
+    "provenanceAndConfidence": {
+      "identityConfidence": 93,
+      "contentConfidence": 80,
+      "difficultyConfidence": 74,
+      "mediaConfidence": 44,
+      "calibrationStatus": "candidate_unanchored",
+      "limitations": [
+        "No direct biomechanical or dose-response trial was located for this exact small-range Scapular Pull-Up.",
+        "Pull-up kinematics research concerns larger pulling techniques and is adjacent evidence only.",
+        "Professional instructions simplify three-dimensional scapular motion into coaching language.",
+        "No evidence establishes one mandatory range, universal prerequisite status, or injury-prevention effect.",
+        "No candidate media has completed exact-match, full-content, cue-quality, accessibility, or human approval review."
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T20:00:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Hang from a secure bar or stable rings with straight elbows. Move only through the shoulder blades: allow the assigned start position, draw the shoulders down to lift the body slightly without bending the elbows, then return under control without swinging.",
+      "familyKey": "Straight-arm hanging and scapular control",
+      "movementPatterns": [
+        "vertical_suspension",
+        "straight_arm_scapular_pull",
+        "grip_isometric"
+      ],
+      "bodyRegions": [
+        "hands_and_forearms",
+        "shoulder_girdle",
+        "upper_back",
+        "trunk"
+      ],
+      "requiredEquipment": [
+        "pull_up_bar_or_stable_rings"
+      ],
+      "optionalEquipment": [
+        "stable_foot_assistance_box",
+        "assistance_band",
+        "landing_mat"
+      ],
+      "environment": {
+        "anchor": "rated_stable_and_height_appropriate",
+        "surface": "non_slip_with_no_cross_traffic",
+        "clearance": "full_body_and_safe_step_down",
+        "supervision": "direct_until_scapular_motion_and_dismount_are_repeatable"
+      },
+      "population": {
+        "readiness": [
+          "can_grasp_the_assigned_implement",
+          "can_tolerate_overhead_hanging_with_straight_elbows",
+          "can_distinguish_scapular_motion_from_elbow_flexion",
+          "can_step_down_or_receive_assistance_safely"
+        ],
+        "contraindicationFlags": [
+          "current_shoulder_elbow_wrist_or_hand_pain",
+          "numbness_or_tingling",
+          "uncontrolled_swing_or_grip_loss",
+          "unsafe_dismount"
+        ]
+      },
+      "difficulty": {
+        "absoluteLoadDemand": 62,
+        "coordinationDemand": 42,
+        "technicalComplexity": 38,
+        "baseOverallDifficulty": 62
+      },
+      "loadProfile": {
+        "impactClass": "none",
+        "loadingType": "relative_bodyweight_dynamic_scapular_pull",
+        "primaryStress": [
+          "grip",
+          "scapular_depression_strength",
+          "controlled_scapular_return",
+          "overhead_shoulder_tolerance",
+          "trunk_control"
+        ]
+      },
+      "fatigueProfile": {
+        "qualityLoss": [
+          "elbows_bend",
+          "range_shrinks",
+          "return_drops_uncontrolled",
+          "body_swings",
+          "grip_slips",
+          "breath_holding"
+        ],
+        "localFatigue": [
+          "finger_and_forearm_fatigue",
+          "scapular_depressor_fatigue"
+        ],
+        "recoveryDriver": "grip_scapular_and_shoulder_response_plus_total_pulling_volume"
+      }
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Exercise selection requires qualified instruction, appropriate progression, safe equipment and space, and individual physical and psychosocial readiness.",
+        "Before Scapular Pull-Up, verify the bar, rings, rack, anchor, clearance, assistance, landing surface, and step-down. Stop for pain or pinching; instability; numbness or tingling; dizziness; a slipping grip; uncontrolled swinging; elbow-position loss; repeated shoulder-position loss; breath distress; or an unsafe dismount."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Training should be individualized and progressed from current readiness and movement competence rather than from a level assigned to an exercise.",
+        "Scale Scapular Pull-Up with a lower bar, stable foot contact, a box, an appropriate assistance band, shorter submaximal efforts, longer rest, plain-language cues, a visible stop signal, and direct supervision. Record exercise complexity and physical difficulty; do not label the exercise card beginner, intermediate, advanced, or elite."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied videos are discovery candidates only. Public title and channel metadata were observed, but availability, embed response, exact exercise and variant match, full sequence, cue quality, safety, captions, accessibility, reviewer identity, and approval remain pending until the separate verification step and human review."
+      ]
+    },
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.calixpert.com/exercises/scapula-pull-ups",
+      "sourceTitle": "How To Do Scapula Pull-Ups",
+      "sourcePublisher": "Calixpert",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 68,
+      "claims": [
+        "The exercise instruction defines Scapular Pull-Ups as straight-arm hanging repetitions in which the shoulder blades move down and the body rises slightly, followed by a controlled return.",
+        "Use repeated scapular motion with straight elbows as the identity boundary. If the athlete only holds the top position, the task is Active Hang; if the shoulders remain passive, it is Dead Hang."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.calixpert.com/exercises/scapula-pull-ups",
+      "sourceTitle": "How To Do Scapula Pull-Ups",
+      "sourcePublisher": "Calixpert",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 68,
+      "claims": [
+        "The source differentiates scapular movement from elbow flexion and describes a small range rather than a full pull-up.",
+        "Classify Scapular Pull-Up by dynamic scapular mode, straight elbows, bottom and top positions, implement, grip, assistance, range, pause, tempo, repetitions, and trunk shape."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.acefitness.org/blog/3516/muscles-that-move-the-scapulae/",
+      "sourceTitle": "Muscles that Move the Scapulae",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 74,
+      "claims": [
+        "The anatomy reference distinguishes scapular depression, elevation, retraction, protraction, and rotation and identifies muscular contributors including the lower trapezius.",
+        "Represent the task as scapular depression and controlled return under a fixed overhead hand contact, with grip, shoulder stabilizers, straight-elbow position, and trunk control also modeled. Do not describe scapular motion as a single isolated joint action."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4916995/",
+      "sourceTitle": "Scapula kinematics of pull-up techniques: Avoiding impingement risk with training changes",
+      "sourcePublisher": "Journal of Science and Medicine in Sport",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Pull-up techniques produce different three-dimensional humerothoracic, scapulothoracic, and glenohumeral kinematics.",
+        "This adjacent study supports specifying grip, shoulder path, and technique and avoiding a universal forced position. It did not test the isolated Scapular Pull-Up, so exact range and injury implications remain unverified."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://www.calixpert.com/exercises/scapula-pull-ups",
+      "sourceTitle": "How To Do Scapula Pull-Ups",
+      "sourcePublisher": "Calixpert",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 68,
+      "claims": [
+        "The exercise requires the athlete to isolate small scapular motion while keeping the arms straight and preventing swing.",
+        "Score exercise complexity separately from physical difficulty and derive overall as their maximum. Dynamic scapular control raises complexity above static hangs, while relative bodyweight and grip create substantial physical demand."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6458579/",
+      "sourceTitle": "Comparison of the Effects of Three Hangboard Strength and Endurance Training Programs on Grip Endurance in Sport Climbers",
+      "sourcePublisher": "Journal of Human Kinetics",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Hanging fatigue changes with grip surface, relative load, time, repetitions, and recovery.",
+        "For Scapular Pull-Up, additionally track scapular range, return control, elbow bend, and swing across repetitions. Count the exposure with pull-ups, climbing, rings, rope, carries, and other grip or scapular-loading work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Safe resistance training requires appropriate equipment, instruction, supervision, and progression matched to readiness.",
+        "Require a rated anchor, safe bar height, secure grip, tolerable assigned top and bottom shoulder positions, straight-elbow scapular motion, controlled return, and safe exit. Use foot or band assistance before technique changes."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.calixpert.com/exercises/scapula-pull-ups",
+      "sourceTitle": "How To Do Scapula Pull-Ups",
+      "sourcePublisher": "Calixpert",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 68,
+      "claims": [
+        "The exercise instruction uses controlled repetitions and a brief top pause, emphasizing straight arms and a controlled return.",
+        "Use low candidate repetition ranges, stop with clean repetitions in reserve, and progress control or assistance before load. No source validates one universal repetition count or range."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.calixpert.com/exercises/scapula-pull-ups",
+      "sourceTitle": "How To Do Scapula Pull-Ups",
+      "sourcePublisher": "Calixpert",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 68,
+      "claims": [
+        "The instruction starts in a controlled hang, keeps the arms straight, moves the shoulder blades down to raise the body slightly, pauses, and returns without dropping.",
+        "Instructions for Scapular Pull-Up must name the assigned bottom, small scapular action, straight elbows, top quality, controlled return, swing limit, hold endpoint, and safe step-down."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.crossfit.com/wp-content/uploads/2025/10/30140653/CAP_Open_Training_Plans_02_PullUp_20251027_R1-1.pdf",
+      "sourceTitle": "Train for the Open With CrossFit Affiliate Programming: Pull-Up",
+      "sourcePublisher": "CrossFit Affiliate Programming",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 74,
+      "claims": [
+        "The professional plan separates static Active Hang work from dynamic pull-up technique, supporting distinct exercise and delivery choices.",
+        "Use Scapular Pull-Up for dynamic straight-arm scapular control, not as an interchangeable passive hang or full pull-up. Place quality practice before fatigue and budget grip and shoulder exposure."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/",
+      "sourceTitle": "Youth Training and Long-Term Athletic Development",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 82,
+      "claims": [
+        "Training should reflect individual readiness, competence, and progressive development.",
+        "Athlete support should show start, small top position, controlled return, straight elbows, assistance, repetitions, safe step-down, and pain, tingling, grip-slip, elbow-bend, or swing stop signals."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Qualified instruction, safe equipment, supervision, and gradual progression are core requirements.",
+        "Coach support should include anchor and clearance checks, demonstration of the small range, side observation of elbow and scapular motion, first-to-last repetition comparison, assistance options, cumulative grip-load warning, and station turnover."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.calixpert.com/exercises/scapula-pull-ups",
+      "sourceTitle": "How To Do Scapula Pull-Ups",
+      "sourcePublisher": "Calixpert",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 68,
+      "claims": [
+        "Assistance, grip, implement, pause, range, and added load can change the exercise demand while straight-elbow scapular repetitions remain primary.",
+        "Foot or band assistance, rings, top pause, unilateral loading, and added weight can become controlled variants. Dead Hang, Active Hang, full Pull-Up, flexed-arm hang, and horizontal scapular row remain separate definitions."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=-ZIpSoTRsuE",
+      "title": "Scapular Pull Ups (Beginner to Advanced Progressions)",
+      "channelName": "Zack Henderson",
+      "sourceQuery": "Public YouTube search: scapular pull up exercise technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public title/channel only. External progression labels are not copied to the exercise card; exact baseline sequence, straight elbows, full content, safety, and accessibility require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=XIkPI-_80r4",
+      "title": "Scap Pulls - Ensure correct activation before pull ups",
+      "channelName": "Perform 360",
+      "sourceQuery": "Public YouTube search: scapular pull up exercise technique",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public title/channel only. Pull-up framing does not establish a universal prerequisite; exact dynamic range, return, safety, and full content require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=d0DVd2V0n7A",
+      "title": "Fix Your Pull Ups with Scapula Pull Ups | Tim Keeley | Physio REHAB",
+      "channelName": "Physio REHAB",
+      "sourceQuery": "Public YouTube search: scap pull up exercise demo physical therapy",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by public metadata only. The corrective framing is not adopted as a Vortex claim; exact exercise, cue quality, safety, captions, and full content require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=qVFX6LnZF4A",
+      "title": "Hanging Scap Pull-up",
+      "channelName": "Champion Physical Therapy and Performance",
+      "sourceQuery": "Public YouTube search: scap pull up exercise demo physical therapy",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by exact public title only; straight-elbow motion, top and bottom positions, controlled return, safety, and full content require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=kCoCVLZvI8E",
+      "title": "Scap Pull ups",
+      "channelName": "The Active Life",
+      "sourceQuery": "Public YouTube search: scap pull up exercise demo physical therapy",
+      "linkStatus": "unverified",
+      "embeddingAllowed": false,
+      "externalVerification": null,
+      "notes": "Candidate by exact public title only; full sequence, elbow position, range, return control, captions, and demonstration quality require human review."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Foot-Assisted Scapular Pull-Up",
+      "classification": "new_variant",
+      "rationale": "Stable foot contact reduces relative load while preserving dynamic straight-arm scapular motion.",
+      "distinguishingDimensions": {
+        "assistance": "stable_foot_contact",
+        "scapularMode": "dynamic_repetition"
+      }
+    },
+    {
+      "name": "Band-Assisted Scapular Pull-Up",
+      "classification": "new_variant",
+      "rationale": "Band assistance reduces bodyweight demand but adds changing assistance, entry, recoil, and exit constraints.",
+      "distinguishingDimensions": {
+        "assistance": "band",
+        "bandEntryAndExit": "declared"
+      }
+    },
+    {
+      "name": "Ring Scapular Pull-Up",
+      "classification": "new_variant",
+      "rationale": "Rings preserve dynamic scapular repetitions while changing grip orientation and equipment stability.",
+      "distinguishingDimensions": {
+        "implement": "stable_rings",
+        "gripOrientation": "self_selected_or_declared"
+      }
+    },
+    {
+      "name": "Paused Scapular Pull-Up",
+      "classification": "modifier_annotation",
+      "rationale": "A top pause changes tempo and time under tension without changing the dynamic scapular exercise identity.",
+      "distinguishingDimensions": {
+        "topPauseSeconds": "declared"
+      }
+    },
+    {
+      "name": "Weighted Scapular Pull-Up",
+      "classification": "new_variant",
+      "rationale": "Added load materially changes physical difficulty, attachment, recovery, and failure consequence.",
+      "distinguishingDimensions": {
+        "externalLoad": "added_weight"
+      }
+    },
+    {
+      "name": "Single-Arm Scapular Pull-Up",
+      "classification": "new_variant",
+      "rationale": "Unilateral dynamic suspension changes laterality, load per limb, asymmetric trunk control, and failure consequence.",
+      "distinguishingDimensions": {
+        "laterality": "unilateral",
+        "scapularMode": "dynamic_repetition"
+      }
+    },
+    {
+      "name": "Dead Hang",
+      "classification": "new_definition",
+      "rationale": "A passive static shoulder position removes the active dynamic scapular action.",
+      "distinguishingDimensions": {
+        "scapularMode": "passive_isometric"
+      }
+    },
+    {
+      "name": "Active Hang",
+      "classification": "new_definition",
+      "rationale": "Holding the active position without repetitions is an isometric exercise with different dose and fatigue behavior.",
+      "distinguishingDimensions": {
+        "scapularMode": "active_isometric"
+      }
+    },
+    {
+      "name": "Pull-Up",
+      "classification": "new_definition",
+      "rationale": "Dynamic elbow flexion and large body displacement create a full vertical-pull identity.",
+      "distinguishingDimensions": {
+        "elbowAction": "dynamic_flexion_extension",
+        "bodyDisplacement": "full_vertical_pull"
+      }
+    },
+    {
+      "name": "Flexed-Arm Hang",
+      "classification": "new_definition",
+      "rationale": "An elbow-flexed top-position isometric changes joint actions, physical load, fatigue, and stop rules.",
+      "distinguishingDimensions": {
+        "elbowAction": "flexion_isometric"
+      }
+    },
+    {
+      "name": "Scapular Inverted Row",
+      "classification": "new_definition",
+      "rationale": "Horizontal body orientation and pulling direction change load, joint orientation, base of support, and progression path.",
+      "distinguishingDimensions": {
+        "forceDirection": "horizontal_pull",
+        "bodySupport": "feet_supported"
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "batchKey": "hang-scapular-control-family-v1",
+  "researchVersion": "2026-07-26.26",
+  "generatedAt": "2026-07-26T20:00:00.000Z",
+  "cards": [
+    {
+      "slug": "dead-hang",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 11
+    },
+    {
+      "slug": "active-hang",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 11
+    },
+    {
+      "slug": "scapular-pull-up",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 11
+    }
+  ]
+}

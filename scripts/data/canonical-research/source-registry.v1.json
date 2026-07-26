@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-07-26.25",
+  "registryVersion": "2026-07-26.26",
   "sources": {
     "sprint_start_biomechanics_review": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
@@ -567,6 +567,62 @@
       "publisher": "Catalyst Athletics",
       "kind": "expert_instruction",
       "evidenceQuality": 70
+    },
+    "pullup_scapular_kinematics": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4916995/",
+      "title": "Scapula kinematics of pull-up techniques: Avoiding impingement risk with training changes",
+      "publisher": "Journal of Science and Medicine in Sport",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "hangboard_grip_endurance_training": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6458579/",
+      "title": "Comparison of the Effects of Three Hangboard Strength and Endurance Training Programs on Grip Endurance in Sport Climbers",
+      "publisher": "Journal of Human Kinetics",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "scapular_depression_lower_trapezius_emg": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2953285/",
+      "title": "Surface Electromyographic Analysis of the Lower Trapezius Muscle During Exercises Performed Below Ninety Degrees of Shoulder Elevation in Healthy Subjects",
+      "publisher": "North American Journal of Sports Physical Therapy",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 80
+    },
+    "ace_scapular_muscle_anatomy": {
+      "url": "https://www.acefitness.org/blog/3516/muscles-that-move-the-scapulae/",
+      "title": "Muscles that Move the Scapulae",
+      "publisher": "American Council on Exercise",
+      "kind": "expert_instruction",
+      "evidenceQuality": 74
+    },
+    "crossfit_bar_hanging_positions": {
+      "url": "https://www.crossfit.com/essentials/crossfit-bar-hanging",
+      "title": "Is Hanging from a Bar Worth Your Time? A CrossFit Reality Check",
+      "publisher": "CrossFit",
+      "kind": "expert_instruction",
+      "evidenceQuality": 70
+    },
+    "crossfit_active_shoulders_hanging": {
+      "url": "https://www.crossfit.com/essentials/crossfit-active-shoulders-movements",
+      "title": "Active Shoulders: The Foundation of Safe and Strong Movement in CrossFit",
+      "publisher": "CrossFit",
+      "kind": "expert_instruction",
+      "evidenceQuality": 70
+    },
+    "crossfit_pullup_training_plan": {
+      "url": "https://www.crossfit.com/wp-content/uploads/2025/10/30140653/CAP_Open_Training_Plans_02_PullUp_20251027_R1-1.pdf",
+      "title": "Train for the Open With CrossFit Affiliate Programming: Pull-Up",
+      "publisher": "CrossFit Affiliate Programming",
+      "kind": "professional_standard",
+      "evidenceQuality": 74
+    },
+    "calixpert_scapular_pullup_instruction": {
+      "url": "https://www.calixpert.com/exercises/scapula-pull-ups",
+      "title": "How To Do Scapula Pull-Ups",
+      "publisher": "Calixpert",
+      "kind": "expert_instruction",
+      "evidenceQuality": 68
     },
     "ace_overhead_medicine_ball_throw": {
       "url": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
