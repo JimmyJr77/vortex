@@ -4,6 +4,8 @@ services:
   - type: web
     name: vortex-backend
     runtime: node
+    branch: main
+    autoDeployTrigger: commit
     rootDir: backend
     buildCommand: npm install
     startCommand: npm start
@@ -45,6 +47,8 @@ services:
   - type: cron
     name: vortex-stripe-reconciliation
     runtime: node
+    branch: main
+    autoDeployTrigger: commit
     rootDir: backend
     schedule: "15 7 * * *"
     buildCommand: npm install
