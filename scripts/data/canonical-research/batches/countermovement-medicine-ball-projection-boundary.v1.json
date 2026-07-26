@@ -1,0 +1,473 @@
+{
+  "facilityId": 1,
+  "researchVersion": "2026-07-26.42",
+  "batchKey": "countermovement-medicine-ball-projection-boundary-v1",
+  "snapshotAt": "2026-07-27T01:30:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "forward_backward_medicine_ball_protocols",
+      "claims": [
+        "Medicine-ball protocols define projection direction and movement sequence explicitly.",
+        "Forward bilateral chest projection and transverse rotational projection are separate identities, not difficulty or proficiency levels."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "nsca_standing_rotational_wall_toss",
+      "claims": [
+        "Medicine-ball throws require exact stance, countermovement, projection, target, release, contacts, and reset taxonomy.",
+        "Declare forward versus transverse projection and bilateral versus side-specific sequencing."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "trunk_rotator_strength_rotational_throw",
+      "claims": [
+        "Rotational throwing performance relates to trunk rotator strength, while full-body throws also use lower-body drive and upper-limb release.",
+        "Declare foot, ankle, knee, hip, pelvis, spine, scapulothoracic, shoulder, elbow, wrist and hand roles."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "forward_backward_medicine_ball_protocols",
+      "claims": [
+        "Dynamic medicine-ball throws use a declared countermovement to create momentum before release.",
+        "Observe ball start, lower-body preload, ground-up sequence, trunk control, projection plane, release, foot contacts, finish, and reset."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "medicine_ball_velocity_reliability",
+      "claims": [
+        "Ball load and standing protocol affect measured throwing velocity.",
+        "Score exact variants on exercise complexity and physical difficulty and derive overall difficulty as their maximum; no exercise skill level is assigned."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "medicine_ball_power_fatigue",
+      "claims": [
+        "Medicine-ball output can be quantified and declines when effort or technique changes.",
+        "Track ball mass, high-intent throws, output loss, shoulder and elbow response, trunk control, contact or catch load, and recovery."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "ace_medicine_ball_lunge_chest_pass",
+      "claims": [
+        "ACE requires a prepared partner or suitable wall or rebounder, target distance, stable stance, and clear intent.",
+        "Declare ball type and mass, wall or partner behavior, target, release lane, return and catch policy, traction, clearance, traffic, retrieval, and coach sightline."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "nsca_alactic_explosive_medicine_ball",
+      "claims": [
+        "Explosive medicine-ball work should preserve power rather than become fatigue conditioning.",
+        "Use short sets, full reset, and enough rest to preserve ball speed, projection, target accuracy, posture, contacts, and safe retrieval."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "dvids_medicine_ball_chest_throw",
+      "claims": [
+        "The U.S. Marine Corps demonstration identifies a medicine-ball chest throw against a wall as an upper-body power task.",
+        "Instructions must name exact stance, ball start, countermovement, projection, target, foot contacts, release, return or retrieval, reset, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "ace_medicine_ball_lunge_chest_pass",
+      "claims": [
+        "Partner and wall throws require target readiness and force-aware catching.",
+        "Stop for pain or neurologic symptoms, loss of balance, spinal compensation, mistimed release, unsafe foot contacts, damaged ball, occupied lane, unsafe rebound or partner, or output loss."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "medicine_ball_rotational_power_validity",
+      "claims": [
+        "Medicine-ball throws can serve as standardized power tasks when protocol is controlled.",
+        "Use early and fresh for power expression; hold mass and variant constant for comparison and do not use maximal throws as conditioning filler."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "ace_medicine_ball_lunge_chest_pass",
+      "claims": [
+        "Athlete support should show direction, target, ball specification, contacts, cue, reset, and stop signal.",
+        "Offer a lighter or softer ball, smaller countermovement, lower-intent rehearsal, fewer attempts, longer rest, high-contrast target, and nonvideo instruction."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "medicine_ball_rotational_power_validity",
+      "claims": [
+        "Reliable power testing requires a standardized throw protocol.",
+        "Expose projection, side, ball mass, target, contacts, attempt count, rest, output measure, observation angle, invalid-attempt rule, return control, and lane shutdown."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "ace_medicine_ball_lunge_chest_pass",
+      "claims": [
+        "Wall or trained-partner targets can provide a visible forward target when logistics permit.",
+        "Offer lighter or softer balls, smaller preload, no jump, shorter range, fewer repetitions, longer reset, high-contrast target, plain text, and an appropriate nonthrow substitute."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "forward_backward_medicine_ball_protocols",
+      "claims": [
+        "Projection direction and release path define separate throw tasks.",
+        "Ball mass, exact distance, and measurement are annotations; rotation, overhead, scoop, slam, vertical, chest, and backward projections require explicit identity review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied links have healthy current oEmbed metadata only; exact contract, quality, safety, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "medicine-ball-chest-pass",
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "dvids_medicine_ball_chest_throw",
+          "claims": [
+            "The stored card declares quadriceps, gluteal, pectoral, triceps, shoulder and bilateral dip-and-drive actions toward a wall, supporting a forward chest projection rather than rotation.",
+            "The explicit identity is a bilateral countermovement medicine-ball chest pass to a forward target."
+          ]
+        }
+      ],
+      "assessmentSummary": {
+        "identity": "A bilateral two-hand medicine-ball chest pass projected forward from the chest toward an inspected wall, trained partner, or open release lane; stationary, shallow-countermovement, and squat-countermovement starts are exact variants.",
+        "currentCardFindings": [
+          "The broader Medicine Ball Chest Pass definition is the stable forward two-hand projection identity.",
+          "The consolidated countermovement source declares coordinated dip-and-drive, pectoral and triceps contribution, elbow extension, and a wall target; those dimensions belong on exact preload variants rather than a separate definition.",
+          "Generic legacy baselines remain archived because they omit stance, preload, ball, target, contacts, return, dose, and stop contract.",
+          "Five candidates have healthy oEmbed metadata only; no human media approval is created."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 38,
+          "absoluteLoadDemand": 38,
+          "baseOverallDifficulty": 38,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+            {
+              "variantKey": "shallow-countermovement-wall-pass",
+              "exerciseComplexity": 38,
+              "physicalDifficulty": 38,
+              "overallDifficulty": 38
+            },
+            {
+              "variantKey": "squat-countermovement-wall-pass",
+              "exerciseComplexity": 44,
+              "physicalDifficulty": 46,
+              "overallDifficulty": 46
+            }
+        ],
+        "identityDecision": {
+          "versus": "med-ball-countermovement-rotational-throw",
+          "decision": "distinct_exercises",
+          "boundary": "forward_bilateral_chest_projection_vs_transverse_side_specific_rotational_projection"
+        }
+      },
+      "alternateAssessments": [
+        {
+          "name": "Shallow Countermovement Wall Chest Pass",
+          "classification": "new_variant",
+          "rationale": "A small bilateral preload preserves the forward chest-pass identity.",
+          "distinguishingDimensions": {
+            "preload": "shallow_countermovement",
+            "projection": "forward_chest"
+          }
+        },
+        {
+          "name": "Squat Countermovement Wall Chest Pass",
+          "classification": "new_variant",
+          "rationale": "A deeper declared squat increases lower-body contribution and physical demand.",
+          "distinguishingDimensions": {
+            "preload": "declared_squat_depth",
+            "projection": "forward_chest"
+          }
+        },
+        {
+          "name": "Countermovement Chest Pass for Distance",
+          "classification": "modifier_annotation",
+          "rationale": "A standardized open-lane distance measure is a delivery annotation.",
+          "distinguishingDimensions": {
+            "target": "open_distance_lane"
+          }
+        },
+        {
+          "name": "Countermovement Rotational Throw",
+          "classification": "new_definition",
+          "rationale": "Transverse projection and side-specific rotation change stance, sequencing, and target.",
+          "distinguishingDimensions": {
+            "projection": "transverse_rotational"
+          }
+        },
+        {
+          "name": "Countermovement Overhead Throw",
+          "classification": "new_definition",
+          "rationale": "Overhead release changes arm path and projection.",
+          "distinguishingDimensions": {
+            "release": "overhead"
+          }
+        },
+        {
+          "name": "Wall-Ball Squat Throw and Catch",
+          "classification": "new_definition",
+          "rationale": "Upward projection plus repeated catch-and-squat cadence changes the exercise.",
+          "distinguishingDimensions": {
+            "projection": "upward",
+            "return": "repeated_catch"
+          }
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=PMjqv9Up3Fo",
+          "title": "Med Ball Squat to Chest Pass",
+          "channelName": "FITPARTUM",
+          "sourceQuery": "medicine ball squat chest pass wall",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:25:00.000Z"
+          },
+          "notes": "Candidate metadata only; exact target, return, contacts, and quality require human viewing."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=odBbcN_e-XI",
+          "title": "Med Ball Squat to Chest Pass",
+          "channelName": "Josh Williams Fitness",
+          "sourceQuery": "medicine ball squat chest pass wall",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:25:00.000Z"
+          },
+          "notes": "Candidate metadata only; full review remains pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=aJdYjyRiYqs",
+          "title": "Med Ball Squat to Chest Pass",
+          "channelName": "Evolve Flagstaff",
+          "sourceQuery": "medicine ball squat chest pass wall",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:25:00.000Z"
+          },
+          "notes": "Candidate metadata only; full review remains pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=pliz_HRQyL8",
+          "title": "Resilient Performance - Med Ball Squat Chest Pass",
+          "channelName": "Resilient Performance Physical Therapy",
+          "sourceQuery": "medicine ball squat chest pass wall",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:25:00.000Z"
+          },
+          "notes": "Candidate metadata only; full review remains pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=e-zHTwXA8mE",
+          "title": "Standing Medicine Ball Chest Pass - Viking Strength Systems",
+          "channelName": "Viking Strength Systems",
+          "sourceQuery": "medicine ball countermovement chest pass wall",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:25:00.000Z"
+          },
+          "notes": "Candidate metadata only; countermovement and exact quality require human viewing."
+        }
+      ]
+    },
+    {
+      "slug": "med-ball-countermovement-rotational-throw",
+      "evidence": [
+        {
+          "sectionKey": "identity",
+          "sourceKey": "nsca_standing_rotational_wall_toss",
+          "claims": [
+            "A standing rotational wall toss uses side-on orientation and ground-up transverse force transfer.",
+            "The explicit identity is a side-specific countermovement rotational medicine-ball throw, distinct from forward bilateral chest projection."
+          ]
+        }
+      ],
+      "assessmentSummary": {
+        "identity": "A side-on, side-specific two-hand medicine-ball wall throw using a declared rotational countermovement, ground-up hip-pelvis-trunk sequence, transverse release, controlled finish, and full reset.",
+        "currentCardFindings": [
+          "The legacy card already declares rotational projection, hip and thoracic rotation, shoulder horizontal action, and ground-up force transfer.",
+          "It lacks exact stance, pivot, ball start, wall target, return, side, dose, and difficulty dimensions.",
+          "Its transverse projection is a deterministic boundary from the generic card's forward chest action.",
+          "Five candidates have healthy oEmbed metadata only; no human media approval is created."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 48,
+          "absoluteLoadDemand": 42,
+          "baseOverallDifficulty": 48,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+            {
+              "variantKey": "fixed-stance-countermovement-wall-throw",
+              "exerciseComplexity": 48,
+              "physicalDifficulty": 42,
+              "overallDifficulty": 48
+            },
+            {
+              "variantKey": "pivot-allowed-countermovement-wall-throw",
+              "exerciseComplexity": 54,
+              "physicalDifficulty": 44,
+              "overallDifficulty": 54
+            }
+        ],
+        "identityDecision": {
+          "versus": "medicine-ball-countermovement-throw",
+          "decision": "distinct_exercises",
+          "boundary": "transverse_side_specific_rotational_projection_vs_forward_bilateral_chest_projection"
+        }
+      },
+      "alternateAssessments": [
+        {
+          "name": "Fixed-Stance Countermovement Rotational Wall Throw",
+          "classification": "new_variant",
+          "rationale": "A fixed stance constrains foot contacts while preserving transverse projection.",
+          "distinguishingDimensions": {
+            "footwork": "fixed_stance",
+            "projection": "transverse_rotational"
+          }
+        },
+        {
+          "name": "Pivot-Allowed Countermovement Rotational Wall Throw",
+          "classification": "new_variant",
+          "rationale": "A declared pivot changes coordination while preserving the same projection identity.",
+          "distinguishingDimensions": {
+            "footwork": "declared_pivot",
+            "projection": "transverse_rotational"
+          }
+        },
+        {
+          "name": "Countermovement Rotational Scoop Toss",
+          "classification": "new_variant",
+          "rationale": "A low scoop release may be a variant only when side-on transverse projection is preserved.",
+          "distinguishingDimensions": {
+            "releasePath": "low_scoop"
+          }
+        },
+        {
+          "name": "Step-Behind Rotational Throw",
+          "classification": "new_definition",
+          "rationale": "A step-behind entry adds locomotor contacts and sequencing.",
+          "distinguishingDimensions": {
+            "entry": "step_behind"
+          }
+        },
+        {
+          "name": "Countermovement Chest Pass",
+          "classification": "new_definition",
+          "rationale": "Forward bilateral projection changes stance, sequence, plane, and target.",
+          "distinguishingDimensions": {
+            "projection": "forward_chest"
+          }
+        },
+        {
+          "name": "Rotational Medicine-Ball Slam",
+          "classification": "new_definition",
+          "rationale": "Downward floor projection changes release and return behavior.",
+          "distinguishingDimensions": {
+            "projection": "downward_floor"
+          }
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=zBeW-8vuiz0",
+          "title": "Medball Counter Movement Rotational Throw",
+          "channelName": "Mines Strength and Conditioning",
+          "sourceQuery": "countermovement rotational medicine ball throw",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:25:00.000Z"
+          },
+          "notes": "Candidate metadata only; exact stance, pivot, target, and quality require human viewing."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=02c2YLgF8iE",
+          "title": "Medball Rotational Throw",
+          "channelName": "Speed School Performance",
+          "sourceQuery": "countermovement rotational medicine ball throw",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:25:00.000Z"
+          },
+          "notes": "Candidate metadata only; countermovement and full review remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=DttZ5JU-b_U",
+          "title": "How to Perform Rotational Med Ball Throws",
+          "channelName": "CORE Strong Fitness",
+          "sourceQuery": "countermovement rotational medicine ball throw",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:25:00.000Z"
+          },
+          "notes": "Candidate metadata only; exact variant and full review remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=c7fB-K8Ih54",
+          "title": "How to Properly Execute Rotational Med Ball Throws | CrossFit Invictus",
+          "channelName": "CrossFit Invictus",
+          "sourceQuery": "countermovement rotational medicine ball throw",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:25:00.000Z"
+          },
+          "notes": "Candidate metadata only; exact variant and full review remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=ZkwXZfk6w8A",
+          "title": "Counter Movement MB Scoop Toss",
+          "channelName": "Derek Ward",
+          "sourceQuery": "countermovement rotational medicine ball throw",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:25:00.000Z"
+          },
+          "notes": "Candidate metadata only for a scoop variant; exact transverse projection and full review remain pending."
+        }
+      ]
+    }
+  ]
+}

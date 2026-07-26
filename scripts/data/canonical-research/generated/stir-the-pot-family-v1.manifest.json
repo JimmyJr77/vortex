@@ -1,0 +1,13 @@
+{
+  "batchKey": "stir-the-pot-family-v1",
+  "researchVersion": "2026-07-27.44",
+  "generatedAt": "2026-07-27T06:00:00.000Z",
+  "cards": [
+    {
+      "slug": "stir-the-pot",
+      "evidenceSections": 16,
+      "mediaCandidates": 4,
+      "alternateAssessments": 10
+    }
+  ]
+}

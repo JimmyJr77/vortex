@@ -1,0 +1,297 @@
+{
+  "facilityId": 1,
+  "researchVersion": "2026-07-26.42",
+  "batchKey": "bilateral-lateral-jump-stick-boundary-v1",
+  "snapshotAt": "2026-07-27T01:30:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "nsca_lateral_line_hop_variations",
+      "claims": [
+        "NSCA distinguishes two-foot lateral line jumping from single-leg lateral line hopping.",
+        "{{canonicalName}} is the bilateral takeoff-and-landing identity; single-leg lateral hop-to-stick remains a separate definition."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "unilateral_bilateral_landing_biomechanics",
+      "claims": [
+        "Unilateral and bilateral landings are biomechanically different contracts.",
+        "Declare two-foot takeoff, lateral projection, two-foot landing, target, terminal hold, full reset, and no rebound."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "unilateral_bilateral_landing_biomechanics",
+      "claims": [
+        "Jump landing involves hip, knee, and ankle absorption with trunk and pelvis control.",
+        "Declare gluteals, quadriceps, hamstrings, plantar flexors, foot and ankle stabilizers, adductors, and trunk stabilizers."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "unilateral_bilateral_landing_biomechanics",
+      "claims": [
+        "Bilateral landing distributes the contact across two feet and remains distinct from same-leg landing.",
+        "Observe simultaneous takeoff, lateral projection, simultaneous whole-foot landing, foot-knee-hip alignment, quiet absorption, hold, and reset."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "unilateral_bilateral_plyometric_meta_analysis",
+      "claims": [
+        "Unilateral and bilateral plyometric tasks have different training demands.",
+        "Score exact amplitude variants on exercise complexity and physical difficulty, with overall as their maximum and no skill-level label."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "unilateral_bilateral_landing_biomechanics",
+      "claims": [
+        "Landing mechanics change with unilateral versus bilateral support.",
+        "Track bilateral takeoff and landing contacts, lateral impulse, lower-leg and tendon loading, landing noise, alignment, hold, output decline, and recovery."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_lateral_line_hop_variations",
+      "claims": [
+        "A visible line or target constrains lateral direction and distance.",
+        "Declare surface traction, footwear, high-contrast target, lateral and fall space, lighting, traffic, and coach sightline."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Landing feedback should target defined observable mechanics.",
+        "Use low quality contacts, full reset, and enough rest to preserve lateral distance, simultaneous landing, alignment, hold, and quiet contact."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "nsca_lateral_line_hop_variations",
+      "claims": [
+        "Two-foot and one-foot line drills must be named and taught separately.",
+        "Cue both feet set, load, push sideways, land on both whole feet together, absorb, hold, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "landing_feedback_systematic_review",
+      "claims": [
+        "Landing feedback can target trunk, knee, foot, and contact errors.",
+        "Stop for pain, swelling, instability, unsafe surface or lane, target miss, split landing, loud or partial-foot contact, valgus, trunk loss, extra hop, failed hold, or output decline."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "unilateral_bilateral_plyometric_meta_analysis",
+      "claims": [
+        "Bilateral plyometric tasks should retain their declared support contract.",
+        "Use low amplitude for landing control and greater distance early and fresh for output; do not convert a terminal stick into continuous hopping."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "nsca_lateral_line_hop_variations",
+      "claims": [
+        "Athlete support should show both-foot start, direction, target, distance, both-foot landing, hold, and reset.",
+        "Offer shorter distance, wider zone, snap-down or step-to-stick rehearsal, fewer contacts, longer rest, and nonvideo instruction."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "unilateral_bilateral_landing_biomechanics",
+      "claims": [
+        "Coach support must distinguish bilateral and unilateral landing mechanics.",
+        "Expose direction, distance, target, dose, rest, contact budget, observation angle, contact symmetry, alignment, hold, symptoms, and lane shutdown."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "landing_intervention_systematic_review",
+      "claims": [
+        "Landing tasks can be modified through feedback, progression, and environmental constraints.",
+        "Use a smaller distance, wider high-contrast zone, step-to-stick or snap-down regression, fewer contacts, longer recovery, and text or image instructions."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "nsca_lateral_line_hop_variations",
+      "claims": [
+        "Two-foot versus one-foot support changes exercise identity, while line width and exact distance are modifiers.",
+        "Single-leg hops, contralateral bounds, continuous rebounds, hurdle entries, loaded landings, and reactive cues require separate review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Five links have healthy current oEmbed metadata only; exact bilateral contract, quality, safety, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "lateral-hop-to-stick",
+      "assessmentSummary": {
+        "identity": "A discrete bodyweight lateral jump from two feet to a simultaneous two-foot whole-foot landing, controlled terminal hold, and full reset.",
+        "currentCardFindings": [
+          "The legacy card names direction and terminal stick but does not declare takeoff or landing laterality.",
+          "The existing low-amplitude source in the library explicitly describes a bilateral lateral jump and supplies lineage for the two-foot contract.",
+          "The completed single-leg card explicitly takes off and lands on the same declared leg, so support laterality is a deterministic identity boundary.",
+          "The display name should say bilateral lateral jump rather than rely on ambiguous hop terminology.",
+          "Five candidates have healthy oEmbed metadata only; no human media approval is created."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 34,
+          "absoluteLoadDemand": 34,
+          "baseOverallDifficulty": 34,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+            {
+              "variantKey": "low-amplitude-bilateral-control",
+              "exerciseComplexity": 34,
+              "physicalDifficulty": 34,
+              "overallDifficulty": 34
+            },
+            {
+              "variantKey": "distance-bilateral-control",
+              "exerciseComplexity": 40,
+              "physicalDifficulty": 42,
+              "overallDifficulty": 42
+            }
+        ],
+        "identityDecision": {
+          "versus": "single-leg-lateral-hop-to-stick",
+          "decision": "distinct_exercises",
+          "boundary": "bilateral_takeoff_and_landing_vs_ipsilateral_single_leg_takeoff_and_landing"
+        }
+      },
+      "alternateAssessments": [
+        {
+          "name": "Low-Amplitude Bilateral Lateral Jump to Stick",
+          "classification": "new_variant",
+          "rationale": "Short distance preserves the bilateral identity at lower physical demand.",
+          "distinguishingDimensions": {
+            "laterality": "bilateral",
+            "amplitude": "low"
+          }
+        },
+        {
+          "name": "Distance Bilateral Lateral Jump to Stick",
+          "classification": "new_variant",
+          "rationale": "Greater declared distance raises projection and landing demand without changing support.",
+          "distinguishingDimensions": {
+            "laterality": "bilateral",
+            "amplitude": "distance"
+          }
+        },
+        {
+          "name": "Bilateral Lateral Line Jump to Stick",
+          "classification": "modifier_annotation",
+          "rationale": "A floor line is a target boundary when takeoff, landing, hold, and reset remain bilateral.",
+          "distinguishingDimensions": {
+            "target": "line"
+          }
+        },
+        {
+          "name": "Single-Leg Lateral Hop to Stick",
+          "classification": "new_definition",
+          "rationale": "One declared leg takes off and lands.",
+          "distinguishingDimensions": {
+            "laterality": "ipsilateral_single_leg"
+          }
+        },
+        {
+          "name": "Skater Bound to Stick",
+          "classification": "new_definition",
+          "rationale": "Contralateral landing changes the takeoff-to-landing contract.",
+          "distinguishingDimensions": {
+            "laterality": "contralateral_single_leg"
+          }
+        },
+        {
+          "name": "Continuous Bilateral Lateral Line Hops",
+          "classification": "new_definition",
+          "rationale": "Repeated rebounds remove the defining terminal hold and full reset.",
+          "distinguishingDimensions": {
+            "cadence": "continuous_rebound"
+          }
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=sJo6A7-WTTY",
+          "title": "Double Leg Lateral Jump and Stick",
+          "channelName": "GAA RT",
+          "sourceQuery": "double leg lateral jump stick",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:20:00.000Z"
+          },
+          "notes": "Candidate metadata only; exact takeoff, landing, hold, and quality require human viewing."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=biE2xfUKyKk",
+          "title": "Double Leg Lateral Line Jump with Stick",
+          "channelName": "UR Fitness Science",
+          "sourceQuery": "double leg lateral jump stick",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:20:00.000Z"
+          },
+          "notes": "Candidate metadata only; full review remains pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=iTg6PmDTixo",
+          "title": "double leg lateral hop with stick",
+          "channelName": "Coach Blayne Lapan - Sports Performance",
+          "sourceQuery": "double leg lateral jump stick",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:20:00.000Z"
+          },
+          "notes": "Candidate metadata only; full review remains pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=h5MUUMuH8T4",
+          "title": "Double Leg lateral Jump stick landing",
+          "channelName": "CaseStrength",
+          "sourceQuery": "double leg lateral jump stick",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:20:00.000Z"
+          },
+          "notes": "Candidate metadata only; full review remains pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=XzlyauR-wQA",
+          "title": "Lateral Jump to Stick",
+          "channelName": "Mountain Edge Performance",
+          "sourceQuery": "two foot lateral jump to two foot stick",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T01:20:00.000Z"
+          },
+          "notes": "Candidate metadata only; bilateral support and full quality review remain pending."
+        }
+      ]
+    }
+  ]
+}

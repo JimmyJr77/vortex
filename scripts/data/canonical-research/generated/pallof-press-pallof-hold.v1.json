@@ -1,0 +1,485 @@
+{
+  "facilityId": 1,
+  "slug": "pallof-press-pallof-hold",
+  "researchVersion": "2026-07-26.43",
+  "assessmentSummary": {
+    "identity": "Fixed-stance side-anchored anti-rotation press in which both hands move from the sternum to a declared horizontal reach or maintain that reach while the rib cage, pelvis, hips, knees, and feet preserve the exact stance contract.",
+    "currentCardFindings": [
+      "Ten active source definitions split one stable press identity across implement, stance, hold, repetition, eccentric-return, and partner-anchor modifiers.",
+      "A prior provisional half-kneeling versus tall-kneeling distinct decision is superseded because body position changes difficulty and support but not the defining press action.",
+      "Marching, rowing, pulldown, diagonal-lift, rotation, overhead-reach, and landmine paths add primary actions or materially different force paths and remain separate.",
+      "Five candidate videos have healthy oEmbed metadata only; no human media approval is created."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 30,
+      "absoluteLoadDemand": 28,
+      "baseOverallDifficulty": 30,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "proposedVariantPlan": [
+      {
+        "variantKey": "standing-band-repetition",
+        "exerciseComplexity": 28,
+        "physicalDifficulty": 24,
+        "overallDifficulty": 28
+      },
+      {
+        "variantKey": "standing-cable-repetition",
+        "exerciseComplexity": 30,
+        "physicalDifficulty": 28,
+        "overallDifficulty": 30
+      },
+      {
+        "variantKey": "standing-cable-isometric-hold",
+        "exerciseComplexity": 32,
+        "physicalDifficulty": 30,
+        "overallDifficulty": 32
+      },
+      {
+        "variantKey": "half-kneeling-band-repetition",
+        "exerciseComplexity": 34,
+        "physicalDifficulty": 26,
+        "overallDifficulty": 34
+      },
+      {
+        "variantKey": "tall-kneeling-band-isometric-hold",
+        "exerciseComplexity": 36,
+        "physicalDifficulty": 28,
+        "overallDifficulty": 36
+      },
+      {
+        "variantKey": "split-stance-cable-isometric-hold",
+        "exerciseComplexity": 38,
+        "physicalDifficulty": 32,
+        "overallDifficulty": 38
+      },
+      {
+        "variantKey": "standing-cable-four-second-return",
+        "exerciseComplexity": 34,
+        "physicalDifficulty": 30,
+        "overallDifficulty": 34
+      },
+      {
+        "variantKey": "partner-anchored-band-isometric-hold",
+        "exerciseComplexity": 36,
+        "physicalDifficulty": 26,
+        "overallDifficulty": 36
+      }
+    ],
+    "identityDecision": {
+      "versus": "pallof-press-step-out",
+      "decision": "distinct_exercises",
+      "boundary": "fixed_stance_press_or_hold_vs_lateral_step_away_and_controlled_return"
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-27T04:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Stand, half-kneel, tall-kneel, or hold an exact split stance side-on to a secure band anchor, inspected cable station, or supervised partner anchor. Hold the resistance with both hands at the sternum, preserve the declared foot, knee, hip, pelvis, rib-cage, and head position, press horizontally to the declared reach or maintain that reach, breathe, and return without rotation, lateral lean, stance drift, or uncontrolled recoil.",
+      "familyKey": "fixed_stance_side_anchored_anti_rotation_press",
+      "movementPatterns": [
+        "brace",
+        "push"
+      ],
+      "bodyRegions": [
+        "core",
+        "spine",
+        "pelvis",
+        "rib_cage",
+        "hip",
+        "shoulder",
+        "elbow",
+        "hand"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "anchor_point",
+        "bands",
+        "cable_machine",
+        "mat",
+        "partner"
+      ],
+      "environment": {
+        "band": "intact_correctly_routed_and_recoil_lane_clear",
+        "cable": "pin_attachment_cable_and_stack_travel_inspected",
+        "anchor": "secure_fixed_band_anchor_inspected_cable_station_or_supervised_partner",
+        "surface": "level_dry_high_traction_floor",
+        "traffic": "one_athlete_per_declared_station_side",
+        "lighting": "hands_ribs_pelvis_knees_and_feet_visible",
+        "clearance": "full_press_path_and_lateral_recoil_lane_clear",
+        "anchorHeight": "declared_at_sternum_unless_variant_says_otherwise",
+        "coachSightline": "front_oblique_or_side_view_of_press_path_and_rotation",
+        "kneelingSupport": "clean_mat_when_required"
+      },
+      "population": {
+        "readiness": [
+          "can_hold_declared_stance_without_pain_or_instability",
+          "can_breathe_while_bracing",
+          "can_press_both_hands_without_visible_trunk_rotation",
+          "can_control_the_return_without_recoil",
+          "understands_anchor_side_and_side_change"
+        ],
+        "selectionBoundary": "Select exact stance, resistance source, load, anchor side, reach, repetition or hold dose, return tempo, and rest from current control. These are exercise difficulty and readiness variables, not exercise skill levels.",
+        "contraindicationFlags": [
+          "pain_neurologic_or_pressure_symptoms",
+          "dizziness_breath_panic_or_uncontrolled_breath_holding",
+          "unsafe_anchor_band_cable_mat_floor_or_clearance",
+          "cannot_prevent_rotation_lateral_lean_or_stance_drift",
+          "unassessed_recent_surgery_injury_or_rehabilitation_restriction"
+        ]
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The fixed-stance Pallof Press uses a side anchor, both hands starting at the chest, horizontal elbow extension, and an observable no-rotation trunk contract.",
+        "Band, cable, standing, half-kneeling, tall-kneeling, split-stance, timed hold, repeated press, slow return, and supervised partner anchor remain exact variants of this identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.nsca.com/contentassets/8323553f698a466a98220b21d9eb9a65/foundationsoffitnessprogramming_201508.pdf",
+      "sourceTitle": "Foundations of Fitness Programming",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 87,
+      "claims": [
+        "The NSCA core progression explicitly includes kneeling and split-stance Pallof presses plus a Pallof lateral walk-out.",
+        "Taxonomy must declare the stance, resistance source, anchor side and height, hand path, hold or repetition contract, lateral travel, return, and side change."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/2942653/",
+      "sourceTitle": "Electromyographic Studies of the Lumbar Trunk Musculature During the Development of Axial Torques",
+      "sourcePublisher": "Journal of Orthopaedic Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Controlled axial torque recruits bilateral trunk musculature with substantial oblique activity and co-contraction used to control posture.",
+        "Cards must describe abdominal-wall, spinal-extensor, hip and shoulder stabilizer roles without claiming that Pallof work isolates one muscle."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Resistance is anchored to the side and the hands travel horizontally away from the center of the chest while the lumbopelvic-hip complex remains free of visible rotation.",
+        "Moment demand changes with resistance magnitude, distance from the anchor, arm reach, stance width, base of support, and added travel."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/40005429/",
+      "sourceTitle": "Effect of Body Position and Support Surface on the Postural Control Challenge During the Pallof Press Exercise: A Smartphone Accelerometer-Based Study",
+      "sourcePublisher": "Medicina",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Published Pallof research treats body position and support surface as measurable changes in postural-control challenge.",
+        "Score each exact variant using exercise complexity and physical difficulty only, with overall difficulty derived as their maximum; exercise cards receive no skill or proficiency level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11244540/",
+      "sourceTitle": "Using Resistance-Band Tests to Evaluate Trunk Muscle Strength in Chronic Low Back Pain: A Test-Retest Reliability Study",
+      "sourcePublisher": "Journal of Functional Morphology and Kinesiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "A submaximal resistance-band Pallof protocol used maintained contractions, progressive loading, and compensation-based termination.",
+        "Track trunk-control fatigue, shoulder and forearm tension, stance drift, breath holding, resistance-path error, and recovery before other high-demand trunk work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The exercise requires a secure side anchor or inspected cable station at the declared height and enough lateral clearance to create tension safely.",
+        "Declare band condition and recoil lane, cable pin and attachment, floor traction, kneeling support, partner-anchor supervision, shared-station traffic, and travel clearance."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "NASM presents controlled Pallof work in a stabilization context with slow repetitions and instructs that early-session core work should not be performed to exhaustion.",
+        "Use side-specific quality repetitions or timed holds with a full reset and stop before position, breath, press path, stance, or travel changes."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Instruction must establish a side-on relationship to the anchor, a controlled rib-pelvis position, handles at the chest, and a straight press without trunk rotation.",
+        "Name the exact stance, anchor side, reach or hold, step count when present, return path, breath, side switch, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11244540/",
+      "sourceTitle": "Using Resistance-Band Tests to Evaluate Trunk Muscle Strength in Chronic Low Back Pain: A Test-Retest Reliability Study",
+      "sourcePublisher": "Journal of Functional Morphology and Kinesiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The cited test stopped when compensation moved the athlete away from the initial position.",
+        "Stop for pain, neurologic symptoms, dizziness, pressure symptoms, breath panic, anchor or band failure, cable fault, uncontrolled recoil, trunk rotation, lateral lean, foot or knee drift, or loss of the declared hand path."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/contentassets/8323553f698a466a98220b21d9eb9a65/foundationsoffitnessprogramming_201508.pdf",
+      "sourceTitle": "Foundations of Fitness Programming",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 87,
+      "claims": [
+        "The NSCA progression separates kneeling and split-stance presses from the higher-coordination lateral walk-out.",
+        "Use fixed-stance variants for low-fatigue anti-rotation organization or controlled trunk capacity and step-out variants only when lateral stepping can remain repeatable under asymmetrical tension."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Athlete support should show the anchor relationship, stance, start at chest, end reach, quiet trunk, return, and both sides.",
+        "Offer less resistance, a shorter lever, wider stance, shorter hold, fewer repetitions or steps, longer rest, kneeling support, and text or image instruction."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/40005429/",
+      "sourceTitle": "Effect of Body Position and Support Surface on the Postural Control Challenge During the Pallof Press Exercise: A Smartphone Accelerometer-Based Study",
+      "sourcePublisher": "Medicina",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Coach support must expose exact body position and support surface because these alter postural-control challenge.",
+        "Record resistance source and setting, anchor side and height, stance, reach, hold or tempo, step count and direction, compensation, symptoms, and the reason a set ended."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/contentassets/8323553f698a466a98220b21d9eb9a65/foundationsoffitnessprogramming_201508.pdf",
+      "sourceTitle": "Foundations of Fitness Programming",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 87,
+      "claims": [
+        "Kneeling, split-stance, wider standing, and lateral walk-out choices provide distinct base-of-support and coordination contracts.",
+        "Accessibility options include stable wide stance, supported kneeling, lighter bands, closer anchor distance, shorter reach, reduced travel, fewer repetitions, longer rest, and nonvideo instructions."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.nsca.com/contentassets/8323553f698a466a98220b21d9eb9a65/foundationsoffitnessprogramming_201508.pdf",
+      "sourceTitle": "Foundations of Fitness Programming",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 87,
+      "claims": [
+        "Fixed-stance Pallof presses and Pallof lateral walk-outs are related but differ by the added locomotor action.",
+        "Marches, rows, pulldowns, diagonal lifts, rotations, landmine presses, overhead reaches, reactive perturbations, and single-leg versions need explicit variant or definition review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied links have healthy current oEmbed metadata only; full viewing, exact contract, cue quality, safety, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=axgv7H_VQOo",
+      "title": "Pallof Press Exercise Guide — Tutorial, Benefits, Variations",
+      "channelName": "BarBend",
+      "sourceQuery": "Pallof press exercise",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T04:20:00.000Z"
+      },
+      "notes": "Candidate metadata only; exact variants, cues, safety, captions, and accessibility require human viewing."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=ma2OjgP5XDc",
+      "title": "Cable Pallof Press",
+      "channelName": "Warbird Academy",
+      "sourceQuery": "cable Pallof press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T04:20:00.000Z"
+      },
+      "notes": "Candidate metadata only; exact standing cable contract requires human viewing."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=y1fOBVtANdM",
+      "title": "How to do a Standing Banded Pallof Press",
+      "channelName": "TurnFit - Vancouver Personal Trainers",
+      "sourceQuery": "band Pallof press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T04:20:00.000Z"
+      },
+      "notes": "Candidate metadata only; exact standing band contract requires human viewing."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=CRHHSmoakC8",
+      "title": "Half-Kneeling Pallof Press with Band",
+      "channelName": "Power Plant Gym",
+      "sourceQuery": "half kneeling Pallof press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T04:20:00.000Z"
+      },
+      "notes": "Candidate metadata only; exact half-kneeling contract requires human viewing."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=4a7AYClqdnc",
+      "title": "Half-Kneeling Banded Pallof Hold",
+      "channelName": "Greg Lewandowski",
+      "sourceQuery": "half kneeling Pallof hold",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T04:20:00.000Z"
+      },
+      "notes": "Candidate metadata only; exact hold duration, stance, and cue quality require human viewing."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Standing Band Pallof Press",
+      "classification": "new_variant",
+      "rationale": "Elastic resistance changes the load curve but preserves the fixed-stance side-anchored press.",
+      "distinguishingDimensions": {
+        "resistanceSource": "resistance_band",
+        "stance": "standing_parallel",
+        "doseMode": "repetitions"
+      }
+    },
+    {
+      "name": "Standing Cable Pallof Press",
+      "classification": "new_variant",
+      "rationale": "Cable resistance preserves identity with a different loading profile and station contract.",
+      "distinguishingDimensions": {
+        "resistanceSource": "cable_machine",
+        "stance": "standing_parallel"
+      }
+    },
+    {
+      "name": "Half-Kneeling Pallof Press",
+      "classification": "new_variant",
+      "rationale": "Half-kneeling changes the base of support and hip-position contract without changing the press.",
+      "distinguishingDimensions": {
+        "stance": "half_kneeling",
+        "leadSide": "declared"
+      }
+    },
+    {
+      "name": "Tall-Kneeling Pallof Hold",
+      "classification": "new_variant",
+      "rationale": "Tall-kneeling and a timed reach hold are stance and dosage modifiers.",
+      "distinguishingDimensions": {
+        "stance": "tall_kneeling",
+        "doseMode": "isometric_hold"
+      }
+    },
+    {
+      "name": "Split-Stance Pallof Hold",
+      "classification": "new_variant",
+      "rationale": "Split stance changes support and laterality while the fixed press contract remains.",
+      "distinguishingDimensions": {
+        "stance": "split_stance",
+        "doseMode": "isometric_hold"
+      }
+    },
+    {
+      "name": "Pallof Press Slow Eccentric Return",
+      "classification": "new_variant",
+      "rationale": "A declared slow return changes tempo and fatigue without adding a new primary action.",
+      "distinguishingDimensions": {
+        "returnTempoSeconds": 4
+      }
+    },
+    {
+      "name": "Pallof Press Step-Out",
+      "classification": "new_definition",
+      "rationale": "Lateral travel away from and back toward the anchor adds a primary stepping action.",
+      "distinguishingDimensions": {
+        "locomotorAction": "lateral_step_out_and_return"
+      }
+    },
+    {
+      "name": "Pallof Press with March",
+      "classification": "new_definition",
+      "rationale": "Alternating hip flexion and single-leg support add a marching action and balance contract.",
+      "distinguishingDimensions": {
+        "locomotorAction": "alternating_march"
+      }
+    },
+    {
+      "name": "Split-Stance Anti-Rotation Row",
+      "classification": "new_definition",
+      "rationale": "A unilateral pulling action is not the bilateral horizontal Pallof press.",
+      "distinguishingDimensions": {
+        "upperBodyAction": "row"
+      }
+    },
+    {
+      "name": "Half-Kneeling Anti-Rotation Press-Lift Hold",
+      "classification": "new_definition",
+      "rationale": "A diagonal lift path adds shoulder elevation and a different force vector.",
+      "distinguishingDimensions": {
+        "handPath": "diagonal_lift"
+      }
+    }
+  ]
+}

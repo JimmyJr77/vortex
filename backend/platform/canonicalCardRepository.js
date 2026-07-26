@@ -119,12 +119,58 @@ async function assertControlledTaxonomies(client, card) {
 
 async function duplicateCandidates(client, facilityId, card, definitionId = null) {
   const result = await client.query(
-    `SELECT id, canonical_name, display_name, aliases, family_key
-     FROM coaching.exercise_definition_v1
-     WHERE facility_id=$1 AND ($2::uuid IS NULL OR id != $2) AND status != 'archived'`,
+    `SELECT
+       definition.id,
+       definition.canonical_name,
+       definition.display_name,
+       definition.aliases,
+       definition.family_key,
+       resolution.id AS identity_resolution_id,
+       resolution.decision AS identity_resolution_decision,
+       resolution.resolution_source AS identity_resolution_source
+     FROM coaching.exercise_definition_v1 definition
+     LEFT JOIN LATERAL (
+       SELECT
+         candidate_resolution.id,
+         candidate_resolution.decision,
+         candidate_resolution.resolution_source
+       FROM coaching.exercise_identity_resolution_v1 candidate_resolution
+       WHERE $2::uuid IS NOT NULL
+         AND (
+           (
+             candidate_resolution.survivor_definition_id = $2
+             AND candidate_resolution.resolved_definition_id = definition.id
+           )
+           OR (
+             candidate_resolution.resolved_definition_id = $2
+             AND candidate_resolution.survivor_definition_id = definition.id
+           )
+         )
+       ORDER BY candidate_resolution.resolved_at DESC, candidate_resolution.id
+       LIMIT 1
+     ) resolution ON TRUE
+     WHERE definition.facility_id=$1
+       AND ($2::uuid IS NULL OR definition.id != $2)
+       AND definition.status != 'archived'`,
     [facilityId, definitionId],
   )
+  const rowById = new Map(result.rows.map((row) => [String(row.id), row]))
   return findPotentialCanonicalDuplicates({ ...card, id: definitionId }, result.rows)
+    .map((duplicate) => {
+      const row = rowById.get(String(duplicate.id))
+      return {
+        ...duplicate,
+        identityResolution: row?.identity_resolution_id ? {
+          id: String(row.identity_resolution_id),
+          decision: row.identity_resolution_decision,
+          resolutionSource: row.identity_resolution_source,
+        } : null,
+      }
+    })
+    .filter((duplicate) => ![
+      'distinct_exercises',
+      'duplicate_consolidated',
+    ].includes(duplicate.identityResolution?.decision))
 }
 
 export async function findCanonicalCardDuplicates(pool, facilityId, raw, definitionId = null) {

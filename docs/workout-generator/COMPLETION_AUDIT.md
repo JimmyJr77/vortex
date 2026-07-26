@@ -84,7 +84,7 @@ rollout plan.
   budgets. See `CALIBRATION_AND_FATIGUE.md`.
 - Migration 246 and the canonical library audit produce and persist a named
   automated test packet for every migrated exercise. The measured baseline is
-  1,676/1,676 legacy sources mapped into 1,531 canonical definitions, all
+  1,676/1,676 legacy sources mapped into 1,366 active canonical definitions, all
   honestly quarantined and none published. See `LIBRARY_AUDIT.md`.
 - Generated workouts include distinct coach and athlete projections. The coach
   projection retains logistics, budgets, quality gates, substitutions, and
@@ -100,25 +100,31 @@ rollout plan.
 
 On 2026-07-26:
 
-- 781 backend Node tests ran serially: 761 passed, 20 integration-environment tests
+- 808 backend Node tests ran serially: 788 passed, 20 integration-environment tests
   skipped intentionally, and none failed. The focused platform suite separately
-  passed all 564 tests. This includes all 25 named golden
+  passed all 591 tests. This includes all 25 named golden
   scenarios and the governance, graph-swap, AI-quarantine, anatomy/load,
   difficulty-model, and telemetry suites,
 - a 7,000-card deterministic generation test completed in under the five-second
   release ceiling,
 - the complete migration chain passed on disposable PostgreSQL,
-- all 1,676 legacy exercise sources were audited through their 1,531 active
+- all 1,676 legacy exercise sources were audited through their 1,366 active
   canonical definitions, and every active definition remains quarantined
   pending human review,
 - the production reference card passed a real repository save/load round trip
   while its missing-media publication gate remained active,
-- 145 redundant definitions were consolidated into canonical identities while
-  preserving 1,734 canonical variants, 1,818 delivery profiles, and all legacy
-  source mappings; direct identity collisions are now zero.
+- 310 redundant definitions were consolidated into canonical identities while
+  preserving 1,769 canonical variants, 1,866 delivery profiles, and all legacy
+  source mappings; direct identity collisions are zero. All score-85-or-higher
+  candidate pairs now have deterministic identity decisions, no pair remains
+  in `needs_human_review`, and no unresolved pair scores 85 or higher.
 - Focused ESLint passed for the canonical backend, route, and coach UI files.
 - `npm run build` completed successfully.
-- The complete migration sequence through migration 333 and every add-on was
+- The canonical release-readiness command correctly exited blocked: zero
+  definitions are published, all seven phase pools have zero published depth,
+  zero graph edges or calibration anchors are approved, and no real coach-pilot
+  review has been recorded. Those are rollout gates, not migration failures.
+- The complete migration sequence through migration 350 and every add-on was
   applied successfully from a blank disposable PostgreSQL 15 database.
   Migrations 304 and 305 were also applied through the normal runner and
   directly rerun; the final migration-305 rerun performed zero inserts and zero
@@ -296,11 +302,77 @@ On 2026-07-26:
   rear-foot or heel-only elevation and stationary versus stepping or jumping
   contacts remain explicit identity boundaries. No exercise skill level or
   human approval is created.
+- Migrations 334 and 335 consolidate three implement-labeled half-kneeling
+  single-arm strict presses into one stable identity and complete six exact
+  implement/pressing-side variants. Migration 336 records two deterministic
+  identity boundaries for forward versus backward overhead medicine-ball
+  projection and for the reversed box/depth contact order. Migration 337
+  completes forward and backward overhead projection cards with four exact
+  direction/preload variants, candidate-only research and media, and no
+  approval.
+- Migration 338 records ten additional movement boundaries, including
+  two- versus three-point start bases, forward versus lateral crawling,
+  bear- versus tall-plank support, box versus floor landing targets, inversion
+  versus eversion force, hinge-plus-row versus hinge-only, single versus triple
+  hops, and strict versus leg-driven landmine pressing.
+- Migration 339 consolidates 148 active synonym-, implement-, load-, assistance-,
+  tempo-, cue-, and environment-labeled definitions. Every source mapping and
+  alias is retained; legacy variants are archived, nonselectable, and
+  identity-quarantined. Existing candidate research is preserved. The migration
+  refuses protected review, approval, publication, media, graph, calibration,
+  and score records and creates no human decision.
+- Migration 340 records 70 deterministic movement boundaries and quarantines
+  three under-specified legacy pairs for human identity review: Dead Bug Wall
+  Press versus Medicine Ball Dead Bug Press, Lateral Hop to Stick versus
+  Single-Leg Lateral Hop to Stick, and Med Ball Countermovement Rotational
+  Throw versus Medicine Ball Countermovement Throw. No unresolved score-90
+  pair or exact collision remains.
+- Migration 341 resolves those three quarantines from exact movement contracts:
+  fixed-wall dead-bug press and medicine-ball dead-bug press remain distinct;
+  the generic lateral card becomes an explicit bilateral jump-and-stick
+  identity distinct from the same-leg unilateral card; and the rotational
+  medicine-ball throw remains distinct from forward chest projection.
+  Low-amplitude bilateral lateral hop is consolidated as a variant.
+- Migration 342 completes the five resulting boundary cards with two exact
+  variants and profiles each, 16 candidate evidence sections, five current
+  healthy oEmbed metadata candidates, six alternate assessments, review-only
+  graph edges, and review-only score proposals. Migration 343 consolidates the
+  countermovement chest-pass source into the broader Medicine Ball Chest Pass
+  identity and records the tuck-jump/lateral-stick boundary. Migration 344
+  repairs the candidate relationship dimensions to the controlled
+  `range`/`complexity`/`load` taxonomy and strips obsolete skill-level metadata
+  keys library-wide. Fresh invariant queries find zero exercise-card
+  skill-level values or JSON keys and retain all 1,112 dedicated skill-library
+  level assignments. None creates human, media, graph, calibration, or
+  publication approval.
+- Migrations 345 and 346 consolidate eleven Pallof synonyms or controlled
+  variants into the stable Pallof Press and Pallof Step-Out identities, then
+  complete both cards with 12 exact variants and profiles, 32 evidence
+  sections, ten current oEmbed metadata candidates, 20 alternate assessments,
+  14 review-only graph proposals, and 24 review-only calibration proposals.
+  No candidate media or human decision is treated as approved.
+- Migration 347 removes the enumerated skill/proficiency fields from every
+  exercise-card surface while leaving the skill library intact. Migration 350
+  closes broader historical spellings recursively, adds database check
+  constraints to every exercise JSON surface, and leaves non-neutral protected
+  classifications fail-closed. The clean replay has zero exercise, scaling, or
+  safety-profile level values, zero matching keys at any exercise-card JSON
+  depth, zero difficulty-formula mismatches, and 1,112 retained skill-library
+  level assignments. Canonical authoring and research validation use the same
+  semantic prohibition.
+- Migrations 348 and 349 consolidate `Stir-the-Pot Plank` into the stable
+  `Stir-the-Pot` identity and complete the survivor with three exact
+  support-base/circle-size variants, six contextual profiles, 16 evidence
+  sections, four candidate media records, ten alternate assessments, five
+  review-only graph proposals, and nine review-only calibration proposals.
+  Candidate media remain unviewed/unapproved and no human-controlled state is
+  inferred.
 - A blank disposable PostgreSQL 15 database successfully ran the complete
-  migration chain through migration 333 and reproduced 1,531 active
-  definitions, 145 archived definitions, 1,734 variants, 1,818 delivery
-  profiles, 1,676 source mappings, 147 identity resolutions, 79 graph edges,
-  and 93 review-only calibrations.
+  migration chain through migration 350 and reproduced 1,366 active
+  definitions, 310 archived definitions, 1,769 variants, 1,866 delivery
+  profiles, 1,676 source mappings, 406 identity resolutions, 128 graph edges,
+  and 180 review-only calibrations. Migrations 345–350 reran idempotently in
+  disposable rehearsal databases.
 - Migration 305 used traceable legacy difficulty profiles to populate physical
   difficulty for 287 previously incomplete variants and mechanically derived
   overall difficulty for every supported variant. The resulting coverage is
@@ -311,15 +383,15 @@ On 2026-07-26:
   created. The migration fails closed rather than changing a published variant,
   current approved card review, or approved score record.
 - Deterministic repeat tests use deep equality with the same seed.
-- All 250 canonical-research JSON artifacts pass the exercise-difficulty
+- All 267 canonical-research JSON artifacts pass the exercise-difficulty
   invariant. The normalization tool corrected 278 historical candidate-summary
   overall scores across 164 files so overall now equals the greater of
   technical complexity and physical or absolute-load demand; non-core
   dimensions remain separately available to planning.
 - The duplicate-candidate audit now builds and reuses one normalized identity
   index. Its indexed results are regression-tested against the direct matcher,
-  and the complete 1,531-card audit avoids rebuilding identity terms inside
-  every pairwise comparison. Nineteen cards now pass every structural category
+  and the complete 1,366-card audit avoids rebuilding identity terms inside
+  every pairwise comparison. Thirty cards now pass every structural category
   and remain quarantined only on
   explicit human calibration, graph-review, media-review, and publication
   gates.
@@ -330,7 +402,7 @@ On 2026-07-26:
 
 These are deployment and evidence gates, not code-completion claims:
 
-1. Apply the complete migration sequence through migration 333 in a
+1. Apply the complete migration sequence through migration 350 in a
    non-production environment.
 2. Run the full library audit; review anatomy, constraints, scores, media,
    relationships, and calibration evidence card by card.

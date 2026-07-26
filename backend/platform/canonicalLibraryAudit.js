@@ -9,6 +9,18 @@ export const CANONICAL_CARD_AUDIT_VERSION = 'canonical-card-audit-v1'
 const asNumber = (value) => Number(value ?? 0)
 const asArray = (value) => (Array.isArray(value) ? value : [])
 const asObject = (value) => (value && typeof value === 'object' && !Array.isArray(value) ? value : {})
+const RESOLVED_IDENTITY_DECISIONS = new Set(['distinct_exercises', 'duplicate_consolidated'])
+
+function identityPairKey(leftId, rightId) {
+  return [String(leftId), String(rightId)].sort().join(':')
+}
+
+function duplicateThresholdCounts(pairs) {
+  return Object.fromEntries([72, 80, 85, 90, 95, 97, 100].map((threshold) => [
+    String(threshold),
+    pairs.filter((pair) => pair.score >= threshold).length,
+  ]))
+}
 
 function hasKeys(value) {
   return Object.keys(asObject(value)).length > 0
@@ -318,6 +330,7 @@ export async function auditCanonicalExerciseLibrary(pool, {
     calibrationsResult,
     taxonomyResult,
     legacyResult,
+    identityResolutionsResult,
   ] = await Promise.all([
     pool.query(
       `SELECT * FROM coaching.exercise_definition_v1
@@ -372,6 +385,14 @@ export async function auditCanonicalExerciseLibrary(pool, {
        FROM coaching.exercise WHERE facility_id=$1`,
       [id],
     ),
+    pool.query(
+      `SELECT
+         id, survivor_definition_id, resolved_definition_id, decision,
+         resolution_source, reviewed_by, resolved_at
+       FROM coaching.exercise_identity_resolution_v1
+       WHERE facility_id=$1`,
+      [id],
+    ),
   ])
 
   const definitions = definitionsResult.rows
@@ -410,12 +431,48 @@ export async function auditCanonicalExerciseLibrary(pool, {
 
   const identityRows = definitions.map((row) => ({
     id: row.id,
+    slug: row.slug,
     canonical_name: row.canonical_name,
     display_name: row.display_name,
     aliases: row.aliases,
     family_key: row.family_key,
   }))
   const duplicateIndex = buildCanonicalDuplicateIndex(identityRows)
+  const resolutionByPair = new Map(identityResolutionsResult.rows.map((resolution) => [
+    identityPairKey(
+      resolution.survivor_definition_id,
+      resolution.resolved_definition_id,
+    ),
+    resolution,
+  ]))
+  const rawDuplicatePairs = []
+  const seenDuplicatePairs = new Set()
+  for (const definition of definitions) {
+    const duplicates = findPotentialCanonicalDuplicatesFromIndex(definition, duplicateIndex)
+    for (const duplicate of duplicates) {
+      const pairKey = identityPairKey(definition.id, duplicate.id)
+      if (seenDuplicatePairs.has(pairKey)) continue
+      seenDuplicatePairs.add(pairKey)
+      const resolution = resolutionByPair.get(pairKey) ?? null
+      rawDuplicatePairs.push({
+        ...duplicate,
+        pairKey,
+        leftDefinitionId: String(definition.id),
+        leftSlug: definition.slug,
+        leftDisplayName: definition.display_name,
+        identityResolution: resolution ? {
+          id: String(resolution.id),
+          decision: resolution.decision,
+          resolutionSource: resolution.resolution_source,
+          reviewedBy: resolution.reviewed_by == null ? null : String(resolution.reviewed_by),
+          resolvedAt: resolution.resolved_at,
+        } : null,
+      })
+    }
+  }
+  const unresolvedDuplicatePairs = rawDuplicatePairs.filter((pair) => (
+    !RESOLVED_IDENTITY_DECISIONS.has(pair.identityResolution?.decision)
+  ))
   const packets = definitions.map((definition) => {
     const definitionId = String(definition.id)
     const card = rowToCard(
@@ -440,10 +497,20 @@ export async function auditCanonicalExerciseLibrary(pool, {
         .map((key) => `equipment:${key}`),
     ]
     const relationships = asArray(relationshipsByDefinition.get(definitionId))
+    const duplicates = findPotentialCanonicalDuplicatesFromIndex(card, duplicateIndex)
+      .map((duplicate) => ({
+        ...duplicate,
+        identityResolution: resolutionByPair.get(
+          identityPairKey(definitionId, duplicate.id),
+        ) ?? null,
+      }))
+    const unresolvedDuplicates = duplicates.filter((duplicate) => (
+      !RESOLVED_IDENTITY_DECISIONS.has(duplicate.identityResolution?.decision)
+    ))
     const basePacket = buildCanonicalCardTestPacket(card, {
       mediaReview,
       invalidTaxonomyKeys,
-      duplicates: findPotentialCanonicalDuplicatesFromIndex(card, duplicateIndex),
+      duplicates: unresolvedDuplicates,
       relationships,
     })
     const checks = [
@@ -499,6 +566,41 @@ export async function auditCanonicalExerciseLibrary(pool, {
     issueCounts: Object.fromEntries(
       Object.entries(issueCounts).sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0])),
     ),
+    duplicateReview: {
+      exactCollisions: unresolvedDuplicatePairs.filter((pair) => pair.exactCollision).length,
+      rawPotentialPairs: rawDuplicatePairs.length,
+      unresolvedPotentialPairs: unresolvedDuplicatePairs.length,
+      adjudicatedDistinctPairs: rawDuplicatePairs.filter((pair) => (
+        pair.identityResolution?.decision === 'distinct_exercises'
+      )).length,
+      consolidatedPairsStillActive: rawDuplicatePairs.filter((pair) => (
+        pair.identityResolution?.decision === 'duplicate_consolidated'
+      )).length,
+      needsHumanReviewPairs: rawDuplicatePairs.filter((pair) => (
+        pair.identityResolution?.decision === 'needs_human_review'
+      )).length,
+      rawByMinimumScore: duplicateThresholdCounts(rawDuplicatePairs),
+      unresolvedByMinimumScore: duplicateThresholdCounts(unresolvedDuplicatePairs),
+      unresolvedHighSimilarityPairs: unresolvedDuplicatePairs
+        .filter((pair) => pair.score >= 85)
+        .map((pair) => ({
+          score: pair.score,
+          exactCollision: pair.exactCollision,
+          leftDefinitionId: pair.leftDefinitionId,
+          leftSlug: pair.leftSlug,
+          leftDisplayName: pair.leftDisplayName,
+          rightDefinitionId: String(pair.id),
+          rightSlug: pair.slug,
+          rightDisplayName: pair.displayName,
+          familyKeys: [
+            definitions.find((definition) => (
+              String(definition.id) === pair.leftDefinitionId
+            ))?.family_key ?? null,
+            pair.familyKey ?? null,
+          ],
+          identityResolution: pair.identityResolution,
+        })),
+    },
     packets,
   }
 }

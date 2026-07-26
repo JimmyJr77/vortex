@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Oswald:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Updated at runtime by useSiteHeaderHeight; fallback clears tall mobile headers */
+    --site-header-height: 9.5rem;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--site-header-height);
+  }
+
+  body {
+    @apply font-sans text-gray-900 bg-white;
+  }
+
+  /* Root needs non-static position for Framer Motion useScroll; full height so content is visible */
+  #root {
+    position: relative;
+    min-height: 100%;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-vortex-red text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply border-2 border-vortex-red text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105;
+}
+
+  .btn-primary-secondary {
+    @apply bg-vortex-red text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg;
+  }
+  
+  .section-padding {
+    @apply py-16 px-6 sm:px-8 lg:px-12;
+  }
+  
+  .container-custom {
+    @apply max-w-7xl mx-auto px-6 sm:px-8 lg:px-12;
+  }
+
+  .container-admin {
+    @apply w-full max-w-none mx-auto px-6 sm:px-8 lg:px-10 xl:px-12;
+  }
+
+  .pt-below-site-header {
+    padding-top: var(--site-header-height);
+  }
+
+  .min-h-below-site-header {
+    min-height: calc(100vh - var(--site-header-height));
+  }
+
+  /* Header slide-in without Framer (avoids container position warning) */
+  @keyframes header-slide-in {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+  }
+  .header-slide-in {
+    animation: header-slide-in 0.6s ease-out forwards;
+  }
+
+  /* Gymnastics hero: nonstop scrolling image strip (custom class to ensure it runs) */
+  @keyframes gymnastics-hero-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .gymnastics-hero-scroll {
+    animation: gymnastics-hero-scroll 60s linear infinite;
+    will-change: transform;
+  }
+
+  @keyframes notification-bell-bg-pulse {
+    0%, 100% { background-color: rgb(55 65 81); }
+    50% { background-color: rgb(255 255 255); }
+  }
+
+  @keyframes notification-bell-icon-pulse {
+    0%, 100% { color: rgb(255 255 255); }
+    50% { color: rgb(156 163 175); }
+  }
+
+  .notification-bell-unread {
+    animation: notification-bell-bg-pulse 2.5s ease-in-out infinite;
+  }
+
+  .notification-bell-unread .notification-bell-icon {
+    animation: notification-bell-icon-pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes message-critical-flash {
+    0%, 100% {
+      background-color: var(--critical-bubble-base-bg);
+      border-color: var(--critical-bubble-base-border);
+    }
+    50% {
+      background-color: #fef9c3;
+      border-color: #facc15;
+    }
+  }
+
+  .message-bubble-critical-flash {
+    animation: message-critical-flash 2.8s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .message-bubble-critical-flash {
+      animation: none;
+    }
+  }
+
+  .messaging-workspace {
+    @apply flex flex-col flex-1 min-h-0 overflow-hidden;
+    min-height: 420px;
+    max-height: 100%;
+  }
+
+  .messaging-workspace--thread-open {
+    min-height: 0;
+  }
+
+  .messaging-workspace--maximized {
+    min-height: 0;
+    max-height: 100%;
+    height: 100%;
+    gap: 0;
+  }
+
+  .messaging-workspace--maximized .messaging-workspace-grid {
+    gap: 0;
+    height: 100%;
+    max-height: 100%;
+  }
+
+  .messaging-panel--maximized {
+    @apply rounded-none border-0;
+    height: 100%;
+    max-height: 100%;
+  }
+
+  @media (max-width: 1023px) {
+    .messaging-workspace--thread-open {
+      gap: 0;
+    }
+  }
+
+  .messaging-panel {
+    @apply bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col min-h-0 max-h-full;
+  }
+
+  .messaging-scroll {
+    @apply flex-1 min-h-0 overflow-y-auto overscroll-contain;
+  }
+
+  .messaging-workspace-grid {
+    overflow: hidden;
+  }
+
+  @media (min-width: 1024px) {
+    .messaging-workspace-grid {
+      flex: 1 1 auto;
+      min-height: 0;
+      max-height: 100%;
+      height: 100%;
+      grid-template-rows: minmax(0, 1fr);
+      align-items: stretch;
+    }
+
+    .messaging-workspace-grid > * {
+      min-height: 0;
+      max-height: 100%;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .messaging-workspace-grid {
+      flex: 1 1 auto;
+      min-height: 0;
+      max-height: 100%;
+      height: 100%;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
+    }
+
+    .messaging-workspace-grid > * {
+      min-height: 0;
+      max-height: 100%;
+    }
+  }
+}

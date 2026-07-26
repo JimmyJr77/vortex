@@ -1,0 +1,19 @@
+{
+  "batchKey": "pallof-press-step-out-family-v1",
+  "researchVersion": "2026-07-26.43",
+  "generatedAt": "2026-07-27T04:30:00.000Z",
+  "cards": [
+    {
+      "slug": "pallof-press-pallof-hold",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 10
+    },
+    {
+      "slug": "pallof-press-step-out",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 10
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "batchKey": "overhead-medicine-ball-projection-family-v1",
+  "researchVersion": "2026-07-26.41",
+  "generatedAt": "2026-07-26T23:58:00.000Z",
+  "cards": [
+    {
+      "slug": "medicine-ball-overhead-throw",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 6
+    },
+    {
+      "slug": "medicine-ball-overhead-back-throw",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 6
+    }
+  ]
+}

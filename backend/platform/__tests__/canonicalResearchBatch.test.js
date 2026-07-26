@@ -1398,3 +1398,383 @@ test('half-kneeling single-arm press batch consolidates implements while preserv
       && !Object.hasOwn(candidate, 'reviewedAt')
   )))
 })
+
+test('overhead medicine-ball projection batch preserves forward and backward identities without skill levels', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/overhead-medicine-ball-projection-family.v1.json',
+    ),
+    'utf8',
+  ))
+
+  assert.ok(registryDocument.sources.ace_forward_overhead_medicine_ball_throw)
+  assert.ok(registryDocument.sources.functional_performance_backward_overhead_throw)
+  assert.ok(registryDocument.sources.forward_backward_medicine_ball_protocols)
+  assert.ok(registryDocument.sources.overhead_medicine_ball_load_velocity)
+  assert.equal(batch.cards.length, 2)
+
+  const expectedVariants = new Map([
+    ['medicine-ball-overhead-throw', [
+      ['stationary-forward-distance', 48, 42, 48],
+      ['step-through-forward-wall-throw-only', 54, 44, 54],
+    ]],
+    ['medicine-ball-overhead-back-throw', [
+      ['countermovement-backward-distance', 50, 54, 54],
+      ['no-countermovement-backward-distance', 48, 50, 50],
+    ]],
+  ])
+
+  for (const cardSpec of batch.cards) {
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: cardSpec.slug === 'medicine-ball-overhead-throw'
+          ? 'Medicine Ball Overhead Throw'
+          : 'Medicine Ball Overhead Back Throw',
+        familyKey: 'overhead_medicine_ball_projection',
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: 1,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, 5)
+    assert.equal(result.packet.alternateAssessments.length, 6)
+    assert.deepEqual(
+      cardSpec.assessmentSummary.proposedVariantPlan.map((variant) => [
+        variant.variantKey,
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+        variant.overallDifficulty,
+      ]),
+      expectedVariants.get(cardSpec.slug),
+    )
+    assert.ok(cardSpec.assessmentSummary.proposedVariantPlan.every((variant) => (
+      variant.overallDifficulty === Math.max(
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+      )
+    )))
+    assert.equal(cardSpec.assessmentSummary.identityDecision.decision, 'distinct_exercises')
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:skillLevel|skill_level|minimumSkillLevel|minimum_skill_level)"/,
+    )
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+  }
+})
+
+test('remaining identity-boundary batches are complete, difficulty-only, and candidate media stays human-gated', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batchFiles = [
+    'dead-bug-press-boundary.v1.json',
+    'bilateral-lateral-jump-stick-boundary.v1.json',
+    'countermovement-medicine-ball-projection-boundary.v1.json',
+  ]
+  const expectedSlugs = new Set([
+    'dead-bug-wall-press',
+    'medicine-ball-dead-bug-press',
+    'lateral-hop-to-stick',
+    'medicine-ball-chest-pass',
+    'med-ball-countermovement-rotational-throw',
+  ])
+  const seenSlugs = new Set()
+
+  for (const batchFile of batchFiles) {
+    const batch = JSON.parse(readFileSync(
+      path.join(RESEARCH_ROOT, 'batches', batchFile),
+      'utf8',
+    ))
+    assert.equal(batch.researchVersion, '2026-07-26.42')
+
+    for (const cardSpec of batch.cards) {
+      seenSlugs.add(cardSpec.slug)
+      const result = buildResearchPacketFromBatch({
+        facilityId: batch.facilityId,
+        researchVersion: batch.researchVersion,
+        sharedEvidence: batch.sharedEvidence,
+        sourceRegistry: registryDocument.sources,
+        cardSpec,
+        currentCard: {
+          slug: cardSpec.slug,
+          canonicalName: cardSpec.slug,
+          familyKey: 'researched_identity_boundary',
+          snapshot: {
+            capturedAt: batch.snapshotAt,
+            cardVersion: 1,
+            status: 'review',
+          },
+        },
+        mediaCandidates: [],
+      })
+
+      assert.equal(result.validation.valid, true)
+      assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+      assert.equal(result.packet.mediaCandidates.length, 5)
+      assert.equal(result.packet.alternateAssessments.length, 6)
+      assert.ok(cardSpec.assessmentSummary.proposedVariantPlan.every((variant) => (
+        variant.overallDifficulty === Math.max(
+          variant.exerciseComplexity,
+          variant.physicalDifficulty,
+        )
+      )))
+      assert.doesNotMatch(
+        JSON.stringify(cardSpec),
+        /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level)"/,
+      )
+      assert.ok(result.packet.mediaCandidates.every((candidate) => (
+        candidate.linkStatus === 'healthy'
+          && candidate.embeddingAllowed === true
+          && candidate.externalVerification?.method === 'youtube_oembed'
+          && !Object.hasOwn(candidate, 'reviewStatus')
+          && !Object.hasOwn(candidate, 'exactVariantMatch')
+          && !Object.hasOwn(candidate, 'reviewerUserId')
+          && !Object.hasOwn(candidate, 'reviewedAt')
+      )))
+    }
+  }
+
+  assert.deepEqual(seenSlugs, expectedSlugs)
+})
+
+test('Pallof press and step-out batch consolidates modifiers, preserves action boundaries, and keeps media human-gated', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/pallof-press-step-out-family.v1.json',
+    ),
+    'utf8',
+  ))
+
+  for (const sourceKey of [
+    'nasm_progressive_core_training',
+    'nsca_foundations_fitness_programming',
+    'pallof_band_test_reliability',
+    'pallof_body_position_postural_control',
+    'axial_torque_trunk_emg',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey])
+  }
+  assert.equal(batch.researchVersion, '2026-07-26.43')
+  assert.equal(batch.cards.length, 2)
+
+  const expectedVariants = new Map([
+    ['pallof-press-pallof-hold', [
+      ['standing-band-repetition', 28, 24, 28],
+      ['standing-cable-repetition', 30, 28, 30],
+      ['standing-cable-isometric-hold', 32, 30, 32],
+      ['half-kneeling-band-repetition', 34, 26, 34],
+      ['tall-kneeling-band-isometric-hold', 36, 28, 36],
+      ['split-stance-cable-isometric-hold', 38, 32, 38],
+      ['standing-cable-four-second-return', 34, 30, 34],
+      ['partner-anchored-band-isometric-hold', 36, 26, 36],
+    ]],
+    ['pallof-press-step-out', [
+      ['band-hands-at-chest-step-out', 36, 28, 36],
+      ['band-arms-extended-step-out', 42, 32, 42],
+      ['cable-hands-at-chest-step-out', 38, 32, 38],
+      ['cable-arms-extended-step-out', 44, 36, 44],
+    ]],
+  ])
+
+  for (const cardSpec of batch.cards) {
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: cardSpec.slug === 'pallof-press-pallof-hold'
+          ? 'Pallof Press'
+          : 'Pallof Step-Out',
+        familyKey: 'side_anchored_anti_rotation',
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: 2,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, 5)
+    assert.equal(result.packet.alternateAssessments.length, 10)
+    assert.deepEqual(
+      cardSpec.assessmentSummary.proposedVariantPlan.map((variant) => [
+        variant.variantKey,
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+        variant.overallDifficulty,
+      ]),
+      expectedVariants.get(cardSpec.slug),
+    )
+    assert.ok(cardSpec.assessmentSummary.proposedVariantPlan.every((variant) => (
+      variant.overallDifficulty === Math.max(
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+      )
+    )))
+    assert.equal(
+      cardSpec.assessmentSummary.identityDecision.decision,
+      'distinct_exercises',
+    )
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level)"/,
+    )
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'reviewStatus')
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+  }
+
+  const press = batch.cards.find((card) => (
+    card.slug === 'pallof-press-pallof-hold'
+  ))
+  const stepOut = batch.cards.find((card) => (
+    card.slug === 'pallof-press-step-out'
+  ))
+  assert.ok(press.alternateAssessments.some((alternate) => (
+    alternate.name === 'Pallof Press with March'
+      && alternate.classification === 'new_definition'
+  )))
+  assert.ok(press.alternateAssessments.some((alternate) => (
+    alternate.name === 'Half-Kneeling Pallof Press'
+      && alternate.classification === 'new_variant'
+  )))
+  assert.ok(stepOut.alternateAssessments.some((alternate) => (
+    alternate.name === 'Mini-Band Lateral Walk'
+      && alternate.classification === 'new_definition'
+  )))
+  assert.ok(stepOut.alternateAssessments.some((alternate) => (
+    alternate.name === 'Arms-Extended Pallof Walkout'
+      && alternate.classification === 'new_variant'
+  )))
+})
+
+test('Stir-the-Pot batch consolidates the redundant plank label and scores exact support and circle variants', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'batches/stir-the-pot-family.v1.json'),
+    'utf8',
+  ))
+  const [cardSpec] = batch.cards
+
+  for (const sourceKey of [
+    'ace_stir_the_pot',
+    'gym_ball_trunk_emg',
+    'unstable_surface_emg_meta_analysis',
+    'unstable_closed_chain_shoulder_meta_analysis',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey])
+  }
+
+  const result = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: 'stir-the-pot',
+      canonicalName: 'Stir-the-Pot',
+      familyKey: 'stability_ball_circular_plank_control',
+      snapshot: {
+        capturedAt: batch.snapshotAt,
+        cardVersion: 2,
+        status: 'review',
+      },
+    },
+    mediaCandidates: [],
+  })
+
+  assert.equal(result.validation.valid, true)
+  assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(result.packet.mediaCandidates.length, 4)
+  assert.equal(result.packet.alternateAssessments.length, 10)
+  assert.equal(
+    cardSpec.assessmentSummary.identityDecision.decision,
+    'duplicate_consolidated',
+  )
+  assert.deepEqual(
+    cardSpec.assessmentSummary.proposedVariantPlan.map((variant) => [
+      variant.variantKey,
+      variant.exerciseComplexity,
+      variant.physicalDifficulty,
+      variant.overallDifficulty,
+    ]),
+    [
+      ['knee-supported-small-circles', 32, 24, 32],
+      ['toe-supported-small-circles', 42, 34, 42],
+      ['toe-supported-large-circles', 48, 40, 48],
+    ],
+  )
+  assert.ok(cardSpec.assessmentSummary.proposedVariantPlan.every((variant) => (
+    variant.overallDifficulty === Math.max(
+      variant.exerciseComplexity,
+      variant.physicalDifficulty,
+    )
+  )))
+  assert.doesNotMatch(
+    JSON.stringify(cardSpec),
+    /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level)"/,
+  )
+  assert.ok(result.packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && !Object.hasOwn(candidate, 'reviewStatus')
+      && !Object.hasOwn(candidate, 'exactVariantMatch')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )))
+  assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+    alternate.name === 'Stir-the-Pot Plank'
+      && alternate.classification === 'same_identity'
+  )))
+  assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+    alternate.name === 'Stability-Ball Roll-Out'
+      && alternate.classification === 'new_definition'
+  )))
+})

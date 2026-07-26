@@ -3,6 +3,7 @@ import {
   deriveOverallDifficulty,
   score100,
 } from './canonicalWorkoutContract.js'
+import { findExerciseSkillLevelPaths } from './exerciseCardSemantics.js'
 
 export const CARD_STATUSES = Object.freeze(['draft', 'review', 'published', 'deprecated', 'archived'])
 export const RELATIONSHIP_TYPES = Object.freeze([
@@ -33,7 +34,23 @@ export const EXTERNAL_LOAD_METHODS = Object.freeze([
   'bodyweight', 'fixed_external', 'relative_external', 'velocity_targeted',
   'distance_targeted', 'coach_selected',
 ])
-
+export const EXERCISE_SKILL_LEVEL_METADATA_KEYS = Object.freeze([
+  'skillLevel',
+  'skill_level',
+  'minimumSkillLevel',
+  'minimum_skill_level',
+  'proficiencyLevel',
+  'proficiency_level',
+  'exerciseSkillLevel',
+  'exerciseSkillLevelAllowed',
+  'neverUseExerciseSkillLevel',
+  'exerciseCardSkillLevel',
+  'formalProficiencyClassification',
+  'proficiencyClassificationScope',
+  'skill_level_applicability',
+  'skillLevelApplicability',
+  'skillLevelClassification',
+])
 const STATUS_TRANSITIONS = Object.freeze({
   draft: new Set(['review', 'archived']),
   review: new Set(['draft', 'published', 'archived']),
@@ -82,6 +99,17 @@ function object(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : {}
 }
 
+export function assertExerciseCardHasNoSkillLevelMetadata(raw) {
+  const matches = findExerciseSkillLevelPaths(raw)
+    .map((path) => path ? `card.${path}` : 'card')
+  if (matches.length > 0) {
+    throw new TypeError(
+      `Exercise cards cannot contain skill or proficiency levels; use exercise complexity and physical difficulty. Remove: ${matches.join(', ')}.`,
+    )
+  }
+  return true
+}
+
 function isHttpsUrl(value) {
   try {
     return new URL(value).protocol === 'https:'
@@ -125,6 +153,7 @@ function prepareCanonicalIdentity(card = {}) {
   ].map(identityText).filter(Boolean))
   return {
     id: String(card.id ?? ''),
+    slug: card.slug,
     displayName: card.displayName ?? card.display_name,
     familyKey: card.familyKey ?? card.family_key,
     names,
@@ -153,6 +182,7 @@ export function findPotentialCanonicalDuplicatesFromIndex(candidate, duplicateIn
       const exactCollision = preparedCandidate.names.some((name) => existing.nameSet.has(name))
       return {
         id: existing.id,
+        slug: existing.slug,
         displayName: existing.displayName,
         familyKey: existing.familyKey,
         score,
@@ -196,6 +226,7 @@ export function approvalAppliesToVersion(review, cardVersion, reviewerUserId) {
 }
 
 export function normalizeCanonicalCardDraft(raw = {}) {
+  assertExerciseCardHasNoSkillLevelMetadata(raw)
   const canonicalName = text(raw.canonicalName ?? raw.canonical_name)
   const slug = text(raw.slug)
     .toLowerCase()

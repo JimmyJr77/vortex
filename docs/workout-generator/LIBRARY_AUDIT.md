@@ -9,13 +9,13 @@ The migration preserves every legacy exercise:
 | Measure | Count |
 |---|---:|
 | Legacy exercise rows | 1,676 |
-| Active canonical definitions | 1,531 |
-| Archived redundant definitions | 145 |
-| Canonical variant rows | 1,734 |
-| Contextual delivery profiles | 1,818 |
+| Active canonical definitions | 1,366 |
+| Archived redundant definitions | 310 |
+| Canonical variant rows | 1,769 |
+| Contextual delivery profiles | 1,866 |
 | Migration coverage | 100% |
 | Published canonical definitions | 0 |
-| Active quarantined test packets | 1,531 |
+| Active quarantined test packets | 1,366 |
 
 No migrated card is treated as production-approved. Migration creates stable
 canonical identity and provenance, then leaves the definition, variant, and
@@ -23,16 +23,21 @@ delivery profiles in `review`. Migration 246 creates a persisted, versioned test
 packet for every card and explicitly marks it `quarantined` until the executable
 audit proves all publication gates.
 
-The baseline audit found these blockers on every card:
+The final audit found four blockers on every active card:
+
+- exact-match demonstration media needs external review;
+- progression/regression/substitution edges need coach review;
+- score calibration anchors need independent approval;
+- publication needs current two-person approval.
+
+The other structural categories are complete on 30 cards and remain incomplete
+on 1,336:
 
 - anatomy and biomechanics need human completion;
 - environment and population constraints need human completion;
 - load and fatigue/recovery profiles need calibration;
 - programming, sequencing, timing, dose scaling, and measurement need review;
 - athlete, accessibility, coach, and support-operations content need review;
-- exact-match demonstration media needs external review;
-- progression/regression/substitution edges need review;
-- score calibration anchors need independent approval.
 
 The initial audit found 215 cards participating in potential identity matches,
 70 exact-name pairs, and 54 direct database identity pairs. Migration 252
@@ -221,14 +226,72 @@ derived from exercise complexity and physical difficulty. No exercise-card
 skill level, media approval, relationship approval, calibration approval, or
 publication state is created.
 
-The final 1,531-definition library preserves all 1,676 source mappings, 1,734
-variant rows, and 1,818 delivery profiles and still has zero direct
+Migrations 341–344 resolve the last three score-85 identity quarantines and
+complete the five resulting cards. Fixed-wall and medicine-ball dead-bug
+presses remain distinct constraint/action contracts. The generic lateral
+hop-to-stick is made explicit as bilateral and remains distinct from both the
+same-leg unilateral hop and the tuck-jump-to-lateral-stick action sequence; its
+low-amplitude source is retained as a variant. Countermovement forward chest
+projection is consolidated into Medicine Ball Chest Pass, while transverse
+countermovement rotational projection remains separate.
+
+Each of the five active cards has two exact variants, two delivery profiles,
+16 candidate evidence sections, five current healthy oEmbed metadata
+candidates, six alternate assessments, review-only progression/regression and
+conditional-substitution proposals, and review-only calibration proposals.
+Migration 344 confines graph dimensions to the controlled
+`range`/`complexity`/`load` vocabulary. Their automated packets have no
+structural failure; only media viewing/approval, graph approval, independent
+calibration, and publication review remain. Candidate link metadata is not a
+claim that a human watched or approved a demonstration.
+
+Migrations 345 and 346 resolve the Pallof press cluster into two stable
+identities. `Pallof Press` owns fixed-stance press, hold, implement, stance,
+slow-return, and supervised partner-anchor variants. `Pallof Step-Out` owns
+the side-anchored lateral travel variants. Marches, diagonal press-lifts, rows,
+pulldowns, landmine presses, and mini-band lateral walks remain distinct
+because they add a primary limb action, locomotor contract, or force path.
+Eleven redundant definitions are archived without deleting their sources.
+The two completed cards add 12 exact scored variants, 12 contextual delivery
+profiles, 32 candidate evidence sections, ten current healthy oEmbed metadata
+candidates, 20 alternate assessments, 14 review-only graph proposals, and 24
+review-only calibration proposals. Candidate metadata is not a claim that a
+human viewed or approved a video.
+
+Migrations 348 and 349 consolidate `Stir-the-Pot Plank` into `Stir-the-Pot`.
+Both source records describe the same forearms-on-stability-ball circular plank;
+the added word “plank” and the throwing-athlete framing do not add a movement
+action. Knee versus toe support and small versus large circles are exact
+variants. Static stability-ball planks, linear roll-outs, body saws, pikes,
+unilateral support, and reactive perturbations remain separate exercise or
+review boundaries.
+
+The completed survivor has three exact variants, six contextual profiles, 16
+candidate evidence sections, four current healthy oEmbed metadata candidates,
+ten alternate assessments, five review-only graph proposals, and nine
+review-only calibration proposals. Candidate metadata is not evidence that a
+human viewed or approved a video.
+
+The final 1,366-definition library preserves all 1,676 source mappings, 1,769
+variant rows, and 1,866 delivery profiles and still has zero direct
 canonical-name, display-name, alias-to-alias, or alias-to-name collisions.
 
-Migration 298 removes exercise-card skill-level classifications while retaining
-levels on the dedicated skill library. The fresh-database verification found
-zero exercise, scaling, or safety-profile skill levels and 1,112 retained
-skill-library levels.
+Migration 347 removes the enumerated legacy skill- and proficiency-level keys
+from every canonical definition, variant, delivery-profile, score, and legacy
+exercise JSON surface and nulls the deprecated relational exercise-level
+columns. Migration 350 closes the broader historical-spelling gap
+(`exercise_skill_level`, `skill_level_applicable`, and
+`proficiencyClassification`), removes matching keys recursively, and adds
+database constraints that reject future spellings anywhere in exercise-card
+JSON. Non-neutral classifications on protected reviewed state fail closed;
+neutral `null`/`false` markers can be removed without changing the movement or
+difficulty contract. Neither migration updates `coaching.skill`.
+
+The fresh-database audit now finds zero matching keys at any JSON depth, zero
+relational exercise-level values, and 1,112 retained skill-library level
+assignments. Canonical authoring, research review, and workout-contract
+validation use the same recursive semantic boundary, so later drafts or
+research packets cannot reintroduce a level classification.
 
 Migrations 304 and 305 complete the enforceable two-axis exercise difficulty
 contract. Technical complexity and physical difficulty are assessed
@@ -238,16 +301,49 @@ legacy exercises; the other 13 have no source assessment and remain explicitly
 quarantined. Overall-difficulty calibration is no longer independently
 proposable, and no approval or publication state was created by the backfill.
 
-After migration 333 and the full persisted audit, nineteen cards have complete
-automated structure and are blocked only by the four honest human gates:
+After migration 349 and the full persisted audit, 30 cards have complete
+automated structure and are blocked only by honest human gates:
 exact-match media approval, coach-approved graph relationships, approved
-difficulty calibration, and publication approval. All 1,531 definitions remain
+difficulty calibration, and publication approval. All 1,366 definitions remain
 quarantined and none are published.
 
 The all-library audit now precomputes normalized identity names and bigrams once.
 The same indexed all-card duplicate semantics avoid rebuilding identity terms
-inside every pairwise comparison. The 1,531-card disposable audit retains that
+inside every pairwise comparison. The 1,366-card disposable audit retains that
 optimization.
+
+## High-similarity identity review after migration 349
+
+The clean persisted audit reports:
+
+| Duplicate-review measure | Count |
+|---|---:|
+| Raw score-72-or-higher pairs | 952 |
+| Unresolved score-72-or-higher pairs | 864 |
+| Raw score-85-or-higher pairs | 87 |
+| Unresolved score-85-or-higher pairs | 0 |
+| Unresolved score-90-or-higher pairs | 0 |
+| Exact identity collisions | 0 |
+| Adjudicated distinct high-similarity pairs | 88 |
+| Explicit human-review identity quarantines | 0 |
+
+Migration 339 consolidated 148 active synonym or exact-variant definitions.
+Migration 340 adjudicated 70 mechanics-based distinct pairs and temporarily
+quarantined three under-specified pairs without assigning a reviewer.
+Migrations 341–343 resolve those three and consolidate the low-amplitude
+bilateral lateral hop and countermovement chest-pass sources as exact variants.
+Migration 345 then resolves the Pallof family and removes eight additional
+lower-confidence warnings from the unresolved queue. Migration 348 removes the
+redundant Stir-the-Pot Plank pair. The remaining 864
+score-72-to-84 pairs form an intentionally conservative review queue and are
+not direct-collision claims.
+
+Fresh-database invariant queries found zero exercise, scaling, or safety
+skill-level values; zero skill-level-shaped keys at any depth in canonical
+definition, variant, delivery-profile, score, or legacy-exercise JSON; 1,112
+retained level assignments in the dedicated skill library; zero
+overall-difficulty mismatches where both core dimensions are present; and zero
+fabricated card, media, graph, or calibration approvals.
 
 ## Run the audit
 

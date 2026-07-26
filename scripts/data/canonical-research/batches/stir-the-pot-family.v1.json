@@ -1,0 +1,324 @@
+{
+  "facilityId": 1,
+  "researchVersion": "2026-07-27.44",
+  "batchKey": "stir-the-pot-family-v1",
+  "snapshotAt": "2026-07-27T06:00:00.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "ace_stir_the_pot",
+      "claims": [
+        "Stir-the-Pot is a stability-ball plank in which the supported arms trace circles while the athlete preserves the declared trunk and pelvis position.",
+        "Adding the word plank does not add an action or outcome; Stir-the-Pot and Stir-the-Pot Plank are the same exercise identity."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "ace_stir_the_pot",
+      "claims": [
+        "The exact contract declares knee-supported or toe-supported base, forearm or hand contact, stability-ball support, circle direction and size, repetitions, and trunk-position standard.",
+        "Kneeling versus full plank and small versus large circles are variants; static ball planks, straight roll-outs, body saws, pikes, and unstable push-ups are different actions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "gym_ball_trunk_emg",
+      "claims": [
+        "Gym-ball stabilization tasks recruit abdominal and back musculature differently according to the exact support and action.",
+        "The card describes the abdominal wall and spinal extensors as trunk stabilizers, with shoulder-girdle and hip musculature maintaining the closed-chain plank, without claiming isolation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "ace_stir_the_pot",
+      "claims": [
+        "The elbows or forearms move the ball through controlled circles while the spine stays neutral and the trunk resists extension and rotation.",
+        "Demand increases with a toe-supported base, narrower foot spacing, greater shoulder reach, a larger circle, slower tempo, and more continuous repetitions."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "unstable_surface_emg_meta_analysis",
+      "claims": [
+        "Unstable support can change core and upper-limb muscle activation, but the effect depends on the exact exercise and support condition.",
+        "Each selectable variant is scored by exercise complexity and physical difficulty only, with overall difficulty derived as their maximum; no skill level belongs on the exercise card."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "unstable_closed_chain_shoulder_meta_analysis",
+      "claims": [
+        "Closed-chain unstable support changes shoulder-girdle activation and should not be treated as trunk loading alone.",
+        "Track abdominal-wall, shoulder, forearm, hip, and low-back fatigue plus circle-path error, breath holding, ball drift, and loss of the plank line."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "ace_stir_the_pot",
+      "claims": [
+        "Use an intact, correctly inflated stability ball on a level nonslip surface with clear space around the athlete.",
+        "Declare ball size, inflation, knee or toe support, footwear traction, optional knee padding, traffic clearance, and a safe way to stop and kneel."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "ace_stir_the_pot",
+      "claims": [
+        "ACE describes five to ten circles in one direction followed by the other direction and identifies circle size as an intensity control.",
+        "Program direction-balanced quality repetitions, reset between sets, and stop before position, breathing, contact, or circle consistency changes."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "ace_stir_the_pot",
+      "claims": [
+        "Instruction establishes the supported plank first, then moves the elbows around the ball without losing neutral alignment.",
+        "State the exact base, circle size, direction order, repetition count, breathing strategy, and reset or stop signal."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "unstable_closed_chain_shoulder_meta_analysis",
+      "claims": [
+        "Unstable closed-chain work adds shoulder-support demand and requires an intact support surface and controllable exit.",
+        "Stop for pain, neurologic symptoms, dizziness, pressure symptoms, breath panic, ball damage or slipping, elbow loss of contact, shoulder collapse, lumbar sag, rib flare, pelvic rotation, or inability to kneel safely."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "unstable_surface_emg_meta_analysis",
+      "claims": [
+        "Instability is a specific constraint rather than a universal progression and should be selected for the intended motor-control or trunk-capacity outcome.",
+        "Use knee-supported small circles for access, toe-supported small circles for controlled trunk capacity, and large circles only when the smaller path remains repeatable."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "ace_stir_the_pot",
+      "claims": [
+        "Athlete support should show the start plank, elbow contact, circle path, quiet rib-pelvis relationship, direction change, and safe finish.",
+        "Offer knee support, wider feet, smaller circles, fewer repetitions, more rest, a stable forearm plank alternative, and nonvideo instructions."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "gym_ball_trunk_emg",
+      "claims": [
+        "Different gym-ball tasks produce different muscular demands, so the coach must verify the exact support and motion rather than relying on an exercise-family label.",
+        "Record base, foot width, ball size and inflation, circle diameter and direction, repetitions, tempo, compensation, symptoms, cue response, and the reason the set ended."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "ace_stir_the_pot",
+      "claims": [
+        "ACE explicitly presents knee support before the more challenging toe-supported version.",
+        "Accessibility options include knee padding, reduced reach, smaller circles, wider feet, fewer repetitions, longer rest, a stable plank, and text or image guidance."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "ace_stir_the_pot",
+      "claims": [
+        "Circle size and knee-versus-toe support change the demand while preserving Stir-the-Pot identity.",
+        "Static stability-ball planks, roll-outs, body saws, push-ups, pikes, and single-arm or externally perturbed versions require separate variant or definition review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied links have healthy current oEmbed metadata only; full viewing, exact variant matching, cue and safety quality, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "stir-the-pot",
+      "evidence": [],
+      "assessmentSummary": {
+        "identity": "A knee-supported or toe-supported stability-ball plank in which the forearms or elbows trace declared circles in both directions while the athlete maintains the specified shoulder, rib-cage, spine, pelvis, hip, knee, and foot contract.",
+        "currentCardFindings": [
+          "Stir-the-Pot and Stir-the-Pot Plank describe the same stability-ball circular-plank action and differ only by redundant naming and population framing.",
+          "Knee-supported versus toe-supported base and small versus large circle size materially change demand and are exact variants.",
+          "The historical throwing-athlete framing is a contextual delivery profile, not a separate exercise identity.",
+          "Four candidate videos have healthy oEmbed metadata only; no human media approval is created."
+        ],
+        "proposedDifficulty": {
+          "technicalComplexity": 42,
+          "absoluteLoadDemand": 34,
+          "baseOverallDifficulty": 42,
+          "formula": "max(technicalComplexity, absoluteLoadDemand)"
+        },
+        "proposedVariantPlan": [
+          {
+            "variantKey": "knee-supported-small-circles",
+            "exerciseComplexity": 32,
+            "physicalDifficulty": 24,
+            "overallDifficulty": 32
+          },
+          {
+            "variantKey": "toe-supported-small-circles",
+            "exerciseComplexity": 42,
+            "physicalDifficulty": 34,
+            "overallDifficulty": 42
+          },
+          {
+            "variantKey": "toe-supported-large-circles",
+            "exerciseComplexity": 48,
+            "physicalDifficulty": 40,
+            "overallDifficulty": 48
+          }
+        ],
+        "identityDecision": {
+          "versus": "stir-the-pot-plank",
+          "decision": "duplicate_consolidated",
+          "boundary": "same_stability_ball_circular_plank_action"
+        }
+      },
+      "alternateAssessments": [
+        {
+          "name": "Kneeling Stir-the-Pot",
+          "classification": "new_variant",
+          "rationale": "Knee support shortens the lever and reduces physical demand without changing the circular ball action.",
+          "distinguishingDimensions": {
+            "supportBase": "knees",
+            "circleSize": "small"
+          }
+        },
+        {
+          "name": "Full-Plank Stir-the-Pot",
+          "classification": "new_variant",
+          "rationale": "Toe support lengthens the plank lever while preserving the same circular forearm action.",
+          "distinguishingDimensions": {
+            "supportBase": "toes",
+            "circleSize": "small"
+          }
+        },
+        {
+          "name": "Large-Circle Stir-the-Pot",
+          "classification": "new_variant",
+          "rationale": "A declared larger circle increases reach and perturbation while preserving identity.",
+          "distinguishingDimensions": {
+            "supportBase": "toes",
+            "circleSize": "large"
+          }
+        },
+        {
+          "name": "Stir-the-Pot Plank",
+          "classification": "same_identity",
+          "rationale": "The added word plank names the existing body position and does not add a movement action.",
+          "distinguishingDimensions": {
+            "nameOnly": true
+          }
+        },
+        {
+          "name": "Stability-Ball Forearm Plank",
+          "classification": "new_definition",
+          "rationale": "A static hold omits the defining circular elbow path.",
+          "distinguishingDimensions": {
+            "armAction": "static_hold"
+          }
+        },
+        {
+          "name": "Stability-Ball Roll-Out",
+          "classification": "new_definition",
+          "rationale": "Straight out-and-back travel is a different primary arm and ball path.",
+          "distinguishingDimensions": {
+            "ballPath": "linear_out_and_back"
+          }
+        },
+        {
+          "name": "Stability-Ball Body Saw",
+          "classification": "new_definition",
+          "rationale": "Whole-body sagittal translation replaces the circular forearm path.",
+          "distinguishingDimensions": {
+            "bodyAction": "sagittal_translation"
+          }
+        },
+        {
+          "name": "Stability-Ball Pike",
+          "classification": "new_definition",
+          "rationale": "Dynamic hip flexion and lower-limb ball support materially change the primary action and setup.",
+          "distinguishingDimensions": {
+            "primaryJointAction": "hip_flexion",
+            "ballSupport": "lower_limbs"
+          }
+        },
+        {
+          "name": "Single-Arm Stir-the-Pot",
+          "classification": "new_definition",
+          "rationale": "Removing one support arm materially changes laterality, shoulder loading, balance, and failure consequence and requires dedicated review.",
+          "distinguishingDimensions": {
+            "upperLimbSupport": "unilateral"
+          }
+        },
+        {
+          "name": "Reactive Partner Stir-the-Pot",
+          "classification": "new_definition",
+          "rationale": "Unpredictable external perturbation adds a reactive and supervision contract.",
+          "distinguishingDimensions": {
+            "forcePredictability": "reactive_variable"
+          }
+        }
+      ],
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=1BEsVpjmnNE",
+          "title": "How To Do A Swiss Ball Stir The Pot",
+          "channelName": "Live Lean TV Daily Exercises",
+          "sourceQuery": "Swiss ball stir the pot",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T05:45:00.000Z"
+          },
+          "notes": "Candidate metadata only; exact support, circle, cue, safety, and accessibility contract requires human viewing."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=1m_ru6EpyRo",
+          "title": "Swiss Ball Stir the Pot",
+          "channelName": "Andrew Heming",
+          "sourceQuery": "Swiss ball stir the pot",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T05:45:00.000Z"
+          },
+          "notes": "Candidate metadata only; full demonstration requires human viewing."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=gLTkpNe-1lE",
+          "title": "How To Perform A Swiss Ball Stir The Pot Exercise",
+          "channelName": "Dimitri Giankoulas",
+          "sourceQuery": "Swiss ball stir the pot exercise",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T05:45:00.000Z"
+          },
+          "notes": "Candidate metadata only; exact form and cue quality require human viewing."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Vt9au65_2yk",
+          "title": "Swiss Ball Stir the Pot Tutorial - Proper Form and Technique",
+          "channelName": "Runna",
+          "sourceQuery": "Swiss ball stir the pot tutorial",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T05:45:00.000Z"
+          },
+          "notes": "Candidate metadata only; exact contract, captions, accessibility, and safety require human viewing."
+        }
+      ]
+    }
+  ]
+}

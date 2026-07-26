@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 
 import {
   approvalAppliesToVersion,
+  assertExerciseCardHasNoSkillLevelMetadata,
   assertIndependentReviewer,
   buildCanonicalDuplicateIndex,
   buildCanonicalCardTestPacket,
@@ -48,6 +49,44 @@ test('normalization clears legacy overall when a core difficulty dimension is mi
   card.variants[0].difficulty.baseOverallDifficulty = 72
   const normalized = normalizeCanonicalCardDraft(card)
   assert.equal(normalized.variants[0].difficulty.baseOverallDifficulty, null)
+})
+
+test('exercise-card authoring rejects skill or proficiency levels at any JSON depth', () => {
+  const card = publishableCard()
+  card.variants[0].requirements = {
+    population: {
+      minimumSkillLevel: 'advanced',
+      nested: [{
+        athleteProficiencyClassification: 'intermediate',
+      }],
+    },
+  }
+  assert.throws(
+    () => assertExerciseCardHasNoSkillLevelMetadata(card),
+    /card\.variants\[0\]\.requirements\.population\.minimumSkillLevel/,
+  )
+  const validation = validateCanonicalCardDraft(card)
+  assert.equal(validation.valid, false)
+  assert.equal(validation.normalized, null)
+  assert.match(
+    validation.errors[0],
+    /use exercise complexity and physical difficulty/,
+  )
+  assert.match(
+    validation.errors[0],
+    /athleteProficiencyClassification/,
+  )
+})
+
+test('exercise difficulty dimensions remain valid exercise-card metadata', () => {
+  const card = publishableCard()
+  card.variants[0].difficulty.technicalComplexity = 58
+  card.variants[0].difficulty.absoluteLoadDemand = 64
+  assert.equal(assertExerciseCardHasNoSkillLevelMetadata(card), true)
+  const normalized = normalizeCanonicalCardDraft(card)
+  assert.equal(normalized.variants[0].difficulty.technicalComplexity, 58)
+  assert.equal(normalized.variants[0].difficulty.absoluteLoadDemand, 64)
+  assert.equal(normalized.variants[0].difficulty.baseOverallDifficulty, 64)
 })
 
 test('draft validation protects database-required authoring fields', () => {

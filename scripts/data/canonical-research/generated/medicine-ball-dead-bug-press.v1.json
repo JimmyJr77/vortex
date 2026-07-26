@@ -1,0 +1,371 @@
+{
+  "facilityId": 1,
+  "slug": "medicine-ball-dead-bug-press",
+  "researchVersion": "2026-07-26.42",
+  "assessmentSummary": {
+    "identity": "Supine dead bug with a medicine ball held by a declared contralateral hand-and-knee press while the free opposite arm and leg move and return under rib-pelvis control.",
+    "currentCardFindings": [
+      "The legacy name and generic description omit ball position and limb contract.",
+      "The exact family reference defines a contralateral hand-knee press and opposite arm-leg motion.",
+      "The ball must not be treated as a generic weight, toss, or interchangeable wall.",
+      "Five candidates have healthy oEmbed metadata only; no human media approval is created."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 32,
+      "absoluteLoadDemand": 26,
+      "baseOverallDifficulty": 32,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "proposedVariantPlan": [
+      {
+        "variantKey": "single-free-limb-control",
+        "exerciseComplexity": 32,
+        "physicalDifficulty": 26,
+        "overallDifficulty": 32
+      },
+      {
+        "variantKey": "contralateral-arm-leg-extension",
+        "exerciseComplexity": 40,
+        "physicalDifficulty": 30,
+        "overallDifficulty": 40
+      }
+    ],
+    "identityDecision": {
+      "versus": "dead-bug-wall-press",
+      "decision": "distinct_exercises",
+      "boundary": "contralateral_ball_press_with_opposite_arm_and_leg_motion_vs_bilateral_fixed_wall_press_with_leg_only_motion"
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-27T01:30:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Perform Medicine Ball Dead Bug Press with a medicine ball to train low-threat anterior core activation and rib-pelvis control before harder work. The load, distance, partner input, and volume should preserve the card's phase intent.",
+      "familyKey": "Anterior-core activation",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 40,
+        "technicalComplexity": 20,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.muscleandstrength.com/exercises/medicine-ball-dead-bug",
+      "sourceTitle": "Medicine Ball Dead Bug",
+      "sourcePublisher": "Muscle & Strength",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 68,
+      "claims": [
+        "The medicine-ball version presses the ball between one hand and the opposite knee while the free opposite arm and leg extend.",
+        "Its stable identity is a contralateral movable-ball press with declared free-limb motion; it remains distinct from both hands pressing a fixed wall."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.nasm.org/resource-center/exercise-library/dead-bug",
+      "sourceTitle": "Dead Bug",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Taxonomy must declare supine anti-extension, the moving limbs, the pressing limbs, return position, cadence, and breath.",
+        "The card must not use a proficiency classification; variant difficulty is exercise complexity and physical difficulty."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/11689975/",
+      "sourceTitle": "Electromyographic activity of selected trunk muscles during dynamic spine stabilization exercises",
+      "sourcePublisher": "Archives of Physical Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Dying-bug progressions recruit the abdominal wall while limb motion challenges lumbopelvic control.",
+        "Declare abdominal-wall, hip-flexor, latissimus and shoulder-stabilizer roles plus spine, pelvis, hip and shoulder joints without claiming isolated activation."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://doi.org/10.14474/ptrs.2017.6.1.1",
+      "sourceTitle": "Changes in muscle activity of the abdominal muscles according to exercise method and speed during dead bug exercise",
+      "sourcePublisher": "Physical Therapy Rehabilitation Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Limb selection and movement speed alter abdominal muscle activity during dead-bug exercise.",
+        "Observable gates are rib-pelvis control, lumbar position, declared press continuity, smooth limb travel, symmetric return, and breathing."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://doi.org/10.14474/ptrs.2017.6.1.1",
+      "sourceTitle": "Changes in muscle activity of the abdominal muscles according to exercise method and speed during dead bug exercise",
+      "sourcePublisher": "Physical Therapy Rehabilitation Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Changing moving limbs, lever length, press constraint, range, and tempo changes task demand.",
+        "Score exact variants on exercise complexity and physical difficulty, and derive overall difficulty as their maximum."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/11689975/",
+      "sourceTitle": "Electromyographic activity of selected trunk muscles during dynamic spine stabilization exercises",
+      "sourcePublisher": "Archives of Physical Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Dead-bug recruitment remains submaximal in the cited healthy sample and rises with harder progressions.",
+        "Track abdominal and hip-flexor fatigue, breath compensation, rib flare, lumbar motion, press loss, neck tension, and recovery before higher-cost trunk work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://total-pt.com/2020/03/27/core-stability-exercises-dead-bug-variations/",
+      "sourceTitle": "Dead Bug Exercise Variations",
+      "sourcePublisher": "Total Physical Therapy",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "External press variations require a stable floor plus an exact wall or ball setup.",
+        "Declare surface, head and hand clearance, wall integrity or ball size and mass, lighting, observation angle, shared-station traffic, and sanitation."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/11689975/",
+      "sourceTitle": "Electromyographic activity of selected trunk muscles during dynamic spine stabilization exercises",
+      "sourcePublisher": "Archives of Physical Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Progression changes recruitment, so dosage should stop before a harder pattern replaces the declared one.",
+        "Use low-to-moderate controlled repetitions per side, a full return, and enough rest to preserve press, posture, range, and breath."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.nasm.org/resource-center/exercise-library/dead-bug",
+      "sourceTitle": "Dead Bug",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Instruction should establish the supine start, stacked ribs and pelvis, controlled limb motion, and return.",
+        "Name exactly what presses, what moves, the range, exhale, return, side change, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://total-pt.com/2020/03/27/core-stability-exercises-dead-bug-variations/",
+      "sourceTitle": "Dead Bug Exercise Variations",
+      "sourcePublisher": "Total Physical Therapy",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "Dead-bug variations should be regressed when the athlete cannot maintain the intended trunk position.",
+        "Stop for pain, pressure or neurologic symptoms, dizziness, breath panic, neck strain, lumbar lift or arch, rib flare, press loss, uncontrolled limb drop, or material asymmetry."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/11689975/",
+      "sourceTitle": "Electromyographic activity of selected trunk muscles during dynamic spine stabilization exercises",
+      "sourcePublisher": "Archives of Physical Medicine and Rehabilitation",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Dead-bug progressions are controlled trunk-stabilization exercises rather than ballistic or conditioning tasks.",
+        "Use early for low-fatigue trunk organization or later for controlled trunk capacity; do not race repetitions."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nasm.org/resource-center/exercise-library/dead-bug",
+      "sourceTitle": "Dead Bug",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Athlete support should show the start shape, pressing surfaces, moving limbs, end range, breath, return, and self-check.",
+        "Offer shorter levers, smaller range, one moving limb, less press, fewer repetitions, longer rest, and text or image instruction."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://doi.org/10.14474/ptrs.2017.6.1.1",
+      "sourceTitle": "Changes in muscle activity of the abdominal muscles according to exercise method and speed during dead bug exercise",
+      "sourcePublisher": "Physical Therapy Rehabilitation Science",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "Coach support should expose exact limb pattern, press target, range, tempo, side, dose, observation angle, compensation, symptoms, and shutdown.",
+        "Record whether posture, press, breath, limb path, and return remained repeatable."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://total-pt.com/2020/03/27/core-stability-exercises-dead-bug-variations/",
+      "sourceTitle": "Dead Bug Exercise Variations",
+      "sourcePublisher": "Total Physical Therapy",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "The dead bug admits multiple limb and external-constraint regressions.",
+        "Accessibility options include one limb at a time, heel taps, shorter reach, tactile target, lighter or larger ball, fewer repetitions, longer rest, and nonvideo instructions."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://total-pt.com/2020/03/27/core-stability-exercises-dead-bug-variations/",
+      "sourceTitle": "Dead Bug Exercise Variations",
+      "sourcePublisher": "Total Physical Therapy",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 72,
+      "claims": [
+        "Wall press and contralateral medicine-ball press are different constraint contracts within the dead-bug family.",
+        "Unloaded heel taps, stability-ball dead bugs, overhead-loaded dead bugs, band pulldowns, hollow holds, and bird dogs require explicit variant or definition review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied links have healthy current oEmbed metadata only; full viewing, exact contract, cue quality, safety, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=p-BgARBenTY",
+      "title": "Deadbug with Medball",
+      "channelName": "The Active Life",
+      "sourceQuery": "medicine ball dead bug press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T01:15:00.000Z"
+      },
+      "notes": "Candidate metadata only; exact ball and limb contract requires human viewing."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=E_L-PYfY4ZI",
+      "title": "Med Ball Dead bug",
+      "channelName": "MVMT Performance & Rehabilitation",
+      "sourceQuery": "medicine ball dead bug press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T01:15:00.000Z"
+      },
+      "notes": "Candidate metadata only; full review remains pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=G-18G_nzguU",
+      "title": "Deadbug with MB press",
+      "channelName": "Wolfe PT",
+      "sourceQuery": "medicine ball dead bug press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T01:15:00.000Z"
+      },
+      "notes": "Candidate metadata only; exact contract and quality require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=2_oeZkkptX0",
+      "title": "Dead Bug with Med Ball Squeeze",
+      "channelName": "Mountaineers Fitness",
+      "sourceQuery": "medicine ball dead bug press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T01:15:00.000Z"
+      },
+      "notes": "Candidate metadata only; exact contract and quality require human review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=LIVmJORD_lI",
+      "title": "DEAD BUG w/ CONTRALATERAL BALL PRESS",
+      "channelName": "Velocity Sports Physical Therapy",
+      "sourceQuery": "medicine ball dead bug press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T01:15:00.000Z"
+      },
+      "notes": "Candidate metadata only; exact contract and full quality review remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Single Free-Limb Control",
+      "classification": "new_variant",
+      "rationale": "Only one free limb moves while the contralateral ball press remains fixed.",
+      "distinguishingDimensions": {
+        "movingLimbs": "one_free_limb"
+      }
+    },
+    {
+      "name": "Contralateral Arm-Leg Extension",
+      "classification": "new_variant",
+      "rationale": "The free opposite arm and leg extend together while the ball stays pressed.",
+      "distinguishingDimensions": {
+        "movingLimbs": "free_opposite_arm_and_leg"
+      }
+    },
+    {
+      "name": "Stability-Ball Dead Bug Press",
+      "classification": "modifier_annotation",
+      "rationale": "A larger compressible ball can preserve the press and limb sequence when size is recorded.",
+      "distinguishingDimensions": {
+        "ballType": "stability_ball"
+      }
+    },
+    {
+      "name": "Dead Bug Wall Press",
+      "classification": "new_definition",
+      "rationale": "Both hands press a fixed wall while the arms do not move.",
+      "distinguishingDimensions": {
+        "forceSource": "fixed_wall",
+        "movingLimbs": "legs_only"
+      }
+    },
+    {
+      "name": "Medicine-Ball Dead Bug Toss",
+      "classification": "new_definition",
+      "rationale": "Releasing and catching the ball changes the task to reactive object control.",
+      "distinguishingDimensions": {
+        "ballContract": "release_and_catch"
+      }
+    },
+    {
+      "name": "Loaded Overhead Dead Bug",
+      "classification": "new_definition",
+      "rationale": "Holding an external load overhead changes force direction and limb availability.",
+      "distinguishingDimensions": {
+        "loadPosition": "overhead"
+      }
+    }
+  ]
+}

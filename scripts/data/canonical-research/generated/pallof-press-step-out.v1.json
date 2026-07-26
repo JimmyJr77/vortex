@@ -1,0 +1,457 @@
+{
+  "facilityId": 1,
+  "slug": "pallof-press-step-out",
+  "researchVersion": "2026-07-26.43",
+  "assessmentSummary": {
+    "identity": "Side-anchored anti-rotation step-out in which the athlete holds the hands at the sternum or at a declared horizontal reach, takes a declared number of controlled lateral steps away from the anchor, then reverses the same path without trunk rotation, lateral lean, foot drag, or uncontrolled recoil.",
+    "currentCardFindings": [
+      "Band Anti-Rotation Walkout, Cable Anti-Rotation Step-Out, and Pallof Press Step-Out describe the same lateral travel identity.",
+      "Band versus cable and hands-at-chest versus arms-extended positions require exact variants because they change load behavior and moment arm.",
+      "The step-out remains distinct from a fixed-stance press, a continuous lateral band walk around the legs, marching, diagonal travel, and reactive partner perturbation.",
+      "Five candidate videos have healthy oEmbed metadata only; no human media approval is created."
+    ],
+    "proposedDifficulty": {
+      "technicalComplexity": 36,
+      "absoluteLoadDemand": 28,
+      "baseOverallDifficulty": 36,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "proposedVariantPlan": [
+      {
+        "variantKey": "band-hands-at-chest-step-out",
+        "exerciseComplexity": 36,
+        "physicalDifficulty": 28,
+        "overallDifficulty": 36
+      },
+      {
+        "variantKey": "band-arms-extended-step-out",
+        "exerciseComplexity": 42,
+        "physicalDifficulty": 32,
+        "overallDifficulty": 42
+      },
+      {
+        "variantKey": "cable-hands-at-chest-step-out",
+        "exerciseComplexity": 38,
+        "physicalDifficulty": 32,
+        "overallDifficulty": 38
+      },
+      {
+        "variantKey": "cable-arms-extended-step-out",
+        "exerciseComplexity": 44,
+        "physicalDifficulty": 36,
+        "overallDifficulty": 44
+      }
+    ],
+    "identityDecision": {
+      "versus": "pallof-press-pallof-hold",
+      "decision": "distinct_exercises",
+      "boundary": "lateral_step_away_and_controlled_return_vs_fixed_stance_press_or_hold"
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-27T04:30:00.000Z",
+      "cardVersion": 2,
+      "status": "review",
+      "description": "Stand side-on to a secure band anchor or inspected cable station with both hands at the sternum or the declared horizontal reach. Preserve the declared hand position, rib-pelvis orientation, hip-knee-foot alignment, and quiet breathing while taking the exact number of lateral steps away from the anchor and then returning along the same path without rotation, lateral lean, foot drag, crossover, or uncontrolled recoil.",
+      "familyKey": "side_anchored_anti_rotation_lateral_step_out",
+      "movementPatterns": [
+        "brace",
+        "locomote"
+      ],
+      "bodyRegions": [
+        "core",
+        "spine",
+        "pelvis",
+        "rib_cage",
+        "hip",
+        "knee",
+        "ankle",
+        "foot",
+        "shoulder",
+        "elbow",
+        "hand"
+      ],
+      "requiredEquipment": [],
+      "optionalEquipment": [
+        "anchor_point",
+        "bands",
+        "cable_machine"
+      ],
+      "environment": {
+        "band": "intact_correctly_routed_and_recoil_lane_clear",
+        "cable": "pin_attachment_cable_and_stack_travel_inspected",
+        "anchor": "secure_fixed_band_anchor_or_inspected_cable_station",
+        "surface": "level_dry_high_traction_floor",
+        "traffic": "one_athlete_per_marked_station_lane",
+        "lighting": "hands_ribs_pelvis_knees_feet_and_lane_visible",
+        "clearance": "hands_body_feet_cable_and_band_recoil_clear",
+        "travelLane": "marked_clear_lateral_lane_with_return_space",
+        "anchorHeight": "declared_at_sternum",
+        "coachSightline": "front_oblique_view_of_hand_position_rotation_and_each_step"
+      },
+      "population": {
+        "readiness": [
+          "can_hold_declared_hand_position_without_rotation",
+          "can_laterally_step_and_return_without_pain_or_instability",
+          "can_keep_feet_forward_without_drag_or_crossover",
+          "can_breathe_under_asymmetrical_tension",
+          "understands_anchor_side_step_count_direction_and_stop"
+        ],
+        "selectionBoundary": "Select resistance source, hand position, anchor side, tension, step count, step width, travel distance, dose, and rest from current control. These are exercise complexity and physical difficulty variables, not exercise skill levels.",
+        "contraindicationFlags": [
+          "pain_neurologic_pressure_or_balance_symptoms",
+          "dizziness_breath_panic_or_uncontrolled_breath_holding",
+          "unsafe_anchor_band_cable_floor_lane_or_traffic",
+          "cannot_control_rotation_lean_footwork_or_recoil",
+          "unassessed_recent_surgery_injury_or_rehabilitation_restriction"
+        ]
+      },
+      "difficulty": {},
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nsca.com/contentassets/8323553f698a466a98220b21d9eb9a65/foundationsoffitnessprogramming_201508.pdf",
+      "sourceTitle": "Foundations of Fitness Programming",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 87,
+      "claims": [
+        "The NSCA names a Pallof lateral walk-out separately from fixed-stance Pallof press variations.",
+        "Its stable identity is side-anchored anti-rotation control while the athlete laterally steps away from the anchor and returns under control."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.nsca.com/contentassets/8323553f698a466a98220b21d9eb9a65/foundationsoffitnessprogramming_201508.pdf",
+      "sourceTitle": "Foundations of Fitness Programming",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 87,
+      "claims": [
+        "The NSCA core progression explicitly includes kneeling and split-stance Pallof presses plus a Pallof lateral walk-out.",
+        "Taxonomy must declare the stance, resistance source, anchor side and height, hand path, hold or repetition contract, lateral travel, return, and side change."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/2942653/",
+      "sourceTitle": "Electromyographic Studies of the Lumbar Trunk Musculature During the Development of Axial Torques",
+      "sourcePublisher": "Journal of Orthopaedic Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 81,
+      "claims": [
+        "Controlled axial torque recruits bilateral trunk musculature with substantial oblique activity and co-contraction used to control posture.",
+        "Cards must describe abdominal-wall, spinal-extensor, hip and shoulder stabilizer roles without claiming that Pallof work isolates one muscle."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Resistance is anchored to the side and the hands travel horizontally away from the center of the chest while the lumbopelvic-hip complex remains free of visible rotation.",
+        "Moment demand changes with resistance magnitude, distance from the anchor, arm reach, stance width, base of support, and added travel."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/40005429/",
+      "sourceTitle": "Effect of Body Position and Support Surface on the Postural Control Challenge During the Pallof Press Exercise: A Smartphone Accelerometer-Based Study",
+      "sourcePublisher": "Medicina",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Published Pallof research treats body position and support surface as measurable changes in postural-control challenge.",
+        "Score each exact variant using exercise complexity and physical difficulty only, with overall difficulty derived as their maximum; exercise cards receive no skill or proficiency level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11244540/",
+      "sourceTitle": "Using Resistance-Band Tests to Evaluate Trunk Muscle Strength in Chronic Low Back Pain: A Test-Retest Reliability Study",
+      "sourcePublisher": "Journal of Functional Morphology and Kinesiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "A submaximal resistance-band Pallof protocol used maintained contractions, progressive loading, and compensation-based termination.",
+        "Track trunk-control fatigue, shoulder and forearm tension, stance drift, breath holding, resistance-path error, and recovery before other high-demand trunk work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The exercise requires a secure side anchor or inspected cable station at the declared height and enough lateral clearance to create tension safely.",
+        "Declare band condition and recoil lane, cable pin and attachment, floor traction, kneeling support, partner-anchor supervision, shared-station traffic, and travel clearance."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "NASM presents controlled Pallof work in a stabilization context with slow repetitions and instructs that early-session core work should not be performed to exhaustion.",
+        "Use side-specific quality repetitions or timed holds with a full reset and stop before position, breath, press path, stance, or travel changes."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Instruction must establish a side-on relationship to the anchor, a controlled rib-pelvis position, handles at the chest, and a straight press without trunk rotation.",
+        "Name the exact stance, anchor side, reach or hold, step count when present, return path, breath, side switch, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11244540/",
+      "sourceTitle": "Using Resistance-Band Tests to Evaluate Trunk Muscle Strength in Chronic Low Back Pain: A Test-Retest Reliability Study",
+      "sourcePublisher": "Journal of Functional Morphology and Kinesiology",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 82,
+      "claims": [
+        "The cited test stopped when compensation moved the athlete away from the initial position.",
+        "Stop for pain, neurologic symptoms, dizziness, pressure symptoms, breath panic, anchor or band failure, cable fault, uncontrolled recoil, trunk rotation, lateral lean, foot or knee drift, or loss of the declared hand path."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://www.nsca.com/contentassets/8323553f698a466a98220b21d9eb9a65/foundationsoffitnessprogramming_201508.pdf",
+      "sourceTitle": "Foundations of Fitness Programming",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 87,
+      "claims": [
+        "The NSCA progression separates kneeling and split-stance presses from the higher-coordination lateral walk-out.",
+        "Use fixed-stance variants for low-fatigue anti-rotation organization or controlled trunk capacity and step-out variants only when lateral stepping can remain repeatable under asymmetrical tension."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://blog.nasm.org/progressive-core-training",
+      "sourceTitle": "Core Objectives: Making a Case for Progressive Core Training",
+      "sourcePublisher": "National Academy of Sports Medicine",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Athlete support should show the anchor relationship, stance, start at chest, end reach, quiet trunk, return, and both sides.",
+        "Offer less resistance, a shorter lever, wider stance, shorter hold, fewer repetitions or steps, longer rest, kneeling support, and text or image instruction."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/40005429/",
+      "sourceTitle": "Effect of Body Position and Support Surface on the Postural Control Challenge During the Pallof Press Exercise: A Smartphone Accelerometer-Based Study",
+      "sourcePublisher": "Medicina",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Coach support must expose exact body position and support surface because these alter postural-control challenge.",
+        "Record resistance source and setting, anchor side and height, stance, reach, hold or tempo, step count and direction, compensation, symptoms, and the reason a set ended."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.nsca.com/contentassets/8323553f698a466a98220b21d9eb9a65/foundationsoffitnessprogramming_201508.pdf",
+      "sourceTitle": "Foundations of Fitness Programming",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 87,
+      "claims": [
+        "Kneeling, split-stance, wider standing, and lateral walk-out choices provide distinct base-of-support and coordination contracts.",
+        "Accessibility options include stable wide stance, supported kneeling, lighter bands, closer anchor distance, shorter reach, reduced travel, fewer repetitions, longer rest, and nonvideo instructions."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.nsca.com/contentassets/8323553f698a466a98220b21d9eb9a65/foundationsoffitnessprogramming_201508.pdf",
+      "sourceTitle": "Foundations of Fitness Programming",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 87,
+      "claims": [
+        "Fixed-stance Pallof presses and Pallof lateral walk-outs are related but differ by the added locomotor action.",
+        "Marches, rows, pulldowns, diagonal lifts, rotations, landmine presses, overhead reaches, reactive perturbations, and single-leg versions need explicit variant or definition review."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied links have healthy current oEmbed metadata only; full viewing, exact contract, cue quality, safety, captions, accessibility, reviewer identity, and approval remain unresolved."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=iBSUl2wUC1U",
+      "title": "Pallof Walkouts",
+      "channelName": "Ochsner Performance Training",
+      "sourceQuery": "Pallof press walkout",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T04:20:00.000Z"
+      },
+      "notes": "Candidate metadata only; exact hand position, step path, cues, and safety require human viewing."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=W7pHDQYeWXY",
+      "title": "Pallof Walk Outs",
+      "channelName": "All Out Gym",
+      "sourceQuery": "Pallof press walkout",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T04:20:00.000Z"
+      },
+      "notes": "Candidate metadata only; full contract and accessibility review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=wMvRMDdjslg",
+      "title": "Cable Pallof Walkout",
+      "channelName": "Towson Strength and Conditioning",
+      "sourceQuery": "cable Pallof walkout",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T04:20:00.000Z"
+      },
+      "notes": "Candidate metadata only; exact cable setup and travel contract require human viewing."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=DnmkdxCGFqg",
+      "title": "Pallof Press Walkouts",
+      "channelName": "Regain Your Game",
+      "sourceQuery": "Pallof press walkout",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T04:20:00.000Z"
+      },
+      "notes": "Candidate metadata only; full contract and cue review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=7pGx7Z-iVcc",
+      "title": "How To Do a Pallof Press Walkout",
+      "channelName": "Swift Movement Academy",
+      "sourceQuery": "Pallof press walkout",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T04:20:00.000Z"
+      },
+      "notes": "Candidate metadata only; human review must confirm exact exercise identity, cue quality, safety, captions, and accessibility."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Band Anti-Rotation Walkout",
+      "classification": "new_variant",
+      "rationale": "Band resistance preserves the lateral step-out identity with an elastic load curve.",
+      "distinguishingDimensions": {
+        "resistanceSource": "resistance_band"
+      }
+    },
+    {
+      "name": "Cable Anti-Rotation Step-Out",
+      "classification": "new_variant",
+      "rationale": "A cable station changes loading and logistics but preserves the same travel contract.",
+      "distinguishingDimensions": {
+        "resistanceSource": "cable_machine"
+      }
+    },
+    {
+      "name": "Arms-Extended Pallof Walkout",
+      "classification": "new_variant",
+      "rationale": "Maintaining the reached position increases the moment arm without changing the stepping identity.",
+      "distinguishingDimensions": {
+        "handPosition": "horizontal_reach"
+      }
+    },
+    {
+      "name": "Hands-at-Chest Pallof Step-Out",
+      "classification": "new_variant",
+      "rationale": "A shorter lever is an exact regression within the same lateral travel identity.",
+      "distinguishingDimensions": {
+        "handPosition": "sternum"
+      }
+    },
+    {
+      "name": "Fixed-Stance Pallof Press",
+      "classification": "new_definition",
+      "rationale": "Removing lateral travel leaves a fixed-stance press or hold rather than a step-out.",
+      "distinguishingDimensions": {
+        "locomotorAction": "none"
+      }
+    },
+    {
+      "name": "Pallof Press with March",
+      "classification": "new_definition",
+      "rationale": "Alternating sagittal hip flexion and single-leg support differ from lateral travel away from the anchor.",
+      "distinguishingDimensions": {
+        "locomotorAction": "alternating_march"
+      }
+    },
+    {
+      "name": "Mini-Band Lateral Walk",
+      "classification": "new_definition",
+      "rationale": "A loop band around the lower limbs creates a hip-abduction walk without the side-anchored hand constraint.",
+      "distinguishingDimensions": {
+        "resistanceLocation": "lower_limbs",
+        "handConstraint": "none"
+      }
+    },
+    {
+      "name": "Pallof Diagonal Walkout",
+      "classification": "new_definition",
+      "rationale": "Diagonal travel changes direction, footwork, and force-vector management and needs separate review.",
+      "distinguishingDimensions": {
+        "travelDirection": "diagonal"
+      }
+    },
+    {
+      "name": "Reactive Partner Pallof Walkout",
+      "classification": "new_definition",
+      "rationale": "Unpredictable perturbation adds a reactive decision and supervision contract.",
+      "distinguishingDimensions": {
+        "forcePredictability": "reactive_variable"
+      }
+    },
+    {
+      "name": "Overhead Pallof Walkout",
+      "classification": "new_definition",
+      "rationale": "Overhead arm position adds shoulder elevation and anti-extension demands beyond the horizontal reach identity.",
+      "distinguishingDimensions": {
+        "handPosition": "overhead"
+      }
+    }
+  ]
+}

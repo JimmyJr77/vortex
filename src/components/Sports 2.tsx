@@ -133,11 +133,11 @@ const Sports = () => {
       <section
         className="relative isolate min-h-[calc(100svh-var(--site-header-height))] overflow-hidden border-y border-gray-900 bg-black pt-[var(--site-header-height)]"
       >
-        <div
-          className="absolute inset-x-0 top-0 -z-20 h-[45svh] overflow-hidden md:inset-0 md:h-auto"
-          aria-hidden="true"
-        >
-          <div className="flex h-full w-max gymnastics-hero-scroll">
+        <div className="absolute inset-0 -z-20 overflow-hidden" aria-hidden="true">
+          <div
+            className="flex h-full gymnastics-hero-scroll"
+            style={{ width: '400vw' }}
+          >
             {[
               '/vortex-athletics-banner.jpg',
               '/vortex-gymnastics-banner.jpg',
@@ -146,28 +146,25 @@ const Sports = () => {
             ].map((image, index) => (
               <div
                 key={`${image}-${index}`}
-                className="mr-px h-full aspect-[1600/607] flex-shrink-0"
+                className="h-full flex-shrink-0"
+                style={{ width: '100vw', minWidth: '100vw' }}
               >
                 <img
                   src={image}
                   alt=""
                   className="h-full w-full object-cover"
                   loading={index < 2 ? 'eager' : 'lazy'}
-                  fetchPriority={index === 0 ? 'high' : 'auto'}
                   decoding="async"
                 />
               </div>
             ))}
           </div>
         </div>
-        <div
-          className="absolute inset-x-0 top-0 -z-10 h-[45svh] bg-black/65 md:inset-0 md:h-auto"
-          aria-hidden="true"
-        />
+        <div className="absolute inset-0 -z-10 bg-black/65" aria-hidden="true" />
 
-        <div className="container-custom flex min-h-[calc(100svh-var(--site-header-height))] flex-col pb-12 md:justify-center md:py-16">
+        <div className="container-custom flex min-h-[calc(100svh-var(--site-header-height))] flex-col justify-center py-12 md:py-16">
           <motion.div
-            className="flex min-h-[calc(45svh-var(--site-header-height))] flex-col justify-center text-center md:mb-12 md:block md:min-h-0"
+            className="mb-10 text-center md:mb-12"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -182,7 +179,7 @@ const Sports = () => {
           </motion.div>
 
           <motion.div
-            className="mx-auto mt-8 grid w-full max-w-5xl grid-cols-1 gap-6 sm:grid-cols-2 md:mt-0 md:gap-10"
+            className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-6 sm:grid-cols-2 md:gap-10"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65 }}

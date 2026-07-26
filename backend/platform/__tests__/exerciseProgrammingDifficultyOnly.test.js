@@ -93,6 +93,66 @@ const HALF_KNEELING_SINGLE_ARM_PRESS_COMPLETION_MIGRATION = readFileSync(
   new URL('../../migrations/335_coaching_half_kneeling_single_arm_press_family_completion.sql', import.meta.url),
   'utf8',
 )
+const HIGH_SIMILARITY_IDENTITY_BOUNDARIES_MIGRATION = readFileSync(
+  new URL('../../migrations/336_coaching_high_similarity_identity_boundaries.sql', import.meta.url),
+  'utf8',
+)
+const OVERHEAD_MEDICINE_BALL_PROJECTION_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/337_coaching_overhead_medicine_ball_projection_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const HIGH_SIMILARITY_MOVEMENT_BOUNDARIES_MIGRATION = readFileSync(
+  new URL('../../migrations/338_coaching_high_similarity_movement_boundaries.sql', import.meta.url),
+  'utf8',
+)
+const HIGH_CONFIDENCE_IMPLEMENT_IDENTITY_MIGRATION = readFileSync(
+  new URL('../../migrations/339_coaching_high_confidence_implement_identity_consolidation.sql', import.meta.url),
+  'utf8',
+)
+const REMAINING_HIGH_SIMILARITY_ADJUDICATION_MIGRATION = readFileSync(
+  new URL('../../migrations/340_coaching_remaining_high_similarity_identity_adjudication.sql', import.meta.url),
+  'utf8',
+)
+const REMAINING_IDENTITY_BOUNDARIES_RESEARCHED_MIGRATION = readFileSync(
+  new URL('../../migrations/341_coaching_remaining_identity_boundaries_researched.sql', import.meta.url),
+  'utf8',
+)
+const RESEARCHED_IDENTITY_BOUNDARY_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/342_coaching_researched_identity_boundary_card_completion.sql', import.meta.url),
+  'utf8',
+)
+const CHEST_PASS_VARIANT_CONSOLIDATION_MIGRATION = readFileSync(
+  new URL('../../migrations/343_coaching_chest_pass_variant_consolidation_and_tuck_boundary.sql', import.meta.url),
+  'utf8',
+)
+const BOUNDARY_RELATIONSHIP_DIMENSION_TAXONOMY_MIGRATION = readFileSync(
+  new URL('../../migrations/344_coaching_boundary_relationship_dimension_taxonomy.sql', import.meta.url),
+  'utf8',
+)
+const PALLOF_PRESS_STEP_OUT_IDENTITY_MIGRATION = readFileSync(
+  new URL('../../migrations/345_coaching_pallof_press_step_out_identity_consolidation.sql', import.meta.url),
+  'utf8',
+)
+const PALLOF_PRESS_STEP_OUT_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/346_coaching_pallof_press_step_out_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const EXERCISE_SKILL_METADATA_ABSENCE_MIGRATION = readFileSync(
+  new URL('../../migrations/347_coaching_exercise_skill_metadata_absence.sql', import.meta.url),
+  'utf8',
+)
+const STIR_THE_POT_IDENTITY_MIGRATION = readFileSync(
+  new URL('../../migrations/348_coaching_stir_the_pot_identity_consolidation.sql', import.meta.url),
+  'utf8',
+)
+const STIR_THE_POT_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/349_coaching_stir_the_pot_family_completion.sql', import.meta.url),
+  'utf8',
+)
+const EXERCISE_PROFICIENCY_METADATA_GUARD_MIGRATION = readFileSync(
+  new URL('../../migrations/350_coaching_exercise_proficiency_metadata_guard.sql', import.meta.url),
+  'utf8',
+)
 const PLATFORM_INIT_TABLES_SOURCE = readFileSync(
   new URL('../initTables.js', import.meta.url),
   'utf8',
@@ -726,4 +786,604 @@ test('half-kneeling single-arm press migrations model exact implement and side v
     HALF_KNEELING_SINGLE_ARM_PRESS_COMPLETION_MIGRATION,
     /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
   )
+})
+
+test('high-similarity identity boundaries resolve movement differences without exercise skill levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /['"]336_coaching_high_similarity_identity_boundaries\.sql['"]/,
+  )
+  for (const slug of [
+    'medicine-ball-overhead-throw',
+    'medicine-ball-overhead-back-throw',
+    'depth-drop-to-box-jump',
+    'box-jump-to-depth-drop',
+  ]) {
+    assert.match(HIGH_SIMILARITY_IDENTITY_BOUNDARIES_MIGRATION, new RegExp(slug))
+  }
+  assert.match(
+    HIGH_SIMILARITY_IDENTITY_BOUNDARIES_MIGRATION,
+    /'distinct_exercises'/,
+  )
+  assert.match(
+    HIGH_SIMILARITY_IDENTITY_BOUNDARIES_MIGRATION,
+    /'exercise_complexity_and_physical_difficulty_only'/,
+  )
+  assert.match(
+    HIGH_SIMILARITY_IDENTITY_BOUNDARIES_MIGRATION,
+    /'coaching_skill_library_only'/,
+  )
+  assert.doesNotMatch(
+    HIGH_SIMILARITY_IDENTITY_BOUNDARIES_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+})
+
+test('overhead medicine-ball completion scores exact projection variants without exercise skill levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /['"]337_coaching_overhead_medicine_ball_projection_family_completion\.sql['"]/,
+  )
+  for (const protectedTable of [
+    'exercise_card_review_v1',
+    'exercise_card_revision_v1',
+    'exercise_media_review_v1',
+    'exercise_score_calibration_v1',
+    'exercise_score_v1',
+  ]) {
+    assert.match(
+      OVERHEAD_MEDICINE_BALL_PROJECTION_COMPLETION_MIGRATION,
+      new RegExp(protectedTable),
+    )
+  }
+  for (const variantKey of [
+    'stationary-forward-distance',
+    'step-through-forward-wall-throw-only',
+    'countermovement-backward-distance',
+    'no-countermovement-backward-distance',
+  ]) {
+    assert.match(
+      OVERHEAD_MEDICINE_BALL_PROJECTION_COMPLETION_MIGRATION,
+      new RegExp(variantKey),
+    )
+  }
+  assert.match(
+    OVERHEAD_MEDICINE_BALL_PROJECTION_COMPLETION_MIGRATION,
+    /greatest\(seed\.exercise_complexity, seed\.physical_difficulty\)/,
+  )
+  assert.match(
+    OVERHEAD_MEDICINE_BALL_PROJECTION_COMPLETION_MIGRATION,
+    /proficiencyClassificationScope[\s\S]*coaching_skill_library_only/,
+  )
+  assert.match(
+    OVERHEAD_MEDICINE_BALL_PROJECTION_COMPLETION_MIGRATION,
+    /approved_video_url = NULL/,
+  )
+  assert.match(
+    OVERHEAD_MEDICINE_BALL_PROJECTION_COMPLETION_MIGRATION,
+    /skill_level = NULL/,
+  )
+  assert.doesNotMatch(
+    OVERHEAD_MEDICINE_BALL_PROJECTION_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+})
+
+test('high-similarity movement boundaries use mechanics instead of exercise skill levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /['"]338_coaching_high_similarity_movement_boundaries\.sql['"]/,
+  )
+  for (const boundary of [
+    'two_point_vs_three_point_start_base',
+    'forward_or_general_vs_lateral_crawl_direction',
+    'knees_hovered_bear_base_vs_extended_tall_plank_base',
+    'box_landing_target_vs_floor_landing',
+    'outward_eversion_vs_inward_inversion_force_direction',
+    'hinge_plus_row_vs_hinge_only',
+    'clean_and_squat_vs_clean_squat_and_wall_shot',
+    'one_projection_contact_vs_three_repeated_projections',
+    'split_stance_unilateral_bias_vs_bilateral_squat_base',
+    'strict_press_vs_deliberate_lower_body_drive',
+  ]) {
+    assert.match(
+      HIGH_SIMILARITY_MOVEMENT_BOUNDARIES_MIGRATION,
+      new RegExp(boundary),
+    )
+  }
+  assert.match(
+    HIGH_SIMILARITY_MOVEMENT_BOUNDARIES_MIGRATION,
+    /'distinct_exercises'/,
+  )
+  assert.match(
+    HIGH_SIMILARITY_MOVEMENT_BOUNDARIES_MIGRATION,
+    /'exercise_complexity_and_physical_difficulty_only'/,
+  )
+  assert.match(
+    HIGH_SIMILARITY_MOVEMENT_BOUNDARIES_MIGRATION,
+    /'coaching_skill_library_only'/,
+  )
+  assert.doesNotMatch(
+    HIGH_SIMILARITY_MOVEMENT_BOUNDARIES_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+})
+
+test('implement identity consolidation converts source modifiers to variants without exercise skill levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /['"]339_coaching_high_confidence_implement_identity_consolidation\.sql['"]/,
+  )
+  for (const survivorSlug of [
+    'bulgarian-split-squat',
+    'strict-overhead-press',
+    'sumo-deadlift',
+    'glute-bridge',
+    'reverse-lunge',
+    'single-leg-romanian-deadlift',
+    'lateral-bear-crawl',
+  ]) {
+    assert.match(
+      HIGH_CONFIDENCE_IMPLEMENT_IDENTITY_MIGRATION,
+      new RegExp(survivorSlug),
+    )
+  }
+  for (const protectedTable of [
+    'exercise_card_review_v1',
+    'exercise_card_revision_v1',
+    'exercise_media_review_v1',
+    'exercise_score_calibration_v1',
+    'exercise_score_v1',
+  ]) {
+    assert.match(
+      HIGH_CONFIDENCE_IMPLEMENT_IDENTITY_MIGRATION,
+      new RegExp(protectedTable),
+    )
+  }
+  assert.match(
+    HIGH_CONFIDENCE_IMPLEMENT_IDENTITY_MIGRATION,
+    /'duplicate_consolidated'/,
+  )
+  assert.match(
+    HIGH_CONFIDENCE_IMPLEMENT_IDENTITY_MIGRATION,
+    /'max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    HIGH_CONFIDENCE_IMPLEMENT_IDENTITY_MIGRATION,
+    /'coaching_skill_library_only'/,
+  )
+  assert.match(
+    HIGH_CONFIDENCE_IMPLEMENT_IDENTITY_MIGRATION,
+    /skill_level = NULL/,
+  )
+  assert.match(
+    HIGH_CONFIDENCE_IMPLEMENT_IDENTITY_MIGRATION,
+    /minimum_skill_level = NULL/,
+  )
+  assert.doesNotMatch(
+    HIGH_CONFIDENCE_IMPLEMENT_IDENTITY_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+})
+
+test('remaining similarity adjudication records movement boundaries and quarantines ambiguity without skill levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /['"]340_coaching_remaining_high_similarity_identity_adjudication\.sql['"]/,
+  )
+  for (const boundary of [
+    'two_point_vs_three_point_start_base',
+    'cut_plant_vs_bound_projection',
+    'flat_supine_vs_inclined_press_angle',
+    'full_curl_contract_vs_eccentric_only_lowering',
+    'vertical_pull_vs_horizontal_push',
+  ]) {
+    assert.match(
+      REMAINING_HIGH_SIMILARITY_ADJUDICATION_MIGRATION,
+      new RegExp(boundary),
+    )
+  }
+  for (const ambiguity of [
+    'legacy_dead_bug_press_contract_under_specified',
+    'legacy_lateral_hop_laterality_under_specified',
+    'legacy_countermovement_projection_direction_under_specified',
+  ]) {
+    assert.match(
+      REMAINING_HIGH_SIMILARITY_ADJUDICATION_MIGRATION,
+      new RegExp(ambiguity),
+    )
+  }
+  assert.match(
+    REMAINING_HIGH_SIMILARITY_ADJUDICATION_MIGRATION,
+    /'distinct_exercises'/,
+  )
+  assert.match(
+    REMAINING_HIGH_SIMILARITY_ADJUDICATION_MIGRATION,
+    /'needs_human_review'/,
+  )
+  assert.match(
+    REMAINING_HIGH_SIMILARITY_ADJUDICATION_MIGRATION,
+    /'exercise_complexity_and_physical_difficulty_only'/,
+  )
+  assert.match(
+    REMAINING_HIGH_SIMILARITY_ADJUDICATION_MIGRATION,
+    /'coaching_skill_library_only'/,
+  )
+  assert.doesNotMatch(
+    REMAINING_HIGH_SIMILARITY_ADJUDICATION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+})
+
+test('researched identity boundaries complete candidate cards without exercise skill levels or fabricated approvals', () => {
+  for (const migrationName of [
+    '341_coaching_remaining_identity_boundaries_researched.sql',
+    '342_coaching_researched_identity_boundary_card_completion.sql',
+    '343_coaching_chest_pass_variant_consolidation_and_tuck_boundary.sql',
+    '344_coaching_boundary_relationship_dimension_taxonomy.sql',
+  ]) {
+    assert.match(
+      PLATFORM_INIT_TABLES_SOURCE,
+      new RegExp(`['"]${migrationName.replaceAll('.', '\\.')}['"]`),
+    )
+  }
+
+  for (const migration of [
+    REMAINING_IDENTITY_BOUNDARIES_RESEARCHED_MIGRATION,
+    RESEARCHED_IDENTITY_BOUNDARY_COMPLETION_MIGRATION,
+    CHEST_PASS_VARIANT_CONSOLIDATION_MIGRATION,
+  ]) {
+    assert.match(migration, /skill_level = NULL/)
+    assert.doesNotMatch(
+      migration,
+      /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+    )
+    assert.doesNotMatch(
+      migration,
+      /['"]exerciseSkillLevel(?:Allowed)?['"]\s*[:,]/,
+    )
+  }
+
+  for (const slug of [
+    'dead-bug-wall-press',
+    'medicine-ball-dead-bug-press',
+    'lateral-hop-to-stick',
+    'medicine-ball-chest-pass',
+    'med-ball-countermovement-rotational-throw',
+  ]) {
+    assert.match(
+      RESEARCHED_IDENTITY_BOUNDARY_COMPLETION_MIGRATION
+        + CHEST_PASS_VARIANT_CONSOLIDATION_MIGRATION,
+      new RegExp(slug),
+    )
+    assert.match(
+      BOUNDARY_RELATIONSHIP_DIMENSION_TAXONOMY_MIGRATION,
+      new RegExp(slug),
+    )
+  }
+
+  assert.match(
+    RESEARCHED_IDENTITY_BOUNDARY_COMPLETION_MIGRATION,
+    /greatest\(seed\.technical_complexity, seed\.physical_difficulty\)/,
+  )
+  assert.match(
+    RESEARCHED_IDENTITY_BOUNDARY_COMPLETION_MIGRATION,
+    /ARRAY\['range', 'complexity', 'load'\]::TEXT\[\]/,
+  )
+  assert.doesNotMatch(
+    RESEARCHED_IDENTITY_BOUNDARY_COMPLETION_MIGRATION,
+    /ARRAY\['range_or_amplitude', 'coordination', 'physical_difficulty'\]/,
+  )
+  assert.match(
+    BOUNDARY_RELATIONSHIP_DIMENSION_TAXONOMY_MIGRATION,
+    /relationship\.review_status <> 'review'/,
+  )
+  assert.match(
+    BOUNDARY_RELATIONSHIP_DIMENSION_TAXONOMY_MIGRATION,
+    /requirements_json[\s\S]*'exerciseSkillLevel'[\s\S]*'exerciseSkillLevelAllowed'/,
+  )
+  assert.match(
+    BOUNDARY_RELATIONSHIP_DIMENSION_TAXONOMY_MIGRATION,
+    /programming_logic[\s\S]*'exerciseSkillLevel'[\s\S]*'exerciseSkillLevelAllowed'/,
+  )
+  assert.match(
+    BOUNDARY_RELATIONSHIP_DIMENSION_TAXONOMY_MIGRATION,
+    /legacy_scores[\s\S]*'exerciseSkillLevel'[\s\S]*'exerciseSkillLevelAllowed'/,
+  )
+
+  for (const migration of [
+    RESEARCHED_IDENTITY_BOUNDARY_COMPLETION_MIGRATION,
+    CHEST_PASS_VARIANT_CONSOLIDATION_MIGRATION,
+  ]) {
+    assert.match(migration, /approved_video_url = NULL/)
+    assert.match(migration, /review_status[\s\S]*'candidate'/)
+    assert.doesNotMatch(
+      migration,
+      /approved_video_url\s*=\s*'https:\/\//,
+    )
+  }
+})
+
+test('Pallof press and step-out migrations preserve exact identities, difficulty-only scoring, and human gates', () => {
+  for (const migrationName of [
+    '345_coaching_pallof_press_step_out_identity_consolidation.sql',
+    '346_coaching_pallof_press_step_out_family_completion.sql',
+  ]) {
+    assert.match(
+      PLATFORM_INIT_TABLES_SOURCE,
+      new RegExp(`['"]${migrationName.replaceAll('.', '\\.')}['"]`),
+    )
+  }
+
+  for (const slug of [
+    'pallof-press-pallof-hold',
+    'pallof-press-step-out',
+    'pallof-press-with-march',
+    'half-kneeling-anti-rotation-press-lift-hold',
+    'split-stance-anti-rotation-row',
+    'tall-kneeling-anti-rotation-pulldown',
+    'landmine-anti-rotation-press',
+    'mini-band-lateral-walk',
+  ]) {
+    assert.match(
+      PALLOF_PRESS_STEP_OUT_IDENTITY_MIGRATION,
+      new RegExp(slug),
+    )
+  }
+
+  for (const sourceSlug of [
+    'anti-rotation-cable-press-out',
+    'band-pallof-press',
+    'half-kneeling-pallof-press',
+    'pallof-press-eccentric-return',
+    'pallof-press-reps',
+    'partner-pallof-band-hold',
+    'split-stance-cable-pallof-iso-hold',
+    'split-stance-pallof-press',
+    'tall-kneeling-pallof-press-hold',
+    'band-anti-rotation-walkout',
+    'cable-anti-rotation-step-out',
+  ]) {
+    assert.match(
+      PALLOF_PRESS_STEP_OUT_IDENTITY_MIGRATION,
+      new RegExp(sourceSlug),
+    )
+  }
+
+  assert.match(
+    PALLOF_PRESS_STEP_OUT_IDENTITY_MIGRATION,
+    /'duplicate_consolidated'/,
+  )
+  assert.match(
+    PALLOF_PRESS_STEP_OUT_IDENTITY_MIGRATION,
+    /'distinct_exercises'/,
+  )
+  assert.match(
+    PALLOF_PRESS_STEP_OUT_IDENTITY_MIGRATION,
+    /refused to override % protected record/,
+  )
+  assert.match(
+    PALLOF_PRESS_STEP_OUT_COMPLETION_MIGRATION,
+    /greatest\(\s*seed\.technical_complexity,\s*seed\.physical_difficulty\s*\)/,
+  )
+  assert.match(
+    PALLOF_PRESS_STEP_OUT_COMPLETION_MIGRATION,
+    /'standing-band-repetition'/,
+  )
+  assert.match(
+    PALLOF_PRESS_STEP_OUT_COMPLETION_MIGRATION,
+    /'cable-arms-extended-step-out'/,
+  )
+  assert.match(
+    PALLOF_PRESS_STEP_OUT_COMPLETION_MIGRATION,
+    /review_status[\s\S]*'candidate'/,
+  )
+  assert.match(
+    PALLOF_PRESS_STEP_OUT_COMPLETION_MIGRATION,
+    /"humanApprovalRequired":true/,
+  )
+  assert.match(
+    PALLOF_PRESS_STEP_OUT_COMPLETION_MIGRATION,
+    /approved_video_url = NULL/,
+  )
+  assert.doesNotMatch(
+    PALLOF_PRESS_STEP_OUT_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+
+  for (const migration of [
+    PALLOF_PRESS_STEP_OUT_IDENTITY_MIGRATION,
+    PALLOF_PRESS_STEP_OUT_COMPLETION_MIGRATION,
+  ]) {
+    assert.match(migration, /skill_level = NULL/)
+    assert.doesNotMatch(
+      migration,
+      /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+    )
+    assert.doesNotMatch(
+      migration,
+      /['"](?:exerciseSkillLevelAllowed|neverUseExerciseSkillLevel|proficiencyClassificationScope)['"]/,
+    )
+  }
+})
+
+test('exercise metadata cleanup removes level classifications without touching skill-library cards', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /['"]347_coaching_exercise_skill_metadata_absence\.sql['"]/,
+  )
+  for (const forbiddenKey of [
+    'skillLevel',
+    'skill_level',
+    'minimumSkillLevel',
+    'minimum_skill_level',
+    'proficiencyLevel',
+    'proficiency_level',
+    'exerciseSkillLevel',
+    'exerciseSkillLevelAllowed',
+    'exerciseCardSkillLevel',
+    'formalProficiencyClassification',
+    'proficiencyClassificationScope',
+    'skillLevelClassification',
+  ]) {
+    assert.match(
+      EXERCISE_SKILL_METADATA_ABSENCE_MIGRATION,
+      new RegExp(`['"]${forbiddenKey}['"]`),
+    )
+  }
+  for (const jsonColumn of [
+    'provenance_json',
+    'difficulty_json',
+    'requirements_json',
+    'programming_profile_json',
+    'objective_relevance_json',
+    'dose_scaling_json',
+    'legacy_scores',
+    'movement_requirements',
+    'programming_logic',
+  ]) {
+    assert.match(
+      EXERCISE_SKILL_METADATA_ABSENCE_MIGRATION,
+      new RegExp(jsonColumn),
+    )
+  }
+  for (const protectedTable of [
+    'exercise_card_review_v1',
+    'exercise_card_revision_v1',
+    'exercise_media_review_v1',
+  ]) {
+    assert.match(
+      EXERCISE_SKILL_METADATA_ABSENCE_MIGRATION,
+      new RegExp(protectedTable),
+    )
+  }
+  assert.match(
+    EXERCISE_SKILL_METADATA_ABSENCE_MIGRATION,
+    /skill_level = NULL/,
+  )
+  assert.match(
+    EXERCISE_SKILL_METADATA_ABSENCE_MIGRATION,
+    /minimum_skill_level = NULL/,
+  )
+  assert.match(
+    EXERCISE_SKILL_METADATA_ABSENCE_MIGRATION,
+    /refused to remove exercise level metadata/,
+  )
+  assert.doesNotMatch(
+    EXERCISE_SKILL_METADATA_ABSENCE_MIGRATION,
+    /UPDATE\s+coaching\.skill\b/i,
+  )
+  assert.doesNotMatch(
+    EXERCISE_SKILL_METADATA_ABSENCE_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+})
+
+test('exercise metadata guard recursively blocks proficiency-classification variants at the database boundary', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /['"]350_coaching_exercise_proficiency_metadata_guard\.sql['"]/,
+  )
+  assert.match(
+    EXERCISE_PROFICIENCY_METADATA_GUARD_MIGRATION,
+    /exercise_json_has_level_classification/,
+  )
+  assert.match(
+    EXERCISE_PROFICIENCY_METADATA_GUARD_MIGRATION,
+    /strip_exercise_level_classification/,
+  )
+  assert.match(
+    EXERCISE_PROFICIENCY_METADATA_GUARD_MIGRATION,
+    /skill\[\^a-z0-9\]\*level/,
+  )
+  assert.match(
+    EXERCISE_PROFICIENCY_METADATA_GUARD_MIGRATION,
+    /proficiency\[\^a-z0-9\]\*classification/,
+  )
+  for (const table of [
+    'exercise_definition_v1',
+    'exercise_variant_v1',
+    'exercise_delivery_profile_v1',
+    'exercise_score_v1',
+    'exercise',
+  ]) {
+    assert.match(
+      EXERCISE_PROFICIENCY_METADATA_GUARD_MIGRATION,
+      new RegExp(`ALTER TABLE coaching\\.${table}`),
+    )
+  }
+  assert.match(
+    EXERCISE_PROFICIENCY_METADATA_GUARD_MIGRATION,
+    /skill_library_levels_before/,
+  )
+  assert.doesNotMatch(
+    EXERCISE_PROFICIENCY_METADATA_GUARD_MIGRATION,
+    /UPDATE\s+coaching\.skill\b/i,
+  )
+})
+
+test('Stir-the-Pot migrations consolidate the duplicate label and preserve difficulty-only human-gated semantics', () => {
+  for (const migrationName of [
+    '348_coaching_stir_the_pot_identity_consolidation.sql',
+    '349_coaching_stir_the_pot_family_completion.sql',
+  ]) {
+    assert.match(
+      PLATFORM_INIT_TABLES_SOURCE,
+      new RegExp(`['"]${migrationName.replaceAll('.', '\\.')}['"]`),
+    )
+  }
+
+  for (const slug of ['stir-the-pot', 'stir-the-pot-plank']) {
+    assert.match(STIR_THE_POT_IDENTITY_MIGRATION, new RegExp(slug))
+  }
+  assert.match(
+    STIR_THE_POT_IDENTITY_MIGRATION,
+    /'duplicate_consolidated'/,
+  )
+  assert.match(
+    STIR_THE_POT_IDENTITY_MIGRATION,
+    /same_stability_ball_circular_plank_action/,
+  )
+  assert.match(
+    STIR_THE_POT_IDENTITY_MIGRATION,
+    /refused to override % protected record/,
+  )
+
+  for (const variantKey of [
+    'knee-supported-small-circles',
+    'toe-supported-small-circles',
+    'toe-supported-large-circles',
+  ]) {
+    assert.match(STIR_THE_POT_COMPLETION_MIGRATION, new RegExp(variantKey))
+  }
+  assert.match(
+    STIR_THE_POT_COMPLETION_MIGRATION,
+    /greatest\(seed\.exercise_complexity, seed\.physical_difficulty\)/,
+  )
+  assert.match(
+    STIR_THE_POT_COMPLETION_MIGRATION,
+    /review_status[\s\S]*'candidate'/,
+  )
+  assert.match(
+    STIR_THE_POT_COMPLETION_MIGRATION,
+    /approved_video_url = NULL/,
+  )
+  assert.doesNotMatch(
+    STIR_THE_POT_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+
+  for (const migration of [
+    STIR_THE_POT_IDENTITY_MIGRATION,
+    STIR_THE_POT_COMPLETION_MIGRATION,
+  ]) {
+    assert.doesNotMatch(
+      migration,
+      /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+    )
+    assert.doesNotMatch(
+      migration,
+      /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+    )
+  }
 })

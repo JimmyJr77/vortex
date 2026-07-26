@@ -333,6 +333,21 @@ export async function initPlatformTables(pool) {
     '333_coaching_front_foot_elevated_split_squat_family_completion.sql',
     '334_coaching_half_kneeling_single_arm_press_identity_consolidation.sql',
     '335_coaching_half_kneeling_single_arm_press_family_completion.sql',
+    '336_coaching_high_similarity_identity_boundaries.sql',
+    '337_coaching_overhead_medicine_ball_projection_family_completion.sql',
+    '338_coaching_high_similarity_movement_boundaries.sql',
+    '339_coaching_high_confidence_implement_identity_consolidation.sql',
+    '340_coaching_remaining_high_similarity_identity_adjudication.sql',
+    '341_coaching_remaining_identity_boundaries_researched.sql',
+    '342_coaching_researched_identity_boundary_card_completion.sql',
+    '343_coaching_chest_pass_variant_consolidation_and_tuck_boundary.sql',
+    '344_coaching_boundary_relationship_dimension_taxonomy.sql',
+    '345_coaching_pallof_press_step_out_identity_consolidation.sql',
+    '346_coaching_pallof_press_step_out_family_completion.sql',
+    '347_coaching_exercise_skill_metadata_absence.sql',
+    '348_coaching_stir_the_pot_identity_consolidation.sql',
+    '349_coaching_stir_the_pot_family_completion.sql',
+    '350_coaching_exercise_proficiency_metadata_guard.sql',
   ]
 
   const migrationClient = typeof pool.connect === 'function' ? await pool.connect() : pool

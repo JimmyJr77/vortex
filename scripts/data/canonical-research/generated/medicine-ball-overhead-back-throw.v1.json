@@ -1,0 +1,410 @@
+{
+  "facilityId": 1,
+  "slug": "medicine-ball-overhead-back-throw",
+  "researchVersion": "2026-07-26.41",
+  "assessmentSummary": {
+    "identity": "A bilateral two-hand medicine-ball throw that starts with the ball in front, uses a declared countermovement or static preload, and projects the ball backward over the head into a controlled landing sector. It is separate from forward, vertical, slam, chest-pass, scoop, and rotational projections.",
+    "currentCardFindings": [
+      "The legacy description correctly identifies backward projection and triple extension but does not fully declare ball mass, countermovement, foot contacts, release rule, landing sector, retrieval, or measurement.",
+      "Backward projection requires a closed, inspected sector because the athlete cannot continuously watch the landing zone during release.",
+      "The raw name matcher confuses this card with the forward overhead throw; migration 336 records the opposite-projection identity boundary.",
+      "The exercise requires difficulty assessment by exercise complexity and physical difficulty, not a proficiency classification.",
+      "Five direct YouTube candidates have successful current oEmbed metadata responses, but no full viewing, exact-match, safety, cue, caption, accessibility, or human approval review has occurred."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "hinge",
+        "push",
+        "brace"
+      ],
+      "movementQualifiers": [
+        "bilateral_two_hand",
+        "backward_projection",
+        "overhead_release",
+        "declared_countermovement",
+        "declared_foot_contacts",
+        "closed_backward_landing_sector"
+      ],
+      "jointActions": [
+        "hip_and_knee_flexion_to_extension",
+        "ankle_plantarflexion",
+        "shoulder_flexion",
+        "elbow_extension",
+        "scapular_upward_rotation",
+        "wrist_and_hand_release",
+        "trunk_force_transfer"
+      ],
+      "planes": [
+        "sagittal",
+        "multiplanar_stabilization"
+      ],
+      "laterality": "bilateral",
+      "intent": "rapid_backward_overhead_projection"
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 50,
+      "absoluteLoadDemand": 54,
+      "baseOverallDifficulty": 54,
+      "formula": "max(technicalComplexity, absoluteLoadDemand)"
+    },
+    "proposedVariantPlan": [
+      {
+        "variantKey": "countermovement-backward-distance",
+        "exerciseComplexity": 50,
+        "physicalDifficulty": 54,
+        "overallDifficulty": 54
+      },
+      {
+        "variantKey": "no-countermovement-backward-distance",
+        "exerciseComplexity": 48,
+        "physicalDifficulty": 50,
+        "overallDifficulty": 50
+      }
+    ],
+    "identityDecision": {
+      "versus": "medicine-ball-overhead-throw",
+      "decision": "distinct_exercises",
+      "boundary": "backward_projection_vs_forward_projection",
+      "humanReviewStillRequired": true
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-26T23:58:00.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Medicine Ball Overhead Back Throw addresses distance-jumping performance by targeting high-value total-body power throw for projecting through the hips and ankles without extra jump landings. It should be coached with clear quality gates, honest phase placement, and enough recovery to preserve the intended adaptation.",
+      "familyKey": "Total-body backward projection throw",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 40
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8157825/",
+      "sourceTitle": "Factorial Structure of Motor Abilities and Skills in Different Age Groups of Elite Female Soccer Players",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "The research protocol defines forward and backward medicine-ball throws separately, supporting projection direction as an exercise-identity boundary.",
+        "Medicine Ball Overhead Back Throw must declare start orientation, projection direction, target or landing sector, release rule, contacts, and retrieval; forward and backward projection are separate cards rather than difficulty levels."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-7.3.pdf",
+      "sourceTitle": "Creating Power: Alternative Bilateral and Nilateral Triple Extension Exercises",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 86,
+      "claims": [
+        "The NSCA overhead toss uses rapid hip, knee, and ankle extension to initiate a high overhead release.",
+        "Taxonomy must declare bilateral two-hand projection, countermovement or static start, overhead release, exact direction, ground-contact rule, and target or landing sector."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3658404/",
+      "sourceTitle": "Functional Performance Testing for Power and Return to Sports",
+      "sourcePublisher": "Sports Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "The backward protocol uses hip and knee flexion followed by forceful total-body extension and an overhead release.",
+        "Declare hip, knee, ankle, spine, shoulder, scapulothoracic articulation, elbow, wrist, and hand roles without treating the throw as isolated shoulder work."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3761701/",
+      "sourceTitle": "Load-Velocity Relationship in the Overhead Medicine Ball Throw",
+      "sourcePublisher": "Journal of Sports Science & Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Medicine-ball mass changes release velocity in a two-hand overhead throw, so implement mass and protocol must be standardized when output is compared.",
+        "Observe start position, countermovement, force transfer, release direction and angle, trunk control, foot contacts, and post-release balance."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3761701/",
+      "sourceTitle": "Load-Velocity Relationship in the Overhead Medicine Ball Throw",
+      "sourcePublisher": "Journal of Sports Science & Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Load changes the physical demand and release velocity of the same declared overhead-throw protocol.",
+        "Assess exercise complexity and physical difficulty independently for each exact variant, and derive overall difficulty as their maximum; no athlete proficiency label belongs on an exercise card."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of Different Methods of Assessing Standing Overhead Medicine Ball Throw Performance",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Standing overhead throw performance depends on a standardized protocol and measurement method.",
+        "Track high-intent throw count, ball mass, output loss, shoulder and elbow response, trunk control, impact or landing contacts, and recovery alongside other ballistic work."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
+      "sourceTitle": "Overhead Medicine Ball Throws",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "ACE describes a forward overhead throw toward a partner or wall, making target behavior and spacing part of the setup.",
+        "Declare ball type and mass, wall or partner behavior, open landing sector, overhead clearance, traction, retrieval route, traffic control, lighting, and coach sightline."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-7.3.pdf",
+      "sourceTitle": "Creating Power: Alternative Bilateral and Nilateral Triple Extension Exercises",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 86,
+      "claims": [
+        "NSCA positions explosive triple-extension exercises early in a power session and recommends low repetitions with substantial rest.",
+        "Use short quality-first sets, a full reset, and enough rest to preserve release speed, direction, posture, contacts, and safe retrieval; do not turn maximal throws into fatigue repetitions."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
+      "sourceTitle": "Overhead Medicine Ball Throws",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "ACE sequences a controlled start, lower-body drive, overhead arm action, and forward release.",
+        "Instructions must name exact direction and target, ball start, countermovement, foot-contact allowance, release, finish, retrieval, reset, and stop signal."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3658404/",
+      "sourceTitle": "Functional Performance Testing for Power and Return to Sports",
+      "sourcePublisher": "Sports Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Backward release sends the ball into a sector the thrower cannot continuously see, so landing-zone control is a defining safety constraint.",
+        "Stop for pain, neurologic or pressure symptoms, loss of balance, uncontrolled spinal extension, mistimed release, unexpected foot contacts, damaged ball, occupied sector, unsafe wall or partner return, or material output loss."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/16095399/",
+      "sourceTitle": "Validity and Reliability of a Medicine Ball Explosive Power Test",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 87,
+      "claims": [
+        "Backward overhead throw distance has been studied as an explosive-power field test.",
+        "Use Medicine Ball Overhead Back Throw for freshness-sensitive power expression or a standardized assessment, with protocol and measurement held constant; it is not a generic conditioning filler."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
+      "sourceTitle": "Overhead Medicine Ball Throws",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "Athlete support should display the direction, target or landing sector, ball specification, permitted contacts, primary cue, reset, and stop signal before the first throw.",
+        "Offer lighter or softer balls, smaller countermovement, lower intent rehearsal, simpler throw direction, fewer attempts, longer rest, high-contrast targets, and text or image instructions without assigning the exercise a proficiency level."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "sourceTitle": "Reliability of Different Methods of Assessing Standing Overhead Medicine Ball Throw Performance",
+      "sourcePublisher": "Journal of Strength and Conditioning Research",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Reliable comparison requires consistent ball mass, start conditions, technique, and measurement.",
+        "Coach support should expose direction, ball mass and type, target or sector, contacts, attempt count, rest, output measure, observation angle, fatigue signal, invalid-attempt rule, retrieval control, and immediate lane shutdown."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
+      "sourceTitle": "Overhead Medicine Ball Throws",
+      "sourcePublisher": "American Council on Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 80,
+      "claims": [
+        "A partner or wall can provide a visible forward target when those environments are suitable.",
+        "Accessibility options include a lighter or softer ball, high-contrast forward target, shorter range, no jump, reduced countermovement, fewer repetitions, longer reset, plain-language cues, and a non-overhead substitute when overhead motion is not tolerated."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8157825/",
+      "sourceTitle": "Factorial Structure of Motor Abilities and Skills in Different Age Groups of Elite Female Soccer Players",
+      "sourcePublisher": "International Journal of Environmental Research and Public Health",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 84,
+      "claims": [
+        "Forward and backward throws use different orientations and projection directions and remain separate definitions.",
+        "Ball mass, exact distance, target height, and measured versus training intent are annotations when the movement contract is unchanged; countermovement and foot-contact rules are exact variants; slams, vertical tosses, chest passes, rotational throws, and scoop throws are separate identities."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The supplied links are candidate discoveries only. Successful current oEmbed metadata does not establish full viewing, exact-variant match, cue or safety quality, captions, accessibility, reviewer identity, or approval."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=b05ny1i308Y",
+      "title": "Medicine Ball Throw — Overhead Backward",
+      "channelName": "Brendan Thompson -- Speed & Physical Therapy",
+      "sourceQuery": "backward overhead medicine ball throw",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T23:50:00.000Z"
+      },
+      "notes": "Candidate metadata only; exact protocol, ball mass, contacts, safety, captions, and accessibility require human viewing."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=LgxcP6k2bJc",
+      "title": "Medicine Ball heaves - 1 hop Overhead Backwards - Build Speed & Power",
+      "channelName": "ALTIS World",
+      "sourceQuery": "backward overhead medicine ball throw",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T23:50:00.000Z"
+      },
+      "notes": "Candidate metadata only for a hop or step variation; exact contacts, technique, safety, captions, and accessibility remain unreviewed."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Cb9M6LrcyxQ",
+      "title": "Med Ball Overhead Backward Throw",
+      "channelName": "Hunter Reeser",
+      "sourceQuery": "backward overhead medicine ball throw",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T23:50:00.000Z"
+      },
+      "notes": "Candidate metadata only; exact counter-movement, foot contacts, demonstration quality, safety, captions, and accessibility remain unreviewed."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=JJoL9RDK7aM",
+      "title": "Med Ball Overhead Backwards Throw",
+      "channelName": "Foran Strength",
+      "sourceQuery": "backward overhead medicine ball throw",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T23:50:00.000Z"
+      },
+      "notes": "Candidate metadata only; exact match, cue quality, safety, captions, and accessibility remain unreviewed."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=FFpOtu3cgiI",
+      "title": "F.S Library - No CM Med ball Overhead Backwards throw",
+      "channelName": "Fortitude Strength",
+      "sourceQuery": "backward overhead medicine ball throw",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-26T23:50:00.000Z"
+      },
+      "notes": "Candidate metadata only for a no-countermovement variation; full demonstration, safety, captions, accessibility, exact-variant decision, reviewer identity, and approval remain pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Countermovement Backward Overhead Distance Throw",
+      "classification": "new_variant",
+      "rationale": "A declared countermovement with forceful triple extension is the standard backward-distance protocol.",
+      "distinguishingDimensions": {
+        "direction": "backward_overhead",
+        "preload": "countermovement",
+        "measurement": "first_contact_distance"
+      }
+    },
+    {
+      "name": "No-Countermovement Backward Overhead Distance Throw",
+      "classification": "new_variant",
+      "rationale": "Removing the countermovement changes the start position, elastic contribution, complexity, physical demand, and comparability while retaining backward projection.",
+      "distinguishingDimensions": {
+        "direction": "backward_overhead",
+        "preload": "static_no_countermovement",
+        "measurement": "first_contact_distance"
+      }
+    },
+    {
+      "name": "Backward Overhead Throw for Distance",
+      "classification": "modifier_annotation",
+      "rationale": "A standardized distance measure is an assessment delivery annotation under the declared countermovement variant.",
+      "distinguishingDimensions": {
+        "measurement": "first_contact_distance",
+        "protocol": "standardized"
+      }
+    },
+    {
+      "name": "Backward Overhead Throw with Jump",
+      "classification": "modifier_annotation",
+      "rationale": "Leaving the ground is a declared contact rule and dose modifier when the same backward overhead projection and landing-sector contract are retained.",
+      "distinguishingDimensions": {
+        "contacts": "takeoff_permitted",
+        "landing": "controlled_bilateral_or_declared"
+      }
+    },
+    {
+      "name": "Forward Overhead Medicine-Ball Throw",
+      "classification": "new_definition",
+      "rationale": "Forward projection reverses orientation and changes visible target, release direction, logistics, and safety.",
+      "distinguishingDimensions": {
+        "direction": "forward",
+        "target": "visible_forward_target_or_lane"
+      }
+    },
+    {
+      "name": "Medicine-Ball Scoop Toss",
+      "classification": "new_definition",
+      "rationale": "A scoop toss uses a different release path and usually forward or rotational projection without the backward-overhead finish.",
+      "distinguishingDimensions": {
+        "releasePath": "underhand_scoop",
+        "primaryJointAction": "different"
+      }
+    }
+  ]
+}

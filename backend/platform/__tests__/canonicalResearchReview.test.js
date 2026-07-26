@@ -95,6 +95,7 @@ test('research packets reject exercise skill-level fields', () => {
       legacyLabels: {
         'skill-level': 'intermediate',
         'Skill Level': 'advanced',
+        proficiencyClassification: 'advanced',
       },
     },
     evidence,
@@ -112,6 +113,9 @@ test('research packets reject exercise skill-level fields', () => {
   assert.ok(result.errors.some((error) => error.path.endsWith('skillLevel')))
   assert.ok(result.errors.some((error) => error.path.endsWith('skill-level')))
   assert.ok(result.errors.some((error) => error.path.endsWith('Skill Level')))
+  assert.ok(result.errors.some((error) => (
+    error.path.endsWith('proficiencyClassification')
+  )))
 })
 
 test('research packets derive overall exercise difficulty from complexity and physical demand', () => {

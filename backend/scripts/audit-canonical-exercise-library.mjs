@@ -36,6 +36,17 @@ try {
     console.log(`Passed: ${report.totals.passed}`)
     console.log(`Quarantined: ${report.totals.quarantined}`)
     console.log(`Published: ${report.totals.published}`)
+    console.log('Potential identity pairs:')
+    console.log(`  Raw name-similarity pairs: ${report.duplicateReview.rawPotentialPairs}`)
+    console.log(`  Unresolved pairs: ${report.duplicateReview.unresolvedPotentialPairs}`)
+    console.log(`  Adjudicated distinct pairs: ${report.duplicateReview.adjudicatedDistinctPairs}`)
+    console.log(`  Unresolved exact collisions: ${report.duplicateReview.exactCollisions}`)
+    console.log(
+      `  Unresolved score >=85: ${report.duplicateReview.unresolvedByMinimumScore['85']}`,
+    )
+    console.log(
+      `  Unresolved score >=90: ${report.duplicateReview.unresolvedByMinimumScore['90']}`,
+    )
     console.log('Blocking issue counts:')
     for (const [code, count] of Object.entries(report.issueCounts)) {
       console.log(`  ${code}: ${count}`)

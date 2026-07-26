@@ -179,17 +179,36 @@ is mechanically `38`, `32`, `50`, `46`, `44`, and `48`. Rear-foot elevation,
 heel-only elevation, stepping lunges, and jumping split squats remain separate
 identities. No exercise skill level or human approval is inferred.
 
+Migrations 345 and 346 resolve and complete the Pallof family. Ten fixed-stance
+press definitions consolidate into the stable `pallof-press-pallof-hold`
+survivor, now named `Pallof Press`; two step-out definitions consolidate into
+`Pallof Step-Out`. Band versus cable, stance, repetition versus isometric hold,
+slow return, reach length, and a declared supervised partner anchor are exact
+variant or delivery dimensions. Lateral travel is a separate step-out identity.
+Marching, diagonal press-lift, row, pulldown, landmine press, and mini-band
+lateral walk cards remain distinct because their primary action, locomotor
+contract, or force path changes.
+
+Migrations 348 and 349 consolidate `Stir-the-Pot Plank` into the stable
+`Stir-the-Pot` definition and complete the survivor. The two source cards
+prescribe the same forearms-on-stability-ball circular plank. The word “plank”
+and a throwing-athlete programming context are not identity boundaries.
+Knee-supported small circles, toe-supported small circles, and toe-supported
+large circles are exact variants. Static planks, linear roll-outs, body saws,
+pikes, unilateral support, and reactive perturbations remain separate actions
+or proposals requiring dedicated review.
+
 Together, the migrations
 preserve:
 
 - all 1,676 legacy source IDs through `exercise_definition_source_v1`;
-- all 1,734 canonical variants and their difficulty, equipment, load, and fatigue
+- all 1,769 canonical variants and their difficulty, equipment, load, and fatigue
   data;
-- all 1,818 contextual delivery profiles;
+- all 1,866 contextual delivery profiles;
 - provenance and an explicit resolution record for every consolidation.
 
-The resulting library contains 1,531 active canonical definitions, 145 archived
-redundant definitions, 147 explicit identity-resolution records, and zero
+The resulting library contains 1,366 active canonical definitions, 310 archived
+redundant definitions, 406 explicit identity-resolution records, and zero
 direct canonical-name, display-name, or alias-to-name collisions. Consolidated
 source definitions are archived and remain traceable; they are not deleted.
 The quality report expands and normalizes every canonical name, display name,
@@ -217,10 +236,12 @@ content review and must not be silently combined:
 - countermovement versus non-countermovement;
 - depth drop, depth jump, box jump, and their different execution order.
 
-The post-migration-333 indexed queue contains 1,305 potential pairs at the
-conservative score-72 threshold, 481 at score 80 or higher, 227 at score 85 or
-higher, 63 at score 90 or higher, and four at score 95 or higher. None is a
-direct identity collision.
+After migration 349, the indexed queue contains 952 raw potential pairs at the
+conservative score-72 threshold. Explicit
+identity decisions remove all 87 high-similarity movement-boundary pairs from
+the unresolved queue. The unresolved score-85 queue is empty, no
+`needs_human_review` identity decision remains, and none is a direct identity
+collision.
 The two score-100 warnings are “Depth Drop to Box Jump” versus “Box Jump to
 Depth Drop” and “Dead Hang” versus “Active Hang.” Both were already adjudicated
 as materially different ordered sequences or scapular actions. The old bigram
@@ -231,13 +252,76 @@ of their actual semantic duplicates, and exact collision detection compares
 normalized identities directly. The meaningful order difference therefore no
 longer blocks either card or leaves a direct identity collision.
 
-The remaining score-95 warnings are the two half-kneeling single-arm press
-names and `Medicine Ball Overhead Throw` versus `Medicine Ball Overhead Back
-Throw`. They remain queued for movement-context review; no automatic merge has
-been made. The former `Dumbbell Romanian Deadlift` versus `Romanian Deadlift`
-warning was resolved by migrations 330 and 331, and the former
-front-foot-elevated split-squat warning was resolved by migrations 332 and 333
-as implement variants of their respective stable identities.
+Migrations 334–339 resolve the former half-kneeling press and overhead
+medicine-ball warnings, the Bulgarian split-squat/RFESS alias collision, and
+148 synonym or exact-variant source definitions. Migration 340 explicitly
+adjudicates the remaining mechanically clear high-similarity pairs and
+quarantines three under-specified names. Migrations 341–343 then resolve those
+three using exact movement contracts and consolidate the two newly exposed
+variant-level duplicates. No unresolved score-85-or-higher pair remains.
+
+## Migrations 334–350
+
+Migrations 334 and 335 consolidate dumbbell, kettlebell, and band
+half-kneeling single-arm strict presses under one stable definition and model
+implement, anchor, rack, pressing-side relationship, load, range, and tempo as
+exact variants. Migration 336 records the forward/backward overhead
+medicine-ball projection boundary and the order-sensitive depth/box boundary.
+Migration 337 completes forward and backward overhead projection cards without
+collapsing their opposite directions.
+
+Migration 338 records ten additional mechanics-based boundaries. Migration 339
+then consolidates 148 active definitions whose differing labels are exact
+synonyms or controlled variant/profile dimensions: implement and quantity,
+load/rack position, assistance, tempo or hold, cueing, partner/sport context,
+setup markers, amplitude, and other declared modifiers. Every legacy source,
+alias, candidate evidence row, media candidate, and alternate assessment is
+retained. Source variants become archived and nonselectable instead of being
+silently reinterpreted.
+
+Migration 340 records 70 deterministic distinct-exercise boundaries using
+direction, support base, added actions, contact count, landing contract,
+contraction type, and force strategy. It records three `needs_human_review`
+decisions where the source content is insufficient. Those records have no
+reviewer and do not claim that human review occurred.
+
+Migration 341 resolves that prior queue without claiming human review:
+
+- Dead Bug Wall Press remains distinct from Medicine Ball Dead Bug Press
+  because a fixed bilateral wall press and a contralateral movable-ball press
+  change the fixed point, available limbs, coordination, and equipment
+  contract;
+- Lateral Hop to Stick is made explicit as a bilateral takeoff-and-landing
+  identity, distinct from Single-Leg Lateral Hop to Stick. Its low-amplitude
+  source is consolidated as a variant;
+- Med Ball Countermovement Rotational Throw remains distinct from forward
+  medicine-ball chest projection because stance, plane, target direction, and
+  release action differ.
+
+Migration 342 creates complete review-only card contracts for those five
+survivors. Migration 343 consolidates Countermovement Medicine-Ball Chest Pass
+as an exact preload variant of Medicine Ball Chest Pass and records Bilateral
+Lateral Jump to Stick versus Tuck Jump to Lateral Stick as distinct action
+sequences. Migration 344 enforces the controlled progression dimension
+taxonomy and removes obsolete exercise skill-level metadata keys.
+
+Migration 345 consolidates the Pallof press and Pallof step-out synonyms and
+controlled variants, while persisting the adjacent movement boundaries.
+Migration 346 completes both survivors without granting human approval.
+Migration 347 removes the enumerated obsolete exercise-card level fields across
+canonical and legacy exercise surfaces. Migration 350 then removes broader
+historical spellings recursively and adds database constraints that reject any
+future skill/proficiency classification key at any exercise-card JSON depth.
+All exercise, scaling, and safety-profile level columns are null. Exercise
+difficulty remains exercise complexity plus physical difficulty, with overall
+derived as their maximum. The 1,112 dedicated skill-library level assignments
+are intentionally untouched.
+
+Migration 348 records the Stir-the-Pot duplicate decision and preserves both
+legacy sources and aliases. Migration 349 supplies exact support-base and
+circle-size variants, complete planning/support contracts, candidate evidence
+and media, alternate decisions, and review-only graph and calibration
+proposals. It creates no human approval.
 
 ## Governance
 

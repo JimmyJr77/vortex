@@ -1,4 +1,5 @@
-const SKILL_LEVEL_KEY = /skilllevel/i
+const EXERCISE_PROFICIENCY_CLASSIFICATION_KEY =
+  /(?:skilllevel|proficiencylevel|proficiencyclassification)/i
 
 /**
  * Exercise cards are assessed with difficulty dimensions. Skill levels belong
@@ -22,7 +23,9 @@ export function findExerciseSkillLevelPaths(value) {
     for (const [key, item] of Object.entries(current)) {
       const itemPath = path ? `${path}.${key}` : key
       const normalizedKey = key.replace(/[^a-z0-9]/gi, '')
-      if (SKILL_LEVEL_KEY.test(normalizedKey)) paths.push(itemPath)
+      if (EXERCISE_PROFICIENCY_CLASSIFICATION_KEY.test(normalizedKey)) {
+        paths.push(itemPath)
+      }
       visit(item, itemPath)
     }
   }

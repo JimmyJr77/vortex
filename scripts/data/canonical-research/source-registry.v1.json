@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-07-26.40",
+  "registryVersion": "2026-07-27.44",
   "sources": {
     "sprint_start_biomechanics_review": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
@@ -862,6 +862,20 @@
       "kind": "expert_instruction",
       "evidenceQuality": 72
     },
+    "elite_dead_bug_wall_press": {
+      "url": "https://elite-performance-institute.com/exercise-library/core-exercises/dead-bug-wall-press/",
+      "title": "Dead Bug Wall Press",
+      "publisher": "Elite Performance Institute",
+      "kind": "expert_instruction",
+      "evidenceQuality": 72
+    },
+    "muscle_strength_medicine_ball_dead_bug": {
+      "url": "https://www.muscleandstrength.com/exercises/medicine-ball-dead-bug",
+      "title": "Medicine Ball Dead Bug",
+      "publisher": "Muscle & Strength",
+      "kind": "expert_instruction",
+      "evidenceQuality": 68
+    },
     "barbend_dead_bug_dumbbell_pullover": {
       "url": "https://barbend.com/dumbbell-pullover-guide/",
       "title": "How to Do the Dumbbell Pullover for a Bigger Back and Chest",
@@ -959,6 +973,132 @@
       "publisher": "Frontiers in Physiology",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 86
+    },
+    "ace_forward_overhead_medicine_ball_throw": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/178/overhead-medicine-ball-throws/",
+      "title": "Overhead Medicine Ball Throws",
+      "publisher": "American Council on Exercise",
+      "kind": "professional_standard",
+      "evidenceQuality": 80
+    },
+    "functional_performance_backward_overhead_throw": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3658404/",
+      "title": "Functional Performance Testing for Power and Return to Sports",
+      "publisher": "Sports Health",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
+    },
+    "forward_backward_medicine_ball_protocols": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8157825/",
+      "title": "Factorial Structure of Motor Abilities and Skills in Different Age Groups of Elite Female Soccer Players",
+      "publisher": "International Journal of Environmental Research and Public Health",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "overhead_medicine_ball_load_velocity": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3761701/",
+      "title": "Load-Velocity Relationship in the Overhead Medicine Ball Throw",
+      "publisher": "Journal of Sports Science & Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "backward_overhead_throw_power_reliability": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/16095399/",
+      "title": "Validity and Reliability of a Medicine Ball Explosive Power Test",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
+    },
+    "standing_overhead_throw_reliability": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/22744301/",
+      "title": "Reliability of Different Methods of Assessing Standing Overhead Medicine Ball Throw Performance",
+      "publisher": "Journal of Strength and Conditioning Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
+    },
+    "nsca_overhead_medicine_ball_toss": {
+      "url": "https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-7.3.pdf",
+      "title": "Creating Power: Alternative Bilateral and Nilateral Triple Extension Exercises",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 86
+    },
+    "dvids_medicine_ball_chest_throw": {
+      "url": "https://www.dvidshub.net/video/640987/med-ball-chest-throw-againt-wall",
+      "title": "Med Ball Chest Throw Against Wall",
+      "publisher": "U.S. Marine Corps Training and Education Command",
+      "kind": "governing_body",
+      "evidenceQuality": 78
+    },
+    "ace_medicine_ball_lunge_chest_pass": {
+      "url": "https://www.acefitness.org/resources/everyone/exercise-library/264/medicine-ball-lunge-to-chest-pass/",
+      "title": "Medicine Ball Lunge to Chest Pass",
+      "publisher": "American Council on Exercise",
+      "kind": "professional_standard",
+      "evidenceQuality": 80
+    },
+    "nasm_progressive_core_training": {
+      "url": "https://blog.nasm.org/progressive-core-training",
+      "title": "Core Objectives: Making a Case for Progressive Core Training",
+      "publisher": "National Academy of Sports Medicine",
+      "kind": "professional_standard",
+      "evidenceQuality": 84
+    },
+    "nsca_foundations_fitness_programming": {
+      "url": "https://www.nsca.com/contentassets/8323553f698a466a98220b21d9eb9a65/foundationsoffitnessprogramming_201508.pdf",
+      "title": "Foundations of Fitness Programming",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 87
+    },
+    "pallof_band_test_reliability": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11244540/",
+      "title": "Using Resistance-Band Tests to Evaluate Trunk Muscle Strength in Chronic Low Back Pain: A Test-Retest Reliability Study",
+      "publisher": "Journal of Functional Morphology and Kinesiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "pallof_body_position_postural_control": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40005429/",
+      "title": "Effect of Body Position and Support Surface on the Postural Control Challenge During the Pallof Press Exercise: A Smartphone Accelerometer-Based Study",
+      "publisher": "Medicina",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 84
+    },
+    "axial_torque_trunk_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/2942653/",
+      "title": "Electromyographic Studies of the Lumbar Trunk Musculature During the Development of Axial Torques",
+      "publisher": "Journal of Orthopaedic Research",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 81
+    },
+    "ace_stir_the_pot": {
+      "url": "https://www.acefitness.org/continuing-education/prosource/february-2014/3680/reality-check-are-planks-really-the-best-core-exercise/",
+      "title": "Reality Check: Are Planks Really the Best Core Exercise?",
+      "publisher": "American Council on Exercise",
+      "kind": "professional_standard",
+      "evidenceQuality": 83
+    },
+    "gym_ball_trunk_emg": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/15008027/",
+      "title": "Electromyographic Activity of Selected Trunk Muscles During Stabilization Exercises Using a Gym Ball",
+      "publisher": "Electromyography and Clinical Neurophysiology",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 82
+    },
+    "unstable_surface_emg_meta_analysis": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11055131/",
+      "title": "Comparison of the Electromyography Activity During Exercises With Stable and Unstable Surfaces: A Systematic Review and Meta-Analysis",
+      "publisher": "Journal of Clinical Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 89
+    },
+    "unstable_closed_chain_shoulder_meta_analysis": {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9250763/",
+      "title": "Electromyographic Analysis of the Serratus Anterior and Upper Trapezius in Closed Kinetic Chain Exercises Performed on Different Unstable Support Surfaces",
+      "publisher": "PeerJ",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 87
     },
     "youtube_embed_help": {
       "url": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
