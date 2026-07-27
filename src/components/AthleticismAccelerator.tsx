@@ -23,7 +23,7 @@ const ACCELERATOR_OFFER_HEADLINES = [
   {
     leading: "DON'T JUST PLAY AT THE TRAMPOLINE PARK, LEARN HOW TO",
     emphasis: 'FLIP & TUMBLE',
-    trailing: 'LIKE AN ATHLETE',
+    trailing: 'LIKE AN OLYMPIAN',
   },
 ]
 

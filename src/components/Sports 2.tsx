@@ -57,7 +57,7 @@ const SPORTS_OFFER_HEADLINES = [
   {
     leading: "DON'T JUST PLAY AT THE TRAMPOLINE PARK, LEARN HOW TO",
     emphasis: 'FLIP & TUMBLE',
-    trailing: 'LIKE AN ATHLETE',
+    trailing: 'LIKE AN OLYMPIAN',
   },
   {
     leading: 'LEARN THE POWER, GRACE, SKILL AND FOCUS REQUIRED TO BE THE',

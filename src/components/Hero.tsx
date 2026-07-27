@@ -177,22 +177,25 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
         Youth Sports Performance Training in Bowie, MD
       </h1>
       {/* Desktop: Full screen section with everything overlaid on video */}
-      <section className="hidden md:block relative min-h-below-site-header w-full overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header">
+      {/* z-20 + no section overflow so hero dropdown menus paint above the next section */}
+      <section className="hidden md:block relative z-20 min-h-below-site-header w-full bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header">
         {/* Background: poster until Play Video; then YouTube video in background */}
-        <HeroBackgroundVideo
-          videoFileName="short_hero.mp4"
-          posterFileName="main_hero_bg.png"
-          imageOnly
-          playRequested={isVideoPlaying}
-          youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
-          className="absolute inset-0 w-full h-full"
-          overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
-          onVideoReady={handleVideoReady}
-          onVideoError={handleVideoError}
-        />
+        <div className="absolute inset-0 overflow-hidden">
+          <HeroBackgroundVideo
+            videoFileName="short_hero.mp4"
+            posterFileName="main_hero_bg.png"
+            imageOnly
+            playRequested={isVideoPlaying}
+            youtubeVideoId={HERO_YOUTUBE_VIDEO_ID}
+            className="absolute inset-0 w-full h-full"
+            overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
+            onVideoReady={handleVideoReady}
+            onVideoError={handleVideoError}
+          />
+        </div>
 
         {/* Animated Background Elements */}
-        <div className="absolute inset-0 z-[1]">
+        <div className="absolute inset-0 z-[1] overflow-hidden">
           <motion.div
             className="absolute top-1/4 left-1/4 w-64 h-64 bg-vortex-red/20 rounded-full blur-3xl"
             animate={{
@@ -453,7 +456,7 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
       </section>
 
       {/* Content Section Below Video - Mobile only, Desktop: overlaid on video */}
-      <section className="md:hidden bg-gradient-to-br from-black via-gray-900 to-black py-12">
+      <section className="relative z-20 md:hidden bg-gradient-to-br from-black via-gray-900 to-black py-12">
         <div className="container-custom">
           <div className="text-center">
             {/* Subtitle */}

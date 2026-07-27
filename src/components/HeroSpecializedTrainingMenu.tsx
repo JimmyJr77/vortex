@@ -37,7 +37,7 @@ export default function HeroSpecializedTrainingMenu({
   }, [open])
 
   return (
-    <div ref={rootRef} className={`relative ${fullWidth ? 'w-full max-w-xs' : ''}`}>
+    <div ref={rootRef} className={`relative z-50 ${fullWidth ? 'w-full max-w-xs' : ''}`}>
       <motion.button
         type="button"
         aria-expanded={open}

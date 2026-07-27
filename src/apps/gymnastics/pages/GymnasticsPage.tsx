@@ -66,9 +66,9 @@ const HERO_ENROLL_PROGRAMS = [
 ] as const
 
 const HeroEnrollDropdown = () => (
-  <details className="group relative w-full max-w-xs sm:w-auto sm:max-w-none">
+  <details className="group relative z-50 w-full max-w-xs sm:w-auto sm:max-w-none">
     <summary
-      className={`${heroSecondaryCtaClass} w-full cursor-pointer list-none [&::-webkit-details-marker]:hidden`}
+      className={`${heroCtaClass} w-full cursor-pointer list-none border-2 border-gray-500 bg-transparent text-white hover:border-gray-400 hover:bg-gray-500 hover:text-white [&::-webkit-details-marker]:hidden`}
     >
       Enroll Now
       <ChevronDown
@@ -76,7 +76,7 @@ const HeroEnrollDropdown = () => (
         aria-hidden="true"
       />
     </summary>
-    <div className="absolute left-1/2 top-full z-40 mt-2 w-72 max-w-[calc(100vw-2rem)] -translate-x-1/2 overflow-hidden rounded-xl border border-gray-200 bg-white py-2 text-left shadow-2xl">
+    <div className="absolute left-1/2 top-full z-50 mt-2 w-72 max-w-[calc(100vw-2rem)] -translate-x-1/2 overflow-hidden rounded-xl border border-gray-300 bg-white py-2 text-left shadow-2xl">
       {HERO_ENROLL_PROGRAMS.map((programName) => (
         <Link
           key={programName}
@@ -167,8 +167,9 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
     <div className="min-h-screen bg-white">
       {/* Single keyword-focused H1 for SEO; hero title rotates visually below. */}
       <h1 className="sr-only">Gymnastics Classes in Bowie, MD</h1>
-      {/* Desktop: Full screen section with scrolling hero images */}
-      <section className="hidden md:block relative min-h-below-site-header w-full overflow-hidden pt-below-site-header">
+      {/* Desktop: Full screen section with scrolling hero images.
+          Keep overflow on the image strip only so hero dropdowns can paint above the next section. */}
+      <section className="hidden md:block relative z-20 min-h-below-site-header w-full pt-below-site-header">
         {/* Scrolling images strip — nonstop steady scroll */}
         <div className="absolute inset-0 overflow-hidden">
           <div
@@ -292,8 +293,8 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
         </div>
       </section>
 
-      {/* Mobile: Content section below hero */}
-      <section className="md:hidden bg-gradient-to-br from-black via-gray-900 to-black py-12">
+      {/* Mobile: Content section below hero (z-20 so Enroll dropdown sits above the next section) */}
+      <section className="relative z-20 md:hidden bg-gradient-to-br from-black via-gray-900 to-black py-12">
         <div className="container-custom">
           <div className={`text-center flex flex-col items-center ${GYMNASTICS_HERO_SECTION_GAP}`}>
             <GymnasticsHeroRotatingText
