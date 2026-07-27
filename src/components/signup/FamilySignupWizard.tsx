@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import DateOfBirthInput from '../DateOfBirthInput'
 import { ChevronLeft, ChevronRight, Loader2, Plus, Trash2, UserPlus } from 'lucide-react'
 import ScheduleOptionCheckboxGrid, { groupScheduleOptions } from './ScheduleOptionCheckboxGrid'
 import { getApiUrl, adminApiRequest } from '../../utils/api'
@@ -685,7 +686,7 @@ export default function FamilySignupWizard({
       </div>
       <div>
         <label className="block text-xs font-semibold text-gray-600 mb-1">Date of birth (DOB) *</label>
-        <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="date" value={member.dateOfBirth} onChange={(e) => onChange({ dateOfBirth: e.target.value })} />
+        <DateOfBirthInput className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={member.dateOfBirth} onChange={(e) => onChange({ dateOfBirth: e.target.value })} required />
       </div>
       <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm self-end" value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
         <option value="">Gender</option>
@@ -716,7 +717,7 @@ export default function FamilySignupWizard({
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Last name *" value={member.lastName} onChange={(e) => onChange({ lastName: e.target.value })} />
       <div>
         <label className="block text-xs font-semibold text-gray-600 mb-1">Date of birth (DOB) *</label>
-        <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="date" value={member.dateOfBirth} onChange={(e) => onChange({ dateOfBirth: e.target.value })} />
+        <DateOfBirthInput className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={member.dateOfBirth} onChange={(e) => onChange({ dateOfBirth: e.target.value })} required />
       </div>
       <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm self-end" value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
         <option value="">Gender</option>
@@ -789,7 +790,7 @@ export default function FamilySignupWizard({
         </div>
         <div>
           <label className="block text-xs font-semibold text-gray-600 mb-1">Date of birth (DOB) *</label>
-          <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="date" value={member.dateOfBirth} onChange={(e) => onChange({ dateOfBirth: e.target.value })} />
+          <DateOfBirthInput className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={member.dateOfBirth} onChange={(e) => onChange({ dateOfBirth: e.target.value })} required />
         </div>
         <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
           <option value="">Gender</option>

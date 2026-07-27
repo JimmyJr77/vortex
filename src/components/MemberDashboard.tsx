@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu, Bell, CircleHelp } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
+import DateOfBirthInput from './DateOfBirthInput'
 import { formatDateForDisplay, parseDateOnly } from '../utils/dateUtils'
 import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
 import { fetchClassesOffered, fetchMemberMultiClassPasses, type PublicProgramOffered, type MemberMultiClassPassBalance } from '../utils/publicClassesApi'
@@ -2020,8 +2021,7 @@ export default function MemberDashboard({
                           maxLength={PHONE_INPUT_MAX_LENGTH}
                           className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
                         />
-                        <input
-                          type="date"
+                        <DateOfBirthInput
                           value={addFamilyMemberData.dateOfBirth}
                           onChange={(e) => setAddFamilyMemberData((prev) => ({ ...prev, dateOfBirth: e.target.value }))}
                           className="border border-gray-300 rounded-lg px-3 py-2 text-sm"

@@ -5,6 +5,7 @@ import { getApiUrl } from '../../utils/api'
 import { formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../../utils/phoneUtils'
 import { isAdult } from '../../utils/dateUtils'
 import WaiverSigningBlock, { validateWaiverSigning, type PublicWaiverTemplate } from './WaiverSigningBlock'
+import DateOfBirthInput from '../DateOfBirthInput'
 import SignupEnrollmentPicker from './SignupEnrollmentPicker'
 import { trackEvent } from '../../utils/analyticsClient'
 import {
@@ -234,7 +235,7 @@ export default function SignupInvitePage() {
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="City" value={primaryAdult.addressCity} onChange={(e) => setPrimaryAdult((p) => ({ ...p, addressCity: e.target.value }))} />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="State" value={primaryAdult.addressState} onChange={(e) => setPrimaryAdult((p) => ({ ...p, addressState: e.target.value }))} />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="ZIP" value={primaryAdult.addressZip} onChange={(e) => setPrimaryAdult((p) => ({ ...p, addressZip: e.target.value }))} />
-          <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="date" value={primaryAdult.dateOfBirth} onChange={(e) => setPrimaryAdult((p) => ({ ...p, dateOfBirth: e.target.value }))} />
+          <DateOfBirthInput className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={primaryAdult.dateOfBirth} onChange={(e) => setPrimaryAdult((p) => ({ ...p, dateOfBirth: e.target.value }))} required />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Username" value={primaryAdult.username} onChange={(e) => setPrimaryAdult((p) => ({ ...p, username: e.target.value }))} />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder="Password" value={primaryAdult.password} onChange={(e) => setPrimaryAdult((p) => ({ ...p, password: e.target.value }))} />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder="Confirm password" value={primaryAdult.confirmPassword} onChange={(e) => setPrimaryAdult((p) => ({ ...p, confirmPassword: e.target.value }))} />

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { CheckCircle2, Loader2, UserPlus } from 'lucide-react'
 import FamilySignupWizard from '../signup/FamilySignupWizard'
+import DateOfBirthInput from '../DateOfBirthInput'
 import WaiverSigningBlock, {
   validateWaiverSigning,
   type PublicWaiverTemplate,
@@ -618,11 +619,12 @@ export default function WaiversMembershipsPage() {
                 placeholder="Phone (optional)"
                 className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
               />
-              <input
-                type="date"
+              <DateOfBirthInput
                 value={addForm.dateOfBirth}
                 onChange={(e) => setAddForm((prev) => ({ ...prev, dateOfBirth: e.target.value }))}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm md:col-span-2"
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                containerClassName="md:col-span-2"
+                required
               />
               <button
                 type="button"

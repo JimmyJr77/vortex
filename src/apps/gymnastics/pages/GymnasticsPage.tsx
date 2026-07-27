@@ -158,8 +158,8 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
       to: '/aerobic-gymnastics',
       icon: Heart,
       color: 'from-rose-600 to-rose-900',
-      image: null as string | null,
-      imageAlt: 'Aerobic gymnastics placeholder',
+      image: '/aerobic-discipline.jpg' as string | null,
+      imageAlt: 'Vortex athlete flying through a back layout in the gym',
     },
   ]
 
