@@ -205,7 +205,7 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
               What We Train
             </p>
             <h2 className="text-4xl font-display font-bold text-black md:text-6xl">
-              Six Elements of <span className="text-vortex-red">Athletic Development</span>
+              All Elements of <span className="text-vortex-red">Athletic Development</span>
             </h2>
             <p className="mt-5 text-lg leading-relaxed text-gray-600">
               Each block builds a different athletic quality. Together they create a complete
