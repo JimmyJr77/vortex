@@ -337,6 +337,10 @@ const SCORE_72_VARIANT_CONSOLIDATIONS_MIGRATION = readFileSync(
   new URL('../../migrations/396_coaching_score_72_variant_identity_consolidations.sql', import.meta.url),
   'utf8',
 )
+const LANDMINE_PRESS_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/397_coaching_landmine_press_family_completion.sql', import.meta.url),
+  'utf8',
+)
 const PLATFORM_INIT_TABLES_SOURCE = readFileSync(
   new URL('../initTables.js', import.meta.url),
   'utf8',
@@ -4143,6 +4147,85 @@ test('hamstring slider completion uses exact difficulty-only variants and preser
   )
   assert.doesNotMatch(
     HAMSTRING_SLIDER_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('landmine press completion uses exact strict variants, five embedded candidates, and every human gate', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'397_coaching_landmine_press_family_completion\.sql'/,
+  )
+  for (const variantKey of [
+    'single-arm-square-stance-sleeve-grip-strict',
+    'single-arm-split-stance-sleeve-grip-strict',
+    'two-hand-square-stance-sleeve-grip-strict',
+    'two-hand-square-stance-neutral-handle-strict',
+    'two-hand-square-stance-ball-grip-strict',
+  ]) {
+    assert.match(
+      LANDMINE_PRESS_COMPLETION_MIGRATION,
+      new RegExp(variantKey),
+    )
+  }
+  for (const videoId of [
+    '3gYz0bLG-wY',
+    'Xf5tyNy5M6k',
+    'N9_1DnqUAQw',
+    '5Cs27w8WVz4',
+    '6cSTRPhpubs',
+  ]) {
+    assert.match(
+      LANDMINE_PRESS_COMPLETION_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /greatest\(seed\.complexity, seed\.physical\)/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /'max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /'capacity-strict-strength','capacity'/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /'movement-intelligence-path-control','movement_intelligence'/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /refused to overwrite % protected record/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /'media_human_review_required'/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /'alternate_boundary_human_review_required'/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /'graph_human_review_required'/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /'calibration_human_review_required'/,
+  )
+  assert.doesNotMatch(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
     /approved_video_url\s*=\s*'https:\/\//,
   )
 })
