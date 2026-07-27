@@ -112,7 +112,12 @@ export default function MemberAccountPanel({
           {activeTab === 'details' && <MemberDetailsTab member={member} familyData={familyData} />}
           {activeTab === 'security' && <MemberAccountSecurityTab memberId={memberId} />}
           {activeTab === 'enrollments' && (
-            <MemberEnrollmentsTab memberId={memberId} enrollments={member.enrollments ?? []} />
+            <MemberEnrollmentsTab
+              memberId={memberId}
+              memberName={memberName}
+              familyData={familyData}
+              enrollments={member.enrollments ?? []}
+            />
           )}
           {activeTab === 'notes' && <MemberStaffNotesTab memberId={memberId} />}
           {activeTab === 'billing' && (

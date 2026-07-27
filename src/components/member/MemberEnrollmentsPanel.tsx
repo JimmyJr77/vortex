@@ -337,7 +337,7 @@ export default function MemberEnrollmentsPanel({
   multiClassPasses = [],
   onEnrollmentsChanged,
   readOnly = false,
-  defaultView = 'class',
+  defaultView = 'member',
   hideViewToggle = false,
   embedded = false,
 }: Props) {
