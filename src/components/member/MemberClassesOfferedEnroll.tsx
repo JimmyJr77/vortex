@@ -28,6 +28,9 @@ import {
   enrollmentDueNowCents,
   enrollmentNeedsPayment,
   storePendingEnrollmentId,
+  fetchAnnualMembershipOffer,
+  createAnnualMembershipCheckoutSession,
+  type AnnualMembershipOffer,
   type SignupOrderPreview,
 } from '../../utils/schedulingApi'
 import { flushEvents, trackEvent } from '../../utils/analyticsClient'
@@ -78,9 +81,20 @@ interface CartItem {
 type CatalogState = SignupClassCatalog | 'loading' | 'error'
 
 const UNSPECIFIED_SPORT = '__unspecified_sport__'
+const MEMBERSHIP_SPORT = 'Membership'
+const ANNUAL_MEMBERSHIP_PROGRAM_FILTER = '__annual_membership__'
 
 function formatMoney(amount: number) {
   return `$${amount.toFixed(2)}`
+}
+
+function formatMembershipDate(value: string | null | undefined) {
+  if (!value) return null
+  const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (match) {
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])).toLocaleDateString()
+  }
+  return new Date(value).toLocaleDateString()
 }
 
 function classMatchesLevelFilter(skillLevel: string | null, levelFilter: ClassSkillLevelFilter): boolean {
@@ -117,10 +131,15 @@ export default function MemberClassesOfferedEnroll({
   const [selectedPricingByProgram, setSelectedPricingByProgram] = useState<
     Record<number, ProgramPricingOptionKey>
   >({})
-
+  const [membershipOffer, setMembershipOffer] = useState<AnnualMembershipOffer | null>(null)
+  const [membershipLoading, setMembershipLoading] = useState(false)
+  const [membershipCheckoutLoading, setMembershipCheckoutLoading] = useState(false)
+  const [membershipError, setMembershipError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [sportFilter, setSportFilter] = useState<string>('all')
-  const [programFilter, setProgramFilter] = useState<number | 'all'>('all')
+  const [programFilter, setProgramFilter] = useState<number | typeof ANNUAL_MEMBERSHIP_PROGRAM_FILTER | 'all'>(
+    'all',
+  )
   const [levelFilter, setLevelFilter] = useState<ClassSkillLevelFilter>('all')
 
   const classesWithForm = useMemo(() => {
@@ -152,19 +171,39 @@ export default function MemberClassesOfferedEnroll({
   }, [programs])
 
   const sportOptions = useMemo(() => {
-    const names = new Set<string>()
+    const names = new Set<string>([MEMBERSHIP_SPORT])
     let hasUnspecified = false
     for (const program of programs) {
       if (program.primarySportName) names.add(program.primarySportName)
       else hasUnspecified = true
     }
     return {
-      named: [...names].sort((a, b) => a.localeCompare(b)),
+      named: [...names].sort((a, b) => {
+        if (a === MEMBERSHIP_SPORT) return -1
+        if (b === MEMBERSHIP_SPORT) return 1
+        return a.localeCompare(b)
+      }),
       hasUnspecified,
     }
   }, [programs])
 
+  const showMembershipCard = useMemo(() => {
+    if (membershipOffer && !membershipOffer.available && !membershipOffer.active) return false
+    if (sportFilter !== 'all' && sportFilter !== MEMBERSHIP_SPORT) return false
+    if (programFilter !== 'all' && programFilter !== ANNUAL_MEMBERSHIP_PROGRAM_FILTER) return false
+    if (levelFilter !== 'all') return false
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return true
+    const haystack = `${MEMBERSHIP_SPORT} annual membership ${membershipOffer?.fee?.name ?? ''} ${
+      membershipOffer?.programName ?? ''
+    }`.toLowerCase()
+    return haystack.includes(q) || q.includes('member') || q.includes('annual')
+  }, [membershipOffer, sportFilter, programFilter, levelFilter, searchQuery])
+
   const filteredProgramSections = useMemo(() => {
+    if (sportFilter === MEMBERSHIP_SPORT || programFilter === ANNUAL_MEMBERSHIP_PROGRAM_FILTER) {
+      return []
+    }
     const q = searchQuery.trim().toLowerCase()
     const sections: Array<{
       program: PublicProgramOffered
@@ -204,6 +243,44 @@ export default function MemberClassesOfferedEnroll({
 
     return sections
   }, [programs, classesWithForm, searchQuery, sportFilter, programFilter, levelFilter])
+
+  useEffect(() => {
+    let cancelled = false
+    setMembershipLoading(true)
+    setMembershipError(null)
+    void fetchAnnualMembershipOffer(memberToken, selectedMemberId)
+      .then((offer) => {
+        if (!cancelled) setMembershipOffer(offer)
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setMembershipOffer(null)
+          setMembershipError(err?.message || 'Failed to load membership offer.')
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setMembershipLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [memberToken, selectedMemberId])
+
+  const purchaseAnnualMembership = async () => {
+    if (!stripeEnabled || membershipOffer?.active) return
+    setMembershipCheckoutLoading(true)
+    setMembershipError(null)
+    try {
+      const session = await createAnnualMembershipCheckoutSession(memberToken, {
+        memberId: selectedMemberId,
+      })
+      if (!session?.url) throw new Error('Checkout did not return a payment link.')
+      window.location.href = session.url
+    } catch (err) {
+      setMembershipError(err instanceof Error ? err.message : 'Failed to start membership checkout.')
+      setMembershipCheckoutLoading(false)
+    }
+  }
 
   const loadCatalog = useCallback(
     async (classEventId: number) => {
@@ -714,7 +791,7 @@ export default function MemberClassesOfferedEnroll({
         </div>
       </div>
 
-      {classesWithForm.length > 0 && (
+      {(classesWithForm.length > 0 || showMembershipCard) && (
         <div className="space-y-3">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -731,7 +808,14 @@ export default function MemberClassesOfferedEnroll({
               <span className="text-xs font-semibold text-gray-600">Sport</span>
               <select
                 value={sportFilter}
-                onChange={(e) => setSportFilter(e.target.value)}
+                onChange={(e) => {
+                  const next = e.target.value
+                  setSportFilter(next)
+                  if (next !== MEMBERSHIP_SPORT && programFilter === ANNUAL_MEMBERSHIP_PROGRAM_FILTER) {
+                    setProgramFilter('all')
+                  }
+                  if (next === MEMBERSHIP_SPORT) setProgramFilter(ANNUAL_MEMBERSHIP_PROGRAM_FILTER)
+                }}
                 className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"
               >
                 <option value="all">All sports</option>
@@ -749,12 +833,18 @@ export default function MemberClassesOfferedEnroll({
               <span className="text-xs font-semibold text-gray-600">Program</span>
               <select
                 value={programFilter === 'all' ? 'all' : String(programFilter)}
-                onChange={(e) =>
-                  setProgramFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))
-                }
+                onChange={(e) => {
+                  const value = e.target.value
+                  if (value === 'all') setProgramFilter('all')
+                  else if (value === ANNUAL_MEMBERSHIP_PROGRAM_FILTER) {
+                    setProgramFilter(ANNUAL_MEMBERSHIP_PROGRAM_FILTER)
+                    setSportFilter(MEMBERSHIP_SPORT)
+                  } else setProgramFilter(Number(value))
+                }}
                 className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"
               >
                 <option value="all">All programs</option>
+                <option value={ANNUAL_MEMBERSHIP_PROGRAM_FILTER}>Annual Membership</option>
                 {programs.map((program) => (
                   <option key={program.id} value={program.id}>
                     {program.displayName}
@@ -780,12 +870,73 @@ export default function MemberClassesOfferedEnroll({
         </div>
       )}
 
-      {classesWithForm.length === 0 && (
+      {classesWithForm.length === 0 && !showMembershipCard && (
         <p className="text-sm text-gray-500">No classes are available to enroll in right now.</p>
       )}
 
-      {classesWithForm.length > 0 && filteredProgramSections.length === 0 && (
-        <p className="text-sm text-gray-500">No classes match your search or filters.</p>
+      {classesWithForm.length > 0 &&
+        filteredProgramSections.length === 0 &&
+        !showMembershipCard && (
+          <p className="text-sm text-gray-500">No classes match your search or filters.</p>
+        )}
+
+      {showMembershipCard && (
+        <div
+          className={`rounded-xl border border-vortex-red bg-white p-4 md:p-5 space-y-3 shadow-sm ${
+            membershipOffer?.active ? 'opacity-60' : ''
+          }`}
+        >
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                {MEMBERSHIP_SPORT}
+              </p>
+              <h3 className="text-lg font-bold text-gray-900">Annual Membership</h3>
+              <p className="text-sm text-gray-600 mt-1 max-w-2xl">
+                Facility access membership valid for 1 year from purchase. Renews annually through
+                Stripe. Required for member pricing and annual drop-in credits — not a class
+                enrollment.
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-xl font-bold text-gray-900">
+                {membershipLoading
+                  ? '…'
+                  : formatMoney((membershipOffer?.amountCents ?? 0) / 100)}
+                <span className="text-sm font-semibold text-gray-500">/yr</span>
+              </p>
+              {membershipOffer?.active && membershipOffer.renewsOn ? (
+                <p className="text-xs text-gray-500 mt-1">
+                  Active · renews {formatMembershipDate(membershipOffer.renewsOn)}
+                </p>
+              ) : null}
+            </div>
+          </div>
+          {membershipError ? <p className="text-sm text-red-600">{membershipError}</p> : null}
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              disabled={
+                !stripeEnabled ||
+                membershipLoading ||
+                membershipCheckoutLoading ||
+                Boolean(membershipOffer?.active) ||
+                !membershipOffer?.available
+              }
+              onClick={() => void purchaseAnnualMembership()}
+              className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {membershipCheckoutLoading
+                ? 'Starting checkout…'
+                : membershipOffer?.active
+                  ? 'Membership active'
+                  : 'Purchase annual membership'}
+            </button>
+            {!stripeEnabled ? (
+              <span className="text-xs text-gray-500">Online payments are not enabled yet.</span>
+            ) : null}
+          </div>
+        </div>
       )}
 
       {filteredProgramSections.map(({ program, programClasses }) => {

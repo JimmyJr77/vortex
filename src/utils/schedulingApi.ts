@@ -1193,6 +1193,58 @@ export async function createEnrollmentCheckoutSession(
   return parseJson<{ url?: string; skipCheckout?: boolean; pendingEnrollmentId?: number }>(res)
 }
 
+export type AnnualMembershipOffer = {
+  available: boolean
+  active: boolean
+  fee: { feeId: number; name: string; amountCents: number; description?: string | null } | null
+  renewsOn: string | null
+  cycleStart: string | null
+  amountCents: number
+  sportName: string
+  programName: string
+}
+
+export async function fetchAnnualMembershipOffer(
+  memberToken: string,
+  memberId: number,
+): Promise<AnnualMembershipOffer> {
+  const res = await fetch(
+    `${getApiUrl()}/api/members/billing/annual-membership?memberId=${encodeURIComponent(String(memberId))}`,
+    { headers: { Authorization: `Bearer ${memberToken}` } },
+  )
+  return parseJson<AnnualMembershipOffer>(res)
+}
+
+export async function createAnnualMembershipCheckoutSession(
+  memberToken: string,
+  payload: { memberId: number },
+): Promise<{ url: string; checkoutSessionId?: string }> {
+  const res = await fetch(`${getApiUrl()}/api/members/billing/annual-membership-checkout`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${memberToken}`,
+    },
+    body: JSON.stringify(payload),
+  })
+  return parseJson<{ url: string; checkoutSessionId?: string }>(res)
+}
+
+export async function confirmAnnualMembershipCheckoutSession(
+  memberToken: string,
+  payload: { checkoutSessionId: string },
+): Promise<{ status: string; renewsOn?: string | null }> {
+  const res = await fetch(`${getApiUrl()}/api/members/billing/confirm-annual-membership-checkout`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${memberToken}`,
+    },
+    body: JSON.stringify(payload),
+  })
+  return parseJson<{ status: string; renewsOn?: string | null }>(res)
+}
+
 const PENDING_ENROLLMENT_STORAGE_KEY = 'vortex_pending_enrollment_id'
 
 export function storePendingEnrollmentId(pendingEnrollmentId: number): void {

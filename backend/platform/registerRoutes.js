@@ -44,6 +44,11 @@ import {
   commitPendingEnrollment,
   confirmEnrollmentCheckoutSession,
 } from '../billing/stripeEnrollmentCheckout.js'
+import {
+  getAnnualMembershipOffer,
+  createAnnualMembershipCheckoutSession,
+  commitAnnualMembershipCheckout,
+} from '../billing/annualMembershipCheckout.js'
 import { syncAllCatalog, getCatalogSyncStatus } from '../billing/stripeCatalogSync.js'
 import { emitStripePurchaseEvent, emitStripePaymentFailedEvent } from '../analytics/ga4Measurement.js'
 import { buildBillingAccountView } from '../billing/billingAccountView.js'
@@ -2359,6 +2364,117 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  app.get('/api/members/billing/annual-membership', authMiddleware(pool, jwtSecret), async (req, res) => {
+    const ctx = req.platformAuth
+    const familyId = ctx.user.family_id
+    if (!familyId) {
+      return res.json({
+        success: true,
+        data: {
+          available: false,
+          active: false,
+          fee: null,
+          renewsOn: null,
+          amountCents: 0,
+          sportName: 'Membership',
+          programName: 'Annual Membership',
+        },
+      })
+    }
+    const athleteMemberId = Number(req.query.memberId ?? ctx.user.member_id ?? ctx.user.id)
+    const memberCheck = await pool.query(
+      `SELECT id FROM member WHERE id = $1 AND family_id = $2 AND is_active = TRUE`,
+      [athleteMemberId, familyId],
+    )
+    if (memberCheck.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Athlete not found.' })
+    }
+    try {
+      const offer = await getAnnualMembershipOffer(pool, athleteMemberId)
+      res.json({ success: true, data: offer })
+    } catch (err) {
+      console.error('[billing] annual-membership offer:', err)
+      res.status(500).json({ success: false, message: 'Failed to load membership offer.' })
+    }
+  })
+
+  app.post('/api/members/billing/annual-membership-checkout', authMiddleware(pool, jwtSecret), async (req, res) => {
+    if (!isStripeEnabled()) {
+      return res.status(503).json({
+        success: false,
+        message: 'Online payments are not enabled yet.',
+        stripeEnabled: false,
+      })
+    }
+    const ctx = req.platformAuth
+    const payerMemberId = Number(ctx.user.member_id ?? ctx.user.id)
+    const familyId = ctx.user.family_id
+    if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
+    const account = await ensureBillingAccount(pool, familyId)
+    if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
+    const canPay = Number(account.payer_member_id) === payerMemberId
+    if (!canPay) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only the family payer can purchase annual membership.',
+      })
+    }
+
+    const athleteMemberId = Number(req.body?.memberId ?? payerMemberId)
+    try {
+      const base = publicAppUrl()
+      const result = await createAnnualMembershipCheckoutSession(pool, {
+        account,
+        athleteMemberId,
+        payerMemberId,
+        successUrl: `${base}/?billing=membership-paid&session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${base}/?billing=membership-cancelled`,
+      })
+      if (!result?.url) {
+        return res.status(503).json({ success: false, message: 'Online payments are not available right now.' })
+      }
+      res.json({ success: true, data: result })
+    } catch (err) {
+      console.error('[stripe] annual-membership-checkout:', err)
+      const status = err.status && Number.isFinite(err.status) ? err.status : 500
+      res.status(status).json({
+        success: false,
+        message: err.message || 'Failed to start membership checkout.',
+      })
+    }
+  })
+
+  app.post('/api/members/billing/confirm-annual-membership-checkout', authMiddleware(pool, jwtSecret), async (req, res) => {
+    if (!isStripeEnabled()) {
+      return res.status(503).json({ success: false, message: 'Online payments are not enabled yet.' })
+    }
+    const ctx = req.platformAuth
+    const familyId = ctx.user.family_id
+    if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
+    const account = await ensureBillingAccount(pool, familyId)
+    if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
+
+    const checkoutSessionId = req.body?.checkoutSessionId ?? req.body?.sessionId ?? null
+    if (!checkoutSessionId) {
+      return res.status(400).json({ success: false, message: 'Missing checkout session.' })
+    }
+    try {
+      const stripe = await getStripeClient()
+      const session = await stripe.checkout.sessions.retrieve(checkoutSessionId)
+      if (Number(session.metadata?.familyBillingAccountId) !== Number(account.id)) {
+        return res.status(403).json({ success: false, message: 'Checkout does not belong to this account.' })
+      }
+      const result = await commitAnnualMembershipCheckout(pool, {
+        stripeSession: session,
+        accountId: account.id,
+      })
+      res.json({ success: true, data: result })
+    } catch (err) {
+      console.error('[stripe] confirm-annual-membership-checkout:', err)
+      res.status(500).json({ success: false, message: err.message || 'Failed to confirm membership.' })
+    }
+  })
+
   app.post('/api/members/billing/enrollment-checkout-session', authMiddleware(pool, jwtSecret), async (req, res) => {
     if (!isStripeEnabled()) {
       return res.status(503).json({ success: false, message: 'Online payments are not enabled yet.', stripeEnabled: false })
@@ -2476,6 +2592,9 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           event.type === 'checkout.session.completed' &&
           obj.metadata?.checkoutType === 'enrollment' &&
           obj.metadata?.pendingEnrollmentId
+        const isAnnualMembershipCheckout =
+          event.type === 'checkout.session.completed' &&
+          obj.metadata?.checkoutType === 'annual_membership'
         if (isEnrollmentCheckout) {
           try {
             await commitPendingEnrollment(pool, {
@@ -2487,11 +2606,24 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             return res.status(500).json({ success: false, message: commitErr.message })
           }
         }
+        if (isAnnualMembershipCheckout) {
+          try {
+            await commitAnnualMembershipCheckout(pool, {
+              stripeSession: obj,
+              accountId: obj.metadata?.familyBillingAccountId
+                ? Number(obj.metadata.familyBillingAccountId)
+                : null,
+            })
+          } catch (commitErr) {
+            console.error('[stripe] annual membership commit:', commitErr)
+            return res.status(500).json({ success: false, message: commitErr.message })
+          }
+        }
         const accountId = obj.metadata?.familyBillingAccountId
           ? Number(obj.metadata.familyBillingAccountId)
           : null
         let insertedPayment = null
-        if (isEnrollmentCheckout && accountId) {
+        if ((isEnrollmentCheckout || isAnnualMembershipCheckout) && accountId) {
           const stripe = await getStripeClient()
           insertedPayment = await recordEnrollmentStripePayment(pool, stripe, {
             session: obj,
@@ -2510,7 +2642,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         void emitStripePurchaseEvent(pool, {
           payment: insertedPayment,
           session: obj,
-          paymentType: isEnrollmentCheckout ? 'initial_enrollment' : 'outstanding_balance',
+          paymentType: isEnrollmentCheckout
+            ? 'initial_enrollment'
+            : isAnnualMembershipCheckout
+              ? 'annual_membership'
+              : 'outstanding_balance',
         })
         if (insertedPayment && accountId) {
           const acct = await pool.query(`SELECT * FROM family_billing_account WHERE id = $1`, [accountId])

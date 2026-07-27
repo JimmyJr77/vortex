@@ -1137,6 +1137,40 @@ export default function MemberDashboard({
       window.history.replaceState({}, '', url.pathname + url.search + url.hash)
     }
 
+    if (billingStatus === 'membership-paid' || billingStatus === 'membership-cancelled') {
+      const checkoutSessionId = params.get('session_id')
+      setActiveTab('classes')
+      if (billingStatus === 'membership-cancelled') {
+        setEnrollmentConfirmMessage('Membership checkout was cancelled. No payment was submitted.')
+        const url = new URL(window.location.href)
+        url.searchParams.delete('billing')
+        url.searchParams.delete('session_id')
+        window.history.replaceState({}, '', url.pathname + url.search + url.hash)
+      } else {
+        ;(async () => {
+          try {
+            if (checkoutSessionId) {
+              const { confirmAnnualMembershipCheckoutSession } = await import('../utils/schedulingApi')
+              await confirmAnnualMembershipCheckoutSession(token, { checkoutSessionId })
+            }
+            setEnrollmentConfirmMessage(
+              'Annual membership purchased. Access is active for one year from today.',
+            )
+            void fetchBillingStatements()
+          } catch (err) {
+            setEnrollmentConfirmError(
+              err instanceof Error ? err.message : 'Membership payment is still processing.',
+            )
+          } finally {
+            const url = new URL(window.location.href)
+            url.searchParams.delete('billing')
+            url.searchParams.delete('session_id')
+            window.history.replaceState({}, '', url.pathname + url.search + url.hash)
+          }
+        })()
+      }
+    }
+
     if (billingStatus === 'paid' || billingStatus === 'cancelled') {
       setActiveTab('billing')
       setBillingReturnMessage(
