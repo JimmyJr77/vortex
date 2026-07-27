@@ -440,7 +440,9 @@ export async function createEnrollmentStripeSubscriptions(
     const stripeSub = await stripe.subscriptions.create({
       customer: customerId,
       items: [item],
-      billing_cycle_anchor: dateStringToUnixBillingAnchor(anchorDate),
+      // First-month tuition was collected at Checkout. Defer the first recurring
+      // invoice with trial_end (billing_cycle_anchor cannot be >1 interval ahead).
+      trial_end: dateStringToUnixBillingAnchor(anchorDate),
       proration_behavior: 'none',
       ...(defaultPaymentMethod ? { default_payment_method: defaultPaymentMethod } : {}),
       metadata: {
