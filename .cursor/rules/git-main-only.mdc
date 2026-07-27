@@ -1,0 +1,14 @@
+---
+description: Commit and push directly to main — no feature branches or merge PRs
+alwaysApply: true
+---
+
+# Git workflow — main only
+
+When the user asks to commit, push, or ship changes in this repo:
+
+1. Work on **`main`** only (checkout/update `main` first if needed).
+2. **Commit and push straight to `origin/main`** — do not create feature branches, PRs, or merge commits unless the user explicitly asks.
+3. Do **not** invent `fix/*` branches or ask to open a PR as the default path.
+4. Leave existing branches alone unless the user asks to delete or change them (e.g. `codex/*`).
+5. If `main` is locked by another worktree, free it (remove/repoint that worktree) or tell the user — do not silently use a side branch.
