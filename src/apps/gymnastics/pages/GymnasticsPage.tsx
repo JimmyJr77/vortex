@@ -219,6 +219,9 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
                     </motion.button>
                   )}
                   <HeroEnrollDropdown />
+                  <Link to="/drop-in" className={heroSecondaryCtaClass}>
+                    Drop-in Classes
+                  </Link>
                   <Link
                     to="/read-board#schedule"
                     className={`${heroSecondaryCtaClass} border-white text-white hover:bg-white hover:text-black`}
@@ -312,6 +315,9 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
                 </motion.button>
               )}
               <HeroEnrollDropdown />
+              <Link to="/drop-in" className={`${heroSecondaryCtaClass} w-full max-w-xs`}>
+                Drop-in Classes
+              </Link>
               <Link
                 to="/read-board#schedule"
                 className={`${heroSecondaryCtaClass} w-full max-w-xs border-white text-white hover:bg-white hover:text-black`}
