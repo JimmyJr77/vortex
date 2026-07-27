@@ -226,7 +226,7 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
                     to="/read-board#schedule"
                     className={`${heroSecondaryCtaClass} border-white text-white hover:bg-white hover:text-black`}
                   >
-                    <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <LayoutGrid className="h-6 w-6 shrink-0" aria-hidden="true" />
                     Classes &amp; Events
                   </Link>
                   {showSummerCamp && (
@@ -322,7 +322,7 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
                 to="/read-board#schedule"
                 className={`${heroSecondaryCtaClass} w-full max-w-xs border-white text-white hover:bg-white hover:text-black`}
               >
-                <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <LayoutGrid className="h-6 w-6 shrink-0" aria-hidden="true" />
                 Classes &amp; Events
               </Link>
               {showSummerCamp && (

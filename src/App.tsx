@@ -38,6 +38,7 @@ const SignupFamilyPage = lazyWithRetry(() => import('./components/signup/SignupF
 const SignupInvitePage = lazyWithRetry(() => import('./components/signup/SignupInvitePage'))
 const VerifyEmailPage = lazyWithRetry(() => import('./components/VerifyEmailPage'))
 const EnrollmentReceiptPage = lazyWithRetry(() => import('./components/EnrollmentReceiptPage'))
+const WaiversMembershipsPage = lazyWithRetry(() => import('./components/waiversMemberships/WaiversMembershipsPage'))
 const DropInPage = lazyWithRetry(() => import('./components/DropInPage'))
 const ContactLocationPage = lazyWithRetry(() => import('./components/ContactLocationPage'))
 const SupportPage = lazyWithRetry(() => import('./components/legal/SupportPage'))
@@ -301,6 +302,7 @@ function App() {
             path="/registration/receipt"
             element={<EnrollmentReceiptPage />}
           />
+          <Route path="/waivers-memberships" element={<WaiversMembershipsPage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-of-service" element={<TermsOfServicePage />} />

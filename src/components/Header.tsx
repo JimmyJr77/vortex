@@ -253,6 +253,13 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
                   Account Login
                 </button>
               )}
+              <Link
+                to="/waivers-memberships"
+                onClick={() => setIsMenuOpen(false)}
+                className="block text-white hover:text-vortex-red transition-colors duration-300 font-medium"
+              >
+                Waivers & Memberships
+              </Link>
               <button
                 onClick={() => {
                   onContactClick()

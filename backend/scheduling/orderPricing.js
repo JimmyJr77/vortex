@@ -1013,6 +1013,8 @@ export async function buildSignupOrderPreview(
     offeringBySlotGroup,
     filteredNew,
     existingCount: existing.length,
+    promoCodes,
+    familyId,
   })
 
   const additionalFeesMonthly = (additionalFees.totalMonthlyCents ?? 0) / 100
@@ -1388,12 +1390,12 @@ export async function computeDiscountLayer(
 
   let rules = []
   let caps = {}
+  let facilityId = null
   try {
-    const { loadActiveDiscountRules, loadRedemptionCaps } = await import('./discountEngine.js')
+    const { loadActiveDiscountRules } = await import('./discountEngine.js')
     const facilityRes = await pool.query('SELECT id FROM facility LIMIT 1')
-    const facilityId = facilityRes.rows[0]?.id ?? null
+    facilityId = facilityRes.rows[0]?.id ?? null
     rules = await loadActiveDiscountRules(pool, facilityId)
-    caps = await loadRedemptionCaps(pool, facilityId)
   } catch {
     return empty
   }
@@ -1412,6 +1414,14 @@ export async function computeDiscountLayer(
     } catch {
       familyId = null
     }
+  }
+
+  try {
+    // Member/family context enables per-member and per-family promo limits.
+    const { loadRedemptionCaps } = await import('./discountEngine.js')
+    caps = await loadRedemptionCaps(pool, facilityId, { memberId, familyId })
+  } catch {
+    caps = {}
   }
 
   const lines = []
@@ -1434,7 +1444,10 @@ export async function computeDiscountLayer(
       formId: item.formId,
       programId: scope?.programsId ?? null,
       sportId: scope?.sportId ?? null,
-      offeringId: scope?.offeringId ?? null,
+      // Offering scope must come from the signup item itself; scopeMeta is
+      // program/form-level and never carries an offering id, which silently
+      // broke offering-scoped promo codes at checkout.
+      offeringId: item.offeringId ?? null,
       memberId: memberId ?? null,
       familyId,
       memberCity,
@@ -1541,6 +1554,8 @@ export async function computeAdditionalFeesLayer(
     offeringBySlotGroup,
     filteredNew = [],
     existingCount = 0,
+    promoCodes = [],
+    familyId = null,
   },
 ) {
   const empty = {
@@ -1567,6 +1582,22 @@ export async function computeAdditionalFeesLayer(
     const isNewMember = existingCount === 0
     const oncePerYearIds = fees.filter((f) => f.triggerType === 'once_per_year').map((f) => f.id)
     const redeemedPeriodKeys = await loadMemberFeeRedemptionKeys(pool, memberId, oncePerYearIds)
+
+    // Promo codes targeting the annual membership fee discount the fee line itself.
+    let membershipPromo = null
+    if (promoCodes.length > 0) {
+      try {
+        const { resolveMembershipFeePromo } = await import('./discountEngine.js')
+        membershipPromo = await resolveMembershipFeePromo(pool, {
+          facilityId,
+          promoCodes,
+          memberId,
+          familyId,
+        })
+      } catch {
+        membershipPromo = null
+      }
+    }
 
     const offeringBySignupKey = new Map()
     for (const entry of filteredNew) {
@@ -1595,6 +1626,7 @@ export async function computeAdditionalFeesLayer(
       lines,
       isNewMember,
       redeemedPeriodKeys,
+      membershipPromo,
     })
   } catch {
     return empty

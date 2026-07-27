@@ -64,6 +64,9 @@ const SportSiteMenuLinks = ({
         <button type="button" onClick={onAdminLoginClick} className={linkClass}>
           Account Login
         </button>
+        <Link to="/waivers-memberships" onClick={onNavigate} className={linkClass}>
+          Waivers & Memberships
+        </Link>
         <button type="button" onClick={onInquireClick} className={linkClass}>
           Inquire
         </button>

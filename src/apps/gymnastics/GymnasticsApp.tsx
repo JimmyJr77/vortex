@@ -60,6 +60,9 @@ const SignupFamilyPage = lazyWithRetry(() => import('../../components/signup/Sig
 const SignupInvitePage = lazyWithRetry(() => import('../../components/signup/SignupInvitePage'))
 const VerifyEmailPage = lazyWithRetry(() => import('../../components/VerifyEmailPage'))
 const EnrollmentReceiptPage = lazyWithRetry(() => import('../../components/EnrollmentReceiptPage'))
+const WaiversMembershipsPage = lazyWithRetry(
+  () => import('../../components/waiversMemberships/WaiversMembershipsPage'),
+)
 const DropInPage = lazyWithRetry(() => import('../../components/DropInPage'))
 const MemberDashboard = lazyWithRetry(() => import('../../components/MemberDashboard'))
 const CoachDashboard = lazyWithRetry(() => import('../../components/CoachDashboard'))
@@ -300,6 +303,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
           <Route path="/signup/invite" element={<SignupInvitePage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/registration/receipt" element={<EnrollmentReceiptPage />} />
+          <Route path="/waivers-memberships" element={<WaiversMembershipsPage />} />
           <Route
             path="/acro-gymnastics"
             element={<AcroGymnasticsPage onSignUpClick={handleContactClick} />}

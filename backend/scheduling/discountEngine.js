@@ -42,6 +42,69 @@ export function discountAmountCents(baseCents, amountType, amountValue) {
   return Math.min(base, Math.round(value))
 }
 
+/**
+ * Promo rules that target the annual membership fee (not class tuition lines).
+ * These are excluded from the class-line pipeline and applied to the
+ * additional-fees layer / standalone membership checkout instead.
+ */
+export function promoTargetsMembershipFee(rule) {
+  if (rule?.type !== 'promo_code') return false
+  const cfg = rule.config || {}
+  return cfg.benefit_type === 'annual_membership' || cfg.amount_applies_to === 'annual_membership'
+}
+
+/** Discount a membership fee gross amount by a membership-targeting promo rule. */
+export function membershipPromoDiscountCents(rule, grossCents) {
+  const gross = Math.max(0, Math.round(Number(grossCents) || 0))
+  if (rule.config?.discountKind === 'free_access') return gross
+  return discountAmountCents(gross, rule.amountType, rule.amountValue)
+}
+
+/** Per-member / per-family limits live in rule config (like free pass templates). */
+function perRuleLimit(rule, key) {
+  const v = Number(rule.config?.[key])
+  return Number.isFinite(v) && v > 0 ? Math.floor(v) : null
+}
+
+/** Billing months are 4 sessions; free-class grants convert at this rate. */
+export const FREE_GRANT_CLASSES_PER_MONTH = 4
+
+/**
+ * How many FULL billing months a free-access grant covers on a recurring class,
+ * on top of the free enrollment stub (remainder of the signup month).
+ * Returns null for open-ended grants (program_duration, class_offering, days credit),
+ * which zero the subscription for the life of the enrollment, and for week-based
+ * grants (see freeGrantDurationWeeks).
+ */
+export function freeGrantDurationMonths(rule) {
+  const cfg = rule?.config || {}
+  if (cfg.discountKind !== 'free_access' && rule?.type !== 'free_classes') return null
+  const benefit = cfg.benefit_type || cfg.grant_unit || 'slot'
+  const qty = Math.max(1, Math.round(Number(cfg.quantity) || 1))
+  switch (benefit) {
+    case 'months':
+      return qty
+    case 'solo_classes':
+    case 'slot':
+      return Math.ceil(qty / FREE_GRANT_CLASSES_PER_MONTH)
+    default:
+      // weeks handled separately; program_duration/class_offering/days → open-ended.
+      return null
+  }
+}
+
+/**
+ * Week-based free grants: free from enrollment for N weeks, then billing resumes
+ * on the first 1st-of-month after the free window (months bill whole, never partial).
+ */
+export function freeGrantDurationWeeks(rule) {
+  const cfg = rule?.config || {}
+  if (cfg.discountKind !== 'free_access' && rule?.type !== 'free_classes') return null
+  const benefit = cfg.benefit_type || cfg.grant_unit || 'slot'
+  if (benefit !== 'weeks') return null
+  return Math.max(1, Math.round(Number(cfg.quantity) || 1))
+}
+
 function normalizeText(s) {
   return String(s ?? '').trim().toLowerCase()
 }
@@ -232,6 +295,8 @@ function makeCapTracker(caps) {
     freeFacility: caps.freeUnitsFacilityUsed || 0,
     discountFacility: caps.discountRedemptionsFacilityUsed || 0,
     byRule: new Map(),
+    byRuleMember: new Map(),
+    byRuleFamily: new Map(),
     byProgramFree: new Map(),
     byProgramDiscount: new Map(),
     byClassFree: new Map(),
@@ -260,6 +325,18 @@ function makeCapTracker(caps) {
       if (rule.maxRedemptions != null) {
         const total = (rule.redeemedCount || 0) + get(used.byRule, rule.id)
         if (total + 1 > rule.maxRedemptions) return false
+      }
+      // Per-member / per-family limits (rule config, like free pass templates).
+      // DB counts are loaded for the order's member/family context.
+      const perMember = perRuleLimit(rule, 'max_redemptions_per_member')
+      if (perMember != null) {
+        const total = Number(caps.ruleMemberRedeemed?.[rule.id] ?? 0) + get(used.byRuleMember, rule.id)
+        if (total + 1 > perMember) return false
+      }
+      const perFamily = perRuleLimit(rule, 'max_redemptions_per_family')
+      if (perFamily != null) {
+        const total = Number(caps.ruleFamilyRedeemed?.[rule.id] ?? 0) + get(used.byRuleFamily, rule.id)
+        if (total + 1 > perFamily) return false
       }
       // Per-program / per-class discount-redemption caps.
       if (kind === 'discount') {
@@ -296,6 +373,8 @@ function makeCapTracker(caps) {
         used.byClassDiscount.set(Number(line.formId), get(used.byClassDiscount, line.formId) + 1)
       }
       used.byRule.set(Number(rule.id), get(used.byRule, rule.id) + 1)
+      used.byRuleMember.set(Number(rule.id), get(used.byRuleMember, rule.id) + 1)
+      used.byRuleFamily.set(Number(rule.id), get(used.byRuleFamily, rule.id) + 1)
     },
   }
 }
@@ -333,7 +412,8 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
   }
 
   const activeRules = rules
-    .filter((r) => r.active !== false && withinWindow(r, now))
+    // Membership-fee promos apply to the additional-fees layer, never tuition lines.
+    .filter((r) => r.active !== false && withinWindow(r, now) && !promoTargetsMembershipFee(r))
     .sort((a, b) => {
       if (a.calcBase !== b.calcBase) return a.calcBase === 'pre' ? -1 : 1
       return (a.priority ?? 100) - (b.priority ?? 100)
@@ -372,7 +452,21 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
     if (!capTracker.canApply(rule, ls.line, kind, kind === 'free' ? 1 : 1)) return 0
 
     ls.runningCents -= amount
-    ls.applied.push({ ruleId: rule.id, name: rule.name, type: rule.type, amountCents: amount, kind })
+    ls.applied.push({
+      ruleId: rule.id,
+      name: rule.name,
+      type: rule.type,
+      amountCents: amount,
+      kind,
+      // Duration-limited free grants bill at full price after N full months or N weeks;
+      // both null = open-ended.
+      ...(kind === 'free'
+        ? {
+            freeDurationMonths: freeGrantDurationMonths(rule),
+            freeDurationWeeks: freeGrantDurationWeeks(rule),
+          }
+        : {}),
+    })
     if (rule.exclusivityGroup) ls.exclusivityGroups.add(rule.exclusivityGroup)
     capTracker.record(rule, ls.line, kind, 1)
     redemptions.push({
@@ -708,6 +802,8 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
             unit,
             quantity: Number(cfg.quantity ?? 1),
             amountCents: amount,
+            durationMonths: freeGrantDurationMonths(rule),
+            durationWeeks: freeGrantDurationWeeks(rule),
           })
         }
         continue
@@ -838,14 +934,19 @@ export async function loadActiveDiscountRules(pool, facilityId) {
   }))
 }
 
-/** Aggregate redemption counts for cap enforcement (facility-wide and per program/class/rule). */
-export async function loadRedemptionCaps(pool, facilityId) {
+/**
+ * Aggregate redemption counts for cap enforcement (facility-wide and per program/class/rule).
+ * Pass the ordering member/family so per-member / per-family promo limits can be enforced.
+ */
+export async function loadRedemptionCaps(pool, facilityId, { memberId = null, familyId = null } = {}) {
   const caps = {
     maxFreeUnitsTotal: null,
     maxDiscountRedemptionsTotal: null,
     freeUnitsFacilityUsed: 0,
     discountRedemptionsFacilityUsed: 0,
     ruleRedeemed: {},
+    ruleMemberRedeemed: {},
+    ruleFamilyRedeemed: {},
     programFreeUsed: {},
     programDiscountUsed: {},
     classFreeUsed: {},
@@ -893,10 +994,73 @@ export async function loadRedemptionCaps(pool, facilityId) {
       if (row.kind === 'free') caps.classFreeUsed[Number(row.form_id)] = Number(row.units)
       else caps.classDiscountUsed[Number(row.form_id)] = Number(row.c)
     }
+
+    if (memberId != null) {
+      const byMemberRes = await pool.query(
+        `SELECT rule_id, COUNT(*) AS c FROM discount_redemption
+         WHERE member_id = $1 AND rule_id IS NOT NULL GROUP BY rule_id`,
+        [memberId],
+      )
+      for (const row of byMemberRes.rows) {
+        caps.ruleMemberRedeemed[Number(row.rule_id)] = Number(row.c)
+      }
+    }
+    if (familyId != null) {
+      const byFamilyRes = await pool.query(
+        `SELECT dr.rule_id, COUNT(*) AS c
+         FROM discount_redemption dr
+         JOIN member m ON m.id = dr.member_id
+         WHERE m.family_id = $1 AND dr.rule_id IS NOT NULL
+         GROUP BY dr.rule_id`,
+        [familyId],
+      )
+      for (const row of byFamilyRes.rows) {
+        caps.ruleFamilyRedeemed[Number(row.rule_id)] = Number(row.c)
+      }
+    }
   } catch {
     // Tables may not exist yet; return empty caps (no limits).
   }
   return caps
+}
+
+/**
+ * Resolve an entered promo code to an active membership-fee-targeting rule,
+ * enforcing total / per-member / per-family limits. Returns null when no code
+ * applies (invalid, expired, or limits reached).
+ */
+export async function resolveMembershipFeePromo(
+  pool,
+  { facilityId, promoCodes = [], memberId = null, familyId = null, now = Date.now() },
+) {
+  const codes = new Set(
+    (Array.isArray(promoCodes) ? promoCodes : [promoCodes])
+      .map(normalizeText)
+      .filter(Boolean),
+  )
+  if (codes.size === 0) return null
+
+  const rules = await loadActiveDiscountRules(pool, facilityId)
+  const candidates = rules.filter(
+    (r) =>
+      promoTargetsMembershipFee(r) &&
+      withinWindow(r, now) &&
+      codes.has(normalizeText(r.config?.code)),
+  )
+  if (candidates.length === 0) return null
+
+  const caps = await loadRedemptionCaps(pool, facilityId, { memberId, familyId })
+  for (const rule of candidates) {
+    if (rule.maxRedemptions != null && (rule.redeemedCount || 0) >= rule.maxRedemptions) continue
+    const perMember = perRuleLimit(rule, 'max_redemptions_per_member')
+    if (perMember != null && memberId != null
+        && Number(caps.ruleMemberRedeemed?.[rule.id] ?? 0) >= perMember) continue
+    const perFamily = perRuleLimit(rule, 'max_redemptions_per_family')
+    if (perFamily != null && familyId != null
+        && Number(caps.ruleFamilyRedeemed?.[rule.id] ?? 0) >= perFamily) continue
+    return { rule, code: normalizeText(rule.config?.code) }
+  }
+  return null
 }
 
 /**

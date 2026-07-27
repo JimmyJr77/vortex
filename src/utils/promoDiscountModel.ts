@@ -8,8 +8,16 @@ export type AmountAppliesTo =
   | 'month'
   | 'class_offering'
   | 'date_window'
+  | 'annual_membership'
 
-export type FreeBenefitType = 'days' | 'weeks' | 'months' | 'solo_classes' | 'class_offering'
+export type FreeBenefitType =
+  | 'days'
+  | 'weeks'
+  | 'months'
+  | 'solo_classes'
+  | 'class_offering'
+  | 'program_duration'
+  | 'annual_membership'
 
 export type FreeApplicationMethod = 'monthly_rate_credit' | 'free_solo_class_access'
 
@@ -42,6 +50,8 @@ export interface PromoFormState {
   priority: number
   maxDiscountCents: number | null
   maxRedemptions: number | null
+  maxRedemptionsPerMember: number | null
+  maxRedemptionsPerFamily: number | null
   stackable: boolean
   exclusivityGroup: string | null
   calcBase: 'pre' | 'post'
@@ -53,6 +63,7 @@ export const AMOUNT_APPLIES_LABELS: Record<AmountAppliesTo, string> = {
   month: 'One month',
   class_offering: 'One class offering',
   date_window: 'Order during date window',
+  annual_membership: 'Annual membership fee',
 }
 
 export const FREE_BENEFIT_LABELS: Record<FreeBenefitType, string> = {
@@ -61,6 +72,28 @@ export const FREE_BENEFIT_LABELS: Record<FreeBenefitType, string> = {
   months: 'Free months',
   solo_classes: 'Free solo class(es)',
   class_offering: 'Free specific class offering',
+  program_duration: 'Free for entire program duration',
+  annual_membership: 'Waive annual membership fee',
+}
+
+/** Billing months are 4 sessions; free-class grants convert at this rate. */
+export const FREE_CLASSES_PER_BILLING_MONTH = 4
+
+/**
+ * FULL billing months a free benefit covers on recurring classes, on top of the
+ * free enrollment stub (mirrors backend freeGrantDurationMonths). Null =
+ * open-ended or week-based (weeks defer billing to the 1st after the free window).
+ */
+export function freeBenefitBillingMonths(benefit: FreeBenefitType, quantity: number): number | null {
+  const qty = Math.max(1, Math.round(quantity || 1))
+  switch (benefit) {
+    case 'months':
+      return qty
+    case 'solo_classes':
+      return Math.ceil(qty / FREE_CLASSES_PER_BILLING_MONTH)
+    default:
+      return null
+  }
 }
 
 export const ELIGIBILITY_FIELD_LABELS: Record<EligibilityField, string> = {
@@ -112,6 +145,8 @@ export function defaultPromoForm(): PromoFormState {
     priority: 100,
     maxDiscountCents: null,
     maxRedemptions: null,
+    maxRedemptionsPerMember: null,
+    maxRedemptionsPerFamily: null,
     stackable: true,
     exclusivityGroup: null,
     calcBase: 'pre',
@@ -133,6 +168,8 @@ function mapGrantUnitToBenefit(unit?: string): FreeBenefitType {
       return 'months'
     case 'offering':
       return 'class_offering'
+    case 'program_duration':
+      return 'program_duration'
     default:
       return 'solo_classes'
   }
@@ -148,6 +185,8 @@ function mapBenefitToGrantUnit(benefit: FreeBenefitType): string {
       return 'months'
     case 'class_offering':
       return 'offering'
+    case 'program_duration':
+      return 'program_duration'
     default:
       return 'slot'
   }
@@ -194,6 +233,10 @@ export function promoFormFromRule(rule: DiscountRule | null): PromoFormState {
     priority: rule.priority,
     maxDiscountCents: rule.maxDiscountCents,
     maxRedemptions: rule.maxRedemptions,
+    maxRedemptionsPerMember:
+      cfg.max_redemptions_per_member != null ? Number(cfg.max_redemptions_per_member) : null,
+    maxRedemptionsPerFamily:
+      cfg.max_redemptions_per_family != null ? Number(cfg.max_redemptions_per_family) : null,
     stackable: rule.stackable,
     exclusivityGroup: rule.exclusivityGroup,
     calcBase: rule.calcBase,
@@ -215,6 +258,12 @@ export function promoFormToRuleInput(form: PromoFormState): DiscountRuleInput {
     code: form.code.trim().toUpperCase(),
     discountKind: form.discountKind,
     eligibility_rules: form.eligibilityRules,
+  }
+  if (form.maxRedemptionsPerMember != null && form.maxRedemptionsPerMember > 0) {
+    config.max_redemptions_per_member = form.maxRedemptionsPerMember
+  }
+  if (form.maxRedemptionsPerFamily != null && form.maxRedemptionsPerFamily > 0) {
+    config.max_redemptions_per_family = form.maxRedemptionsPerFamily
   }
 
   if (isFree) {
@@ -275,7 +324,13 @@ export function validatePromoForm(form: PromoFormState): string | null {
       return 'Select at least one class offering'
     }
   } else {
-    if (form.freeQuantity < 1) return 'Free quantity must be at least 1'
+    if (
+      form.benefitType !== 'annual_membership' &&
+      form.benefitType !== 'program_duration' &&
+      form.freeQuantity < 1
+    ) {
+      return 'Free units granted must be at least 1'
+    }
     if (
       form.benefitType === 'class_offering' &&
       form.classOfferingIds.length === 0
@@ -285,6 +340,12 @@ export function validatePromoForm(form: PromoFormState): string | null {
     if (form.benefitType === 'days' && !form.applicationMethod) {
       return 'Choose how free days are applied'
     }
+  }
+  if (form.maxRedemptionsPerMember != null && form.maxRedemptionsPerMember < 1) {
+    return 'Per-member limit must be at least 1 (or blank for unlimited)'
+  }
+  if (form.maxRedemptionsPerFamily != null && form.maxRedemptionsPerFamily < 1) {
+    return 'Per-family limit must be at least 1 (or blank for unlimited)'
   }
   for (const rule of form.eligibilityRules) {
     const v = rule.value
@@ -325,12 +386,25 @@ export function describePromoBenefit(form: PromoFormState): string {
         : `$${form.amountValue.toFixed(2)} off`
     return `${amt} · ${AMOUNT_APPLIES_LABELS[form.amountAppliesTo].toLowerCase()}`
   }
+  if (form.benefitType === 'annual_membership') {
+    return 'annual membership fee waived'
+  }
+  if (form.benefitType === 'program_duration') {
+    return 'free for the entire program duration'
+  }
   const qty = form.freeQuantity
   const unit = FREE_BENEFIT_LABELS[form.benefitType].toLowerCase()
   if (form.benefitType === 'days' && form.applicationMethod === 'monthly_rate_credit') {
     return `${qty} free day${qty === 1 ? '' : 's'} credited toward monthly rate`
   }
-  return `${qty} ${unit}`
+  const months = freeBenefitBillingMonths(form.benefitType, qty)
+  let durationNote = ''
+  if (months != null && form.benefitType === 'solo_classes') {
+    durationNote = ` (${months} full billing month${months === 1 ? '' : 's'} free on recurring classes)`
+  } else if (form.benefitType === 'weeks') {
+    durationNote = ' (billing resumes on the 1st after the free weeks end)'
+  }
+  return `${qty} ${unit}${durationNote}`
 }
 
 export function describePromoSummary(form: PromoFormState): string {

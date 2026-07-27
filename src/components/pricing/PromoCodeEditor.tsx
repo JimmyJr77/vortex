@@ -17,6 +17,7 @@ import {
   type EligibilityRule,
   type PromoFormState,
   describePromoSummary,
+  freeBenefitBillingMonths,
   getPromoStatus,
   gradeLevelsForPicker,
   graduationYearsForPicker,
@@ -467,6 +468,12 @@ const PromoCodeEditor = ({ open, rule, onSave, onClose }: Props) => {
                       discount applies to the order total during that window.
                     </p>
                   )}
+                  {form.amountAppliesTo === 'annual_membership' && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Discounts the annual membership fee at checkout (enrollment or the Waivers
+                      &amp; Memberships page). Class prices are not affected.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -494,18 +501,69 @@ const PromoCodeEditor = ({ open, rule, onSave, onClose }: Props) => {
                     )}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Quantity</label>
-                  <input
-                    type="number"
-                    min={1}
-                    className={controlClass}
-                    value={form.freeQuantity}
-                    onChange={(e) =>
-                      update({ freeQuantity: Math.max(1, Number(e.target.value) || 1) })
-                    }
-                  />
-                </div>
+                {form.benefitType === 'annual_membership' ? (
+                  <p className="text-xs text-gray-500">
+                    Waives the annual membership fee (100% off) while still activating the
+                    membership. Applies at enrollment checkout and on the Waivers &amp;
+                    Memberships page. The next year renews at the normal fee.
+                  </p>
+                ) : form.benefitType === 'program_duration' ? (
+                  <p className="text-xs text-gray-500">
+                    The enrolled class is free for as long as the enrollment lasts — the monthly
+                    subscription is set to $0 and nothing is ever billed for it. Use with care.
+                  </p>
+                ) : (
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">
+                      Free units granted
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      className={controlClass}
+                      value={form.freeQuantity}
+                      onChange={(e) =>
+                        update({ freeQuantity: Math.max(1, Number(e.target.value) || 1) })
+                      }
+                    />
+                    <p className="text-xs text-gray-400 mt-1">
+                      Size of the benefit each redemption grants (e.g. 2 = two free classes) — not
+                      how many times the code can be used.
+                    </p>
+                    {form.benefitType === 'solo_classes' && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        On recurring monthly classes, free classes convert to full billing months
+                        (4 classes = 1 month, rounded up):{' '}
+                        <span className="font-medium">
+                          {form.freeQuantity} class{form.freeQuantity === 1 ? '' : 'es'} ≈{' '}
+                          {freeBenefitBillingMonths('solo_classes', form.freeQuantity)} full month
+                          {freeBenefitBillingMonths('solo_classes', form.freeQuantity) === 1
+                            ? ''
+                            : 's'}
+                        </span>{' '}
+                        free on top of the rest of the enrollment month, then billing starts at the
+                        normal rate. One-time classes are simply free.
+                      </p>
+                    )}
+                    {form.benefitType === 'months' && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        The rest of the enrollment month is free, plus{' '}
+                        {form.freeQuantity === 1
+                          ? 'the next full month'
+                          : `the next ${form.freeQuantity} full months`}
+                        . Billing then starts automatically at the normal monthly rate — the card
+                        is collected at signup.
+                      </p>
+                    )}
+                    {form.benefitType === 'weeks' && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Free for {form.freeQuantity === 1 ? '1 week' : `${form.freeQuantity} weeks`}{' '}
+                        from enrollment. Since months bill whole, billing resumes on the 1st of the
+                        month after the free weeks end — the card is collected at signup.
+                      </p>
+                    )}
+                  </div>
+                )}
                 {form.benefitType === 'days' && (
                   <div>
                     <label className="block text-xs font-semibold text-gray-600 mb-1">
@@ -723,7 +781,7 @@ const PromoCodeEditor = ({ open, rule, onSave, onClose }: Props) => {
                 )}
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-1">
-                    Max redemptions
+                    Max redemptions (total code uses)
                   </label>
                   <input
                     type="number"
@@ -738,6 +796,51 @@ const PromoCodeEditor = ({ open, rule, onSave, onClose }: Props) => {
                       })
                     }
                   />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Total uses across all customers. Blank = unlimited.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Max uses per member
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    className={controlClass}
+                    placeholder="Unlimited"
+                    value={form.maxRedemptionsPerMember ?? ''}
+                    onChange={(e) =>
+                      update({
+                        maxRedemptionsPerMember:
+                          e.target.value === '' ? null : Math.max(1, Number(e.target.value)),
+                      })
+                    }
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    How many times one athlete can benefit. Blank = unlimited.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                    Max uses per family
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    className={controlClass}
+                    placeholder="Unlimited"
+                    value={form.maxRedemptionsPerFamily ?? ''}
+                    onChange={(e) =>
+                      update({
+                        maxRedemptionsPerFamily:
+                          e.target.value === '' ? null : Math.max(1, Number(e.target.value)),
+                      })
+                    }
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Combined uses across all members of a family. Blank = unlimited.
+                  </p>
                 </div>
                 {form.discountKind === 'amount' && (
                   <div>

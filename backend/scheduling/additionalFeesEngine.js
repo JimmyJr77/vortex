@@ -48,12 +48,18 @@ function calendarYearKey(now = new Date()) {
 
 export { calendarYearKey }
 
+/** The facility annual membership fee (matches loadAnnualMembershipFee detection). */
+export function isAnnualMembershipFeeItem(fee) {
+  return fee?.triggerType === 'once_per_year' || fee?.applyBasis === 'per_year'
+}
+
 /**
  * @param {{
  *   fees: object[],
  *   lines: Array<{ key, formId, programId, sportId, offeringId }>,
  *   isNewMember?: boolean,
  *   redeemedPeriodKeys?: Set<string>,
+ *   membershipPromo?: { rule: object, code: string } | null,
  *   now?: number,
  * }} input
  */
@@ -62,6 +68,7 @@ export function computeOrderAdditionalFees({
   lines = [],
   isNewMember = false,
   redeemedPeriodKeys = new Set(),
+  membershipPromo = null,
   now = Date.now(),
 }) {
   const activeFees = fees
@@ -128,6 +135,31 @@ export function computeOrderAdditionalFees({
 
     if (lineCents <= 0) continue
 
+    // Membership-fee promos discount the annual membership line. A fully waived
+    // fee stays in the output at $0 so enrollment still activates the membership.
+    const grossCents = lineCents
+    let discountCents = 0
+    let promoRuleId = null
+    let promoCode = null
+    if (membershipPromo?.rule && !recurring && isAnnualMembershipFeeItem(fee)) {
+      const rule = membershipPromo.rule
+      if (rule.config?.discountKind === 'free_access') {
+        discountCents = grossCents
+      } else if (rule.amountType === 'percent') {
+        discountCents = Math.min(grossCents, Math.round((grossCents * Number(rule.amountValue || 0)) / 10000))
+      } else {
+        discountCents = Math.min(grossCents, Math.round(Number(rule.amountValue || 0)))
+      }
+      if (rule.maxDiscountCents != null) {
+        discountCents = Math.min(discountCents, Number(rule.maxDiscountCents))
+      }
+      if (discountCents > 0) {
+        promoRuleId = rule.id
+        promoCode = membershipPromo.code
+        lineCents = Math.max(0, grossCents - discountCents)
+      }
+    }
+
     if (recurring) {
       totalMonthlyCents += lineCents
     } else {
@@ -142,6 +174,10 @@ export function computeOrderAdditionalFees({
       triggerType: fee.triggerType,
       quantity,
       amountCents: lineCents,
+      grossAmountCents: grossCents,
+      discountCents,
+      promoRuleId,
+      promoCode,
       recurring,
       scopeLevel: fee.scopeLevel,
     })

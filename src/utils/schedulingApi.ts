@@ -1217,8 +1217,14 @@ export async function fetchAnnualMembershipOffer(
 
 export async function createAnnualMembershipCheckoutSession(
   memberToken: string,
-  payload: { memberId: number },
-): Promise<{ url: string; checkoutSessionId?: string }> {
+  payload: {
+    memberId?: number
+    memberIds?: number[]
+    promoCode?: string
+    successUrl?: string
+    cancelUrl?: string
+  },
+): Promise<{ url?: string; checkoutSessionId?: string; free?: boolean; memberIds?: number[]; renewsOn?: string }> {
   const res = await fetch(`${getApiUrl()}/api/members/billing/annual-membership-checkout`, {
     method: 'POST',
     headers: {
@@ -1227,7 +1233,13 @@ export async function createAnnualMembershipCheckoutSession(
     },
     body: JSON.stringify(payload),
   })
-  return parseJson<{ url: string; checkoutSessionId?: string }>(res)
+  return parseJson<{
+    url?: string
+    checkoutSessionId?: string
+    free?: boolean
+    memberIds?: number[]
+    renewsOn?: string
+  }>(res)
 }
 
 export async function confirmAnnualMembershipCheckoutSession(

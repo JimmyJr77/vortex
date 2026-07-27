@@ -21,6 +21,7 @@
 import {
   upsertSubscriptionForSource,
   cancelSubscriptionsForSource,
+  deferredFirstBillDate,
 } from './billingSubscriptions.js'
 import { recordPrepaidFirstMonthCredit } from './pauseEnrollmentBilling.js'
 import {
@@ -81,15 +82,44 @@ function lineChargeForSlot(preview, slotKey) {
         0,
       )
       const net = Math.max(0, gross - discount)
-      return { grossCents: gross, discountCents: Math.min(discount, gross), netCents: net, billingType, selectedPricingOptionKey }
+      return {
+        grossCents: gross,
+        discountCents: Math.min(discount, gross),
+        netCents: net,
+        billingType,
+        selectedPricingOptionKey,
+        applied: line.applied || [],
+      }
     }
   }
   // Fall back to the free-pass-adjusted incremental monthly from the preview.
   if (item) {
     const net = Math.max(0, Math.round((Number(item.incrementalMonthly) || 0) * 100))
-    return { grossCents: net, discountCents: 0, netCents: net, billingType, selectedPricingOptionKey }
+    return { grossCents: net, discountCents: 0, netCents: net, billingType, selectedPricingOptionKey, applied: [] }
   }
   return null
+}
+
+/**
+ * Duration-limited free grants (e.g. "1 month free", "2 weeks free", "4 free
+ * classes") zero the checkout charge but must NOT discount the ongoing
+ * subscription; instead the first bill is deferred by the free window.
+ * Open-ended grants (no duration months/weeks, e.g. "free for program
+ * duration") keep the subscription at $0.
+ * @returns {{ freeMonths:number, freeWeeks:number, durationFreeCents:number }}
+ */
+function durationLimitedFreeForLine(line) {
+  const entries = (line.applied || []).filter(
+    (a) =>
+      a?.kind === 'free' &&
+      (Number(a.freeDurationMonths) > 0 || Number(a.freeDurationWeeks) > 0),
+  )
+  if (entries.length === 0) return { freeMonths: 0, freeWeeks: 0, durationFreeCents: 0 }
+  return {
+    freeMonths: Math.max(0, ...entries.map((a) => Math.round(Number(a.freeDurationMonths) || 0))),
+    freeWeeks: Math.max(0, ...entries.map((a) => Math.round(Number(a.freeDurationWeeks) || 0))),
+    durationFreeCents: entries.reduce((sum, a) => sum + Math.round(Number(a.amountCents) || 0), 0),
+  }
 }
 
 function chargeDescription(preview, signup) {
@@ -166,6 +196,22 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
       chargeType = 'recurring'
       billingInterval = 'month'
       try {
+        const baseFirstBill = fm?.classStartsFutureMonth ? fm.firstBillDate : null
+        const { freeMonths, freeWeeks, durationFreeCents } = durationLimitedFreeForLine(line)
+        const hasDurationFree = freeMonths > 0 || freeWeeks > 0
+        // "N months/weeks free" → ongoing subscription at full price, first bill deferred.
+        const subscriptionDiscount = hasDurationFree
+          ? Math.max(0, line.discountCents - durationFreeCents)
+          : line.discountCents
+        const firstBillDate = hasDurationFree
+          ? deferredFirstBillDate({
+              firstBillDate: baseFirstBill,
+              freeMonths,
+              freeWeeks,
+              // For future-start classes count free weeks from the first service day.
+              weeksFrom: fm?.classStartsFutureMonth ? fm?.firstServicePeriodStart ?? null : null,
+            })
+          : baseFirstBill
         const sub = await upsertSubscriptionForSource(pool, {
           familyBillingAccountId: account.id,
           memberId,
@@ -173,9 +219,9 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
           sourceId: signup.signupId,
           description,
           monthlyAmountCents: line.grossCents,
-          discountAmountCents: line.discountCents,
+          discountAmountCents: subscriptionDiscount,
           pricingOptionKey: line.selectedPricingOptionKey,
-          firstBillDate: fm?.classStartsFutureMonth ? fm.firstBillDate : null,
+          firstBillDate,
         })
         if (sub) {
           subscriptionId = sub.id
@@ -286,7 +332,12 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
   const renewsOnKey = toUtcDateString(renewsOn) || toUtcDateString(purchasedAt)
   for (const fee of feeItems) {
     const feeAmount = Math.round(Number(fee.amountCents) || 0)
-    if (feeAmount <= 0 || fee.feeId == null) continue
+    const feeGross = Math.round(Number(fee.grossAmountCents ?? fee.amountCents) || 0)
+    const feeDiscount = Math.max(0, Math.round(Number(fee.discountCents) || 0))
+    if (fee.feeId == null) continue
+    // Promo-waived membership fees post at $0 (gross/discount split preserved)
+    // so the membership still activates; other zero fees stay skipped.
+    if (feeAmount <= 0 && feeDiscount <= 0) continue
 
     const isAnnualMembership =
       fee.triggerType === 'once_per_year' || fee.applyBasis === 'per_year'
@@ -301,16 +352,33 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
             (family_billing_account_id, member_id, source_type, source_id, description,
              amount_cents, gross_amount_cents, discount_amount_cents,
              charge_type, billing_interval)
-          VALUES ($1, $2, 'additional_fee', $3, $4, $5, $5, 0, 'one_time', 'one_time')
+          VALUES ($1, $2, 'additional_fee', $3, $4, $5, $6, $7, 'one_time', 'one_time')
           ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
           DO NOTHING
           RETURNING id
         `,
-        [account.id, memberId, sourceId, fee.name || 'Additional fee', feeAmount],
+        [account.id, memberId, sourceId, fee.name || 'Additional fee', feeAmount, feeGross, feeDiscount],
       )
       if (feeCharge.rows.length > 0) charges += 1
     } catch (err) {
       console.warn('[scheduling] persistSignupCharges additional fee charge:', err.message)
+    }
+
+    if (fee.promoRuleId != null && feeDiscount > 0) {
+      try {
+        await pool.query(
+          `INSERT INTO discount_redemption
+            (rule_id, member_id, signup_id, program_id, form_id, kind, units, amount_cents)
+           VALUES ($1, $2, $3, NULL, NULL, 'discount', 0, $4)`,
+          [fee.promoRuleId, memberId, firstSignupId, feeDiscount],
+        )
+        await pool.query(
+          `UPDATE discount_rule SET redeemed_count = redeemed_count + 1, updated_at = now() WHERE id = $1`,
+          [fee.promoRuleId],
+        )
+      } catch (err) {
+        console.warn('[scheduling] persistSignupCharges fee promo redemption:', err.message)
+      }
     }
 
     if (!isAnnualMembership) continue

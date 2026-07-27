@@ -18,7 +18,7 @@ import {
 } from '../../utils/publicEnrollmentCart'
 import { pendingEnrollmentsToRows } from './signupEnrollmentUtils'
 
-type WizardMode = 'public' | 'admin' | 'minor-start' | 'admin-edit'
+type WizardMode = 'public' | 'admin' | 'minor-start' | 'admin-edit' | 'waivers-memberships'
 type EmailSource = 'parent' | 'youth'
 
 function parseAddress(address: string | null | undefined): { street: string; city: string; state: string; zip: string } {
@@ -244,6 +244,7 @@ export default function FamilySignupWizard({
   const isAdmin = mode === 'admin'
   const isAdminEdit = mode === 'admin-edit'
   const isMinorStart = mode === 'minor-start'
+  const isWaiversMemberships = mode === 'waivers-memberships'
 
   const [step, setStep] = useState(isAdmin ? 0 : 1)
   const [accountLoaded, setAccountLoaded] = useState(!isAdminEdit)
@@ -262,7 +263,7 @@ export default function FamilySignupWizard({
   const [enrollPrefill, setEnrollPrefill] = useState<EnrollPrefill | null>(null)
   const prefillApplied = useRef(false)
   const [publicCartSelections] = useState(() =>
-    mode === 'public' && !returnTo ? loadPublicEnrollmentCart() : [],
+    mode === 'public' && !returnTo && !isWaiversMemberships ? loadPublicEnrollmentCart() : [],
   )
   const publicCartApplied = useRef(false)
   const [waivers, setWaivers] = useState<PublicWaiverTemplate[]>([])
@@ -278,7 +279,7 @@ export default function FamilySignupWizard({
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   // Funnel events only for parent-facing signups; admin flows are staff actions.
-  const isPublicFunnel = mode === 'public' || mode === 'minor-start'
+  const isPublicFunnel = mode === 'public' || mode === 'minor-start' || isWaiversMemberships
   const signupStartTracked = useRef(false)
   useEffect(() => {
     if (!isPublicFunnel || signupStartTracked.current) return
@@ -1205,6 +1206,31 @@ export default function FamilySignupWizard({
         window.location.href = returnTo
         return
       }
+      if (isWaiversMemberships) {
+        try {
+          const loginRes = await fetch(`${apiUrl}/api/members/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              emailOrUsername: primaryAdult.email || primaryAdult.username,
+              password: primaryAdult.password,
+            }),
+          })
+          const loginData = await loginRes.json()
+          if (loginRes.ok && loginData.success) {
+            onComplete?.({
+              ...data.data,
+              token: loginData.token,
+              member: loginData.member,
+            })
+            return
+          }
+        } catch (loginErr) {
+          console.warn('[signup] auto-login after waivers signup failed:', loginErr)
+        }
+        onComplete?.(data.data)
+        return
+      }
       setSuccessMessage('Account created successfully!')
       onComplete?.(data.data)
     } catch (err) {
@@ -1214,8 +1240,9 @@ export default function FamilySignupWizard({
     }
   }
 
-  const maxStep = isMinorStart ? 2 : 4
+  const maxStep = isMinorStart ? 2 : isWaiversMemberships ? 3 : 4
   const enrollmentStep = isMinorStart ? 2 : 3
+  const waiverStep = isWaiversMemberships ? 3 : 4
 
   if (isAdminEdit && !accountLoaded) {
     return (
@@ -1271,7 +1298,7 @@ export default function FamilySignupWizard({
         return
       }
     }
-    if (step === enrollmentStep) {
+    if (step === enrollmentStep && !isWaiversMemberships) {
       const err = validateEnrollmentStep()
       if (err) {
         setError(err)
@@ -1443,8 +1470,8 @@ export default function FamilySignupWizard({
           {step === 0 && isAdmin && 'Family setup'}
           {step === 1 && (isMinorStart ? 'Athlete info' : 'Primary adult')}
           {step === 2 && (isMinorStart ? 'Enrollment & send invite' : 'Family members')}
-          {step === 3 && !isMinorStart && 'Enrollment'}
-          {step === 4 && 'Waivers'}
+          {step === 3 && !isMinorStart && !isWaiversMemberships && 'Enrollment'}
+          {step === waiverStep && !isMinorStart && 'Waivers'}
         </p>
       </div>
 
@@ -1549,9 +1576,9 @@ export default function FamilySignupWizard({
         </div>
       )}
 
-      {step === enrollmentStep && renderEnrollmentSection()}
+      {step === enrollmentStep && !isWaiversMemberships && renderEnrollmentSection()}
 
-      {step === 4 && !isMinorStart && (
+      {step === waiverStep && !isMinorStart && (
         <WaiverSigningBlock
           waivers={waivers}
           checkedTemplateIds={checkedTemplateIds}

@@ -2421,15 +2421,36 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
 
     const athleteMemberId = Number(req.body?.memberId ?? payerMemberId)
+    const memberIds = Array.isArray(req.body?.memberIds)
+      ? req.body.memberIds.map(Number).filter((id) => Number.isFinite(id) && id > 0)
+      : null
     try {
       const base = publicAppUrl()
+      const successUrl =
+        typeof req.body?.successUrl === 'string' && req.body.successUrl.trim()
+          ? String(req.body.successUrl).trim()
+          : `${base}/?billing=membership-paid&session_id={CHECKOUT_SESSION_ID}`
+      const cancelUrl =
+        typeof req.body?.cancelUrl === 'string' && req.body.cancelUrl.trim()
+          ? String(req.body.cancelUrl).trim()
+          : `${base}/?billing=membership-cancelled`
+      const promoCode =
+        typeof req.body?.promoCode === 'string' && req.body.promoCode.trim()
+          ? req.body.promoCode.trim()
+          : null
       const result = await createAnnualMembershipCheckoutSession(pool, {
         account,
         athleteMemberId,
+        memberIds,
         payerMemberId,
-        successUrl: `${base}/?billing=membership-paid&session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${base}/?billing=membership-cancelled`,
+        promoCode,
+        successUrl,
+        cancelUrl,
       })
+      // A 100%-waived promo activates memberships immediately with no Stripe session.
+      if (result?.free) {
+        return res.json({ success: true, data: result })
+      }
       if (!result?.url) {
         return res.status(503).json({ success: false, message: 'Online payments are not available right now.' })
       }

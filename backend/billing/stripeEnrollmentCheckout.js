@@ -329,17 +329,23 @@ async function buildCheckoutLineItems(pool, preview) {
 
   for (const fee of preview.additionalFees?.items ?? []) {
     if ((fee.amountCents ?? 0) <= 0) continue
+    const hasPromoDiscount = Math.round(Number(fee.discountCents) || 0) > 0
     const lookupKey = feeLookupKey(Number(fee.feeId ?? fee.id))
-    const priceId = await resolveStripePriceId(pool, lookupKey)
+    // Catalog prices are full price; promo-discounted fees must charge the net
+    // amount, so they always use ad-hoc price_data.
+    const priceId = hasPromoDiscount ? null : await resolveStripePriceId(pool, lookupKey)
     if (priceId) {
       lineItems.push({ price: priceId, quantity: 1 })
     } else {
+      const promoSuffix = hasPromoDiscount && fee.promoCode
+        ? ` (promo ${String(fee.promoCode).toUpperCase()})`
+        : ''
       lineItems.push({
         quantity: 1,
         price_data: {
           currency: 'usd',
           unit_amount: Math.round(fee.amountCents),
-          product_data: { name: fee.name || 'Additional fee' },
+          product_data: { name: `${fee.name || 'Additional fee'}${promoSuffix}`.slice(0, 200) },
         },
       })
     }
@@ -413,7 +419,7 @@ export async function createEnrollmentStripeSubscriptions(
   const fromDate = previewObj.firstMonth?.periodStart ?? todayDateOnly()
 
   const subsRes = await pool.query(
-    `SELECT bs.id, bs.source_id, bs.net_monthly_cents, bs.description
+    `SELECT bs.id, bs.source_id, bs.net_monthly_cents, bs.description, bs.next_bill_date
      FROM billing_subscription bs
      WHERE bs.source_type = 'scheduling_signup'
        AND bs.source_id = ANY($1::text[])
@@ -454,9 +460,18 @@ export async function createEnrollmentStripeSubscriptions(
     if (amountCents <= 0) continue
 
     const fmItem = (previewObj.firstMonth?.items ?? []).find((item) => item.slotKey === slotKey)
-    const anchorDate = fmItem
+    let anchorDate = fmItem
       ? computeFirstMonthBillingAnchorDate(fmItem, fromDate)
       : firstOfNextMonth(fromDate)
+    // Promo-free months defer the local next_bill_date past the normal anchor;
+    // Stripe's trial must match so the first invoice lands on the same 1st.
+    const dbNextBill =
+      subRow.next_bill_date instanceof Date
+        ? subRow.next_bill_date.toISOString().slice(0, 10)
+        : subRow.next_bill_date
+          ? String(subRow.next_bill_date).slice(0, 10)
+          : null
+    if (dbNextBill && dbNextBill > anchorDate) anchorDate = dbNextBill
 
     const scheduleLabel = pluralizeWeekdayLabel(buildSlotDisplayLabel(signup))
     const athleteName = [signup.first_name, signup.last_name].filter(Boolean).join(' ').trim()
@@ -530,8 +545,9 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
   if (!stripe || familyBillingAccountId == null || memberId == null) return []
 
   const feeItems = (preview?.additionalFees?.items ?? []).filter((fee) => {
-    const amount = Math.round(Number(fee.amountCents) || 0)
-    if (amount <= 0 || fee.feeId == null) return false
+    // Renewal bills at the full (gross) fee — a promo only waives/discounts year 1.
+    const renewalCents = Math.round(Number(fee.grossAmountCents ?? fee.amountCents) || 0)
+    if (renewalCents <= 0 || fee.feeId == null) return false
     return fee.triggerType === 'once_per_year' || fee.applyBasis === 'per_year'
   })
   if (feeItems.length === 0) return []
@@ -568,7 +584,7 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
   const created = []
 
   for (const fee of feeItems) {
-    const amountCents = Math.round(Number(fee.amountCents) || 0)
+    const amountCents = Math.round(Number(fee.grossAmountCents ?? fee.amountCents) || 0)
     const sourceId = `${fee.feeId}:${memberId}`
     const productName = [fee.name || 'Annual membership', athleteName]
       .filter(Boolean)

@@ -91,6 +91,48 @@ export function computeBillingCycle(fromDate = new Date(), { firstBillDate = nul
 }
 
 /**
+ * First bill date (YYYY-MM-DD, always a 1st) after a promo free window.
+ *
+ * - `freeMonths`: the enrollment stub (remainder of the signup / first service
+ *   month) is free, PLUS N full months — billing resumes N months after the
+ *   normal anchor.
+ * - `freeWeeks`: free for N weeks from `weeksFrom` (defaults to `fromDate`);
+ *   billing resumes on the first 1st-of-month on/after the window ends
+ *   (months always bill whole, never partial).
+ *
+ * When both are present (stacked grants) the later date wins. Never earlier
+ * than the normal billing anchor.
+ * @param {{ firstBillDate?: string|null, fromDate?: Date, freeMonths?: number, freeWeeks?: number, weeksFrom?: Date|string|null }} args
+ */
+export function deferredFirstBillDate({
+  firstBillDate = null,
+  fromDate = new Date(),
+  freeMonths = 0,
+  freeWeeks = 0,
+  weeksFrom = null,
+}) {
+  const months = Math.max(0, Math.round(Number(freeMonths) || 0))
+  const weeks = Math.max(0, Math.round(Number(freeWeeks) || 0))
+  const cycle = computeBillingCycle(fromDate, { firstBillDate })
+  let next = parseDbDate(cycle.nextBillDate)
+  if (months > 0) {
+    const shifted = addMonthsClamped(next, months, 1)
+    if (shifted.getTime() > next.getTime()) next = shifted
+  }
+  if (weeks > 0) {
+    const base = parseDbDate(weeksFrom) ?? parseDbDate(toDateString(fromDate))
+    const freeEnd = new Date(base.getTime() + weeks * 7 * 24 * 60 * 60 * 1000)
+    // First 1st-of-month strictly after the last free day.
+    const weeksNext =
+      freeEnd.getUTCDate() === 1
+        ? freeEnd
+        : new Date(Date.UTC(freeEnd.getUTCFullYear(), freeEnd.getUTCMonth() + 1, 1))
+    if (weeksNext.getTime() > next.getTime()) next = weeksNext
+  }
+  return toDateString(next)
+}
+
+/**
  * Upsert an active recurring subscription for a given source enrollment.
  * On re-run (same source) updates the rate; a cancelled row does not block a new one.
  * @param {import('pg').Pool|import('pg').PoolClient} db

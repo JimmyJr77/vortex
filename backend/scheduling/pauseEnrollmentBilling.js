@@ -312,11 +312,41 @@ export async function syncFamilyEnrollmentDiscounts(pool, familyId) {
     return { updated: 0 }
   }
 
+  // Open-ended free promo grants ("free for program duration") live on the signup's
+  // pricing_breakdown snapshot, not in this promo-less recompute — preserve their $0
+  // subscription instead of resetting it to the recomputed family net.
+  const openEndedFreeSignupIds = new Set()
+  try {
+    const signupIds = accountLines
+      .map((l) => Number(l.signupId))
+      .filter((n) => Number.isFinite(n))
+    if (signupIds.length > 0) {
+      const bdRes = await pool.query(
+        `SELECT id, pricing_breakdown FROM scheduling_signup WHERE id = ANY($1::bigint[])`,
+        [signupIds],
+      )
+      for (const row of bdRes.rows) {
+        const applied = row.pricing_breakdown?.line?.applied
+        if (
+          Array.isArray(applied) &&
+          applied.some(
+            (a) => a?.kind === 'free' && a?.freeDurationMonths == null && a?.freeDurationWeeks == null,
+          )
+        ) {
+          openEndedFreeSignupIds.add(Number(row.id))
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[pauseBilling] free-promo snapshot check:', err?.message ?? err)
+  }
+
   let updated = 0
   for (const line of accountLines) {
     if (line.signupId == null) continue
     const gross = Math.max(0, Math.round(line.baseCents ?? line.listCents ?? 0))
-    const net = Math.max(0, Math.round(line.finalCents ?? gross))
+    const isOpenEndedFree = openEndedFreeSignupIds.has(Number(line.signupId))
+    const net = isOpenEndedFree ? 0 : Math.max(0, Math.round(line.finalCents ?? gross))
     const discount = Math.max(0, gross - net)
     try {
       const res = await pool.query(
