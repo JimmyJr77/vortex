@@ -719,6 +719,41 @@ unclassified pair in that range. The library has 1,266 active definitions, 410
 archived definitions, and 673 traceable identity decisions: 251 distinct
 boundaries, 409 consolidations, and 13 honest review quarantines.
 
+### Score-79 adjudication
+
+Migrations 381 and 382 resolve the complete score-79 tranche plus every
+score-79-or-higher pair exposed transitively by the resulting aliases.
+Migration 381 records 42 distinct mechanics boundaries and five
+`needs_human_review` decisions. The quarantines retain quarter-turn,
+medicine-ball countermovement, landmine arc, low-hurdle lateral-hop, and
+rotational bound comparisons whose source cards do not declare enough
+laterality, projection, arm, or path facts for safe consolidation.
+
+Migration 382 consolidates 25 traceable source cards beneath stable identities:
+
+- 90/90 external rotation, Box Squat, Bent-Over Row, pull-up/chin-up isometric,
+  Copenhagen Side Plank, floor press, lateral leg swing, Icky Shuffle, and
+  Plyo Push-Up implement, grip, lever, support, or direction variants;
+- lateral-lunge eccentric, low-box step-off, single-leg hop, single-leg RDL,
+  snap-down rebound, step-up jump, three-point start, and wall-march variants;
+- rotational medicine-ball throw and shot-put throw release, return, stance,
+  and partner variants; and
+- prone push-up start, Zercher carry, and sandbag or other implement variants.
+
+An initial attempt to place ball-grip, drop-step, and split-stance rotational
+landmine sources under the generic rotational press was rejected by the
+protected-decision guard. The final migrations preserve those earlier
+mechanics boundaries and directly adjudicate the score-79 comparisons instead
+of overriding them.
+
+After migration 382 the indexed audit has 773 raw and 514 unresolved
+score-72-or-higher pairs, 247 at score 75 or higher, 15 at score 79 or higher,
+ten at score 80 or higher, none at score 85 or higher, and zero exact
+collisions. All 15 score-79-or-higher pairs are explicit unreviewed
+`needs_human_review` records. The library has 1,241 active definitions, 435
+archived definitions, and 745 traceable identity decisions: 293 distinct
+boundaries, 434 consolidations, and 18 honest review quarantines.
+
 ## Governance
 
 Deterministic consolidation never grants publication approval. Every surviving

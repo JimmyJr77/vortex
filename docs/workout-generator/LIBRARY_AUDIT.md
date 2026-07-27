@@ -578,42 +578,53 @@ resolves all alias-driven score-80-or-higher pairs, including the stable
 Bench Press identity versus Bench Press Pin Iso and Dumbbell Z-Press, and the
 unified short sprint versus Falling Start.
 
-The migration-380 disposable audit reports:
+Migrations 381 and 382 finish the score-79 batch and its transitive alias pass.
+Migration 381 records 42 mechanics-based distinct boundaries and five honest
+identity quarantines where takeoff or landing foot count, throw direction and
+arm contract, or landmine path facts are absent. Migration 382 consolidates 25
+source cards as exact implement, grip, stance, support, direction, tempo,
+range, contraction-emphasis, or dosage variants. Its fail-closed conflict pass
+preserves the earlier decisions that ball-grip, drop-step, and fixed
+split-stance landmine presses are distinct rather than overriding them.
+
+The migration-382 disposable audit reports:
 
 | Measure | Count |
 |---|---:|
 | Legacy exercises and source mappings | 1,676 |
-| Active canonical definitions | 1,266 |
-| Archived canonical definitions | 410 |
+| Active canonical definitions | 1,241 |
+| Archived canonical definitions | 435 |
 | Variants | 1,823 |
 | Delivery profiles | 1,974 |
-| Identity decisions | 673 |
-| Distinct identity boundaries | 251 |
-| Duplicate consolidations | 409 |
-| Explicit identity-review quarantines | 13 |
+| Identity decisions | 745 |
+| Distinct identity boundaries | 293 |
+| Duplicate consolidations | 434 |
+| Explicit identity-review quarantines | 18 |
 | Candidate media records | 5,061 |
 | Review-only relationship proposals | 201 |
 | Review-only calibration proposals | 342 |
-| Raw score-72-or-higher similarity pairs | 820 |
-| Unresolved score-72-or-higher pairs | 595 |
-| Unresolved score-75-or-higher pairs | 313 |
+| Raw score-72-or-higher similarity pairs | 773 |
+| Unresolved score-72-or-higher pairs | 514 |
+| Unresolved score-75-or-higher pairs | 247 |
+| Unresolved score-79-or-higher pairs | 15 |
 | Unresolved score-80-or-higher pairs | 10 |
 | Unresolved score-85-or-higher pairs | 0 |
 | Exact identity collisions | 0 |
 
-All ten score-80-or-higher pairs are explicit unreviewed
-`needs_human_review` records. The automated audit has complete one-to-one
-migration coverage and quarantines all 1,266 active cards. Forty-three cards
+All 15 score-79-or-higher pairs, including all ten score-80-or-higher pairs,
+are explicit unreviewed `needs_human_review` records. The automated audit has
+complete one-to-one migration coverage and quarantines all 1,241 active cards.
+Forty-three cards
 pass every non-human automated content check. One otherwise-complete Hamstring
 Slider Curl card still has explicit taxonomy and graph-integrity blockers, and
-1,222 cards still need broad anatomy, difficulty, load, fatigue, constraints,
+1,197 cards still need broad anatomy, difficulty, load, fatigue, constraints,
 delivery, athlete, coach, and operations backfill. No card is published.
 
 The recursive final invariant audit checks all 38 JSON columns and all three
 scalar skill/proficiency columns on exercise-related base tables. It reports
 zero level keys, zero scalar assignments, and zero
-`overall != max(complexity, physical difficulty)` violations. Of 1,476 active
-canonical variants, 1,464 have populated difficulty records; the remaining 12
+`overall != max(complexity, physical difficulty)` violations. Of 1,442 active
+canonical variants, 1,430 have populated difficulty records; the remaining 12
 stay quarantined for backfill. All 1,663 legacy score rows are populated and
 formula-consistent. All 1,112 dedicated skill-library level assignments remain
 intact.

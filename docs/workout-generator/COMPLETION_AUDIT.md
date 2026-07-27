@@ -699,20 +699,32 @@ On 2026-07-26:
   SQL execution and rerun are idempotent. The normal platform runner records
   migrations 379 and 380 with checksums `1642176101` and `2572935333`, and a
   second invocation skips them.
-- The migration-380 canonical state has 1,266 active and 410 archived
-  definitions, 1,823 variants, 1,974 delivery profiles, 673 identity
+- Migration 381 records 42 score-79 and transitive mechanics boundaries and
+  five unreviewed ambiguity quarantines. Migration 382 consolidates 25 exact
+  implement, grip, stance, support, direction, tempo, range, contraction, and
+  dosage variants. The migration refused to override three earlier landmine
+  boundaries during development; the final decisions preserve ball-grip,
+  drop-step, and fixed split-stance identities as distinct.
+- Disposable negative-path tests prove migration 381 aborts atomically for an
+  unexplained archived endpoint. Migration 382 aborts atomically for synthetic
+  protected media state and separately for an archived duplicate without its
+  required resolution. Direct SQL execution and rerun are idempotent. The
+  normal platform runner records migrations 381 and 382 with checksums
+  `4219887321` and `3232381782`, and a second invocation skips them.
+- The migration-382 canonical state has 1,241 active and 435 archived
+  definitions, 1,823 variants, 1,974 delivery profiles, 745 identity
   resolutions, 201 unapproved relationships, 342 unapproved calibrations,
   5,061 unapproved media candidates, all 1,676 source mappings, zero published
-  definitions, and zero direct identity collisions. The identity queue has 820
-  raw and 595 unresolved score-72-or-higher pairs, 313 score-75-or-higher
-  pairs, ten score-80-or-higher pairs, and none at score 85 or higher. Every
-  score-80-or-higher pair is an explicit unreviewed `needs_human_review`
-  quarantine.
-- The complete migration-380 audit has one-to-one migration coverage and
-  quarantines all 1,266 cards. Forty-three cards pass every non-human automated
+  definitions, and zero direct identity collisions. The identity queue has 773
+  raw and 514 unresolved score-72-or-higher pairs, 247 score-75-or-higher
+  pairs, 15 score-79-or-higher pairs, ten score-80-or-higher pairs, and none at
+  score 85 or higher. Every score-79-or-higher pair is an explicit unreviewed
+  `needs_human_review` quarantine.
+- The complete migration-382 audit has one-to-one migration coverage and
+  quarantines all 1,241 cards. Forty-three cards pass every non-human automated
   content check; Hamstring Slider Curl is otherwise complete but retains
-  explicit taxonomy and graph-integrity blockers, while 1,222 cards still need
-  broad structural backfill. Of 1,476 active variants, 1,464 have complete
+  explicit taxonomy and graph-integrity blockers, while 1,197 cards still need
+  broad structural backfill. Of 1,442 active variants, 1,430 have complete
   complexity/physical-difficulty records and zero derived-overall formula
   violations. The recursive audit finds zero prohibited level keys across 38
   exercise JSON columns, zero assignments across three exercise scalar level
