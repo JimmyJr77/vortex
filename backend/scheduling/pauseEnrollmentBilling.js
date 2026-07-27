@@ -338,7 +338,17 @@ export async function syncFamilyEnrollmentDiscounts(pool, familyId) {
       console.warn('[pauseBilling] subscription update', line.signupId, err?.message ?? err)
     }
   }
-  return { updated }
+
+  // Keep Stripe Prices aligned with household net amounts (e.g. 3-class / $450 → 20%).
+  let stripeSync = { updated: 0 }
+  try {
+    const { syncFamilyStripeSubscriptionAmounts } = await import('../billing/stripeSubscriptionSync.js')
+    stripeSync = await syncFamilyStripeSubscriptionAmounts(pool, Number(familyId))
+  } catch (err) {
+    console.warn('[pauseBilling] stripe amount sync:', err?.message ?? err)
+  }
+
+  return { updated, stripeUpdated: stripeSync.updated ?? 0 }
 }
 
 /**

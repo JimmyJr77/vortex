@@ -14,6 +14,102 @@ export function billingDateToUnixStart(dateStr) {
 }
 
 /**
+ * Update a Stripe subscription's recurring unit amount (household discount changes).
+ * Uses proration_behavior=none so trial / next invoice picks up the new price cleanly.
+ */
+export async function updateStripeSubscriptionUnitAmount(
+  stripeSubscriptionId,
+  amountCents,
+  { productName = null } = {},
+) {
+  if (!stripeSubscriptionId) return { status: 'skipped', reason: 'missing_id' }
+  const cents = Math.max(0, Math.round(Number(amountCents) || 0))
+  if (!Number.isFinite(cents)) return { status: 'skipped', reason: 'invalid_amount' }
+  if (!stripeEnabled()) return { status: 'skipped', reason: 'stripe_disabled' }
+
+  const stripe = await getStripeClient()
+  if (!stripe) return { status: 'skipped', reason: 'stripe_unavailable' }
+
+  try {
+    const sub = await stripe.subscriptions.retrieve(stripeSubscriptionId, {
+      expand: ['items.data.price.product'],
+    })
+    const item = sub.items?.data?.[0]
+    if (!item) return { status: 'skipped', reason: 'no_item' }
+
+    const currentAmount = Number(item.price?.unit_amount ?? 0)
+    if (currentAmount === cents) return { status: 'unchanged', amountCents: cents }
+
+    let productId =
+      typeof item.price?.product === 'object' ? item.price.product?.id : item.price?.product
+    if (!productId) {
+      const product = await stripe.products.create({
+        name: String(productName || 'Monthly class membership').slice(0, 200),
+        metadata: { vortex_ad_hoc_enrollment_price: 'true' },
+      })
+      productId = product.id
+    }
+
+    const price = await stripe.prices.create({
+      product: productId,
+      currency: 'usd',
+      unit_amount: cents,
+      recurring: { interval: item.price?.recurring?.interval || 'month' },
+      metadata: {
+        vortex_net_monthly: 'true',
+        vortex_discount_sync: 'true',
+      },
+    })
+
+    await stripe.subscriptions.update(stripeSubscriptionId, {
+      items: [{ id: item.id, price: price.id }],
+      proration_behavior: 'none',
+    })
+    return { status: 'updated', amountCents: cents, previousAmountCents: currentAmount }
+  } catch (err) {
+    console.warn('[stripe] update subscription amount:', err?.message ?? err)
+    return { status: 'error', reason: err?.message ?? String(err) }
+  }
+}
+
+/**
+ * Push local net_monthly_cents onto each active Stripe subscription for a family.
+ */
+export async function syncFamilyStripeSubscriptionAmounts(pool, familyId) {
+  if (!familyId) return { updated: 0, results: [] }
+  if (!stripeEnabled()) return { updated: 0, results: [], reason: 'stripe_disabled' }
+
+  const res = await pool.query(
+    `
+      SELECT bs.id, bs.stripe_subscription_id, bs.net_monthly_cents, bs.description
+      FROM billing_subscription bs
+      JOIN family_billing_account fba ON fba.id = bs.family_billing_account_id
+      WHERE fba.family_id = $1
+        AND bs.status = 'active'
+        AND bs.stripe_subscription_id IS NOT NULL
+    `,
+    [familyId],
+  )
+
+  const results = []
+  let updated = 0
+  for (const row of res.rows) {
+    const outcome = await updateStripeSubscriptionUnitAmount(
+      row.stripe_subscription_id,
+      row.net_monthly_cents,
+      { productName: row.description },
+    )
+    results.push({
+      billingSubscriptionId: Number(row.id),
+      stripeSubscriptionId: row.stripe_subscription_id,
+      ...outcome,
+    })
+    if (outcome.status === 'updated') updated += 1
+  }
+  return { updated, results }
+}
+
+/**
  * Schedule Stripe subscription cancellation on a billing anchor date (1st of month).
  * @returns {Promise<{ status: string, reason?: string }>}
  */

@@ -488,6 +488,26 @@ export async function createEnrollmentStripeSubscriptions(
       [subRow.id, stripeSub.id],
     )
   }
+
+  // Recompute household spend discounts across all active enrollments and push
+  // nets to Stripe (new class can unlock a higher tier for every sibling).
+  if (familyBillingAccountId != null) {
+    try {
+      const fam = await pool.query(
+        `SELECT family_id FROM family_billing_account WHERE id = $1`,
+        [familyBillingAccountId],
+      )
+      const familyId = fam.rows[0]?.family_id
+      if (familyId != null) {
+        const { syncFamilyEnrollmentDiscounts } = await import(
+          '../scheduling/pauseEnrollmentBilling.js'
+        )
+        await syncFamilyEnrollmentDiscounts(pool, Number(familyId))
+      }
+    } catch (err) {
+      console.warn('[stripe] family discount sync after enrollment:', err?.message ?? err)
+    }
+  }
 }
 
 function previewFingerprint(preview) {
