@@ -23,7 +23,10 @@ import {
   cancelSubscriptionsForSource,
 } from './billingSubscriptions.js'
 import { recordPrepaidFirstMonthCredit } from './pauseEnrollmentBilling.js'
-import { calendarYearKey } from './additionalFeesEngine.js'
+import {
+  membershipRenewsOnFromPurchase,
+  toUtcDateString,
+} from './membershipAnniversary.js'
 import { ensureBillingChargeSchema } from '../billing/billingChargeSchema.js'
 
 async function ensureBillingAccount(pool, familyId) {
@@ -278,15 +281,18 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
   }
 
   const feeItems = preview?.additionalFees?.enabled ? preview.additionalFees.items || [] : []
-  const year = calendarYearKey()
+  const purchasedAt = new Date()
+  const renewsOn = membershipRenewsOnFromPurchase(purchasedAt)
+  const renewsOnKey = toUtcDateString(renewsOn) || toUtcDateString(purchasedAt)
   for (const fee of feeItems) {
     const feeAmount = Math.round(Number(fee.amountCents) || 0)
     if (feeAmount <= 0 || fee.feeId == null) continue
 
-    const sourceId =
-      fee.triggerType === 'once_per_year'
-        ? `${fee.feeId}:${memberId}:${year}`
-        : `${fee.feeId}:${firstSignupId ?? memberId}`
+    const isAnnualMembership =
+      fee.triggerType === 'once_per_year' || fee.applyBasis === 'per_year'
+    const sourceId = isAnnualMembership
+      ? `${fee.feeId}:${memberId}:${renewsOnKey}`
+      : `${fee.feeId}:${firstSignupId ?? memberId}`
 
     try {
       const feeCharge = await pool.query(
@@ -307,7 +313,7 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
       console.warn('[scheduling] persistSignupCharges additional fee charge:', err.message)
     }
 
-    if (fee.triggerType !== 'once_per_year') continue
+    if (!isAnnualMembership) continue
     try {
       await pool.query(
         `
@@ -316,7 +322,7 @@ export async function persistSignupCharges(pool, { memberId, signups = [], previ
           VALUES ($1, $2, $3, $4, $5)
           ON CONFLICT (fee_id, member_id, period_key) DO NOTHING
         `,
-        [fee.feeId, memberId, firstSignupId, year, feeAmount],
+        [fee.feeId, memberId, firstSignupId, renewsOnKey, feeAmount],
       )
     } catch (err) {
       console.warn('[scheduling] persistSignupCharges fee redemption:', err.message)

@@ -7,7 +7,10 @@ import { ensureBillingStripeLinksSchema, getStripeClient, recordEnrollmentStripe
 import { ensureBillingRecurringSchema } from './stripeCatalogSync.js'
 import { ensureBillingChargeSchema } from './billingChargeSchema.js'
 import { persistSignupCharges } from '../scheduling/persistSignupCharges.js'
-import { calendarYearKey } from '../scheduling/additionalFeesEngine.js'
+import {
+  membershipRenewsOnFromPurchase,
+  toUtcDateString,
+} from '../scheduling/membershipAnniversary.js'
 
 async function runMigrationFile(pool, relativePath) {
   const fs = await import('fs')
@@ -164,16 +167,19 @@ async function insertMissingAdditionalFees(pool, accountId, pending, preview, si
 
   const memberId = Number(pending.member_id)
   const firstSignupId = signups[0]?.signupId ?? null
-  const year = calendarYearKey(new Date(pending.created_at ?? Date.now()))
+  const purchasedAt = new Date(pending.created_at ?? Date.now())
+  const renewsOnKey =
+    toUtcDateString(membershipRenewsOnFromPurchase(purchasedAt)) || toUtcDateString(purchasedAt)
   let inserted = false
 
   for (const fee of feeItems) {
     const feeAmount = Math.round(Number(fee.amountCents) || 0)
     if (feeAmount <= 0 || fee.feeId == null) continue
-    const sourceId =
-      fee.triggerType === 'once_per_year'
-        ? `${fee.feeId}:${memberId}:${year}`
-        : `${fee.feeId}:${firstSignupId ?? memberId}`
+    const isAnnualMembership =
+      fee.triggerType === 'once_per_year' || fee.applyBasis === 'per_year'
+    const sourceId = isAnnualMembership
+      ? `${fee.feeId}:${memberId}:${renewsOnKey}`
+      : `${fee.feeId}:${firstSignupId ?? memberId}`
 
     const result = await pool.query(
       `

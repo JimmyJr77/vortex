@@ -184,6 +184,7 @@ interface BillingAccountSummary {
   stripeEnabled?: boolean
   subscriptions?: BillingSubscriptionSummary[]
   monthlyTotals?: { grossCents: number; discountCents: number; netCents: number }
+  membershipRenewsOn?: string | null
   bundlePasses?: BillingBundlePass[]
   bundleUsage?: BillingBundleUsage[]
   currentPeriod?: import('./member/MemberBillingPanel').BillingCurrentPeriod | null

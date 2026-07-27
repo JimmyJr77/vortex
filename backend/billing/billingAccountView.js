@@ -14,6 +14,53 @@
 import { loadPassUsageHistory } from '../programs/multiClassPass.js'
 import { buildBillingHistory, buildCurrentPeriod } from './billingPeriodView.js'
 import { reconcileEnrollmentLedger } from './enrollmentLedgerReconcile.js'
+import {
+  ANNUAL_MEMBERSHIP_PRICING_KEY,
+  ANNUAL_MEMBERSHIP_SOURCE_TYPE,
+  isMembershipValidThrough,
+  membershipRenewsOnFromPurchase,
+  toUtcDateString,
+} from '../scheduling/membershipAnniversary.js'
+
+function isAnnualMembershipSubscription(sub) {
+  return (
+    sub.sourceType === ANNUAL_MEMBERSHIP_SOURCE_TYPE ||
+    sub.source_type === ANNUAL_MEMBERSHIP_SOURCE_TYPE ||
+    sub.pricingOptionKey === ANNUAL_MEMBERSHIP_PRICING_KEY ||
+    sub.pricing_option_key === ANNUAL_MEMBERSHIP_PRICING_KEY
+  )
+}
+
+/** Earliest upcoming annual membership renew date for the scoped account. */
+export function resolveMembershipRenewsOn({
+  subscriptions = [],
+  redemptions = [],
+  asOf = new Date(),
+} = {}) {
+  const dates = []
+
+  for (const sub of subscriptions) {
+    if (!isAnnualMembershipSubscription(sub)) continue
+    const status = sub.status ?? 'active'
+    if (status !== 'active' && status !== 'paused') continue
+    const next = sub.nextBillDate ?? sub.next_bill_date
+    if (!next) continue
+    const d = next instanceof Date ? next : new Date(`${String(next).slice(0, 10)}T00:00:00Z`)
+    if (!Number.isNaN(d.getTime()) && d.getTime() > asOf.getTime()) {
+      dates.push(d)
+    }
+  }
+
+  for (const row of redemptions) {
+    if (!isMembershipValidThrough(row.created_at ?? row.createdAt, asOf)) continue
+    const renews = membershipRenewsOnFromPurchase(row.created_at ?? row.createdAt)
+    if (renews) dates.push(renews)
+  }
+
+  if (dates.length === 0) return null
+  dates.sort((a, b) => a.getTime() - b.getTime())
+  return toUtcDateString(dates[0])
+}
 
 function mapSubscription(row) {
   return {
@@ -219,7 +266,7 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     subscriptionHistory = []
   }
 
-  const activeSubs = subscriptions.filter((s) => s.status === 'active')
+  const activeSubs = subscriptions.filter((s) => s.status === 'active' && !isAnnualMembershipSubscription(s))
   const monthlyTotals = activeSubs.reduce(
     (acc, s) => {
       acc.grossCents += s.monthlyAmountCents
@@ -229,6 +276,35 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     },
     { grossCents: 0, discountCents: 0, netCents: 0 },
   )
+
+  let membershipRedemptions = []
+  try {
+    const redemptionParams = [account.family_id]
+    let redemptionMemberFilter = ''
+    if (!familyScope) {
+      redemptionParams.push(memberScopeId)
+      redemptionMemberFilter = ` AND r.member_id = $${redemptionParams.length}`
+    }
+    const redemptionRes = await pool.query(
+      `
+        SELECT r.fee_id, r.member_id, r.period_key, r.created_at, r.amount_cents
+        FROM additional_fee_redemption r
+        JOIN member m ON m.id = r.member_id
+        WHERE m.family_id = $1 ${redemptionMemberFilter}
+        ORDER BY r.created_at DESC
+      `,
+      redemptionParams,
+    )
+    membershipRedemptions = redemptionRes.rows
+  } catch (err) {
+    logBillingQueryError('additional_fee_redemption', err)
+    membershipRedemptions = []
+  }
+
+  const membershipRenewsOn = resolveMembershipRenewsOn({
+    subscriptions,
+    redemptions: membershipRedemptions,
+  })
 
   // Payments + refunds are family-wide (only for payer / family scope).
   let payments = []
@@ -320,9 +396,10 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
 
   return {
     charges,
-    subscriptions,
-    subscriptionHistory,
+    subscriptions: subscriptions.filter((s) => !isAnnualMembershipSubscription(s)),
+    subscriptionHistory: subscriptionHistory.filter((s) => !isAnnualMembershipSubscription(s)),
     monthlyTotals,
+    membershipRenewsOn,
     payments,
     paymentsCents,
     refunds,
@@ -332,7 +409,11 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     balanceCents,
     bundlePasses,
     bundleUsage,
-    currentPeriod: buildCurrentPeriod({ charges, payments, subscriptions }),
+    currentPeriod: buildCurrentPeriod({
+      charges,
+      payments,
+      subscriptions: subscriptions.filter((s) => !isAnnualMembershipSubscription(s)),
+    }),
     billingHistory: familyScope
       ? buildBillingHistory({ charges, payments, months: 12 })
       : buildBillingHistory({

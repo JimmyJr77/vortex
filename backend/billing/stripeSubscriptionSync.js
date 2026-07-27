@@ -118,6 +118,7 @@ export async function syncFamilyStripeSubscriptionAmounts(pool, familyId) {
       LEFT JOIN scheduling_time_slot ts ON ts.id = ss.time_slot_id
       WHERE fba.family_id = $1
         AND bs.status = 'active'
+        AND bs.source_type = 'scheduling_signup'
         AND bs.stripe_subscription_id IS NOT NULL
     `,
     [familyId],

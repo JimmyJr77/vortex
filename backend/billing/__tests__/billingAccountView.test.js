@@ -102,6 +102,9 @@ test('buildBillingAccountView falls back when v_account_ledger is missing', asyn
       if (text.includes('member_multi_class_pass')) {
         return { rows: [] }
       }
+      if (text.includes('additional_fee_redemption')) {
+        return { rows: [] }
+      }
       throw new Error(`Unexpected query: ${text}`)
     },
   }
@@ -114,6 +117,7 @@ test('buildBillingAccountView falls back when v_account_ledger is missing', asyn
   assert.equal(view.ledger.length, 1)
   assert.equal(view.ledger[0].entryKind, 'charge')
   assert.equal(view.ledger[0].amountCents, 5000)
+  assert.equal(view.membershipRenewsOn, null)
   assert.ok(queries.some((q) => q.includes('v_account_ledger')))
 })
 
@@ -138,6 +142,9 @@ test('buildBillingAccountView tolerates missing billing_subscription table', asy
         return { rows: [] }
       }
       if (text.includes('member_multi_class_pass')) {
+        return { rows: [] }
+      }
+      if (text.includes('additional_fee_redemption')) {
         return { rows: [] }
       }
       throw new Error(`Unexpected query: ${text}`)

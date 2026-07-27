@@ -17,6 +17,12 @@ import {
   formatPerClassStripeProductName,
   pluralizeWeekdayLabel,
 } from './stripeProductNaming.js'
+import {
+  ANNUAL_MEMBERSHIP_PRICING_KEY,
+  ANNUAL_MEMBERSHIP_SOURCE_TYPE,
+  membershipRenewsOnFromPurchase,
+  toUtcDateString,
+} from '../scheduling/membershipAnniversary.js'
 import { buildSignupOrderPreview } from '../scheduling/orderPricing.js'
 import { executeSignupBatch } from '../scheduling/handlers.js'
 import { firstOfNextMonth, todayDateOnly } from '../scheduling/firstMonthProration.js'
@@ -511,6 +517,173 @@ export async function createEnrollmentStripeSubscriptions(
   }
 }
 
+/**
+ * After enrollment collects the first annual membership fee at Checkout, create a
+ * Stripe yearly subscription deferred with trial_end = purchase + 1 year so renewals
+ * bill automatically. Local billing_subscription tracks renews-on (not monthly totals).
+ */
+export async function createEnrollmentAnnualMembershipSubscriptions(
+  pool,
+  stripe,
+  { preview, stripeSession, familyBillingAccountId, memberId, purchasedAt = new Date() },
+) {
+  if (!stripe || familyBillingAccountId == null || memberId == null) return []
+
+  const feeItems = (preview?.additionalFees?.items ?? []).filter((fee) => {
+    const amount = Math.round(Number(fee.amountCents) || 0)
+    if (amount <= 0 || fee.feeId == null) return false
+    return fee.triggerType === 'once_per_year' || fee.applyBasis === 'per_year'
+  })
+  if (feeItems.length === 0) return []
+
+  const sessionId = typeof stripeSession === 'string' ? stripeSession : stripeSession?.id
+  if (!sessionId) return []
+
+  const session = await stripe.checkout.sessions.retrieve(sessionId, {
+    expand: ['payment_intent.payment_method', 'setup_intent.payment_method'],
+  })
+  const customerId = session.customer
+  if (!customerId) return []
+
+  let defaultPaymentMethod =
+    session.payment_intent?.payment_method ?? session.setup_intent?.payment_method ?? null
+  if (defaultPaymentMethod && typeof defaultPaymentMethod === 'object') {
+    defaultPaymentMethod = defaultPaymentMethod.id
+  }
+
+  const memberRes = await pool.query(
+    `SELECT first_name, last_name FROM member WHERE id = $1`,
+    [memberId],
+  )
+  const athleteName = [memberRes.rows[0]?.first_name, memberRes.rows[0]?.last_name]
+    .filter(Boolean)
+    .join(' ')
+    .trim()
+
+  const renewsOnDate = membershipRenewsOnFromPurchase(purchasedAt)
+  const renewsOn = toUtcDateString(renewsOnDate)
+  if (!renewsOn) return []
+  const startDate = toUtcDateString(purchasedAt) || renewsOn
+  const anchorDay = renewsOnDate.getUTCDate()
+  const created = []
+
+  for (const fee of feeItems) {
+    const amountCents = Math.round(Number(fee.amountCents) || 0)
+    const sourceId = `${fee.feeId}:${memberId}`
+    const productName = [fee.name || 'Annual membership', athleteName]
+      .filter(Boolean)
+      .join(' · ')
+      .slice(0, 200)
+
+    const existing = await pool.query(
+      `
+        SELECT id, stripe_subscription_id
+        FROM billing_subscription
+        WHERE source_type = $1 AND source_id = $2 AND status <> 'cancelled'
+        LIMIT 1
+      `,
+      [ANNUAL_MEMBERSHIP_SOURCE_TYPE, sourceId],
+    )
+    if (existing.rows[0]?.stripe_subscription_id) {
+      created.push({
+        billingSubscriptionId: Number(existing.rows[0].id),
+        status: 'already_linked',
+      })
+      continue
+    }
+
+    let billingSubId = existing.rows[0]?.id != null ? Number(existing.rows[0].id) : null
+    if (billingSubId == null) {
+      const ins = await pool.query(
+        `
+          INSERT INTO billing_subscription
+            (family_billing_account_id, member_id, source_type, source_id, description,
+             monthly_amount_cents, discount_amount_cents, net_monthly_cents, status,
+             start_date, anchor_day, next_bill_date, pricing_option_key)
+          VALUES ($1, $2, $3, $4, $5, 0, 0, 0, 'active', $6, $7, $8, $9)
+          ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL AND status <> 'cancelled'
+          DO UPDATE SET
+            description = EXCLUDED.description,
+            next_bill_date = EXCLUDED.next_bill_date,
+            updated_at = now()
+          RETURNING id
+        `,
+        [
+          familyBillingAccountId,
+          memberId,
+          ANNUAL_MEMBERSHIP_SOURCE_TYPE,
+          sourceId,
+          productName,
+          startDate,
+          anchorDay,
+          renewsOn,
+          ANNUAL_MEMBERSHIP_PRICING_KEY,
+        ],
+      )
+      billingSubId = Number(ins.rows[0].id)
+    } else {
+      await pool.query(
+        `UPDATE billing_subscription
+         SET next_bill_date = $2, description = $3, updated_at = now()
+         WHERE id = $1`,
+        [billingSubId, renewsOn, productName],
+      )
+    }
+
+    const product = await stripe.products.create({
+      name: productName,
+      metadata: {
+        vortex_annual_membership: 'true',
+        vortex_fee_id: String(fee.feeId),
+        vortex_member_id: String(memberId),
+      },
+    })
+    const price = await stripe.prices.create({
+      product: product.id,
+      currency: 'usd',
+      unit_amount: amountCents,
+      recurring: { interval: 'year' },
+      metadata: {
+        vortex_annual_membership: 'true',
+        vortex_fee_id: String(fee.feeId),
+      },
+    })
+
+    const stripeSub = await stripe.subscriptions.create({
+      customer: customerId,
+      items: [{ price: price.id, quantity: 1 }],
+      // Year 1 was collected at Checkout; defer the first yearly invoice to anniversary.
+      trial_end: resolveSubscriptionTrialEndUnix(renewsOn),
+      proration_behavior: 'none',
+      ...(defaultPaymentMethod ? { default_payment_method: defaultPaymentMethod } : {}),
+      description: productName.slice(0, 500),
+      metadata: {
+        billingSubscriptionId: String(billingSubId),
+        familyBillingAccountId: String(familyBillingAccountId),
+        memberId: String(memberId),
+        feeId: String(fee.feeId),
+        checkoutType: 'enrollment',
+        annualMembership: 'true',
+        amountCents: String(amountCents),
+      },
+    })
+
+    await pool.query(
+      `UPDATE billing_subscription SET stripe_subscription_id = $2, updated_at = now() WHERE id = $1`,
+      [billingSubId, stripeSub.id],
+    )
+    created.push({
+      billingSubscriptionId: billingSubId,
+      stripeSubscriptionId: stripeSub.id,
+      renewsOn,
+      amountCents,
+      status: 'created',
+    })
+  }
+
+  return created
+}
+
 function previewFingerprint(preview) {
   return crypto
     .createHash('sha256')
@@ -955,6 +1128,23 @@ async function tryCommitPendingEnrollmentOnce(pool, { pendingEnrollmentId, strip
       }
     } catch (err) {
       console.error('[stripe] per-class subscription create after enrollment commit:', err)
+    }
+  }
+
+  if (previewSnapshot && stripeSession && familyBillingAccountId != null && pending.member_id != null) {
+    try {
+      const stripe = await getStripeClient()
+      if (stripe) {
+        await createEnrollmentAnnualMembershipSubscriptions(pool, stripe, {
+          preview: previewSnapshot,
+          stripeSession,
+          familyBillingAccountId,
+          memberId: Number(pending.member_id),
+          purchasedAt: new Date(pending.updated_at ?? pending.created_at ?? Date.now()),
+        })
+      }
+    } catch (err) {
+      console.error('[stripe] annual membership subscription create after enrollment commit:', err)
     }
   }
 

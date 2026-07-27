@@ -126,6 +126,8 @@ export interface MemberBillingAccountData {
   stripeEnabled?: boolean
   subscriptions?: BillingSubscriptionSummary[]
   monthlyTotals?: { grossCents: number; discountCents: number; netCents: number }
+  /** ISO date (YYYY-MM-DD) when annual membership next renews via Stripe. */
+  membershipRenewsOn?: string | null
   bundlePasses?: BillingBundlePass[]
   bundleUsage?: BillingBundleUsage[]
   currentPeriod?: BillingCurrentPeriod | null
@@ -143,6 +145,10 @@ interface MemberBillingPanelProps {
 }
 
 function formatShortDate(value: string) {
+  const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (match) {
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])).toLocaleDateString()
+  }
   return new Date(value).toLocaleDateString()
 }
 
@@ -295,11 +301,24 @@ export default function MemberBillingPanel({
           </div>
         </div>
 
-        {(billingAccount?.monthlyTotals?.netCents ?? 0) > 0 && (
-          <p className="text-sm text-gray-500 mb-6">
-            Recurring monthly total:{' '}
-            <span className="text-gray-900">{formatMoney(billingAccount!.monthlyTotals!.netCents)}/mo</span>
-          </p>
+        {((billingAccount?.monthlyTotals?.netCents ?? 0) > 0 ||
+          Boolean(billingAccount?.membershipRenewsOn)) && (
+          <div className="mb-6 space-y-1">
+            {(billingAccount?.monthlyTotals?.netCents ?? 0) > 0 && (
+              <p className="text-sm text-gray-500">
+                Recurring monthly total:{' '}
+                <span className="text-gray-900">
+                  {formatMoney(billingAccount!.monthlyTotals!.netCents)}/mo
+                </span>
+              </p>
+            )}
+            {billingAccount?.membershipRenewsOn ? (
+              <p className="text-sm text-gray-500">
+                Membership Renews on:{' '}
+                <span className="text-gray-900">{formatShortDate(billingAccount.membershipRenewsOn)}</span>
+              </p>
+            ) : null}
+          </div>
         )}
 
         {billingAccount?.stripeEnabled && billingAccount.canSeeFamily && (

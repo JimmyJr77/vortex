@@ -1,3 +1,5 @@
+import { isMembershipValidThrough } from './membershipAnniversary.js'
+
 export const FEE_APPLY_BASES = [
   'per_order',
   'per_slot',
@@ -13,6 +15,13 @@ function withinWindow(fee, now) {
   if (fee.startsAt && new Date(fee.startsAt).getTime() > now) return false
   if (fee.endsAt && new Date(fee.endsAt).getTime() < now) return false
   return true
+}
+
+function oncePerYearAlreadyRedeemed(feeId, redeemedPeriodKeys, nowDate) {
+  if (redeemedPeriodKeys.has(`${feeId}:active`)) return true
+  // Legacy calendar-year keys from older redemptions.
+  if (redeemedPeriodKeys.has(`${feeId}:${calendarYearKey(nowDate)}`)) return true
+  return false
 }
 
 function scopeMatchesFee(fee, line) {
@@ -65,8 +74,9 @@ export function computeOrderAdditionalFees({
   for (const fee of activeFees) {
     if (fee.triggerType === 'new_member' && !isNewMember) continue
 
-    const periodKey = `${fee.id}:${calendarYearKey(new Date(now))}`
-    if (fee.triggerType === 'once_per_year' && redeemedPeriodKeys.has(periodKey)) continue
+    if (fee.triggerType === 'once_per_year' && oncePerYearAlreadyRedeemed(fee.id, redeemedPeriodKeys, new Date(now))) {
+      continue
+    }
 
     const matchingLines = lines.filter((line) => scopeMatchesFee(fee, line))
     if (matchingLines.length === 0 && fee.applyBasis !== 'per_order') continue
@@ -176,12 +186,24 @@ export function mapFeeRow(r) {
   }
 }
 
-export async function loadMemberFeeRedemptionKeys(pool, memberId, feeIds = []) {
+/**
+ * Keys that suppress once_per_year fees. Membership is valid for 1 year after purchase
+ * (anniversary), not calendar year. Emits `${feeId}:active` while still valid.
+ */
+export async function loadMemberFeeRedemptionKeys(pool, memberId, feeIds = [], now = new Date()) {
   if (!memberId || feeIds.length === 0) return new Set()
   const res = await pool.query(
-    `SELECT fee_id, period_key FROM additional_fee_redemption
+    `SELECT fee_id, period_key, created_at FROM additional_fee_redemption
      WHERE member_id = $1 AND fee_id = ANY($2::bigint[])`,
     [memberId, feeIds],
   )
-  return new Set(res.rows.map((r) => `${Number(r.fee_id)}:${r.period_key}`))
+  const keys = new Set()
+  for (const row of res.rows) {
+    const feeId = Number(row.fee_id)
+    keys.add(`${feeId}:${row.period_key}`)
+    if (isMembershipValidThrough(row.created_at, now)) {
+      keys.add(`${feeId}:active`)
+    }
+  }
+  return keys
 }

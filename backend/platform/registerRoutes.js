@@ -2273,6 +2273,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         payments: view.payments.map(mapPayment),
         subscriptions: view.subscriptions,
         monthlyTotals: view.monthlyTotals,
+        membershipRenewsOn: view.membershipRenewsOn ?? null,
         refunds: view.refunds,
         ledger: view.ledger,
         bundlePasses: view.bundlePasses,

@@ -1,5 +1,5 @@
 /** Bumped when backend behavior changes — visible on GET /api/health and admin email status. */
-export const API_BUILD_ID = 'portal-sub-day-time-names-2026-07-27'
+export const API_BUILD_ID = 'annual-membership-renews-on-2026-07-27'
 
 /** Advertised on GET /api/health → apiFeatures for frontend capability checks. */
 export const API_FEATURES = {

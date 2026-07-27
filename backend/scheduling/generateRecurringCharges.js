@@ -51,6 +51,9 @@ export async function generateRecurringCharges(pool, { asOf = new Date(), maxCat
       WHERE status = 'active'
         AND next_bill_date IS NOT NULL
         AND next_bill_date <= $1
+        -- Annual memberships renew via Stripe yearly subscriptions, not this monthly job.
+        AND source_type <> 'annual_membership'
+        AND COALESCE(pricing_option_key, '') <> 'annual_membership'
       ORDER BY id
     `,
     [asOfStr],
