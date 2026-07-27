@@ -273,44 +273,29 @@ export default function MemberClassesOfferedEnroll({
     return null
   }
 
-  const disabledOfferingIds = useMemo(() => {
-    const ids = new Set<number>()
-    for (const row of memberEnrollmentRows) {
-      if (row.offering_id != null) ids.add(Number(row.offering_id))
-    }
-    return [...ids]
-  }, [memberEnrollmentRows])
-
+  // Only the specific day/time already enrolled should be locked — not every
+  // slot under the same offering/class (siblings of an enrolled Monday slot
+  // must stay selectable).
   const disabledSlotKeys = useMemo(() => {
     const keys = new Set<string>()
     for (const row of memberEnrollmentRows) {
-      if (row.slot_group_id != null && row.time_slot_id != null) {
-        keys.add(slotOptionKey(row.slot_group_id, row.time_slot_id))
-      }
+      if (row.slot_group_id == null || row.time_slot_id == null) continue
+      keys.add(slotOptionKey(Number(row.slot_group_id), Number(row.time_slot_id)))
     }
     return [...keys]
   }, [memberEnrollmentRows])
 
   useEffect(() => {
-    if (disabledOfferingIds.length === 0 && disabledSlotKeys.length === 0) return
+    if (disabledSlotKeys.length === 0) return
     setCart((prev) =>
       prev.filter((item) => {
         if (item.lineType === 'multi_class_pass') return true
         if (item.slotGroupId == null || item.timeSlotId == null) return true
         const key = slotOptionKey(item.slotGroupId, item.timeSlotId)
-        if (disabledSlotKeys.includes(key)) return false
-        const catalog = item.classEventId != null ? catalogs[item.classEventId] : null
-        if (!catalog || catalog === 'loading' || catalog === 'error') return true
-        const opt = catalog.scheduleOptions.find(
-          (o) => slotOptionKey(o.slotGroupId, o.timeSlotId) === key,
-        )
-        if (opt?.offeringId != null && disabledOfferingIds.includes(Number(opt.offeringId))) {
-          return false
-        }
-        return true
+        return !disabledSlotKeys.includes(key)
       }),
     )
-  }, [selectedMemberId, disabledOfferingIds, disabledSlotKeys, catalogs])
+  }, [selectedMemberId, disabledSlotKeys])
 
   const toggleSlot = (
     classEventId: number,
@@ -330,7 +315,6 @@ export default function MemberClassesOfferedEnroll({
     const opt = catalog.scheduleOptions.find(
       (o) => slotOptionKey(o.slotGroupId, o.timeSlotId) === key,
     )
-    if (opt?.offeringId != null && disabledOfferingIds.includes(Number(opt.offeringId))) return
     if (!opt) return
     const programsId = classesWithForm.find((c) => c.classEventId === classEventId)?.programsId
     const program = programsId != null ? programs.find((p) => p.id === programsId) : undefined
@@ -964,7 +948,6 @@ export default function MemberClassesOfferedEnroll({
                           groups={groupScheduleOptions(catalog.scheduleOptions)}
                           selectedSlotKeys={selectedKeysForClass}
                           disabledSlotKeys={disabledSlotKeys}
-                          disabledOfferingIds={disabledOfferingIds}
                           onToggle={(key, checked) =>
                             toggleSlot(cls.classEventId, cls.formId, cls.label, key, checked)
                           }

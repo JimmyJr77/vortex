@@ -44,48 +44,32 @@ export default function ScheduleOptionCheckboxGrid({
   selectedSlotKeys,
   onToggle,
   disabledSlotKeys = [],
-  disabledOfferingIds = [],
 }: {
   groups: GroupedScheduleOptions[]
   selectedSlotKeys: string[]
   onToggle: (key: string, checked: boolean) => void
   disabledSlotKeys?: string[]
-  disabledOfferingIds?: number[]
 }) {
   const disabledSlotSet = new Set(disabledSlotKeys)
-  const disabledOfferingSet = new Set(disabledOfferingIds)
 
   return (
     <div className="space-y-4">
-      {groups.map((group) => {
-        const offeringKey = group.options[0]?.offeringId ?? null
-        const offeringDisabled =
-          offeringKey != null && disabledOfferingSet.has(Number(offeringKey))
-        return (
+      {groups.map((group) => (
         <div
           key={`${group.offeringLabel}-${group.offeringDates ?? 'general'}`}
-          className={`space-y-2 rounded-xl p-2 -mx-2 ${
-            offeringDisabled ? 'bg-gray-100 opacity-70' : ''
-          }`}
+          className="space-y-2 rounded-xl p-2 -mx-2"
         >
           {group.offeringDates && (
-            <p className={`text-sm ${offeringDisabled ? 'text-gray-500' : 'text-gray-600'}`}>
-              {group.offeringDates}
-            </p>
+            <p className="text-sm text-gray-600">{group.offeringDates}</p>
           )}
           {group.offeringLabel && group.offeringLabel !== 'Schedule options' && (
-            <p className={`text-sm font-semibold ${offeringDisabled ? 'text-gray-500' : 'text-gray-800'}`}>
-              {group.offeringLabel}
-              {offeringDisabled && (
-                <span className="ml-2 text-xs font-medium text-gray-500">(Already enrolled)</span>
-              )}
-            </p>
+            <p className="text-sm font-semibold text-gray-800">{group.offeringLabel}</p>
           )}
           <div className="grid gap-2 sm:grid-cols-2">
             {group.options.map((opt) => {
               const key = slotOptionKey(opt.slotGroupId, opt.timeSlotId)
               const checked = selectedSlotKeys.includes(key)
-              const slotDisabled = offeringDisabled || disabledSlotSet.has(key)
+              const slotDisabled = disabledSlotSet.has(key)
               return (
                 <label
                   key={key}
@@ -111,6 +95,11 @@ export default function ScheduleOptionCheckboxGrid({
                       <Clock className="w-3.5 h-3.5 text-vortex-red shrink-0" />
                       {opt.scheduleLabel}
                     </span>
+                    {slotDisabled && (
+                      <span className="block text-xs font-medium text-gray-500 mt-1">
+                        Already enrolled
+                      </span>
+                    )}
                     {opt.priceLabel && (
                       <span className="block text-xs font-semibold text-vortex-red mt-1">
                         {opt.priceLabel}
@@ -122,8 +111,7 @@ export default function ScheduleOptionCheckboxGrid({
             })}
           </div>
         </div>
-        )
-      })}
+      ))}
     </div>
   )
 }
