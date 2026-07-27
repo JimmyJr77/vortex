@@ -33,6 +33,30 @@ import {
 export const SIGNUP_ORDER_PRICING_DISCLAIMER =
   'Pricing shown is a rough estimate and may not reflect your actual billing, current rates, or all discounts that apply to your account.'
 
+/**
+ * Combined household monthly after list prices + order discounts.
+ * Existing athletes + cart must share the same scope as spend/multi-class discounts.
+ */
+export function resolveHouseholdCheckoutMonthlyTotals({
+  existingMonthlyTotal = 0,
+  newSignupMonthlyTotal = 0,
+  engineDiscountMonthly = 0,
+  additionalFeesMonthly = 0,
+  freePassCreditMonthly = 0,
+}) {
+  const listMonthly = Number(existingMonthlyTotal) + Number(newSignupMonthlyTotal)
+  return {
+    monthlySubtotal: listMonthly,
+    estimatedMonthlyTotal: Math.max(
+      0,
+      listMonthly +
+        Number(additionalFeesMonthly) -
+        Number(freePassCreditMonthly) -
+        Number(engineDiscountMonthly),
+    ),
+  }
+}
+
 async function resolveLineCostBenefits(
   pool,
   { sportId, programId, formId, programPromoCodes },
@@ -364,12 +388,14 @@ async function loadExistingEnrollments(pool, memberId) {
 
   const result = await pool.query(
     `
-    SELECT s.id, s.form_id, s.slot_group_id, s.time_slot_id, s.status,
+    SELECT s.id, s.member_id, s.form_id, s.slot_group_id, s.time_slot_id, s.status,
            sf.title AS form_title,
+           m.first_name, m.last_name,
            ts.week_letter, ts.schedule_mode, ts.specific_date, ts.day_of_week,
            ts.start_time, ts.end_time
     FROM scheduling_signup s
     JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+    JOIN member m ON m.id = s.member_id
     JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
     LEFT JOIN scheduling_time_slot ts ON ts.id = s.time_slot_id
     WHERE s.member_id = $1
@@ -380,17 +406,53 @@ async function loadExistingEnrollments(pool, memberId) {
     [memberId],
   )
 
-  const groupIds = result.rows
+  return mapExistingEnrollmentRows(pool, result.rows)
+}
+
+/** All confirmed/waitlisted enrollments on the family account (every athlete). */
+async function loadFamilyExistingEnrollments(pool, familyId) {
+  if (!familyId) return []
+
+  const result = await pool.query(
+    `
+    SELECT s.id, s.member_id, s.form_id, s.slot_group_id, s.time_slot_id, s.status,
+           sf.title AS form_title,
+           m.first_name, m.last_name,
+           ts.week_letter, ts.schedule_mode, ts.specific_date, ts.day_of_week,
+           ts.start_time, ts.end_time
+    FROM scheduling_signup s
+    JOIN scheduling_form sf ON sf.id = s.form_id AND sf.deleted_at IS NULL
+    JOIN member m ON m.id = s.member_id
+    JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
+    LEFT JOIN scheduling_time_slot ts ON ts.id = s.time_slot_id
+    WHERE m.family_id = $1
+      AND s.orphaned_at IS NULL
+      AND s.status IN ('confirmed', 'waitlisted')
+    ORDER BY m.first_name, m.last_name, sf.title, s.id
+    `,
+    [familyId],
+  )
+
+  return mapExistingEnrollmentRows(pool, result.rows)
+}
+
+async function mapExistingEnrollmentRows(pool, rows) {
+  const groupIds = rows
     .filter((row) => row.time_slot_id == null && row.slot_group_id != null)
     .map((row) => Number(row.slot_group_id))
   const { labels: groupLabels, rowsByGroupId } = await loadGroupDisplayLabels(pool, groupIds)
 
-  return result.rows.map((row) => {
+  return rows.map((row) => {
     const formId = Number(row.form_id)
     const slotGroupId = Number(row.slot_group_id)
     const timeSlotId = row.time_slot_id != null ? Number(row.time_slot_id) : null
+    const firstName = String(row.first_name || '').trim()
+    const lastName = String(row.last_name || '').trim()
+    const memberName = [firstName, lastName].filter(Boolean).join(' ') || null
     return {
       id: Number(row.id),
+      memberId: row.member_id != null ? Number(row.member_id) : null,
+      memberName,
       formId,
       formTitle: row.form_title,
       slotLabel: slotLabelForSignupRow(row, groupLabels, rowsByGroupId),
@@ -483,8 +545,23 @@ export async function buildSignupOrderPreview(
     return !existingKeys.has(key)
   })
 
+  let familyId = memberContext?.familyId != null ? Number(memberContext.familyId) : null
+  if (familyId == null && memberId != null) {
+    try {
+      const famRes = await pool.query('SELECT family_id FROM member WHERE id = $1', [memberId])
+      familyId = famRes.rows[0]?.family_id != null ? Number(famRes.rows[0].family_id) : null
+    } catch {
+      familyId = null
+    }
+  }
+
+  // Household enrollments for display / combined monthly totals. Member-scoped
+  // `existing` stays for duplicate checks and marginal pricing for this athlete.
+  const householdExisting =
+    familyId != null ? await loadFamilyExistingEnrollments(pool, familyId) : existing
+
   const formIds = new Set([
-    ...existing.map((entry) => entry.formId),
+    ...householdExisting.map((entry) => entry.formId),
     ...filteredNew.map((entry) => entry.formId),
   ])
 
@@ -500,7 +577,7 @@ export async function buildSignupOrderPreview(
   }
 
   const slotGroupIds = new Set([
-    ...existing.map((e) => e.slotGroupId),
+    ...householdExisting.map((e) => e.slotGroupId),
     ...filteredNew.map((e) => e.slotGroupId),
   ].filter((id) => id != null))
   const timeSlotsByGroup = await loadTimeSlotsBySlotGroupIds(pool, [...slotGroupIds])
@@ -826,16 +903,6 @@ export async function buildSignupOrderPreview(
     existingEnrollments: existing,
   })
 
-  let familyId = memberContext?.familyId != null ? Number(memberContext.familyId) : null
-  if (familyId == null && memberId != null) {
-    try {
-      const famRes = await pool.query('SELECT family_id FROM member WHERE id = $1', [memberId])
-      familyId = famRes.rows[0]?.family_id != null ? Number(famRes.rows[0].family_id) : null
-    } catch {
-      familyId = null
-    }
-  }
-
   const previewExistingLines = existing
     .map((entry) => {
       const monthly = existingPriceById.get(entry.id) ?? 0
@@ -870,17 +937,48 @@ export async function buildSignupOrderPreview(
     previewExistingLines,
   })
 
-  const existingClasses = existing.map((entry) =>
-    attachClassDisplayFields(
+  const householdListCentsBySignupId = new Map()
+  for (const line of discounts.accountLines ?? []) {
+    if (line.signupId == null) continue
+    householdListCentsBySignupId.set(Number(line.signupId), Math.max(0, Number(line.baseCents) || 0))
+  }
+  // Ensure sibling list prices are available even when no spend/multi-class rule ran.
+  if (familyId != null) {
+    try {
+      const { loadFamilyDbPaidLines } = await import('./systemDiscounts.js')
+      for (const line of await loadFamilyDbPaidLines(pool, familyId)) {
+        if (line.signupId == null || householdListCentsBySignupId.has(Number(line.signupId))) continue
+        householdListCentsBySignupId.set(
+          Number(line.signupId),
+          Math.max(0, Number(line.baseCents ?? line.listCents) || 0),
+        )
+      }
+    } catch (err) {
+      console.warn('[scheduling] household list prices unavailable:', err?.message ?? err)
+    }
+  }
+
+  const existingClasses = householdExisting.map((entry) => {
+    const liveMonthly = existingPriceById.get(entry.id)
+    const shadowCents = householdListCentsBySignupId.get(entry.id)
+    const monthlyPrice =
+      liveMonthly != null && liveMonthly > 0
+        ? liveMonthly
+        : shadowCents != null
+          ? shadowCents / 100
+          : 0
+    return attachClassDisplayFields(
       {
         id: entry.id,
+        memberId: entry.memberId ?? null,
+        memberName: entry.memberName ?? null,
         formId: entry.formId,
         formTitle: entry.formTitle,
         slotLabel: entry.slotLabel,
         status: entry.status,
         slotGroupId: entry.slotGroupId,
         timeSlotId: entry.timeSlotId,
-        monthlyPrice: existingPriceById.get(entry.id) ?? 0,
+        monthlyPrice,
         isNew: false,
         schedule_mode: entry.schedule_mode,
         specific_date: entry.specific_date,
@@ -890,7 +988,12 @@ export async function buildSignupOrderPreview(
         week_letter: entry.week_letter,
       },
       displayContext,
-    ),
+    )
+  })
+
+  existingMonthlyTotal = existingClasses.reduce(
+    (sum, entry) => sum + (Number(entry.monthlyPrice) || 0),
+    0,
   )
 
   const newSignupsWithDisplay = freePasses.adjustedSignupItems.map((item) =>
@@ -915,6 +1018,13 @@ export async function buildSignupOrderPreview(
   const additionalFeesMonthly = (additionalFees.totalMonthlyCents ?? 0) / 100
   const additionalFeesOneTime = (additionalFees.totalOneTimeCents ?? 0) / 100
   const engineDiscountMonthly = discounts.enabled ? (discounts.totalDiscountCents ?? 0) / 100 : 0
+  const { estimatedMonthlyTotal: householdEstimatedMonthly } = resolveHouseholdCheckoutMonthlyTotals({
+    existingMonthlyTotal,
+    newSignupMonthlyTotal,
+    engineDiscountMonthly,
+    additionalFeesMonthly,
+    freePassCreditMonthly: (freePasses.totalCreditCents ?? 0) / 100,
+  })
 
   let carriedForward = {
     enabled: true,
@@ -943,6 +1053,7 @@ export async function buildSignupOrderPreview(
 
   return {
     memberId: memberId ?? null,
+    familyId: familyId ?? null,
     existingClasses,
     newSignups: newSignupsWithDisplay,
     passPurchases: passPurchaseItems,
@@ -952,11 +1063,7 @@ export async function buildSignupOrderPreview(
     formSummaries,
     existingMonthlyTotal,
     newSignupMonthlyTotal,
-    estimatedMonthlyTotal:
-      estimatedMonthlyTotal +
-      additionalFeesMonthly -
-      (freePasses.totalCreditCents ?? 0) / 100 -
-      engineDiscountMonthly,
+    estimatedMonthlyTotal: householdEstimatedMonthly,
     totalDiscountMonthly: totalDiscountMonthly + engineDiscountMonthly,
     freePasses,
     discounts,

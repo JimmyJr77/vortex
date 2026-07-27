@@ -93,6 +93,8 @@ export interface SignupOrderPreviewClass {
   timeSlotId?: number | null
   offeringId?: number | null
   status?: string
+  memberId?: number | null
+  memberName?: string | null
   sportName?: string | null
   programName?: string | null
   className?: string
@@ -276,6 +278,7 @@ export interface CarriedForwardBreakdown {
 
 export interface SignupOrderPreview {
   memberId: number | null
+  familyId?: number | null
   existingClasses: SignupOrderPreviewClass[]
   newSignups: SignupOrderPreviewClass[]
   passPurchases?: MultiClassPassPurchasePreview[]

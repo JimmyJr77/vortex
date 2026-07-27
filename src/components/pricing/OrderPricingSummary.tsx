@@ -185,7 +185,7 @@ export default function OrderPricingSummary({
       {hasExisting && (
         <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4">
           <h5 className={`font-semibold text-black mb-3 ${compact ? 'text-sm' : 'text-base'}`}>
-            Existing classes
+            Existing classes on your account
           </h5>
           <ul className="space-y-0">
             {preview.existingClasses.map((item) => (
@@ -194,6 +194,9 @@ export default function OrderPricingSummary({
                 className="flex items-start justify-between gap-3 px-3 py-1 text-sm text-gray-700"
               >
                 <div className="min-w-0">
+                  {item.memberName ? (
+                    <p className="text-xs font-semibold text-gray-500 mb-0.5">{item.memberName}</p>
+                  ) : null}
                   <p className="text-black leading-snug">
                     {enrollmentDisplayLine(item)}
                   </p>
