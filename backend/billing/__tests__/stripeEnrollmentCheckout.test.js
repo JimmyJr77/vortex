@@ -194,3 +194,35 @@ test('resolvePerClassMonthlyAmountCents prefers ledger net then first-month net'
     14000,
   )
 })
+
+test('stripSignupBatchPayload drops analytics before signup Joi validation', async () => {
+  const { stripSignupBatchPayload } = await import('../stripeEnrollmentCheckout.js')
+  const stripped = stripSignupBatchPayload({
+    signups: [{ formId: 1, slotGroupId: 2 }],
+    signupAuthToken: 'tok',
+    analytics: { gaClientId: 'x', gaSessionId: 'y' },
+  })
+  assert.equal('analytics' in stripped, false)
+  assert.equal(stripped.signupAuthToken, 'tok')
+  assert.equal(stripped.signups.length, 1)
+})
+
+test('resolveEnrolledMemberIdFromPayload prefers athlete JWT over payer id', async () => {
+  const { resolveEnrolledMemberIdFromPayload } = await import('../stripeEnrollmentCheckout.js')
+  const payload = Buffer.from(JSON.stringify({ memberId: 61, formId: 12 })).toString('base64url')
+  const token = `hdr.${payload}.sig`
+  assert.equal(
+    resolveEnrolledMemberIdFromPayload({ signupAuthToken: token, signups: [] }, 13),
+    61,
+  )
+  assert.equal(resolveEnrolledMemberIdFromPayload({ signups: [] }, 13), 13)
+})
+
+test('resolveSubscriptionTrialEndUnix clamps past anchors into the future', async () => {
+  const { resolveSubscriptionTrialEndUnix } = await import('../stripeEnrollmentCheckout.js')
+  const nowSec = Math.floor(Date.UTC(2026, 6, 27, 12, 0, 0) / 1000)
+  const past = resolveSubscriptionTrialEndUnix('2020-01-01', nowSec)
+  assert.equal(past, nowSec + 60)
+  const future = resolveSubscriptionTrialEndUnix('2026-09-01', nowSec)
+  assert.ok(future > nowSec + 60)
+})

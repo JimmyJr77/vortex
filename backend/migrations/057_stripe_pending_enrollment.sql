@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS stripe_pending_enrollment (
                               CHECK (checkout_mode IN ('payment', 'subscription', 'setup')),
   stripe_checkout_session_id  TEXT UNIQUE,
   status                      TEXT NOT NULL DEFAULT 'pending'
-                              CHECK (status IN ('pending', 'completed', 'expired', 'failed')),
+                              CHECK (status IN ('pending', 'processing', 'completed', 'expired', 'failed')),
   error_message               TEXT,
   created_at                  TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at                  TIMESTAMPTZ NOT NULL DEFAULT now(),
