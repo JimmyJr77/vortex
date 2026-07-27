@@ -4,6 +4,8 @@
  * Payments use paid_at.
  */
 
+import { isGenericCardMethod } from './paymentMethodLabel.js'
+
 export function periodKeyFromDate(date) {
   const d = date instanceof Date ? date : new Date(date)
   if (Number.isNaN(d.getTime())) return null
@@ -84,11 +86,13 @@ function mapChargeRow(charge) {
 }
 
 function mapPaymentRow(payment) {
+  const raw = payment.method?.trim() || ''
+  const method = !raw || isGenericCardMethod(raw) ? (raw ? 'Card' : null) : raw
   return {
     id: Number(payment.id),
     amountCents: Number(payment.amount_cents ?? 0),
     paidAt: payment.paid_at,
-    method: payment.method ?? null,
+    method,
     stripePaymentIntentId: payment.stripe_payment_intent_id ?? null,
     stripeCheckoutSessionId: payment.stripe_checkout_session_id ?? null,
     stripeInvoiceId: payment.stripe_invoice_id ?? null,
@@ -206,9 +210,11 @@ function historyLineFromCharge(charge) {
 }
 
 function historyLineFromPayment(payment) {
+  const raw = payment.method?.trim() || ''
+  const description = !raw || isGenericCardMethod(raw) ? 'Card' : raw
   return {
     kind: 'payment',
-    description: payment.method?.trim() ? payment.method : 'Payment',
+    description,
     netCents: -Number(payment.amount_cents ?? 0),
     occurredAt: payment.paid_at,
     memberName: null,

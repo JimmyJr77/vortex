@@ -7,6 +7,8 @@
  * live-mode webhook delivery is always signature verified below.
  */
 
+import { resolveStripePaymentMethodLabel } from './paymentMethodLabel.js'
+
 export function stripeEnabled() {
   return process.env.STRIPE_ENABLED === 'true' && Boolean(process.env.STRIPE_SECRET_KEY)
 }
@@ -270,20 +272,27 @@ export async function recordStripePayment(pool, { paymentIntentId, amountCents, 
   if (!paymentIntentId || !accountId) return null
   await ensureStripeBillingSchema(pool)
   await ensureBillingStripeLinksSchema(pool)
+  const stripe = await getStripe()
+  const method = await resolveStripePaymentMethodLabel(stripe, { paymentIntentId })
   const result = await pool.query(
     `
       INSERT INTO billing_payment
         (family_billing_account_id, amount_cents, method, external_processor,
          external_status, stripe_customer_id, stripe_payment_intent_id)
-      VALUES ($1, $2, 'card', 'stripe', 'settled', $3, $4)
+      VALUES ($1, $2, $3, 'stripe', 'settled', $4, $5)
       ON CONFLICT (stripe_payment_intent_id) WHERE stripe_payment_intent_id IS NOT NULL
-      DO NOTHING
-      RETURNING *
+      DO UPDATE SET
+        method = CASE
+          WHEN billing_payment.method IS NULL
+            OR lower(trim(billing_payment.method)) IN ('card', 'credit card', 'debit card', '')
+          THEN EXCLUDED.method
+          ELSE billing_payment.method
+        END
+      RETURNING *, (xmax = 0) AS newly_inserted
     `,
-    [accountId, Math.round(Number(amountCents) || 0), customerId ?? null, paymentIntentId],
+    [accountId, Math.round(Number(amountCents) || 0), method, customerId ?? null, paymentIntentId],
   )
   const payment = result.rows[0] ?? null
-  if (payment) payment.newly_inserted = true
   return payment
 }
 
@@ -350,23 +359,42 @@ export async function recordEnrollmentStripePayment(pool, stripe, { session, acc
           : new Date()
 
   if (paymentIntentId) {
+    const method = await resolveStripePaymentMethodLabel(stripe, {
+      paymentIntentId,
+      checkoutSessionId,
+    })
     const result = await pool.query(
       `
         INSERT INTO billing_payment
           (family_billing_account_id, amount_cents, paid_at, method, external_processor,
            external_status, stripe_customer_id, stripe_payment_intent_id,
            stripe_checkout_session_id, stripe_invoice_id)
-        VALUES ($1, $2, $3, 'card', 'stripe', 'settled', $4, $5, $6, $7)
+        VALUES ($1, $2, $3, $4, 'stripe', 'settled', $5, $6, $7, $8)
         ON CONFLICT (stripe_payment_intent_id) WHERE stripe_payment_intent_id IS NOT NULL
         DO UPDATE SET
           stripe_checkout_session_id = COALESCE(
             billing_payment.stripe_checkout_session_id,
             EXCLUDED.stripe_checkout_session_id
           ),
-          stripe_invoice_id = COALESCE(billing_payment.stripe_invoice_id, EXCLUDED.stripe_invoice_id)
+          stripe_invoice_id = COALESCE(billing_payment.stripe_invoice_id, EXCLUDED.stripe_invoice_id),
+          method = CASE
+            WHEN billing_payment.method IS NULL
+              OR lower(trim(billing_payment.method)) IN ('card', 'credit card', 'debit card', '')
+            THEN EXCLUDED.method
+            ELSE billing_payment.method
+          END
         RETURNING *, (xmax = 0) AS newly_inserted
       `,
-      [accountId, amountCents, paidAtValue, customerId, paymentIntentId, checkoutSessionId, invoiceId],
+      [
+        accountId,
+        amountCents,
+        paidAtValue,
+        method,
+        customerId,
+        paymentIntentId,
+        checkoutSessionId,
+        invoiceId,
+      ],
     )
     const payment = result.rows[0] ?? null
     if (payment && checkoutSessionId) {
@@ -384,17 +412,18 @@ export async function recordEnrollmentStripePayment(pool, stripe, { session, acc
     return payment
   }
 
+  const method = await resolveStripePaymentMethodLabel(stripe, { checkoutSessionId })
   const result = await pool.query(
     `
       INSERT INTO billing_payment
         (family_billing_account_id, amount_cents, paid_at, method, external_processor,
          external_status, stripe_customer_id, stripe_checkout_session_id, stripe_invoice_id)
-      VALUES ($1, $2, $3, 'card', 'stripe', 'settled', $4, $5, $6)
+      VALUES ($1, $2, $3, $4, 'stripe', 'settled', $5, $6, $7)
       ON CONFLICT (stripe_checkout_session_id) WHERE stripe_checkout_session_id IS NOT NULL
       DO NOTHING
       RETURNING *
     `,
-    [accountId, amountCents, paidAtValue, customerId, checkoutSessionId, invoiceId],
+    [accountId, amountCents, paidAtValue, method, customerId, checkoutSessionId, invoiceId],
   )
   const payment = result.rows[0] ?? null
   if (payment) payment.newly_inserted = true

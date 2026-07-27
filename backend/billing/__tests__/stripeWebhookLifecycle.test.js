@@ -39,7 +39,7 @@ test('records a renewal invoice once with Stripe identifiers', async () => {
   })
   assert.equal(payment.newly_inserted, true)
   const insert = calls.find((call) => call.sql.includes('INSERT INTO billing_payment'))
-  assert.deepEqual(insert.params.slice(0, 2), [44, 15000])
+  assert.deepEqual(insert.params.slice(0, 4), [44, 15000, insert.params[2], 'Card'])
   assert.match(insert.sql, /ON CONFLICT DO NOTHING/)
 })
 

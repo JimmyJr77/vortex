@@ -1,5 +1,6 @@
-import { ensureBillingStripeLinksSchema } from './stripeBilling.js'
+import { ensureBillingStripeLinksSchema, getStripeClient } from './stripeBilling.js'
 import { ensureBillingRecurringSchema } from './stripeCatalogSync.js'
+import { resolveStripePaymentMethodLabel } from './paymentMethodLabel.js'
 
 function objectId(value) {
   return typeof value === 'string' ? value : value?.id ?? null
@@ -39,7 +40,7 @@ async function resolveAccountId(pool, object) {
 }
 
 /** Idempotently mirror a paid Stripe renewal invoice into the Vortex ledger. */
-export async function recordPaidStripeInvoice(pool, invoice) {
+export async function recordPaidStripeInvoice(pool, invoice, { stripe = null } = {}) {
   if (!invoice?.id || invoice.paid === false || invoice.status === 'void') return null
   const accountId = await resolveAccountId(pool, invoice)
   if (!accountId) return null
@@ -49,14 +50,20 @@ export async function recordPaidStripeInvoice(pool, invoice) {
   const amountCents = Math.round(Number(invoice.amount_paid ?? invoice.amount_due) || 0)
   if (amountCents <= 0) return null
 
+  const stripeClient = stripe || (await getStripeClient())
+  const method = await resolveStripePaymentMethodLabel(stripeClient, {
+    paymentIntentId,
+    invoice,
+  })
+
   const result = await pool.query(
     `
       INSERT INTO billing_payment
         (family_billing_account_id, amount_cents, paid_at, method, note,
          external_processor, external_reference, external_status,
          stripe_customer_id, stripe_payment_intent_id, stripe_invoice_id)
-      VALUES ($1, $2, $3, 'card', 'Stripe subscription renewal',
-              'stripe', $4, 'settled', $5, $6, $4)
+      VALUES ($1, $2, $3, $4, 'Stripe subscription renewal',
+              'stripe', $5, 'settled', $6, $7, $5)
       ON CONFLICT DO NOTHING
       RETURNING *
     `,
@@ -66,6 +73,7 @@ export async function recordPaidStripeInvoice(pool, invoice) {
       invoice.status_transitions?.paid_at
         ? new Date(invoice.status_transitions.paid_at * 1000)
         : new Date(),
+      method,
       invoice.id,
       objectId(invoice.customer),
       paymentIntentId,

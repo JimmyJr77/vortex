@@ -14,6 +14,7 @@
 import { loadPassUsageHistory } from '../programs/multiClassPass.js'
 import { buildBillingHistory, buildCurrentPeriod } from './billingPeriodView.js'
 import { reconcileEnrollmentLedger } from './enrollmentLedgerReconcile.js'
+import { isGenericCardMethod } from './paymentMethodLabel.js'
 import {
   ANNUAL_MEMBERSHIP_PRICING_KEY,
   ANNUAL_MEMBERSHIP_SOURCE_TYPE,
@@ -155,7 +156,11 @@ export function buildLedgerFallback({ charges = [], payments = [], refunds = [] 
       entry_type: 'payment',
       ref_id: p.id,
       member_id: null,
-      description: p.method?.trim() ? p.method : 'Payment',
+      description: (() => {
+        const raw = p.method?.trim() || ''
+        if (!raw || isGenericCardMethod(raw)) return 'Card'
+        return raw
+      })(),
       amount_cents: -Number(p.amount_cents ?? 0),
       occurred_at: p.paid_at,
     })
