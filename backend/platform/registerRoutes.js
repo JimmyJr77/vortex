@@ -2211,7 +2211,12 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       const memberId = Number(ctx.user.member_id ?? ctx.user.id)
       const familyId = ctx.user.family_id
       const { loadMemberPassBalances } = await import('../programs/multiClassPass.js')
-      const canSeeFamily = Number(account.payer_member_id) === memberId
+
+      let canSeeFamily = false
+      if (familyId) {
+        const account = await ensureBillingAccount(pool, familyId)
+        canSeeFamily = Boolean(account) && Number(account.payer_member_id) === memberId
+      }
 
       let memberIds = [memberId]
       if (canSeeFamily && familyId) {
