@@ -1,15 +1,16 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import {
+  ArrowRight,
   Dumbbell,
   Shield,
   Layers,
-  CheckCircle,
+  CheckCircle2,
   Activity,
   Zap,
+  Sparkles,
 } from 'lucide-react'
 import { getSiteEnrollHref } from '../utils/enrollSite'
-import HeroBackgroundVideo from './HeroBackgroundVideo'
 
 interface StrengthFitnessProps {
   onSignUpClick?: () => void
@@ -17,6 +18,8 @@ interface StrengthFitnessProps {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps) => {
+  const enrollHref = getSiteEnrollHref({ programName: 'Fit & Flip' })
+
   const classCategories = [
     {
       title: 'HIIT / Thrash Sessions',
@@ -66,59 +69,72 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
     'Older athletes preparing for higher training loads',
   ]
 
+  const safetyItems = [
+    'Technique-first coaching',
+    'Progressive loading',
+    'Emphasis on movement quality',
+    'No ego lifting',
+    'Integration with athlete age, experience, and other training loads',
+  ]
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero / Positioning Section - matches Gymnastics & Athleticism Accelerator style */}
-      <section className="relative min-h-below-site-header w-full overflow-hidden pt-below-site-header">
-        <HeroBackgroundVideo
-          videoFileName="artistic_gymnastics.mp4"
-          posterFileName="main_hero_bg.png"
-          imageOnly
-          playRequested={false}
-          className="absolute inset-0 w-full h-full"
-          overlayClassName="absolute inset-0 bg-black/50 z-[1] pointer-events-none"
-          onVideoReady={() => {}}
-          onVideoError={() => {}}
-        />
-        <div className="container-custom relative z-10 flex min-h-below-site-header flex-col justify-center py-16 text-center">
-          <motion.h1
-            className="text-4xl font-display font-bold text-white md:text-6xl lg:text-7xl mb-6"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            Refining the{' '}
-            <span className="text-vortex-red">Complete Athlete</span>
-          </motion.h1>
-          <motion.p
-            className="mx-auto max-w-3xl text-xl text-gray-300 md:text-2xl leading-relaxed"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-          >
-            Fit & Flip classes compliment Vortex classes and other traditional sports by targeting specific physical capabilities or skills.
-          </motion.p>
+    <main className="min-h-screen bg-white">
+      <section className="relative overflow-hidden bg-gradient-to-br from-red-950 via-black to-gray-950 pt-below-site-header text-white">
+        <div className="absolute -left-24 top-20 h-72 w-72 rounded-full bg-vortex-red/20 blur-3xl" />
+        <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
+        <div className="relative z-10 grid min-h-below-site-header w-full items-center gap-8 px-6 py-16 sm:px-8 lg:grid-cols-[minmax(24rem,.8fr)_minmax(0,1.35fr)] lg:gap-x-8 lg:gap-y-0 lg:py-0 lg:pl-12 lg:pr-0">
           <motion.div
-            className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row sm:space-x-6"
-            initial={{ opacity: 0, y: 20 }}
+            className="order-1 mx-auto w-full max-w-2xl lg:col-start-1 lg:row-start-1 lg:mx-0 lg:justify-self-end lg:self-end"
+            initial={{ opacity: 0, y: 35 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
+            transition={{ duration: 0.7 }}
+          >
+            <p className="mb-4 font-bold uppercase tracking-[0.22em] text-vortex-red">
+              Foundational Athletic Training
+            </p>
+            <h1 className="text-5xl font-display font-bold leading-[.95] sm:text-6xl lg:text-7xl">
+              Fit <span className="text-vortex-red">&amp;</span> Flip
+            </h1>
+            <p className="mt-7 max-w-2xl text-xl leading-relaxed text-gray-200 md:text-2xl">
+              Refining the complete athlete. Targeted classes that complement Vortex programs and
+              traditional sports by building specific physical capabilities and skills.
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="order-2 w-full lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:h-[calc(100vh-var(--site-header-height))] lg:min-h-[42rem]"
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.15, duration: 0.7 }}
+          >
+            <div className="relative h-full min-h-[24rem] overflow-hidden rounded-3xl border-2 border-white/20 bg-black shadow-2xl lg:rounded-l-3xl lg:rounded-r-none lg:border-y-0 lg:border-r-0">
+              <img
+                src="/strength.jpeg"
+                alt="Strength and explosiveness training at Vortex Athletics"
+                className="absolute inset-0 h-full w-full scale-[1.15] object-cover object-center"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+              />
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="order-3 mx-auto mt-6 flex w-full max-w-2xl flex-wrap gap-4 lg:col-start-1 lg:row-start-2 lg:mx-0 lg:justify-self-end lg:self-start"
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.7 }}
           >
             <Link
-              to={getSiteEnrollHref()}
-              className="inline-flex items-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red hover:text-white hover:scale-105"
+              to={enrollHref}
+              className="inline-flex items-center gap-2 rounded-xl bg-vortex-red px-8 py-4 text-lg font-bold text-white transition-colors hover:bg-red-700"
             >
-              <motion.span
-                className="inline-flex items-center gap-2"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Enroll Now
-              </motion.span>
+              Enroll Now
+              <ArrowRight className="h-5 w-5" aria-hidden />
             </Link>
             <Link
               to="/read-board#schedule"
-              className="inline-flex items-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
+              className="inline-flex items-center rounded-xl border-2 border-white px-8 py-4 text-lg font-bold text-white transition-colors hover:bg-white/10"
             >
               View Class Schedule
             </Link>
@@ -126,219 +142,168 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
         </div>
       </section>
 
-      {/* Flip & Fit Classes in the Vortex Ecosystem */}
       <section className="section-padding bg-white">
-        <div className="container-custom">
+        <div className="mx-auto max-w-5xl">
           <motion.div
-            className="text-center mb-14"
-            initial={{ opacity: 0, y: 40 }}
+            className="rounded-3xl border border-gray-200 bg-gray-50 p-8 shadow-sm md:p-12"
+            initial={{ opacity: 0, y: 25 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-display font-bold text-black md:text-5xl mb-4">
-              Flip & Fit in the{' '}
-              <span className="text-vortex-red">Vortex Ecosystem</span>
+            <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-vortex-red text-white">
+              <Sparkles className="h-7 w-7" aria-hidden />
+            </div>
+            <h2 className="text-4xl font-display font-bold text-black md:text-5xl">
+              Fit &amp; Flip in the <span className="text-vortex-red">Vortex Ecosystem</span>
             </h2>
-            <p className="mx-auto max-w-3xl text-lg text-gray-700 leading-relaxed mb-6">
-              Flip & Fit supports the Vortex training ecosystem by offering focused classes for specialized athletic development. These sessions target specific qualities—such as strength, jumping ability, rotational power, back handsprings, flips, and more—through short, intentional training blocks.
-            </p>
-            <p className="mx-auto max-w-3xl text-lg text-gray-700 leading-relaxed">
-              Flip & Fit is designed to supplement gymnastics, ninja, and other sports, reinforcing the physical foundations that help athletes progress skills safely, efficiently, and with greater confidence.
-            </p>
+            <div className="mt-6 space-y-5 text-lg leading-relaxed text-gray-700">
+              <p>
+                Fit &amp; Flip supports the Vortex training ecosystem with focused classes for
+                specialized athletic development. These sessions target specific qualities—strength,
+                jumping ability, rotational power, back handsprings, flips, and more—through short,
+                intentional training blocks.
+              </p>
+              <p>
+                Designed to supplement gymnastics, ninja, and other sports, Fit &amp; Flip reinforces
+                the physical foundations that help athletes progress skills safely, efficiently, and
+                with greater confidence.
+              </p>
+            </div>
           </motion.div>
+        </div>
+      </section>
 
-          <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-stretch">
-            <motion.div
-              className="rounded-3xl border-2 border-vortex-red bg-black p-8 shadow-lg md:p-12 flex flex-col"
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <div className="flex-1">
-                <h2 className="text-3xl font-display font-bold text-white md:text-4xl mb-4">
-                  Relationship to the Athleticism Accelerator
-                </h2>
-                <p className="text-xl font-semibold text-vortex-red mb-6">
-                  &ldquo;Same DNA, Different Mission&rdquo;
-                </p>
-                <p className="text-lg text-gray-300 leading-relaxed mb-6">
-                  Strength & Conditioning classes borrow principles from the Accelerator but are not designed to deliver full-spectrum athletic development on their own. The Athleticism Accelerator is the comprehensive, progressive system; Strength & Conditioning is modular, focused, and selectable.
-                </p>
-              </div>
-              <div className="flex flex-col gap-4 rounded-xl border-2 border-vortex-red bg-white p-6 md:flex-row md:items-center md:justify-around mt-auto min-h-[140px]">
-                <div className="flex items-center gap-3">
-                  <Layers className="h-10 w-10 text-vortex-red flex-shrink-0" />
-                  <div>
-                    <p className="font-bold text-black">Accelerator</p>
-                    <p className="text-sm text-gray-600">Full program — complete athletic development</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Dumbbell className="h-10 w-10 text-vortex-red flex-shrink-0" />
-                  <div>
-                    <p className="font-bold text-black">Flip & Fit Classes</p>
-                    <p className="text-sm text-gray-600">Targeted modules — skill-specific training blocks</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+      <section className="section-padding border-y border-gray-200 bg-gray-100">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8">
+          <div className="mx-auto mb-14 max-w-3xl text-center">
+            <p className="mb-3 font-bold uppercase tracking-[0.2em] text-vortex-red">
+              How It Fits
+            </p>
+            <h2 className="text-4xl font-display font-bold text-black md:text-5xl">
+              Same DNA. <span className="text-vortex-red">Different Mission.</span>
+            </h2>
+          </div>
 
-            <motion.div
-              className="rounded-3xl border-2 border-vortex-red bg-black p-8 shadow-lg md:p-12 flex flex-col"
-              initial={{ opacity: 0, y: 40 }}
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <motion.article
+              className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm md:p-10"
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
               viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
             >
-              <div className="flex-1">
-                <h2 className="text-3xl font-display font-bold text-white md:text-4xl mb-4">
-                  Relationship to Gymnastics Classes
-                </h2>
-                <p className="text-xl font-semibold text-vortex-red mb-6">
-                  &ldquo;Group focus, private-level targeting&rdquo;
-                </p>
-                <p className="text-lg text-gray-300 leading-relaxed mb-6">
-                  Flip & Fit classes work alongside our gymnastics and ninja programs by zeroing in on specific skills—back handsprings, flips, strength for bars, tumbling blocks—in a small-group setting. They are a cost-effective, focused alternative to one-on-one privates when your athlete is ready to develop specialized movements without the full price of individual coaching.
+              <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white">
+                <Layers className="h-7 w-7" aria-hidden />
+              </div>
+              <p className="mb-2 text-sm font-bold uppercase tracking-[0.18em] text-vortex-red">
+                Athleticism Accelerator
+              </p>
+              <h3 className="text-3xl font-display font-bold text-black md:text-4xl">
+                Relationship to the Accelerator
+              </h3>
+              <p className="mt-5 text-lg leading-relaxed text-gray-600">
+                Fit &amp; Flip classes borrow principles from the Accelerator but are not designed to
+                deliver full-spectrum athletic development on their own. The Athleticism Accelerator
+                is the comprehensive, progressive system; Fit &amp; Flip is modular, focused, and
+                selectable.
+              </p>
+              <div className="mt-6 flex items-start gap-3 rounded-2xl border-l-4 border-vortex-red bg-gray-50 p-5">
+                <CheckCircle2 className="mt-0.5 h-6 w-6 shrink-0 text-vortex-red" aria-hidden />
+                <p className="font-medium leading-relaxed text-gray-700">
+                  Accelerator = full program. Fit &amp; Flip = targeted skill-specific training blocks.
                 </p>
               </div>
-              <div className="flex flex-col gap-4 rounded-xl border-2 border-vortex-red bg-white p-6 md:flex-row md:items-center md:justify-around mt-auto min-h-[140px]">
-                <div className="flex items-center gap-3">
-                  <Activity className="h-10 w-10 text-vortex-red flex-shrink-0" />
-                  <div>
-                    <p className="font-bold text-black">Gymnastics / Ninja</p>
-                    <p className="text-sm text-gray-600">Full curriculum, equipment, progressions</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Dumbbell className="h-10 w-10 text-vortex-red flex-shrink-0" />
-                  <div>
-                    <p className="font-bold text-black">Flip & Fit Classes</p>
-                    <p className="text-sm text-gray-600">Targeted skill blocks — affordable alternative to 1‑on‑1s</p>
-                  </div>
-                </div>
+            </motion.article>
+
+            <motion.article
+              className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm md:p-10"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1, duration: 0.6 }}
+            >
+              <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white">
+                <Activity className="h-7 w-7" aria-hidden />
               </div>
-            </motion.div>
+              <p className="mb-2 text-sm font-bold uppercase tracking-[0.18em] text-vortex-red">
+                Gymnastics &amp; Ninja
+              </p>
+              <h3 className="text-3xl font-display font-bold text-black md:text-4xl">
+                Relationship to Gymnastics
+              </h3>
+              <p className="mt-5 text-lg leading-relaxed text-gray-600">
+                Fit &amp; Flip works alongside gymnastics and ninja by zeroing in on specific
+                skills—back handsprings, flips, strength for bars, tumbling blocks—in a small-group
+                setting. A cost-effective, focused alternative to one-on-one privates.
+              </p>
+              <div className="mt-6 flex items-start gap-3 rounded-2xl border-l-4 border-vortex-red bg-gray-50 p-5">
+                <CheckCircle2 className="mt-0.5 h-6 w-6 shrink-0 text-vortex-red" aria-hidden />
+                <p className="font-medium leading-relaxed text-gray-700">
+                  Group focus with private-level targeting—without the full price of individual coaching.
+                </p>
+              </div>
+            </motion.article>
           </div>
         </div>
       </section>
 
-      {/* Class Types & Training Focus */}
-      <section className="section-padding bg-gray-200">
-        <div className="container-custom">
-          <motion.div
-            className="text-center mb-14"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl font-display font-bold text-black md:text-5xl mb-4">
-              Class Types & <span className="text-vortex-red">Training Focus</span>
+      <section className="section-padding bg-white">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8">
+          <div className="mx-auto mb-14 max-w-3xl text-center">
+            <p className="mb-3 font-bold uppercase tracking-[0.2em] text-vortex-red">
+              Modular Classes
+            </p>
+            <h2 className="text-4xl font-display font-bold text-black md:text-5xl">
+              Class Types &amp; <span className="text-vortex-red">Training Focus</span>
             </h2>
-            <p className="text-xl text-gray-600 mb-2">Modular, Purpose-Driven Classes</p>
-            <p className="mx-auto max-w-2xl text-lg text-gray-700 leading-relaxed">
+            <p className="mt-5 text-lg leading-relaxed text-gray-600">
               These are tools, not linear tracks. Pick what fits your athlete&apos;s goals.
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {classCategories.map((category, index) => {
               const Icon = ('icon' in category ? category.icon : Dumbbell) ?? Dumbbell
               return (
-                <motion.div
+                <motion.article
                   key={category.title}
-                  className="rounded-2xl border border-gray-200 bg-white p-6 shadow-md transition-shadow hover:shadow-lg"
+                  className="rounded-3xl border border-gray-200 bg-gray-50 p-6 shadow-sm transition-shadow hover:shadow-md md:p-8"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  transition={{ delay: index * 0.06, duration: 0.55 }}
                   viewport={{ once: true }}
                 >
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-vortex-red">
-                    <Icon className="h-5 w-5 text-white" />
+                  <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
+                    <Icon className="h-6 w-6" aria-hidden />
                   </div>
-                  <h3 className="text-xl font-display font-bold text-black mb-2">
-                    {category.title}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">{category.description}</p>
-                </motion.div>
+                  <h3 className="text-2xl font-display font-bold text-black">{category.title}</h3>
+                  <p className="mt-3 leading-relaxed text-gray-600">{category.description}</p>
+                </motion.article>
               )
             })}
           </div>
         </div>
       </section>
 
-      {/* Flip and Fit Classes Support */}
-      <section className="section-padding bg-white">
-        <div className="container-custom">
+      <section className="section-padding border-y border-gray-200 bg-gray-100">
+        <div className="mx-auto max-w-5xl px-6 sm:px-8">
           <motion.div
-            className="text-center mb-14"
-            initial={{ opacity: 0, y: 40 }}
+            className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm md:p-12"
+            initial={{ opacity: 0, y: 25 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl font-display font-bold text-black md:text-5xl mb-4">
-              Flip and Fit Classes <span className="text-vortex-red">Support</span>
-            </h2>
-          </motion.div>
-
-          <ul className="mx-auto max-w-3xl space-y-4">
-            {targetProfiles.map((profile, index) => (
-              <motion.li
-                key={profile}
-                className="flex items-start gap-4 rounded-xl bg-gray-50 p-4 border border-gray-200"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.08, duration: 0.5 }}
-                viewport={{ once: true }}
-              >
-                <CheckCircle className="h-6 w-6 text-vortex-red flex-shrink-0 mt-0.5" />
-                <span className="text-gray-800">{profile}</span>
-              </motion.li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* Safety, Coaching, and Intentionality */}
-      <section className="section-padding bg-vortex-red">
-        <div className="container-custom">
-          <motion.div
-            className="mx-auto max-w-4xl rounded-3xl border-2 border-gray-200 bg-white p-8 shadow-lg md:p-12"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <div className="flex items-start gap-4 mb-6">
-              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-vortex-red">
-                <Shield className="h-7 w-7 text-white" />
-              </div>
-              <div>
-                <h2 className="text-3xl font-display font-bold text-black md:text-4xl mb-2">
-                  Safety, Coaching, and <span className="text-vortex-red">Intentionality</span>
-                </h2>
-                <p className="text-xl font-semibold text-vortex-red">
-                  Not a Weight Room Free-for-All
-                </p>
-              </div>
+            <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-vortex-red text-white">
+              <Dumbbell className="h-7 w-7" aria-hidden />
             </div>
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              Parents need this. We deliver:
-            </p>
-            <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              {[
-                'Technique-first coaching',
-                'Progressive loading',
-                'Emphasis on movement quality',
-                'No ego lifting',
-                'Integration with athlete age, experience, and other training loads',
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-vortex-red flex-shrink-0" />
-                  <span className="text-gray-800">{item}</span>
+            <h2 className="text-4xl font-display font-bold text-black md:text-5xl">
+              Who Fit &amp; Flip <span className="text-vortex-red">Supports</span>
+            </h2>
+            <ul className="mt-8 space-y-4">
+              {targetProfiles.map((profile) => (
+                <li key={profile} className="flex items-start gap-3 text-lg text-gray-700">
+                  <CheckCircle2 className="mt-1 h-6 w-6 shrink-0 text-vortex-red" aria-hidden />
+                  <span>{profile}</span>
                 </li>
               ))}
             </ul>
@@ -346,46 +311,70 @@ const StrengthFitness = ({ onSignUpClick: _onSignUpClick }: StrengthFitnessProps
         </div>
       </section>
 
-      {/* Closing Position Statement */}
       <section className="section-padding bg-white">
-        <div className="container-custom text-center">
+        <div className="mx-auto max-w-5xl px-6 sm:px-8">
           <motion.div
-            className="mx-auto max-w-4xl"
-            initial={{ opacity: 0, y: 40 }}
+            className="rounded-3xl border border-gray-200 bg-gray-50 p-8 shadow-sm md:p-12"
+            initial={{ opacity: 0, y: 25 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl font-display font-bold text-black md:text-4xl mb-6">
-              Precision Training for <span className="text-vortex-red">Modern Athletes</span>
-            </h2>
-            <p className="text-xl text-gray-700 leading-relaxed mb-10">
-              Tumbling, skill work, and strength & conditioning at Vortex isn&apos;t about lifting more or just doing more reps. It&apos;s about intentionality and effort. Meticulous coaching and a focus on all aspects of body control are critical differentiators.
-            </p>
-            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link
-                to={getSiteEnrollHref()}
-                className="inline-flex border-2 border-vortex-red bg-vortex-red px-10 py-5 text-lg font-bold text-white rounded-xl transition-all duration-300 hover:bg-red-700 hover:scale-105"
-              >
-                <motion.span
-                  className="inline-block"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Get Started Today
-                </motion.span>
-              </Link>
-              <Link
-                to="/read-board#schedule"
-                className="inline-flex border-2 border-vortex-red bg-transparent px-10 py-5 text-lg font-bold text-vortex-red rounded-xl transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
-              >
-                View Class Schedules
-              </Link>
+            <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white">
+              <Shield className="h-7 w-7" aria-hidden />
             </div>
+            <p className="mb-2 text-sm font-bold uppercase tracking-[0.18em] text-vortex-red">
+              Not a Weight Room Free-for-All
+            </p>
+            <h2 className="text-4xl font-display font-bold text-black md:text-5xl">
+              Safety, Coaching &amp; <span className="text-vortex-red">Intentionality</span>
+            </h2>
+            <p className="mt-6 text-lg leading-relaxed text-gray-700">
+              Parents need this. We deliver technique-first coaching with progressive loading and a
+              focus on movement quality.
+            </p>
+            <ul className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+              {safetyItems.map((item) => (
+                <li key={item} className="flex items-start gap-3 text-lg text-gray-700">
+                  <CheckCircle2 className="mt-1 h-6 w-6 shrink-0 text-vortex-red" aria-hidden />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </motion.div>
         </div>
       </section>
-    </div>
+
+      <section className="section-padding bg-black text-white">
+        <div className="container-custom text-center">
+          <p className="mb-3 font-bold uppercase tracking-[0.2em] text-vortex-red">
+            Precision Training
+          </p>
+          <h2 className="mx-auto max-w-4xl text-4xl font-display font-bold md:text-5xl">
+            Intentional Training for Modern Athletes
+          </h2>
+          <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-gray-300">
+            Tumbling, skill work, and strength &amp; conditioning at Vortex isn&apos;t about lifting
+            more or just doing more reps. It&apos;s about intentionality and effort. Meticulous
+            coaching and a focus on all aspects of body control are critical differentiators.
+          </p>
+          <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              to={enrollHref}
+              className="inline-flex items-center gap-2 rounded-xl bg-vortex-red px-10 py-4 text-lg font-bold text-white transition-colors hover:bg-red-700"
+            >
+              Get Started Today
+              <ArrowRight className="h-5 w-5" aria-hidden />
+            </Link>
+            <Link
+              to="/read-board#schedule"
+              className="inline-flex items-center rounded-xl border-2 border-white px-10 py-4 text-lg font-bold text-white transition-colors hover:bg-white/10"
+            >
+              View Class Schedules
+            </Link>
+          </div>
+        </div>
+      </section>
+    </main>
   )
 }
 

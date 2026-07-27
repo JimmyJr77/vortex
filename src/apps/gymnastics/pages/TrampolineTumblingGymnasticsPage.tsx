@@ -146,7 +146,7 @@ const TrampolineTumblingGymnasticsPage = ({
           </motion.div>
 
           <motion.div
-            className="order-3 mx-auto flex w-full max-w-2xl flex-wrap gap-4 lg:col-start-1 lg:row-start-2 lg:mx-0 lg:justify-self-end lg:self-start"
+            className="order-3 mx-auto mt-6 flex w-full max-w-2xl flex-wrap gap-4 lg:col-start-1 lg:row-start-2 lg:mx-0 lg:justify-self-end lg:self-start"
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.7 }}
