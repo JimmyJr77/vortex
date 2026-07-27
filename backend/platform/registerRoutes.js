@@ -2438,12 +2438,19 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         typeof req.body?.promoCode === 'string' && req.body.promoCode.trim()
           ? req.body.promoCode.trim()
           : null
+      const promoCodesByMemberId =
+        req.body?.promoCodesByMemberId &&
+        typeof req.body.promoCodesByMemberId === 'object' &&
+        !Array.isArray(req.body.promoCodesByMemberId)
+          ? req.body.promoCodesByMemberId
+          : null
       const result = await createAnnualMembershipCheckoutSession(pool, {
         account,
         athleteMemberId,
         memberIds,
         payerMemberId,
         promoCode,
+        promoCodesByMemberId,
         successUrl,
         cancelUrl,
       })

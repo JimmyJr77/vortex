@@ -100,8 +100,12 @@ export default function WaiversMembershipsPage() {
 
   const [athleteRows, setAthleteRows] = useState<AthleteMembershipRow[]>([])
   const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([])
-  const [promoCode, setPromoCode] = useState('')
+  const [promoCodesByMemberId, setPromoCodesByMemberId] = useState<Record<number, string>>({})
   const [thankYouKind, setThankYouKind] = useState<ThankYouKind>('waivers-only')
+  /** Secondary CTA on ask-register-more: continue vs completion states. */
+  const [registerMoreContinue, setRegisterMoreContinue] = useState<
+    'loading' | 'continue' | 'waivers-complete' | 'memberships-active'
+  >('loading')
   const stripeReturnHandled = useRef(false)
   const initialLoadDone = useRef(false)
 
@@ -199,6 +203,38 @@ export default function WaiversMembershipsPage() {
     [account?.firstName, account?.lastName, goToMembershipOrThanks, loadWaivers],
   )
 
+  const refreshRegisterMoreContinue = useCallback(
+    async (memberToken: string, members: FamilyMemberRow[]) => {
+      setRegisterMoreContinue('loading')
+      try {
+        if (members.length === 0) {
+          setRegisterMoreContinue('continue')
+          return
+        }
+        const [templates, rows] = await Promise.all([
+          loadWaivers(memberToken),
+          loadMembershipRows(memberToken, members),
+        ])
+        const required = templates.filter((w) => w.is_required !== false)
+        const allWaiversSigned = required.every((w) => w.acceptance_id != null)
+        const allMembershipsActive = rows.every((row) => Boolean(row.offer?.active))
+        const needsMembership = rows.some((row) => row.offer && !row.offer.active)
+
+        if (allMembershipsActive) {
+          setRegisterMoreContinue('memberships-active')
+        } else if (allWaiversSigned && !needsMembership) {
+          setRegisterMoreContinue('waivers-complete')
+        } else {
+          // Unsigned waivers and/or unpaid memberships — continue through the flow.
+          setRegisterMoreContinue('continue')
+        }
+      } catch {
+        setRegisterMoreContinue('continue')
+      }
+    },
+    [loadMembershipRows, loadWaivers],
+  )
+
   // Initial session + Stripe return handling
   useEffect(() => {
     const membershipStatus = searchParams.get('membership')
@@ -276,6 +312,11 @@ export default function WaiversMembershipsPage() {
     searchParams,
     setSearchParams,
   ])
+
+  useEffect(() => {
+    if (phase !== 'ask-register-more' || !token) return
+    void refreshRegisterMoreContinue(token, familyMembers)
+  }, [phase, token, familyMembers, refreshRegisterMoreContinue])
 
   const handleStayOnPageLogin = (nextToken: string, nextAccount: PortalAccount) => {
     applySession(nextToken, nextAccount)
@@ -442,6 +483,9 @@ export default function WaiversMembershipsPage() {
 
   const feeCents = needsMembershipRows[0]?.offer?.amountCents ?? 0
   const checkoutTotalCents = feeCents * selectedMemberIds.length
+  const selectedPromoCount = selectedMemberIds.filter((id) =>
+    Boolean(promoCodesByMemberId[id]?.trim()),
+  ).length
 
   const startMembershipCheckout = async () => {
     if (!token || selectedMemberIds.length === 0) return
@@ -449,9 +493,14 @@ export default function WaiversMembershipsPage() {
     setError(null)
     try {
       const origin = window.location.origin
+      const promoCodes: Record<number, string> = {}
+      for (const id of selectedMemberIds) {
+        const code = promoCodesByMemberId[id]?.trim()
+        if (code) promoCodes[id] = code
+      }
       const session = await createAnnualMembershipCheckoutSession(token, {
         memberIds: selectedMemberIds,
-        promoCode: promoCode.trim() || undefined,
+        promoCodesByMemberId: Object.keys(promoCodes).length > 0 ? promoCodes : undefined,
         successUrl: `${origin}/waivers-memberships?membership=paid&session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${origin}/waivers-memberships?membership=cancelled`,
       })
@@ -479,6 +528,18 @@ export default function WaiversMembershipsPage() {
     setSelectedMemberIds((prev) =>
       checked ? [...new Set([...prev, memberId])] : prev.filter((id) => id !== memberId),
     )
+  }
+
+  const setMemberPromoCode = (memberId: number, value: string) => {
+    const normalized = value.toUpperCase().replace(/\s/g, '')
+    setPromoCodesByMemberId((prev) => {
+      if (!normalized) {
+        const next = { ...prev }
+        delete next[memberId]
+        return next
+      }
+      return { ...prev, [memberId]: normalized }
+    })
   }
 
   return (
@@ -565,11 +626,29 @@ export default function WaiversMembershipsPage() {
               </button>
               <button
                 type="button"
-                disabled={busy}
+                disabled={
+                  busy ||
+                  registerMoreContinue === 'loading' ||
+                  registerMoreContinue === 'waivers-complete' ||
+                  registerMoreContinue === 'memberships-active'
+                }
                 onClick={() => void skipRegisterMore()}
-                className="px-4 py-2.5 rounded-lg border border-gray-300 text-sm font-semibold disabled:opacity-60"
+                className={`px-4 py-2.5 rounded-lg border text-sm font-semibold disabled:cursor-not-allowed ${
+                  registerMoreContinue === 'waivers-complete' ||
+                  registerMoreContinue === 'memberships-active'
+                    ? 'border-gray-200 bg-gray-100 text-gray-500'
+                    : 'border-gray-300 text-gray-800 disabled:opacity-60'
+                }`}
               >
-                {busy ? 'Continuing…' : 'No — continue to waivers'}
+                {busy
+                  ? 'Continuing…'
+                  : registerMoreContinue === 'loading'
+                    ? 'Checking…'
+                    : registerMoreContinue === 'memberships-active'
+                      ? 'Memberships Active'
+                      : registerMoreContinue === 'waivers-complete'
+                        ? 'Waivers Complete'
+                        : 'No — continue to Membership'}
               </button>
             </div>
           </div>
@@ -729,50 +808,51 @@ export default function WaiversMembershipsPage() {
                 const available = offer?.available !== false
                 const checked = selectedMemberIds.includes(member.id)
                 return (
-                  <label
+                  <div
                     key={member.id}
-                    className={`flex items-start gap-3 rounded-lg border px-4 py-3 ${
+                    className={`rounded-lg border px-4 py-3 space-y-2 ${
                       active ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-white'
                     }`}
                   >
-                    <input
-                      type="checkbox"
-                      className="mt-1"
-                      disabled={active || !available || busy}
-                      checked={active ? false : checked}
-                      onChange={(e) => toggleSelected(member.id, e.target.checked)}
-                    />
-                    <span className="flex-1">
-                      <span className="block font-medium text-gray-900">
-                        {memberDisplayName(member)}
+                    <label className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        className="mt-1"
+                        disabled={active || !available || busy}
+                        checked={active ? false : checked}
+                        onChange={(e) => toggleSelected(member.id, e.target.checked)}
+                      />
+                      <span className="flex-1">
+                        <span className="block font-medium text-gray-900">
+                          {memberDisplayName(member)}
+                        </span>
+                        <span className="block text-sm text-gray-600">
+                          {active
+                            ? `Active member${offer?.renewsOn ? ` · renews ${offer.renewsOn}` : ''}`
+                            : available
+                              ? `${formatMoney(offer?.amountCents ?? feeCents)} / year`
+                              : 'Membership unavailable'}
+                        </span>
                       </span>
-                      <span className="block text-sm text-gray-600">
-                        {active
-                          ? `Active member${offer?.renewsOn ? ` · renews ${offer.renewsOn}` : ''}`
-                          : available
-                            ? `${formatMoney(offer?.amountCents ?? feeCents)} / year`
-                            : 'Membership unavailable'}
-                      </span>
-                    </span>
-                  </label>
+                    </label>
+                    {!active && available && (
+                      <div className="pl-7">
+                        <label className="block text-xs font-semibold text-gray-600 mb-1">
+                          Discount code (optional)
+                        </label>
+                        <input
+                          type="text"
+                          value={promoCodesByMemberId[member.id] || ''}
+                          onChange={(e) => setMemberPromoCode(member.id, e.target.value)}
+                          disabled={busy}
+                          placeholder="Enter code for this athlete"
+                          className="w-full sm:w-64 border border-gray-300 rounded-lg px-3 py-2 text-sm uppercase font-mono disabled:opacity-60"
+                        />
+                      </div>
+                    )}
+                  </div>
                 )
               })}
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">
-                Promo code (optional)
-              </label>
-              <input
-                type="text"
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value.toUpperCase().replace(/\s/g, ''))}
-                placeholder="Enter promo code"
-                className="w-full sm:w-64 border border-gray-300 rounded-lg px-3 py-2 text-sm uppercase font-mono"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Applied to the membership fee at checkout.
-              </p>
             </div>
 
             {selectedMemberIds.length > 0 && (
@@ -781,7 +861,9 @@ export default function WaiversMembershipsPage() {
                 {selectedMemberIds.length > 1
                   ? ` (${selectedMemberIds.length} athletes × ${formatMoney(feeCents)})`
                   : ''}
-                {promoCode.trim() ? ' — promo applied at checkout' : ''}
+                {selectedPromoCount > 0
+                  ? ` — ${selectedPromoCount} discount code${selectedPromoCount === 1 ? '' : 's'} applied at checkout`
+                  : ''}
               </p>
             )}
 

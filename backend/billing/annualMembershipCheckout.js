@@ -138,16 +138,91 @@ async function recordMembershipPromoRedemption(pool, { ruleId, memberId, discoun
   }
 }
 
+/** Normalize promoCodesByMemberId from request body into Map<number, string>. */
+function normalizePromoCodesByMemberId(promoCodesByMemberId, fallbackPromoCode = null) {
+  const map = new Map()
+  if (promoCodesByMemberId && typeof promoCodesByMemberId === 'object' && !Array.isArray(promoCodesByMemberId)) {
+    for (const [key, value] of Object.entries(promoCodesByMemberId)) {
+      const memberId = Number(key)
+      const code = typeof value === 'string' ? value.trim() : ''
+      if (Number.isFinite(memberId) && memberId > 0 && code) map.set(memberId, code)
+    }
+  }
+  return { map, fallbackPromoCode: typeof fallbackPromoCode === 'string' && fallbackPromoCode.trim() ? fallbackPromoCode.trim() : null }
+}
+
+function serializePromoByMember(promoByMemberId) {
+  const compact = {}
+  for (const [memberId, promo] of promoByMemberId.entries()) {
+    if (!promo) continue
+    compact[String(memberId)] = {
+      r: promo.rule.id,
+      d: promo.discountCents,
+      c: promo.code,
+    }
+  }
+  const json = JSON.stringify(compact)
+  // Stripe metadata values max out at 500 chars; keep a flat fallback when needed.
+  if (json.length <= 500) return { promoByMember: json }
+  const first = [...promoByMemberId.entries()].find(([, p]) => p)
+  if (!first) return {}
+  const [, promo] = first
+  return {
+    promoRuleId: String(promo.rule.id),
+    promoCode: promo.code,
+    promoDiscountCents: String(promo.discountCents),
+  }
+}
+
+function parsePromoByMemberMetadata(metadata) {
+  const byMember = new Map()
+  if (metadata?.promoByMember) {
+    try {
+      const parsed = JSON.parse(metadata.promoByMember)
+      for (const [key, value] of Object.entries(parsed || {})) {
+        const memberId = Number(key)
+        if (!Number.isFinite(memberId) || memberId <= 0 || !value) continue
+        byMember.set(memberId, {
+          ruleId: Number(value.r) || null,
+          discountCents: Math.max(0, Number(value.d) || 0),
+          code: String(value.c || ''),
+        })
+      }
+    } catch {
+      // fall through to legacy flat fields
+    }
+  }
+  if (byMember.size === 0 && metadata?.promoRuleId) {
+    const ruleId = Number(metadata.promoRuleId) || null
+    const discountCents = Math.max(0, Number(metadata.promoDiscountCents) || 0)
+    const code = String(metadata.promoCode || '')
+    for (const memberId of parseMemberIdsFromMetadata(metadata)) {
+      byMember.set(memberId, { ruleId, discountCents, code })
+    }
+  }
+  return byMember
+}
+
 /**
  * Create Stripe Checkout for annual membership only (no class enrollment).
  * Accepts a single athleteMemberId or memberIds[] — one Checkout, one line item per athlete.
- * An optional promoCode targeting the membership fee discounts each athlete's line;
- * when the promo waives 100%, memberships activate immediately with no Stripe session
- * and the result is `{ free: true, memberIds }`.
+ * Optional promoCode (legacy, applies to every athlete) or promoCodesByMemberId
+ * (per-child codes). When every selected athlete is 100% waived, memberships activate
+ * immediately with `{ free: true, memberIds }`. Mixed carts activate waived athletes
+ * immediately and open Stripe Checkout for the rest.
  */
 export async function createAnnualMembershipCheckoutSession(
   pool,
-  { account, athleteMemberId, memberIds, payerMemberId, promoCode = null, successUrl, cancelUrl },
+  {
+    account,
+    athleteMemberId,
+    memberIds,
+    payerMemberId,
+    promoCode = null,
+    promoCodesByMemberId = null,
+    successUrl,
+    cancelUrl,
+  },
 ) {
   if (!stripeEnabled()) return null
   await ensureStripeBillingSchema(pool)
@@ -189,55 +264,89 @@ export async function createAnnualMembershipCheckoutSession(
     throw err
   }
 
-  // Resolve an optional membership-fee promo (enforces total/per-member/per-family limits).
-  let promo = null
-  if (promoCode) {
-    const { resolveMembershipFeePromo } = await import('../scheduling/discountEngine.js')
-    const facilityRes = await pool.query('SELECT id FROM facility LIMIT 1')
-    promo = await resolveMembershipFeePromo(pool, {
-      facilityId: facilityRes.rows[0]?.id ?? null,
-      promoCodes: [promoCode],
-      memberId: payerMemberId,
+  const { map: perMemberCodes, fallbackPromoCode } = normalizePromoCodesByMemberId(
+    promoCodesByMemberId,
+    promoCode,
+  )
+  const { resolveMembershipFeePromo, membershipPromoDiscountCents } = await import(
+    '../scheduling/discountEngine.js'
+  )
+  const facilityRes = await pool.query('SELECT id FROM facility LIMIT 1')
+  const facilityId = facilityRes.rows[0]?.id ?? null
+
+  /** @type {Map<number, { rule: object, code: string, discountCents: number }|null>} */
+  const promoByMemberId = new Map()
+  for (const member of eligibleMembers) {
+    const memberId = Number(member.id)
+    const code = perMemberCodes.get(memberId) || fallbackPromoCode
+    if (!code) {
+      promoByMemberId.set(memberId, null)
+      continue
+    }
+    const promo = await resolveMembershipFeePromo(pool, {
+      facilityId,
+      promoCodes: [code],
+      memberId,
       familyId: account.family_id,
     })
     if (!promo) {
-      const err = new Error('That promo code is not valid for annual membership.')
+      const err = new Error(
+        `Promo code "${code}" is not valid for annual membership` +
+          (eligibleMembers.length > 1
+            ? ` (${[member.first_name, member.last_name].filter(Boolean).join(' ') || 'athlete'}).`
+            : '.'),
+      )
       err.status = 400
       throw err
     }
+    const discountCents = membershipPromoDiscountCents(promo.rule, fee.amountCents)
+    promoByMemberId.set(memberId, {
+      rule: promo.rule,
+      code: promo.code,
+      discountCents,
+    })
   }
 
-  const { membershipPromoDiscountCents } = await import('../scheduling/discountEngine.js')
-  const perAthleteDiscount = promo ? membershipPromoDiscountCents(promo.rule, fee.amountCents) : 0
-  const perAthleteNet = Math.max(0, fee.amountCents - perAthleteDiscount)
-  const eligibleIds = eligibleMembers.map((m) => Number(m.id))
+  const pricedMembers = eligibleMembers.map((member) => {
+    const memberId = Number(member.id)
+    const promo = promoByMemberId.get(memberId)
+    const discountCents = promo?.discountCents ?? 0
+    const netCents = Math.max(0, fee.amountCents - discountCents)
+    return { member, memberId, promo, discountCents, netCents }
+  })
 
-  // 100% waived: no Stripe payment needed — activate memberships directly.
-  if (promo && perAthleteNet === 0) {
+  const freeMembers = pricedMembers.filter((row) => row.promo && row.netCents === 0)
+  const paidMembers = pricedMembers.filter((row) => !(row.promo && row.netCents === 0))
+  const eligibleIds = pricedMembers.map((row) => row.memberId)
+
+  // Activate fully waived athletes immediately (whole cart or mixed with paid siblings).
+  if (freeMembers.length > 0) {
     const purchasedAt = new Date()
-    for (const member of eligibleMembers) {
+    for (const row of freeMembers) {
       await persistAnnualMembershipLedger(pool, {
         accountId: account.id,
-        memberId: Number(member.id),
+        memberId: row.memberId,
         fee,
         checkoutSessionId: null,
         purchasedAt,
         grossCents: fee.amountCents,
-        discountCents: perAthleteDiscount,
+        discountCents: row.discountCents,
       })
       await recordMembershipPromoRedemption(pool, {
-        ruleId: promo.rule.id,
-        memberId: Number(member.id),
-        discountCents: perAthleteDiscount,
+        ruleId: row.promo.rule.id,
+        memberId: row.memberId,
+        discountCents: row.discountCents,
       })
     }
-    // No payment method is captured on a free redemption, so no Stripe renewal
-    // subscription is created; the membership simply expires on its anniversary
-    // unless renewed.
-    return {
-      free: true,
-      memberIds: eligibleIds,
-      renewsOn: toUtcDateString(membershipRenewsOnFromPurchase(purchasedAt)),
+    if (paidMembers.length === 0) {
+      // No payment method is captured on a free redemption, so no Stripe renewal
+      // subscription is created; the membership simply expires on its anniversary
+      // unless renewed.
+      return {
+        free: true,
+        memberIds: eligibleIds,
+        renewsOn: toUtcDateString(membershipRenewsOnFromPurchase(purchasedAt)),
+      }
     }
   }
 
@@ -246,19 +355,19 @@ export async function createAnnualMembershipCheckoutSession(
 
   const customerId = await ensureStripeCustomer(pool, stripe, account)
   const lookupKey = feeLookupKey(fee.id)
+  const anyDiscount = paidMembers.some((row) => row.discountCents > 0)
   // Catalog prices are full price; discounted checkouts must use ad-hoc price_data.
-  const priceId = promo ? null : await resolveStripePriceId(pool, lookupKey)
+  const priceId =
+    !anyDiscount && paidMembers.length === 1 ? await resolveStripePriceId(pool, lookupKey) : null
 
-  const lineItems = eligibleMembers.map((member) => {
-    const athleteName = [member.first_name, member.last_name].filter(Boolean).join(' ').trim()
-    const promoSuffix = promo ? ` (promo ${promo.code.toUpperCase()})` : ''
+  const lineItems = paidMembers.map((row) => {
+    const athleteName = [row.member.first_name, row.member.last_name].filter(Boolean).join(' ').trim()
+    const promoSuffix = row.promo ? ` (promo ${row.promo.code.toUpperCase()})` : ''
     const productName = `${fee.name || ANNUAL_MEMBERSHIP_PROGRAM_NAME}${
       athleteName ? ` · ${athleteName}` : ''
     }${promoSuffix}`.slice(0, 200)
 
-    // Single athlete with catalog price keeps price ID (Classes tab path).
-    // Multi-athlete uses named price_data so Checkout lists each athlete.
-    if (priceId && eligibleMembers.length === 1) {
+    if (priceId && paidMembers.length === 1) {
       return { price: priceId, quantity: 1 }
     }
 
@@ -266,7 +375,7 @@ export async function createAnnualMembershipCheckoutSession(
       quantity: 1,
       price_data: {
         currency: 'usd',
-        unit_amount: perAthleteNet,
+        unit_amount: row.netCents,
         product_data: {
           name: productName,
           description: 'Valid for 1 year from purchase. Renews annually.',
@@ -274,6 +383,11 @@ export async function createAnnualMembershipCheckoutSession(
       },
     }
   })
+
+  const paidIds = paidMembers.map((row) => row.memberId)
+  const paidPromoByMember = new Map(
+    paidMembers.filter((row) => row.promo).map((row) => [row.memberId, row.promo]),
+  )
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
@@ -285,19 +399,13 @@ export async function createAnnualMembershipCheckoutSession(
     metadata: {
       checkoutType: 'annual_membership',
       familyBillingAccountId: String(account.id),
-      memberId: String(eligibleIds[0]),
-      memberIds: eligibleIds.join(','),
+      memberId: String(paidIds[0]),
+      memberIds: paidIds.join(','),
       payerMemberId: String(payerMemberId),
       feeId: String(fee.id),
-      amountCents: String(perAthleteNet),
+      amountCents: String(paidMembers.reduce((sum, row) => sum + row.netCents, 0)),
       feeName: String(fee.name || ANNUAL_MEMBERSHIP_PROGRAM_NAME).slice(0, 100),
-      ...(promo
-        ? {
-            promoRuleId: String(promo.rule.id),
-            promoCode: promo.code,
-            promoDiscountCents: String(perAthleteDiscount),
-          }
-        : {}),
+      ...serializePromoByMember(paidPromoByMember),
     },
   })
 
@@ -387,11 +495,13 @@ export async function commitAnnualMembershipCheckout(pool, { stripeSession, acco
   const stripe = await getStripeClient()
   const activatedMemberIds = []
 
-  const promoRuleId = Number(session.metadata?.promoRuleId) || null
-  const promoDiscountCents = Math.max(0, Number(session.metadata?.promoDiscountCents) || 0)
+  const promoByMember = parsePromoByMemberMetadata(session.metadata)
 
   for (const memberId of memberIds) {
     if (await memberHasActiveAnnualMembership(pool, memberId)) continue
+
+    const promo = promoByMember.get(Number(memberId))
+    const discountCents = promo?.ruleId ? promo.discountCents : 0
 
     await persistAnnualMembershipLedger(pool, {
       accountId: resolvedAccountId,
@@ -400,14 +510,14 @@ export async function commitAnnualMembershipCheckout(pool, { stripeSession, acco
       checkoutSessionId: session.id,
       purchasedAt,
       grossCents: fee.amountCents,
-      discountCents: promoRuleId ? promoDiscountCents : 0,
+      discountCents,
     })
 
-    if (promoRuleId && promoDiscountCents > 0) {
+    if (promo?.ruleId && discountCents > 0) {
       await recordMembershipPromoRedemption(pool, {
-        ruleId: promoRuleId,
+        ruleId: promo.ruleId,
         memberId,
-        discountCents: promoDiscountCents,
+        discountCents,
       })
     }
 

@@ -1221,6 +1221,8 @@ export async function createAnnualMembershipCheckoutSession(
     memberId?: number
     memberIds?: number[]
     promoCode?: string
+    /** Optional discount code keyed by athlete member id. */
+    promoCodesByMemberId?: Record<number, string>
     successUrl?: string
     cancelUrl?: string
   },
