@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { ArrowRight, CheckCircle2, Sparkles, Target, Zap, Users, ExternalLink, Award, Route, CircleDashed } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Target, Zap, Users, Award, Route, CircleDashed } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getSiteEnrollHref } from '../../../utils/enrollSite'
 
@@ -401,19 +401,6 @@ const ArtisticGymnasticsDisciplinePage = ({
               Enroll Now
               <ArrowRight className="h-5 w-5" aria-hidden />
             </Link>
-            <a
-              href="https://www.instagram.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-purple-700 via-pink-600 to-orange-400 px-6 py-4 font-bold text-white shadow-lg transition-transform duration-300 hover:scale-[1.01]"
-              aria-label="Follow our Artistic Gymnastics updates on Instagram"
-            >
-              <span className="flex items-center gap-3">
-                <Sparkles className="h-5 w-5" aria-hidden />
-                Follow Artistic Gymnastics on Instagram
-              </span>
-              <ExternalLink className="h-5 w-5" aria-hidden />
-            </a>
           </div>
           <p className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-400">
             <Award className="h-4 w-4" aria-hidden />

@@ -110,6 +110,8 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
       to: '/artistic-gymnastics',
       icon: Sparkles,
       color: 'from-vortex-red to-red-800',
+      image: '/campaign_6-12_hero6.jpg',
+      imageAlt: 'Artistic gymnastics athletes training at Vortex',
     },
     {
       id: 'trampoline-tumbling',
@@ -120,6 +122,8 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
       to: '/trampoline-tumbling',
       icon: Zap,
       color: 'from-amber-600 to-amber-900',
+      image: '/tramp-tumble-discipline.jpg',
+      imageAlt: 'Trampoline and tumbling athlete in mid-air at Vortex',
     },
     {
       id: 'rhythmic',
@@ -130,6 +134,8 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
       to: '/rhythmic-gymnastics',
       icon: Music,
       color: 'from-purple-600 to-purple-900',
+      image: '/campaign_13-18_hero3.jpg',
+      imageAlt: 'Rhythmic gymnastics athlete performing at Vortex',
     },
     {
       id: 'acro',
@@ -140,6 +146,8 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
       to: '/acro-gymnastics',
       icon: Users,
       color: 'from-cyan-600 to-teal-800',
+      image: '/acro-discipline.jpg',
+      imageAlt: 'Acrobatic gymnastics partners balancing hand-to-hand at Vortex',
     },
     {
       id: 'aerobic',
@@ -150,6 +158,8 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
       to: '/aerobic-gymnastics',
       icon: Heart,
       color: 'from-rose-600 to-rose-900',
+      image: null as string | null,
+      imageAlt: 'Aerobic gymnastics placeholder',
     },
   ]
 
@@ -362,46 +372,67 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
             </p>
           </motion.div>
         </div>
-        <div className="w-full px-4 md:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="w-full px-4 md:px-6 lg:px-8 grid grid-cols-1 min-[1300px]:grid-cols-2 gap-4">
           {disciplines.map((disc, index) => {
             const Icon = disc.icon
             const card = (
               <motion.div
-                className={`bg-gradient-to-br ${disc.color} rounded-2xl p-6 md:p-8 text-white w-full flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-lg hover:shadow-xl transition-shadow duration-300 min-h-[220px] h-full`}
+                className={`bg-gradient-to-br ${disc.color} rounded-2xl text-white w-full flex flex-col md:flex-row md:items-stretch overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 min-h-[220px] h-full`}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
                 viewport={{ once: true }}
                 whileHover={{ y: -2 }}
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
-                      <Icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
+                <div className="flex flex-1 min-w-0 flex-col justify-center gap-5 p-6 md:p-8">
+                  <div className="min-w-0">
+                    <div className="mb-3 flex items-center space-x-3">
+                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/20 md:h-14 md:w-14">
+                        <Icon className="h-6 w-6 text-white md:h-7 md:w-7" />
+                      </div>
+                      <h3 className="text-xl font-display font-bold md:text-2xl">{disc.title}</h3>
                     </div>
-                    <h3 className="text-xl md:text-2xl font-display font-bold">{disc.title}</h3>
+                    <p className="mb-2 font-semibold text-white/90">{disc.tagline}</p>
+                    <p className="text-sm leading-relaxed text-white/85 md:text-base">{disc.description}</p>
                   </div>
-                  <p className="text-white/90 font-semibold mb-2">{disc.tagline}</p>
-                  <p className="text-white/85 leading-relaxed text-sm md:text-base">{disc.description}</p>
+                  <div className="flex flex-wrap gap-3">
+                    {disc.to && (
+                      <Link
+                        to={disc.to}
+                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border-2 border-white/80 px-6 py-3 font-bold text-white transition-all duration-300 hover:bg-white/10"
+                      >
+                        Learn More
+                        <ArrowRight className="h-5 w-5" />
+                      </Link>
+                    )}
+                    {(disc.id === 'artistic' || disc.id === 'trampoline-tumbling') && (
+                      <Link
+                        to={getSiteEnrollHref()}
+                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-white px-6 py-3 font-bold text-gray-900 transition-all duration-300 hover:bg-white/90"
+                      >
+                        Enroll Now
+                        <ArrowRight className="h-5 w-5" />
+                      </Link>
+                    )}
+                  </div>
                 </div>
-                <div className="flex flex-col flex-shrink-0 gap-3">
-                  {disc.to && (
-                    <Link
-                      to={disc.to}
-                      className="inline-flex items-center justify-center gap-2 border-2 border-white/80 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:bg-white/10 whitespace-nowrap"
-                    >
-                      Learn More
-                      <ArrowRight className="w-5 h-5" />
-                    </Link>
-                  )}
-                  {(disc.id === 'artistic' || disc.id === 'trampoline-tumbling') && (
-                    <Link
-                      to={getSiteEnrollHref()}
-                      className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:bg-white/90 whitespace-nowrap"
-                    >
-                      Enroll Now
-                      <ArrowRight className="w-5 h-5" />
-                    </Link>
+
+                <div className="relative h-44 w-full shrink-0 overflow-hidden md:h-auto md:w-[38%] md:min-w-[11rem]">
+                  {disc.image ? (
+                    <img
+                      src={disc.image}
+                      alt={disc.imageAlt}
+                      className="absolute inset-0 h-full w-full object-cover object-center"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/25 px-4 text-center">
+                      <Icon className="h-8 w-8 text-white/70" aria-hidden />
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
+                        Photo coming soon
+                      </p>
+                    </div>
                   )}
                 </div>
               </motion.div>
