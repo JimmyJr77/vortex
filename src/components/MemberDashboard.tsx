@@ -1212,9 +1212,7 @@ export default function MemberDashboard({
 
         setActiveTab('classes')
         setEnrollmentConfirmMessage(
-          result.status === 'already_completed'
-            ? 'Your enrollment is already active.'
-            : 'Enrollment complete. Your classes and billing have been updated.',
+          'Enrollment complete. Your classes and billing have been updated.',
         )
         await fetchEnrollments(true)
         await fetchBillingStatements()
