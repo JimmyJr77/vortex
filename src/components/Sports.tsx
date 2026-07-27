@@ -24,14 +24,14 @@ const SPORT_TILES: SportTile[] = [
   {
     title: 'Athleticism Training',
     teaser: 'Speed, power, and body control that transfer to every sport.',
-    image: '/multisport.jpeg',
+    image: '/strength.jpeg',
     kind: 'internal',
     to: '/vortex-athletics',
   },
   {
     title: 'Fit & Flip',
     teaser: 'Strength, conditioning, and acrobatics for the complete athlete.',
-    image: '/strength.jpeg',
+    image: '/fit-and-flip.jpeg',
     kind: 'internal',
     to: '/fit-and-flip',
   },
@@ -41,6 +41,13 @@ const SPORT_TILES: SportTile[] = [
     image: '/gymnastics.jpeg',
     kind: 'external',
     href: getGymnasticsSiteUrl(),
+  },
+  {
+    title: 'Trampoline & Tumbling',
+    teaser: 'Bounce Higher. Land Stronger. Tumble Smarter.',
+    image: '/trampoline-tumbling-card.jpg',
+    kind: 'external',
+    href: getGymnasticsSiteUrl('/trampoline-tumbling'),
   },
 ]
 
@@ -68,7 +75,7 @@ const SPORTS_OFFER_HEADLINES = [
 const SportsRouteTiles = () => (
   <section className="section-padding bg-black">
     <div className="container-custom">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
+      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8">
         {SPORT_TILES.map((tile, index) => {
           const content = (
             <>

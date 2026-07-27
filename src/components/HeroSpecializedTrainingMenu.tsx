@@ -7,6 +7,8 @@ const SPECIALIZED_TRAINING_ITEMS = [
   'Speed & Agility',
   'Strength & Explosiveness',
   'Lifting Fundamentals',
+  'Rotational Power',
+  'Max Vertical',
 ]
 
 interface HeroSpecializedTrainingMenuProps {

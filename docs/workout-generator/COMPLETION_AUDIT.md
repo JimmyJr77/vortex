@@ -756,6 +756,35 @@ On 2026-07-26:
   score-78-or-higher pairs are explicit unreviewed quarantines. The library
   audit quarantines all 1,223 active cards and identifies 1,180 with broad
   structural backfill still required.
+- Migration 385 records 47 score-77 and transitive mechanics boundaries and
+  three honest missing-fact quarantines. Migration 386 consolidates 16
+  high-bar, band-row, pause-box-jump, landmine grip/attachment/hand-count,
+  loaded-jump, strict-ring-dip, roll-to-stand, sandbag-load-position, and
+  tuck-jump terminal variants. Repeated queue regeneration resolves every
+  alias-induced comparison through score 77.
+- Direct SQL applies and reruns both score-77 migrations idempotently. The
+  normal runner records checksums `3748979599` and `1641379975` and skips both
+  on a second invocation. Rollback-only negative tests prove migration 385
+  refuses to overwrite a simulated human identity decision and migration 386
+  refuses to consolidate a simulated published definition; both leave the
+  disposable database unchanged.
+- The migration-386 state has 1,207 active and 469 archived definitions, 1,823
+  variants, 1,974 delivery profiles, 868 identity resolutions, 201 unapproved
+  relationships, 342 unapproved calibrations, 5,061 unapproved media
+  candidates, all 1,676 source mappings, zero published definitions, and zero
+  exact identity collisions. The queue has 741 raw and 418 unresolved
+  score-72-or-higher pairs, 158 score-75-or-higher pairs, 25
+  score-77-or-higher pairs, 22 score-78-or-higher pairs, 15
+  score-79-or-higher pairs, ten score-80-or-higher pairs, and none at score 85
+  or higher. All 25 score-77-or-higher pairs are explicit unreviewed
+  quarantines.
+- The migration-386 library audit has complete one-to-one source coverage and
+  quarantines all 1,207 active cards. Forty-three cards avoid the broad
+  structural-backfill bucket while 1,164 still require anatomy, difficulty,
+  load, fatigue, constraints, delivery, athlete, coach, or support-operations
+  completion. Of 1,409 non-archived variants, 1,397 have populated
+  complexity/physical-difficulty records and none violates the derived-overall
+  formula.
 - Exercise difficulty remains exercise complexity plus physical difficulty,
   with overall equal to their maximum. The final database check finds zero
   level-classification keys on exercise definition, variant, delivery, or
@@ -768,12 +797,92 @@ On 2026-07-26:
   reviews. Candidate URLs and oEmbed metadata remain unapproved; no external
   playback, exact-match media review, caption review, accessibility review, or
   human approval is claimed.
+- Migration 387 records 50 score-76 and transitive-survivor mechanics
+  boundaries and seven honest missing-fact quarantines. Migration 388
+  consolidates 21 exact implement, base, grip, hand-count, laterality,
+  contraction, tempo, stance, terminal, balance-overlay, route, and dosage
+  variants. Queue regeneration includes direct decisions against final
+  survivors rather than relying on decisions whose endpoints were archived.
+- Direct SQL applies and reruns both score-76 migrations idempotently. The
+  normal runner records checksums `331675051` and `1035641523` and skips both
+  on a second invocation. A pristine replay caught and corrected an
+  intermediate-survivor idempotency defect in the kneeling chop chain; both
+  kneeling sources now resolve directly to `cable-band-chop`.
+- Rollback-only negative tests prove migration 387 refuses to overwrite a
+  simulated human-owned decision and leaves zero migration rows behind.
+  Migration 388 refuses to consolidate a simulated published definition and
+  rolls back an earlier successful loop iteration, leaving every source active
+  and unchanged.
+- The migration-388 state has 1,186 active and 490 archived definitions, 1,823
+  variants, 1,974 delivery profiles, 946 identity resolutions, 201 unapproved
+  relationships, 342 unapproved calibrations, 5,061 unapproved media
+  candidates, all 1,676 source mappings, zero published definitions, and zero
+  exact identity collisions. The queue has 715 raw and 356 unresolved
+  score-72-or-higher pairs, 95 score-75-or-higher pairs, 30
+  score-76-or-higher pairs, 24 score-77-or-higher pairs, 21
+  score-78-or-higher pairs, 15 score-79-or-higher pairs, ten
+  score-80-or-higher pairs, and none at score 85 or higher. All 30
+  score-76-or-higher pairs are explicit unreviewed quarantines.
+- The migration-388 library audit has complete one-to-one source coverage and
+  quarantines all 1,186 active cards. Forty-three cards avoid the broad
+  structural-backfill bucket while 1,143 still require anatomy, difficulty,
+  load, fatigue, constraints, delivery, athlete, coach, or support-operations
+  completion. Of 1,381 active variants, 1,370 have populated
+  complexity/physical-difficulty records and none violates the derived-overall
+  formula.
+- Exercise cards still contain zero scalar or JSON skill/proficiency
+  classifications; all 1,112 skill-library level assignments remain intact.
+  Zero definitions, media candidates, relationships, or calibration anchors
+  are approved. The release gate remains blocked at zero published phase
+  depth, zero approved graph/calibration evidence, and zero real coach-pilot
+  reviews.
+- Migrations 389 and 390 complete the score-75 tranche and its survivor-name
+  transitive closure. Migration 389 records 50 mechanical
+  `distinct_exercises` boundaries and ten `needs_human_review` quarantines for
+  sources that do not declare support state, contact sequence, stance, path,
+  entry, or projection direction. Migration 390 consolidates 14 exact
+  implement, load-position, contraction, tempo, stance, target, and dosage
+  source variants without merging the already protected landmine
+  half-kneeling, tall-kneeling, square-stance, split-stance, or Z-press
+  identities.
+- Clean direct SQL applies and reruns both migrations idempotently. The normal
+  runner records checksums `1370840546` and `2673412815` and skips both on a
+  second invocation. Fail-closed negative tests prove migration 389 preserves
+  a simulated human-owned decision with zero partial rows, while migration
+  390 refuses a simulated published duplicate and rolls back every earlier
+  loop operation.
+- The migration-390 state has 1,172 active and 504 archived definitions, 1,823
+  variants, 1,974 delivery profiles, 1,020 identity resolutions, 201
+  unapproved relationships, 342 unapproved calibrations, 5,061 unapproved
+  media candidates, all 1,676 source mappings, zero published definitions,
+  and zero exact collisions. The regenerated queue has 699 raw and 299
+  unresolved score-72-or-higher pairs, 39 score-75-or-higher pairs, 29
+  score-76-or-higher pairs, 23 score-77-or-higher pairs, 20
+  score-78-or-higher pairs, 14 score-79-or-higher pairs, nine
+  score-80-or-higher pairs, and none at score 85 or higher. Every remaining
+  score-75-or-higher pair is an explicit unreviewed quarantine; none is
+  unclassified.
+- The persisted migration-390 audit has complete one-to-one source coverage
+  and quarantines all 1,172 active cards. Forty-three cards avoid the broad
+  structural-backfill bucket while 1,129 still require anatomy, difficulty,
+  load, fatigue, constraints, delivery, athlete, coach, or support-operations
+  completion. Of 1,369 active variants, 1,358 have populated
+  complexity/physical-difficulty records, 11 remain quarantined for missing
+  values, and none violates
+  `overall = max(exercise complexity, physical difficulty)`.
+- Exercise definitions, variants, delivery profiles, and identity evidence
+  contain zero JSON skill/proficiency classifications, deprecated exercise
+  scalar assignments remain zero, and all 1,112 dedicated skill-library level
+  assignments remain intact. The release gate remains correctly blocked:
+  zero published cards or phase depth, zero approved graph edges, zero
+  approved calibration anchors, zero exact-match media approvals, and zero
+  real coach-pilot reviews.
 - A blank disposable PostgreSQL 15 database successfully ran the complete
   migration chain through migration 350; exact-source migrations 351 and 352
   were replayed on a clean clone, and migrations 353–360 were then applied
   through the normal runner on clean clones. Migrations 361 and 362 were
   applied to clean migration-360 and migration-361 clones respectively.
-  Migrations 345–380 have
+  Migrations 345–390 have
   direct or runner-level idempotency evidence in disposable rehearsal
   databases.
 - Migration 305 used traceable legacy difficulty profiles to populate physical
@@ -805,7 +914,7 @@ On 2026-07-26:
 
 These are deployment and evidence gates, not code-completion claims:
 
-1. Apply the complete migration sequence through migration 384 in a
+1. Apply the complete migration sequence through migration 388 in a
    non-production environment.
 2. Run the full library audit; review anatomy, constraints, scores, media,
    relationships, and calibration evidence card by card.

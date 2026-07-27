@@ -8,7 +8,6 @@ import Hero from './Hero'
 import ParallaxGym from './ParallaxGym'
 import RotatingOfferHeadline from './RotatingOfferHeadline'
 import About, { StrategicLocation } from './About'
-import Programs from './Programs'
 import Technology from './Technology'
 import { HOME_FAQS } from '../config/faqs'
 
@@ -362,8 +361,6 @@ const HomePage = ({
         hideStrategicLocation={strategicLocationAfterOffers}
         hideDifference
       />
-      <Programs />
-
       {/* How Vortex Classes Are Built — Triad Selector Card */}
       {!hideTrainingPhilosophy && <section className="section-padding bg-white">
         <div className="container-custom">

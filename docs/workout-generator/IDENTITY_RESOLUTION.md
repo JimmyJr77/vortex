@@ -796,6 +796,163 @@ definitions, 453 archived definitions, and 802 traceable identity decisions:
 325 distinct boundaries, 452 consolidations, and 25 honest review
 quarantines.
 
+### Score-77 adjudication
+
+Migrations 385 and 386 complete the score-77 tranche and every comparison
+exposed transitively by the resulting canonical display names. Migration 385
+records 47 mechanics-based `distinct_exercises` boundaries and three
+`needs_human_review` quarantines. The three quarantines retain A-skip contact
+order, hip-flexor march base/motion, and hurdle-to-box direction and foot
+contact facts that the source cards do not jointly declare.
+
+Migration 386 consolidates 16 traceable source cards beneath stable identities:
+
+- High-Bar Back Squat beneath `back-squat`;
+- Band Row beneath `band-cable-row`;
+- Pause Box Jump beneath `box-jump`;
+- ball-grip press beneath `landmine-press`;
+- ball-grip, Meadows, Gorilla, Suitcase, neutral-handle T-bar, and V-handle
+  T-bar rows beneath `one-arm-landmine-row`, now displayed canonically as
+  `Landmine Row`;
+- Loaded Squat Jump beneath `squat-jump`;
+- Strict Ring Dip beneath `ring-dip`;
+- Squat Roll to Stand beneath `rock-and-roll-to-stand`;
+- shoulder-loaded and bear-hug sandbag squats beneath
+  `sandbag-front-loaded-squat-strength`, displayed canonically as
+  `Sandbag Squat`; and
+- Tuck Jump to Stick beneath `tuck-jump`.
+
+Attachment, grip, hand count, stance, torso angle, load position and symmetry,
+terminal action, pause, tempo, range, load, rest, and dosage remain explicit
+variant dimensions. The row consolidation preserves Landmine Press as a push,
+Landmine Romanian Deadlift to Row as an active hinge-plus-row sequence, and
+Romanian Deadlift as an active hinge without a required row.
+
+Repeated queue regeneration exposed and resolved name-only comparisons against
+Split Squat, Cossack Squat, Zercher Squat, rotational landmine pressing,
+horizontal and rotational jumps, and press/row/hinge families. After migration
+386 the indexed audit has 741 raw and 418 unresolved score-72-or-higher pairs,
+158 at score 75 or higher, 25 at score 77 or higher, 22 at score 78 or higher,
+15 at score 79 or higher, ten at score 80 or higher, none at score 85 or
+higher, and zero exact collisions. All 25 score-77-or-higher pairs are explicit
+unreviewed `needs_human_review` records; none is unclassified.
+
+The library has 1,207 active definitions, 469 archived definitions, and 868
+traceable identity decisions: 372 distinct boundaries, 468 consolidations, and
+28 honest review quarantines. All 1,676 legacy sources remain mapped. No
+reviewer, media approval, relationship approval, calibration approval, or
+publication state was created.
+
+### Score-76 adjudication
+
+Migrations 387 and 388 complete the score-76 tranche and repeat the queue after
+every survivor rename and archival until no unclassified score-76-or-higher
+pair remains. Migration 387 records 50 mechanics-based
+`distinct_exercises` boundaries and seven `needs_human_review` quarantines.
+The quarantines preserve source gaps for hamstring-curl body orientation and
+implement retention, generic-bound projection direction, eccentric overhead
+press base and return, reactive-cut stimulus, sprint-float zone sequencing,
+three-bound foot-contact order, and generic-bound versus lateral-bound
+direction.
+
+Migration 388 consolidates 21 traceable source cards beneath final stable
+identities:
+
+- Slam-Ball Bear-Hug Carry beneath the Atlas Stone/D-Ball bear-hug carry;
+- Barbell Good Morning beneath `banded-good-morning`, displayed canonically as
+  `Good Morning`;
+- straight-knee and single-leg calf isometric holds plus Single-Leg Calf Raise
+  beneath `distance-jump-standing-calf-raise`, whose stable display name
+  remains `Standing Calf Raise`;
+- Chin-Up and Pull-Up beneath `pull-up-chin-up`;
+- feet-elevated and eccentric-negative rows beneath `inverted-row`;
+- Half-Kneeling and Tall-Kneeling Cable/Band Chop beneath
+  `cable-band-chop`;
+- Slider Hamstring Eccentric Slow Lower beneath `hamstring-slider-curl`;
+- Head-Turn Single-Leg Balance beneath
+  `single-leg-balance-hold-tripod-foot`;
+- Lateral Bound to Stick and Skater Hop to Stick beneath `lateral-bound`;
+- tennis-ball tracking beneath `medicine-ball-over-shoulder-track-and-catch`,
+  displayed as `Over-Shoulder Track and Catch`;
+- Two-Hand Landmine Push Press beneath `one-arm-landmine-push-press`,
+  displayed as `Landmine Push Press`;
+- Tempo Bodyweight Squat beneath `pause-bodyweight-squat`, displayed as
+  `Bodyweight Squat`;
+- Staggered-Stance Rotational Box Jump beneath `rotational-box-jump`;
+- Step-Off to Single-Leg Stick beneath `single-leg-depth-drop-to-stick`; and
+- Suitcase Carry Line Walk beneath `suitcase-carry`.
+
+Implement, grip, hand count, base, stance, direction, laterality, balance,
+hold, contraction mode, tempo, route, range, load, rest, and dosage remain
+explicit variant dimensions. Both kneeling chop sources resolve directly to
+the final generic Cable/Band Chop survivor; no intermediate archived identity
+is required for idempotency.
+
+After migration 388 the indexed audit has 715 raw and 356 unresolved
+score-72-or-higher pairs, 95 at score 75 or higher, 30 at score 76 or higher,
+24 at score 77 or higher, 21 at score 78 or higher, 15 at score 79 or higher,
+ten at score 80 or higher, none at score 85 or higher, and zero exact
+collisions. All 30 score-76-or-higher pairs are explicit unreviewed
+`needs_human_review` records; none is unclassified.
+
+The library has 1,186 active definitions, 490 archived definitions, and 946
+traceable identity decisions: 422 distinct boundaries, 489 consolidations, and
+35 honest review quarantines. All 1,676 legacy sources remain mapped. No
+reviewer, media approval, relationship approval, calibration approval, or
+publication state was created.
+
+### Score-75 adjudication
+
+Migrations 389 and 390 complete the score-75 tranche and repeat the queue after
+all survivor aliases and archives until no unclassified score-75-or-higher
+pair remains. Migration 389 records 50 mechanics-based
+`distinct_exercises` boundaries and ten `needs_human_review` quarantines. The
+quarantines preserve missing source facts for balance support-foot count, bear
+position knee contact, reactive rebound contacts, hurdle count and direction,
+landmine arc path and base, landmine deadlift stance and attachment geometry,
+single-leg landing entry, and line-hop contact/direction contracts.
+
+Migration 390 consolidates 14 traceable source cards beneath stable identities:
+
+- Bear-Hug Sandbag Carry beneath the Atlas Stone/D-Ball carry, displayed as
+  `Bear-Hug Carry`;
+- Dead Bug Heel Tap / Dead Bug Progression beneath `dead-bug-heel-tap`;
+- Deep Squat Pry with Reach beneath `deep-squat-pry`;
+- Dumbbell Hollow-Body Pullover Hold beneath `hollow-body-hold`;
+- Sandbag Floor Press beneath `dumbbell-kettlebell-floor-press`, displayed as
+  `Floor Press`;
+- Goblet Squat beneath `front-squat`;
+- Split-Stance Rotational Landmine Press beneath
+  `landmine-ball-grip-rotational-press`;
+- Neutral-Handle Landmine Press beneath `landmine-press`;
+- Wall Ball Squat-to-Press Pattern beneath
+  `med-ball-squat-press-hiit-fitness`, displayed as
+  `Medicine Ball Squat to Press`;
+- Slam Ball Clean to Front Squat beneath `medicine-ball-clean-to-squat`;
+- Tempo Push-Up and Tempo / Eccentric Push-Up beneath `push-up`; and
+- Quadruped Scapular Push-Up Hold and Scapular Push-Up Plus Iso Hold beneath
+  `scapular-push-up`.
+
+Implement, material, grip, load position, arm position, stance, attachment,
+target/release, contraction mode, tempo, range, load, rest, and dosage remain
+explicit variant dimensions. Existing identity decisions remain authoritative:
+half-kneeling, tall-kneeling, square-stance, split-stance, and Z-press landmine
+bases are not flattened into one card. The fail-closed consolidation guard
+caught that conflict during disposable rehearsal before any row committed.
+
+After migration 390 the indexed audit has 699 raw and 299 unresolved
+score-72-or-higher pairs, 39 at score 75 or higher, 29 at score 76 or higher,
+23 at score 77 or higher, 20 at score 78 or higher, 14 at score 79 or higher,
+nine at score 80 or higher, none at score 85 or higher, and zero exact
+collisions. All 39 score-75-or-higher pairs are explicit unreviewed
+`needs_human_review` records; none is unclassified.
+
+The library has 1,172 active definitions, 504 archived definitions, and 1,020
+traceable identity decisions: 472 distinct boundaries, 503 consolidations, and
+45 honest review quarantines. All 1,676 legacy sources remain mapped. No
+reviewer, media approval, relationship approval, calibration approval, or
+publication state was created.
+
 ## Governance
 
 Deterministic consolidation never grants publication approval. Every surviving

@@ -297,6 +297,22 @@ const SCORE_77_VARIANT_CONSOLIDATIONS_MIGRATION = readFileSync(
   new URL('../../migrations/386_coaching_score_77_variant_identity_consolidations.sql', import.meta.url),
   'utf8',
 )
+const SCORE_76_IDENTITY_BOUNDARIES_MIGRATION = readFileSync(
+  new URL('../../migrations/387_coaching_score_76_identity_boundaries.sql', import.meta.url),
+  'utf8',
+)
+const SCORE_76_VARIANT_CONSOLIDATIONS_MIGRATION = readFileSync(
+  new URL('../../migrations/388_coaching_score_76_variant_identity_consolidations.sql', import.meta.url),
+  'utf8',
+)
+const SCORE_75_IDENTITY_BOUNDARIES_MIGRATION = readFileSync(
+  new URL('../../migrations/389_coaching_score_75_identity_boundaries.sql', import.meta.url),
+  'utf8',
+)
+const SCORE_75_VARIANT_CONSOLIDATIONS_MIGRATION = readFileSync(
+  new URL('../../migrations/390_coaching_score_75_variant_identity_consolidations.sql', import.meta.url),
+  'utf8',
+)
 const PLATFORM_INIT_TABLES_SOURCE = readFileSync(
   new URL('../initTables.js', import.meta.url),
   'utf8',
@@ -3471,6 +3487,263 @@ test('score-77 variants consolidate under stable identities with exact dimension
   )
   assert.doesNotMatch(
     SCORE_77_VARIANT_CONSOLIDATIONS_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('score-76 identity adjudication preserves mechanics and quarantines missing identity facts', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'387_coaching_score_76_identity_boundaries\.sql'/,
+  )
+  for (const boundary of [
+    'half_turn_bilateral_jump_reorientation_vs_quarter_turn_hop_contract',
+    'single_180_degree_timed_change_of_direction_vs_multi_segment_box_route',
+    'posterior_rolling_direction_and_hand_support_vs_anterior_rolling_direction',
+    'horizontal_jump_then_second_box_jump_vs_single_horizontal_jump_and_terminal_landing',
+    'feet_elevated_continuous_closed_chain_press_vs_ballistic_hand_release_press',
+    'incoming_drop_catch_then_chest_projection_vs_kneeling_chest_projection_without_drop_catch',
+    'upright_forward_fall_to_acceleration_vs_grounded_half_kneeling_start',
+    'controlled_low_to_high_lift_without_release_vs_ballistic_unilateral_projection',
+    'rotational_angled_press_with_elbow_extension_vs_hinged_pull_with_elbow_flexion',
+    'single_lateral_projection_and_landing_vs_repeated_rebound_contact_series',
+    'ballistic_dip_drive_and_split_under_load_vs_static_split_stance_strict_press',
+    'top_down_hip_hinge_with_soft_knees_vs_floor_pull_from_wide_turned_out_stance',
+  ]) {
+    assert.match(SCORE_76_IDENTITY_BOUNDARIES_MIGRATION, new RegExp(boundary))
+  }
+  for (const missingFactBoundary of [
+    'sources_do_not_declare_body_orientation_support_or_implement_retention_contract',
+    'generic_bound_source_does_not_declare_projection_direction_or_rotation_contract',
+    'eccentric_press_source_does_not_declare_base_assisted_return_or_repetition_cycle',
+    'reactive_45_source_does_not_declare_stimulus_branch_count_or_cue_timing',
+    'build_up_source_does_not_declare_three_zone_velocity_sequence_or_intensity_targets',
+    'sources_do_not_jointly_declare_same_leg_or_alternating_contact_sequence',
+  ]) {
+    assert.match(
+      SCORE_76_IDENTITY_BOUNDARIES_MIGRATION,
+      new RegExp(missingFactBoundary),
+    )
+  }
+  assert.match(
+    SCORE_76_IDENTITY_BOUNDARIES_MIGRATION,
+    /found archived endpoint without matching decision/,
+  )
+  assert.match(
+    SCORE_76_IDENTITY_BOUNDARIES_MIGRATION,
+    /exercise_complexity_and_physical_difficulty_only/,
+  )
+  assert.doesNotMatch(
+    SCORE_76_IDENTITY_BOUNDARIES_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    SCORE_76_IDENTITY_BOUNDARIES_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    SCORE_76_IDENTITY_BOUNDARIES_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('score-76 variants consolidate exact dimensions without creating approvals or skill levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'388_coaching_score_76_variant_identity_consolidations\.sql'/,
+  )
+  for (const duplicateSlug of [
+    'slam-ball-bear-hug-carry',
+    'barbell-good-morning',
+    'calf-isometric-hold-straight-knee',
+    'calf-raise-iso-with-single-leg-hold',
+    'chin-up',
+    'feet-elevated-inverted-row',
+    'half-kneeling-cable-chop',
+    'tall-kneeling-cable-band-chop',
+    'slider-hamstring-eccentric-slow-lower',
+    'head-turn-single-leg-balance',
+    'inverted-row-negative',
+    'lateral-bound-to-stick',
+    'skater-hop-to-stick',
+    'over-shoulder-tennis-ball-track-and-stick',
+    'two-hand-landmine-push-press',
+    'tempo-bodyweight-squat',
+    'pull-up',
+    'staggered-stance-rotational-box-jump',
+    'step-off-to-single-leg-stick',
+    'single-leg-calf-raise',
+    'suitcase-carry-line-walk',
+  ]) {
+    assert.match(
+      SCORE_76_VARIANT_CONSOLIDATIONS_MIGRATION,
+      new RegExp(duplicateSlug),
+    )
+  }
+  for (const stableName of [
+    "'Good Morning'",
+    "'Kneeling Cable/Band Chop'",
+    "'Over-Shoulder Track and Catch'",
+    "'Landmine Push Press'",
+    "'Bodyweight Squat'",
+  ]) {
+    assert.match(
+      SCORE_76_VARIANT_CONSOLIDATIONS_MIGRATION,
+      new RegExp(stableName),
+    )
+  }
+  assert.match(
+    SCORE_76_VARIANT_CONSOLIDATIONS_MIGRATION,
+    /source_peer\.id::TEXT < candidate\.id::TEXT/,
+  )
+  assert.match(
+    SCORE_76_VARIANT_CONSOLIDATIONS_MIGRATION,
+    /refused to override % protected record/,
+  )
+  assert.match(
+    SCORE_76_VARIANT_CONSOLIDATIONS_MIGRATION,
+    /max_exercise_complexity_physical_difficulty/,
+  )
+  assert.doesNotMatch(
+    SCORE_76_VARIANT_CONSOLIDATIONS_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    SCORE_76_VARIANT_CONSOLIDATIONS_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    SCORE_76_VARIANT_CONSOLIDATIONS_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('score-75 identity adjudication preserves mechanics and quarantines missing identity facts', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'389_coaching_score_75_identity_boundaries\.sql'/,
+  )
+  for (const boundary of [
+    'half_turn_reorientation_and_landing_vs_forward_horizontal_projection',
+    'posterior_shoulder_supported_barbell_squat_vs_bar_held_behind_legs',
+    'horizontal_anchored_pull_vs_diagonal_trunk_and_shoulder_chop',
+    'wide_stance_squat_with_continuous_front_load_vs_floor_deadlift_to_standing',
+    'anti_rotation_press_with_square_pelvis_vs_deliberate_hip_trunk_rotation_and_pivot',
+    'half_kneeling_asymmetric_base_vs_floor_seated_long_sit_base',
+    'standing_dip_drive_push_press_vs_fixed_split_stance_strict_press',
+    'supine_horizontal_landmine_press_vs_square_standing_angled_press',
+    'floor_seated_long_sit_base_vs_tall_kneeling_symmetric_base',
+    'bear_hug_loaded_gait_vs_stationary_front_loaded_squat',
+    'squat_to_rear_box_contact_and_pause_vs_continuous_front_loaded_squat',
+    'dynamic_loaded_shoulder_extension_pullover_vs_isometric_hollow_body_line',
+    'dynamic_front_loaded_squat_repetitions_vs_fixed_bottom_isometric',
+    'general_front_loaded_squat_vs_required_heel_elevation_and_barbell_front_rack',
+    'intentional_whole_body_rotation_vs_fixed_split_stance_strict_press',
+    'squat_then_overhead_press_vs_floor_clean_then_front_loaded_squat',
+    'squat_to_overhead_press_vs_front_loaded_squat_without_press',
+    'single_elevated_step_off_landing_vs_three_unilateral_horizontal_projections',
+    'wide_turned_out_barbell_or_center_load_pull_vs_hip_width_trap_bar_pull',
+    'repeated_throws_and_catches_across_targets_vs_nonballistic_target_rehearsal',
+  ]) {
+    assert.match(SCORE_75_IDENTITY_BOUNDARIES_MIGRATION, new RegExp(boundary))
+  }
+  for (const missingFactBoundary of [
+    'balance_pad_source_does_not_declare_single_or_double_leg_support',
+    'bear_position_source_does_not_declare_knee_contact_or_hover_support_state',
+    'reactive_rebound_source_does_not_declare_extra_contact_or_rebound_sequence',
+    'continuous_hurdle_source_does_not_declare_hurdle_count_direction_or_contact_contract',
+    'arc_press_source_does_not_declare_base_or_arc_path_contract',
+    'arc_press_source_does_not_declare_base_or_arc_path_against_tall_kneeling_press',
+    'landmine_handle_deadlift_source_does_not_declare_stance_or_handle_geometry',
+    'generic_single_leg_landing_source_does_not_declare_entry_or_projection_direction',
+    'line_hop_source_does_not_declare_contact_count_or_projection_direction',
+    'triple_line_source_does_not_declare_line_orientation_or_projection_distance',
+  ]) {
+    assert.match(
+      SCORE_75_IDENTITY_BOUNDARIES_MIGRATION,
+      new RegExp(missingFactBoundary),
+    )
+  }
+  assert.match(
+    SCORE_75_IDENTITY_BOUNDARIES_MIGRATION,
+    /found archived endpoint without matching decision/,
+  )
+  assert.match(
+    SCORE_75_IDENTITY_BOUNDARIES_MIGRATION,
+    /exercise_complexity_and_physical_difficulty_only/,
+  )
+  assert.doesNotMatch(
+    SCORE_75_IDENTITY_BOUNDARIES_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    SCORE_75_IDENTITY_BOUNDARIES_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    SCORE_75_IDENTITY_BOUNDARIES_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('score-75 variants consolidate exact dimensions without creating approvals or skill levels', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'390_coaching_score_75_variant_identity_consolidations\.sql'/,
+  )
+  for (const duplicateSlug of [
+    'bear-hug-sandbag-carry',
+    'dead-bug-heel-tap-control-progression',
+    'deep-squat-pry-with-reach',
+    'dumbbell-hollow-body-pullover-hold',
+    'sandbag-floor-press-strength',
+    'goblet-squat',
+    'landmine-split-stance-rotational-press',
+    'landmine-neutral-handle-press',
+    'wall-ball-squat-to-press-pattern',
+    'slam-ball-clean-to-front-squat',
+    'tempo-push-up',
+    'tempo-eccentric-push-up',
+    'quadruped-scapular-push-up-hold',
+    'scapular-push-up-plus-iso-hold',
+  ]) {
+    assert.match(
+      SCORE_75_VARIANT_CONSOLIDATIONS_MIGRATION,
+      new RegExp(duplicateSlug),
+    )
+  }
+  for (const stableName of [
+    "'Bear-Hug Carry'",
+    "'Floor Press'",
+    "'Medicine Ball Squat to Press'",
+  ]) {
+    assert.match(
+      SCORE_75_VARIANT_CONSOLIDATIONS_MIGRATION,
+      new RegExp(stableName),
+    )
+  }
+  assert.match(
+    SCORE_75_VARIANT_CONSOLIDATIONS_MIGRATION,
+    /source_peer\.id::TEXT < candidate\.id::TEXT/,
+  )
+  assert.match(
+    SCORE_75_VARIANT_CONSOLIDATIONS_MIGRATION,
+    /refused to override % protected record/,
+  )
+  assert.match(
+    SCORE_75_VARIANT_CONSOLIDATIONS_MIGRATION,
+    /max_exercise_complexity_physical_difficulty/,
+  )
+  assert.doesNotMatch(
+    SCORE_75_VARIANT_CONSOLIDATIONS_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    SCORE_75_VARIANT_CONSOLIDATIONS_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    SCORE_75_VARIANT_CONSOLIDATIONS_MIGRATION,
     /approved_video_url\s*=\s*'https:\/\//,
   )
 })

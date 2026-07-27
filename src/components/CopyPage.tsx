@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import Programs from './Programs'
 
 export default function CopyPage() {
   return (
@@ -36,6 +37,7 @@ export default function CopyPage() {
           </motion.div>
         </div>
       </section>
+      <Programs />
     </main>
   )
 }

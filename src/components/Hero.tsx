@@ -309,7 +309,6 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
                   </motion.button>
                 </Link>
               )}
-              {hideAcceleratorCta && <HeroSpecializedTrainingMenu />}
               <Link
                 to={
                   hideAcceleratorCta
@@ -318,17 +317,17 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
                 }
               >
                 <motion.button
-                  className={hideAcceleratorCta ? 'btn-primary group' : 'btn-secondary group'}
+                  className="btn-secondary group"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  {hideAcceleratorCta ? 'Register for Fit & Flip now!' : 'Fit & Flip'}
+                  {hideAcceleratorCta ? 'Enroll now!' : 'Fit & Flip'}
                 </motion.button>
               </Link>
               {hideAcceleratorCta && (
                 <Link to="/drop-in">
                   <motion.button
-                    className="btn-primary group"
+                    className="btn-secondary group"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -336,6 +335,7 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
                   </motion.button>
                 </Link>
               )}
+              {hideAcceleratorCta && <HeroSpecializedTrainingMenu />}
               {showSummerTraining && (
                 <Link to="/summer-athletic-training" className={summerTrainingHeroCtaClass}>
                   Summer Training
@@ -496,7 +496,6 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
                   </motion.button>
                 </Link>
               )}
-              {hideAcceleratorCta && <HeroSpecializedTrainingMenu fullWidth />}
               <Link
                 to={
                   hideAcceleratorCta
@@ -506,19 +505,17 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
                 className="w-full max-w-xs"
               >
                 <motion.button
-                  className={`group w-full ${
-                    hideAcceleratorCta ? 'btn-primary' : 'btn-secondary'
-                  }`}
+                  className="btn-secondary group w-full"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  {hideAcceleratorCta ? 'Register for Fit & Flip now!' : 'Fit & Flip'}
+                  {hideAcceleratorCta ? 'Enroll now!' : 'Fit & Flip'}
                 </motion.button>
               </Link>
               {hideAcceleratorCta && (
                 <Link to="/drop-in" className="w-full max-w-xs">
                   <motion.button
-                    className="btn-primary group w-full"
+                    className="btn-secondary group w-full"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -526,6 +523,7 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
                   </motion.button>
                 </Link>
               )}
+              {hideAcceleratorCta && <HeroSpecializedTrainingMenu fullWidth />}
               {showSummerTraining && (
                 <Link
                   to="/summer-athletic-training"

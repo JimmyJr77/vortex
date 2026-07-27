@@ -680,6 +680,173 @@ active populated difficulty records derive overall as the maximum of exercise
 complexity and physical difficulty, and all 1,112 dedicated skill-library
 level assignments remain unchanged.
 
+Migrations 385 and 386 complete the score-77 and transitive-alias pass.
+Migration 385 records 47 mechanics boundaries and three honest missing-fact
+quarantines. Migration 386 consolidates 16 controlled variants, including
+high-bar squat, band-row, pause-box-jump, loaded-jump, strict-ring-dip,
+roll-to-stand, sandbag-load-position, tuck-jump terminal, landmine attachment,
+grip, hand-count, stance, and anti-rotation variants. The canonical Landmine
+Row retains six traceable row sources while press, active hinge-plus-row, and
+Romanian-deadlift identities remain distinct.
+
+The migration-386 disposable audit reports:
+
+| Measure | Count |
+|---|---:|
+| Legacy exercises and source mappings | 1,676 |
+| Active canonical definitions | 1,207 |
+| Archived canonical definitions | 469 |
+| Variants | 1,823 |
+| Non-archived variants | 1,409 |
+| Active variants with populated difficulty | 1,397 |
+| Delivery profiles | 1,974 |
+| Identity decisions | 868 |
+| Distinct identity boundaries | 372 |
+| Duplicate consolidations | 468 |
+| Explicit identity-review quarantines | 28 |
+| Candidate media records | 5,061 |
+| Approved media records | 0 |
+| Review-only relationship proposals | 201 |
+| Approved relationship proposals | 0 |
+| Review-only calibration proposals | 342 |
+| Approved calibration proposals | 0 |
+| Raw score-72-or-higher similarity pairs | 741 |
+| Unresolved score-72-or-higher pairs | 418 |
+| Unresolved score-75-or-higher pairs | 158 |
+| Unresolved score-77-or-higher pairs | 25 |
+| Unresolved score-78-or-higher pairs | 22 |
+| Unresolved score-79-or-higher pairs | 15 |
+| Unresolved score-80-or-higher pairs | 10 |
+| Unresolved score-85-or-higher pairs | 0 |
+| Exact identity collisions | 0 |
+
+Every remaining score-77-or-higher pair has an explicit unreviewed
+`needs_human_review` decision. All 1,207 active cards remain quarantined; 1,164
+still need broad anatomy, difficulty, load, fatigue, constraints, delivery,
+athlete, coach, and operations backfill. No exercise surface contains a
+skill/proficiency classification, all populated active difficulty records use
+`overall = max(exercise complexity, physical difficulty)`, and all 1,112
+skill-library level assignments remain intact.
+
+The release gate remains honestly blocked. Publication and phase depth are
+zero, all 201 relationships and 342 calibration anchors remain unapproved, no
+media candidate has exact-match approval, and no real coach-pilot review
+exists. Candidate URLs and metadata are not treated as playback, exact-match,
+caption, accessibility, or quality approval.
+
+Migrations 387 and 388 complete the score-76 and transitive-survivor pass.
+Migration 387 records 50 mechanics boundaries and seven honest missing-fact
+quarantines. Migration 388 consolidates 21 controlled variants spanning
+bear-hug carry implements, good-morning loading, calf contraction/laterality,
+pull-up grips, inverted-row angle/contraction, kneeling chop bases,
+hamstring-slider contraction, balance overlays, lateral-bound terminal
+delivery, over-shoulder tracking implements, landmine hand count, bodyweight
+squat tempo, rotational box-jump stance, single-leg depth-drop naming, and
+suitcase-carry route.
+
+The migration-388 disposable audit reports:
+
+| Measure | Count |
+|---|---:|
+| Legacy exercises and source mappings | 1,676 |
+| Active canonical definitions | 1,186 |
+| Archived canonical definitions | 490 |
+| Variants | 1,823 |
+| Active selectable/review variants | 1,381 |
+| Active variants with populated difficulty | 1,370 |
+| Delivery profiles | 1,974 |
+| Identity decisions | 946 |
+| Distinct identity boundaries | 422 |
+| Duplicate consolidations | 489 |
+| Explicit identity-review quarantines | 35 |
+| Candidate media records | 5,061 |
+| Approved media records | 0 |
+| Review-only relationship proposals | 201 |
+| Approved relationship proposals | 0 |
+| Review-only calibration proposals | 342 |
+| Approved calibration proposals | 0 |
+| Raw score-72-or-higher similarity pairs | 715 |
+| Unresolved score-72-or-higher pairs | 356 |
+| Unresolved score-75-or-higher pairs | 95 |
+| Unresolved score-76-or-higher pairs | 30 |
+| Unresolved score-77-or-higher pairs | 24 |
+| Unresolved score-78-or-higher pairs | 21 |
+| Unresolved score-79-or-higher pairs | 15 |
+| Unresolved score-80-or-higher pairs | 10 |
+| Unresolved score-85-or-higher pairs | 0 |
+| Exact identity collisions | 0 |
+
+Every score-76-or-higher pair is an explicit unreviewed
+`needs_human_review` quarantine. All 1,186 active cards remain quarantined;
+1,143 still need broad anatomy, difficulty, load, fatigue, constraints,
+delivery, athlete, coach, and operations backfill. The 11 active variants
+without complete complexity/physical-difficulty data remain quarantined; every
+populated active variant satisfies
+`overall = max(exercise complexity, physical difficulty)`.
+
+Exercise-card scalar and JSON surfaces contain zero skill/proficiency
+classifications, while all 1,112 dedicated skill-library level assignments
+remain intact. The release check remains correctly blocked at zero published
+cards and phase depth, zero approved graph edges, zero approved calibration
+anchors, and zero real coach-pilot reviews. No candidate URL or metadata row
+is treated as exact-match media approval.
+
+Migrations 389 and 390 complete the score-75 and transitive-survivor pass.
+Migration 389 records 50 mechanics boundaries and ten honest missing-fact
+quarantines. Migration 390 consolidates 14 controlled variants spanning
+bear-hug carry and floor-press implements, dead-bug and squat-pry delivery,
+hollow-body loading, goblet/front-squat loading, landmine attachment and
+rotational stance, medicine-ball target/release and ball material, push-up
+tempo/contraction, and scapular push-up base/contraction. Existing protected
+landmine stance and base boundaries remain distinct.
+
+The migration-390 disposable audit reports:
+
+| Measure | Count |
+|---|---:|
+| Legacy exercises and source mappings | 1,676 |
+| Active canonical definitions | 1,172 |
+| Archived canonical definitions | 504 |
+| Variants | 1,823 |
+| Active selectable/review variants | 1,369 |
+| Active variants with populated difficulty | 1,358 |
+| Delivery profiles | 1,974 |
+| Identity decisions | 1,020 |
+| Distinct identity boundaries | 472 |
+| Duplicate consolidations | 503 |
+| Explicit identity-review quarantines | 45 |
+| Candidate media records | 5,061 |
+| Approved media records | 0 |
+| Review-only relationship proposals | 201 |
+| Approved relationship proposals | 0 |
+| Review-only calibration proposals | 342 |
+| Approved calibration proposals | 0 |
+| Raw score-72-or-higher similarity pairs | 699 |
+| Unresolved score-72-or-higher pairs | 299 |
+| Unresolved score-75-or-higher pairs | 39 |
+| Unresolved score-76-or-higher pairs | 29 |
+| Unresolved score-77-or-higher pairs | 23 |
+| Unresolved score-78-or-higher pairs | 20 |
+| Unresolved score-79-or-higher pairs | 14 |
+| Unresolved score-80-or-higher pairs | 9 |
+| Unresolved score-85-or-higher pairs | 0 |
+| Exact identity collisions | 0 |
+
+Every score-75-or-higher pair is an explicit unreviewed
+`needs_human_review` quarantine. All 1,172 active cards remain quarantined;
+1,129 still need broad anatomy, difficulty, load, fatigue, constraints,
+delivery, athlete, coach, and operations backfill. The 11 active variants
+without complete complexity/physical-difficulty data remain quarantined; every
+populated active variant satisfies
+`overall = max(exercise complexity, physical difficulty)`.
+
+Exercise definitions, variants, delivery profiles, and identity evidence
+contain zero skill/proficiency level keys, exercise scalar level assignments
+remain zero, and all 1,112 dedicated `coaching.skill` level assignments remain
+intact. The release gate remains correctly blocked at zero published cards and
+phase depth, zero approved graph edges, zero approved calibration anchors,
+zero exact-match media approvals, and zero real coach-pilot reviews.
+
 ## Run the audit
 
 Apply all migrations, then run:
