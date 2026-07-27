@@ -250,10 +250,11 @@ Replace or augment “Confirm enrollment” (ledger-only) with payment-gated enr
 1. Run `buildSignupOrderPreview` (must match what member saw).
 2. Resolve each billable line → `stripe_catalog_item.stripe_price_id`.
 3. Build Checkout Session:
-   - **One-time lines** (passes, fees, prorated due-now): `mode: 'payment'`
-   - **Recurring tuition** (subscription-first): `mode: 'subscription'` with recurring Price IDs
-4. Attach metadata: `familyBillingAccountId`, `memberId`, `previewHash`, line keys.
-5. Apply discounts: Stripe Coupons (synced promos) and/or `discounts` / custom amounts for household rules.
+   - **One-time lines** (passes, fees, prorated due-now): `mode: 'payment'` + `setup_future_usage`
+   - **Recurring tuition with $0 due now**: `mode: 'setup'` (collect payment method only)
+   - **Do not** put recurring Prices in Checkout — after commit, create **one Stripe Subscription per class** via Billing API (`createEnrollmentStripeSubscriptions`), each cancelable independently. Amounts use Vortex net monthly (discounts computed on total class count at preview time).
+4. Attach metadata: `familyBillingAccountId`, `memberId`, `previewHash`, `perClassSubscriptions`.
+5. Apply discounts: Vortex `discountEngine` / weekly-tier pricing on the order preview; bake net into each per-class subscription (`price_data` when ≠ catalog list).
 
 **Webhook `checkout.session.completed`:**
 
@@ -365,8 +366,8 @@ Implement in order. Do not skip Phase 1.
 
 ### Phase 3 — Recurring subscriptions
 
-- [ ] Checkout `mode: 'subscription'` for recurring lines
-- [ ] `billing_subscription` ↔ Stripe Subscription
+- [x] Checkout `mode: 'payment'|'setup'` for due-now / PM collection (not a shared subscription Checkout)
+- [x] One Stripe Subscription per class after commit (`billing_subscription.stripe_subscription_id`)
 - [ ] Invoice webhooks → ledger
 - [ ] Deprecate or supplement `generateRecurringCharges` for Stripe-backed subs
 
