@@ -3,7 +3,8 @@
  *
  * Primary source of truth: billing_subscription source_type=annual_membership
  * with next_bill_date still in the future (Stripe yearly renewal window).
- * Fallback: additional_fee_redemption still within purchase+1 year.
+ * Fallback: additional_fee_redemption still within purchase+1 year
+ * (includes fully waived / $0 promo redemptions).
  */
 
 import {
@@ -115,7 +116,7 @@ export async function loadActiveAnnualMembership(pool, memberId, { asOf = new Da
         FROM additional_fee_redemption r
         JOIN additional_fee f ON f.id = r.fee_id
         WHERE r.member_id = $1
-          AND r.amount_cents > 0
+          AND r.amount_cents >= 0
           AND (
             f.trigger_type = 'once_per_year'
             OR f.apply_basis = 'per_year'
@@ -203,7 +204,7 @@ export async function loadActiveAnnualMembershipFeeIds(pool, memberId, feeIds = 
         JOIN additional_fee f ON f.id = r.fee_id
         WHERE r.member_id = $1
           AND r.fee_id = ANY($2::bigint[])
-          AND r.amount_cents > 0
+          AND r.amount_cents >= 0
           AND (
             f.trigger_type = 'once_per_year'
             OR f.apply_basis = 'per_year'

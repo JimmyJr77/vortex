@@ -1244,6 +1244,49 @@ export async function createAnnualMembershipCheckoutSession(
   }>(res)
 }
 
+export type AnnualMembershipPreviewAthlete = {
+  memberId: number
+  name: string
+  active: boolean
+  available: boolean
+  grossCents: number
+  discountCents: number
+  netCents: number
+  promoCode: string | null
+  promoValid: boolean
+  promoError: string | null
+  waived: boolean
+}
+
+export type AnnualMembershipPreview = {
+  feeAmountCents: number
+  athletes: AnnualMembershipPreviewAthlete[]
+  totalGrossCents: number
+  totalDiscountCents: number
+  totalNetCents: number
+  allWaived: boolean
+}
+
+export async function previewAnnualMembershipCheckout(
+  memberToken: string,
+  payload: {
+    memberId?: number
+    memberIds?: number[]
+    promoCode?: string
+    promoCodesByMemberId?: Record<number, string>
+  },
+): Promise<AnnualMembershipPreview> {
+  const res = await fetch(`${getApiUrl()}/api/members/billing/annual-membership-preview`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${memberToken}`,
+    },
+    body: JSON.stringify(payload),
+  })
+  return parseJson<AnnualMembershipPreview>(res)
+}
+
 export async function confirmAnnualMembershipCheckoutSession(
   memberToken: string,
   payload: { checkoutSessionId: string },

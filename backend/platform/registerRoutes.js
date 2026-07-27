@@ -47,6 +47,7 @@ import {
 import {
   getAnnualMembershipOffer,
   createAnnualMembershipCheckoutSession,
+  previewAnnualMembershipCheckout,
   commitAnnualMembershipCheckout,
 } from '../billing/annualMembershipCheckout.js'
 import { syncAllCatalog, getCatalogSyncStatus } from '../billing/stripeCatalogSync.js'
@@ -2468,6 +2469,48 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       res.status(status).json({
         success: false,
         message: err.message || 'Failed to start membership checkout.',
+      })
+    }
+  })
+
+  app.post('/api/members/billing/annual-membership-preview', authMiddleware(pool, jwtSecret), async (req, res) => {
+    const ctx = req.platformAuth
+    const payerMemberId = Number(ctx.user.member_id ?? ctx.user.id)
+    const familyId = ctx.user.family_id
+    if (!familyId) return res.status(400).json({ success: false, message: 'No family billing account.' })
+    const account = await ensureBillingAccount(pool, familyId)
+    if (!account) return res.status(400).json({ success: false, message: 'No family billing account.' })
+
+    const athleteMemberId = Number(req.body?.memberId ?? payerMemberId)
+    const memberIds = Array.isArray(req.body?.memberIds)
+      ? req.body.memberIds.map(Number).filter((id) => Number.isFinite(id) && id > 0)
+      : null
+    const promoCode =
+      typeof req.body?.promoCode === 'string' && req.body.promoCode.trim()
+        ? req.body.promoCode.trim()
+        : null
+    const promoCodesByMemberId =
+      req.body?.promoCodesByMemberId &&
+      typeof req.body.promoCodesByMemberId === 'object' &&
+      !Array.isArray(req.body.promoCodesByMemberId)
+        ? req.body.promoCodesByMemberId
+        : null
+    try {
+      const preview = await previewAnnualMembershipCheckout(pool, {
+        account,
+        athleteMemberId,
+        memberIds,
+        payerMemberId,
+        promoCode,
+        promoCodesByMemberId,
+      })
+      res.json({ success: true, data: preview })
+    } catch (err) {
+      console.error('[billing] annual-membership-preview:', err)
+      const status = err.status && Number.isFinite(err.status) ? err.status : 500
+      res.status(status).json({
+        success: false,
+        message: err.message || 'Failed to preview membership pricing.',
       })
     }
   })

@@ -17,7 +17,9 @@ import {
   confirmAnnualMembershipCheckoutSession,
   createAnnualMembershipCheckoutSession,
   fetchAnnualMembershipOffer,
+  previewAnnualMembershipCheckout,
   type AnnualMembershipOffer,
+  type AnnualMembershipPreview,
 } from '../../utils/schedulingApi'
 
 type Phase =
@@ -101,6 +103,7 @@ export default function WaiversMembershipsPage() {
   const [athleteRows, setAthleteRows] = useState<AthleteMembershipRow[]>([])
   const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([])
   const [promoCodesByMemberId, setPromoCodesByMemberId] = useState<Record<number, string>>({})
+  const [membershipPreview, setMembershipPreview] = useState<AnnualMembershipPreview | null>(null)
   const [thankYouKind, setThankYouKind] = useState<ThankYouKind>('waivers-only')
   /** Secondary CTA on ask-register-more: continue vs completion states. */
   const [registerMoreContinue, setRegisterMoreContinue] = useState<
@@ -482,13 +485,69 @@ export default function WaiversMembershipsPage() {
   )
 
   const feeCents = needsMembershipRows[0]?.offer?.amountCents ?? 0
-  const checkoutTotalCents = feeCents * selectedMemberIds.length
+  const previewByMemberId = useMemo(() => {
+    const map = new Map<number, AnnualMembershipPreview['athletes'][number]>()
+    for (const athlete of membershipPreview?.athletes || []) {
+      map.set(athlete.memberId, athlete)
+    }
+    return map
+  }, [membershipPreview])
+
+  const checkoutTotalCents =
+    membershipPreview && selectedMemberIds.length > 0
+      ? selectedMemberIds.reduce((sum, id) => {
+          const row = previewByMemberId.get(id)
+          return sum + (row?.netCents ?? feeCents)
+        }, 0)
+      : feeCents * selectedMemberIds.length
+
   const selectedPromoCount = selectedMemberIds.filter((id) =>
     Boolean(promoCodesByMemberId[id]?.trim()),
   ).length
+  const selectedDiscountCents =
+    membershipPreview && selectedMemberIds.length > 0
+      ? selectedMemberIds.reduce((sum, id) => sum + (previewByMemberId.get(id)?.discountCents ?? 0), 0)
+      : 0
+  const hasInvalidSelectedPromo = selectedMemberIds.some((id) => {
+    const row = previewByMemberId.get(id)
+    return Boolean(promoCodesByMemberId[id]?.trim()) && row && !row.promoValid
+  })
+
+  useEffect(() => {
+    if (phase !== 'membership-upsell' || !token || selectedMemberIds.length === 0) {
+      setMembershipPreview(null)
+      return
+    }
+    let cancelled = false
+    const handle = window.setTimeout(() => {
+      const promoCodes: Record<number, string> = {}
+      for (const id of selectedMemberIds) {
+        const code = promoCodesByMemberId[id]?.trim()
+        if (code) promoCodes[id] = code
+      }
+      void previewAnnualMembershipCheckout(token, {
+        memberIds: selectedMemberIds,
+        promoCodesByMemberId: Object.keys(promoCodes).length > 0 ? promoCodes : undefined,
+      })
+        .then((preview) => {
+          if (!cancelled) setMembershipPreview(preview)
+        })
+        .catch(() => {
+          if (!cancelled) setMembershipPreview(null)
+        })
+    }, 250)
+    return () => {
+      cancelled = true
+      window.clearTimeout(handle)
+    }
+  }, [phase, token, selectedMemberIds, promoCodesByMemberId])
 
   const startMembershipCheckout = async () => {
     if (!token || selectedMemberIds.length === 0) return
+    if (hasInvalidSelectedPromo) {
+      setError('Fix invalid discount codes before checkout.')
+      return
+    }
     setBusy(true)
     setError(null)
     try {
@@ -807,6 +866,10 @@ export default function WaiversMembershipsPage() {
                 const active = Boolean(offer?.active)
                 const available = offer?.available !== false
                 const checked = selectedMemberIds.includes(member.id)
+                const preview = previewByMemberId.get(member.id)
+                const lineNet = checked ? (preview?.netCents ?? offer?.amountCents ?? feeCents) : null
+                const lineDiscount = checked ? (preview?.discountCents ?? 0) : 0
+                const waived = Boolean(checked && preview?.waived)
                 return (
                   <div
                     key={member.id}
@@ -830,7 +893,11 @@ export default function WaiversMembershipsPage() {
                           {active
                             ? `Active member${offer?.renewsOn ? ` · renews ${offer.renewsOn}` : ''}`
                             : available
-                              ? `${formatMoney(offer?.amountCents ?? feeCents)} / year`
+                              ? waived
+                                ? `${formatMoney(0)} / year (membership waived)`
+                                : lineDiscount > 0 && lineNet != null
+                                  ? `${formatMoney(lineNet)} / year (${formatMoney(lineDiscount)} off)`
+                                  : `${formatMoney(offer?.amountCents ?? feeCents)} / year`
                               : 'Membership unavailable'}
                         </span>
                       </span>
@@ -848,6 +915,14 @@ export default function WaiversMembershipsPage() {
                           placeholder="Enter code for this athlete"
                           className="w-full sm:w-64 border border-gray-300 rounded-lg px-3 py-2 text-sm uppercase font-mono disabled:opacity-60"
                         />
+                        {checked && preview?.promoError ? (
+                          <p className="text-xs text-red-600 mt-1">{preview.promoError}</p>
+                        ) : null}
+                        {checked && waived ? (
+                          <p className="text-xs text-green-700 mt-1">
+                            Free annual membership promo applied — no payment needed for this athlete.
+                          </p>
+                        ) : null}
                       </div>
                     )}
                   </div>
@@ -858,11 +933,13 @@ export default function WaiversMembershipsPage() {
             {selectedMemberIds.length > 0 && (
               <p className="text-sm font-semibold text-gray-900">
                 Total due today: {formatMoney(checkoutTotalCents)}
-                {selectedMemberIds.length > 1
-                  ? ` (${selectedMemberIds.length} athletes × ${formatMoney(feeCents)})`
-                  : ''}
-                {selectedPromoCount > 0
-                  ? ` — ${selectedPromoCount} discount code${selectedPromoCount === 1 ? '' : 's'} applied at checkout`
+                {selectedDiscountCents > 0
+                  ? ` (${formatMoney(selectedDiscountCents)} discount applied)`
+                  : selectedMemberIds.length > 1
+                    ? ` (${selectedMemberIds.length} athletes)`
+                    : ''}
+                {selectedPromoCount > 0 && selectedDiscountCents === 0 && !hasInvalidSelectedPromo
+                  ? ' — checking discount…'
                   : ''}
               </p>
             )}
@@ -870,11 +947,15 @@ export default function WaiversMembershipsPage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
-                disabled={busy || selectedMemberIds.length === 0}
+                disabled={busy || selectedMemberIds.length === 0 || hasInvalidSelectedPromo}
                 onClick={() => void startMembershipCheckout()}
                 className="px-4 py-2.5 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-60"
               >
-                {busy ? 'Starting checkout…' : 'Purchase membership'}
+                {busy
+                  ? 'Starting checkout…'
+                  : checkoutTotalCents === 0 && selectedMemberIds.length > 0
+                    ? 'Activate free membership'
+                    : 'Purchase membership'}
               </button>
               <button
                 type="button"

@@ -12,6 +12,34 @@ function mockPool(handler) {
   }
 }
 
+test('loadActiveAnnualMembership redemption query includes $0 waived memberships', async () => {
+  let redemptionSql = ''
+  const pool = mockPool((sql) => {
+    if (sql.includes('FROM billing_subscription')) return { rows: [] }
+    if (sql.includes('FROM additional_fee_redemption')) {
+      redemptionSql = sql
+      return {
+        rows: [
+          {
+            fee_id: 1,
+            created_at: '2026-07-27T16:10:22.674Z',
+            period_key: '2027-07-27',
+            amount_cents: 0,
+          },
+        ],
+      }
+    }
+    throw new Error(`unexpected: ${sql}`)
+  })
+
+  const window = await loadActiveAnnualMembership(pool, 62, {
+    asOf: new Date(Date.UTC(2026, 11, 1)),
+  })
+  assert.match(redemptionSql, /amount_cents\s*>=\s*0/)
+  assert.equal(window?.active, true)
+  assert.equal(window?.source, 'redemption')
+})
+
 test('loadActiveAnnualMembership prefers active annual billing_subscription', async () => {
   const pool = mockPool((sql) => {
     if (sql.includes('FROM billing_subscription')) {

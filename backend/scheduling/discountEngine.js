@@ -1041,12 +1041,11 @@ export async function resolveMembershipFeePromo(
   if (codes.size === 0) return null
 
   const rules = await loadActiveDiscountRules(pool, facilityId)
-  const candidates = rules.filter(
-    (r) =>
-      promoTargetsMembershipFee(r) &&
-      withinWindow(r, now) &&
-      codes.has(normalizeText(r.config?.code)),
-  )
+  const candidates = rules.filter((r) => {
+    if (!promoTargetsMembershipFee(r) || !withinWindow(r, now)) return false
+    const ruleCode = normalizeText(r.config?.code || r.config?.promo_code)
+    return Boolean(ruleCode) && codes.has(ruleCode)
+  })
   if (candidates.length === 0) return null
 
   const caps = await loadRedemptionCaps(pool, facilityId, { memberId, familyId })
@@ -1058,7 +1057,10 @@ export async function resolveMembershipFeePromo(
     const perFamily = perRuleLimit(rule, 'max_redemptions_per_family')
     if (perFamily != null && familyId != null
         && Number(caps.ruleFamilyRedeemed?.[rule.id] ?? 0) >= perFamily) continue
-    return { rule, code: normalizeText(rule.config?.code) }
+    return {
+      rule,
+      code: normalizeText(rule.config?.code || rule.config?.promo_code),
+    }
   }
   return null
 }

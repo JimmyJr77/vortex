@@ -204,14 +204,20 @@ function parsePromoByMemberMetadata(metadata) {
 }
 
 /**
- * Create Stripe Checkout for annual membership only (no class enrollment).
- * Accepts a single athleteMemberId or memberIds[] — one Checkout, one line item per athlete.
- * Optional promoCode (legacy, applies to every athlete) or promoCodesByMemberId
- * (per-child codes). When every selected athlete is 100% waived, memberships activate
- * immediately with `{ free: true, memberIds }`. Mixed carts activate waived athletes
- * immediately and open Stripe Checkout for the rest.
+ * Resolve per-athlete membership pricing (promos applied). Throws on invalid promo.
+ * @returns {Promise<{
+ *   fee: object,
+ *   pricedMembers: Array<{
+ *     member: object,
+ *     memberId: number,
+ *     promo: { rule: object, code: string, discountCents: number }|null,
+ *     discountCents: number,
+ *     netCents: number,
+ *     grossCents: number,
+ *   }>,
+ * }>}
  */
-export async function createAnnualMembershipCheckoutSession(
+export async function priceAnnualMembershipSelections(
   pool,
   {
     account,
@@ -220,14 +226,8 @@ export async function createAnnualMembershipCheckoutSession(
     payerMemberId,
     promoCode = null,
     promoCodesByMemberId = null,
-    successUrl,
-    cancelUrl,
   },
 ) {
-  if (!stripeEnabled()) return null
-  await ensureStripeBillingSchema(pool)
-  await ensureStripeCatalogSchema(pool)
-
   const requestedIds = parseMemberIds({ athleteMemberId, memberIds })
   if (requestedIds.length === 0) {
     const err = new Error('Select at least one athlete for membership.')
@@ -274,45 +274,221 @@ export async function createAnnualMembershipCheckoutSession(
   const facilityRes = await pool.query('SELECT id FROM facility LIMIT 1')
   const facilityId = facilityRes.rows[0]?.id ?? null
 
-  /** @type {Map<number, { rule: object, code: string, discountCents: number }|null>} */
-  const promoByMemberId = new Map()
+  const pricedMembers = []
   for (const member of eligibleMembers) {
     const memberId = Number(member.id)
-    const code = perMemberCodes.get(memberId) || fallbackPromoCode
-    if (!code) {
-      promoByMemberId.set(memberId, null)
-      continue
+    const code = perMemberCodes.get(memberId) || fallbackPromoCode || null
+    let promo = null
+    if (code) {
+      const resolved = await resolveMembershipFeePromo(pool, {
+        facilityId,
+        promoCodes: [code],
+        memberId,
+        familyId: account.family_id,
+      })
+      if (!resolved) {
+        const err = new Error(
+          `Promo code "${code}" is not valid for annual membership` +
+            (eligibleMembers.length > 1
+              ? ` (${[member.first_name, member.last_name].filter(Boolean).join(' ') || 'athlete'}).`
+              : '.'),
+        )
+        err.status = 400
+        err.memberId = memberId
+        err.promoCode = code
+        throw err
+      }
+      const discountCents = membershipPromoDiscountCents(resolved.rule, fee.amountCents)
+      promo = {
+        rule: resolved.rule,
+        code: resolved.code,
+        discountCents,
+      }
     }
-    const promo = await resolveMembershipFeePromo(pool, {
-      facilityId,
-      promoCodes: [code],
+    const discountCents = promo?.discountCents ?? 0
+    const grossCents = fee.amountCents
+    const netCents = Math.max(0, grossCents - discountCents)
+    pricedMembers.push({
+      member,
       memberId,
-      familyId: account.family_id,
-    })
-    if (!promo) {
-      const err = new Error(
-        `Promo code "${code}" is not valid for annual membership` +
-          (eligibleMembers.length > 1
-            ? ` (${[member.first_name, member.last_name].filter(Boolean).join(' ') || 'athlete'}).`
-            : '.'),
-      )
-      err.status = 400
-      throw err
-    }
-    const discountCents = membershipPromoDiscountCents(promo.rule, fee.amountCents)
-    promoByMemberId.set(memberId, {
-      rule: promo.rule,
-      code: promo.code,
+      promo,
       discountCents,
+      netCents,
+      grossCents,
     })
   }
 
-  const pricedMembers = eligibleMembers.map((member) => {
-    const memberId = Number(member.id)
-    const promo = promoByMemberId.get(memberId)
-    const discountCents = promo?.discountCents ?? 0
-    const netCents = Math.max(0, fee.amountCents - discountCents)
-    return { member, memberId, promo, discountCents, netCents }
+  return { fee, pricedMembers }
+}
+
+/**
+ * Soft preview of membership checkout totals with per-child promo codes.
+ * Invalid codes are reported per athlete instead of failing the whole preview.
+ */
+export async function previewAnnualMembershipCheckout(
+  pool,
+  {
+    account,
+    athleteMemberId,
+    memberIds,
+    payerMemberId,
+    promoCode = null,
+    promoCodesByMemberId = null,
+  },
+) {
+  const requestedIds = parseMemberIds({ athleteMemberId, memberIds })
+  if (requestedIds.length === 0) {
+    return {
+      feeAmountCents: 0,
+      athletes: [],
+      totalGrossCents: 0,
+      totalDiscountCents: 0,
+      totalNetCents: 0,
+      allWaived: false,
+    }
+  }
+
+  const fee = await loadAnnualMembershipFee(pool)
+  if (!fee) {
+    const err = new Error('Annual membership is not available right now.')
+    err.status = 404
+    throw err
+  }
+
+  const { map: perMemberCodes, fallbackPromoCode } = normalizePromoCodesByMemberId(
+    promoCodesByMemberId,
+    promoCode,
+  )
+  const { resolveMembershipFeePromo, membershipPromoDiscountCents } = await import(
+    '../scheduling/discountEngine.js'
+  )
+  const facilityRes = await pool.query('SELECT id FROM facility LIMIT 1')
+  const facilityId = facilityRes.rows[0]?.id ?? null
+
+  const athletes = []
+  for (const memberId of requestedIds) {
+    const access = await ensureFamilyMemberAccess(pool, {
+      familyId: account.family_id,
+      memberId,
+      payerMemberId,
+    })
+    if (!access.ok) {
+      athletes.push({
+        memberId,
+        name: '',
+        active: false,
+        available: false,
+        grossCents: fee.amountCents,
+        discountCents: 0,
+        netCents: fee.amountCents,
+        promoCode: null,
+        promoValid: false,
+        promoError: access.message,
+        waived: false,
+      })
+      continue
+    }
+    const name = [access.member.first_name, access.member.last_name].filter(Boolean).join(' ').trim()
+    const active = await memberHasActiveAnnualMembership(pool, memberId)
+    if (active) {
+      athletes.push({
+        memberId,
+        name,
+        active: true,
+        available: true,
+        grossCents: 0,
+        discountCents: 0,
+        netCents: 0,
+        promoCode: null,
+        promoValid: true,
+        promoError: null,
+        waived: false,
+      })
+      continue
+    }
+
+    const code = perMemberCodes.get(memberId) || fallbackPromoCode || null
+    let discountCents = 0
+    let promoValid = true
+    let promoError = null
+    if (code) {
+      const resolved = await resolveMembershipFeePromo(pool, {
+        facilityId,
+        promoCodes: [code],
+        memberId,
+        familyId: account.family_id,
+      })
+      if (!resolved) {
+        promoValid = false
+        promoError = `Promo code "${code}" is not valid for annual membership.`
+      } else {
+        discountCents = membershipPromoDiscountCents(resolved.rule, fee.amountCents)
+      }
+    }
+    const grossCents = fee.amountCents
+    const netCents = promoValid ? Math.max(0, grossCents - discountCents) : grossCents
+    athletes.push({
+      memberId,
+      name,
+      active: false,
+      available: true,
+      grossCents,
+      discountCents: promoValid ? discountCents : 0,
+      netCents,
+      promoCode: code,
+      promoValid,
+      promoError,
+      waived: promoValid && discountCents > 0 && netCents === 0,
+    })
+  }
+
+  const billable = athletes.filter((a) => !a.active && a.available)
+  const totalGrossCents = billable.reduce((sum, a) => sum + a.grossCents, 0)
+  const totalDiscountCents = billable.reduce((sum, a) => sum + a.discountCents, 0)
+  const totalNetCents = billable.reduce((sum, a) => sum + a.netCents, 0)
+
+  return {
+    feeAmountCents: fee.amountCents,
+    athletes,
+    totalGrossCents,
+    totalDiscountCents,
+    totalNetCents,
+    allWaived: billable.length > 0 && billable.every((a) => a.waived),
+  }
+}
+
+/**
+ * Create Stripe Checkout for annual membership only (no class enrollment).
+ * Accepts a single athleteMemberId or memberIds[] — one Checkout, one line item per athlete.
+ * Optional promoCode (legacy, applies to every athlete) or promoCodesByMemberId
+ * (per-child codes). When every selected athlete is 100% waived, memberships activate
+ * immediately with `{ free: true, memberIds }`. Mixed carts activate waived athletes
+ * immediately and open Stripe Checkout for the rest.
+ */
+export async function createAnnualMembershipCheckoutSession(
+  pool,
+  {
+    account,
+    athleteMemberId,
+    memberIds,
+    payerMemberId,
+    promoCode = null,
+    promoCodesByMemberId = null,
+    successUrl,
+    cancelUrl,
+  },
+) {
+  if (!stripeEnabled()) return null
+  await ensureStripeBillingSchema(pool)
+  await ensureStripeCatalogSchema(pool)
+
+  const { fee, pricedMembers } = await priceAnnualMembershipSelections(pool, {
+    account,
+    athleteMemberId,
+    memberIds,
+    payerMemberId,
+    promoCode,
+    promoCodesByMemberId,
   })
 
   const freeMembers = pricedMembers.filter((row) => row.promo && row.netCents === 0)
@@ -329,7 +505,7 @@ export async function createAnnualMembershipCheckoutSession(
         fee,
         checkoutSessionId: null,
         purchasedAt,
-        grossCents: fee.amountCents,
+        grossCents: row.grossCents,
         discountCents: row.discountCents,
       })
       await recordMembershipPromoRedemption(pool, {
