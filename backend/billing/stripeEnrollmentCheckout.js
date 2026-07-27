@@ -17,7 +17,10 @@ import {
 } from './stripeCatalogSync.js'
 import { buildSignupOrderPreview } from '../scheduling/orderPricing.js'
 import { executeSignupBatch } from '../scheduling/handlers.js'
-import { weeklyTierKeyForSlotCount, programUsesWeeklyTierPricing } from '../programs/weeklyTierPricing.js'
+import {
+  programUsesWeeklyTierPricing,
+  resolveSyncedWeeklyTierCatalogRef,
+} from '../programs/weeklyTierPricing.js'
 import {
   hydrateProgramPricingRow,
   normalizeProgramPricingOptions,
@@ -200,57 +203,86 @@ export function formatEnrollmentCheckoutSubmitMessage() {
   ).slice(0, 500)
 }
 
-async function resolveOptionKeyForPreviewLine(pool, preview, line) {
-  if (line.selectedPricingOptionKey) return line.selectedPricingOptionKey
-
-  const summary = (preview.formSummaries ?? []).find((s) => s.formId === line.formId)
-  if (summary?.usesWeeklyTierPricing && summary.totalSlotCount > 0) {
-    return weeklyTierKeyForSlotCount(summary.totalSlotCount)
-  }
-
+/**
+ * Resolve Stripe catalog ref for a recurring enrollment line.
+ * @returns {Promise<{ lookupKey: string|null, quantity: number, amountCents: number|null, productName: string|null }>}
+ */
+async function resolveRecurringCatalogRefForLine(pool, preview, line) {
   const formRes = await pool.query(
-    `SELECT id, programs_id, pricing_overrides_program FROM scheduling_form WHERE id = $1`,
-    [line.formId],
-  )
-  const formRow = formRes.rows[0]
-  if (!formRow) return 'monthly_1x'
-
-  if (formRow.programs_id != null) {
-    const { resolveProgramsSchema } = await import('../programs/schema.js')
-    const schema = await resolveProgramsSchema(pool)
-    const progRes = await pool.query(
-      `SELECT id, pricing_cost_options, pricing_cost_amount_cents, pricing_slot_cost_monthly_cents, pricing_cost_unit
-       FROM ${schema.programsTable} WHERE id = $1`,
-      [formRow.programs_id],
-    )
-    const programRow = hydrateProgramPricingRow(progRes.rows[0])
-    const options = normalizeProgramPricingOptions(programRow?.pricing_cost_options)
-    if (programUsesWeeklyTierPricing({ pricing_cost_options: options })) {
-      const count = summary?.totalSlotCount ?? 1
-      return weeklyTierKeyForSlotCount(count) ?? 'monthly_1x'
-    }
-    const enabled = options.filter((o) => o.enabled && o.amountCents > 0)
-    return enabled[0]?.key ?? 'monthly_1x'
-  }
-  return 'monthly_1x'
-}
-
-async function catalogLookupForLine(pool, preview, line) {
-  const formRes = await pool.query(
-    `SELECT id, programs_id, pricing_overrides_program, cost_amount_cents, cost_unit, slot_cost_monthly_cents
+    `SELECT id, programs_id, pricing_overrides_program, cost_amount_cents, cost_unit, slot_cost_monthly_cents, title
      FROM scheduling_form WHERE id = $1`,
     [line.formId],
   )
   const formRow = formRes.rows[0]
   const programsId = line.programsId ?? formRow?.programs_id
+  const className = String(line.formTitle ?? formRow?.title ?? 'Class enrollment').trim() || 'Class enrollment'
 
   if (formHasCustomPricingOverride(formRow)) {
-    return formOverrideLookupKey(formRow.id)
+    return {
+      lookupKey: formOverrideLookupKey(formRow.id),
+      quantity: 1,
+      amountCents: null,
+      productName: null,
+    }
   }
 
-  const optionKey = await resolveOptionKeyForPreviewLine(pool, preview, line)
-  if (programsId == null) return null
-  return programOptionLookupKey(Number(programsId), optionKey)
+  if (programsId == null) {
+    return { lookupKey: null, quantity: 1, amountCents: null, productName: null }
+  }
+
+  if (line.selectedPricingOptionKey) {
+    return {
+      lookupKey: programOptionLookupKey(Number(programsId), line.selectedPricingOptionKey),
+      quantity: 1,
+      amountCents: null,
+      productName: null,
+    }
+  }
+
+  const summary = (preview.formSummaries ?? []).find((s) => s.formId === line.formId)
+  const { resolveProgramsSchema } = await import('../programs/schema.js')
+  const schema = await resolveProgramsSchema(pool)
+  const progRes = await pool.query(
+    `SELECT id, display_name, name, pricing_cost_options, pricing_cost_amount_cents,
+            pricing_slot_cost_monthly_cents, pricing_cost_unit
+     FROM ${schema.programsTable} WHERE id = $1`,
+    [programsId],
+  )
+  const programRow = hydrateProgramPricingRow(progRes.rows[0])
+  const options = normalizeProgramPricingOptions(programRow?.pricing_cost_options)
+  const programName =
+    String(programRow?.display_name ?? programRow?.name ?? '').trim() || `Program ${programsId}`
+
+  if (
+    summary?.usesWeeklyTierPricing ||
+    programUsesWeeklyTierPricing({ pricing_cost_options: options })
+  ) {
+    const count = summary?.totalSlotCount > 0 ? summary.totalSlotCount : 1
+    const ref = resolveSyncedWeeklyTierCatalogRef(options, count)
+    if (ref.optionKey) {
+      return {
+        lookupKey: programOptionLookupKey(Number(programsId), ref.optionKey),
+        quantity: ref.quantity,
+        amountCents: ref.amountCents,
+        productName: null,
+      }
+    }
+    return {
+      lookupKey: null,
+      quantity: 1,
+      amountCents: ref.amountCents,
+      productName: `${programName} — ${count}×/wk (${className})`.slice(0, 200),
+    }
+  }
+
+  const enabled = options.filter((o) => o.enabled && o.amountCents > 0)
+  const optionKey = enabled[0]?.key ?? 'monthly_1x'
+  return {
+    lookupKey: programOptionLookupKey(Number(programsId), optionKey),
+    quantity: 1,
+    amountCents: null,
+    productName: null,
+  }
 }
 
 async function buildCheckoutLineItems(pool, preview, { includeRecurringSubscriptionPrices = false } = {}) {
@@ -264,15 +296,33 @@ async function buildCheckoutLineItems(pool, preview, { includeRecurringSubscript
       if (line.billingType !== 'recurring') continue
       if ((line.monthlyPrice ?? line.incrementalMonthly ?? 0) <= 0) continue
 
-      const lookupKey = await catalogLookupForLine(pool, preview, line)
-      if (!lookupKey || seenRecurring.has(lookupKey)) continue
-      seenRecurring.add(lookupKey)
+      const ref = await resolveRecurringCatalogRefForLine(pool, preview, line)
+      const dedupeKey = ref.lookupKey ?? `price_data:${ref.productName}:${ref.amountCents}`
+      if (seenRecurring.has(dedupeKey)) continue
+      seenRecurring.add(dedupeKey)
 
-      const priceId = await resolveStripePriceId(pool, lookupKey)
-      if (!priceId) {
-        throw new Error(`Stripe price not synced for ${lookupKey}. Run catalog sync or re-save program pricing.`)
+      if (ref.lookupKey) {
+        const priceId = await resolveStripePriceId(pool, ref.lookupKey)
+        if (!priceId) {
+          throw new Error(
+            `Stripe price not synced for ${ref.lookupKey}. Run catalog sync or re-save program pricing.`,
+          )
+        }
+        recurringLineItems.push({ price: priceId, quantity: Math.max(1, ref.quantity || 1) })
+        continue
       }
-      recurringLineItems.push({ price: priceId, quantity: 1 })
+
+      if (ref.amountCents != null && ref.amountCents > 0) {
+        recurringLineItems.push({
+          quantity: 1,
+          price_data: {
+            currency: 'usd',
+            unit_amount: Math.round(ref.amountCents),
+            recurring: { interval: 'month' },
+            product_data: { name: (ref.productName || 'Monthly membership').slice(0, 200) },
+          },
+        })
+      }
     }
   }
 
@@ -393,14 +443,43 @@ export async function createEnrollmentStripeSubscriptions(
       ? computeFirstMonthBillingAnchorDate(fmItem, fromDate)
       : firstOfNextMonth(fromDate)
 
-    const lookupKey = await catalogLookupForLine(pool, previewObj, previewLine)
-    if (!lookupKey) continue
-    const priceId = await resolveStripePriceId(pool, lookupKey)
-    if (!priceId) continue
+    // One Stripe subscription per signup: charge this line's monthly amount, not the
+    // program-wide weekly-tier bundle quantity used in Checkout subscription mode.
+    const amountCents = Math.round(
+      Number(previewLine.monthlyPrice ?? previewLine.incrementalMonthly ?? 0) * 100,
+    )
+    if (amountCents <= 0) continue
+
+    const ref = await resolveRecurringCatalogRefForLine(pool, previewObj, {
+      ...previewLine,
+      selectedPricingOptionKey: previewLine.selectedPricingOptionKey || 'monthly_1x',
+    })
+    let items
+    if (ref.lookupKey) {
+      const priceId = await resolveStripePriceId(pool, ref.lookupKey)
+      if (priceId) {
+        items = [{ price: priceId, quantity: 1 }]
+      }
+    }
+    if (!items) {
+      items = [
+        {
+          quantity: 1,
+          price_data: {
+            currency: 'usd',
+            unit_amount: amountCents,
+            recurring: { interval: 'month' },
+            product_data: {
+              name: String(previewLine.formTitle || 'Monthly membership').slice(0, 200),
+            },
+          },
+        },
+      ]
+    }
 
     const stripeSub = await stripe.subscriptions.create({
       customer: customerId,
-      items: [{ price: priceId }],
+      items,
       billing_cycle_anchor: dateStringToUnixBillingAnchor(anchorDate),
       proration_behavior: 'none',
       ...(defaultPaymentMethod ? { default_payment_method: defaultPaymentMethod } : {}),

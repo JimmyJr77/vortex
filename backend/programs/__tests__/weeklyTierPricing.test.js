@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import {
   maxEnabledWeeklySlots,
   onlyFlatOneXWeeklyTier,
+  resolveSyncedWeeklyTierCatalogRef,
   weeklyTierMarginalCents,
   weeklyTierTotalCents,
   weeklyTierTotalDollars,
@@ -74,4 +75,42 @@ test('only 1x enabled: each class at 1x price, up to 7 slots', () => {
   assert.equal(weeklyTierMarginalCents(1, options), 15000)
   assert.equal(weeklyTierMarginalCents(2, options), 15000)
   assert.equal(weeklyTierMarginalCents(3, options), 15000)
+})
+
+test('resolveSyncedWeeklyTierCatalogRef maps flat 1x multi-slot to monthly_1x quantity', () => {
+  const options = opts([{ key: 'monthly_1x', enabled: true, amountCents: 15000 }])
+  assert.deepEqual(resolveSyncedWeeklyTierCatalogRef(options, 2), {
+    optionKey: 'monthly_1x',
+    quantity: 2,
+    amountCents: 30000,
+  })
+  assert.deepEqual(resolveSyncedWeeklyTierCatalogRef(options, 1), {
+    optionKey: 'monthly_1x',
+    quantity: 1,
+    amountCents: 15000,
+  })
+})
+
+test('resolveSyncedWeeklyTierCatalogRef uses stored monthly_2x when enabled', () => {
+  const options = opts([
+    { key: 'monthly_1x', enabled: true, amountCents: 15000 },
+    { key: 'monthly_2x', enabled: true, amountCents: 25000 },
+  ])
+  assert.deepEqual(resolveSyncedWeeklyTierCatalogRef(options, 2), {
+    optionKey: 'monthly_2x',
+    quantity: 1,
+    amountCents: 25000,
+  })
+})
+
+test('resolveSyncedWeeklyTierCatalogRef returns null key for extrapolated bundle tiers', () => {
+  const options = opts([
+    { key: 'monthly_1x', enabled: true, amountCents: 15000 },
+    { key: 'monthly_2x', enabled: true, amountCents: 25000 },
+    { key: 'monthly_3x', enabled: true, amountCents: 0 },
+  ])
+  const ref = resolveSyncedWeeklyTierCatalogRef(options, 3)
+  assert.equal(ref.optionKey, null)
+  assert.equal(ref.quantity, 1)
+  assert.equal(ref.amountCents, 35000)
 })

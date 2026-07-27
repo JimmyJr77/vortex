@@ -137,6 +137,28 @@ export function weeklyTierForSlotCount(slotCount, rawOptions) {
   }
 }
 
+/**
+ * Map a weekly slot count to a Stripe catalog option that actually exists.
+ * Stored tiers (enabled monthly_Nx with amount) → that key, qty 1.
+ * Flat 1×-only programs → monthly_1x × slotCount (matches weeklyTierTotalCents).
+ * Other extrapolated totals → no catalog key; caller should use price_data.
+ */
+export function resolveSyncedWeeklyTierCatalogRef(rawOptions, slotCount) {
+  const options = normalizeProgramPricingOptions(rawOptions)
+  const count = Math.max(1, Math.min(MAX_WEEKLY_TIER_SLOTS, Math.round(Number(slotCount) || 1)))
+  const tier = weeklyTierForSlotCount(count, options)
+  if (!tier) {
+    return { optionKey: 'monthly_1x', quantity: 1, amountCents: null }
+  }
+  if (!tier.extrapolated) {
+    return { optionKey: tier.key, quantity: 1, amountCents: tier.amountCents }
+  }
+  if (onlyFlatOneXWeeklyTier(options) || !hasWeeklyTierBundlePricing(options)) {
+    return { optionKey: 'monthly_1x', quantity: count, amountCents: tier.amountCents }
+  }
+  return { optionKey: null, quantity: 1, amountCents: tier.amountCents }
+}
+
 export function formatWeeklyTierLabel(slotCount, amountCents) {
   return `${slotCount}×/wk ($${(amountCents / 100).toFixed(2)}/mo)`
 }
