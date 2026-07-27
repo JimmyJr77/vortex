@@ -1,0 +1,641 @@
+{
+  "facilityId": 1,
+  "researchVersion": "2026-07-27.55",
+  "batchKey": "landmine-press-family-v1",
+  "snapshotAt": "2026-07-27T04:48:08.000Z",
+  "sourceRegistry": "../source-registry.v1.json",
+  "outputDirectory": "../generated",
+  "sharedEvidence": [
+    {
+      "sectionKey": "identity",
+      "sourceKey": "nsca_landmine_press_implementation",
+      "claims": [
+        "NSCA identifies the landmine press as a barbell press performed from a stable pivoting base and discusses distinct implementation variations.",
+        "{{canonicalName}} is the strict standing diagonal press: the bar starts at a declared shoulder or central rack, follows the landmine arc, reaches controlled elbow extension with scapular motion, and returns without deliberate knee-and-hip drive or torso rotation."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceKey": "nsca_landmine_press_implementation",
+      "claims": [
+        "The landmine press is a pressing exercise whose fixed pivot creates an angled path rather than a free vertical bar path.",
+        "Declare stance, hand count, attachment, grip, rack, bar side, strict versus ballistic intent, range, tempo, load, repetitions, rest, and side dose. Half-kneeling, push-press, rotational-press, throw, squat-to-press, and floor-press tasks remain separate definitions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceKey": "nsca_landmine_press_implementation",
+      "claims": [
+        "The exercise loads shoulder pressing and stabilization while the elbow extends and the trunk and lower body maintain the declared base.",
+        "Record deltoid, clavicular pectoralis major, triceps, serratus anterior, trapezius, rotator cuff, trunk, grip, hip, knee, ankle, and foot contributions without claiming isolation or one universal activation profile."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceKey": "landmine_press_kinematics_2026",
+      "claims": [
+        "Landmine-press velocity and power can be measured from motion of the bar around its fixed end, supporting an explicit pivoted planar-arc contract.",
+        "Observable gates are a secure anchor, repeatable rack, stable foot pressure and stance, organized pelvis and ribs, stacked wrist and forearm, controlled diagonal path, owned finish, and same-path lowering."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceKey": "landmine_press_kinematics_2026",
+      "claims": [
+        "Landmine-press kinematics and power change across external loads, so load, stance, hand count, attachment, range, and intent must be declared when comparing performance.",
+        "Assess exercise complexity and physical difficulty independently for every exact variant and derive overall difficulty as their maximum. Exercise cards carry no skill or proficiency level."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Resistance-training stimulus and fatigue depend on load, volume, effort, exercise selection, frequency, and progression.",
+        "{{canonicalName}} contributes angled press volume, deltoid, pectoral and triceps loading, scapular and rotator-cuff demand, grip and wrist demand, trunk anti-motion, eccentric lowering, and technical fatigue with no planned impact."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceKey": "nsca_landmine_press_implementation",
+      "claims": [
+        "A landmine press requires an anchored barbell and enough clear space for the complete bar arc and safe loading and unloading.",
+        "Declare a rated anchor, compatible bar and collars, plates and attachment, stance, rack, load, overhead and forward clearance, pickup and set-down method, coach sightline, and exclusion zone around the moving sleeve and plates."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceKey": "resistance_prescription_network_meta_analysis",
+      "claims": [
+        "Resistance-training outcomes depend on the interaction of sets, repetitions, load, effort, frequency, and recovery rather than the exercise name alone.",
+        "Use exact-variant quality sets with enough rest to preserve anchor security, stance, rack, wrist, bar path, scapular motion, trunk position, range, tempo, side balance, and safe return."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceKey": "nsca_landmine_press_implementation",
+      "claims": [
+        "Instruction must establish the landmine, rack, stance, brace, press path, finish, controlled return, and safe set-down.",
+        "Cue secure the anchor, set the exact stance and grip, bring the sleeve to the declared rack, brace without holding the breath unnecessarily, press up and forward along the arc without leg drive, reach and control, lower to the same rack, and reset."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceKey": "nsca_youth_resistance_position",
+      "claims": [
+        "Qualified supervision, correct technique, manageable resistance, appropriate equipment, and gradual progression are core safeguards for resistance exercise.",
+        "Stop for pain, neurologic symptoms, dizziness, anchor or collar movement, unsafe plate shift, lost stance or balance, rib flare or trunk rotation, wrist collapse, uncontrolled path or lowering, grinding, dropped load, collision risk, or an unsafe set-down."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Exercise selection and resistance-training dose should be individualized to the intended adaptation, current capacity, and recovery context.",
+        "Use the strict landmine press for controlled angled pressing strength or pattern ownership before material shoulder, triceps, chest, grip, throwing, contact, or high-velocity pressing fatigue; do not silently turn it into a push press."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceKey": "nsca_landmine_press_implementation",
+      "claims": [
+        "The athlete needs the exact stance, hand count, attachment, grip, rack, load, range, tempo, repetitions, rest, side sequence, and stop signal before beginning.",
+        "A lighter load or shorter owned range is preferable to anchor movement, wrist collapse, back extension, trunk turn, leg drive, a changed path, or an uncontrolled return."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceKey": "landmine_press_kinematics_2026",
+      "claims": [
+        "The fixed end and moving bar end define a measurable path, allowing coaches to observe consistency of setup, arc, range, velocity intent, and finish.",
+        "Coach support should expose anchor, collars, bar and attachment, stance, hand count, side, rack, wrist, elbow, scapula, pelvis, ribs, path, range, tempo, dose, symptoms, fatigue, set-down, and shutdown actions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceKey": "acsm_resistance_training_position_stand_2026",
+      "claims": [
+        "Resistance exercise can be individualized through load, volume, range, effort, equipment, and progression while preserving the intended movement contract.",
+        "Options include an unloaded bar, lighter plates, two hands, a split stance, shorter pain-free range, fewer repetitions, longer rest, a reviewed non-overhead substitution, and written, audio, tactile, still-image, or live instruction."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceKey": "nsca_landmine_press_implementation",
+      "claims": [
+        "Stance, hand count, grip attachment, load, range, and tempo can vary within the strict standing landmine-press identity when fully declared.",
+        "Half-kneeling changes the base; a push press adds knee-and-hip drive; rotational press adds transverse-plane trunk and foot action; throws add release; squat-to-press adds a full squat; and these remain separate definitions."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceKey": "youtube_embed_help",
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "Five candidates returned current oEmbed video metadata on 2026-07-27. Full playback, exact variant, cue, safety, caption, accessibility, demonstration-quality, reviewer, and approval review remain unresolved."
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "slug": "landmine-press",
+      "assessmentSummary": {
+        "identity": "A strict standing press of the free end of a barbell secured in a rated landmine pivot, beginning at a declared shoulder or central rack and moving up and forward through the fixed diagonal arc to an owned finish before a controlled same-path return, without deliberate lower-body drive or torso rotation.",
+        "currentCardFindings": [
+          "The current card has one underspecified active baseline and archived source baselines for anti-rotation, ball-grip, neutral-handle, and half-kneeling labels.",
+          "The baseline does not declare stance, laterality, hand count, attachment, grip, rack, bar side, range, tempo, load, side dose, pickup, set-down, or stop rules.",
+          "Ball-grip and neutral-handle sources change attachment and grip but preserve the strict standing diagonal press and belong as exact variants.",
+          "Half-kneeling landmine press, landmine push press, rotational press, punch throw, squat-to-press, and floor press change the base, primary action, intent, or terminal event and remain separate definitions.",
+          "Five direct YouTube candidates currently return oEmbed video metadata. No full viewing, exact-variant review, safety review, caption review, accessibility review, or approval has occurred."
+        ],
+        "proposedTaxonomy": {
+          "movementPatterns": [
+            "push",
+            "brace"
+          ],
+          "movementQualifiers": [
+            "rated_fixed_landmine_pivot",
+            "standing_declared_square_or_split_stance",
+            "declared_one_or_two_hand_grip",
+            "declared_shoulder_or_central_rack",
+            "strict_no_deliberate_leg_drive",
+            "fixed_diagonal_press_arc",
+            "controlled_scapular_motion",
+            "owned_elbow_extension",
+            "controlled_same_path_return"
+          ],
+          "jointActions": [
+            "shoulder_flexion_in_the_landmine_arc",
+            "scapular_upward_rotation_protraction_and_posterior_tilt",
+            "elbow_extension_and_flexion",
+            "wrist_and_grip_stabilization",
+            "trunk_anti_extension_anti_lateral_flexion_and_anti_rotation",
+            "standing_hip_knee_ankle_and_foot_stabilization"
+          ],
+          "planes": [
+            "oblique_sagittal_and_scapular_press_motion",
+            "frontal_and_transverse_stabilization"
+          ],
+          "laterality": "variant_declared_unilateral_or_bilateral",
+          "intent": "strict_controlled_angled_press_strength"
+        },
+        "proposedAnatomy": {
+          "primaryMusclesAndTissues": [
+            "anterior_deltoid",
+            "clavicular_pectoralis_major",
+            "triceps_brachii"
+          ],
+          "secondaryMusclesAndTissues": [
+            "serratus_anterior",
+            "upper_and_lower_trapezius",
+            "rotator_cuff",
+            "abdominal_wall_and_obliques",
+            "spinal_stabilizers",
+            "gluteals_and_lower_body_stabilizers",
+            "forearm_and_hand_flexors"
+          ],
+          "joints": [
+            "glenohumeral",
+            "scapulothoracic",
+            "acromioclavicular",
+            "elbow",
+            "radioulnar",
+            "wrist",
+            "hand",
+            "spine",
+            "pelvis",
+            "hip",
+            "knee",
+            "ankle",
+            "foot"
+          ],
+          "primaryActions": [
+            "establish_secure_landmine_and_declared_stance",
+            "rack_the_exact_sleeve_or_attachment",
+            "brace_pelvis_ribs_and_trunk",
+            "press_along_the_fixed_diagonal_arc_without_leg_drive",
+            "permit_controlled_scapular_motion",
+            "reach_the_declared_owned_finish",
+            "lower_to_the_exact_rack_and_reset_or_set_down_safely"
+          ]
+        },
+        "proposedDifficulty": {
+          "technicalComplexity": 46,
+          "absoluteLoadDemand": 48,
+          "coordinationDemand": 48,
+          "supervisionDemand": 40,
+          "failureConsequence": 46,
+          "impact": 1,
+          "workCapacityDemand": 48,
+          "baseOverallDifficulty": 48
+        },
+        "variantDifficultyCandidates": [
+          {
+            "variantKey": "single-arm-square-stance-sleeve-grip-strict",
+            "exerciseComplexity": 46,
+            "physicalDifficulty": 44,
+            "derivedOverallDifficulty": 46,
+            "basis": "unilateral sleeve support and a square base require anti-motion control and exact side dosing"
+          },
+          {
+            "variantKey": "single-arm-split-stance-sleeve-grip-strict",
+            "exerciseComplexity": 44,
+            "physicalDifficulty": 46,
+            "derivedOverallDifficulty": 46,
+            "basis": "the split stance improves base control while unilateral loading and stance-side declaration remain meaningful"
+          },
+          {
+            "variantKey": "two-hand-square-stance-sleeve-grip-strict",
+            "exerciseComplexity": 38,
+            "physicalDifficulty": 44,
+            "derivedOverallDifficulty": 44,
+            "basis": "two-hand central support reduces laterality demand while retaining the fixed arc, grip, rack, and trunk constraints"
+          },
+          {
+            "variantKey": "two-hand-square-stance-neutral-handle-strict",
+            "exerciseComplexity": 40,
+            "physicalDifficulty": 48,
+            "derivedOverallDifficulty": 48,
+            "basis": "the attachment changes setup and loading potential while a symmetric neutral grip reduces wrist-position ambiguity"
+          },
+          {
+            "variantKey": "two-hand-square-stance-ball-grip-strict",
+            "exerciseComplexity": 44,
+            "physicalDifficulty": 48,
+            "derivedOverallDifficulty": 48,
+            "basis": "a declared ball attachment adds grip and equipment-control requirements while preserving the strict press action"
+          }
+        ],
+        "proposedLoadProfile": {
+          "impactClass": "no_impact",
+          "externalLoadMethods": [
+            "barbell_landmine_sleeve_and_declared_plate_mass",
+            "declared_neutral_handle_attachment",
+            "declared_ball_grip_attachment"
+          ],
+          "primaryStress": [
+            "angled_shoulder_and_elbow_press_force",
+            "scapular_and_rotator_cuff_control",
+            "trunk_anti_motion",
+            "standing_base_stability",
+            "grip_wrist_lowering_pickup_and_set_down_control"
+          ],
+          "cumulativeBudgets": [
+            "angled_press_strength_sets",
+            "shoulder_chest_and_triceps_loading",
+            "scapular_and_rotator_cuff_demand",
+            "trunk_anti_motion",
+            "grip_and_eccentric_lowering",
+            "technical_and_equipment_failure_sensitivity"
+          ]
+        },
+        "proposedFatigueRecovery": {
+          "primaryFatigueSites": [
+            "anterior_shoulder",
+            "upper_chest",
+            "triceps",
+            "scapular_stabilizers",
+            "grip_and_forearm",
+            "trunk_stabilizers"
+          ],
+          "earlyFatigueSignals": [
+            "rib_flare_or_back_extension",
+            "trunk_rotation_or_side_bend",
+            "wrist_extension_or_grip_shift",
+            "elbow_path_change",
+            "shrug_without_owned_scapular_motion",
+            "leg_drive",
+            "shortened_range",
+            "faster_uncontrolled_lowering"
+          ],
+          "downstreamConflicts": [
+            "heavy_overhead_or_horizontal_pressing",
+            "high_velocity_throwing_or_hitting",
+            "contact_or_grip_intensive_training",
+            "upper_body_power_testing"
+          ],
+          "recoveryWindowHours": {
+            "technique_or_light": 24,
+            "moderate_strength": 36,
+            "high_volume_or_heavy": 48
+          }
+        },
+        "proposedConstraints": {
+          "requiredEquipmentByVariant": {
+            "sleeve_grip": [
+              "rated_landmine",
+              "barbell",
+              "collars",
+              "plates_as_prescribed"
+            ],
+            "neutral_handle": [
+              "rated_landmine",
+              "barbell",
+              "compatible_neutral_handle",
+              "collars",
+              "plates_as_prescribed"
+            ],
+            "ball_grip": [
+              "rated_landmine",
+              "barbell",
+              "compatible_ball_grip_attachment",
+              "collars",
+              "plates_as_prescribed"
+            ]
+          },
+          "environment": [
+            "level_high_traction_floor",
+            "rated_anchor_and_compatible_bar",
+            "clear_full_bar_arc_and_plate_zone",
+            "clear_pickup_and_set_down_zone",
+            "coach_outside_bar_and_plate_path"
+          ],
+          "populationReadiness": [
+            "pain_free_standing_and_press_range",
+            "can_hold_declared_stance_and_brace",
+            "can_control_an_unloaded_or_light_bar_through_the_arc",
+            "can_pick_up_rack_return_and_set_down_the_selected_load"
+          ]
+        },
+        "proposedDeliveryProfiles": [
+          {
+            "profileKey": "capacity-strict-strength",
+            "phaseKey": "capacity",
+            "purpose": "Build repeatable strict angled pressing strength while preserving the exact stance, grip, rack, bar path, finish, lowering, and side balance.",
+            "dosage": {
+              "sets": [
+                2,
+                5
+              ],
+              "repsPerSide": [
+                4,
+                10
+              ],
+              "rpe": [
+                5,
+                8
+              ],
+              "restSeconds": [
+                90,
+                240
+              ],
+              "tempo": "controlled_lowering_with_deliberate_reset"
+            }
+          },
+          {
+            "profileKey": "movement-intelligence-path-control",
+            "phaseKey": "movement_intelligence",
+            "purpose": "Practice secure setup, an owned diagonal path, scapular motion, trunk control, and safe return at low fatigue.",
+            "dosage": {
+              "sets": [
+                2,
+                4
+              ],
+              "repsPerSide": [
+                3,
+                6
+              ],
+              "rpe": [
+                3,
+                6
+              ],
+              "restSeconds": [
+                60,
+                180
+              ],
+              "tempo": "slow_controlled_rehearsal"
+            }
+          }
+        ],
+        "proposedInstructions": {
+          "coach": [
+            "Inspect and secure the anchor, bar, collars, plates, attachment, floor, clearance, and set-down zone.",
+            "Name the exact stance, side, hand count, grip, rack, range, tempo, repetitions, rest, and finish.",
+            "Observe foot pressure, pelvis and ribs, wrist and elbow, scapula, fixed arc, owned finish, controlled return, symptoms, and fatigue.",
+            "End the set rather than accepting leg drive, torso turn, back extension, grip loss, a changed path, or an unsafe return."
+          ],
+          "athlete": [
+            "Set your feet and grip exactly as assigned, bring the sleeve or handle to the declared rack, and brace tall.",
+            "Press up and forward along the landmine arc without dipping or turning.",
+            "Reach the owned finish, then lower to the same rack under control.",
+            "Stop for pain, dizziness, anchor movement, balance loss, wrist collapse, a changed path, or a return you cannot control."
+          ],
+          "qualityGate": "Every counted repetition preserves a secure anchor, declared stance and grip, stable foot pressure, organized pelvis and ribs, stacked wrist and forearm, strict diagonal arc, controlled scapular motion, owned finish, same-path lowering, and safe reset.",
+          "stopRules": [
+            "pain_or_neurologic_symptoms",
+            "dizziness_or_unusual_shortness_of_breath",
+            "anchor_collar_plate_bar_or_attachment_movement",
+            "lost_stance_balance_or_foot_pressure",
+            "rib_flare_back_extension_rotation_or_side_bend",
+            "wrist_collapse_grip_shift_or_elbow_path_loss",
+            "deliberate_leg_drive_or_changed_primary_action",
+            "uncontrolled_bar_path_lowering_or_set_down",
+            "grinding_or_fatigue_changes_the_contract",
+            "person_or_object_enters_the_bar_arc"
+          ]
+        }
+      },
+      "mediaCandidates": [
+        {
+          "url": "https://www.youtube.com/watch?v=3gYz0bLG-wY",
+          "title": "Proper Technique for The Landmine Press",
+          "channelName": "Simone Sports Performance",
+          "sourceQuery": "Landmine Press exercise technique",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T04:48:08.000Z"
+          },
+          "notes": "oEmbed metadata and embed-player HTML responded. Full viewing, exact strict-standing variant, cue, safety, caption, accessibility, demonstration-quality, reviewer, and approval review remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=Xf5tyNy5M6k",
+          "title": "Learn to Landmine Overhead Press",
+          "channelName": "Testosterone Nation",
+          "sourceQuery": "Standing Landmine Press exercise technique",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T04:48:08.000Z"
+          },
+          "notes": "oEmbed metadata and embed-player HTML responded. Full viewing, exact strict-standing variant, cue, safety, caption, accessibility, demonstration-quality, reviewer, and approval review remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=N9_1DnqUAQw",
+          "title": "5 Best Landmine Press Exercises",
+          "channelName": "Buff Dudes Workouts",
+          "sourceQuery": "Landmine Press exact variants",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T04:48:08.000Z"
+          },
+          "notes": "oEmbed metadata and embed-player HTML responded. This is a multi-variation candidate; exact timestamps, full viewing, cue, safety, caption, accessibility, demonstration-quality, reviewer, and approval review remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=5Cs27w8WVz4",
+          "title": "Single Arm Landmine Press",
+          "channelName": "Functional Bodybuilding",
+          "sourceQuery": "Single Arm Landmine Press exercise",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T04:48:08.000Z"
+          },
+          "notes": "oEmbed metadata and embed-player HTML responded. Full viewing, exact strict-standing stance and rack, cue, safety, caption, accessibility, demonstration-quality, reviewer, and approval review remain pending."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=6cSTRPhpubs",
+          "title": "Standing Landmine Shoulder Press - Developing Overhead Control",
+          "channelName": "[P]rehab",
+          "sourceQuery": "Standing Landmine Shoulder Press exercise",
+          "linkStatus": "healthy",
+          "embeddingAllowed": true,
+          "externalVerification": {
+            "method": "youtube_oembed",
+            "verifiedAt": "2026-07-27T04:48:08.000Z"
+          },
+          "notes": "oEmbed metadata and embed-player HTML responded. Full viewing, exact strict-standing variant, cue, safety, caption, accessibility, demonstration-quality, reviewer, and approval review remain pending."
+        }
+      ],
+      "alternateAssessments": [
+        {
+          "name": "Standing Single-Arm Landmine Press",
+          "classification": "new_variant",
+          "rationale": "One hand and a declared side change laterality, rack, anti-motion demand, and side dosing while preserving the strict standing diagonal press.",
+          "distinguishingDimensions": {
+            "variantKey": "single-arm-square-stance-sleeve-grip-strict",
+            "laterality": "unilateral"
+          }
+        },
+        {
+          "name": "Split-Stance Single-Arm Landmine Press",
+          "classification": "new_variant",
+          "rationale": "A split stance changes base and lead-leg relationship within the same strict press action.",
+          "distinguishingDimensions": {
+            "variantKey": "single-arm-split-stance-sleeve-grip-strict",
+            "stance": "split"
+          }
+        },
+        {
+          "name": "Two-Hand Landmine Press",
+          "classification": "new_variant",
+          "rationale": "Two-hand central support changes laterality, rack, load symmetry, and loading potential while preserving the press path and strict intent.",
+          "distinguishingDimensions": {
+            "variantKey": "two-hand-square-stance-sleeve-grip-strict",
+            "handCount": 2
+          }
+        },
+        {
+          "name": "Landmine Neutral-Handle Press",
+          "classification": "new_variant",
+          "rationale": "A compatible neutral handle changes attachment, grip, wrist position, setup, and loading potential but not the primary action.",
+          "distinguishingDimensions": {
+            "variantKey": "two-hand-square-stance-neutral-handle-strict",
+            "attachment": "neutral_handle"
+          }
+        },
+        {
+          "name": "Landmine Ball-Grip Press",
+          "classification": "new_variant",
+          "rationale": "A compatible ball-grip attachment changes hand interface, wrist and forearm demand, setup, and load handling while preserving the primary action.",
+          "distinguishingDimensions": {
+            "variantKey": "two-hand-square-stance-ball-grip-strict",
+            "attachment": "ball_grip"
+          }
+        },
+        {
+          "name": "Half-Kneeling One-Arm Landmine Press",
+          "classification": "new_definition",
+          "rationale": "One knee down and the opposite foot forward change base, contacts, side relationship, setup, trunk and hip stabilization, and pickup and set-down mechanics.",
+          "distinguishingDimensions": {
+            "base": "half_kneeling",
+            "existingSlug": "half-kneeling-one-arm-landmine-press"
+          },
+          "proposedCard": {
+            "status": "existing_definition_requires_separate_completion",
+            "slug": "half-kneeling-one-arm-landmine-press"
+          }
+        },
+        {
+          "name": "One-Arm Landmine Push Press",
+          "classification": "new_definition",
+          "rationale": "A deliberate dip and explosive knee-and-hip drive change the primary action, power intent, load tolerance, fatigue, and stop rules.",
+          "distinguishingDimensions": {
+            "primaryAction": "lower_body_drive_to_diagonal_press",
+            "existingSlug": "one-arm-landmine-push-press"
+          },
+          "proposedCard": {
+            "status": "existing_definition_requires_separate_completion",
+            "slug": "one-arm-landmine-push-press"
+          }
+        },
+        {
+          "name": "Landmine Rotational Press",
+          "classification": "new_definition",
+          "rationale": "Deliberate foot, hip, pelvis, and trunk rotation changes the plane, kinetic sequence, laterality, intent, and fatigue profile.",
+          "distinguishingDimensions": {
+            "primaryAction": "rotational_force_transfer_to_press",
+            "existingSlug": "landmine-rotational-press"
+          },
+          "proposedCard": {
+            "status": "existing_definition_requires_separate_completion",
+            "slug": "landmine-rotational-press"
+          }
+        },
+        {
+          "name": "Landmine Punch Throw",
+          "classification": "new_definition",
+          "rationale": "Maximal ballistic intent and release change the terminal event, failure consequence, space, equipment, and supervision requirements.",
+          "distinguishingDimensions": {
+            "terminalEvent": "bar_release_or_catch_system",
+            "intent": "maximal_velocity"
+          },
+          "proposedCard": {
+            "status": "proposal_only_human_review_required"
+          }
+        },
+        {
+          "name": "Landmine Squat-to-Press",
+          "classification": "new_definition",
+          "rationale": "A full squat followed by a press adds substantial lower-body range, a combined primary action, different dose, and different fatigue and stop rules.",
+          "distinguishingDimensions": {
+            "primaryAction": "squat_then_diagonal_press",
+            "existingSlug": "landmine-squat-to-press"
+          },
+          "proposedCard": {
+            "status": "existing_definition_requires_separate_completion",
+            "slug": "landmine-squat-to-press"
+          }
+        },
+        {
+          "name": "Banded Landmine Press",
+          "classification": "modifier_annotation",
+          "rationale": "A band adds anchor, resistance-curve, recoil, setup, and load-tracking requirements; it should annotate an exact strict stance and hand-count variant unless those constraints require a dedicated operational variant.",
+          "distinguishingDimensions": {
+            "modifier": "band_accommodating_resistance",
+            "requires": [
+              "rated_band",
+              "rated_anchor",
+              "recoil_exclusion_zone"
+            ]
+          }
+        },
+        {
+          "name": "Landmine Press Tempo or Partial Range",
+          "classification": "modifier_annotation",
+          "rationale": "Tempo and range change dose and difficulty but do not create a new identity when the strict standing diagonal press, exact stance, grip, rack, and return remain declared.",
+          "distinguishingDimensions": {
+            "modifiers": [
+              "tempo",
+              "range"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

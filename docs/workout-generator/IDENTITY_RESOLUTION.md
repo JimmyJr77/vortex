@@ -1,5 +1,37 @@
 # Canonical exercise identity resolution
 
+## Score-72 queue completion (2026-07-27)
+
+Migrations 391–396 complete the configured canonical name-similarity queue
+through score 72. The pass audits source-card movement contracts, records
+mechanical boundaries, and consolidates only controlled variants:
+
+| Migration | Decision type | Count |
+|---|---|---:|
+| 391 | Score-74 boundaries/quarantines | 65 |
+| 392 | Score-74 variant consolidations | 21 |
+| 393 | Score-73 boundaries/quarantines | 98 |
+| 394 | Score-73 variant consolidations | 26 |
+| 395 | Score-72 boundaries/quarantines | 85 |
+| 396 | Score-72 variant consolidations | 26 |
+
+The final disposable-PostgreSQL audit has 1,099 active definitions and 577
+archived source identities. It finds 621 raw score-72+ name-similarity pairs:
+569 are adjudicated as mechanically distinct, 52 are explicitly quarantined
+as `needs_human_review`, zero remain unclassified, and zero are exact
+collisions. The 52 quarantines preserve missing facts such as foot count,
+contact order, stance, hand count, force direction, or repetition boundary;
+automation does not guess them.
+
+All 73 consolidations in this pass preserve the legacy source mapping, aliases,
+candidate evidence and media, and archived source variants. The surviving
+cards and transferred records remain in review. No migration creates a card,
+media, relationship, calibration, or publication approval.
+
+Exercise cards contain no skill/proficiency level. Their difficulty model is
+exercise complexity plus physical difficulty, with overall difficulty equal to
+the maximum. Formal levels remain on the 1,112 `coaching.skill` library cards.
+
 ## Result
 
 Migration 252 consolidates 83 redundant canonical definitions into surviving

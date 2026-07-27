@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-07-27.54",
+  "registryVersion": "2026-07-27.55",
   "sources": {
     "sprint_start_biomechanics_review": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
@@ -1253,6 +1253,20 @@
       "publisher": "Medicine & Science in Sports & Exercise",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 88
+    },
+    "nsca_landmine_press_implementation": {
+      "url": "https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/",
+      "title": "The Landmine Press—Implementation and Variation",
+      "publisher": "National Strength and Conditioning Association",
+      "kind": "professional_standard",
+      "evidenceQuality": 84
+    },
+    "landmine_press_kinematics_2026": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/41755100/",
+      "title": "Landmine Press Kinematics Measured with an Enhanced YOLOv8 Model and Mathematical Modeling",
+      "publisher": "Sensors",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 86
     }
   }
 }

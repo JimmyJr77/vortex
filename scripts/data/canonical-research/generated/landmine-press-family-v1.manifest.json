@@ -1,0 +1,13 @@
+{
+  "batchKey": "landmine-press-family-v1",
+  "researchVersion": "2026-07-27.55",
+  "generatedAt": "2026-07-27T04:48:08.000Z",
+  "cards": [
+    {
+      "slug": "landmine-press",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 12
+    }
+  ]
+}

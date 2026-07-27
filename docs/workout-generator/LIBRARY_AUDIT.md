@@ -2,6 +2,37 @@
 
 Audit baseline: 2026-07-26, disposable PostgreSQL 15, facility 1.
 
+## Identity completion update (2026-07-27)
+
+The score-72+ identity queue is fully classified after migrations 391–396:
+
+| Measure | Count |
+|---|---:|
+| Legacy exercise/source mappings | 1,676 |
+| Active canonical definitions | 1,099 |
+| Archived source definitions | 577 |
+| Raw score-72+ similarity pairs | 621 |
+| Adjudicated distinct pairs | 569 |
+| Explicit human-review quarantines | 52 |
+| Unclassified score-72+ pairs | 0 |
+| Exact identity collisions | 0 |
+| New consolidations in migrations 392/394/396 | 73 |
+
+The database invariant audit finds zero exercise scalar skill levels, zero
+non-neutral level classifications in definition, variant, delivery, or
+identity JSON, and 1,112 skill-library cards retaining their formal
+`skill_level`. Among 1,286 active variants, 1,275 have populated difficulty and
+all populated records satisfy
+`overall = max(exercise complexity, physical difficulty)`.
+
+Identity completion is not publication readiness. The executable canonical
+audit still quarantines all 1,099 active definitions. Structural card content
+is complete on 41 and incomplete on 1,058; media, graph, calibration, and
+publication remain human-gated for every survivor. There are zero approved
+media candidates, relationships, calibration anchors, variants, delivery
+profiles, or canonical definitions. The release gate therefore remains
+correctly blocked.
+
 ## Result
 
 The migration preserves every legacy exercise:
