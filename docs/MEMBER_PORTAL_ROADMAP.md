@@ -269,3 +269,8 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
   Stripe subscription for multi-class carts. Due-now uses `payment`/`setup`; after commit each
   class gets its own Stripe Subscription at the discounted net monthly rate so cancel/discounts
   can target one class without affecting others.
+- **Fixed (2026-07):** Confirm enrollment after Stripe pay failed with toast `"analytics" is not
+  allowed` — pending payload stores GA attribution, but `batchSignupSchema` rejected the key.
+  Strip `analytics` before `executeSignupBatch` and validate with `stripUnknown`
+  ([stripeEnrollmentCheckout.js](../backend/billing/stripeEnrollmentCheckout.js),
+  [handlers.js](../backend/scheduling/handlers.js)).

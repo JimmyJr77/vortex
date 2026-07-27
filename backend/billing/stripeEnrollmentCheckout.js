@@ -716,12 +716,15 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
     }
 
     const payload = await refreshSignupAuthForCommit(pool, pending.payload, pending.member_id)
+    // Keep analytics on the pending row for GA4 attribution, but do not pass it into
+    // signup batch validation (Joi rejects unknown keys → "analytics is not allowed").
+    const { analytics: _analytics, ...signupBatchPayload } = payload
     const previewSnapshot =
       typeof pending.preview_snapshot === 'string'
         ? JSON.parse(pending.preview_snapshot)
         : pending.preview_snapshot
 
-    const result = await executeSignupBatch(pool, payload)
+    const result = await executeSignupBatch(pool, signupBatchPayload)
     await client.query(
       `UPDATE stripe_pending_enrollment
        SET status = 'completed', updated_at = now()

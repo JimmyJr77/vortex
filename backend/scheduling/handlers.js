@@ -2426,7 +2426,12 @@ export function createSchedulingHandlers(pool) {
 
     async createSignupBatch(req, res) {
       try {
-        const { error, value } = batchSignupSchema.validate(req.body, { abortEarly: false })
+        const { error, value } = batchSignupSchema.validate(req.body, {
+          abortEarly: false,
+          // Stripe pending enrollment payloads may include analytics attribution;
+          // strip those so signup commit does not fail with "analytics is not allowed".
+          stripUnknown: true,
+        })
         if (error) {
           const msg = error.details[0]?.message || 'Validation error'
           return res.status(400).json({
