@@ -260,3 +260,8 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
 - **Fixed (2026-07):** `GET /api/members/multi-class-passes` referenced undefined `account`
   (ReferenceError → 500). Now loads `family_billing_account` via `ensureBillingAccount` before
   comparing `payer_member_id` ([registerRoutes.js](../backend/platform/registerRoutes.js)).
+- **Fixed (2026-07):** Enrollment Stripe Checkout looked up `vortex:program:{id}:monthly_Nx` from
+  slot count even when only `monthly_1x` was enabled/synced (e.g. 2 classes → missing
+  `monthly_2x` → 500). Now maps flat 1× programs to `monthly_1x` × quantity via
+  `resolveSyncedWeeklyTierCatalogRef` ([weeklyTierPricing.js](../backend/programs/weeklyTierPricing.js),
+  [stripeEnrollmentCheckout.js](../backend/billing/stripeEnrollmentCheckout.js)).
