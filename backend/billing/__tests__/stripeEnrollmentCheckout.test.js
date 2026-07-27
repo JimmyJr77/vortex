@@ -8,11 +8,44 @@ import {
   enrollmentHasRecurringMembership,
   formatEnrollmentCheckoutSubmitMessage,
   formatFirstMonthTuitionLineName,
+  formatPerClassStripeProductName,
   resolveEnrollmentCheckoutMode,
   resolvePerClassMonthlyAmountCents,
   shouldShowEnrollmentCheckoutSubmitMessage,
 } from '../stripeEnrollmentCheckout.js'
+import { pluralizeWeekdayLabel } from '../stripeProductNaming.js'
 import { firstOfNextMonth } from '../../scheduling/firstMonthProration.js'
+
+test('formatPerClassStripeProductName includes class, schedule, and athlete', () => {
+  assert.equal(
+    formatPerClassStripeProductName({
+      classTitle: 'Tramp & Tumble',
+      scheduleLabel: 'Mondays 19:15–20:45',
+      athleteName: 'Maddox OBrien',
+    }),
+    'Tramp & Tumble · Mondays 19:15–20:45 · Maddox OBrien',
+  )
+})
+
+test('formatPerClassStripeProductName distinguishes same class different times', () => {
+  const a = formatPerClassStripeProductName({
+    classTitle: 'Tramp & Tumble',
+    scheduleLabel: 'Mondays 19:15–20:45',
+    athleteName: 'Maddox',
+  })
+  const b = formatPerClassStripeProductName({
+    classTitle: 'Tramp & Tumble',
+    scheduleLabel: 'Wednesdays 18:00–19:30',
+    athleteName: 'Maddox',
+  })
+  assert.notEqual(a, b)
+  assert.match(a, /Mondays/)
+  assert.match(b, /Wednesdays/)
+})
+
+test('pluralizeWeekdayLabel converts weekday names for recurring slots', () => {
+  assert.equal(pluralizeWeekdayLabel('Tuesday · 14:00–18:00'), 'Tuesdays · 14:00–18:00')
+})
 
 test('formatEnrollmentCheckoutSubmitMessage covers first-month pay and per-class renewals', () => {
   const message = formatEnrollmentCheckoutSubmitMessage()

@@ -8,18 +8,24 @@ import { getStripeClient, stripeEnabled, ensureStripeBillingSchema, ensureStripe
 import {
   feeLookupKey,
   passLookupKey,
-  programOptionLookupKey,
   resolveStripePriceId,
   ensureStripeCatalogSchema,
   ensureBillingRecurringSchema,
   getCatalogSyncStatus,
 } from './stripeCatalogSync.js'
+import {
+  formatPerClassStripeProductName,
+  pluralizeWeekdayLabel,
+} from './stripeProductNaming.js'
 import { buildSignupOrderPreview } from '../scheduling/orderPricing.js'
 import { executeSignupBatch } from '../scheduling/handlers.js'
 import { firstOfNextMonth, todayDateOnly } from '../scheduling/firstMonthProration.js'
 import { issueSignupAuthToken } from '../scheduling/signupAuth.js'
 import { findMemberById } from '../members/createMemberStub.js'
 import { emitStripePurchaseEvent } from '../analytics/ga4Measurement.js'
+import { buildSlotDisplayLabel } from '../scheduling/slotDisplayLabel.js'
+
+export { formatPerClassStripeProductName } from './stripeProductNaming.js'
 
 async function loadFormProgramsId(pool, formId) {
   const res = await pool.query(`SELECT programs_id FROM scheduling_form WHERE id = $1`, [formId])
@@ -276,44 +282,22 @@ async function buildPerClassStripeSubscriptionItem(
   stripe,
   { programsId, amountCents, productName, selectedPricingOptionKey },
 ) {
-  const tryKeys = [
-    selectedPricingOptionKey,
-    'monthly_1x',
-  ].filter((key, index, arr) => key && arr.indexOf(key) === index)
+  // Always use a dedicated Product so Stripe Customer Portal can show class +
+  // day/time + athlete. Reusing catalog products collapses different slots into
+  // the same generic "Program — Monthly @ 1×" label.
+  void pool
+  void selectedPricingOptionKey
 
-  let catalogProductId = null
-  if (programsId != null) {
-    for (const key of tryKeys) {
-      const lookupKey = programOptionLookupKey(Number(programsId), key)
-      const res = await pool.query(
-        `SELECT stripe_price_id, stripe_product_id, amount_cents FROM stripe_catalog_item
-         WHERE stripe_lookup_key = $1 AND active = TRUE`,
-        [lookupKey],
-      )
-      const row = res.rows[0]
-      if (row?.stripe_product_id) catalogProductId = row.stripe_product_id
-      if (row?.stripe_price_id && Number(row.amount_cents) === amountCents) {
-        return { price: row.stripe_price_id, quantity: 1 }
-      }
-    }
-  }
-
-  // Discounted / custom net amounts: create an ad-hoc Price on the catalog product
-  // (Subscriptions API rejects price_data.product_data on current Stripe API versions).
-  let productId = catalogProductId
-  if (!productId) {
-    const product = await stripe.products.create({
-      name: String(productName || 'Monthly class membership').slice(0, 200),
-      metadata: {
-        vortex_ad_hoc_enrollment_price: 'true',
-        ...(programsId != null ? { vortex_programs_id: String(programsId) } : {}),
-      },
-    })
-    productId = product.id
-  }
+  const product = await stripe.products.create({
+    name: String(productName || 'Monthly class membership').slice(0, 200),
+    metadata: {
+      vortex_per_class_subscription: 'true',
+      ...(programsId != null ? { vortex_programs_id: String(programsId) } : {}),
+    },
+  })
 
   const price = await stripe.prices.create({
-    product: productId,
+    product: product.id,
     currency: 'usd',
     unit_amount: amountCents,
     recurring: { interval: 'month' },
@@ -435,7 +419,18 @@ export async function createEnrollmentStripeSubscriptions(
   for (const subRow of subsRes.rows) {
     const signupId = Number(subRow.source_id)
     const signupRes = await pool.query(
-      `SELECT form_id, slot_group_id, time_slot_id FROM scheduling_signup WHERE id = $1`,
+      `
+        SELECT ss.form_id, ss.slot_group_id, ss.time_slot_id, ss.member_id,
+               sf.title AS form_title,
+               m.first_name, m.last_name,
+               ts.week_letter, ts.schedule_mode, ts.specific_date, ts.day_of_week,
+               ts.start_time, ts.end_time
+        FROM scheduling_signup ss
+        JOIN scheduling_form sf ON sf.id = ss.form_id
+        JOIN member m ON m.id = ss.member_id
+        LEFT JOIN scheduling_time_slot ts ON ts.id = ss.time_slot_id
+        WHERE ss.id = $1
+      `,
       [signupId],
     )
     const signup = signupRes.rows[0]
@@ -457,8 +452,13 @@ export async function createEnrollmentStripeSubscriptions(
       ? computeFirstMonthBillingAnchorDate(fmItem, fromDate)
       : firstOfNextMonth(fromDate)
 
-    const productName =
-      String(subRow.description || previewLine.formTitle || 'Monthly class membership').slice(0, 200)
+    const scheduleLabel = pluralizeWeekdayLabel(buildSlotDisplayLabel(signup))
+    const athleteName = [signup.first_name, signup.last_name].filter(Boolean).join(' ').trim()
+    const productName = formatPerClassStripeProductName({
+      classTitle: signup.form_title || previewLine.formTitle || subRow.description,
+      scheduleLabel,
+      athleteName,
+    })
     const item = await buildPerClassStripeSubscriptionItem(pool, stripe, {
       programsId: previewLine.programsId ?? null,
       amountCents,
@@ -474,6 +474,7 @@ export async function createEnrollmentStripeSubscriptions(
       trial_end: resolveSubscriptionTrialEndUnix(anchorDate),
       proration_behavior: 'none',
       ...(defaultPaymentMethod ? { default_payment_method: defaultPaymentMethod } : {}),
+      description: productName.slice(0, 500),
       metadata: {
         billingSubscriptionId: String(subRow.id),
         familyBillingAccountId: String(familyBillingAccountId),

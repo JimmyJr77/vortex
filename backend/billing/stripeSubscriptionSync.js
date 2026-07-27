@@ -16,6 +16,8 @@ export function billingDateToUnixStart(dateStr) {
 /**
  * Update a Stripe subscription's recurring unit amount (household discount changes).
  * Uses proration_behavior=none so trial / next invoice picks up the new price cleanly.
+ * When productName is provided, moves the subscription onto a dedicated Product so
+ * Customer Portal can show class + day/time (catalog products are shared/generic).
  */
 export async function updateStripeSubscriptionUnitAmount(
   stripeSubscriptionId,
@@ -38,16 +40,36 @@ export async function updateStripeSubscriptionUnitAmount(
     if (!item) return { status: 'skipped', reason: 'no_item' }
 
     const currentAmount = Number(item.price?.unit_amount ?? 0)
-    if (currentAmount === cents) return { status: 'unchanged', amountCents: cents }
+    const currentProduct =
+      typeof item.price?.product === 'object' ? item.price.product : null
+    const desiredName = productName ? String(productName).trim().slice(0, 200) : null
+    const nameMatches =
+      !desiredName || (currentProduct?.name && currentProduct.name === desiredName)
+    const isDedicated =
+      currentProduct?.metadata?.vortex_per_class_subscription === 'true'
 
-    let productId =
-      typeof item.price?.product === 'object' ? item.price.product?.id : item.price?.product
-    if (!productId) {
+    if (currentAmount === cents && nameMatches && isDedicated) {
+      return { status: 'unchanged', amountCents: cents }
+    }
+
+    let productId = currentProduct?.id
+    if (desiredName && (!isDedicated || !nameMatches)) {
       const product = await stripe.products.create({
-        name: String(productName || 'Monthly class membership').slice(0, 200),
-        metadata: { vortex_ad_hoc_enrollment_price: 'true' },
+        name: desiredName,
+        metadata: {
+          vortex_per_class_subscription: 'true',
+          vortex_discount_sync: 'true',
+        },
       })
       productId = product.id
+    } else if (!productId) {
+      const product = await stripe.products.create({
+        name: desiredName || 'Monthly class membership',
+        metadata: { vortex_per_class_subscription: 'true' },
+      })
+      productId = product.id
+    } else if (desiredName && isDedicated && !nameMatches) {
+      await stripe.products.update(productId, { name: desiredName })
     }
 
     const price = await stripe.prices.create({
@@ -64,6 +86,7 @@ export async function updateStripeSubscriptionUnitAmount(
     await stripe.subscriptions.update(stripeSubscriptionId, {
       items: [{ id: item.id, price: price.id }],
       proration_behavior: 'none',
+      ...(desiredName ? { description: desiredName.slice(0, 500) } : {}),
     })
     return { status: 'updated', amountCents: cents, previousAmountCents: currentAmount }
   } catch (err) {
@@ -81,9 +104,18 @@ export async function syncFamilyStripeSubscriptionAmounts(pool, familyId) {
 
   const res = await pool.query(
     `
-      SELECT bs.id, bs.stripe_subscription_id, bs.net_monthly_cents, bs.description
+      SELECT bs.id, bs.stripe_subscription_id, bs.net_monthly_cents, bs.description,
+             sf.title AS form_title,
+             m.first_name, m.last_name,
+             ts.week_letter, ts.schedule_mode, ts.specific_date, ts.day_of_week,
+             ts.start_time, ts.end_time
       FROM billing_subscription bs
       JOIN family_billing_account fba ON fba.id = bs.family_billing_account_id
+      LEFT JOIN scheduling_signup ss
+        ON ss.id::text = bs.source_id AND bs.source_type = 'scheduling_signup'
+      LEFT JOIN scheduling_form sf ON sf.id = ss.form_id
+      LEFT JOIN member m ON m.id = bs.member_id
+      LEFT JOIN scheduling_time_slot ts ON ts.id = ss.time_slot_id
       WHERE fba.family_id = $1
         AND bs.status = 'active'
         AND bs.stripe_subscription_id IS NOT NULL
@@ -91,17 +123,30 @@ export async function syncFamilyStripeSubscriptionAmounts(pool, familyId) {
     [familyId],
   )
 
+  const { buildSlotDisplayLabel } = await import('../scheduling/slotDisplayLabel.js')
+  const { formatPerClassStripeProductName, pluralizeWeekdayLabel } = await import(
+    './stripeProductNaming.js'
+  )
+
   const results = []
   let updated = 0
   for (const row of res.rows) {
+    const scheduleLabel = pluralizeWeekdayLabel(buildSlotDisplayLabel(row))
+    const athleteName = [row.first_name, row.last_name].filter(Boolean).join(' ').trim()
+    const productName = formatPerClassStripeProductName({
+      classTitle: row.form_title || row.description,
+      scheduleLabel,
+      athleteName,
+    })
     const outcome = await updateStripeSubscriptionUnitAmount(
       row.stripe_subscription_id,
       row.net_monthly_cents,
-      { productName: row.description },
+      { productName },
     )
     results.push({
       billingSubscriptionId: Number(row.id),
       stripeSubscriptionId: row.stripe_subscription_id,
+      productName,
       ...outcome,
     })
     if (outcome.status === 'updated') updated += 1

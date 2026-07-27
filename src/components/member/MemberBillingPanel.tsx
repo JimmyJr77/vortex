@@ -320,7 +320,7 @@ export default function MemberBillingPanel({
               disabled={portalLoading}
               className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-bold text-gray-900 disabled:opacity-60"
             >
-              {portalLoading ? 'Opening settings…' : 'Manage payment method'}
+              {portalLoading ? 'Opening settings…' : 'Manage Payments & Subscriptions'}
             </button>
           </div>
         )}
