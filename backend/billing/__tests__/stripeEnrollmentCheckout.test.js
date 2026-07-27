@@ -226,3 +226,14 @@ test('resolveSubscriptionTrialEndUnix clamps past anchors into the future', asyn
   const future = resolveSubscriptionTrialEndUnix('2026-09-01', nowSec)
   assert.ok(future > nowSec + 60)
 })
+
+test('resolveEnrolledMemberIdFromPayload keeps athlete id for fee-scoped checkout preview', async () => {
+  const { resolveEnrolledMemberIdFromPayload } = await import('../stripeEnrollmentCheckout.js')
+  // Payer Jimmy (13) checking out for Cannon (62) must not inherit Jimmy's annual-fee redemption.
+  const payload = Buffer.from(JSON.stringify({ memberId: 62, formId: 31 })).toString('base64url')
+  const token = `hdr.${payload}.sig`
+  assert.equal(
+    resolveEnrolledMemberIdFromPayload({ signupAuthToken: token, signups: [{ formId: 31 }] }, 13),
+    62,
+  )
+})

@@ -520,8 +520,13 @@ export async function createEnrollmentCheckoutSession(
   const slotSignups = (batchPayload.signups ?? []).filter((s) => s.lineType !== 'multi_class_pass')
   const passSignups = (batchPayload.signups ?? []).filter((s) => s.lineType === 'multi_class_pass')
 
+  // Fees, existing enrollments, and once-per-year redemptions are athlete-scoped.
+  // The authenticated caller is usually the family payer — do not use payer id here
+  // or annual fees already redeemed by the payer wrongly suppress the child's fee.
+  const enrolledMemberId = resolveEnrolledMemberIdFromPayload(batchPayload, memberId)
+
   const preview = await buildSignupOrderPreview(pool, {
-    memberId,
+    memberId: enrolledMemberId,
     newSignups: [
       ...slotSignups.map((s) => ({
         formId: s.formId,
@@ -562,7 +567,7 @@ export async function createEnrollmentCheckoutSession(
      RETURNING id`,
     [
       account.id,
-      memberId,
+      enrolledMemberId,
       JSON.stringify(batchPayload),
       JSON.stringify(preview),
       dueNowCents,
@@ -582,7 +587,8 @@ export async function createEnrollmentCheckoutSession(
       checkoutType: 'enrollment',
       pendingEnrollmentId: String(pendingId),
       familyBillingAccountId: String(account.id),
-      memberId: String(memberId),
+      memberId: String(enrolledMemberId),
+      payerMemberId: String(memberId),
       previewHash: previewFingerprint(preview),
       hasRecurring: hasRecurring ? 'true' : 'false',
       perClassSubscriptions: hasRecurring ? 'true' : 'false',
