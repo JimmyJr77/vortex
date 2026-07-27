@@ -244,6 +244,7 @@ export function resolveEnrollmentCheckoutMode(preview) {
 
 async function buildPerClassStripeSubscriptionItem(
   pool,
+  stripe,
   { programsId, amountCents, productName, selectedPricingOptionKey },
 ) {
   const tryKeys = [
@@ -251,30 +252,48 @@ async function buildPerClassStripeSubscriptionItem(
     'monthly_1x',
   ].filter((key, index, arr) => key && arr.indexOf(key) === index)
 
+  let catalogProductId = null
   if (programsId != null) {
     for (const key of tryKeys) {
       const lookupKey = programOptionLookupKey(Number(programsId), key)
       const res = await pool.query(
-        `SELECT stripe_price_id, amount_cents FROM stripe_catalog_item
+        `SELECT stripe_price_id, stripe_product_id, amount_cents FROM stripe_catalog_item
          WHERE stripe_lookup_key = $1 AND active = TRUE`,
         [lookupKey],
       )
       const row = res.rows[0]
+      if (row?.stripe_product_id) catalogProductId = row.stripe_product_id
       if (row?.stripe_price_id && Number(row.amount_cents) === amountCents) {
         return { price: row.stripe_price_id, quantity: 1 }
       }
     }
   }
 
-  return {
-    quantity: 1,
-    price_data: {
-      currency: 'usd',
-      unit_amount: amountCents,
-      recurring: { interval: 'month' },
-      product_data: { name: String(productName || 'Monthly class membership').slice(0, 200) },
-    },
+  // Discounted / custom net amounts: create an ad-hoc Price on the catalog product
+  // (Subscriptions API rejects price_data.product_data on current Stripe API versions).
+  let productId = catalogProductId
+  if (!productId) {
+    const product = await stripe.products.create({
+      name: String(productName || 'Monthly class membership').slice(0, 200),
+      metadata: {
+        vortex_ad_hoc_enrollment_price: 'true',
+        ...(programsId != null ? { vortex_programs_id: String(programsId) } : {}),
+      },
+    })
+    productId = product.id
   }
+
+  const price = await stripe.prices.create({
+    product: productId,
+    currency: 'usd',
+    unit_amount: amountCents,
+    recurring: { interval: 'month' },
+    metadata: {
+      vortex_net_monthly: 'true',
+      ...(programsId != null ? { vortex_programs_id: String(programsId) } : {}),
+    },
+  })
+  return { price: price.id, quantity: 1 }
 }
 
 async function buildCheckoutLineItems(pool, preview) {
@@ -411,7 +430,7 @@ export async function createEnrollmentStripeSubscriptions(
 
     const productName =
       String(subRow.description || previewLine.formTitle || 'Monthly class membership').slice(0, 200)
-    const item = await buildPerClassStripeSubscriptionItem(pool, {
+    const item = await buildPerClassStripeSubscriptionItem(pool, stripe, {
       programsId: previewLine.programsId ?? null,
       amountCents,
       productName,
