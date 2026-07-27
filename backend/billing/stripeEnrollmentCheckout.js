@@ -27,16 +27,30 @@ async function loadFormProgramsId(pool, formId) {
 }
 
 /** Fresh signup JWT for webhook/confirm commit (avoids expired tokens from checkout redirect delay). */
-async function refreshSignupAuthForCommit(pool, payload, memberId) {
+async function refreshSignupAuthForCommit(pool, payload, payerOrFallbackMemberId) {
   const body = typeof payload === 'string' ? JSON.parse(payload) : { ...payload }
-  const member = await findMemberById(pool, memberId)
-  if (!member) throw new Error('Member account not found')
   const firstFormId = body.signups?.find((s) => s.formId != null)?.formId
   if (!firstFormId) throw new Error('Invalid enrollment payload')
+
+  // Prefer the athlete from the original signup token (child enrollment), not the
+  // payer who started Stripe Checkout (family billing account owner).
+  let enrolledMemberId = Number(payerOrFallbackMemberId)
+  if (body.signupAuthToken) {
+    try {
+      const jwt = await import('jsonwebtoken')
+      const decoded = jwt.default.decode(body.signupAuthToken)
+      if (decoded?.memberId != null) enrolledMemberId = Number(decoded.memberId)
+    } catch {
+      // fall back to payer/pending member id
+    }
+  }
+
+  const member = await findMemberById(pool, enrolledMemberId)
+  if (!member) throw new Error('Member account not found')
   const programsId = await loadFormProgramsId(pool, firstFormId)
   body.signupAuthToken = issueSignupAuthToken({
     formId: firstFormId,
-    memberId: Number(memberId),
+    memberId: enrolledMemberId,
     email: member.email,
     programsId,
   })
@@ -695,6 +709,12 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
   await ensurePendingEnrollmentSchema(pool)
 
   const client = await pool.connect()
+  let signupIds = []
+  let previewSnapshot = null
+  let familyBillingAccountId = null
+  let result = null
+  let previewHasRecurring = false
+
   try {
     await client.query('BEGIN')
     const pendingRes = await client.query(
@@ -719,12 +739,13 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
     // Keep analytics on the pending row for GA4 attribution, but do not pass it into
     // signup batch validation (Joi rejects unknown keys → "analytics is not allowed").
     const { analytics: _analytics, ...signupBatchPayload } = payload
-    const previewSnapshot =
+    previewSnapshot =
       typeof pending.preview_snapshot === 'string'
         ? JSON.parse(pending.preview_snapshot)
         : pending.preview_snapshot
+    familyBillingAccountId = pending.family_billing_account_id
 
-    const result = await executeSignupBatch(pool, signupBatchPayload)
+    result = await executeSignupBatch(pool, signupBatchPayload)
     await client.query(
       `UPDATE stripe_pending_enrollment
        SET status = 'completed', updated_at = now()
@@ -732,21 +753,10 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
       [pendingEnrollmentId],
     )
 
-    const signupIds = (result?.data?.signups ?? []).map((row) => Number(row.id)).filter(Boolean)
+    signupIds = (result?.data?.signups ?? []).map((row) => Number(row.id)).filter(Boolean)
+    previewHasRecurring = enrollmentHasRecurringMembership(previewSnapshot ?? {})
 
-    const previewHasRecurring = enrollmentHasRecurringMembership(previewSnapshot ?? {})
-    if (signupIds.length > 0 && previewSnapshot && previewHasRecurring) {
-      // Always create one Stripe Subscription per class (never reuse Checkout's single sub).
-      const stripe = await getStripeClient()
-      if (stripe && stripeSession) {
-        await createEnrollmentStripeSubscriptions(pool, stripe, {
-          preview: previewSnapshot,
-          stripeSession,
-          signupIds,
-          familyBillingAccountId: pending.family_billing_account_id,
-        })
-      }
-    } else if (stripeSession?.subscription) {
+    if (stripeSession?.subscription && !previewHasRecurring) {
       // Legacy subscription-mode Checkout: stamp the single session subscription if present.
       await client.query(
         `UPDATE billing_subscription
@@ -760,13 +770,44 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
     }
 
     await client.query('COMMIT')
+  } catch (err) {
+    await client.query('ROLLBACK')
+    await pool.query(
+      `UPDATE stripe_pending_enrollment
+       SET status = 'failed', error_message = $2, updated_at = now()
+       WHERE id = $1 AND status IN ('pending', 'failed')`,
+      [pendingEnrollmentId, String(err.message ?? err).slice(0, 500)],
+    )
+    throw err
+  } finally {
+    client.release()
+  }
 
-    if (stripeSession?.id) {
+  // Stripe network calls happen AFTER the DB commit so we never hold row locks
+  // while waiting on Customers / Subscriptions APIs.
+  if (signupIds.length > 0 && previewSnapshot && previewHasRecurring && stripeSession) {
+    try {
+      const stripe = await getStripeClient()
+      if (stripe) {
+        await createEnrollmentStripeSubscriptions(pool, stripe, {
+          preview: previewSnapshot,
+          stripeSession,
+          signupIds,
+          familyBillingAccountId,
+        })
+      }
+    } catch (err) {
+      console.error('[stripe] per-class subscription create after enrollment commit:', err)
+    }
+  }
+
+  if (stripeSession?.id && familyBillingAccountId != null) {
+    try {
       const stripe = await getStripeClient()
       if (stripe) {
         const payment = await recordEnrollmentStripePayment(pool, stripe, {
           session: stripeSession,
-          accountId: Number(pending.family_billing_account_id),
+          accountId: Number(familyBillingAccountId),
         })
         void emitStripePurchaseEvent(pool, {
           payment,
@@ -774,21 +815,12 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
           paymentType: 'initial_enrollment',
         })
       }
+    } catch (err) {
+      console.error('[stripe] enrollment payment record after commit:', err)
     }
-
-    return { status: 'completed', result }
-  } catch (err) {
-    await client.query('ROLLBACK')
-    await pool.query(
-      `UPDATE stripe_pending_enrollment
-       SET status = 'failed', error_message = $2, updated_at = now()
-       WHERE id = $1 AND status = 'pending'`,
-      [pendingEnrollmentId, String(err.message ?? err).slice(0, 500)],
-    )
-    throw err
-  } finally {
-    client.release()
   }
+
+  return { status: 'completed', result }
 }
 
 export { getCatalogSyncStatus } from './stripeCatalogSync.js'
