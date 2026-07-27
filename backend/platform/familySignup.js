@@ -932,14 +932,6 @@ async function processFamilySignup(client, payload, options = {}) {
   if (missing.length > 0) throw new Error('All required waivers must be accepted.')
   if (!signatureName) throw new Error('Waiver signature name is required.')
 
-  const hasPaymentPolicy = await client.query(
-    `SELECT 1 FROM waiver_template WHERE id = ANY($1::bigint[]) AND waiver_type = 'PAYMENT_POLICY' LIMIT 1`,
-    [acceptedTemplateIds],
-  )
-  if (hasPaymentPolicy.rows.length > 0 && waivers.paymentPolicyAcknowledged !== true) {
-    throw new Error('Payment policy acknowledgement is required.')
-  }
-
   let familyId = joinExistingFamilyId ? Number(joinExistingFamilyId) : null
   let familyUsername = null
   let familyHadMembersBefore = false

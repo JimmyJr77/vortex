@@ -1,6 +1,3 @@
-import { JACKRABBIT_PARENT_PORTAL_URL } from '../../config/contact'
-import { trackOutboundClickEvent } from '../../utils/analyticsClient'
-
 export interface PublicWaiverTemplate {
   id: number
   name: string
@@ -22,8 +19,10 @@ interface WaiverSigningBlockProps {
   onSignatureNameChange: (value: string) => void
   comments: string
   onCommentsChange: (value: string) => void
-  paymentPolicyAcknowledged: boolean
-  onPaymentPolicyAcknowledgedChange: (checked: boolean) => void
+  /** @deprecated Jackrabbit payment acknowledgement UI removed; kept for caller compatibility. */
+  paymentPolicyAcknowledged?: boolean
+  /** @deprecated Jackrabbit payment acknowledgement UI removed; kept for caller compatibility. */
+  onPaymentPolicyAcknowledgedChange?: (checked: boolean) => void
   readOnly?: boolean
 }
 
@@ -37,12 +36,9 @@ export default function WaiverSigningBlock({
   onSignatureNameChange,
   comments,
   onCommentsChange,
-  paymentPolicyAcknowledged,
-  onPaymentPolicyAcknowledgedChange,
   readOnly = false,
 }: WaiverSigningBlockProps) {
   const today = new Date().toLocaleDateString()
-  const hasPaymentPolicy = waivers.some((w) => w.waiver_type === 'PAYMENT_POLICY')
 
   return (
     <div className="space-y-5">
@@ -140,39 +136,6 @@ export default function WaiverSigningBlock({
               placeholder="Any notes for our records"
             />
           </div>
-
-          {hasPaymentPolicy && (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 space-y-2">
-              <p className="text-sm text-amber-900">
-                Payment methods are managed in Jackrabbit. Add or update your card in the parent portal after signup.
-              </p>
-              <a
-                href={JACKRABBIT_PARENT_PORTAL_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() =>
-                  trackOutboundClickEvent('legacy_parent_portal_click', window.location.pathname, {
-                    destination: 'jackrabbit_parent_portal',
-                    source: 'waiver_payment_policy',
-                  })
-                }
-                className="inline-flex text-sm font-semibold text-vortex-red hover:underline"
-              >
-                Open Jackrabbit Parent Portal (Add Credit Card)
-              </a>
-              <label className="flex items-start gap-2 text-sm text-gray-800">
-                <input
-                  type="checkbox"
-                  className="mt-1"
-                  checked={paymentPolicyAcknowledged}
-                  onChange={(e) => onPaymentPolicyAcknowledgedChange(e.target.checked)}
-                />
-                <span>
-                  I acknowledge the Payment Policy &amp; Auto-Draft Authorization and understand billing is processed through Jackrabbit.
-                </span>
-              </label>
-            </div>
-          )}
         </div>
       )}
     </div>
@@ -184,13 +147,12 @@ export function validateWaiverSigning({
   checkedTemplateIds,
   agreeAll,
   signatureName,
-  paymentPolicyAcknowledged,
 }: {
   waivers: PublicWaiverTemplate[]
   checkedTemplateIds: number[]
   agreeAll: boolean
   signatureName: string
-  paymentPolicyAcknowledged: boolean
+  paymentPolicyAcknowledged?: boolean
 }): string | null {
   if (waivers.length === 0) {
     return 'Waivers could not be loaded. Refresh the page before creating your account.'
@@ -203,8 +165,5 @@ export function validateWaiverSigning({
   }
   if (!agreeAll) return 'Please check "I AGREE TO ALL OF THE ABOVE".'
   if (!signatureName.trim()) return 'Full name signature is required.'
-  if (waivers.some((w) => w.waiver_type === 'PAYMENT_POLICY') && !paymentPolicyAcknowledged) {
-    return 'Payment policy acknowledgement is required.'
-  }
   return null
 }

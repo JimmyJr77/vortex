@@ -3063,14 +3063,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       return res.status(400).json({ success: false, message: 'One or more waiver templates are invalid.' })
     }
 
-    const hasPaymentPolicy = templatesRes.rows.some((row) => row.waiver_type === 'PAYMENT_POLICY')
-    if (hasPaymentPolicy && !paymentPolicyAcknowledged) {
-      return res.status(400).json({
-        success: false,
-        message: 'Payment policy and auto-draft authorization must be acknowledged.',
-      })
-    }
-
     const ipAddress = req.ip
     const userAgent = req.get('user-agent') ?? null
 
