@@ -3,8 +3,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import HeroBackgroundVideo from './HeroBackgroundVideo'
 import HeroSportsMenu from './HeroSportsMenu'
+import HeroSpecializedTrainingMenu from './HeroSpecializedTrainingMenu'
 import useSpecialPages from '../hooks/useSpecialPages'
 import { isSpecialPageAvailable, specialPagesForPlacement } from '../types/specialPages'
+import { getSiteEnrollHref } from '../utils/enrollSite'
 
 // YouTube video ID to play when "Play Video" is clicked (change this to your desired video)
 const HERO_YOUTUBE_VIDEO_ID = 'bvGYBIgc_H8'
@@ -307,15 +309,33 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
                   </motion.button>
                 </Link>
               )}
-              <Link to="/fit-and-flip">
+              {hideAcceleratorCta && <HeroSpecializedTrainingMenu />}
+              <Link
+                to={
+                  hideAcceleratorCta
+                    ? getSiteEnrollHref({ programName: 'Fit & Flip' })
+                    : '/fit-and-flip'
+                }
+              >
                 <motion.button
-                  className="btn-secondary group"
+                  className={hideAcceleratorCta ? 'btn-primary group' : 'btn-secondary group'}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  Fit & Flip
+                  {hideAcceleratorCta ? 'Register for Fit & Flip now!' : 'Fit & Flip'}
                 </motion.button>
               </Link>
+              {hideAcceleratorCta && (
+                <Link to="/drop-in">
+                  <motion.button
+                    className="btn-primary group"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Drop-in Classes
+                  </motion.button>
+                </Link>
+              )}
               {showSummerTraining && (
                 <Link to="/summer-athletic-training" className={summerTrainingHeroCtaClass}>
                   Summer Training
@@ -476,15 +496,36 @@ const Hero = ({ onHighlightsClick, hideAcceleratorCta = false }: HeroProps) => {
                   </motion.button>
                 </Link>
               )}
-              <Link to="/fit-and-flip" className="w-full max-w-xs">
+              {hideAcceleratorCta && <HeroSpecializedTrainingMenu fullWidth />}
+              <Link
+                to={
+                  hideAcceleratorCta
+                    ? getSiteEnrollHref({ programName: 'Fit & Flip' })
+                    : '/fit-and-flip'
+                }
+                className="w-full max-w-xs"
+              >
                 <motion.button
-                  className="btn-secondary group w-full"
+                  className={`group w-full ${
+                    hideAcceleratorCta ? 'btn-primary' : 'btn-secondary'
+                  }`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  Fit & Flip
+                  {hideAcceleratorCta ? 'Register for Fit & Flip now!' : 'Fit & Flip'}
                 </motion.button>
               </Link>
+              {hideAcceleratorCta && (
+                <Link to="/drop-in" className="w-full max-w-xs">
+                  <motion.button
+                    className="btn-primary group w-full"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Drop-in Classes
+                  </motion.button>
+                </Link>
+              )}
               {showSummerTraining && (
                 <Link
                   to="/summer-athletic-training"

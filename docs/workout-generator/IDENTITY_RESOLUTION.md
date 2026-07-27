@@ -754,6 +754,48 @@ collisions. All 15 score-79-or-higher pairs are explicit unreviewed
 archived definitions, and 745 traceable identity decisions: 293 distinct
 boundaries, 434 consolidations, and 18 honest review quarantines.
 
+### Score-78 adjudication
+
+Migrations 383 and 384 complete the score-78 tranche and repeatedly re-run the
+queue after alias expansion until no unclassified score-78-or-higher pair
+remains. Migration 383 records 32 mechanics-based `distinct_exercises`
+boundaries and seven `needs_human_review` quarantines. The quarantines preserve
+missing takeoff/landing laterality, line-hop foot count and contact posture,
+landmine stance/path, landing entry, and pogo contact/finish facts.
+
+Migration 384 consolidates 18 traceable source cards beneath stable identities:
+
+- rhythm-based alternating bounds beneath `alternate-leg-bound-for-distance`;
+- barbell loading beneath the canonical `Floor Press`;
+- double-dumbbell and single-kettlebell racks beneath `front-squat`;
+- front/back dynamic leg swings beneath `leg-swings-front-back`;
+- bilateral isometric, single-leg dynamic, and single-leg isometric deliveries
+  beneath `glute-bridge`;
+- low-hurdle series, lateral Icky, and sprint-float naming variants beneath
+  their stable footwork and sprint identities;
+- low-speed, eccentric-emphasis, and sprint-entry linear braking beneath
+  `Linear Deceleration to Stick`;
+- ring and eccentric deliveries beneath `push-up`;
+- the cone-target prone start beneath `push-up-prone-start-sprint`;
+- eccentric seated soleus work beneath `seated-soleus-raise`; and
+- the loaded-intent source beneath `triple-broad-jump`.
+
+The consolidation retains source mappings, aliases, candidate evidence,
+candidate media, alternate assessments, and archived nonselectable variants.
+Candidate rows with duplicate source keys are deduplicated only for the move;
+the remaining source rows stay attached to the archived definition for
+traceability. No reviewer, media approval, graph approval, calibration
+approval, or publication state is created.
+
+After migration 384 the indexed audit has 750 raw and 467 unresolved
+score-72-or-higher pairs, 206 at score 75 or higher, 22 at score 78 or higher,
+15 at score 79 or higher, ten at score 80 or higher, none at score 85 or
+higher, and zero exact collisions. All 22 score-78-or-higher pairs are explicit
+unreviewed `needs_human_review` records. The library has 1,223 active
+definitions, 453 archived definitions, and 802 traceable identity decisions:
+325 distinct boundaries, 452 consolidations, and 25 honest review
+quarantines.
+
 ## Governance
 
 Deterministic consolidation never grants publication approval. Every surviving

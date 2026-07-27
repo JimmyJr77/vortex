@@ -1,13 +1,10 @@
 import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
 
 interface ProgramTile {
   title: string
   teaser: string
   image: string
   imageAlt: string
-  to?: string
   lighterImage?: boolean
 }
 
@@ -19,11 +16,10 @@ const tiles: ProgramTile[] = [
     imageAlt: 'Young athletes completing sports conditioning drills at Vortex',
   },
   {
-    title: 'Fit & Flip',
-    teaser: 'Strength, conditioning, and acrobatics for the complete athlete.',
+    title: 'Body Control',
+    teaser: 'Develop body control through elite tumbling training on trampolines and mats.',
     image: '/fit-and-flip.jpeg',
     imageAlt: 'Young athlete performing a flip on a trampoline at Vortex',
-    to: '/fit-and-flip',
     lighterImage: true,
   },
   {
@@ -39,6 +35,12 @@ const tiles: ProgramTile[] = [
     imageAlt: 'Strength and power training equipment at Vortex',
   },
   {
+    title: 'Mobility & Balance',
+    teaser: 'Master flexibility, mobility, fluidity, and balance.',
+    image: '/balance.jpeg',
+    imageAlt: 'Athlete developing mobility and balance at Vortex',
+  },
+  {
     title: 'Lifting Fundamentals',
     teaser: 'Learn safe and proper techniques for strength training. 8 & up.',
     image: '/lifting-fundamentals.jpeg',
@@ -47,7 +49,7 @@ const tiles: ProgramTile[] = [
 ]
 
 const tileClassName =
-  'group relative block h-72 overflow-hidden rounded-3xl border-2 border-vortex-red shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-vortex-red focus-visible:ring-offset-2 md:h-96'
+  'group relative h-72 overflow-hidden rounded-3xl border-2 border-vortex-red shadow-lg md:h-96'
 
 export default function AcceleratorProgramTiles() {
   return (
@@ -67,7 +69,8 @@ export default function AcceleratorProgramTiles() {
             Vortex Athletic&apos;s foundational athletics training program. Athletes train in
             1.5 hour blocks and combine advanced athletics training with tumbling,
             coordination, and body control. All training is underpinned by our Athleticism
-            Accelerator training philosophy.
+            Accelerator training philosophy. Fit &amp; Flip trains all the below elements.
+            Specialized training blocks also available.
           </p>
         </motion.div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8">
@@ -97,16 +100,6 @@ export default function AcceleratorProgramTiles() {
                   <p className="mb-4 text-sm leading-relaxed text-gray-200 md:text-base">
                     {tile.teaser}
                   </p>
-                  <span className="mt-auto inline-flex items-center gap-2 font-semibold text-vortex-red">
-                    {tile.to ? (
-                      <>
-                        Explore
-                        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                      </>
-                    ) : (
-                      'Coming soon'
-                    )}
-                  </span>
                 </div>
               </>
             )
@@ -120,13 +113,7 @@ export default function AcceleratorProgramTiles() {
                 viewport={{ once: true }}
                 whileHover={{ scale: 1.02 }}
               >
-                {tile.to ? (
-                  <Link to={tile.to} className={tileClassName}>
-                    {content}
-                  </Link>
-                ) : (
-                  <div className={tileClassName}>{content}</div>
-                )}
+                <div className={tileClassName}>{content}</div>
               </motion.div>
             )
           })}

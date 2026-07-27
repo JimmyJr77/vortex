@@ -15,6 +15,7 @@ type SportMenuItem =
   | { label: string; href: string; external: true; onHold?: boolean; holdTitle?: string }
 
 const BASKETBALL_HOLD_TITLE = 'Vortex Basketball is coming soon'
+const FOOTBALL_HOLD_TITLE = 'Vortex Football is coming soon'
 
 const SPORT_MENU_ITEMS: SportMenuItem[] = [
   {
@@ -27,6 +28,13 @@ const SPORT_MENU_ITEMS: SportMenuItem[] = [
     to: '/ninja',
     onHold: NINJA_PROGRAM_ON_HOLD,
     holdTitle: NINJA_HOLD_TITLE,
+  },
+  {
+    label: 'Football',
+    href: getStubSportSiteUrl('football'),
+    external: true,
+    onHold: true,
+    holdTitle: FOOTBALL_HOLD_TITLE,
   },
   {
     label: 'Basketball',
@@ -76,7 +84,7 @@ const HeroSportsMenu = ({ fullWidth = false }: HeroSportsMenuProps) => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        Sports
+        Sports Registration
         <ChevronDown
           className={`w-5 h-5 shrink-0 transition-transform duration-200 ${
             open ? 'rotate-180' : ''

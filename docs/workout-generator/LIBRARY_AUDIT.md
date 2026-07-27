@@ -629,6 +629,57 @@ stay quarantined for backfill. All 1,663 legacy score rows are populated and
 formula-consistent. All 1,112 dedicated skill-library level assignments remain
 intact.
 
+Migrations 383 and 384 complete the score-78 and transitive-alias pass.
+Migration 383 records 32 mechanics boundaries and seven explicit missing-fact
+quarantines. Migration 384 consolidates 18 controlled identity variants,
+including implement and rack changes, bilateral/single-leg and
+dynamic/isometric bridge deliveries, entry-speed changes for linear
+deceleration, support and eccentric push-up deliveries, and eccentric soleus
+dosage. A disposable failure exposed duplicate media candidates on one source;
+the final migration moves one representative for each duplicate key and leaves
+the other candidate rows on the archived source definition.
+
+The migration-384 disposable audit reports:
+
+| Measure | Count |
+|---|---:|
+| Legacy exercises and source mappings | 1,676 |
+| Active canonical definitions | 1,223 |
+| Archived canonical definitions | 453 |
+| Variants | 1,823 |
+| Active selectable/review variants | 1,422 |
+| Active variants with populated difficulty | 1,410 |
+| Delivery profiles | 1,974 |
+| Identity decisions | 802 |
+| Distinct identity boundaries | 325 |
+| Duplicate consolidations | 452 |
+| Explicit identity-review quarantines | 25 |
+| Candidate media records | 5,061 |
+| Review-only relationship proposals | 201 |
+| Review-only calibration proposals | 342 |
+| Raw score-72-or-higher similarity pairs | 750 |
+| Unresolved score-72-or-higher pairs | 467 |
+| Unresolved score-75-or-higher pairs | 206 |
+| Unresolved score-78-or-higher pairs | 22 |
+| Unresolved score-79-or-higher pairs | 15 |
+| Unresolved score-80-or-higher pairs | 10 |
+| Unresolved score-85-or-higher pairs | 0 |
+| Exact identity collisions | 0 |
+
+Every score-78-or-higher pair is an explicit unreviewed
+`needs_human_review` quarantine. All 1,223 active definitions remain in review;
+zero definitions, relationships, calibrations, or videos are approved or
+published. The audit still reports 1,180 cards requiring broad structural
+backfill. The release check remains blocked at zero published phase depth,
+zero approved graph edges, zero approved calibration anchors, and zero real
+coach-pilot reviews.
+
+The final difficulty/level boundary remains intact: exercise-card JSON and the
+deprecated legacy scalar contain zero skill/proficiency classifications, all
+active populated difficulty records derive overall as the maximum of exercise
+complexity and physical difficulty, and all 1,112 dedicated skill-library
+level assignments remain unchanged.
+
 ## Run the audit
 
 Apply all migrations, then run:

@@ -730,6 +730,38 @@ On 2026-07-26:
   exercise JSON columns, zero assignments across three exercise scalar level
   columns, six active database guards, and all 1,112 dedicated skill-library
   level assignments intact.
+- Migration 383 records 32 score-78 and transitive mechanics boundaries and
+  seven honest missing-fact quarantines. Migration 384 consolidates 18
+  implement, rack, support, unilateral/bilateral, dynamic/isometric,
+  entry-speed, contraction-emphasis, target, and dosage variants. Repeated
+  queue regeneration resolves every alias-induced score-78 comparison; the
+  remaining 22 score-78-or-higher pairs all have explicit unreviewed
+  `needs_human_review` decisions.
+- A rollback-only validation exposed duplicate candidate-media keys on the
+  sprint-entry deceleration source. The final consolidation moves one
+  representative candidate per duplicate key and keeps the remaining rows
+  attached to the archived source for provenance. Direct SQL and normal-runner
+  execution are idempotent. Human-decision sentinels make both migrations abort
+  atomically rather than overwrite protected identity state.
+- The normal runner records migrations 383 and 384 with checksums `390844992`
+  and `2663346848`. The migration-384 state has 1,223 active and 453 archived
+  definitions, 1,823 variants, 1,974 delivery profiles, 802 identity
+  resolutions, 201 unapproved relationships, 342 unapproved calibrations,
+  5,061 unapproved media candidates, all 1,676 source mappings, zero published
+  definitions, and zero exact identity collisions.
+- The migration-384 queue contains 750 raw and 467 unresolved
+  score-72-or-higher pairs, 206 score-75-or-higher pairs, 22
+  score-78-or-higher pairs, 15 score-79-or-higher pairs, ten
+  score-80-or-higher pairs, and none at score 85 or higher. All 22
+  score-78-or-higher pairs are explicit unreviewed quarantines. The library
+  audit quarantines all 1,223 active cards and identifies 1,180 with broad
+  structural backfill still required.
+- Exercise difficulty remains exercise complexity plus physical difficulty,
+  with overall equal to their maximum. The final database check finds zero
+  level-classification keys on exercise definition, variant, delivery, or
+  identity surfaces, zero deprecated exercise scalar assignments, zero derived
+  overall formula violations, and all 1,112 skill-library level assignments
+  intact.
 - The production release gate remains correctly blocked: zero published cards,
   zero approved relationship edges, zero approved calibration anchors, zero
   phase depth in the published selection pool, and zero real coach-pilot
@@ -773,7 +805,7 @@ On 2026-07-26:
 
 These are deployment and evidence gates, not code-completion claims:
 
-1. Apply the complete migration sequence through migration 380 in a
+1. Apply the complete migration sequence through migration 384 in a
    non-production environment.
 2. Run the full library audit; review anatomy, constraints, scores, media,
    relationships, and calibration evidence card by card.
