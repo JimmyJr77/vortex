@@ -72,7 +72,10 @@ const HeroSportsMenu = ({ fullWidth = false }: HeroSportsMenuProps) => {
     'block w-full px-4 py-3 text-left text-white font-medium hover:bg-vortex-red/20 hover:text-vortex-red transition-colors'
 
   return (
-    <div ref={rootRef} className={`relative z-50 ${fullWidth ? 'w-full max-w-xs' : ''}`}>
+    <div
+      ref={rootRef}
+      className={`relative ${open ? 'z-[60]' : 'z-50'} ${fullWidth ? 'w-full max-w-xs' : ''}`}
+    >
       <motion.button
         type="button"
         aria-expanded={open}
