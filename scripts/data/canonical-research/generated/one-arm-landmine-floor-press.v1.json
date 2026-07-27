@@ -1,0 +1,586 @@
+{
+  "facilityId": 1,
+  "slug": "one-arm-landmine-floor-press",
+  "researchVersion": "2026-07-27.56",
+  "assessmentSummary": {
+    "identity": "A strict unilateral landmine press performed supine on the floor, with the torso and pelvis supported, the working upper arm descending only to its declared floor boundary, a declared sleeve-to-shoulder rack, no bridge or torso rotation, and a controlled return and set-down.",
+    "currentCardFindings": [
+      "The current card's 50 complexity and 70 physical score are unsupported placeholders and its supine setup, floor boundary, handoff, range, and failure plan are undeclared.",
+      "The floor boundary and offset bar pivot materially distinguish this task from standing landmine presses, Z presses, and bench presses.",
+      "Five direct YouTube candidates returned oEmbed metadata only."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "horizontal_push",
+        "brace"
+      ],
+      "movementQualifiers": [
+        "rated_fixed_landmine_pivot",
+        "supine_floor_supported",
+        "unilateral_declared_side",
+        "upper_arm_floor_limited_range",
+        "strict_no_bridge_or_rotation",
+        "controlled_press_and_return"
+      ],
+      "jointActions": [
+        "shoulder_horizontal_flexion_and_flexion_in_landmine_arc",
+        "elbow_extension_and_flexion",
+        "scapular_control_against_floor_support",
+        "wrist_and_grip_stabilization",
+        "trunk_anti_rotation_and_pelvic_control"
+      ],
+      "planes": [
+        "oblique_transverse_and_sagittal_press_motion",
+        "transverse_and_frontal_stabilization"
+      ],
+      "laterality": "unilateral",
+      "intent": "strict_floor_supported_press_strength"
+    },
+    "proposedAnatomy": {
+      "primaryMusclesAndTissues": [
+        "pectoralis_major",
+        "anterior_deltoid",
+        "triceps_brachii"
+      ],
+      "secondaryMusclesAndTissues": [
+        "serratus_anterior",
+        "rotator_cuff",
+        "scapular_stabilizers",
+        "abdominal_wall_and_obliques",
+        "forearm_and_hand_flexors"
+      ],
+      "joints": [
+        "glenohumeral",
+        "scapulothoracic",
+        "acromioclavicular",
+        "elbow",
+        "radioulnar",
+        "wrist",
+        "hand",
+        "spine",
+        "pelvis"
+      ],
+      "primaryActions": [
+        "establish_supine_position_and_exact_bar_relationship",
+        "transfer_sleeve_to_declared_rack",
+        "brace_without_bridging_or_rotation",
+        "press_along_pivot_arc_to_owned_finish",
+        "lower_until_declared_upper_arm_floor_contact",
+        "transfer_and_set_down_safely"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 44,
+      "absoluteLoadDemand": 52,
+      "coordinationDemand": 44,
+      "supervisionDemand": 48,
+      "failureConsequence": 48,
+      "impact": 1,
+      "workCapacityDemand": 50,
+      "baseOverallDifficulty": 52
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "single-arm-supine-floor-supported-strict",
+        "exerciseComplexity": 44,
+        "physicalDifficulty": 52,
+        "derivedOverallDifficulty": 52,
+        "basis": "floor support reduces balance and range while the offset pivot, unilateral rack, handoff, and loading remain meaningful"
+      },
+      {
+        "variantKey": "two-hand-supine-floor-supported-strict",
+        "exerciseComplexity": 42,
+        "physicalDifficulty": 50,
+        "derivedOverallDifficulty": 50,
+        "basis": "two-hand support reduces laterality but changes rack geometry and must preserve face and torso clearance"
+      }
+    ],
+    "proposedLoadProfile": {
+      "impactClass": "no_impact",
+      "externalLoadMethods": [
+        "barbell_landmine_sleeve_and_declared_plate_mass"
+      ],
+      "primaryStress": [
+        "floor_limited_chest_shoulder_and_elbow_press_force",
+        "unilateral_trunk_anti_rotation",
+        "wrist_and_grip_control",
+        "sleeve_handoff_and_set_down"
+      ],
+      "cumulativeBudgets": [
+        "horizontal_and_angled_press_sets",
+        "chest_anterior_shoulder_and_triceps_loading",
+        "grip_and_wrist_demand",
+        "floor_contact_and_setup_time",
+        "handoff_and_technical_failure_sensitivity"
+      ]
+    },
+    "proposedFatigueRecovery": {
+      "primaryFatigueSites": [
+        "pectorals",
+        "anterior_shoulder",
+        "triceps",
+        "grip_and_forearm",
+        "trunk_stabilizers"
+      ],
+      "earlyFatigueSignals": [
+        "shoulder_or_elbow_loses_declared_floor_boundary",
+        "wrist_extension_or_sleeve_roll",
+        "torso_rotation_or_unplanned_bridge",
+        "shortened_lockout",
+        "bar_drifts_toward_face_or_midline",
+        "uncontrolled_floor_contact"
+      ],
+      "downstreamConflicts": [
+        "heavy_bench_or_overhead_pressing",
+        "high_velocity_throwing_or_hitting",
+        "grip_intensive_training",
+        "contact_work_involving_the_shoulder"
+      ],
+      "recoveryWindowHours": {
+        "technique_or_light": 24,
+        "moderate_strength": 36,
+        "high_volume_or_heavy": 48
+      }
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "rated_landmine",
+        "barbell",
+        "collars",
+        "plates_as_prescribed",
+        "level_non_slip_floor_or_mat"
+      ],
+      "environment": [
+        "clear_supine_body_zone",
+        "clear_bar_arc_and_plate_zone",
+        "planned_handoff_and_set_down_side",
+        "coach_outside_face_and_bar_path"
+      ],
+      "populationReadiness": [
+        "pain_free_supine_and_floor_contact",
+        "can_control_declared_press_range",
+        "can receive_and_return_unloaded_or_light_sleeve",
+        "can exit_without_crossing_loaded_bar_path"
+      ]
+    },
+    "proposedDeliveryProfiles": [
+      {
+        "profileKey": "capacity-floor-press-strength",
+        "phaseKey": "capacity",
+        "purpose": "Build floor-limited unilateral pressing strength with a repeatable rack, floor boundary, lockout, and no bridge.",
+        "dosage": {
+          "sets": [
+            2,
+            5
+          ],
+          "repsPerSide": [
+            5,
+            12
+          ],
+          "rpe": [
+            5,
+            8
+          ],
+          "restSeconds": [
+            90,
+            240
+          ],
+          "tempo": "controlled_floor_touch_without_bounce"
+        }
+      },
+      {
+        "profileKey": "movement-intelligence-handoff-and-range",
+        "phaseKey": "movement_intelligence",
+        "purpose": "Practice supine setup, handoff, exact floor boundary, press arc, return, transfer, and exit under low fatigue.",
+        "dosage": {
+          "sets": [
+            2,
+            4
+          ],
+          "repsPerSide": [
+            3,
+            6
+          ],
+          "rpe": [
+            3,
+            6
+          ],
+          "restSeconds": [
+            60,
+            180
+          ],
+          "tempo": "deliberate_press_pause_and_floor_touch"
+        }
+      }
+    ],
+    "proposedInstructions": {
+      "coach": [
+        "Verify anchor, load, collars, supine clearance, shoulder-to-sleeve alignment, and handoff plan.",
+        "Keep the athlete's head and nonworking hand outside the bar and plate path.",
+        "Require a quiet floor boundary, no bridge or turn, a controlled lockout, and a rehearsed two-hand return and exit."
+      ],
+      "athlete": [
+        "Lie in the declared position and receive the sleeve with both hands before transferring to the working hand.",
+        "Brace and press without twisting or lifting the hips; keep the wrist stacked and the bar away from the face.",
+        "Lower until the working upper arm reaches the declared floor boundary, then return and set down with the planned handoff."
+      ],
+      "qualityGates": [
+        "anchor_and_collars_secure",
+        "clear_head_torso_and_plate_zone",
+        "repeatable_supine_rack",
+        "wrist_forearm_stack",
+        "quiet_declared_floor_boundary",
+        "no_bridge_or_rotation",
+        "controlled_handoff_and_exit"
+      ],
+      "stopRules": [
+        "pain_or_neurologic_symptoms",
+        "anchor_collar_or_plate_movement",
+        "bar_path_toward_face_or_collision_zone",
+        "unplanned_bridge_or_rotation",
+        "wrist_collapse_or_lost_rack",
+        "uncontrolled_floor_contact_or_failed_handoff"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-27T05:25:39.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Perform One-Arm Landmine Floor Press as a landmine-based push pattern. The athlete uses the fixed angled bar path to create useful load while maintaining bracing, breathing, grip ownership, and a repeatable finish position.",
+      "familyKey": "One-Handed Pressing",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 70,
+        "coordinationDemand": 50,
+        "technicalComplexity": 50,
+        "baseOverallDifficulty": 70
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/",
+      "sourceTitle": "The Landmine Press—Implementation and Variation",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "NSCA describes the landmine press as a press of an anchored barbell through the path imposed by its fixed pivot and discusses distinct stance and implementation variations.",
+        "One-Arm Landmine Floor Press must declare body orientation, support base, hand count, working side, start rack, strict versus leg-driven intent, path, finish, and controlled return rather than inheriting those facts from the family name."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/",
+      "sourceTitle": "The Landmine Press—Implementation and Variation",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The family is an anchored angled push with elbow extension, controlled shoulder and scapular motion, grip stabilization, and trunk control.",
+        "Support base, body orientation, deliberate lower-body drive, rotation, release, contact surface, attachment, range, tempo, load, rest, and side dose must remain explicit dimensions."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/",
+      "sourceTitle": "The Landmine Press—Implementation and Variation",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Landmine pressing loads the shoulder press musculature and elbow extensors while the scapular complex, rotator cuff, trunk, grip, and declared base stabilize the bar path.",
+        "Record deltoid, clavicular pectoralis major, triceps, serratus anterior, trapezius, rotator cuff, abdominal wall, spinal stabilizers, forearm and hand contributions without claiming isolation or one universal activation profile."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/31827348/",
+      "sourceTitle": "Range of Motion and Sticking Region Effects on the Bench Press Load-Velocity Relationship",
+      "sourcePublisher": "Journal of Sports Science & Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "Bench-press range of motion changes load-velocity behavior, attainable load, braking, and sticking-region behavior; range-limited press variants must not inherit full-range loading assumptions.",
+        "The landmine floor press must declare supine orientation, floor contact, upper-arm floor boundary, rack, pivot relationship, range, and safe handoff rather than treating the floor as a cosmetic support modifier."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/31827348/",
+      "sourceTitle": "Range of Motion and Sticking Region Effects on the Bench Press Load-Velocity Relationship",
+      "sourcePublisher": "Journal of Sports Science & Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 88,
+      "claims": [
+        "A shorter press range can support different external loads and kinematics, while the landmine's offset pivot and unilateral setup add equipment-transfer and anti-rotation demands.",
+        "Assess exact-variant exercise complexity and physical difficulty independently; overall is their maximum and no athlete proficiency level belongs on the card."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",
+      "sourceTitle": "American College of Sports Medicine Position Stand. Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults: An Overview of Reviews",
+      "sourcePublisher": "Medicine and Science in Sports and Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "Resistance-training stimulus and fatigue depend on load, volume, effort, exercise selection, frequency, and progression.",
+        "One-Arm Landmine Floor Press contributes angled press volume, shoulder, upper-chest and triceps loading, scapular and rotator-cuff demand, grip and wrist demand, trunk stabilization, eccentric lowering, and technical fatigue with no planned impact."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/",
+      "sourceTitle": "The Landmine Press—Implementation and Variation",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "A landmine press requires a stable anchor, compatible barbell and loading hardware, and clear space for the full bar arc, setup, transfer, and set-down.",
+        "Declare floor and padding, anchor rating, bar and collars, plates, body orientation, base, side, rack, range, pickup, transfer, set-down, coach sightline, and the moving-sleeve exclusion zone."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10579494/",
+      "sourceTitle": "Resistance training prescription for muscle strength and hypertrophy in healthy adults: a systematic review and Bayesian network meta-analysis",
+      "sourcePublisher": "British Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 94,
+      "claims": [
+        "Resistance-training outcomes depend on the interaction of sets, repetitions, load, effort, frequency, and recovery rather than an exercise name alone.",
+        "Use exact-variant quality sets with enough rest to preserve the anchor, declared base, rack, wrist, path, scapular motion, trunk position, range, tempo, side balance, and safe return."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/",
+      "sourceTitle": "The Landmine Press—Implementation and Variation",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Instruction must establish the anchor, floor space, body position, base, side, rack, brace, press path, finish, controlled return, and safe set-down.",
+        "The athlete and coach must know whether the repetition is strict, which hand and base are used, what range counts, and how a failed repetition is returned without crossing the moving bar or plate path."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Qualified supervision, manageable resistance, correct technique, appropriate equipment, and gradual progression are core safeguards for resistance exercise.",
+        "Stop for pain, neurologic symptoms, dizziness, anchor or collar movement, plate shift, loss of the declared base, wrist collapse, uncontrolled path or return, grinding, dropped load, collision risk, or inability to execute the planned set-down."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",
+      "sourceTitle": "American College of Sports Medicine Position Stand. Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults: An Overview of Reviews",
+      "sourcePublisher": "Medicine and Science in Sports and Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "Exercise selection and resistance-training dose should be individualized to the intended adaptation, current capacity, and recovery context.",
+        "Place exact landmine-press variants before material shoulder, triceps, upper-chest, grip, throwing, contact, or high-velocity pressing fatigue when path quality is the session priority."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/",
+      "sourceTitle": "The Landmine Press—Implementation and Variation",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The athlete needs the exact body position, base, working side, rack, load, range, tempo, repetitions, rest, side sequence, and stop signal before beginning.",
+        "A lighter load, shorter owned range, or reviewed substitution is preferable to changing the base, using undeclared leg drive, rotating, losing the rack, or controlling an unsafe return."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41755100/",
+      "sourceTitle": "Landmine Press Kinematics Measured with an Enhanced YOLOv8 Model and Mathematical Modeling",
+      "sourcePublisher": "Sensors",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "The fixed pivot and moving bar end give coaches observable setup, path, range, velocity-intent, and finish checkpoints.",
+        "Coach support should expose anchor, collars, plates, body position, base, working side, rack, wrist, elbow, scapula, pelvis, ribs, path, range, tempo, dose, symptoms, fatigue, side balance, set-down, and shutdown actions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",
+      "sourceTitle": "American College of Sports Medicine Position Stand. Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults: An Overview of Reviews",
+      "sourcePublisher": "Medicine and Science in Sports and Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "Resistance exercise can be individualized through load, volume, range, effort, equipment, and progression while preserving the intended movement contract.",
+        "Options include an unloaded bar, lighter plates, fewer repetitions, longer rest, a reviewed alternative base or press, written or audio cues, still images, tactile floor markers, and live instruction."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/",
+      "sourceTitle": "The Landmine Press—Implementation and Variation",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Hand count, working side, stance-side relationship, attachment, range, tempo, and load may be variants or modifiers when the primary support base and strict anchored press remain unchanged.",
+        "Standing, half-kneeling, tall-kneeling, long-sitting, supine floor pressing, deliberate leg drive, deliberate rotation, and release cross operational boundaries and must not be silently substituted."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "YouTube supports privacy-enhanced embedding through youtube-nocookie.com.",
+        "The listed candidates returned public oEmbed metadata on 2026-07-27. Full playback, exact-variant, cue, safety, caption, accessibility, demonstration-quality, reviewer, and approval review remain unresolved."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=hiMe9Fu8Ha8",
+      "title": "One arm landmine floor press",
+      "channelName": "IFBB PRO AMIT SAPIR",
+      "sourceQuery": "one arm landmine floor press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T05:25:39.000Z"
+      },
+      "notes": "oEmbed metadata responded; playback, exact setup, content, and approval review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=fWNMECX7FE4",
+      "title": "Landmine Single Arm Floor Press",
+      "channelName": "Functional Effect Fitness & Rehabilitation",
+      "sourceQuery": "landmine single arm floor press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T05:25:39.000Z"
+      },
+      "notes": "oEmbed metadata responded; playback, exact setup, content, and approval review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=fw_4FpH96Nw",
+      "title": "Landmine 1 Arm Floor Press",
+      "channelName": "Ben Bruno",
+      "sourceQuery": "landmine one arm floor press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T05:25:39.000Z"
+      },
+      "notes": "oEmbed metadata responded; playback, exact setup, content, and approval review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Nuz0uLSRhJQ",
+      "title": "Single-arm Landmine Floor Press",
+      "channelName": "Cliff's Edge Performance",
+      "sourceQuery": "single arm landmine floor press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T05:25:39.000Z"
+      },
+      "notes": "oEmbed metadata responded; playback, exact setup, content, and approval review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=5L40EX6CpYI",
+      "title": "Landmine Floor Press",
+      "channelName": "Chris Butler Sports PT",
+      "sourceQuery": "landmine floor press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T05:25:39.000Z"
+      },
+      "notes": "oEmbed metadata responded. Hand count is not explicit in the title; exact-variant review remains pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Single-Arm Supine Landmine Floor Press",
+      "classification": "new_variant",
+      "rationale": "The unilateral strict floor-supported contract is the exact baseline and requires side dosing.",
+      "distinguishingDimensions": {
+        "variantKey": "single-arm-supine-floor-supported-strict",
+        "handCount": 1
+      }
+    },
+    {
+      "name": "Two-Hand Supine Landmine Floor Press",
+      "classification": "new_variant",
+      "rationale": "Two-hand support changes symmetry, rack, face clearance, and loading while preserving the supine floor boundary.",
+      "distinguishingDimensions": {
+        "variantKey": "two-hand-supine-floor-supported-strict",
+        "handCount": 2
+      }
+    },
+    {
+      "name": "Bridged Landmine Floor Press",
+      "classification": "new_variant",
+      "rationale": "A maintained hip bridge changes the support base, lower-body contribution, trunk demand, range relationship, and stop rules.",
+      "distinguishingDimensions": {
+        "variantKey": "single-arm-supine-bridge-floor-press",
+        "bridge": true
+      }
+    },
+    {
+      "name": "Landmine Bench Press",
+      "classification": "new_definition",
+      "rationale": "A bench removes the upper-arm floor boundary and changes shoulder range, setup height, spotting, and failure strategy.",
+      "distinguishingDimensions": {
+        "existingSlug": "landmine-bench-press",
+        "supportSurface": "bench"
+      }
+    },
+    {
+      "name": "One-Arm Landmine Z-Press",
+      "classification": "new_definition",
+      "rationale": "An upright long-sit base and angled shoulder press differ in orientation, range, trunk demand, setup, and exit.",
+      "distinguishingDimensions": {
+        "existingSlug": "one-arm-landmine-z-press",
+        "base": "long_sit"
+      }
+    },
+    {
+      "name": "Tempo or Paused Landmine Floor Press",
+      "classification": "modifier_annotation",
+      "rationale": "Tempo and pauses change dose but not identity when the supine base, exact range, and no-bridge contract remain fixed.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "tempo",
+          "pause"
+        ]
+      }
+    }
+  ]
+}

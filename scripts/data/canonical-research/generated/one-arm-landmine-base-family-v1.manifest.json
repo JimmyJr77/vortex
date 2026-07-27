@@ -1,0 +1,37 @@
+{
+  "batchKey": "one-arm-landmine-base-family-v1",
+  "researchVersion": "2026-07-27.56",
+  "generatedAt": "2026-07-27T05:25:39.000Z",
+  "cards": [
+    {
+      "slug": "half-kneeling-one-arm-landmine-press",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 6
+    },
+    {
+      "slug": "tall-kneeling-one-arm-landmine-press",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 6
+    },
+    {
+      "slug": "one-arm-landmine-floor-press",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 6
+    },
+    {
+      "slug": "one-arm-landmine-z-press",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 6
+    },
+    {
+      "slug": "one-arm-landmine-arc-press",
+      "evidenceSections": 16,
+      "mediaCandidates": 5,
+      "alternateAssessments": 6
+    }
+  ]
+}

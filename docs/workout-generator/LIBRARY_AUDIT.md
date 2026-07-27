@@ -878,6 +878,102 @@ intact. The release gate remains correctly blocked at zero published cards and
 phase depth, zero approved graph edges, zero approved calibration anchors,
 zero exact-match media approvals, and zero real coach-pilot reviews.
 
+Migrations 391–396 complete deterministic adjudication of the configured
+score-74, score-73, and score-72 identity queues. Migration 397 then completes
+the standing strict Landmine Press family and closes the direct collision that
+the richer aliases reveal:
+
+- `two-hand-landmine-press`,
+  `square-stance-one-arm-landmine-press`, and
+  `split-stance-one-arm-landmine-press` are archived as redundant definitions;
+  legacy sources 1415, 1408, and 1407 move to `landmine-press` with explicit
+  duplicate-consolidation provenance.
+- Five exact review-state variants declare stance, lead leg, laterality, hand
+  count, attachment, grip, rack, strict intent, range, tempo, return, load,
+  side dose, pickup, set-down, and finish. Each derives overall difficulty as
+  the maximum of exercise complexity and physical difficulty.
+- Ten contextual delivery profiles, 16 candidate evidence rows, five
+  oEmbed-healthy media candidates, 12 alternate assessments, six relationship
+  proposals, 15 calibration proposals, and one automated test packet are
+  attached to card version 2. Every record remains review-only or quarantined.
+- Half-kneeling, tall-kneeling, floor-press, Z-press, bench-press, and
+  split-jerk comparisons are recorded as distinct mechanics boundaries. The
+  underspecified `one-arm-landmine-arc-press` comparison remains an explicit
+  `needs_human_review` quarantine rather than receiving an invented decision.
+
+The migration-397 disposable audit reports:
+
+| Measure | Count |
+|---|---:|
+| Legacy exercises and source mappings | 1,676 |
+| Active canonical definitions | 1,096 |
+| Archived canonical definitions | 580 |
+| Variants | 1,828 |
+| Active selectable/review variants | 1,287 |
+| Active variants with populated difficulty | 1,276 |
+| Delivery profiles | 1,984 |
+| Identity decisions | 1,347 |
+| Distinct identity boundaries | 714 |
+| Duplicate consolidations | 579 |
+| Stored identity-review quarantines | 54 |
+| Candidate media records | 5,066 |
+| Approved media records | 0 |
+| Review-only relationship proposals | 207 |
+| Approved relationship proposals | 0 |
+| Review-only calibration proposals | 357 |
+| Approved calibration proposals | 0 |
+| Unresolved score-72-or-higher pairs | 47 |
+| Unclassified score-72-or-higher pairs | 0 |
+| Exact identity collisions | 0 |
+
+All 47 remaining score-72-or-higher pairs are explicit unreviewed
+`needs_human_review` quarantines. Forty-two active cards now avoid the broad
+structural-backfill bucket; 1,054 still require anatomy, difficulty, load,
+fatigue, constraints, delivery, athlete, coach, or support-operations
+completion. Eleven active variants still lack complete difficulty inputs and
+remain quarantined. Every populated active/review variant satisfies
+`overall = max(exercise complexity, physical difficulty)`.
+
+The canonical classification detector finds zero skill/proficiency
+classifications across exercise definitions, variants, delivery profiles, and
+identity evidence, while all 1,112 dedicated skill-library level assignments
+remain intact. Five video URLs have verified oEmbed responses only; playback,
+caption, accessibility, exact-variant, demonstration-quality, reviewer, and
+approval checks have not occurred. The release gate therefore remains
+correctly blocked at zero published cards, zero approved relationship edges,
+zero approved calibration anchors, zero approved exact-match media, and zero
+real coach-pilot reviews.
+
+Migration 398 completes the structural research pass for the remaining
+one-arm landmine base-position family:
+
+- `half-kneeling-one-arm-landmine-press`,
+  `tall-kneeling-one-arm-landmine-press`,
+  `one-arm-landmine-floor-press`, and
+  `one-arm-landmine-z-press` receive seven exact review variants and 12
+  selectable contextual delivery profiles. All difficulty values describe
+  only exercise complexity and physical difficulty; overall difficulty is
+  derived as their maximum. No athlete skill or proficiency classification is
+  stored on an exercise card.
+- `one-arm-landmine-arc-press` remains a non-selectable
+  `identity-review-only` variant. Public sources use conflicting positions and
+  movement paths for the name, so the migration creates no executable
+  prescription until a human establishes the identity boundary.
+- The five cards receive 80 section-evidence rows, 25 oEmbed-healthy media
+  candidates, 30 alternate assessments, eight review-only relationship
+  proposals, 21 review-only calibration proposals, and five quarantined test
+  packets. Six legacy source mappings remain intact.
+- Candidate media has title/channel metadata only. Exact-variant match,
+  playback, caption, accessibility, demonstration quality, reviewer identity,
+  and approval remain unset and human-gated. Relationships, calibrations, card
+  reviews, variants, profiles, and definitions remain unapproved.
+
+The successful disposable migration-398 target audit found seven review
+variants, 13 delivery profiles, the expected 80/25/30
+evidence/media/alternate rows, 21 review calibration rows, zero proficiency
+paths, zero invalid difficulty formulas, zero non-candidate media states, and
+zero approved graph or calibration records. A direct rerun was idempotent.
+
 ## Run the audit
 
 Apply all migrations, then run:

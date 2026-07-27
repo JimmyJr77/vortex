@@ -1,0 +1,527 @@
+{
+  "facilityId": 1,
+  "slug": "one-arm-landmine-arc-press",
+  "researchVersion": "2026-07-27.56",
+  "assessmentSummary": {
+    "identity": "Quarantined source label for a proposed unilateral landmine arc press. The minimum publishable contract—base, hand count, start rack, path landmarks, endpoint, rotation policy, return, and distinction from the standard landmine press or bilateral landmine arc—is not yet established.",
+    "currentCardFindings": [
+      "The active card currently merges a generic Arc Press label with an archived One-Arm Eccentric Landmine Press source, yet neither source supplies the missing path and base contract.",
+      "Professional sources acknowledge an Arc Press label but do not define enough mechanics to make the card selectable.",
+      "Public video metadata shows half-kneeling, tall-kneeling, standing, prenatal, and bilateral arc labels; oEmbed health does not resolve identity.",
+      "The card must remain review-only and publication-quarantined; the prior eccentric source remains a tempo or contraction-emphasis candidate, not proof of identity."
+    ],
+    "proposedTaxonomy": {
+      "movementPatterns": [
+        "push_pending_identity_confirmation"
+      ],
+      "movementQualifiers": [
+        "rated_fixed_landmine_pivot",
+        "base_pending_review",
+        "hand_count_pending_review",
+        "start_rack_pending_review",
+        "arc_landmarks_pending_review",
+        "rotation_policy_pending_review",
+        "endpoint_pending_review",
+        "return_pending_review"
+      ],
+      "jointActions": [
+        "shoulder_and_elbow_press_actions_pending_exact_contract",
+        "scapular_motion_pending_exact_contract",
+        "trunk_and_base_actions_pending_exact_contract"
+      ],
+      "planes": [
+        "pending_exact_path_review"
+      ],
+      "laterality": "source_label_claims_one_arm_but_requires_confirmation",
+      "intent": "review_only_not_selectable"
+    },
+    "proposedAnatomy": {
+      "primaryMusclesAndTissues": [
+        "anterior_deltoid_candidate",
+        "clavicular_pectoralis_major_candidate",
+        "triceps_brachii_candidate"
+      ],
+      "secondaryMusclesAndTissues": [
+        "serratus_anterior_candidate",
+        "trapezius_candidate",
+        "rotator_cuff_candidate",
+        "abdominal_wall_candidate",
+        "forearm_and_hand_candidate"
+      ],
+      "joints": [
+        "glenohumeral_candidate",
+        "scapulothoracic_candidate",
+        "elbow_candidate",
+        "wrist_candidate",
+        "spine_and_pelvis_pending_base"
+      ],
+      "primaryActions": [
+        "confirm_exact_movement_contract_before_prescription"
+      ]
+    },
+    "proposedDifficulty": {
+      "technicalComplexity": 54,
+      "absoluteLoadDemand": 42,
+      "coordinationDemand": 54,
+      "supervisionDemand": 60,
+      "failureConsequence": 48,
+      "impact": 1,
+      "workCapacityDemand": 42,
+      "baseOverallDifficulty": 54
+    },
+    "variantDifficultyCandidates": [
+      {
+        "variantKey": "provisional-half-kneeling-arc-press",
+        "exerciseComplexity": 54,
+        "physicalDifficulty": 42,
+        "derivedOverallDifficulty": 54,
+        "basis": "provisional only; exact start, path, endpoint, hand count, and rotation policy require human review"
+      },
+      {
+        "variantKey": "provisional-tall-kneeling-arc-press",
+        "exerciseComplexity": 56,
+        "physicalDifficulty": 42,
+        "derivedOverallDifficulty": 56,
+        "basis": "provisional only; the reduced base and exact arc contract require human review"
+      },
+      {
+        "variantKey": "provisional-standing-arc-press",
+        "exerciseComplexity": 54,
+        "physicalDifficulty": 44,
+        "derivedOverallDifficulty": 54,
+        "basis": "provisional only; standing stance, arc landmarks, and rotation policy require human review"
+      }
+    ],
+    "proposedLoadProfile": {
+      "impactClass": "no_planned_impact_if_strict_contract_confirmed",
+      "externalLoadMethods": [
+        "barbell_landmine_sleeve_and_declared_plate_mass_candidate"
+      ],
+      "primaryStress": [
+        "pending_exact_path_and_base_review"
+      ],
+      "cumulativeBudgets": [
+        "do_not_count_or_prescribe_until_identity_review"
+      ]
+    },
+    "proposedFatigueRecovery": {
+      "primaryFatigueSites": [
+        "pending_exact_contract"
+      ],
+      "earlyFatigueSignals": [
+        "any_path_base_or_rotation_change_from_future_approved_contract"
+      ],
+      "downstreamConflicts": [
+        "all_pressing_and_throwing_budgets_pending_identity_review"
+      ],
+      "recoveryWindowHours": {
+        "status": "not_assignable_until_identity_review"
+      }
+    },
+    "proposedConstraints": {
+      "requiredEquipment": [
+        "rated_landmine",
+        "barbell",
+        "collars",
+        "plates_as_prescribed",
+        "base_specific_padding_pending_review"
+      ],
+      "environment": [
+        "clear_full_bar_arc_and_plate_zone",
+        "human_reviewer_can_observe_complete_path"
+      ],
+      "populationReadiness": [
+        "not_selectable_until_identity_and_media_review"
+      ]
+    },
+    "proposedDeliveryProfiles": [
+      {
+        "profileKey": "review-only-no-prescription",
+        "phaseKey": "review",
+        "purpose": "Capture the unresolved source label without generating a workout prescription.",
+        "dosage": {
+          "selectionStatus": "blocked_pending_identity_review",
+          "sets": [
+            0,
+            0
+          ],
+          "reps": [
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "profileKey": "human-movement-contract-review",
+        "phaseKey": "review",
+        "purpose": "A qualified reviewer documents base, hand count, rack, path landmarks, endpoint, rotation, return, safety, and relation to existing cards before any athlete use.",
+        "dosage": {
+          "selectionStatus": "human_review_only",
+          "athletePrescription": false
+        }
+      }
+    ],
+    "proposedInstructions": {
+      "coach": [
+        "Do not prescribe this card.",
+        "Review the complete source demonstrations and record base, hand count, rack, path landmarks, endpoint, rotation, return, equipment, and failure strategy.",
+        "Compare the confirmed action against strict landmine press, bilateral landmine arc or rainbow, rotational press, and eccentric-tempo variants."
+      ],
+      "athlete": [
+        "This source label is not available for athlete selection or self-guided execution."
+      ],
+      "qualityGates": [
+        "qualified_identity_reviewer_assigned",
+        "complete_movement_contract_recorded",
+        "identity_collision_reviewed",
+        "three_to_five_exact_media_candidates_fully_reviewed",
+        "difficulty_recalibrated_after_contract"
+      ],
+      "stopRules": [
+        "do_not_generate_or_deliver_until_all_identity_gates_pass"
+      ]
+    },
+    "currentCardSnapshot": {
+      "capturedAt": "2026-07-27T05:25:39.000Z",
+      "cardVersion": 1,
+      "status": "review",
+      "description": "Perform One-Arm Landmine Arc Press as a landmine-based push pattern. The athlete uses the fixed angled bar path to create useful load while maintaining bracing, breathing, grip ownership, and a repeatable finish position.",
+      "familyKey": "One-Handed Pressing",
+      "movementPatterns": [],
+      "bodyRegions": [],
+      "requiredEquipment": [],
+      "optionalEquipment": [],
+      "environment": {},
+      "population": {},
+      "difficulty": {
+        "absoluteLoadDemand": 50,
+        "coordinationDemand": 40,
+        "technicalComplexity": 40,
+        "baseOverallDifficulty": 50
+      },
+      "loadProfile": {},
+      "fatigueProfile": {}
+    }
+  },
+  "evidence": [
+    {
+      "sectionKey": "identity",
+      "sourceUrl": "https://platform.instituteofmotion.com/library/activity/r59tleo2/share/",
+      "sourceTitle": "Arc Press – Landmine",
+      "sourcePublisher": "Institute of Motion",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 68,
+      "claims": [
+        "Institute of Motion publishes an Arc Press – Landmine exercise classified as a push for the shoulder and core and embeds a video titled for half-kneeling and tall-kneeling arc presses.",
+        "The public entry does not declare hand count, start rack, endpoint, path landmarks, stance-side relationship, rotation policy, or how this action differs from the natural arc of a standard landmine press; the active identity must remain quarantined."
+      ]
+    },
+    {
+      "sectionKey": "taxonomy",
+      "sourceUrl": "https://www.nifs.org/blog/shouldering-the-load-safe-alternatives-to-the-overhead-press-pattern",
+      "sourceTitle": "Shouldering the Load: Safe Alternatives to the Overhead Press Pattern",
+      "sourcePublisher": "National Institute for Fitness and Sport",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 66,
+      "claims": [
+        "NIFS lists Landmine Press and Landmine Arc Press as separate options and lists half-kneeling and standing bases for both.",
+        "That listing supports a possible distinct exercise name but does not provide the missing movement contract required to classify the active source safely."
+      ]
+    },
+    {
+      "sectionKey": "anatomy",
+      "sourceUrl": "https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/",
+      "sourceTitle": "The Landmine Press—Implementation and Variation",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Landmine pressing loads the shoulder press musculature and elbow extensors while the scapular complex, rotator cuff, trunk, grip, and declared base stabilize the bar path.",
+        "Record deltoid, clavicular pectoralis major, triceps, serratus anterior, trapezius, rotator cuff, abdominal wall, spinal stabilizers, forearm and hand contributions without claiming isolation or one universal activation profile."
+      ]
+    },
+    {
+      "sectionKey": "biomechanics",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41755100/",
+      "sourceTitle": "Landmine Press Kinematics Measured with an Enhanced YOLOv8 Model and Mathematical Modeling",
+      "sourcePublisher": "Sensors",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "The free bar end moves about a fixed pivot, so the exact start position, pivot distance, body position, range, and external load affect the observed path and kinematics.",
+        "Observable gates include a secure anchor, stable declared base, repeatable rack, stacked wrist and forearm, organized pelvis and ribs, controlled press arc, owned finish, and same-path return."
+      ]
+    },
+    {
+      "sectionKey": "difficulty",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41755100/",
+      "sourceTitle": "Landmine Press Kinematics Measured with an Enhanced YOLOv8 Model and Mathematical Modeling",
+      "sourcePublisher": "Sensors",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "Landmine-press kinematics change across external loads; support base, body orientation, laterality, range, attachment, and intent also change the task.",
+        "Assess exercise complexity and physical difficulty independently for each exact variant and derive overall difficulty as their maximum. Exercise cards do not carry athlete proficiency levels."
+      ]
+    },
+    {
+      "sectionKey": "load_fatigue_recovery",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",
+      "sourceTitle": "American College of Sports Medicine Position Stand. Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults: An Overview of Reviews",
+      "sourcePublisher": "Medicine and Science in Sports and Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "Resistance-training stimulus and fatigue depend on load, volume, effort, exercise selection, frequency, and progression.",
+        "One-Arm Landmine Arc Press contributes angled press volume, shoulder, upper-chest and triceps loading, scapular and rotator-cuff demand, grip and wrist demand, trunk stabilization, eccentric lowering, and technical fatigue with no planned impact."
+      ]
+    },
+    {
+      "sectionKey": "constraints",
+      "sourceUrl": "https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/",
+      "sourceTitle": "The Landmine Press—Implementation and Variation",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "A landmine press requires a stable anchor, compatible barbell and loading hardware, and clear space for the full bar arc, setup, transfer, and set-down.",
+        "Declare floor and padding, anchor rating, bar and collars, plates, body orientation, base, side, rack, range, pickup, transfer, set-down, coach sightline, and the moving-sleeve exclusion zone."
+      ]
+    },
+    {
+      "sectionKey": "dosage",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10579494/",
+      "sourceTitle": "Resistance training prescription for muscle strength and hypertrophy in healthy adults: a systematic review and Bayesian network meta-analysis",
+      "sourcePublisher": "British Journal of Sports Medicine",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 94,
+      "claims": [
+        "Resistance-training outcomes depend on the interaction of sets, repetitions, load, effort, frequency, and recovery rather than an exercise name alone.",
+        "Use exact-variant quality sets with enough rest to preserve the anchor, declared base, rack, wrist, path, scapular motion, trunk position, range, tempo, side balance, and safe return."
+      ]
+    },
+    {
+      "sectionKey": "instructions",
+      "sourceUrl": "https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/",
+      "sourceTitle": "The Landmine Press—Implementation and Variation",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "Instruction must establish the anchor, floor space, body position, base, side, rack, brace, press path, finish, controlled return, and safe set-down.",
+        "The athlete and coach must know whether the repetition is strict, which hand and base are used, what range counts, and how a failed repetition is returned without crossing the moving bar or plate path."
+      ]
+    },
+    {
+      "sectionKey": "safety_stop_rules",
+      "sourceUrl": "https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf",
+      "sourceTitle": "Youth Resistance Training: Updated Position Statement Paper From the NSCA",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 88,
+      "claims": [
+        "Qualified supervision, manageable resistance, correct technique, appropriate equipment, and gradual progression are core safeguards for resistance exercise.",
+        "Stop for pain, neurologic symptoms, dizziness, anchor or collar movement, plate shift, loss of the declared base, wrist collapse, uncontrolled path or return, grinding, dropped load, collision risk, or inability to execute the planned set-down."
+      ]
+    },
+    {
+      "sectionKey": "programming",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",
+      "sourceTitle": "American College of Sports Medicine Position Stand. Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults: An Overview of Reviews",
+      "sourcePublisher": "Medicine and Science in Sports and Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "Exercise selection and resistance-training dose should be individualized to the intended adaptation, current capacity, and recovery context.",
+        "Place exact landmine-press variants before material shoulder, triceps, upper-chest, grip, throwing, contact, or high-velocity pressing fatigue when path quality is the session priority."
+      ]
+    },
+    {
+      "sectionKey": "athlete_support",
+      "sourceUrl": "https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/",
+      "sourceTitle": "The Landmine Press—Implementation and Variation",
+      "sourcePublisher": "National Strength and Conditioning Association",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 84,
+      "claims": [
+        "The athlete needs the exact body position, base, working side, rack, load, range, tempo, repetitions, rest, side sequence, and stop signal before beginning.",
+        "A lighter load, shorter owned range, or reviewed substitution is preferable to changing the base, using undeclared leg drive, rotating, losing the rack, or controlling an unsafe return."
+      ]
+    },
+    {
+      "sectionKey": "coach_support",
+      "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/41755100/",
+      "sourceTitle": "Landmine Press Kinematics Measured with an Enhanced YOLOv8 Model and Mathematical Modeling",
+      "sourcePublisher": "Sensors",
+      "sourceKind": "peer_reviewed_research",
+      "evidenceQuality": 86,
+      "claims": [
+        "The fixed pivot and moving bar end give coaches observable setup, path, range, velocity-intent, and finish checkpoints.",
+        "Coach support should expose anchor, collars, plates, body position, base, working side, rack, wrist, elbow, scapula, pelvis, ribs, path, range, tempo, dose, symptoms, fatigue, side balance, set-down, and shutdown actions."
+      ]
+    },
+    {
+      "sectionKey": "accessibility",
+      "sourceUrl": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12965823/",
+      "sourceTitle": "American College of Sports Medicine Position Stand. Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults: An Overview of Reviews",
+      "sourcePublisher": "Medicine and Science in Sports and Exercise",
+      "sourceKind": "professional_standard",
+      "evidenceQuality": 96,
+      "claims": [
+        "Resistance exercise can be individualized through load, volume, range, effort, equipment, and progression while preserving the intended movement contract.",
+        "Options include an unloaded bar, lighter plates, fewer repetitions, longer rest, a reviewed alternative base or press, written or audio cues, still images, tactile floor markers, and live instruction."
+      ]
+    },
+    {
+      "sectionKey": "alternates",
+      "sourceUrl": "https://platform.instituteofmotion.com/library/activity/r59tleo2/share/",
+      "sourceTitle": "Arc Press – Landmine",
+      "sourcePublisher": "Institute of Motion",
+      "sourceKind": "expert_instruction",
+      "evidenceQuality": 68,
+      "claims": [
+        "The public activity title explicitly mentions half-kneeling and tall-kneeling versions, while other public search candidates use standing or bilateral side-to-side arc terminology.",
+        "Each candidate base and path remains a proposed variant or separate action only after a reviewer confirms hand count, start, path, endpoint, rotation, and return."
+      ]
+    },
+    {
+      "sectionKey": "media",
+      "sourceUrl": "https://support.google.com/youtube/answer/171780?expand=PrivacyEnhancedMode&hl=en",
+      "sourceTitle": "Embed videos and playlists",
+      "sourcePublisher": "YouTube Help",
+      "sourceKind": "manufacturer_instruction",
+      "evidenceQuality": 82,
+      "claims": [
+        "Five public candidates returned oEmbed metadata, including exact-name arc-press titles and broader landmine-arc titles.",
+        "Because titles conflict about base and path, no candidate is marked as an exact variant, approved, or selectable until full human playback and safety review."
+      ]
+    }
+  ],
+  "mediaCandidates": [
+    {
+      "url": "https://www.youtube.com/watch?v=JFwX9gJh8Fc",
+      "title": "Landmine - Arc Press for shoulders (half-kneeling and tall-kneeling)",
+      "channelName": "Brad Sims, CPT",
+      "sourceQuery": "landmine arc press shoulders",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T05:25:39.000Z"
+      },
+      "notes": "oEmbed metadata responded and Institute of Motion embeds this video. Playback, exact path, hand count, safety, quality, reviewer, and approval remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=o77Fevbmr2g",
+      "title": "Standing Landmine OH Arc Press",
+      "channelName": "Functional Effect Fitness & Rehabilitation",
+      "sourceQuery": "standing landmine arc press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T05:25:39.000Z"
+      },
+      "notes": "oEmbed metadata responded. Title suggests standing but does not resolve the path contract; all review gates remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=SEFb24cdAZs",
+      "title": "Unity Fitness - Landmine Arc Press",
+      "channelName": "Jordan Rudolph",
+      "sourceQuery": "landmine arc press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T05:25:39.000Z"
+      },
+      "notes": "oEmbed metadata responded; hand count, base, path, content, and approval review remain pending."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=KwQVonn3jeE",
+      "title": "Landmine Arc Press (prenatal)",
+      "channelName": "Karla Bosnar",
+      "sourceQuery": "landmine arc press",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T05:25:39.000Z"
+      },
+      "notes": "oEmbed metadata responded. This is population-specific and cannot support general selection without full content, population, and safety review."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Sgikteuhkkw",
+      "title": "Landmine Arcs",
+      "channelName": "Josh Kauten",
+      "sourceQuery": "landmine arcs",
+      "linkStatus": "healthy",
+      "embeddingAllowed": true,
+      "externalVerification": {
+        "method": "youtube_oembed",
+        "verifiedAt": "2026-07-27T05:25:39.000Z"
+      },
+      "notes": "oEmbed metadata responded. The plural title may represent a bilateral side-to-side action rather than this card; exact-match remains intentionally null and human review is pending."
+    }
+  ],
+  "alternateAssessments": [
+    {
+      "name": "Half-Kneeling One-Arm Landmine Arc Press",
+      "classification": "new_variant",
+      "rationale": "Provisional variant only if review confirms a repeatable arc action distinct from the standard half-kneeling press.",
+      "distinguishingDimensions": {
+        "variantKey": "provisional-half-kneeling-arc-press",
+        "reviewGate": "exact_path_and_identity_pending"
+      }
+    },
+    {
+      "name": "Tall-Kneeling One-Arm Landmine Arc Press",
+      "classification": "new_variant",
+      "rationale": "Provisional variant only if review confirms the same distinct arc action from a tall-kneeling base.",
+      "distinguishingDimensions": {
+        "variantKey": "provisional-tall-kneeling-arc-press",
+        "reviewGate": "exact_path_and_identity_pending"
+      }
+    },
+    {
+      "name": "Standing One-Arm Landmine Arc Press",
+      "classification": "new_variant",
+      "rationale": "Provisional variant only if review confirms the same distinct arc action from a declared standing stance.",
+      "distinguishingDimensions": {
+        "variantKey": "provisional-standing-arc-press",
+        "reviewGate": "exact_path_and_identity_pending"
+      }
+    },
+    {
+      "name": "Bilateral Side-to-Side Landmine Arc",
+      "classification": "new_definition",
+      "rationale": "A two-hand bar path sweeping between shoulders or hips with or without rotation is not a unilateral press and requires its own action, laterality, plane, and stop rules.",
+      "distinguishingDimensions": {
+        "primaryAction": "bilateral_side_to_side_arc",
+        "handCount": 2,
+        "rotationPolicy": "must_be_declared"
+      }
+    },
+    {
+      "name": "One-Arm Eccentric Landmine Press",
+      "classification": "modifier_annotation",
+      "rationale": "A slower or assisted lowering phase changes contraction emphasis and dose; it does not prove a distinct arc identity when the underlying press path and base are unchanged.",
+      "distinguishingDimensions": {
+        "modifiers": [
+          "eccentric_duration",
+          "concentric_assistance",
+          "tempo"
+        ]
+      }
+    },
+    {
+      "name": "Standard Strict Landmine Press",
+      "classification": "reject",
+      "rationale": "Do not alias the arc-press label to the standard strict press until a reviewer confirms that no distinct path or endpoint exists.",
+      "distinguishingDimensions": {
+        "existingSlug": "landmine-press",
+        "reviewGate": "identity_equivalence_pending"
+      }
+    }
+  ]
+}

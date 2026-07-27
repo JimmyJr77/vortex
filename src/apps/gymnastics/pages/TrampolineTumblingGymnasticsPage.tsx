@@ -108,8 +108,9 @@ const TrampolineTumblingGymnasticsPage = ({
       <section className="relative overflow-hidden bg-gradient-to-br from-red-950 via-black to-gray-950 pt-below-site-header text-white">
         <div className="absolute -left-24 top-20 h-72 w-72 rounded-full bg-vortex-red/20 blur-3xl" />
         <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
-        <div className="container-custom relative z-10 grid min-h-below-site-header items-center gap-12 py-16 lg:grid-cols-[1.05fr_.95fr]">
+        <div className="relative z-10 grid min-h-below-site-header w-full items-center gap-8 px-6 py-16 sm:px-8 lg:grid-cols-[minmax(24rem,.8fr)_minmax(0,1.35fr)] lg:gap-x-8 lg:gap-y-0 lg:py-0 lg:pl-12 lg:pr-0">
           <motion.div
+            className="order-1 mx-auto w-full max-w-2xl lg:col-start-1 lg:row-start-1 lg:mx-0 lg:justify-self-end lg:self-end"
             initial={{ opacity: 0, y: 35 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -124,46 +125,53 @@ const TrampolineTumblingGymnasticsPage = ({
               Bounce higher. Tumble stronger. Learn to move through the air with confidence and
               control.
             </p>
-            <div className="mt-9 flex flex-wrap gap-4">
-              <Link
-                to={enrollHref}
-                className="inline-flex items-center gap-2 rounded-xl bg-vortex-red px-8 py-4 text-lg font-bold text-white transition-colors hover:bg-red-700"
-              >
-                Enroll Now
-                <ArrowRight className="h-5 w-5" aria-hidden />
-              </Link>
-              <Link
-                to="/"
-                className="inline-flex items-center rounded-xl border-2 border-white px-8 py-4 text-lg font-bold text-white transition-colors hover:bg-white/10"
-              >
-                All Gymnastics Programs
-              </Link>
-            </div>
           </motion.div>
 
           <motion.div
+            className="order-2 w-full lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:h-[calc(100vh-var(--site-header-height))] lg:min-h-[42rem]"
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.15, duration: 0.7 }}
           >
-            <div className="overflow-hidden rounded-3xl border-2 border-white/20 bg-black shadow-2xl">
+            <div className="relative h-full min-h-[24rem] overflow-hidden rounded-3xl border-2 border-white/20 bg-black shadow-2xl lg:rounded-l-3xl lg:rounded-r-none lg:border-y-0 lg:border-r-0">
               <img
                 src="/tramp-tumble-hero.jpg"
                 alt="A Vortex athlete performing a tumbling skill on the power tumbling track"
-                className="aspect-[3/2] h-full w-full scale-[1.35] object-cover object-center"
+                className="absolute inset-0 h-full w-full translate-y-3 scale-[1.5] object-cover object-center lg:translate-y-0 lg:scale-[1.35]"
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
               />
             </div>
           </motion.div>
+
+          <motion.div
+            className="order-3 mx-auto flex w-full max-w-2xl flex-wrap gap-4 lg:col-start-1 lg:row-start-2 lg:mx-0 lg:justify-self-end lg:self-start"
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.7 }}
+          >
+            <Link
+              to={enrollHref}
+              className="inline-flex items-center gap-2 rounded-xl bg-vortex-red px-8 py-4 text-lg font-bold text-white transition-colors hover:bg-red-700"
+            >
+              Enroll Now
+              <ArrowRight className="h-5 w-5" aria-hidden />
+            </Link>
+            <Link
+              to="/"
+              className="inline-flex items-center rounded-xl border-2 border-white px-8 py-4 text-lg font-bold text-white transition-colors hover:bg-white/10"
+            >
+              All Gymnastics Programs
+            </Link>
+          </motion.div>
         </div>
       </section>
 
       <section className="section-padding bg-white">
-        <div className="container-custom mx-auto max-w-5xl">
+        <div className="mx-auto max-w-5xl">
           <motion.div
-            className="rounded-3xl border border-gray-200 bg-gray-50 p-8 shadow-sm md:p-12"
+            className="md:rounded-3xl md:border md:border-gray-200 md:bg-gray-50 md:p-12 md:shadow-sm"
             initial={{ opacity: 0, y: 25 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -199,7 +207,7 @@ const TrampolineTumblingGymnasticsPage = ({
       </section>
 
       <section className="section-padding border-y border-gray-200 bg-gray-100">
-        <div className="container-custom">
+        <div className="mx-auto max-w-7xl">
           <div className="mx-auto mb-16 max-w-3xl text-center">
             <p className="mb-3 font-bold uppercase tracking-[0.2em] text-vortex-red">
               Meet the Events
@@ -221,13 +229,36 @@ const TrampolineTumblingGymnasticsPage = ({
               return (
                 <motion.article
                   key={event.name}
-                  className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14"
+                  className="grid items-center gap-8 lg:grid-cols-2 lg:gap-x-14 lg:gap-y-0"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.2 }}
                   transition={{ duration: 0.6 }}
                 >
-                  <div className={reverse ? 'lg:order-2' : ''}>
+                  <div
+                    className={`order-1 ${
+                      reverse ? 'lg:col-start-1' : 'lg:col-start-2'
+                    } lg:row-start-1 lg:self-end`}
+                  >
+                    <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white">
+                      <Icon className="h-7 w-7" aria-hidden />
+                    </div>
+                    <p className="mb-2 text-sm font-bold uppercase tracking-[0.18em] text-vortex-red">
+                      Event {index + 1}
+                    </p>
+                    <h3 className="text-4xl font-display font-bold text-black md:text-5xl">
+                      {event.name}
+                    </h3>
+                    <p className="mt-4 text-xl font-semibold leading-relaxed text-gray-800">
+                      {event.shortDescription}
+                    </p>
+                  </div>
+
+                  <div
+                    className={`order-2 ${
+                      reverse ? 'lg:col-start-2' : 'lg:col-start-1'
+                    } lg:row-span-2 lg:row-start-1 lg:self-center`}
+                  >
                     {event.name === 'Trampoline' ? (
                       <EventPhotoWithInstagramBanner
                         imageSrc="/trampoline-event.jpg"
@@ -251,19 +282,12 @@ const TrampolineTumblingGymnasticsPage = ({
                       />
                     ) : null}
                   </div>
-                  <div className={reverse ? 'lg:order-1' : ''}>
-                    <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white">
-                      <Icon className="h-7 w-7" aria-hidden />
-                    </div>
-                    <p className="mb-2 text-sm font-bold uppercase tracking-[0.18em] text-vortex-red">
-                      Event {index + 1}
-                    </p>
-                    <h3 className="text-4xl font-display font-bold text-black md:text-5xl">
-                      {event.name}
-                    </h3>
-                    <p className="mt-4 text-xl font-semibold leading-relaxed text-gray-800">
-                      {event.shortDescription}
-                    </p>
+
+                  <div
+                    className={`order-3 ${
+                      reverse ? 'lg:col-start-1' : 'lg:col-start-2'
+                    } lg:row-start-2 lg:self-start`}
+                  >
                     <p className="mt-5 text-lg leading-relaxed text-gray-600">
                       {event.explanation}
                     </p>

@@ -1,5 +1,5 @@
 {
-  "registryVersion": "2026-07-27.55",
+  "registryVersion": "2026-07-27.56",
   "sources": {
     "sprint_start_biomechanics_review": {
       "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8998119/",
@@ -1267,6 +1267,27 @@
       "publisher": "Sensors",
       "kind": "peer_reviewed_research",
       "evidenceQuality": 86
+    },
+    "institute_of_motion_landmine_arc_press": {
+      "url": "https://platform.instituteofmotion.com/library/activity/r59tleo2/share/",
+      "title": "Arc Press – Landmine",
+      "publisher": "Institute of Motion",
+      "kind": "expert_instruction",
+      "evidenceQuality": 68
+    },
+    "nifs_landmine_press_options": {
+      "url": "https://www.nifs.org/blog/shouldering-the-load-safe-alternatives-to-the-overhead-press-pattern",
+      "title": "Shouldering the Load: Safe Alternatives to the Overhead Press Pattern",
+      "publisher": "National Institute for Fitness and Sport",
+      "kind": "expert_instruction",
+      "evidenceQuality": 66
+    },
+    "bench_press_range_of_motion_kinematics": {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/31827348/",
+      "title": "Range of Motion and Sticking Region Effects on the Bench Press Load-Velocity Relationship",
+      "publisher": "Journal of Sports Science & Medicine",
+      "kind": "peer_reviewed_research",
+      "evidenceQuality": 88
     }
   }
 }

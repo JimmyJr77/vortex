@@ -2422,7 +2422,7 @@ test('split-squat packets preserve the rear-support boundary and difficulty-only
     ]],
   ])
 
-  assert.equal(registryDocument.registryVersion, '2026-07-27.54')
+  assert.equal(registryDocument.registryVersion, '2026-07-27.56')
   for (const sourceKey of [
     'split_squat_step_length_biomechanics',
     'unilateral_barbell_exercise_activation',
@@ -2594,5 +2594,226 @@ test('hamstring slider curl research batch preserves exact variants, difficulty-
       && !Object.hasOwn(candidate, 'exactVariantMatch')
       && !Object.hasOwn(candidate, 'reviewerUserId')
       && !Object.hasOwn(candidate, 'reviewedAt')
+  )))
+})
+
+test('landmine press research batch consolidates exact standing variants and leaves every approval human-gated', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/landmine-press-family.v1.json',
+    ),
+    'utf8',
+  ))
+
+  assert.equal(registryDocument.registryVersion, '2026-07-27.56')
+  for (const sourceKey of [
+    'nsca_landmine_press_implementation',
+    'landmine_press_kinematics_2026',
+    'acsm_resistance_training_position_stand_2026',
+    'resistance_prescription_network_meta_analysis',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey])
+  }
+  assert.equal(batch.researchVersion, '2026-07-27.55')
+  assert.equal(batch.cards.length, 1)
+
+  const cardSpec = batch.cards[0]
+  const result = buildResearchPacketFromBatch({
+    facilityId: batch.facilityId,
+    researchVersion: batch.researchVersion,
+    sharedEvidence: batch.sharedEvidence,
+    sourceRegistry: registryDocument.sources,
+    cardSpec,
+    currentCard: {
+      slug: cardSpec.slug,
+      canonicalName: 'Landmine Press',
+      familyKey: 'Shoulder-friendly pressing strength',
+      snapshot: {
+        capturedAt: batch.snapshotAt,
+        cardVersion: 1,
+        status: 'review',
+      },
+    },
+    mediaCandidates: [],
+  })
+
+  assert.equal(result.validation.valid, true)
+  assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+  assert.equal(result.packet.mediaCandidates.length, 5)
+  assert.equal(result.packet.alternateAssessments.length, 12)
+  assert.deepEqual(
+    cardSpec.assessmentSummary.variantDifficultyCandidates.map((variant) => [
+      variant.variantKey,
+      variant.exerciseComplexity,
+      variant.physicalDifficulty,
+      variant.derivedOverallDifficulty,
+    ]),
+    [
+      ['single-arm-square-stance-sleeve-grip-strict', 46, 44, 46],
+      ['single-arm-split-stance-sleeve-grip-strict', 44, 46, 46],
+      ['two-hand-square-stance-sleeve-grip-strict', 38, 44, 44],
+      ['two-hand-square-stance-neutral-handle-strict', 40, 48, 48],
+      ['two-hand-square-stance-ball-grip-strict', 44, 48, 48],
+    ],
+  )
+  assert.ok(
+    cardSpec.assessmentSummary.variantDifficultyCandidates.every((variant) => (
+      variant.derivedOverallDifficulty === Math.max(
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+      )
+    )),
+  )
+  assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+    alternate.name === 'Two-Hand Landmine Press'
+      && alternate.classification === 'new_variant'
+      && alternate.distinguishingDimensions.variantKey
+        === 'two-hand-square-stance-sleeve-grip-strict'
+  )))
+  assert.ok(cardSpec.alternateAssessments.some((alternate) => (
+    alternate.name === 'Half-Kneeling One-Arm Landmine Press'
+      && alternate.classification === 'new_definition'
+  )))
+  assert.doesNotMatch(
+    JSON.stringify(cardSpec),
+    /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+  )
+  assert.ok(result.packet.mediaCandidates.every((candidate) => (
+    candidate.linkStatus === 'healthy'
+      && candidate.embeddingAllowed === true
+      && candidate.externalVerification?.method === 'youtube_oembed'
+      && !Object.hasOwn(candidate, 'reviewStatus')
+      && !Object.hasOwn(candidate, 'exactVariantMatch')
+      && !Object.hasOwn(candidate, 'reviewerUserId')
+      && !Object.hasOwn(candidate, 'reviewedAt')
+  )))
+})
+
+test('one-arm landmine base packets complete exact cards while keeping Arc Press identity-quarantined', () => {
+  const registryDocument = JSON.parse(readFileSync(
+    path.join(RESEARCH_ROOT, 'source-registry.v1.json'),
+    'utf8',
+  ))
+  const batch = JSON.parse(readFileSync(
+    path.join(
+      RESEARCH_ROOT,
+      'batches/one-arm-landmine-base-family.v1.json',
+    ),
+    'utf8',
+  ))
+  const expectedDifficulty = new Map([
+    ['half-kneeling-one-arm-landmine-press', [
+      ['working-arm-ipsilateral-to-down-knee-strict', 48, 46, 48],
+      ['working-arm-contralateral-to-down-knee-strict', 50, 46, 50],
+    ]],
+    ['tall-kneeling-one-arm-landmine-press', [
+      ['single-arm-tall-kneeling-sleeve-grip-strict', 50, 46, 50],
+      ['two-hand-tall-kneeling-sleeve-grip-strict', 44, 46, 46],
+    ]],
+    ['one-arm-landmine-floor-press', [
+      ['single-arm-supine-floor-supported-strict', 44, 52, 52],
+      ['two-hand-supine-floor-supported-strict', 42, 50, 50],
+    ]],
+    ['one-arm-landmine-z-press', [
+      ['single-arm-long-sit-legs-together-strict', 52, 46, 52],
+      ['single-arm-long-sit-straddle-strict', 50, 46, 50],
+    ]],
+    ['one-arm-landmine-arc-press', [
+      ['provisional-half-kneeling-arc-press', 54, 42, 54],
+      ['provisional-tall-kneeling-arc-press', 56, 42, 56],
+      ['provisional-standing-arc-press', 54, 44, 54],
+    ]],
+  ])
+
+  assert.equal(registryDocument.registryVersion, '2026-07-27.56')
+  for (const sourceKey of [
+    'nsca_landmine_press_implementation',
+    'landmine_press_kinematics_2026',
+    'institute_of_motion_landmine_arc_press',
+    'nifs_landmine_press_options',
+    'bench_press_range_of_motion_kinematics',
+    'acsm_resistance_training_position_stand_2026',
+    'resistance_prescription_network_meta_analysis',
+  ]) {
+    assert.ok(registryDocument.sources[sourceKey])
+  }
+  assert.equal(batch.researchVersion, '2026-07-27.56')
+  assert.equal(batch.cards.length, 5)
+
+  for (const cardSpec of batch.cards) {
+    const result = buildResearchPacketFromBatch({
+      facilityId: batch.facilityId,
+      researchVersion: batch.researchVersion,
+      sharedEvidence: batch.sharedEvidence,
+      sourceRegistry: registryDocument.sources,
+      cardSpec,
+      currentCard: {
+        slug: cardSpec.slug,
+        canonicalName: cardSpec.slug
+          .split('-')
+          .map((word) => word[0].toUpperCase() + word.slice(1))
+          .join(' '),
+        familyKey: 'one_arm_landmine_base_family',
+        snapshot: {
+          capturedAt: batch.snapshotAt,
+          cardVersion: 1,
+          status: 'review',
+        },
+      },
+      mediaCandidates: [],
+    })
+
+    assert.equal(result.validation.valid, true)
+    assert.equal(result.packet.evidence.length, REQUIRED_RESEARCH_SECTIONS.length)
+    assert.equal(result.packet.mediaCandidates.length, 5)
+    assert.equal(result.packet.alternateAssessments.length, 6)
+    assert.deepEqual(
+      cardSpec.assessmentSummary.variantDifficultyCandidates.map((variant) => [
+        variant.variantKey,
+        variant.exerciseComplexity,
+        variant.physicalDifficulty,
+        variant.derivedOverallDifficulty,
+      ]),
+      expectedDifficulty.get(cardSpec.slug),
+    )
+    assert.ok(
+      cardSpec.assessmentSummary.variantDifficultyCandidates.every((variant) => (
+        variant.derivedOverallDifficulty === Math.max(
+          variant.exerciseComplexity,
+          variant.physicalDifficulty,
+        )
+      )),
+    )
+    assert.doesNotMatch(
+      JSON.stringify(cardSpec),
+      /"(?:exerciseSkillLevel|skillLevel|skill_level|minimumSkillLevel|minimum_skill_level|proficiencyLevel|proficiency_level|proficiencyClassification)"/,
+    )
+    assert.ok(result.packet.mediaCandidates.every((candidate) => (
+      candidate.linkStatus === 'healthy'
+        && candidate.embeddingAllowed === true
+        && candidate.externalVerification?.method === 'youtube_oembed'
+        && !Object.hasOwn(candidate, 'reviewStatus')
+        && !Object.hasOwn(candidate, 'exactVariantMatch')
+        && !Object.hasOwn(candidate, 'reviewerUserId')
+        && !Object.hasOwn(candidate, 'reviewedAt')
+    )))
+  }
+
+  const arcCard = batch.cards.find((card) => (
+    card.slug === 'one-arm-landmine-arc-press'
+  ))
+  assert.equal(
+    arcCard.assessmentSummary.proposedDeliveryProfiles[0]
+      .dosage.selectionStatus,
+    'blocked_pending_identity_review',
+  )
+  assert.match(arcCard.assessmentSummary.identity, /not yet established/)
+  assert.ok(arcCard.mediaCandidates.every((candidate) => (
+    /pending|unresolved|review/i.test(candidate.notes)
   )))
 })

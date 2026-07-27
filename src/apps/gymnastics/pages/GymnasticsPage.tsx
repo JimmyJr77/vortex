@@ -22,6 +22,7 @@ import {
   Users,
   LayoutGrid,
   ChevronDown,
+  Shield,
 } from 'lucide-react'
 
 const HERO_IMAGES = [
@@ -111,14 +112,14 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
       color: 'from-vortex-red to-red-800',
     },
     {
-      id: 'acro',
-      title: 'Acrobatic Gymnastics (Acro)',
-      tagline: 'Balance. Trust. Lift Together.',
+      id: 'trampoline-tumbling',
+      title: 'Trampoline & Tumbling',
+      tagline: 'Bounce Higher. Land Stronger. Tumble Smarter.',
       description:
-        'Partner and group acrobatics combining balances, lifts, and dynamic skills. Athletes build trust, timing, flexibility, and strength while performing choreographed routines together.',
-      to: '/acro-gymnastics',
-      icon: Users,
-      color: 'from-cyan-600 to-teal-800',
+        'Mastering air awareness and body control through trampoline, tumbling, and double-mini. Progressive skill development from safe landings and shapes to routine construction and competition.',
+      to: '/trampoline-tumbling',
+      icon: Zap,
+      color: 'from-amber-600 to-amber-900',
     },
     {
       id: 'rhythmic',
@@ -131,14 +132,14 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
       color: 'from-purple-600 to-purple-900',
     },
     {
-      id: 'trampoline-tumbling',
-      title: 'Trampoline & Tumbling',
-      tagline: 'Bounce Higher. Land Stronger. Tumble Smarter.',
+      id: 'acro',
+      title: 'Acrobatic Gymnastics (Acro)',
+      tagline: 'Balance. Trust. Lift Together.',
       description:
-        'Mastering air awareness and body control through trampoline, tumbling, and double-mini. Progressive skill development from safe landings and shapes to routine construction and competition.',
-      to: '/trampoline-tumbling',
-      icon: Zap,
-      color: 'from-amber-600 to-amber-900',
+        'Partner and group acrobatics combining balances, lifts, and dynamic skills. Athletes build trust, timing, flexibility, and strength while performing choreographed routines together.',
+      to: '/acro-gymnastics',
+      icon: Users,
+      color: 'from-cyan-600 to-teal-800',
     },
     {
       id: 'aerobic',
@@ -334,66 +335,110 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
         </div>
       </section>
 
-      {/* The Art of Movement */}
+      {/* Gymnastics Disciplines — Cards */}
       <section className="section-padding bg-white">
         <div className="container-custom">
           <motion.div
-            className="max-w-4xl mx-auto text-center mb-12"
+            className="text-center mb-12"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-6">
-              The Art of <span className="text-vortex-red">Movement</span>
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-4">
+              Gymnastics <span className="text-vortex-red">Disciplines</span>
             </h2>
-            <p className="text-lg md:text-xl text-gray-700 leading-relaxed mb-6">
-              Gymnastics is the ultimate expression of human movement: combining grace, strength, flexibility, coordination, and control. Whether on apparatus, with rhythm, in the air, or in continuous flow, every discipline builds the same foundation — body awareness, precision, and the 8 tenets of athleticism.
+            <p className="text-lg text-gray-700 max-w-3xl mx-auto">
+              Our developmental gymnastics program covers the full range of gymnastics disciplines—Acro, Artistic, Rhythmic, Trampoline &amp; Tumbling, and Aerobic—to help shape well rounded gymnasts who are ready to specialize at the next level.
             </p>
-            <p className="text-lg md:text-xl text-gray-700 leading-relaxed mb-6">
-              At Vortex, we use motion-based learning and progressive progressions across all disciplines. Athletes stay engaged, build skills through scaled challenges, and develop measurable progress powered by the Athleticism Accelerator.
+            <p className="text-lg text-gray-700 max-w-3xl mx-auto mt-4 font-bold">
+              Developmental Classes and Team offered for Artistic (olympic) Gymnastics and Trampoline &amp; Tumbling.
             </p>
           </motion.div>
+        </div>
+        <div className="w-full px-4 md:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {disciplines.map((disc, index) => {
+            const Icon = disc.icon
+            const card = (
+              <motion.div
+                className={`bg-gradient-to-br ${disc.color} rounded-2xl p-6 md:p-8 text-white w-full flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-lg hover:shadow-xl transition-shadow duration-300 min-h-[220px] h-full`}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.6 }}
+                viewport={{ once: true }}
+                whileHover={{ y: -2 }}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                      <Icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
+                    </div>
+                    <h3 className="text-xl md:text-2xl font-display font-bold">{disc.title}</h3>
+                  </div>
+                  <p className="text-white/90 font-semibold mb-2">{disc.tagline}</p>
+                  <p className="text-white/85 leading-relaxed text-sm md:text-base">{disc.description}</p>
+                </div>
+                <div className="flex flex-col flex-shrink-0 gap-3">
+                  {disc.to && (
+                    <Link
+                      to={disc.to}
+                      className="inline-flex items-center justify-center gap-2 border-2 border-white/80 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:bg-white/10 whitespace-nowrap"
+                    >
+                      Learn More
+                      <ArrowRight className="w-5 h-5" />
+                    </Link>
+                  )}
+                  {(disc.id === 'artistic' || disc.id === 'trampoline-tumbling') && (
+                    <Link
+                      to={getSiteEnrollHref()}
+                      className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:bg-white/90 whitespace-nowrap"
+                    >
+                      Enroll Now
+                      <ArrowRight className="w-5 h-5" />
+                    </Link>
+                  )}
+                </div>
+              </motion.div>
+            )
+            return <div key={disc.id}>{card}</div>
+          })}
+        </div>
+      </section>
 
-          {/* General levels */}
-          <motion.div
-            className="mt-12 pt-8 border-t border-gray-200 max-w-4xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
+      {/* CTA - Find Your Discipline */}
+      <section className="section-padding bg-white">
+        <div className="container-custom text-center">
+          <motion.h2
+            className="text-4xl md:text-5xl font-display font-bold text-black mb-6"
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <p className="text-center text-sm font-semibold text-gray-600 uppercase tracking-wide mb-6">General Levels</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
-              <Link
-                to="/artistic-gymnastics-early"
-                className="w-full px-6 py-5 rounded-2xl bg-amber-100 text-amber-900 font-semibold text-base border-2 border-amber-300 hover:bg-amber-200 transition-colors text-left min-h-[100px] flex flex-col justify-center block"
-              >
-                <span className="block font-bold text-lg">Early Developmental</span>
-                <span className="block text-sm font-normal opacity-90 mt-1">Dust Devils, Little Twisters</span>
-              </Link>
-              <Link
-                to="/artistic-gymnastics-6-12"
-                className="w-full px-6 py-5 rounded-2xl bg-blue-100 text-blue-900 font-semibold text-base border-2 border-blue-300 hover:bg-blue-200 transition-colors text-left min-h-[100px] flex flex-col justify-center block"
-              >
-                <span className="block font-bold text-lg">Beginner</span>
-                <span className="block text-sm font-normal opacity-90 mt-1">Tornadoes</span>
-              </Link>
-              <Link
-                to="/artistic-gymnastics-6-12"
-                className="w-full px-6 py-5 rounded-2xl bg-vortex-red/10 text-vortex-red font-semibold text-base border-2 border-vortex-red/40 hover:bg-vortex-red/20 transition-colors text-left min-h-[100px] flex flex-col justify-center block"
-              >
-                <span className="block font-bold text-lg">Intermediate</span>
-                <span className="block text-sm font-normal opacity-90 mt-1">Cyclones</span>
-              </Link>
-              <Link
-                to="/artistic-gymnastics-13-18"
-                className="w-full px-6 py-5 rounded-2xl bg-gray-900 text-white font-semibold text-base border-2 border-gray-700 hover:bg-gray-800 transition-colors text-left min-h-[100px] flex flex-col justify-center block"
-              >
-                <span className="block font-bold text-lg">Advanced</span>
-                <span className="block text-sm font-normal opacity-90 mt-1">Vortex A4 Elite</span>
-              </Link>
-            </div>
+            Find Your <span className="text-vortex-red">Discipline</span>
+          </motion.h2>
+          <motion.p
+            className="text-xl text-gray-700 mb-10 max-w-2xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            Ready to start? Enroll and let us help you find the right class.
+          </motion.p>
+          <motion.div
+            className="flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <Link
+              to={getSiteEnrollHref()}
+              className="inline-block bg-vortex-red border-2 border-vortex-red text-white px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105"
+            >
+              Enroll Now
+            </Link>
           </motion.div>
         </div>
       </section>
@@ -494,140 +539,110 @@ const Gymnastics = ({ onHighlightsClick }: GymnasticsProps) => {
         </div>
       </section>
 
-      {/* Gymnastics Disciplines — Cards */}
+      {/* Vortex Gymnastics Levels */}
       <section className="section-padding bg-white">
         <div className="container-custom">
           <motion.div
-            className="text-center mb-12"
+            className="max-w-4xl mx-auto"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-4">
-              Gymnastics <span className="text-vortex-red">Disciplines</span>
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-black text-center mb-12">
+              Vortex Gymnastics <span className="text-vortex-red">Levels</span>
             </h2>
-            <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-              Our developmental gymnastics program covers the full range of gymnastics disciplines—Acro, Artistic, Rhythmic, Trampoline &amp; Tumbling, and Aerobic—to help shape well rounded gymnasts who are ready to specialize at the next level.
-            </p>
-          </motion.div>
-        </div>
-        <div className="w-full px-4 md:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {disciplines.map((disc, index) => {
-            const Icon = disc.icon
-            const card = (
-              <motion.div
-                className={`bg-gradient-to-br ${disc.color} rounded-2xl p-6 md:p-8 text-white w-full flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-lg hover:shadow-xl transition-shadow duration-300 min-h-[220px] h-full`}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.6 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -2 }}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
+              <Link
+                to="/artistic-gymnastics-early"
+                className="w-full px-6 py-5 rounded-2xl bg-amber-100 text-amber-900 font-semibold text-base border-2 border-amber-300 hover:bg-amber-200 transition-colors text-left min-h-[100px] flex flex-col justify-center block"
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
-                      <Icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
-                    </div>
-                    <h3 className="text-xl md:text-2xl font-display font-bold">{disc.title}</h3>
-                  </div>
-                  <p className="text-white/90 font-semibold mb-2">{disc.tagline}</p>
-                  <p className="text-white/85 leading-relaxed text-sm md:text-base">{disc.description}</p>
-                </div>
-                <div className="flex flex-col flex-shrink-0 gap-3">
-                  {disc.to && (
-                    <Link
-                      to={disc.to}
-                      className="inline-flex items-center justify-center gap-2 border-2 border-white/80 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:bg-white/10 whitespace-nowrap"
-                    >
-                      Learn More
-                      <ArrowRight className="w-5 h-5" />
-                    </Link>
-                  )}
-                  <Link
-                    to={getSiteEnrollHref()}
-                    className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:bg-white/90 whitespace-nowrap"
-                  >
-                    Enroll Now
-                    <ArrowRight className="w-5 h-5" />
-                  </Link>
-                </div>
-              </motion.div>
-            )
-            return <div key={disc.id}>{card}</div>
-          })}
+                <span className="block font-bold text-lg">Early Developmental</span>
+                <span className="block text-sm font-normal opacity-90 mt-1">Dust Devils, Little Twisters</span>
+              </Link>
+              <Link
+                to="/artistic-gymnastics-6-12"
+                className="w-full px-6 py-5 rounded-2xl bg-blue-100 text-blue-900 font-semibold text-base border-2 border-blue-300 hover:bg-blue-200 transition-colors text-left min-h-[100px] flex flex-col justify-center block"
+              >
+                <span className="block font-bold text-lg">Beginner</span>
+                <span className="block text-sm font-normal opacity-90 mt-1">Tornadoes</span>
+              </Link>
+              <Link
+                to="/artistic-gymnastics-6-12"
+                className="w-full px-6 py-5 rounded-2xl bg-vortex-red/10 text-vortex-red font-semibold text-base border-2 border-vortex-red/40 hover:bg-vortex-red/20 transition-colors text-left min-h-[100px] flex flex-col justify-center block"
+              >
+                <span className="block font-bold text-lg">Intermediate</span>
+                <span className="block text-sm font-normal opacity-90 mt-1">Cyclones</span>
+              </Link>
+              <Link
+                to="/artistic-gymnastics-13-18"
+                className="w-full px-6 py-5 rounded-2xl bg-gray-900 text-white font-semibold text-base border-2 border-gray-700 hover:bg-gray-800 transition-colors text-left min-h-[100px] flex flex-col justify-center block"
+              >
+                <span className="block font-bold text-lg">Advanced</span>
+                <span className="block text-sm font-normal opacity-90 mt-1">Vortex A4 Elite</span>
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* CTA - Find Your Discipline */}
-      <section className="section-padding bg-white">
-        <div className="container-custom text-center">
-          <motion.h2
-            className="text-4xl md:text-5xl font-display font-bold text-black mb-6"
-            initial={{ opacity: 0, y: 30 }}
+      {/* Safety & Coaching Excellence */}
+      <section className="section-padding relative overflow-hidden bg-vortex-red">
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 58% 105% at 50% 50%, rgba(72, 0, 0, 0.68) 0%, rgba(115, 0, 0, 0.46) 32%, rgba(170, 0, 0, 0.18) 60%, transparent 82%), linear-gradient(90deg, rgba(255,255,255,0.08) 0%, transparent 18%, transparent 82%, rgba(255,255,255,0.08) 100%)',
+          }}
+        />
+        <div
+          className="pointer-events-none absolute inset-x-[8%] top-0 h-1/2 opacity-50"
+          style={{
+            background:
+              'radial-gradient(ellipse 70% 100% at 50% 0%, rgba(255,255,255,0.16), transparent 72%)',
+          }}
+        />
+        <div className="container-custom relative z-10">
+          <motion.div
+            className="mx-auto max-w-4xl rounded-3xl border-2 border-gray-200 bg-white p-8 shadow-lg md:p-12"
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            Find Your <span className="text-vortex-red">Discipline</span>
-          </motion.h2>
-          <motion.p
-            className="text-xl text-gray-700 mb-10 max-w-2xl mx-auto"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            Ready to start? Enroll and let us help you find the right class.
-          </motion.p>
-          <motion.div
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <Link
-              to={getSiteEnrollHref()}
-              className="inline-block bg-vortex-red border-2 border-vortex-red text-white px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-red-700 hover:border-red-700 hover:scale-105"
-            >
-              Enroll Now
-            </Link>
-            <Link
-              to="/read-board#schedule"
-              className="inline-flex items-center justify-center gap-2 border-2 border-vortex-red bg-transparent text-vortex-red px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:bg-vortex-red/10 hover:scale-105"
-            >
-              <LayoutGrid className="h-5 w-5 shrink-0" aria-hidden="true" />
-              Classes &amp; Events
-            </Link>
+            <div className="flex items-start gap-4 mb-6">
+              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-vortex-red">
+                <Shield className="h-7 w-7 text-white" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-display font-bold text-black md:text-4xl mb-2">
+                  Safety &amp; Coaching <span className="text-vortex-red">Excellence</span>
+                </h2>
+              </div>
+            </div>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-xl font-bold text-black mb-3">Certified Excellence</h3>
+                <p className="text-gray-700 leading-relaxed">
+                  Our coaches are certified and trained in biomechanics, safe progressions, and youth development. They understand the science behind movement and how to keep athletes safe while pushing boundaries.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-black mb-3">Long-Term Body Care</h3>
+                <p className="text-gray-700 leading-relaxed">
+                  Warm-ups and cool-downs are designed around joint health and long-term athletic development. We prioritize consistency and form over difficulty, ensuring your athlete develops sustainably.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-black mb-3">Progressive Safety</h3>
+                <p className="text-gray-700 leading-relaxed">
+                  Every skill builds on the last. We don&apos;t rush progressions or skip steps — athletes master each level before advancing, reducing injury risk and building true competence.
+                </p>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
-
-      {/* Summer camp promo */}
-      {showSummerCamp && <section className="section-padding bg-vortex-red">
-        <div className="container-custom text-center">
-          <motion.h2
-            className="text-3xl md:text-4xl font-display font-bold text-white mb-4"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            Gymnastics Summer Camp 2026
-          </motion.h2>
-          <p className="text-red-100 text-lg max-w-2xl mx-auto mb-6">
-            Five themed weeks in Bowie, MD for ages 6–14 — gymnastics, sports, dance, crafts, and
-            more.
-          </p>
-          <Link
-            to="/summer-camp-26"
-            className="inline-flex items-center gap-2 bg-white text-vortex-red px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all"
-          >
-            View camp schedule & register
-            <ArrowRight className="w-5 h-5" />
-          </Link>
-        </div>
-      </section>}
 
       {/* FAQ */}
       <section id="faq" className="section-padding bg-gray-50">

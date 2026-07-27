@@ -1,5 +1,7 @@
 -- Complete the consolidated Landmine Press candidate card after migrations
--- 386, 390, and 394.
+-- 371, 386, 390, and 394. The previously quarantined Two-Hand Landmine
+-- Press identity is now deterministically represented by an exact bilateral
+-- variant, so its definition and legacy source are consolidated here.
 --
 -- Five exact strict-standing variants declare stance, hand count, attachment,
 -- grip, rack, laterality, path, range, tempo, load, side dose, and finish.
@@ -17,6 +19,13 @@ DECLARE
   migration_key CONSTANT TEXT :=
     '397_coaching_landmine_press_family_completion';
   target_definition_id UUID;
+  duplicate_definition_id UUID;
+  duplicate_legacy_id BIGINT;
+  duplicate_status TEXT;
+  protected_definition_ids UUID[];
+  variant_duplicate RECORD;
+  identity_boundary RECORD;
+  boundary_definition_count INTEGER;
   target_card_version INTEGER;
   facility BIGINT;
   protected_records INTEGER;
@@ -35,11 +44,81 @@ BEGIN
       migration_key;
   END IF;
 
+  SELECT id, legacy_exercise_id, status
+  INTO duplicate_definition_id, duplicate_legacy_id, duplicate_status
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id = facility
+    AND slug = 'two-hand-landmine-press';
+
+  IF duplicate_definition_id IS NULL OR duplicate_legacy_id IS NULL THEN
+    RAISE EXCEPTION
+      '% requires traceable two-hand-landmine-press source definition',
+      migration_key;
+  END IF;
+
+  SELECT array_agg(id ORDER BY slug)
+  INTO protected_definition_ids
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id = facility
+    AND slug IN (
+      'landmine-press',
+      'two-hand-landmine-press',
+      'square-stance-one-arm-landmine-press',
+      'split-stance-one-arm-landmine-press'
+    );
+
+  IF cardinality(protected_definition_ids) <> 4 THEN
+    RAISE EXCEPTION
+      '% requires all four traceable standing landmine-press definitions',
+      migration_key;
+  END IF;
+
+  IF duplicate_status = 'archived'
+    AND NOT EXISTS (
+      SELECT 1
+      FROM coaching.exercise_identity_resolution_v1 resolution
+      WHERE resolution.survivor_definition_id = target_definition_id
+        AND resolution.resolved_definition_id = duplicate_definition_id
+        AND resolution.decision = 'duplicate_consolidated'
+    )
+  THEN
+    RAISE EXCEPTION
+      '% found archived two-hand-landmine-press without consolidation evidence',
+      migration_key;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM coaching.exercise_identity_resolution_v1 resolution
+    WHERE (
+      (
+        resolution.survivor_definition_id = target_definition_id
+        AND resolution.resolved_definition_id = duplicate_definition_id
+      )
+      OR (
+        resolution.survivor_definition_id = duplicate_definition_id
+        AND resolution.resolved_definition_id = target_definition_id
+      )
+    )
+      AND (
+        resolution.resolution_source = 'human_review'
+        OR resolution.reviewed_by IS NOT NULL
+        OR resolution.decision NOT IN (
+          'needs_human_review',
+          'duplicate_consolidated'
+        )
+      )
+  ) THEN
+    RAISE EXCEPTION
+      '% conflicts with a protected identity decision for the landmine press pair',
+      migration_key;
+  END IF;
+
   SELECT
     (
       SELECT COUNT(*)
       FROM coaching.exercise_definition_v1
-      WHERE id = target_definition_id
+      WHERE id = ANY(protected_definition_ids)
         AND (
           status = 'published'
           OR reviewed_by IS NOT NULL
@@ -51,40 +130,40 @@ BEGIN
     + (
       SELECT COUNT(*)
       FROM coaching.exercise_section_evidence_v1
-      WHERE definition_id = target_definition_id
+      WHERE definition_id = ANY(protected_definition_ids)
         AND review_status NOT IN ('candidate', 'superseded')
     )
     + (
       SELECT COUNT(*)
       FROM coaching.exercise_media_candidate_v1
-      WHERE definition_id = target_definition_id
+      WHERE definition_id = ANY(protected_definition_ids)
         AND review_status NOT IN ('candidate', 'superseded')
     )
     + (
       SELECT COUNT(*)
       FROM coaching.exercise_alternate_assessment_v1
-      WHERE definition_id = target_definition_id
+      WHERE definition_id = ANY(protected_definition_ids)
         AND review_status NOT IN ('candidate', 'superseded')
     )
     + (
       SELECT COUNT(*)
       FROM coaching.exercise_card_review_v1
-      WHERE definition_id = target_definition_id
+      WHERE definition_id = ANY(protected_definition_ids)
     )
     + (
       SELECT COUNT(*)
       FROM coaching.exercise_card_revision_v1
-      WHERE definition_id = target_definition_id
+      WHERE definition_id = ANY(protected_definition_ids)
     )
     + (
       SELECT COUNT(*)
       FROM coaching.exercise_media_review_v1
-      WHERE definition_id = target_definition_id
+      WHERE definition_id = ANY(protected_definition_ids)
     )
     + (
       SELECT COUNT(*)
       FROM coaching.exercise_variant_v1
-      WHERE definition_id = target_definition_id
+      WHERE definition_id = ANY(protected_definition_ids)
         AND status = 'published'
     )
     + (
@@ -92,7 +171,7 @@ BEGIN
       FROM coaching.exercise_delivery_profile_v1 profile
       JOIN coaching.exercise_variant_v1 variant
         ON variant.id = profile.variant_id
-      WHERE variant.definition_id = target_definition_id
+      WHERE variant.definition_id = ANY(protected_definition_ids)
         AND profile.status = 'published'
     )
     + (
@@ -102,12 +181,12 @@ BEGIN
         relationship.from_variant_id IN (
           SELECT id
           FROM coaching.exercise_variant_v1
-          WHERE definition_id = target_definition_id
+          WHERE definition_id = ANY(protected_definition_ids)
         )
         OR relationship.to_variant_id IN (
           SELECT id
           FROM coaching.exercise_variant_v1
-          WHERE definition_id = target_definition_id
+          WHERE definition_id = ANY(protected_definition_ids)
         )
       )
         AND (
@@ -121,7 +200,7 @@ BEGIN
       FROM coaching.exercise_score_calibration_v1 calibration
       JOIN coaching.exercise_variant_v1 variant
         ON variant.id = calibration.variant_id
-      WHERE variant.definition_id = target_definition_id
+      WHERE variant.definition_id = ANY(protected_definition_ids)
         AND (
           calibration.status <> 'review'
           OR calibration.reviewed_by IS NOT NULL
@@ -134,7 +213,7 @@ BEGIN
       WHERE score.exercise_id IN (
         SELECT source.legacy_exercise_id
         FROM coaching.exercise_definition_source_v1 source
-        WHERE source.definition_id = target_definition_id
+        WHERE source.definition_id = ANY(protected_definition_ids)
       )
         AND (
           score.human_review_status <> 'queued'
@@ -150,6 +229,774 @@ BEGIN
       migration_key,
       protected_records;
   END IF;
+
+  IF duplicate_status <> 'archived' THEN
+    INSERT INTO coaching.exercise_identity_resolution_v1 (
+      facility_id,
+      survivor_definition_id,
+      resolved_definition_id,
+      decision,
+      rationale,
+      evidence_json,
+      resolution_source,
+      reviewed_by,
+      resolved_at
+    )
+    VALUES (
+      facility,
+      target_definition_id,
+      duplicate_definition_id,
+      'duplicate_consolidated',
+      'The source card names the two-hand delivery of the same strict standing fixed-arc landmine press. The completed survivor declares hand count, stance, attachment, grip, rack, intent, range, tempo, load, dose, pickup, finish, and set-down, and owns an exact two-hand sleeve-grip variant.',
+      jsonb_build_object(
+        'match',
+          'same_strict_standing_fixed_arc_landmine_press_with_exact_two_hand_variant',
+        'survivorSlug', 'landmine-press',
+        'resolvedSlug', 'two-hand-landmine-press',
+        'legacySourceCardsAudited', TRUE,
+        'researchSources', jsonb_build_array(
+          'https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/',
+          'https://pubmed.ncbi.nlm.nih.gov/41755100/'
+        ),
+        'variantDimensions', jsonb_build_array(
+          'hand_count',
+          'stance',
+          'attachment',
+          'grip',
+          'rack',
+          'range',
+          'tempo',
+          'load',
+          'repetitions',
+          'rest',
+          'finish'
+        ),
+        'exactVariantKey',
+          'two-hand-square-stance-sleeve-grip-strict',
+        'dimensionIsExactVariant', TRUE,
+        'difficultyModel',
+          'max_exercise_complexity_physical_difficulty',
+        'decisionScope',
+          'identity_and_traceability_only_not_human_approval',
+        'humanReviewRequired', TRUE,
+        'reviewerAssigned', FALSE,
+        'publicationQuarantined', TRUE,
+        'migration', migration_key
+      ),
+      'deterministic_identity_equivalence',
+      NULL,
+      now()
+    )
+    ON CONFLICT (survivor_definition_id, resolved_definition_id)
+    DO UPDATE SET
+      decision = EXCLUDED.decision,
+      rationale = EXCLUDED.rationale,
+      evidence_json = EXCLUDED.evidence_json,
+      resolution_source = EXCLUDED.resolution_source,
+      reviewed_by = NULL,
+      resolved_at = now()
+    WHERE coaching.exercise_identity_resolution_v1.resolution_source
+      <> 'human_review'
+      AND coaching.exercise_identity_resolution_v1.reviewed_by IS NULL;
+
+    UPDATE coaching.exercise_definition_source_v1
+    SET definition_id = target_definition_id,
+        source_kind = 'duplicate_consolidation',
+        provenance_json = provenance_json || jsonb_build_object(
+          'resolvedFromDefinitionId', duplicate_definition_id,
+          'resolution',
+            'same_strict_standing_fixed_arc_landmine_press_with_exact_two_hand_variant',
+          'variantDimensions', jsonb_build_array(
+            'hand_count',
+            'stance',
+            'attachment',
+            'grip',
+            'rack',
+            'range',
+            'tempo',
+            'load',
+            'repetitions',
+            'rest',
+            'finish'
+          ),
+          'exactVariantKey',
+            'two-hand-square-stance-sleeve-grip-strict',
+          'researchSources', jsonb_build_array(
+            'https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/',
+            'https://pubmed.ncbi.nlm.nih.gov/41755100/'
+          ),
+          'migration', migration_key
+        )
+    WHERE definition_id = duplicate_definition_id;
+
+    UPDATE coaching.exercise_delivery_profile_v1 profile
+    SET status = 'archived',
+        updated_at = now()
+    WHERE profile.variant_id IN (
+      SELECT id
+      FROM coaching.exercise_variant_v1
+      WHERE definition_id = duplicate_definition_id
+    );
+
+    UPDATE coaching.exercise_variant_v1
+    SET definition_id = target_definition_id,
+        variant_key = left(
+          'legacy-source-'
+          || duplicate_legacy_id::TEXT
+          || '-'
+          || variant_key,
+          120
+        ),
+        status = 'archived',
+        requirements_json =
+          coalesce(requirements_json, '{}'::JSONB)
+          || jsonb_build_object(
+            'sourceIdentityDuplicate', TRUE,
+            'sourceDefinitionId', duplicate_definition_id,
+            'variantDimensions', jsonb_build_array(
+              'hand_count',
+              'stance',
+              'attachment',
+              'grip',
+              'rack',
+              'range',
+              'tempo',
+              'load',
+              'repetitions',
+              'rest',
+              'finish'
+            ),
+            'exactVariantKey',
+              'two-hand-square-stance-sleeve-grip-strict',
+            'selectable', FALSE,
+            'identityQuarantine', TRUE,
+            'migration', migration_key
+          ),
+        updated_at = now()
+    WHERE definition_id = duplicate_definition_id;
+
+    UPDATE coaching.exercise_section_evidence_v1 candidate
+    SET definition_id = target_definition_id,
+        reviewed_card_version = target_card_version + 1,
+        updated_at = now()
+    WHERE candidate.definition_id = duplicate_definition_id
+      AND candidate.review_status IN ('candidate', 'superseded')
+      AND NOT EXISTS (
+        SELECT 1
+        FROM coaching.exercise_section_evidence_v1 existing
+        WHERE existing.definition_id = target_definition_id
+          AND existing.reviewed_card_version = target_card_version + 1
+          AND existing.section_key = candidate.section_key
+          AND existing.source_url = candidate.source_url
+      );
+
+    UPDATE coaching.exercise_alternate_assessment_v1 candidate
+    SET definition_id = target_definition_id,
+        reviewed_card_version = target_card_version + 1,
+        updated_at = now()
+    WHERE candidate.definition_id = duplicate_definition_id
+      AND candidate.review_status IN ('candidate', 'superseded')
+      AND NOT EXISTS (
+        SELECT 1
+        FROM coaching.exercise_alternate_assessment_v1 existing
+        WHERE existing.definition_id = target_definition_id
+          AND existing.reviewed_card_version = target_card_version + 1
+          AND lower(existing.alternate_name) =
+            lower(candidate.alternate_name)
+      );
+
+    UPDATE coaching.exercise_media_candidate_v1 candidate
+    SET definition_id = target_definition_id,
+        reviewed_card_version = target_card_version + 1,
+        updated_at = now()
+    WHERE candidate.definition_id = duplicate_definition_id
+      AND candidate.review_status IN ('candidate', 'superseded')
+      AND NOT EXISTS (
+        SELECT 1
+        FROM coaching.exercise_media_candidate_v1 existing
+        WHERE existing.definition_id = target_definition_id
+          AND existing.reviewed_card_version = target_card_version + 1
+          AND (
+            existing.video_id = candidate.video_id
+            OR existing.url = candidate.url
+          )
+      );
+
+    UPDATE coaching.exercise_definition_v1 survivor
+    SET aliases = ARRAY(
+          SELECT min(alias)
+          FROM unnest(
+            coalesce(survivor.aliases, '{}')
+            || coalesce(duplicate.aliases, '{}')
+            || ARRAY[
+              duplicate.canonical_name,
+              duplicate.display_name
+            ]::TEXT[]
+          ) alias
+          WHERE nullif(btrim(alias), '') IS NOT NULL
+            AND lower(btrim(alias)) <> 'landmine press'
+          GROUP BY lower(btrim(alias))
+          ORDER BY lower(btrim(alias))
+        ),
+        provenance_json = survivor.provenance_json
+          || jsonb_build_object(
+            'identityResolution',
+              'same_strict_standing_fixed_arc_landmine_press_with_exact_two_hand_variant',
+            'identityMigration', migration_key,
+            'consolidatedDefinitionIds',
+              coalesce(
+                survivor.provenance_json->'consolidatedDefinitionIds',
+                '[]'::JSONB
+              ) || to_jsonb(duplicate_definition_id::TEXT),
+            'consolidatedLegacyExerciseIds',
+              coalesce(
+                survivor.provenance_json->'consolidatedLegacyExerciseIds',
+                '[]'::JSONB
+              ) || to_jsonb(duplicate_legacy_id),
+            'difficultyModel',
+              'max_exercise_complexity_physical_difficulty',
+            'humanReviewRequired', TRUE,
+            'publicationQuarantined', TRUE
+          ),
+        updated_at = now()
+    FROM coaching.exercise_definition_v1 duplicate
+    WHERE survivor.id = target_definition_id
+      AND duplicate.id = duplicate_definition_id;
+
+    UPDATE coaching.exercise_definition_v1
+    SET status = 'archived',
+        approved_video_url = NULL,
+        reviewed_by = NULL,
+        approved_by = NULL,
+        last_reviewed_at = NULL,
+        provenance_json = provenance_json || jsonb_build_object(
+          'identityResolution', 'duplicate_consolidated',
+          'canonicalSurvivorDefinitionId', target_definition_id,
+          'identityMatch',
+            'same_strict_standing_fixed_arc_landmine_press_with_exact_two_hand_variant',
+          'exactVariantKey',
+            'two-hand-square-stance-sleeve-grip-strict',
+          'identityMigration', migration_key,
+          'difficultyModel',
+            'max_exercise_complexity_physical_difficulty',
+          'humanReviewRequired', TRUE,
+          'publicationQuarantined', TRUE
+        ),
+        updated_at = now()
+    WHERE id = duplicate_definition_id;
+
+    IF NOT EXISTS (
+      SELECT 1
+      FROM coaching.exercise_identity_resolution_v1 resolution
+      WHERE resolution.survivor_definition_id = target_definition_id
+        AND resolution.resolved_definition_id = duplicate_definition_id
+        AND resolution.decision = 'duplicate_consolidated'
+    ) OR EXISTS (
+      SELECT 1
+      FROM coaching.exercise_definition_v1
+      WHERE id = duplicate_definition_id
+        AND status <> 'archived'
+    ) THEN
+      RAISE EXCEPTION
+        '% did not fully consolidate two-hand-landmine-press',
+        migration_key;
+    END IF;
+  END IF;
+
+  FOR variant_duplicate IN
+    SELECT
+      definition.id,
+      definition.legacy_exercise_id,
+      definition.status,
+      definition.slug,
+      definition.canonical_name,
+      definition.display_name,
+      definition.aliases,
+      seed.exact_variant_key,
+      seed.identity_match,
+      seed.rationale,
+      seed.variant_dimensions
+    FROM (
+      VALUES
+        (
+          'square-stance-one-arm-landmine-press',
+          'single-arm-square-stance-sleeve-grip-strict',
+          'same_strict_standing_fixed_arc_landmine_press_with_exact_single_arm_square_stance_variant',
+          'The source fixes the square-stance single-arm delivery of the same strict standing fixed-arc landmine press. The survivor owns that exact stance, hand count, sleeve grip, shoulder rack, strict intent, range, return, and side-dose variant.',
+          '["stance","hand_count","pressing_side","attachment","grip","rack","range","tempo","load","repetitions","rest","side_dose","finish"]'::JSONB
+        ),
+        (
+          'split-stance-one-arm-landmine-press',
+          'single-arm-split-stance-sleeve-grip-strict',
+          'same_strict_standing_fixed_arc_landmine_press_with_exact_single_arm_split_stance_variant',
+          'The source fixes the split-stance single-arm delivery of the same strict standing fixed-arc landmine press. The survivor owns that exact stance, lead leg, hand count, sleeve grip, shoulder rack, strict intent, range, return, and side-dose variant.',
+          '["stance","lead_leg","hand_count","pressing_side","attachment","grip","rack","range","tempo","load","repetitions","rest","side_dose","finish"]'::JSONB
+        )
+    ) AS seed(
+      slug,
+      exact_variant_key,
+      identity_match,
+      rationale,
+      variant_dimensions
+    )
+    JOIN coaching.exercise_definition_v1 definition
+      ON definition.facility_id = facility
+      AND definition.slug = seed.slug
+  LOOP
+    IF variant_duplicate.legacy_exercise_id IS NULL THEN
+      RAISE EXCEPTION
+        '% requires legacy traceability for %',
+        migration_key,
+        variant_duplicate.slug;
+    END IF;
+
+    IF variant_duplicate.status = 'archived' THEN
+      IF NOT EXISTS (
+        SELECT 1
+        FROM coaching.exercise_identity_resolution_v1 resolution
+        WHERE resolution.survivor_definition_id = target_definition_id
+          AND resolution.resolved_definition_id = variant_duplicate.id
+          AND resolution.decision = 'duplicate_consolidated'
+      ) THEN
+        RAISE EXCEPTION
+          '% found archived % without consolidation evidence',
+          migration_key,
+          variant_duplicate.slug;
+      END IF;
+      CONTINUE;
+    END IF;
+
+    IF EXISTS (
+      SELECT 1
+      FROM coaching.exercise_identity_resolution_v1 resolution
+      WHERE (
+        (
+          resolution.survivor_definition_id = target_definition_id
+          AND resolution.resolved_definition_id = variant_duplicate.id
+        )
+        OR (
+          resolution.survivor_definition_id = variant_duplicate.id
+          AND resolution.resolved_definition_id = target_definition_id
+        )
+      )
+        AND (
+          resolution.resolution_source = 'human_review'
+          OR resolution.reviewed_by IS NOT NULL
+          OR resolution.decision NOT IN (
+            'needs_human_review',
+            'duplicate_consolidated'
+          )
+        )
+    ) THEN
+      RAISE EXCEPTION
+        '% conflicts with a protected identity decision for %',
+        migration_key,
+        variant_duplicate.slug;
+    END IF;
+
+    INSERT INTO coaching.exercise_identity_resolution_v1 (
+      facility_id,
+      survivor_definition_id,
+      resolved_definition_id,
+      decision,
+      rationale,
+      evidence_json,
+      resolution_source,
+      reviewed_by,
+      resolved_at
+    )
+    VALUES (
+      facility,
+      target_definition_id,
+      variant_duplicate.id,
+      'duplicate_consolidated',
+      variant_duplicate.rationale,
+      jsonb_build_object(
+        'match', variant_duplicate.identity_match,
+        'survivorSlug', 'landmine-press',
+        'resolvedSlug', variant_duplicate.slug,
+        'legacySourceCardsAudited', TRUE,
+        'researchSources', jsonb_build_array(
+          'https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/',
+          'https://pubmed.ncbi.nlm.nih.gov/41755100/'
+        ),
+        'variantDimensions', variant_duplicate.variant_dimensions,
+        'exactVariantKey', variant_duplicate.exact_variant_key,
+        'dimensionIsExactVariant', TRUE,
+        'difficultyModel',
+          'max_exercise_complexity_physical_difficulty',
+        'decisionScope',
+          'identity_and_traceability_only_not_human_approval',
+        'humanReviewRequired', TRUE,
+        'reviewerAssigned', FALSE,
+        'publicationQuarantined', TRUE,
+        'migration', migration_key
+      ),
+      'deterministic_identity_equivalence',
+      NULL,
+      now()
+    )
+    ON CONFLICT (survivor_definition_id, resolved_definition_id)
+    DO UPDATE SET
+      decision = EXCLUDED.decision,
+      rationale = EXCLUDED.rationale,
+      evidence_json = EXCLUDED.evidence_json,
+      resolution_source = EXCLUDED.resolution_source,
+      reviewed_by = NULL,
+      resolved_at = now()
+    WHERE coaching.exercise_identity_resolution_v1.resolution_source
+      <> 'human_review'
+      AND coaching.exercise_identity_resolution_v1.reviewed_by IS NULL;
+
+    UPDATE coaching.exercise_definition_source_v1
+    SET definition_id = target_definition_id,
+        source_kind = 'duplicate_consolidation',
+        provenance_json = provenance_json || jsonb_build_object(
+          'resolvedFromDefinitionId', variant_duplicate.id,
+          'resolution', variant_duplicate.identity_match,
+          'variantDimensions', variant_duplicate.variant_dimensions,
+          'exactVariantKey', variant_duplicate.exact_variant_key,
+          'researchSources', jsonb_build_array(
+            'https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/',
+            'https://pubmed.ncbi.nlm.nih.gov/41755100/'
+          ),
+          'migration', migration_key
+        )
+    WHERE definition_id = variant_duplicate.id;
+
+    UPDATE coaching.exercise_delivery_profile_v1 profile
+    SET status = 'archived',
+        updated_at = now()
+    WHERE profile.variant_id IN (
+      SELECT id
+      FROM coaching.exercise_variant_v1
+      WHERE definition_id = variant_duplicate.id
+    );
+
+    UPDATE coaching.exercise_variant_v1
+    SET definition_id = target_definition_id,
+        variant_key = left(
+          'legacy-source-'
+          || variant_duplicate.legacy_exercise_id::TEXT
+          || '-'
+          || variant_key,
+          120
+        ),
+        status = 'archived',
+        requirements_json =
+          coalesce(requirements_json, '{}'::JSONB)
+          || jsonb_build_object(
+            'sourceIdentityDuplicate', TRUE,
+            'sourceDefinitionId', variant_duplicate.id,
+            'variantDimensions', variant_duplicate.variant_dimensions,
+            'exactVariantKey', variant_duplicate.exact_variant_key,
+            'selectable', FALSE,
+            'identityQuarantine', TRUE,
+            'migration', migration_key
+          ),
+        updated_at = now()
+    WHERE definition_id = variant_duplicate.id;
+
+    UPDATE coaching.exercise_section_evidence_v1 candidate
+    SET definition_id = target_definition_id,
+        reviewed_card_version = target_card_version + 1,
+        updated_at = now()
+    WHERE candidate.definition_id = variant_duplicate.id
+      AND candidate.review_status IN ('candidate', 'superseded')
+      AND NOT EXISTS (
+        SELECT 1
+        FROM coaching.exercise_section_evidence_v1 existing
+        WHERE existing.definition_id = target_definition_id
+          AND existing.reviewed_card_version = target_card_version + 1
+          AND existing.section_key = candidate.section_key
+          AND existing.source_url = candidate.source_url
+      );
+
+    UPDATE coaching.exercise_alternate_assessment_v1 candidate
+    SET definition_id = target_definition_id,
+        reviewed_card_version = target_card_version + 1,
+        updated_at = now()
+    WHERE candidate.definition_id = variant_duplicate.id
+      AND candidate.review_status IN ('candidate', 'superseded')
+      AND NOT EXISTS (
+        SELECT 1
+        FROM coaching.exercise_alternate_assessment_v1 existing
+        WHERE existing.definition_id = target_definition_id
+          AND existing.reviewed_card_version = target_card_version + 1
+          AND lower(existing.alternate_name) =
+            lower(candidate.alternate_name)
+      );
+
+    UPDATE coaching.exercise_media_candidate_v1 candidate
+    SET definition_id = target_definition_id,
+        reviewed_card_version = target_card_version + 1,
+        updated_at = now()
+    WHERE candidate.definition_id = variant_duplicate.id
+      AND candidate.review_status IN ('candidate', 'superseded')
+      AND NOT EXISTS (
+        SELECT 1
+        FROM coaching.exercise_media_candidate_v1 existing
+        WHERE existing.definition_id = target_definition_id
+          AND existing.reviewed_card_version = target_card_version + 1
+          AND (
+            existing.video_id = candidate.video_id
+            OR existing.url = candidate.url
+          )
+      );
+
+    UPDATE coaching.exercise_definition_v1 survivor
+    SET aliases = ARRAY(
+          SELECT min(alias)
+          FROM unnest(
+            coalesce(survivor.aliases, '{}')
+            || coalesce(variant_duplicate.aliases, '{}')
+            || ARRAY[
+              variant_duplicate.canonical_name,
+              variant_duplicate.display_name
+            ]::TEXT[]
+          ) alias
+          WHERE nullif(btrim(alias), '') IS NOT NULL
+            AND lower(btrim(alias)) <> 'landmine press'
+          GROUP BY lower(btrim(alias))
+          ORDER BY lower(btrim(alias))
+        ),
+        provenance_json = survivor.provenance_json
+          || jsonb_build_object(
+            'identityResolution', variant_duplicate.identity_match,
+            'identityMigration', migration_key,
+            'consolidatedDefinitionIds',
+              coalesce(
+                survivor.provenance_json->'consolidatedDefinitionIds',
+                '[]'::JSONB
+              ) || to_jsonb(variant_duplicate.id::TEXT),
+            'consolidatedLegacyExerciseIds',
+              coalesce(
+                survivor.provenance_json->'consolidatedLegacyExerciseIds',
+                '[]'::JSONB
+              ) || to_jsonb(variant_duplicate.legacy_exercise_id),
+            'difficultyModel',
+              'max_exercise_complexity_physical_difficulty',
+            'humanReviewRequired', TRUE,
+            'publicationQuarantined', TRUE
+          ),
+        updated_at = now()
+    WHERE survivor.id = target_definition_id;
+
+    UPDATE coaching.exercise_definition_v1
+    SET status = 'archived',
+        approved_video_url = NULL,
+        reviewed_by = NULL,
+        approved_by = NULL,
+        last_reviewed_at = NULL,
+        provenance_json = provenance_json || jsonb_build_object(
+          'identityResolution', 'duplicate_consolidated',
+          'canonicalSurvivorDefinitionId', target_definition_id,
+          'identityMatch', variant_duplicate.identity_match,
+          'exactVariantKey', variant_duplicate.exact_variant_key,
+          'identityMigration', migration_key,
+          'difficultyModel',
+            'max_exercise_complexity_physical_difficulty',
+          'humanReviewRequired', TRUE,
+          'publicationQuarantined', TRUE
+        ),
+        updated_at = now()
+    WHERE id = variant_duplicate.id;
+
+    IF NOT EXISTS (
+      SELECT 1
+      FROM coaching.exercise_identity_resolution_v1 resolution
+      WHERE resolution.survivor_definition_id = target_definition_id
+        AND resolution.resolved_definition_id = variant_duplicate.id
+        AND resolution.decision = 'duplicate_consolidated'
+    ) OR EXISTS (
+      SELECT 1
+      FROM coaching.exercise_definition_v1
+      WHERE id = variant_duplicate.id
+        AND status <> 'archived'
+    ) THEN
+      RAISE EXCEPTION
+        '% did not fully consolidate %',
+        migration_key,
+        variant_duplicate.slug;
+    END IF;
+  END LOOP;
+
+  SELECT COUNT(*)
+  INTO boundary_definition_count
+  FROM coaching.exercise_definition_v1
+  WHERE facility_id = facility
+    AND status <> 'archived'
+    AND slug IN (
+      'half-kneeling-one-arm-landmine-press',
+      'tall-kneeling-one-arm-landmine-press',
+      'one-arm-landmine-floor-press',
+      'one-arm-landmine-split-jerk',
+      'barbell-z-press',
+      'barbell-bench-press'
+    );
+
+  IF boundary_definition_count <> 6 THEN
+    RAISE EXCEPTION
+      '% requires all six traceable landmine press boundary definitions',
+      migration_key;
+  END IF;
+
+  FOR identity_boundary IN
+    SELECT
+      definition.id,
+      definition.slug,
+      seed.boundary_key,
+      seed.rationale,
+      seed.dimensions
+    FROM (
+      VALUES
+        (
+          'half-kneeling-one-arm-landmine-press',
+          'standing_two_feet_vs_half_kneeling_one_knee_and_one_foot_base',
+          'The strict standing Landmine Press uses two foot contacts and standing pickup, balance, trunk, hip, and set-down mechanics. The half-kneeling press fixes one knee and the opposite foot to the floor, changing the base, contact pressure, lead-side relationship, hip position, setup, and recovery.',
+          '["base","floor_contacts","lead_side_relationship","hip_position","pickup","set_down"]'::JSONB
+        ),
+        (
+          'tall-kneeling-one-arm-landmine-press',
+          'standing_two_feet_vs_tall_kneeling_two_knee_base',
+          'The strict standing Landmine Press uses two foot contacts and standing balance and loading. The tall-kneeling press fixes both knees to the floor without foot support, changing the base, contact pressure, hip strategy, setup, loading tolerance, and set-down mechanics.',
+          '["base","floor_contacts","foot_support","hip_strategy","pickup","set_down"]'::JSONB
+        ),
+        (
+          'one-arm-landmine-floor-press',
+          'standing_diagonal_press_vs_supine_floor_press',
+          'The strict standing Landmine Press is performed upright through a standing fixed diagonal arc. The floor press is supine with the torso and upper arm constrained by the floor, changing the base, body orientation, contact surface, shoulder range, bar path relationship, setup, and failure strategy.',
+          '["base","body_orientation","contact_surface","shoulder_range","path_relationship","setup","failure_strategy"]'::JSONB
+        ),
+        (
+          'one-arm-landmine-split-jerk',
+          'strict_press_without_leg_drive_vs_dip_drive_and_split_catch',
+          'The strict standing Landmine Press prohibits deliberate knee-and-hip drive and returns under control from a declared standing base. The split jerk uses a deliberate dip and explosive leg drive followed by a split receiving position, changing the primary action, intent, foot sequence, terminal event, load tolerance, fatigue, and failure strategy.',
+          '["primary_action","intent","leg_drive","foot_sequence","receiving_position","load_tolerance","fatigue","failure_strategy"]'::JSONB
+        ),
+        (
+          'barbell-z-press',
+          'standing_landmine_diagonal_arc_vs_long_sit_free_bar_vertical_press',
+          'The strict standing Landmine Press rotates a bar around a fixed floor pivot through a diagonal arc. The Z Press uses an unsupported floor-seated long-sit base and a free bar or independent implements through a vertical overhead path, changing the base, implement constraint, path, balance, range, and failure strategy.',
+          '["base","implement_constraint","path","leg_position","balance","range","failure_strategy"]'::JSONB
+        ),
+        (
+          'barbell-bench-press',
+          'standing_landmine_diagonal_arc_vs_supine_bench_horizontal_press',
+          'The strict standing Landmine Press uses an upright base and fixed floor pivot through a diagonal up-and-forward arc. The Bench Press is supine on a bench with a free bar or dumbbells moving through a horizontal press relationship, changing body orientation, support surface, implement constraint, path, rack, spotting, and failure strategy.',
+          '["body_orientation","support_surface","implement_constraint","path","rack","spotting","failure_strategy"]'::JSONB
+        )
+    ) AS seed(slug, boundary_key, rationale, dimensions)
+    JOIN coaching.exercise_definition_v1 definition
+      ON definition.facility_id = facility
+      AND definition.slug = seed.slug
+      AND definition.status <> 'archived'
+  LOOP
+    IF EXISTS (
+      SELECT 1
+      FROM coaching.exercise_identity_resolution_v1 resolution
+      WHERE (
+        (
+          resolution.survivor_definition_id = target_definition_id
+          AND resolution.resolved_definition_id = identity_boundary.id
+        )
+        OR (
+          resolution.survivor_definition_id = identity_boundary.id
+          AND resolution.resolved_definition_id = target_definition_id
+        )
+      )
+        AND (
+          resolution.resolution_source = 'human_review'
+          OR resolution.reviewed_by IS NOT NULL
+        )
+    ) THEN
+      RAISE EXCEPTION
+        '% conflicts with a protected identity boundary for %',
+        migration_key,
+        identity_boundary.slug;
+    END IF;
+
+    UPDATE coaching.exercise_identity_resolution_v1 resolution
+    SET decision = 'distinct_exercises',
+        rationale = identity_boundary.rationale,
+        evidence_json = jsonb_build_object(
+          'boundary', identity_boundary.boundary_key,
+          'dimensions', identity_boundary.dimensions,
+          'leftSlug', 'landmine-press',
+          'rightSlug', identity_boundary.slug,
+          'legacySourceCardsAudited', TRUE,
+          'researchSources', jsonb_build_array(
+            'https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/',
+            'https://pubmed.ncbi.nlm.nih.gov/41755100/'
+          ),
+          'difficultyModel',
+            'max_exercise_complexity_physical_difficulty',
+          'decisionScope',
+            'identity_only_not_card_media_graph_calibration_or_publication_approval',
+          'humanReviewRequired', TRUE,
+          'reviewerAssigned', FALSE,
+          'publicationQuarantined', TRUE,
+          'migration', migration_key
+        ),
+        resolution_source = 'deterministic_identity_equivalence',
+        reviewed_by = NULL,
+        resolved_at = now()
+    WHERE (
+      (
+        resolution.survivor_definition_id = target_definition_id
+        AND resolution.resolved_definition_id = identity_boundary.id
+      )
+      OR (
+        resolution.survivor_definition_id = identity_boundary.id
+        AND resolution.resolved_definition_id = target_definition_id
+      )
+    )
+      AND resolution.resolution_source <> 'human_review'
+      AND resolution.reviewed_by IS NULL;
+
+    IF NOT FOUND THEN
+      INSERT INTO coaching.exercise_identity_resolution_v1 (
+        facility_id,
+        survivor_definition_id,
+        resolved_definition_id,
+        decision,
+        rationale,
+        evidence_json,
+        resolution_source,
+        reviewed_by,
+        resolved_at
+      )
+      VALUES (
+        facility,
+        target_definition_id,
+        identity_boundary.id,
+        'distinct_exercises',
+        identity_boundary.rationale,
+        jsonb_build_object(
+          'boundary', identity_boundary.boundary_key,
+          'dimensions', identity_boundary.dimensions,
+          'leftSlug', 'landmine-press',
+          'rightSlug', identity_boundary.slug,
+          'legacySourceCardsAudited', TRUE,
+          'researchSources', jsonb_build_array(
+            'https://www.nsca.com/education/articles/nsca-coach/the-landmine-pressimplementation-and-variation/',
+            'https://pubmed.ncbi.nlm.nih.gov/41755100/'
+          ),
+          'difficultyModel',
+            'max_exercise_complexity_physical_difficulty',
+          'decisionScope',
+            'identity_only_not_card_media_graph_calibration_or_publication_approval',
+          'humanReviewRequired', TRUE,
+          'reviewerAssigned', FALSE,
+          'publicationQuarantined', TRUE,
+          'migration', migration_key
+        ),
+        'deterministic_identity_equivalence',
+        NULL,
+        now()
+      );
+    END IF;
+  END LOOP;
 
   SELECT COUNT(*)
   INTO unexpected_variants
@@ -241,12 +1088,10 @@ BEGIN
       body_regions = ARRAY[
         'hand',
         'wrist',
-        'forearm',
         'elbow',
-        'upper_arm',
         'shoulder',
         'scapula',
-        'chest',
+        'rib_cage',
         'core',
         'spine',
         'pelvis',
@@ -257,14 +1102,10 @@ BEGIN
       ]::TEXT[],
       required_equipment = ARRAY[
         'landmine',
-        'barbell',
-        'collars'
+        'barbell'
       ]::TEXT[],
       optional_equipment = ARRAY[
-        'weight_plates',
-        'neutral_landmine_handle',
-        'ball_grip_landmine_attachment',
-        'barbell_jack_or_staging_block'
+        'plates'
       ]::TEXT[],
       anatomy_json = '{
         "primaryMuscles":["anterior_deltoid","clavicular_pectoralis_major","triceps_brachii"],
@@ -1029,10 +1870,10 @@ BEGIN
     NULL
   FROM (
     VALUES
-      ('two-hand-square-stance-sleeve-grip-strict','single-arm-split-stance-sleeve-grip-strict','progression',82,ARRAY['hand_count','laterality','trunk_control']::TEXT[],'One-hand execution adds side-specific rack, anti-motion, grip, and dose requirements after two-hand path control is repeatable.','{"requires":["two_hand_path_and_return_repeatable","unloaded_single_arm_rehearsal_controlled"]}'::JSONB),
-      ('single-arm-split-stance-sleeve-grip-strict','single-arm-square-stance-sleeve-grip-strict','progression',88,ARRAY['stance','base_stability','anti_motion']::TEXT[],'A square stance removes the front-back base and increases anti-motion demand while preserving unilateral strict pressing.','{"requires":["split_stance_quality_repeatable","square_stance_balance_and_brace_ready"]}'::JSONB),
-      ('single-arm-square-stance-sleeve-grip-strict','single-arm-split-stance-sleeve-grip-strict','regression',92,ARRAY['stance','base_stability']::TEXT[],'A split stance can increase base control without changing hand count, rack, side, or strict press action.','{"when":["square_stance_balance_or_trunk_control_limits_quality"]}'::JSONB),
-      ('single-arm-split-stance-sleeve-grip-strict','two-hand-square-stance-sleeve-grip-strict','regression',80,ARRAY['hand_count','laterality','grip','trunk_control']::TEXT[],'Two-hand support reduces unilateral grip, rack, and anti-motion demand while preserving the fixed arc.','{"when":["unilateral_grip_rack_or_trunk_control_limits_quality"]}'::JSONB),
+      ('two-hand-square-stance-sleeve-grip-strict','single-arm-split-stance-sleeve-grip-strict','progression',82,ARRAY['stability','complexity','load']::TEXT[],'One-hand execution adds side-specific rack, anti-motion, grip, and dose requirements after two-hand path control is repeatable.','{"requires":["two_hand_path_and_return_repeatable","unloaded_single_arm_rehearsal_controlled"],"changedAttributes":["hand_count","laterality","trunk_control"]}'::JSONB),
+      ('single-arm-split-stance-sleeve-grip-strict','single-arm-square-stance-sleeve-grip-strict','progression',88,ARRAY['stability','complexity']::TEXT[],'A square stance removes the front-back base and increases anti-motion demand while preserving unilateral strict pressing.','{"requires":["split_stance_quality_repeatable","square_stance_balance_and_brace_ready"],"changedAttributes":["stance","base_stability","anti_motion"]}'::JSONB),
+      ('single-arm-square-stance-sleeve-grip-strict','single-arm-split-stance-sleeve-grip-strict','regression',92,ARRAY['stability','complexity']::TEXT[],'A split stance can increase base control without changing hand count, rack, side, or strict press action.','{"when":["square_stance_balance_or_trunk_control_limits_quality"],"changedAttributes":["stance","base_stability"]}'::JSONB),
+      ('single-arm-split-stance-sleeve-grip-strict','two-hand-square-stance-sleeve-grip-strict','regression',80,ARRAY['stability','complexity','load']::TEXT[],'Two-hand support reduces unilateral grip, rack, and anti-motion demand while preserving the fixed arc.','{"when":["unilateral_grip_rack_or_trunk_control_limits_quality"],"changedAttributes":["hand_count","laterality","grip","trunk_control"]}'::JSONB),
       ('two-hand-square-stance-sleeve-grip-strict','two-hand-square-stance-neutral-handle-strict','equipment_equivalent',88,ARRAY['attachment','grip','wrist_position','loading']::TEXT[],'The neutral handle changes the interface and loading potential while preserving two-hand square-stance strict pressing.','{"requires":["compatible_rated_handle","new_load_selected_for_exact_attachment"]}'::JSONB),
       ('two-hand-square-stance-neutral-handle-strict','two-hand-square-stance-ball-grip-strict','equipment_equivalent',78,ARRAY['attachment','grip','forearm_demand','loading']::TEXT[],'Both attachments preserve the strict two-hand press but differ in grip geometry, forearm demand, and load handling.','{"requires":["compatible_rated_attachment","grip_and_wrist_control_reassessed"]}'::JSONB)
   ) AS relationship(

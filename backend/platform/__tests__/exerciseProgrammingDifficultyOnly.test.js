@@ -341,6 +341,10 @@ const LANDMINE_PRESS_COMPLETION_MIGRATION = readFileSync(
   new URL('../../migrations/397_coaching_landmine_press_family_completion.sql', import.meta.url),
   'utf8',
 )
+const ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION = readFileSync(
+  new URL('../../migrations/398_coaching_one_arm_landmine_base_family_completion.sql', import.meta.url),
+  'utf8',
+)
 const PLATFORM_INIT_TABLES_SOURCE = readFileSync(
   new URL('../initTables.js', import.meta.url),
   'utf8',
@@ -1079,6 +1083,18 @@ test('high-similarity movement boundaries use mechanics instead of exercise skil
       new RegExp(boundary),
     )
   }
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /body_regions = ARRAY\[[\s\S]*?'rib_cage'[\s\S]*?\]::TEXT\[\],[\s\S]*?required_equipment = ARRAY\[\s*'landmine',\s*'barbell'\s*\]::TEXT\[\],[\s\S]*?optional_equipment = ARRAY\[\s*'plates'\s*\]::TEXT\[\]/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /'progression',82,ARRAY\['stability','complexity','load'\]::TEXT\[\]/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /'regression',92,ARRAY\['stability','complexity'\]::TEXT\[\]/,
+  )
   assert.match(
     HIGH_SIMILARITY_MOVEMENT_BOUNDARIES_MIGRATION,
     /'distinct_exercises'/,
@@ -4202,6 +4218,43 @@ test('landmine press completion uses exact strict variants, five embedded candid
   )
   assert.match(
     LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /slug = 'two-hand-landmine-press'/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /'duplicate_consolidated'/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /'same_strict_standing_fixed_arc_landmine_press_with_exact_two_hand_variant'/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /'same_strict_standing_fixed_arc_landmine_press_with_exact_single_arm_square_stance_variant'/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /'same_strict_standing_fixed_arc_landmine_press_with_exact_single_arm_split_stance_variant'/,
+  )
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /UPDATE coaching\.exercise_definition_source_v1/,
+  )
+  for (const boundary of [
+    'standing_two_feet_vs_half_kneeling_one_knee_and_one_foot_base',
+    'standing_two_feet_vs_tall_kneeling_two_knee_base',
+    'standing_diagonal_press_vs_supine_floor_press',
+    'strict_press_without_leg_drive_vs_dip_drive_and_split_catch',
+    'standing_landmine_diagonal_arc_vs_long_sit_free_bar_vertical_press',
+    'standing_landmine_diagonal_arc_vs_supine_bench_horizontal_press',
+  ]) {
+    assert.match(
+      LANDMINE_PRESS_COMPLETION_MIGRATION,
+      new RegExp(boundary),
+    )
+  }
+  assert.match(
+    LANDMINE_PRESS_COMPLETION_MIGRATION,
     /'media_human_review_required'/,
   )
   assert.match(
@@ -4226,6 +4279,124 @@ test('landmine press completion uses exact strict variants, five embedded candid
   )
   assert.doesNotMatch(
     LANDMINE_PRESS_COMPLETION_MIGRATION,
+    /approved_video_url\s*=\s*'https:\/\//,
+  )
+})
+
+test('one-arm landmine base completion builds exact cards and keeps ambiguous Arc Press non-selectable', () => {
+  assert.match(
+    PLATFORM_INIT_TABLES_SOURCE,
+    /'398_coaching_one_arm_landmine_base_family_completion\.sql'/,
+  )
+  for (const slug of [
+    'half-kneeling-one-arm-landmine-press',
+    'tall-kneeling-one-arm-landmine-press',
+    'one-arm-landmine-floor-press',
+    'one-arm-landmine-z-press',
+    'one-arm-landmine-arc-press',
+  ]) {
+    assert.match(
+      ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+      new RegExp(slug),
+    )
+  }
+  for (const variantKey of [
+    'working-arm-ipsilateral-to-down-knee-strict',
+    'working-arm-contralateral-to-down-knee-strict',
+    'single-arm-tall-kneeling-sleeve-grip-strict',
+    'single-arm-supine-floor-supported-strict',
+    'single-arm-long-sit-legs-together-strict',
+    'single-arm-long-sit-straddle-strict',
+    'identity-review-only',
+  ]) {
+    assert.match(
+      ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+      new RegExp(variantKey),
+    )
+  }
+  for (const videoId of [
+    '_ArzG9qz-yM',
+    'JH_L7Itnv9s',
+    'BKDzLILFURM',
+    'ZQBaGzoe3P0',
+    'hiMe9Fu8Ha8',
+    'fw_4FpH96Nw',
+    'AXWAI6yTB-I',
+    '2XGv3QrU-n4',
+    'JFwX9gJh8Fc',
+    'Sgikteuhkkw',
+  ]) {
+    assert.match(
+      ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+      new RegExp(videoId),
+    )
+  }
+  assert.match(
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    /greatest\(seed\.complexity, seed\.physical\)/,
+  )
+  assert.match(
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    /'max_exercise_complexity_physical_difficulty'/,
+  )
+  assert.match(
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    /'capacity-strict-strength','capacity'/,
+  )
+  assert.match(
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    /'movement-intelligence-base-and-path','movement_intelligence'/,
+  )
+  assert.match(
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    /'blocked_pending_identity_review'/,
+  )
+  assert.match(
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    /'selectable', seed\.selectable/,
+  )
+  assert.match(
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    /exact_variant_match = NULL/,
+  )
+  assert.match(
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    /reviewer_user_id = NULL/,
+  )
+  assert.match(
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    /refused to overwrite % protected canonical definition/,
+  )
+  assert.match(
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    /human-reviewed legacy score record/,
+  )
+  assert.match(
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    /ARRAY\[1405,1406,1411,1412,1413,1414\]/,
+  )
+  for (const blocker of [
+    'CARD-IDENTITY-01',
+    'CARD-MEDIA-01',
+    'CARD-PUBLISH-01',
+    'CARD-GRAPH-03',
+    'CARD-CALIBRATION-01',
+  ]) {
+    assert.match(
+      ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+      new RegExp(blocker),
+    )
+  }
+  assert.doesNotMatch(
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    /['"](?:exerciseSkillLevel|skillLevel|minimumSkillLevel|proficiencyLevel|exerciseCardSkillLevel|formalProficiencyClassification|proficiencyClassificationScope)['"]\s*[:,]/,
+  )
+  assert.doesNotMatch(
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
+    /skill_level\s*=\s*'(?:BEGINNER|INTERMEDIATE|ADVANCED|ELITE)'/i,
+  )
+  assert.doesNotMatch(
+    ONE_ARM_LANDMINE_BASE_COMPLETION_MIGRATION,
     /approved_video_url\s*=\s*'https:\/\//,
   )
 })

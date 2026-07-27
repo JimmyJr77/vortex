@@ -909,12 +909,63 @@ On 2026-07-26:
   graph-review, media-review, and publication gates.
 - Golden quality evaluation is at least 90/100 with safety and logistics at
   100/100.
+- Migrations 391–396 finish the configured score-74 through score-72
+  deterministic identity pass. Migration 397 completes the standing strict
+  Landmine Press card and consolidates the two-hand, square-stance one-arm,
+  and split-stance one-arm source definitions into three exact variants while
+  preserving all three legacy mappings and archived source variants.
+- Migration 397 adds five difficulty-only review variants, ten contextual
+  delivery profiles, 16 candidate evidence rows, five oEmbed-healthy media
+  candidates, 12 candidate alternate assessments, six review-only graph
+  proposals, 15 review-only calibration proposals, and a quarantined
+  automated test packet. It makes no publication, media, graph, calibration,
+  or human-review approval claim.
+- The migration directly applies and reruns idempotently. The normal platform
+  runner records checksum `3276759652`, skips the migration on its second
+  invocation, and leaves Landmine Press at card version 2. A rollback-only
+  negative test marks the square-stance source published; migration 397
+  refuses the protected record and leaves all four definitions and all
+  migration-397 identity rows unchanged.
+- The migration-397 audit has complete coverage for all 1,676 legacy source
+  rows, 1,096 active and 580 archived definitions, 1,828 variants, 1,984
+  delivery profiles, 1,347 identity decisions, 5,066 unapproved media
+  candidates, 207 unapproved relationships, 357 unapproved calibration
+  anchors, and zero approved or published records.
+- The score-72 identity queue falls from 52 to 47 unresolved pairs. All 47 are
+  explicit `needs_human_review` quarantines, none is unclassified, and no exact
+  collision remains. The ambiguous one-arm landmine arc press stays
+  quarantined rather than being guessed.
+- Forty-two active cards now avoid the broad structural-backfill bucket and
+  1,054 remain. Every populated active/review difficulty record derives
+  overall as the maximum of exercise complexity and physical difficulty.
+  Canonical classification checks find zero exercise skill/proficiency
+  metadata and preserve all 1,112 dedicated skill-library level assignments.
+- Migration 398 completes the structural research packet for the
+  half-kneeling, tall-kneeling, floor, and Z-position one-arm landmine presses.
+  It adds seven exact review variants, 12 selectable delivery profiles, 80
+  section-evidence rows, 25 oEmbed-healthy media candidates, 30 alternate
+  assessments, eight review-only relationships, 21 review-only calibrations,
+  and five quarantined test packets while preserving all six legacy source
+  mappings.
+- The underspecified One-Arm Landmine Arc Press remains a seventh,
+  non-selectable `identity-review-only` variant with one blocked review
+  profile. Conflicting public usages are preserved as review evidence rather
+  than being converted into an invented executable identity.
+- Migration 398 stores no athlete skill or proficiency classification on an
+  exercise card. Its scores are exercise complexity and physical difficulty,
+  with overall derived as their maximum. It creates no publication, media,
+  relationship, calibration, card-review, variant, or delivery approval.
+- A disposable target audit and direct idempotency rerun passed before the
+  final protected-record guard expansion. Focused canonical research and
+  difficulty-invariant tests pass 100/100, and the complete platform suite
+  passes 649/649. A fresh-clone database rerun remains required for the final
+  guard text before migration 398 is promoted.
 
 ## Operational release gates
 
 These are deployment and evidence gates, not code-completion claims:
 
-1. Apply the complete migration sequence through migration 388 in a
+1. Apply the complete migration sequence through migration 398 in a
    non-production environment.
 2. Run the full library audit; review anatomy, constraints, scores, media,
    relationships, and calibration evidence card by card.

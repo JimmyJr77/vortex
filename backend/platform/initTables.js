@@ -395,6 +395,7 @@ export async function initPlatformTables(pool) {
     '395_coaching_score_72_identity_boundaries.sql',
     '396_coaching_score_72_variant_identity_consolidations.sql',
     '397_coaching_landmine_press_family_completion.sql',
+    '398_coaching_one_arm_landmine_base_family_completion.sql',
   ]
 
   const migrationClient = typeof pool.connect === 'function' ? await pool.connect() : pool
