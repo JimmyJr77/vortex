@@ -15,8 +15,8 @@ export const HUB_HOME_SEO: HubRouteSeo = {
   description:
     'Explore youth sports training in Bowie, MD, including sports conditioning, speed and agility, strength, Fit & Flip, and gymnastics programs.',
   priority: 1.0,
-  ogImage: `${HUB_ORIGIN}/multisport.jpeg`,
-  ogImageAlt: 'Young athletes training at Vortex Athletics in Bowie, Maryland',
+  ogImage: `${HUB_ORIGIN}/trampoline-event.jpg`,
+  ogImageAlt: 'A Vortex athlete performing an inverted skill above the trampoline',
 }
 
 export const HUB_ROUTES: HubRouteSeo[] = [
