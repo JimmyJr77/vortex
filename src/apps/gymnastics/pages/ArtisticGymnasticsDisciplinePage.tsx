@@ -113,7 +113,13 @@ const competitiveTeamDetails = [
   'Our coaching team supports all athletes in balancing safety, confidence, and performance growth.',
 ]
 
-const ArtisticGymnasticsDisciplinePage = () => {
+interface ArtisticGymnasticsDisciplinePageProps {
+  onSignUpClick?: () => void
+}
+
+const ArtisticGymnasticsDisciplinePage = ({
+  onSignUpClick: _onSignUpClick,
+}: ArtisticGymnasticsDisciplinePageProps) => {
   const enrollHref = getSiteEnrollHref({ programName: 'Artistic Gymnastics' })
 
   return (
