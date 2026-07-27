@@ -8,16 +8,17 @@ import {
   enrollmentHasRecurringMembership,
   formatEnrollmentCheckoutSubmitMessage,
   formatFirstMonthTuitionLineName,
+  resolveEnrollmentCheckoutMode,
+  resolvePerClassMonthlyAmountCents,
   shouldShowEnrollmentCheckoutSubmitMessage,
 } from '../stripeEnrollmentCheckout.js'
 import { firstOfNextMonth } from '../../scheduling/firstMonthProration.js'
 
-test('formatEnrollmentCheckoutSubmitMessage warns about Stripe days-free copy', () => {
+test('formatEnrollmentCheckoutSubmitMessage covers first-month pay and per-class renewals', () => {
   const message = formatEnrollmentCheckoutSubmitMessage()
-  assert.match(message, /DISREGARD THE ## DAYS FREE MESSAGE IN THE BILL OVERVIEW/i)
   assert.match(message, /first-month tuition and any additional fees/i)
   assert.match(message, /assigned class start date/i)
-  assert.match(message, /Membership renews at monthly rate/i)
+  assert.match(message, /cancelled separately/i)
 })
 
 test('shouldShowEnrollmentCheckoutSubmitMessage is false for one-time class or event purchases', () => {
@@ -154,4 +155,42 @@ test('computeEnrollmentDueNowCents matches fees plus first-month tuition', () =>
     carriedForward: { totalCents: 0 },
   }
   assert.equal(computeEnrollmentDueNowCents(preview), 23500)
+})
+
+test('resolveEnrollmentCheckoutMode uses payment for due-now and setup when only recurring', () => {
+  const withDueNow = {
+    additionalFeesOneTime: 85,
+    firstMonth: { totalCents: 15000 },
+    newSignups: [{ billingType: 'recurring', incrementalMonthly: 150 }],
+  }
+  assert.equal(resolveEnrollmentCheckoutMode(withDueNow), 'payment')
+
+  const recurringOnly = {
+    additionalFeesOneTime: 0,
+    firstMonth: { totalCents: 0 },
+    newSignups: [{ billingType: 'recurring', incrementalMonthly: 150 }],
+  }
+  assert.equal(resolveEnrollmentCheckoutMode(recurringOnly), 'setup')
+})
+
+test('resolvePerClassMonthlyAmountCents prefers ledger net then first-month net', () => {
+  const preview = {
+    firstMonth: {
+      items: [{ slotKey: 'a:1:2', monthlyNetCents: 12000 }],
+    },
+    discounts: {
+      enabled: true,
+      lines: [{ key: 'a:1:2', finalCents: 14000 }],
+    },
+    newSignups: [{ slotKey: 'a:1:2', incrementalMonthly: 150 }],
+  }
+  assert.equal(resolvePerClassMonthlyAmountCents(preview, 'a:1:2', { netMonthlyCents: 11000 }), 11000)
+  assert.equal(resolvePerClassMonthlyAmountCents(preview, 'a:1:2'), 12000)
+  assert.equal(
+    resolvePerClassMonthlyAmountCents(
+      { ...preview, firstMonth: { items: [] } },
+      'a:1:2',
+    ),
+    14000,
+  )
 })

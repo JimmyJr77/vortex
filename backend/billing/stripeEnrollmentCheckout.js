@@ -7,7 +7,6 @@ import crypto from 'crypto'
 import { getStripeClient, stripeEnabled, ensureStripeBillingSchema, recordEnrollmentStripePayment } from './stripeBilling.js'
 import {
   feeLookupKey,
-  formOverrideLookupKey,
   passLookupKey,
   programOptionLookupKey,
   resolveStripePriceId,
@@ -17,15 +16,6 @@ import {
 } from './stripeCatalogSync.js'
 import { buildSignupOrderPreview } from '../scheduling/orderPricing.js'
 import { executeSignupBatch } from '../scheduling/handlers.js'
-import {
-  programUsesWeeklyTierPricing,
-  resolveSyncedWeeklyTierCatalogRef,
-} from '../programs/weeklyTierPricing.js'
-import {
-  hydrateProgramPricingRow,
-  normalizeProgramPricingOptions,
-} from '../programs/programPricingOptions.js'
-import { formHasCustomPricingOverride } from '../programs/pricingDefaults.js'
 import { firstOfNextMonth, todayDateOnly } from '../scheduling/firstMonthProration.js'
 import { issueSignupAuthToken } from '../scheduling/signupAuth.js'
 import { findMemberById } from '../members/createMemberStub.js'
@@ -69,6 +59,11 @@ async function ensurePendingEnrollmentSchema(pool) {
     import.meta.url,
   )
   await pool.query(fs.readFileSync(clientConfirmedPath, 'utf8'))
+  const setupModePath = new URL(
+    '../migrations/399_stripe_pending_enrollment_setup_mode.sql',
+    import.meta.url,
+  )
+  await pool.query(fs.readFileSync(setupModePath, 'utf8'))
   pendingSchemaEnsured = true
 }
 
@@ -196,135 +191,80 @@ export function computeSubscriptionTrialEndUnix(preview, asOfDate = null) {
  */
 export function formatEnrollmentCheckoutSubmitMessage() {
   return (
-    'DISREGARD THE ## DAYS FREE MESSAGE IN THE BILL OVERVIEW. ' +
     "Today's payment covers first-month tuition and any additional fees. " +
     'Membership starts on assigned class start date. ' +
-    'Membership renews at monthly rate.'
+    'Each class renews as its own monthly subscription and can be cancelled separately.'
   ).slice(0, 500)
 }
 
 /**
- * Resolve Stripe catalog ref for a recurring enrollment line.
- * @returns {Promise<{ lookupKey: string|null, quantity: number, amountCents: number|null, productName: string|null }>}
+ * Net monthly cents for one class after enrollment discounts (matches Vortex ledger).
+ * Prefers billing_subscription.net when available; else first-month monthlyNetCents;
+ * else discount-line finalCents; else preview incremental monthly.
  */
-async function resolveRecurringCatalogRefForLine(pool, preview, line) {
-  const formRes = await pool.query(
-    `SELECT id, programs_id, pricing_overrides_program, cost_amount_cents, cost_unit, slot_cost_monthly_cents, title
-     FROM scheduling_form WHERE id = $1`,
-    [line.formId],
-  )
-  const formRow = formRes.rows[0]
-  const programsId = line.programsId ?? formRow?.programs_id
-  const className = String(line.formTitle ?? formRow?.title ?? 'Class enrollment').trim() || 'Class enrollment'
-
-  if (formHasCustomPricingOverride(formRow)) {
-    return {
-      lookupKey: formOverrideLookupKey(formRow.id),
-      quantity: 1,
-      amountCents: null,
-      productName: null,
+export function resolvePerClassMonthlyAmountCents(preview, slotKey, { netMonthlyCents = null } = {}) {
+  if (netMonthlyCents != null && Number.isFinite(Number(netMonthlyCents))) {
+    return Math.max(0, Math.round(Number(netMonthlyCents)))
+  }
+  const fm = (preview?.firstMonth?.items ?? []).find((item) => item.slotKey === slotKey)
+  if (fm?.monthlyNetCents != null) {
+    return Math.max(0, Math.round(Number(fm.monthlyNetCents)))
+  }
+  if (preview?.discounts?.enabled && Array.isArray(preview.discounts.lines)) {
+    const line = preview.discounts.lines.find((l) => l.key === slotKey)
+    if (line?.finalCents != null) {
+      return Math.max(0, Math.round(Number(line.finalCents)))
     }
   }
+  const previewLine = (preview?.newSignups ?? []).find((line) => line.slotKey === slotKey)
+  return Math.max(0, Math.round(Number(previewLine?.monthlyPrice ?? previewLine?.incrementalMonthly ?? 0) * 100))
+}
 
-  if (programsId == null) {
-    return { lookupKey: null, quantity: 1, amountCents: null, productName: null }
-  }
+/** Checkout mode for enrollment: never use subscription Checkout (one sub for many classes). */
+export function resolveEnrollmentCheckoutMode(preview) {
+  const dueNowCents = computeEnrollmentDueNowCents(preview)
+  const hasRecurring = enrollmentHasRecurringMembership(preview)
+  if (hasRecurring && dueNowCents <= 0) return 'setup'
+  return 'payment'
+}
 
-  if (line.selectedPricingOptionKey) {
-    return {
-      lookupKey: programOptionLookupKey(Number(programsId), line.selectedPricingOptionKey),
-      quantity: 1,
-      amountCents: null,
-      productName: null,
-    }
-  }
+async function buildPerClassStripeSubscriptionItem(
+  pool,
+  { programsId, amountCents, productName, selectedPricingOptionKey },
+) {
+  const tryKeys = [
+    selectedPricingOptionKey,
+    'monthly_1x',
+  ].filter((key, index, arr) => key && arr.indexOf(key) === index)
 
-  const summary = (preview.formSummaries ?? []).find((s) => s.formId === line.formId)
-  const { resolveProgramsSchema } = await import('../programs/schema.js')
-  const schema = await resolveProgramsSchema(pool)
-  const progRes = await pool.query(
-    `SELECT id, display_name, name, pricing_cost_options, pricing_cost_amount_cents,
-            pricing_slot_cost_monthly_cents, pricing_cost_unit
-     FROM ${schema.programsTable} WHERE id = $1`,
-    [programsId],
-  )
-  const programRow = hydrateProgramPricingRow(progRes.rows[0])
-  const options = normalizeProgramPricingOptions(programRow?.pricing_cost_options)
-  const programName =
-    String(programRow?.display_name ?? programRow?.name ?? '').trim() || `Program ${programsId}`
-
-  if (
-    summary?.usesWeeklyTierPricing ||
-    programUsesWeeklyTierPricing({ pricing_cost_options: options })
-  ) {
-    const count = summary?.totalSlotCount > 0 ? summary.totalSlotCount : 1
-    const ref = resolveSyncedWeeklyTierCatalogRef(options, count)
-    if (ref.optionKey) {
-      return {
-        lookupKey: programOptionLookupKey(Number(programsId), ref.optionKey),
-        quantity: ref.quantity,
-        amountCents: ref.amountCents,
-        productName: null,
+  if (programsId != null) {
+    for (const key of tryKeys) {
+      const lookupKey = programOptionLookupKey(Number(programsId), key)
+      const res = await pool.query(
+        `SELECT stripe_price_id, amount_cents FROM stripe_catalog_item
+         WHERE stripe_lookup_key = $1 AND active = TRUE`,
+        [lookupKey],
+      )
+      const row = res.rows[0]
+      if (row?.stripe_price_id && Number(row.amount_cents) === amountCents) {
+        return { price: row.stripe_price_id, quantity: 1 }
       }
     }
-    return {
-      lookupKey: null,
-      quantity: 1,
-      amountCents: ref.amountCents,
-      productName: `${programName} — ${count}×/wk (${className})`.slice(0, 200),
-    }
   }
 
-  const enabled = options.filter((o) => o.enabled && o.amountCents > 0)
-  const optionKey = enabled[0]?.key ?? 'monthly_1x'
   return {
-    lookupKey: programOptionLookupKey(Number(programsId), optionKey),
     quantity: 1,
-    amountCents: null,
-    productName: null,
+    price_data: {
+      currency: 'usd',
+      unit_amount: amountCents,
+      recurring: { interval: 'month' },
+      product_data: { name: String(productName || 'Monthly class membership').slice(0, 200) },
+    },
   }
 }
 
-async function buildCheckoutLineItems(pool, preview, { includeRecurringSubscriptionPrices = false } = {}) {
+async function buildCheckoutLineItems(pool, preview) {
   const lineItems = []
-  const recurringLineItems = []
-  const seenRecurring = new Set()
-
-  if (includeRecurringSubscriptionPrices) {
-    for (const line of preview.newSignups ?? []) {
-      if (line.multiClassPassApplied) continue
-      if (line.billingType !== 'recurring') continue
-      if ((line.monthlyPrice ?? line.incrementalMonthly ?? 0) <= 0) continue
-
-      const ref = await resolveRecurringCatalogRefForLine(pool, preview, line)
-      const dedupeKey = ref.lookupKey ?? `price_data:${ref.productName}:${ref.amountCents}`
-      if (seenRecurring.has(dedupeKey)) continue
-      seenRecurring.add(dedupeKey)
-
-      if (ref.lookupKey) {
-        const priceId = await resolveStripePriceId(pool, ref.lookupKey)
-        if (!priceId) {
-          throw new Error(
-            `Stripe price not synced for ${ref.lookupKey}. Run catalog sync or re-save program pricing.`,
-          )
-        }
-        recurringLineItems.push({ price: priceId, quantity: Math.max(1, ref.quantity || 1) })
-        continue
-      }
-
-      if (ref.amountCents != null && ref.amountCents > 0) {
-        recurringLineItems.push({
-          quantity: 1,
-          price_data: {
-            currency: 'usd',
-            unit_amount: Math.round(ref.amountCents),
-            recurring: { interval: 'month' },
-            product_data: { name: (ref.productName || 'Monthly membership').slice(0, 200) },
-          },
-        })
-      }
-    }
-  }
 
   for (const pass of preview.passPurchases ?? []) {
     const lookupKey = passLookupKey(Number(pass.programsId), pass.packageId)
@@ -364,8 +304,6 @@ async function buildCheckoutLineItems(pool, preview, { includeRecurringSubscript
     })
   }
 
-  lineItems.push(...recurringLineItems)
-
   if (lineItems.length === 0) {
     const dueNow = computeEnrollmentDueNowCents(preview)
     if (dueNow > 0) {
@@ -384,9 +322,8 @@ async function buildCheckoutLineItems(pool, preview, { includeRecurringSubscript
 }
 
 /**
- * After enrollment payment, create Stripe Subscriptions anchored to the 1st when recurring
- * billing begins — avoids Checkout "X days free" trial wording while first-month tuition
- * is collected as one-time line items.
+ * After enrollment payment/setup, create one Stripe Subscription per class signup.
+ * Amounts use Vortex net monthly (discounts already applied across total class count).
  */
 export async function createEnrollmentStripeSubscriptions(
   pool,
@@ -399,21 +336,32 @@ export async function createEnrollmentStripeSubscriptions(
   if (!sessionId) return
 
   const session = await stripe.checkout.sessions.retrieve(sessionId, {
-    expand: ['payment_intent.payment_method'],
+    expand: ['payment_intent.payment_method', 'setup_intent.payment_method'],
   })
   const customerId = session.customer
   if (!customerId) return
 
-  let defaultPaymentMethod = session.payment_intent?.payment_method ?? null
+  let defaultPaymentMethod =
+    session.payment_intent?.payment_method ?? session.setup_intent?.payment_method ?? null
   if (defaultPaymentMethod && typeof defaultPaymentMethod === 'object') {
     defaultPaymentMethod = defaultPaymentMethod.id
+  }
+
+  if (defaultPaymentMethod) {
+    try {
+      await stripe.customers.update(customerId, {
+        invoice_settings: { default_payment_method: defaultPaymentMethod },
+      })
+    } catch (err) {
+      console.warn('[stripe] set default payment method:', err.message)
+    }
   }
 
   const previewObj = preview
   const fromDate = previewObj.firstMonth?.periodStart ?? todayDateOnly()
 
   const subsRes = await pool.query(
-    `SELECT bs.id, bs.source_id
+    `SELECT bs.id, bs.source_id, bs.net_monthly_cents, bs.description
      FROM billing_subscription bs
      WHERE bs.source_type = 'scheduling_signup'
        AND bs.source_id = ANY($1::text[])
@@ -436,57 +384,38 @@ export async function createEnrollmentStripeSubscriptions(
     if (!previewLine || previewLine.billingType !== 'recurring' || previewLine.multiClassPassApplied) {
       continue
     }
-    if ((previewLine.monthlyPrice ?? previewLine.incrementalMonthly ?? 0) <= 0) continue
+
+    const amountCents = resolvePerClassMonthlyAmountCents(previewObj, slotKey, {
+      netMonthlyCents: subRow.net_monthly_cents,
+    })
+    if (amountCents <= 0) continue
 
     const fmItem = (previewObj.firstMonth?.items ?? []).find((item) => item.slotKey === slotKey)
     const anchorDate = fmItem
       ? computeFirstMonthBillingAnchorDate(fmItem, fromDate)
       : firstOfNextMonth(fromDate)
 
-    // One Stripe subscription per signup: charge this line's monthly amount, not the
-    // program-wide weekly-tier bundle quantity used in Checkout subscription mode.
-    const amountCents = Math.round(
-      Number(previewLine.monthlyPrice ?? previewLine.incrementalMonthly ?? 0) * 100,
-    )
-    if (amountCents <= 0) continue
-
-    const ref = await resolveRecurringCatalogRefForLine(pool, previewObj, {
-      ...previewLine,
+    const productName =
+      String(subRow.description || previewLine.formTitle || 'Monthly class membership').slice(0, 200)
+    const item = await buildPerClassStripeSubscriptionItem(pool, {
+      programsId: previewLine.programsId ?? null,
+      amountCents,
+      productName,
       selectedPricingOptionKey: previewLine.selectedPricingOptionKey || 'monthly_1x',
     })
-    let items
-    if (ref.lookupKey) {
-      const priceId = await resolveStripePriceId(pool, ref.lookupKey)
-      if (priceId) {
-        items = [{ price: priceId, quantity: 1 }]
-      }
-    }
-    if (!items) {
-      items = [
-        {
-          quantity: 1,
-          price_data: {
-            currency: 'usd',
-            unit_amount: amountCents,
-            recurring: { interval: 'month' },
-            product_data: {
-              name: String(previewLine.formTitle || 'Monthly membership').slice(0, 200),
-            },
-          },
-        },
-      ]
-    }
 
     const stripeSub = await stripe.subscriptions.create({
       customer: customerId,
-      items,
+      items: [item],
       billing_cycle_anchor: dateStringToUnixBillingAnchor(anchorDate),
       proration_behavior: 'none',
       ...(defaultPaymentMethod ? { default_payment_method: defaultPaymentMethod } : {}),
       metadata: {
         billingSubscriptionId: String(subRow.id),
         familyBillingAccountId: String(familyBillingAccountId),
+        schedulingSignupId: String(signupId),
         checkoutType: 'enrollment',
+        perClassSubscription: 'true',
       },
     })
 
@@ -554,12 +483,10 @@ export async function createEnrollmentCheckoutSession(
 
   const dueNowCents = computeEnrollmentDueNowCents(preview)
   const hasRecurring = enrollmentHasRecurringMembership(preview)
-  const mode = hasRecurring ? 'subscription' : 'payment'
-  const lineItems = await buildCheckoutLineItems(pool, preview, {
-    includeRecurringSubscriptionPrices: hasRecurring,
-  })
+  const mode = resolveEnrollmentCheckoutMode(preview)
+  const lineItems = mode === 'setup' ? [] : await buildCheckoutLineItems(pool, preview)
 
-  if (lineItems.length === 0) {
+  if (mode === 'payment' && lineItems.length === 0) {
     return { skipCheckout: true, preview }
   }
 
@@ -602,7 +529,6 @@ export async function createEnrollmentCheckoutSession(
   const sessionParams = {
     mode,
     customer: customerId,
-    line_items: lineItems,
     success_url: successUrl,
     cancel_url: cancelUrl,
     metadata: {
@@ -612,30 +538,26 @@ export async function createEnrollmentCheckoutSession(
       memberId: String(memberId),
       previewHash: previewFingerprint(preview),
       hasRecurring: hasRecurring ? 'true' : 'false',
+      perClassSubscriptions: hasRecurring ? 'true' : 'false',
     },
   }
 
-  if (mode === 'subscription') {
-    const anchorDate = computeSubscriptionBillingAnchorDate(preview)
-    // Stripe rejects proration_behavior=none when Checkout includes one-time line items
-    // (fees + first-month tuition). trial_end defers recurring until the anchor date.
-    sessionParams.subscription_data = {
-      trial_end: dateStringToUnixBillingAnchor(anchorDate),
-      metadata: {
-        pendingEnrollmentId: String(pendingId),
-        familyBillingAccountId: String(account.id),
-      },
-    }
-    if (shouldShowEnrollmentCheckoutSubmitMessage(preview)) {
-      sessionParams.custom_text = {
-        submit: {
-          message: formatEnrollmentCheckoutSubmitMessage(),
-        },
-      }
-    }
+  if (mode === 'setup') {
+    // Recurring enrollments with $0 due now: collect a payment method, then create
+    // one Stripe Subscription per class after commit.
+    sessionParams.currency = 'usd'
   } else {
+    sessionParams.line_items = lineItems
     sessionParams.payment_intent_data = {
       setup_future_usage: 'off_session',
+    }
+  }
+
+  if (hasRecurring && shouldShowEnrollmentCheckoutSubmitMessage(preview)) {
+    sessionParams.custom_text = {
+      submit: {
+        message: formatEnrollmentCheckoutSubmitMessage(),
+      },
     }
   }
 
@@ -773,7 +695,12 @@ export async function confirmEnrollmentCheckoutSession(
       payment?.stripe_payment_intent_id || payment?.stripe_checkout_session_id || session.id,
     valueCents: Number(payment?.amount_cents ?? session.amount_total) || 0,
     currency: 'USD',
-    enrollmentType: pending.checkout_mode === 'subscription' ? 'recurring' : 'one_time',
+    enrollmentType:
+      pending.checkout_mode === 'setup' ||
+      pending.checkout_mode === 'subscription' ||
+      session.metadata?.hasRecurring === 'true'
+        ? 'recurring'
+        : 'one_time',
     paymentType: 'initial_enrollment',
   }
 
@@ -821,7 +748,20 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
 
     const signupIds = (result?.data?.signups ?? []).map((row) => Number(row.id)).filter(Boolean)
 
-    if (stripeSession?.subscription) {
+    const previewHasRecurring = enrollmentHasRecurringMembership(previewSnapshot ?? {})
+    if (signupIds.length > 0 && previewSnapshot && previewHasRecurring) {
+      // Always create one Stripe Subscription per class (never reuse Checkout's single sub).
+      const stripe = await getStripeClient()
+      if (stripe && stripeSession) {
+        await createEnrollmentStripeSubscriptions(pool, stripe, {
+          preview: previewSnapshot,
+          stripeSession,
+          signupIds,
+          familyBillingAccountId: pending.family_billing_account_id,
+        })
+      }
+    } else if (stripeSession?.subscription) {
+      // Legacy subscription-mode Checkout: stamp the single session subscription if present.
       await client.query(
         `UPDATE billing_subscription
          SET stripe_subscription_id = $2, updated_at = now()
@@ -831,17 +771,6 @@ export async function commitPendingEnrollment(pool, { pendingEnrollmentId, strip
            AND created_at >= now() - interval '5 minutes'`,
         [pending.family_billing_account_id, stripeSession.subscription],
       )
-    } else if (signupIds.length > 0 && previewSnapshot && pending.checkout_mode === 'payment') {
-      // Payment-only checkout (legacy): create anchored subscriptions after enrollment.
-      const stripe = await getStripeClient()
-      if (stripe) {
-        await createEnrollmentStripeSubscriptions(pool, stripe, {
-          preview: previewSnapshot,
-          stripeSession,
-          signupIds,
-          familyBillingAccountId: pending.family_billing_account_id,
-        })
-      }
     }
 
     await client.query('COMMIT')
