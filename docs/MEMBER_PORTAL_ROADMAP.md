@@ -257,3 +257,6 @@ Session helpers in [src/utils/portalSession.ts](../src/utils/portalSession.ts).
 - `FamilyMemberModal.tsx` is a deprecated admin-oriented stub, not part of the member flow.
 - Two member auth middlewares (`authenticateMember` vs `authMiddleware`) — consolidation candidate.
 - The dashboard does not call enroll/unenroll directly; enrollment lives on `/enroll`.
+- **Fixed (2026-07):** `GET /api/members/multi-class-passes` referenced undefined `account`
+  (ReferenceError → 500). Now loads `family_billing_account` via `ensureBillingAccount` before
+  comparing `payer_member_id` ([registerRoutes.js](../backend/platform/registerRoutes.js)).
