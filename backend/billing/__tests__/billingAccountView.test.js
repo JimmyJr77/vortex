@@ -118,6 +118,7 @@ test('buildBillingAccountView falls back when v_account_ledger is missing', asyn
   assert.equal(view.ledger[0].entryKind, 'charge')
   assert.equal(view.ledger[0].amountCents, 5000)
   assert.equal(view.membershipRenewsOn, null)
+  assert.equal(view.hasActiveMembership, false)
   assert.ok(queries.some((q) => q.includes('v_account_ledger')))
 })
 

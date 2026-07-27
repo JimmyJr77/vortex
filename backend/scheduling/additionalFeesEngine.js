@@ -1,4 +1,5 @@
 import { isMembershipValidThrough } from './membershipAnniversary.js'
+import { loadActiveAnnualMembershipFeeIds } from './annualMembership.js'
 
 export const FEE_APPLY_BASES = [
   'per_order',
@@ -188,16 +189,23 @@ export function mapFeeRow(r) {
 
 /**
  * Keys that suppress once_per_year fees. Membership is valid for 1 year after purchase
- * (anniversary), not calendar year. Emits `${feeId}:active` while still valid.
+ * (anniversary), not calendar year. Emits `${feeId}:active` while still valid — from
+ * annual Stripe/billing subscription window and/or redemption ledger.
  */
 export async function loadMemberFeeRedemptionKeys(pool, memberId, feeIds = [], now = new Date()) {
   if (!memberId || feeIds.length === 0) return new Set()
+  const keys = new Set()
+
+  const activeFeeIds = await loadActiveAnnualMembershipFeeIds(pool, memberId, feeIds, now)
+  for (const feeId of activeFeeIds) {
+    keys.add(`${feeId}:active`)
+  }
+
   const res = await pool.query(
     `SELECT fee_id, period_key, created_at FROM additional_fee_redemption
      WHERE member_id = $1 AND fee_id = ANY($2::bigint[])`,
     [memberId, feeIds],
   )
-  const keys = new Set()
   for (const row of res.rows) {
     const feeId = Number(row.fee_id)
     keys.add(`${feeId}:${row.period_key}`)

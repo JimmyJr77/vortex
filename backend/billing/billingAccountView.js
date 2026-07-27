@@ -305,6 +305,7 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     subscriptions,
     redemptions: membershipRedemptions,
   })
+  const hasActiveMembership = Boolean(membershipRenewsOn)
 
   // Payments + refunds are family-wide (only for payer / family scope).
   let payments = []
@@ -400,6 +401,7 @@ export async function buildBillingAccountView(pool, account, { memberScopeId = n
     subscriptionHistory: subscriptionHistory.filter((s) => !isAnnualMembershipSubscription(s)),
     monthlyTotals,
     membershipRenewsOn,
+    hasActiveMembership,
     payments,
     paymentsCents,
     refunds,

@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken'
 import { resolveJwtSecret } from '../auth/jwtSecret.js'
 import { formatDateOnly, resolveSlotActiveDates } from './slotActiveDates.js'
+import { loadActiveAnnualMembership } from './annualMembership.js'
+import { toUtcDateString } from './membershipAnniversary.js'
 
 const ACTIVE_REGISTRATION_STATUSES = ['account_required', 'confirmed', 'payment_pending']
 
@@ -244,21 +246,10 @@ async function memberBenefits(pool, member) {
      ON CONFLICT (member_id) DO NOTHING`,
     [member.id],
   )
-  const membership = await pool.query(
-    `SELECT r.created_at AS cycle_start,
-            r.created_at + INTERVAL '1 year' AS cycle_end
-       FROM additional_fee_redemption r
-       JOIN additional_fee f ON f.id = r.fee_id
-      WHERE r.member_id = $1
-        AND r.amount_cents > 0
-        AND (lower(f.name) LIKE '%annual%' OR lower(f.name) LIKE '%membership%')
-        AND r.created_at <= now()
-      ORDER BY r.created_at DESC
-      LIMIT 1`,
-    [member.id],
-  ).catch(() => ({ rows: [] }))
-  const cycle = membership.rows[0] ?? null
-  const annualMember = Boolean(cycle && new Date(cycle.cycle_end).getTime() > Date.now())
+  const membership = await loadActiveAnnualMembership(pool, member.id)
+  const annualMember = Boolean(membership?.active)
+  const cycleStart = membership?.cycleStart ?? null
+  const cycleEnd = membership?.renewsOn ?? null
   await pool.query(
     `UPDATE member_drop_in_entitlement
         SET annual_cycle_started_at = $2,
@@ -268,8 +259,8 @@ async function memberBenefits(pool, member) {
       WHERE member_id = $1`,
     [
       member.id,
-      annualMember ? cycle.cycle_start : null,
-      annualMember ? cycle.cycle_end : null,
+      annualMember && cycleStart ? cycleStart.toISOString() : null,
+      annualMember && cycleEnd ? `${toUtcDateString(cycleEnd)}T12:00:00.000Z` : null,
       annualMember ? 4 : 0,
     ],
   )
@@ -287,8 +278,10 @@ async function memberBenefits(pool, member) {
        AND status IN ('account_required','payment_pending','confirmed','attended')`,
     [
       member.id,
-      annualMember ? cycle.cycle_start : new Date(0).toISOString(),
-      annualMember ? cycle.cycle_end : new Date(0).toISOString(),
+      annualMember && cycleStart ? cycleStart.toISOString() : new Date(0).toISOString(),
+      annualMember && cycleEnd
+        ? `${toUtcDateString(cycleEnd)}T12:00:00.000Z`
+        : new Date(0).toISOString(),
     ],
   )
   const entitlement = await pool.query(

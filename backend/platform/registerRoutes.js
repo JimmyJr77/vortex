@@ -2274,6 +2274,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         subscriptions: view.subscriptions,
         monthlyTotals: view.monthlyTotals,
         membershipRenewsOn: view.membershipRenewsOn ?? null,
+        hasActiveMembership: Boolean(view.hasActiveMembership),
         refunds: view.refunds,
         ledger: view.ledger,
         bundlePasses: view.bundlePasses,
