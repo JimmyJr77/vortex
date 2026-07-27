@@ -4,7 +4,7 @@
  */
 
 import crypto from 'crypto'
-import { getStripeClient, stripeEnabled, ensureStripeBillingSchema, recordEnrollmentStripePayment } from './stripeBilling.js'
+import { getStripeClient, stripeEnabled, ensureStripeBillingSchema, ensureStripeCustomer, recordEnrollmentStripePayment } from './stripeBilling.js'
 import {
   feeLookupKey,
   passLookupKey,
@@ -507,24 +507,7 @@ export async function createEnrollmentCheckoutSession(
   )
   const pendingId = pending.rows[0].id
 
-  const customerId = account.stripe_customer_id
-    ? account.stripe_customer_id
-    : (
-        await stripe.customers.create({
-          email: account.billing_email || undefined,
-          metadata: {
-            familyBillingAccountId: String(account.id),
-            familyId: String(account.family_id),
-          },
-        })
-      ).id
-
-  if (!account.stripe_customer_id) {
-    await pool.query(
-      `UPDATE family_billing_account SET stripe_customer_id = $2, updated_at = now() WHERE id = $1`,
-      [account.id, customerId],
-    )
-  }
+  const customerId = await ensureStripeCustomer(pool, stripe, account)
 
   const sessionParams = {
     mode,

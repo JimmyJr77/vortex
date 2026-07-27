@@ -54,17 +54,42 @@ export async function getStripeClient() {
   return getStripe()
 }
 
-async function ensureStripeCustomer(pool, stripe, account) {
+/**
+ * Resolve or create a Stripe Customer for a family billing account.
+ * Recreates the customer when a stored ID is missing in the current Stripe
+ * account/mode (common after test→live switch or deleted customers).
+ */
+export async function ensureStripeCustomer(pool, stripe, account) {
   await ensureStripeBillingSchema(pool)
-  if (account.stripe_customer_id) return account.stripe_customer_id
+  const existingId = account?.stripe_customer_id ? String(account.stripe_customer_id) : null
+
+  if (existingId) {
+    try {
+      const existing = await stripe.customers.retrieve(existingId)
+      if (existing && !existing.deleted) return existingId
+    } catch (err) {
+      const missing =
+        err?.code === 'resource_missing' || /No such customer/i.test(String(err?.message ?? ''))
+      if (!missing) throw err
+      console.warn(
+        `[stripe] stale customer ${existingId} for billing account ${account.id}; creating a new one`,
+      )
+    }
+  }
+
   const customer = await stripe.customers.create({
     email: account.billing_email || undefined,
-    metadata: { familyBillingAccountId: String(account.id), familyId: String(account.family_id) },
+    metadata: {
+      familyBillingAccountId: String(account.id),
+      familyId: String(account.family_id),
+      ...(existingId ? { replaced_stripe_customer_id: existingId } : {}),
+    },
   })
   await pool.query(
     `UPDATE family_billing_account SET stripe_customer_id = $2, updated_at = now() WHERE id = $1`,
     [account.id, customer.id],
   )
+  account.stripe_customer_id = customer.id
   return customer.id
 }
 
